@@ -378,6 +378,7 @@ The Oil and energy tab embeds VesselFinder's free AIS map centred on the Strait 
 
 ## Betting minimums and parlays (hard rules, all AIs, from Oct 28 3:45 p.m. ET)
 - Every bet, parlay or prediction-market buy is at least C$3,000 (the 25% cap per bet still applies). If a betting balance falls below C$12,000, the minimum becomes 25% of what is left.
+- DAILY MINIMUM: wager at least C$3,000 every ET day across Sports and Predictions (one minimum bet is enough).
 - DAILY LIMIT (from Oct 28 5:15 p.m. ET): in Sports, the stakes on the games of any one ET day can total at most 25% of the bankroll; in Predictions, buys in one ET day can total at most 25% of the experiment's value. Not in All in. A bet counts toward the weekly minimum when it is placed.
 - With every buy, short, bet or parlay, also write one sentence on what would prove it wrong: Claude puts it in the trade's or bet's note as "What would prove it wrong: …".
 - Each AI must wager at least C$25,000 per betting week across Sports and Predictions combined (bets and parlays at their stake, plus prediction-market buys), and at least C$100,000 in total by Nov 28. Betting weeks (ET): Week 1 Oct 28 1:45 p.m. to Nov 3, Week 2 Nov 4-10, Week 3 Nov 11-17, Week 4 Nov 18-24, then final days Nov 25-28 (no weekly minimum, but the C$100,000 total must be reached). Progress is shown publicly on the Sports and Prediction markets tabs; a missed week shows "missed".

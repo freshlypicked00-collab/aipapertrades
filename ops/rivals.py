@@ -1080,7 +1080,7 @@ def betting_rule_line(state, mid):
     days = max(0.0, (datetime.fromisoformat(cur['end']) - NOW).total_seconds() / 86400)
     left = max(0.0, cur['min'] - cur['wagered'])
     return ('BETTING MINIMUMS (hard rules for every AI, Claude included): every bet, parlay or prediction-market buy is at least C$3,000 (if a betting balance falls below C$12,000 the minimum becomes 25% of what is left); '
-            'DAILY LIMIT: in Sports at most 25% of the bankroll can ride on the games of any one day, and in Prediction markets at most 25% of the balance can be bought in one day, so no one bets everything in a single night; '
+            'DAILY MINIMUM: wager at least C$3,000 every day (one bet at the minimum is enough); DAILY LIMIT: in Sports at most 25% of the bankroll can ride on the games of any one day, and in Prediction markets at most 25% of the balance can be bought in one day, so no one bets everything in a single night; '
             'a bet counts toward the weekly minimum as soon as it is placed, even before it settles; a calm pace is a few thousand dollars a day (about C$3,500 a day reaches C$25,000 a week); '
             f'you must wager at least C$25,000 each week across Sports and Prediction markets (bets and parlays plus prediction-market buys count), '
             f'and at least C$100,000 in total by Nov 28. {cur["week"]} runs to {datetime.fromisoformat(cur["end"]).astimezone(NY).strftime("%a %b %-d")}: '

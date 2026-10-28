@@ -31,6 +31,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main   # always the newest data: a queued run must not start from the commit it was triggered on
       - name: Test price feeds
         if: ${{ inputs.mode == 'prices' }}
         run: python3 ops/rivals.py --prices

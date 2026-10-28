@@ -4,7 +4,7 @@ Usage: python3 build_site.py <tracker_dir> <out_dir>
 Writes out_dir/index.html, out_dir/data.json, out_dir/CNAME, out_dir/.nojekyll
 """
 import json, os, re, sys
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 SRC, OUT = sys.argv[1], sys.argv[2]
 os.makedirs(OUT, exist_ok=True)
@@ -442,6 +442,12 @@ for _m in ('claude', 'gemini', 'chatgpt'):
         data['betmins'].append({'model': _m, 'week': _n, 'start': _a, 'end': _b, 'min': 25000 if _n.startswith('Week') else 0,
                                 'wagered': round(sum(v for a, v in _rs if _when(_a) <= _when(a) < _when(_b)), 2)})
     data['betmins'].append({'model': _m, 'week': 'Total', 'start': _W[0][1], 'end': _W[-1][2], 'min': 100000, 'wagered': round(sum(v for a, v in _rs), 2)})
+    # today (ET): at least C$3,000 a day, at most 25% of the bankroll on one day's games
+    from zoneinfo import ZoneInfo as _ZI
+    _ny = _ZI('America/New_York'); _d0 = datetime.now(_ny).replace(hour=0, minute=0, second=0, microsecond=0); _d1 = _d0 + timedelta(days=1)
+    if _d0 < _when(_W[-1][2]):
+        data['betmins'].append({'model': _m, 'week': 'Today', 'start': max(_d0, _when(_W[0][1])).isoformat(), 'end': _d1.isoformat(), 'min': 3000,
+                                'wagered': round(sum(v for a, v in _rs if _d0 <= _when(a) < _d1), 2)})
 # which experiments each AI leads right now (highest value of the three; ties lead nothing)
 _LBL = {'Stocks': 'Stocks', 'Crypto': 'Crypto', 'China': 'China stocks', 'Metals': 'Metals', 'Energy': 'Oil and energy', 'Options': 'Options',
         'Currencies': 'Currencies', 'Safe': 'Play it safe', 'Sports': 'Sports', 'Predictions': 'Prediction markets'}

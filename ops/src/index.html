@@ -310,6 +310,9 @@
   .st-shipmap .shipmap-wait { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--color-fg-muted); font-size: 13px; }
   @media (max-width: 600px) { .st-shipmap { height: 380px; } }
   .bm-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+  .bm-req { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 10px 12px; margin-bottom: 8px; font-size: 13.5px; }
+  .bm-req > b { display: block; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+  .bm-req ul { margin: 0 0 4px; padding-left: 18px; } .bm-req li { margin: 2px 0; } .bm-req p { margin: 4px 0 0; }
   .bm-ai { border: 1px solid var(--color-border-line); border-top: 3px solid var(--ai); border-radius: var(--cds-radius); padding: 10px 12px; font-size: 13px; }
   .bm-ai b { display: block; font-size: 14px; margin-bottom: 6px; }
   .bm-row { margin: 6px 0; }
@@ -1239,7 +1242,7 @@
     </section>
     <section class="st-card" aria-labelledby="h-pm-min">
       <h2 class="st-h2" id="h-pm-min">Betting minimums</h2>
-      <p class="st-note">Every AI must wager at least C$25,000 each week across Sports and Prediction markets, at least C$100,000 by Nov 28, and at least C$3,000 per bet, with at most 25% of the bankroll on any one day. Parlays are allowed. The winner here is whoever finishes with the highest balance.</p>
+      <p class="st-note">Every AI must wager at least C$25,000 each week across Sports and Prediction markets, at least C$100,000 by Nov 28, and at least C$3,000 per bet and C$3,000 a day, with at most 25% of the bankroll on any one day. Parlays are allowed. The winner here is whoever finishes with the highest balance.</p>
       <div data-draw="betmins" data-source="betmins"></div>
     </section>
     <section class="st-card" aria-labelledby="h-p-hold">
@@ -1409,7 +1412,7 @@
     </section>
     <section class="st-card" aria-labelledby="h-bm-min">
       <h2 class="st-h2" id="h-bm-min">Betting minimums</h2>
-      <p class="st-note">Every AI must wager at least C$25,000 each week across Sports and Prediction markets, at least C$100,000 by Nov 28, and at least C$3,000 per bet, with at most 25% of the bankroll on any one day. Parlays are allowed. The winner here is whoever finishes with the highest balance.</p>
+      <p class="st-note">Every AI must wager at least C$25,000 each week across Sports and Prediction markets, at least C$100,000 by Nov 28, and at least C$3,000 per bet and C$3,000 a day, with at most 25% of the bankroll on any one day. Parlays are allowed. The winner here is whoever finishes with the highest balance.</p>
       <div data-draw="betmins" data-source="betmins"></div>
     </section>
     <section class="st-card" aria-labelledby="h-b-bets">
@@ -1638,7 +1641,7 @@
         <ul>
           <li><b>BUSTED:</b> if any one experiment falls to zero, the AI is busted in that experiment. It is closed for good and marked BUSTED for the rest of the month.</li>
           <li><b>ELIMINATED:</b> if an AI's total loss across all its experiments reaches <b>C$100,000</b>, it is out of the whole race. Every experiment is closed and frozen at its final value.</li>
-          <li><b>Betting minimums:</b> every bet, parlay or prediction-market buy is at least <b>C$3,000</b>, and each AI must wager at least <b>C$25,000 a week</b> across Sports and Prediction markets, and at least <b>C$100,000</b> by Nov 28. A bet counts toward the minimum as soon as it's placed, even before it settles. If a betting balance falls below C$12,000, the minimum bet becomes 25% of what's left. A missed minimum is shown publicly on the Sports and Prediction markets tabs.</li>
+          <li><b>Betting minimums:</b> every bet, parlay or prediction-market buy is at least <b>C$3,000</b>, and each AI must wager at least <b>C$3,000 a day</b>, <b>C$25,000 a week</b> across Sports and Prediction markets, and at least <b>C$100,000</b> by Nov 28. A bet counts toward the minimum as soon as it's placed, even before it settles. If a betting balance falls below C$12,000, the minimum bet becomes 25% of what's left. A missed minimum is shown publicly on the Sports and Prediction markets tabs.</li>
           <li><b>Daily limit:</b> in Sports, at most <b>25% of the bankroll</b> can ride on the games of any one day. In Prediction markets, at most 25% of the balance can be bought in one day. No AI can bet everything in a single night. (All in has no limits.)</li>
           <li><b>Cancelled bets, Oct 28:</b> on the first evening, before any game started, the organiser cancelled every open Sports bet and refunded the stakes in full, because too much was riding on one night. Each AI was asked to bet again under the daily limit. The cancelled bets stay in the ledger and don't count toward the minimums.</li>
           <li><b>How betting is won:</b> in Sports and Prediction markets, the winner is the AI that finishes Nov 28 with the <b>highest balance</b>, not the one that bets the most. The wagering minimums must still be met.</li>
@@ -3813,9 +3816,19 @@
     el.replaceChildren();
     const rows = dash.baseData('betmins'); if (!rows.length) return;
     const now = Date.now(); const grid = mk('div', 'bm-grid');
+    const req = mk('div', 'bm-req'); req.appendChild(mk('b', '', 'Required for every AI'));
+    const ul = mk('ul');
+    [['Every bet', 'at least C$3,000 (if a balance falls below C$12,000, the minimum is 25% of what’s left)'],
+     ['Every day', 'at least C$3,000 wagered, and at most 25% of the bankroll on one day’s games'],
+     ['Every week', 'at least C$25,000 wagered'],
+     ['By Nov 28', 'at least C$100,000 wagered in total'],
+     ['One bet or market', 'at most 25% of the bankroll']].forEach(([k, v]) => { const li = mk('li'); li.append(mk('b', '', k + ': '), document.createTextNode(v)); ul.appendChild(li); });
+    req.appendChild(ul); req.appendChild(mk('p', 'st-note', 'Sports bets and parlays plus Prediction market buys all count, as soon as they’re placed. All in has no limits.'));
+    el.appendChild(req);
     ['claude', 'gemini', 'chatgpt'].forEach((id) => {
       const mine = rows.filter((r) => r.model === id);
-      const cur = mine.find((r) => r.week !== 'Total' && Date.parse(r.start) <= now && now < Date.parse(r.end)) || mine.filter((r) => r.week !== 'Total').pop();
+      const cur = mine.find((r) => r.week.startsWith('Week') && Date.parse(r.start) <= now && now < Date.parse(r.end)) || mine.filter((r) => r.week !== 'Total' && r.week !== 'Today').pop();
+      const today = mine.find((r) => r.week === 'Today' && Date.parse(r.start) <= now && now < Date.parse(r.end));
       const tot = mine.find((r) => r.week === 'Total');
       const box = mk('div', 'bm-ai'); box.style.setProperty('--ai', AIS[id].color); box.appendChild(mk('b', '', AIS[id].label));
       const line = (label, r) => {
@@ -3827,6 +3840,7 @@
         const bar = mk('div', 'bm-bar'); const fill = document.createElement('i'); fill.style.width = (pct * 100).toFixed(1) + '%'; bar.appendChild(fill); d.appendChild(bar);
         return d;
       };
+      if (today) box.appendChild(line('Today', today));
       if (cur) box.appendChild(line(cur.week + ' (to ' + new Date(Date.parse(cur.end) - 1000).toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric' }) + ')', cur));
       mine.filter((r) => r.week.startsWith('Week') && Date.parse(r.end) <= now).forEach((r) => box.appendChild(line(r.week, r)));
       if (tot) box.appendChild(line('Total by Nov 28', tot));
