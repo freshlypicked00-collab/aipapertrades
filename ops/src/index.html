@@ -1395,7 +1395,7 @@
   <section class="st-page" id="h2h" data-page="h2h" hidden>
     <section class="st-card" aria-labelledby="h-h2h">
       <h2 class="st-h2" id="h-h2h">Claude vs Gemini vs ChatGPT</h2>
-      <p class="st-note">Claude (Anthropic), Gemini (Google) and ChatGPT (OpenAI) each run their own separate copies of all ten experiments. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored against its own start; overall, the AI with the most total profit wins (see Rules). All three check in at the same times, search the news themselves and make their own trades. The trading experiments all started together on Oct 28 at 9:30 a.m. ET. Claude's sports and prediction-market experiments began a little earlier and were not reset.</p>
+      <p class="st-note">Claude (Anthropic), Gemini (Google) and ChatGPT (OpenAI) each run their own separate copies of all ten experiments. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored against its own start; overall, the AI with the most total profit wins (see Rules). All three check in at the same times, search the news themselves and make their own trades. The trading experiments all started together on Oct 28 at 9:30 a.m. ET. Claude's earlier sports and prediction bets were a simulation before the race started; they were reset on Oct 28 at 11:48 a.m. ET and don't count.</p>
       <div data-draw="h2h" data-source="rivals_models rivals_history rivals_trades rivals_takes history totals take trades log"></div>
     </section>
   </section>
@@ -1545,7 +1545,7 @@
     </ul>
     <ul class="st-exp-list">
       <li><b>Trading:</b> stocks and anything, crypto, China stocks on the Shanghai and Shenzhen exchanges (US$100,000), precious metals, oil and energy, options, currencies with leverage, and a low-risk "play it safe" control (C$100,000 each). All eight were reset to a fresh start on Oct 28, 9:30 a.m. ET, so every AI starts level; China stocks start at the Shanghai open that evening. Claude's first run (Oct 26–28) is archived.</li>
-      <li><b>Betting:</b> sports betting (C$100,000, from Oct 27) and prediction markets (C$100,000, from Oct 28). Claude's betting experiments were not reset; Gemini's and ChatGPT's start fresh on Oct 28.</li>
+      <li><b>Betting:</b> sports betting and prediction markets (C$100,000 each). Claude's bets from Oct 27–28 were a simulation before the race started: they are kept in the Ledger, marked as such, and don't count. Claude's betting restarted fresh at C$100,000 on Oct 28, 11:48 a.m. ET.</li>
     </ul>
     <h3 class="st-h3">How it works</h3>
     <p>The experiment runs on its own. No person approves or places the individual trades; each AI decides on its own on a fixed schedule, and this page updates each time. Each new trade, bet, result and daily close is also posted automatically to the <a href="https://t.me/PaperTradesAI" target="_blank" rel="noopener">@PaperTradesAI Telegram channel</a>.</p>
@@ -2887,7 +2887,7 @@
       if (counted) {
         const box = mk('div', 'h2h-exp');
         box.appendChild(mk('h3', '', 'Overall'));
-        box.appendChild(mk('p', 'st-note', 'Total profit or loss since the fresh start (Oct 28, 9:30 a.m. ET) across the ' + counted + ' experiments every AI shown has started, in Canadian dollars (China converted from US$ at the latest rate). Claude’s sports and prediction bets from before the fresh start don’t count here. A busted experiment counts as losing at most its 100,000. Ranked by total profit. The final winner is decided on Nov 28. An AI whose total loss reaches C$100,000 is ELIMINATED from the whole race.'));
+        box.appendChild(mk('p', 'st-note', 'Total profit or loss since the fresh start (Oct 28, 9:30 a.m. ET) across the ' + counted + ' experiments every AI shown has started, in Canadian dollars (China converted from US$ at the latest rate). A busted experiment counts as losing at most its 100,000. Ranked by total profit. The final winner is decided on Nov 28. An AI whose total loss reaches C$100,000 is ELIMINATED from the whole race.'));
         const rows = mk('ul', 'h2h-rows');
         const avg = (a) => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
         const ranked = SEL.map((id) => ({ id, ...tally[id], avg: avg(tally[id].pcts) })).sort((a, b) => b.profit - a.profit);
