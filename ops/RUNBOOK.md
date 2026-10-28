@@ -1,6 +1,6 @@
 # Paper Trades: UPDATE ALL runbook
 
-Paper Trades is a one-month paper-trading experiment (Oct 28 to Nov 28, 2026; the trading experiments had a fresh start Oct 28, the betting experiments began Oct 27). An AI
+Paper Trades is a one-month paper-trading race (Oct 28 to Nov 28, 2026) between Claude (Anthropic), Gemini (Google) and ChatGPT (OpenAI). Every experiment of every AI restarted at 100,000 on Oct 28 at 1:45 p.m. ET (see RESTART below). Each AI
 runs ten separate simulations with real-world prices, each with its own starting money:
 - Trading: **Stocks** (anything, C$100,000), **Crypto** (C$100,000), **China** (Shanghai and
   Shenzhen stocks, US$100,000, counted in US dollars), **Metals** (C$100,000), **Energy**,
@@ -14,7 +14,7 @@ given in the task prompt.
 **The ten are separate experiments.** Each started with its own C$100,000 (US$100,000 for China)
 and is judged only against that amount and its own benchmark. Each experiment is never merged into one portfolio, never
 managed as one pot, and never described as one C$1,000,000 portfolio in the log,
-the ledger, the self-assessment or anywhere else. The one exception: the overall AI-vs-AI race is ranked by total profit in C$ since the Oct 28 9:30 a.m. ET fresh start across all ten (China converted from US$; Claude's pre-fresh-start Sports and Predictions results don't count; a busted experiment counts as losing at most its 100,000), shown in the Overall section of the AI vs AI tab.
+the ledger, the self-assessment or anywhere else. The one exception: the overall AI-vs-AI race is ranked by total profit in C$ since the Oct 28 1:45 p.m. ET restart across all ten (China converted from US$; the morning tuning run and the earlier practice bets don't count; a busted experiment counts as losing at most its 100,000), shown in the Overall section of the AI vs AI tab.
 
 An **UPDATE ALL** checks every portfolio: fresh prices, results, rules, trades,
 then publishes everything. It runs every hour.
@@ -161,7 +161,9 @@ judgment: at most 6 such news runs a day, and none for routine moves. Mark new b
 major earnings for held names, key data, election night, market opens with planned orders) with
 `extra_run` when you add them.
 
-## Opening orders, Wed Oct 28 — FRESH START (all eight trading experiments)
+## HISTORY ONLY (superseded by the 1:45 p.m. RESTART below): Opening orders, Wed Oct 28 — first fresh start
+This section describes the 9:30 a.m. fresh start that became the morning tuning run. Do not act on it; follow the RESTART section.
+
 
 At 4:40 a.m. ET on Oct 28 the owner reset every trading experiment (Stocks, Crypto, China, Metals,
 Energy, Options, Currencies, Safe) to 100,000 in cash (C$100,000; China US$100,000) so Claude and
@@ -333,10 +335,10 @@ Trading experiments: no single holding or currency position may be more than 50%
 If an AI's TOTAL profit across all its experiments (C$, China converted from US$ at the latest rate) reaches -C$100,000 or worse, that AI is ELIMINATED from the whole race: every experiment is closed and frozen at once, no more trades or bets, announced loudly on Telegram and marked on the site. For Claude: check this at every run after valuing; if it happens, post the elimination, stop trading, and only keep the site's prices updated.
 
 ## AI vs AI (Gemini and ChatGPT)
-- The owner chose to name the models on the AI vs AI tab, in the Model menu, in Telegram posts and in the About section: Claude (Anthropic) vs Gemini (Google) vs ChatGPT (OpenAI). Elsewhere keep "an AI model" / "the AI" for Claude's own wording.
-- Fresh start: all trading experiments restarted Oct 28, 9:30 a.m. ET for every model (China at the Shanghai open). Claude's betting experiments (Sports, Predictions) were reset to C$100,000 on Oct 28, 11:48 a.m. ET (15:48 UTC); the earlier bets were a simulation before the race started, labelled in the ledger and archived in ops/archive/2026-10-28-1548-before-betting-reset. They do not count. Start new bets from there. 
-- Gemini and ChatGPT each play all ten experiments (Options via Cboe quotes and OCC symbols, Currencies with up to 4x leverage, Play it safe limited to a list of low-risk funds, Sports moneylines from ESPN odds, Predictions on Polymarket). Each also writes its own watchlist for the Coming up table. They are run by `.github/workflows/rivals.yml` and `ops/rivals.py` at the same times as Claude's scheduled runs (hourly at :13, :43 during US hours, the US and Shanghai opens and closes). Gemini uses the Gemini API (paid tier, newest Pro model first, falls back to Flash); ChatGPT uses OpenAI's newest GPT model through OpenRouter (`OPENROUTER_API_KEY`) or the OpenAI API (`OPENAI_API_KEY`). US-listed orders fill only in US market hours, China only in Shanghai hours, nothing before the fresh start. Fills are at live Yahoo Finance / Polymarket prices.
-- Each rival writes its own words: trade reasons, a take, one note per experiment per run, and a daily report card with grades (asked at the first run after 00:00 UTC). These and its daily close are posted to Telegram under its own name.
+- The owner chose to name the models everywhere on the site and in Telegram: Claude (Anthropic, model Claude Opus 5.5) vs Gemini (Google) vs ChatGPT (OpenAI).
+- Restart: every experiment of every model (betting included) restarted at 100,000 on Oct 28, 1:45 p.m. ET (China at the Shanghai open). Claude's Oct 27-28 practice bets and the morning tuning run are labelled in the ledger, archived in ops/archive/, and do not count.
+- Gemini and ChatGPT each play all ten experiments (Options via Cboe quotes and OCC symbols, Currencies with up to 4x leverage, Play it safe limited to a list of low-risk funds, Sports moneylines from ESPN odds, Predictions on Polymarket). Each also writes its own watchlist for the Coming up table. They are run by `.github/workflows/rivals.yml` and `ops/rivals.py` at the same times as Claude's scheduled runs (hourly at :13, :43 during US hours, the US and Shanghai opens and closes). Gemini uses the Gemini API (paid tier, newest Pro model first, falls back to Flash); ChatGPT uses OpenAI's newest GPT model through OpenRouter (`OPENROUTER_API_KEY`) or the OpenAI API (`OPENAI_API_KEY`). US-listed orders fill only in US market hours, China only in Shanghai hours, nothing before the 1:45 p.m. ET Oct 28 restart. Fills are at live Yahoo Finance / Polymarket prices.
+- Each rival writes its own words: trade reasons, a take, plans, a profile, one note per experiment per run, and a daily report card with grades (asked at the first run after 00:00 UTC). On Telegram only its trades, sells, bets and results are posted; everything else is on the site.
 - SAME MOMENT: at the START of every run (scheduled or extra, before you look anything up), start a rival check-in so Gemini and ChatGPT check in at the same moment as you:
   `gh api -X POST repos/freshlypicked00-collab/aipapertrades/actions/workflows/rivals.yml/dispatches -f ref=main -f 'inputs[mode]=run'`
   (if it fails, note it in your report and carry on; GitHub's own schedule is a backup that only runs when no check-in happened in the last 35 minutes). Don't start one in the daily accuracy check.
