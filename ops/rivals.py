@@ -1264,7 +1264,7 @@ def claude_allin(state, fx):
         except Exception:
             pass
     if NOW >= RACE_END:
-        freeze_final(state, 'claude', ALLIN, {e: value_book(e, c['books'][e], fx, notes) for e in ALLIN})
+        freeze_final(state, 'claude', ALLIN, frozen_values(state, 'claude', c['books'], ALLIN, fx, notes))
         return
     for e in ALLIN:
         v = value_book(e, c['books'][e], fx, notes)
@@ -1274,6 +1274,13 @@ def claude_allin(state, fx):
             b['busted'] = iso()
             b['positions'], b['cash'] = {}, 0.0
             tg(f"{head}\n💥 <b>BUSTED in {EXP_LABEL[e]}</b>\nClaude lost the whole 100,000 in this High risk, high reward experiment. (It does not count in the main race.)\n{SITE}", silent=False)
+
+
+def frozen_values(state, mid, books, exps, fx, notes):
+    """Current values; after the final snapshot, the frozen ones (only Sports, whose late bets may still settle, is
+    recomputed). Valuing a book updates its positions' last prices, so frozen books are not touched at all."""
+    fv = (state.get('final', {}).get(mid) or {}).get('values', {}) if NOW >= RACE_END else {}
+    return {e: fv[e] if e in fv and BASE.get(e, e) != 'Sports' else value_book(e, books[e], fx, notes) for e in exps}
 
 
 def freeze_final(state, mid, exps, values):
@@ -1293,7 +1300,7 @@ def compact(state):
     """Keep rivals.json small over a month of runs (about 1,400 check-ins). Rows older than 3 days are thinned:
     history keeps the last value per AI, experiment and hour (plus each first row and the final rows); thoughts keep the last
     note per AI, experiment and day. Dropped notes are appended to ops/archive/thoughts.jsonl, so nothing is lost."""
-    cut = iso(NOW - timedelta(days=3))
+    cut = iso(min(NOW, RACE_END) - timedelta(days=3))   # fixed after the end, so the final state stops changing
     hist = state.get('history', [])
     keep, seen_first, last_in_hour = [], set(), {}
     for i, h in enumerate(hist):
@@ -1342,12 +1349,20 @@ def main():
         assert g
         return
     state = load_state()
-    if os.environ.get('EVENT') == 'schedule':
-        # GitHub's own schedule is only a safety net: Claude's runs start the rival check-in at the same moment.
+    if NOW >= RACE_END and state.get('final') and all(mid in state['final'] for mid in list(state.get('models', {})) + ['claude']):
+        books = [b for m in state.get('models', {}).values() for b in m.get('books', {}).values()] + list(state.get('claude_allin', {}).get('books', {}).values())
+        if not any(x['status'] == 'Open' for b in books for x in b.get('bets', [])):
+            print('the race is over and every bet is settled; nothing left to do')
+            return
+    # No double check-ins (each one costs API credit): GitHub's own schedule is only a safety net, since Claude's runs start
+    # a rival check-in at the same moment. A scheduled run skips if a check-in ran in the last 20 minutes, a dispatched one
+    # in the last 10 (a Claude run and a late GitHub schedule often land a few minutes apart). Mode "force" always runs.
+    if os.environ.get('MODE') != 'force':
         lasts = [datetime.fromisoformat(m['last_run']['at'].replace('Z', '+00:00')) for m in state.get('models', {}).values() if m.get('last_run')]
         final_due = NOW >= RACE_END and not all(m in state.get('final', {}) for m in state.get('models', {}))
-        if lasts and NOW - max(lasts) < timedelta(minutes=20) and not final_due:
-            print('a check-in ran in the last 20 minutes; skipping this scheduled backup run')
+        window = timedelta(minutes=20 if os.environ.get('EVENT') == 'schedule' else 10)
+        if lasts and NOW - max(lasts) < window and not final_due:
+            print(f'a check-in ran {int((NOW - max(lasts)).total_seconds() // 60)} minutes ago; skipping this run (no double check-ins)')
             return
     try:
         fx = get_fx()
@@ -1396,11 +1411,13 @@ def main():
             settled += settle_options(mid, m['books']['AllInTrading'], fx, state, 'AllInTrading')
         for t in settled:
             tg_trade(r['label'], t, None, chart(r['label'], r['color'], t['experiment'], state, mid))
-        values = {e: value_book(e, m['books'][e], fx, notes) for e in exps}
+        values = frozen_values(state, mid, m['books'], exps, fx, notes)
         if NOW >= RACE_END:
             freeze_final(state, mid, exps, values)
-            m['last_run'] = {'at': iso(), 'status': 'final', 'notes': ['the race has ended: values are frozen at the final scoring (Nov 28, 4:00 p.m. ET)'],
-                             'sources': [], 'orders': 0, 'search': []}
+            if (m.get('last_run') or {}).get('status') != 'final':
+                m['last_run'] = {'at': iso(), 'status': 'final', 'notes': ['the race has ended: values are frozen at the final scoring (Nov 28, 4:00 p.m. ET)'],
+                                 'sources': [], 'orders': 0, 'search': []}
+                m['fail_streak'] = 0
             ran.append(f"{r['label']}: final, " + ', '.join(f'{e} {money(state["final"][mid]["values"][e], m["books"][e]["cur"])}' for e in exps))
             continue
         status, take, sources, made = 'ok', None, [], []
@@ -1614,6 +1631,17 @@ def main():
         ran.append(f"{r['label']} ({m.get('model')}): {status}, {len(made)} trade(s), " + ', '.join(f'{e} {money(values[e], m["books"][e]["cur"])}' for e in exps))
     if not ran:
         print('no rival API keys set; nothing to do')
+        return
+    if NOW >= RACE_END:   # after the end, write only what really changed (final values, late bet results)
+        try:
+            compact(state)
+        except Exception as e:
+            print('compact failed', e)
+        tmp = STATE + '.tmp'
+        with open(tmp, 'w') as f:
+            json.dump(state, f, indent=1)
+        os.replace(tmp, STATE)
+        print('\n'.join(ran))
         return
     state['fx'] = fx
     allfx = {'USD': 1.0}

@@ -317,6 +317,16 @@ Currencies score at the Friday Nov 27, 5:00 p.m. ET close of the forex week. Met
 Friday close of gold and silver. Crypto, Predictions and Sports score at Nov 28, 4:00 p.m. ET; settle or
 void any remaining bets. Add a final log entry per experiment and a final "AI's take", then stop trading.
 
+Gemini and ChatGPT are frozen automatically by ops/rivals.py: a run at 4:01 p.m. ET Nov 28 records their final values
+(`final` in rivals.json); after that no orders are accepted, prices no longer move their books, and only bets on games that
+started before 4:00 p.m. ET still settle. Bets on games starting after the end are refused beforehand. Never edit rivals.json.
+
+FINAL RUN (scheduled task "Paper Trades: FINAL scoring", Sat Nov 28, 4:25 p.m. ET): checks that the rivals' `final` entry exists
+(if not, dispatch the rivals workflow with mode `force` and wait), completes Claude's final scoring if a run after 4:00 p.m.
+ET has not already done it, writes the final Race Report entry ("Final result": the final standings by total profit in C$,
+who led each experiment, betting minimums met or missed, any busted or eliminated AI, the All in side race in one line),
+posts the result once to Telegram (mode `note`), and then turns off the recurring Paper Trades scheduled tasks.
+
 ## Race Report (top of the site)
 `ops/src/report.json` holds the Race Report: a short story of what has happened across all three AIs, newest last. Add a new entry 2 to 3 times a day when there is real news (after the open, after a big event or the US close, after the daily close), with `at` (ET ISO time), `title` ("Day N, morning: ...") and `body` (3 to 6 short paragraphs). Read Gemini's and ChatGPT's trades and takes from `ops/src/rivals.json` for it (read only). Be fair and factual about all three, including Claude's own mistakes; quote the other AIs' reasons rather than judging their character; no hype. The overall race is ranked by total profit in C$ across all experiments (China converted from US$); quote that total and also how many experiments each AI leads. Keep every old entry: always append, never edit or delete past reports, so every day stays readable on the site (visitors pick the day and report from menus).
 
@@ -341,7 +351,7 @@ If an AI's TOTAL profit across all its experiments (C$, China converted from US$
 - Each rival writes its own words: trade reasons, a take, plans, a profile, one note per experiment per run, and a daily report card with grades (asked at the first run after 00:00 UTC). On Telegram only its trades, sells, bets and results are posted; everything else is on the site.
 - SAME MOMENT: at the START of every run (scheduled or extra, before you look anything up), start a rival check-in so Gemini and ChatGPT check in at the same moment as you:
   `gh api -X POST repos/freshlypicked00-collab/aipapertrades/actions/workflows/rivals.yml/dispatches -f ref=main -f 'inputs[mode]=run'`
-  (if it fails, note it in your report and carry on; GitHub's own schedule is a backup that only runs when no check-in happened in the last 35 minutes). Don't start one in the daily accuracy check.
+  (if it fails, note it in your report and carry on; GitHub's own schedule is a backup that only runs when no check-in happened in the last 20 minutes, and any check-in is skipped if another ran in the last 10 minutes, so two never run back to back; use `-f 'inputs[mode]=force'` only when a check-in must run anyway). Don't start one in the daily accuracy check.
 - Scheduled runs must NOT edit `ops/src/rivals.json` or trade for the rivals. Just keep it when rebuilding (build_site.py reads it). If `git pull --rebase` conflicts on index.html or data.json, take the latest origin version and rebuild.
 - The daily accuracy check may read rivals.json and report anything odd (a price far off, a refused-order pattern, `last_run.status` errors) in its report, but changes nothing there.
 

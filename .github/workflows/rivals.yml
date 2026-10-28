@@ -17,10 +17,10 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'run = a normal hourly run; prices = only test the price feeds'
+        description: 'run = a normal check-in (skipped if one ran in the last 10 minutes); force = check in even so; prices = only test the price feeds; ask = feedback or review, no trading'
         default: run
         type: choice
-        options: [run, prices, ask]
+        options: [run, force, prices, ask]
       name:
         description: 'ask mode only: name of the answers file in ops/review'
         default: answers
@@ -80,6 +80,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           EVENT: ${{ github.event_name }}
+          MODE: ${{ inputs.mode }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
