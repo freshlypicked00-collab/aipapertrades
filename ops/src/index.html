@@ -34,7 +34,7 @@
   .st-dot { flex: none; width: 14px; height: 14px; margin-top: 5px; border-radius: 50%; background: var(--color-bad); box-shadow: 0 0 0 4px rgba(220, 50, 40, .22); }
   @media (prefers-reduced-motion: no-preference) {
     .st-dot { animation: st-pulse 1.8s ease-in-out infinite; }
-    @keyframes st-pulse { 0%, 100% { box-shadow: 0 0 0 3px rgba(220, 50, 40, .28); } 50% { box-shadow: 0 0 0 9px rgba(220, 50, 40, .05); } }
+    @keyframes st-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
   }
   .st-trig { display: flex; flex-direction: column; gap: 10px; }
   .st-trow { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.3fr) minmax(70px, 1fr) 7.5rem; gap: 12px; align-items: center; font-size: var(--cds-font-size-body); }
@@ -194,7 +194,7 @@
   .st-take { margin: 6px 0 0; font-size: 16px; line-height: 1.5; max-width: 85ch; border-left: 3px solid var(--color-warn); padding: 4px 0 4px 12px; }
   .st-take-l { display: block; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-warn); margin-bottom: 2px; }
   .st-take q { quotes: "\201C" "\201D"; }
-  .st-take-when { color: var(--color-fg-muted); font-size: 13px; white-space: nowrap; }
+  .st-take-when { color: var(--color-fg-muted); font-size: 13px; overflow-wrap: anywhere; }
   .st-score { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
   .st-score-h { margin: 0; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-warn); font-weight: 600; }
   .st-score-h span { margin-left: 8px; letter-spacing: 0; text-transform: none; color: var(--color-fg-muted); font-weight: 400; font-size: 13px; }
@@ -349,6 +349,7 @@
   .st-podium:empty { display: none; }
   .st-podium { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 12px 14px; background: var(--color-panel); align-self: start; }
   .st-podium h2 { margin: 0 0 2px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  .st-podium .pd-pick { font: inherit; font-size: 13px; margin: 4px 0 6px; padding: 6px 8px; min-height: 36px; width: 100%; background: var(--color-panel); color: var(--color-fg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
   .st-podium p.pd-note { margin: 0 0 8px; font-size: 12px; color: var(--color-fg-muted); }
   .st-podium ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
   .st-podium li button { width: 100%; display: grid; grid-template-columns: 64px 1fr auto; align-items: center; gap: 8px; font: inherit; color: var(--color-fg); background: transparent; border: 1px solid var(--color-border-line); border-left: 4px solid var(--ai); border-radius: var(--cds-radius); padding: 8px 10px; cursor: pointer; text-align: left; min-height: 44px; }
@@ -453,7 +454,7 @@
     </nav>
   <div class="st-head st-head2">
     <div class="st-hook">
-      <aside class="st-podium" data-draw="podium" data-source="standings" aria-label="Race standings"></aside>
+      <aside class="st-podium" data-draw="podium" data-source="exp_standings" aria-label="Race standings"></aside>
       <p class="st-hook-q">Which AI makes the most money in real markets?</p>
       <p class="st-hook-sub" id="hook-sub">Claude, Gemini and ChatGPT trade head to head from Oct 28 to Nov 28. Each AI runs its own separate copy of all ten experiments with C$100,000 of pretend money each and real-world prices. They are being tested publicly, in real time: every trade, bet and reason is published here as it happens, win or lose. Each AI makes every decision by itself, with no human picking trades, and this page is managed and updated automatically by AI.</p>
       <p class="st-take"><span class="st-take-l">Claude's current take</span><span data-draw="take" data-source="take">—</span></p>
@@ -1911,7 +1912,7 @@
         const t = totals.find((r) => r.portfolio === (i.portfolio || 'Stocks'));
         const rate = i.kind === 'rate';
         const ready = rate ? !!i.start_at : i.start_level && i.now_level;
-        const index_value = !ready ? null : rate ? 100000 * (1 + Number(i.rate) * Math.max(0, Date.now() - new Date(i.start_at)) / (365 * 864e5))
+        const index_value = !ready ? null : rate ? 100000 * (1 + Number(i.rate) * Math.max(0, Math.min(Date.now(), Date.parse('2026-11-28T21:00:00Z')) - new Date(i.start_at)) / (365 * 864e5))
           : 100000 / Number(i.fx_start) / Number(i.start_level) * Number(i.now_level) * Number(i.fx_now);
         return { id: i.id, portfolio: i.portfolio || 'Stocks', index: i.index, value: t ? t.value : null, index_value, diff: t && ready ? t.value - index_value : null };
       });
@@ -3328,7 +3329,8 @@
     };
     const scan = () => {
       document.querySelectorAll('#dash-root p, #dash-root li, #dash-root td, #dash-root .st-plan, #dash-root blockquote').forEach((el) => {
-        if (el.dataset.say || el.closest(SKIP) || el.offsetParent === null || el.querySelector('#theme-btn, #lang-pick, .st-count')) return;
+        if (el.dataset.say || el.dataset.sayChecked === (el.textContent.length + '') || el.closest(SKIP) || el.offsetParent === null || el.querySelector('#theme-btn, #lang-pick, .st-count')) return;
+        el.dataset.sayChecked = el.textContent.length + '';   // don't re-check unchanged text
         const own = !!el.querySelector(NESTED);   // inner paragraphs carry their own buttons; this one reads only its own text
         const n = words(textOf(el, own));
         const isP = el.tagName === 'P';
@@ -3338,7 +3340,7 @@
     };
     let q = null;
     const later = () => { if (q) return; q = setTimeout(() => { q = null; try { scan(); } catch (e) {} }, 250); };
-    const start = () => { const root = document.getElementById('dash-root') || document.body; new MutationObserver(later).observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden'] }); later(); };
+    const start = () => { const root = document.getElementById('dash-root') || document.body; new MutationObserver((ms) => { if (ms.some((m) => !(m.target.closest && m.target.closest('.st-progress, header, .say-btn')))) later(); }).observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden'] }); later(); };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
     window.addEventListener('pagehide', stopSay);
   })();
@@ -3798,17 +3800,30 @@
   });
   dash.draw('podium', (el) => {
     el.replaceChildren();
-    const rows = dash.baseData('standings'); if (!rows || !rows.length) return;
+    const all = dash.baseData('exp_standings'); const ES = Array.isArray(all) ? all[0] : all;
+    if (!ES) return;
+    const EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'];
+    if (!el._exp) { try { el._exp = localStorage.getItem('pt-pod-exp') || 'Stocks'; } catch (e) { el._exp = 'Stocks'; } }
     el.appendChild(mk('h2', '', 'Race standings'));
-    el.appendChild(mk('p', 'pd-note', 'Total profit since the Oct 28 restart, all ten experiments, and the experiments each AI is leading. Tap one to view it.'));
+    const sel = mk('select', 'pd-pick'); sel.setAttribute('aria-label', 'Choose the race');
+    EXPS.forEach((e) => { const o = mk('option', '', LABEL[e] || e); o.value = e; if (e === el._exp) o.selected = true; sel.appendChild(o); });
+    sel.addEventListener('change', () => { el._exp = sel.value; try { localStorage.setItem('pt-pod-exp', sel.value); } catch (e) {} dash.redraw ? dash.redraw() : null; });
+    el.appendChild(sel);
+    const cur = el._exp === 'China' ? 'US$' : 'C$';
+    el.appendChild(mk('p', 'pd-note', 'Each race is separate. Profit since the Oct 28 restart and what each AI holds now. Tap one to view it.'));
+    const rows = ES[el._exp] || [];
+    if (!rows.length) { el.appendChild(mk('p', 'pd-note', 'No results yet.')); return; }
     const ol = mk('ol');
     rows.forEach((r, i) => {
-      const li = mk('li'); const b = mk('button'); b.type = 'button'; b.style.setProperty('--ai', AIS[r.id].color);
-      if (dash.model === r.id) b.setAttribute('aria-current', 'true');
-      b.append(mk('span', 'pd-place', i === 0 ? '👑 1st' : ['1st', '2nd', '3rd'][i] || (i + 1) + 'th'), (() => { const n = mk('span', 'pd-name'); const w = mk('span', 'pd-who'); w.append(aiBadge(r.id, 20), document.createTextNode(AIS[r.id].label)); n.appendChild(w); n.appendChild(mk('small', 'pd-leads', (r.leads && r.leads.length) ? 'Leads ' + r.leads.join(', ') : 'Leads no experiment yet')); return n; })());
-      const a = mk('span', 'pd-amt', (r.total >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(r.total))); tone(a, r.total); b.appendChild(a);
-      b.addEventListener('click', () => { const s = document.getElementById('model-pick'); if (s) { s.value = r.id; s.dispatchEvent(new Event('change')); } });
-      li.appendChild(b); ol.appendChild(li);
+      const li = mk('li'); const bt = mk('button'); bt.type = 'button'; bt.style.setProperty('--ai', AIS[r.id].color);
+      if (dash.model === r.id) bt.setAttribute('aria-current', 'true');
+      const n = mk('span', 'pd-name'); const w = mk('span', 'pd-who'); w.append(aiBadge(r.id, 20), document.createTextNode(AIS[r.id].label)); n.appendChild(w);
+      const tag = r.eliminated ? 'Eliminated · ' : r.busted ? 'BUSTED · ' : '';
+      n.appendChild(mk('small', 'pd-leads', tag + (r.holds && r.holds.length ? 'Holds ' + r.holds.slice(0, 3).join(', ') + (r.holds.length > 3 ? ' +' + (r.holds.length - 3) + ' more' : '') : 'All cash')));
+      bt.append(mk('span', 'pd-place', i === 0 ? '👑 1st' : ['1st', '2nd', '3rd'][i] || (i + 1) + 'th'), n);
+      const am = mk('span', 'pd-amt', (r.profit >= 0 ? '+' : '−') + cur + d3.format(',.0f')(Math.abs(r.profit))); tone(am, r.profit); bt.appendChild(am);
+      bt.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2) { s2.value = r.id; s2.dispatchEvent(new Event('change')); } });
+      li.appendChild(bt); ol.appendChild(li);
     });
     el.appendChild(ol);
   });

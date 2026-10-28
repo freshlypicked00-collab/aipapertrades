@@ -131,7 +131,7 @@ def build(rivals, claude):
             d['log'].append({'at': lr['at'], 'portfolio': 'All', 'action': 'Check-in', 'detail': f"Check-in ({m.get('model') or m['label']})."})
         d['log'].sort(key=lambda r: _t(r['at']))
         d['review'] = [{'at': x['at'], 'portfolio': x['experiment'], 'grade': x['grade'], 'text': x['text']} for x in rivals.get('reviews', []) if x['model'] == mid]
-        d['plans'] = [x for x in rivals.get('plans', []) if x['model'] == mid]
+        d['plans'] = list({x['horizon']: x for x in rivals.get('plans', []) if x['model'] == mid}.values())
         d['take'] = [{'at': x['at'], 'text': x['text']} for x in rivals.get('takes', []) if x['model'] == mid]
         d['sources'] = [{'title': s['title'], 'url': s['url'], 'portfolios': exps} for s in lr.get('sources', [])]
 

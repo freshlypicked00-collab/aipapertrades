@@ -329,7 +329,7 @@ SHIM = r"""
           const sig = (j) => JSON.stringify([j.history, j.rivals_history, j.trades, j.rivals_trades, j.allin_history]).length + ':' + JSON.stringify(j.history).slice(-80) + JSON.stringify(j.rivals_history).slice(-80);
           if (!json || !base || sig(json) === sig(base)) return;
           const old = base; base = json; Object.assign(raw, json);
-          const m = api.model; if (m !== 'claude' && json.models && json.models[m]) api.useModel(m); else runAll();
+          const m = api.model; Object.keys(cache).forEach((k) => delete cache[k]); if (m !== 'claude' && json.models && json.models[m]) api.useModel(m); else runAll();
           try { if (window.ptOnData) window.ptOnData(old, json); } catch (e) { console.error(e); }
         }).catch(() => {});
       }, 60 * 1000);
@@ -432,7 +432,10 @@ data['checkins'] = ([{'id': 'claude', 'at': _cl.isoformat() if _cl else None, 's
                     [{'id': k, 'at': (v.get('last_run') or {}).get('at'), 'status': (v.get('last_run') or {}).get('status', '')} for k, v in r['models'].items()])
 data['geo'] = [json.load(open(os.path.join(SRC, 'geo.json')))] if os.path.exists(os.path.join(SRC, 'geo.json')) else []
 data['profiles'] = data['profile'] + r.get('profiles', [])
-data['rivals_plans'] = r.get('plans', [])
+_lp = {}
+for _p in r.get('plans', []):
+    _lp[(_p.get('model'), _p.get('horizon'))] = _p   # the site shows only the newest plan per AI and horizon
+data['rivals_plans'] = list(_lp.values())
 # Betting minimums (no weekly minimum since Oct 28, 5:30 p.m. ET): C$3,000 a day and C$100,000 in total by Nov 28 for every AI.
 # The daily minimum becomes 25% of the betting balance (Sports bankroll + Predictions value) once that is under C$12,000.
 from zoneinfo import ZoneInfo as _ZI
@@ -498,6 +501,31 @@ for _e, _lab in _LBL.items():
             if _s['id'] == _who[0]:
                 _s['leads'].append(_lab)
 data['standings'] = STANDINGS
+# Race standings per experiment (each race is separate): value now, profit since the restart, and what each AI holds
+_FS = datetime(2026, 10, 28, 17, 45, tzinfo=timezone.utc)
+_EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
+_es = {e: [] for e in _EXPS}
+def _lastv(rows):
+    rows = sorted(rows, key=lambda x: _when(x[0]))
+    pre = [v for a, v in rows if _when(a) <= _FS]
+    return (rows[-1][1] if rows else None), (pre[-1] if pre else 100000.0)
+for _e in _EXPS:
+    v, b0 = _lastv([(h['at'], float(h['value'])) for h in data['history'] if h['portfolio'] == _e])
+    if v is not None:
+        held = [h['holding'] for h in data['holdings'] if h['portfolio'] == _e and float(h.get('value_cad') or 0) > 0.5 and not str(h['holding']).startswith('Cash')]
+        held += [f"{b['pick']} ({b['event']})" for b in data['bets'] if _e == 'Sports' and b.get('status') == 'Open']
+        _es[_e].append({'id': 'claude', 'value': round(v, 2), 'profit': round(max(v, 0) - b0, 2), 'holds': held[:20]})
+    for _mid, _m in (r.get('models') or {}).items():
+        v, _ = _lastv([(h['at'], float(h['value'])) for h in r.get('history', []) if h['model'] == _mid and h['experiment'] == _e])
+        bk = (_m.get('books') or {}).get(_e)
+        if v is None or not bk:
+            continue
+        held = [q.get('name') or k for k, q in bk.get('positions', {}).items() if abs(q.get('qty', 0)) > 1e-9]
+        held += [f"{b['pick_team']} ({b['event']})" for b in bk.get('bets', []) if b['status'] == 'Open']
+        _es[_e].append({'id': _mid, 'value': round(v, 2), 'profit': round(max(v, 0) - 100000.0, 2), 'holds': held[:20],
+                        'busted': bool(bk.get('busted')), 'eliminated': bool(_m.get('eliminated'))})
+    _es[_e].sort(key=lambda x: -x['value'])
+data['exp_standings'] = _es
 data['leader'] = LEADER   # the AI leading the race on total profit; the page opens on it unless the viewer picked one
 data['rivals_thoughts'] = [x for x in r.get('thoughts', []) if x['at'].replace('Z', '+00:00') >= _cut]
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
