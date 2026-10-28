@@ -422,7 +422,7 @@ r = json.load(open(rv)) if os.path.exists(rv) else {'models': {}, 'trades': [], 
 data['rivals_models'] = [{'id': k, **{x: v.get(x) for x in ('label', 'company', 'model', 'started', 'exps', 'last_run')}, 'books': v['books']} for k, v in r['models'].items()]
 for k in ('trades', 'history', 'takes'):
     data['rivals_' + k] = r[k]
-_cut = (datetime.now(timezone.utc) - __import__('datetime').timedelta(days=2)).isoformat()
+_cut = (min(datetime.now(timezone.utc), datetime(2026, 11, 28, 21, 0, tzinfo=timezone.utc)) - __import__('datetime').timedelta(days=2)).isoformat()   # stops moving after the race
 data['fx_all'] = [{'cur': k, 'per_usd': v} for k, v in (r.get('fx_all') or {}).items()]
 data['fx_meta'] = [json.load(open(os.path.join(SRC, 'fx.json')))]
 _ai = [{'id': 'claude', 'started': (r.get('claude_allin') or {}).get('started'), 'books': (r.get('claude_allin') or {}).get('books', {})}] if r.get('claude_allin') else []
@@ -439,8 +439,9 @@ data['geo'] = [json.load(open(os.path.join(SRC, 'geo.json')))] if os.path.exists
 data['profiles'] = data['profile'] + r.get('profiles', [])
 _lp = {}
 for _p in r.get('plans', []):
-    _lp[(_p.get('model'), _p.get('horizon'))] = _p   # the site shows only the newest plan per AI and horizon
+    _lp[(_p.get('model'), _p.get('experiment'), _p.get('horizon'))] = _p   # the site shows only the newest plan per AI, race and card
 data['rivals_plans'] = list(_lp.values())
+data['plans'] = list({(x.get('experiment'), x.get('horizon')): x for x in data.get('plans', [])}.values())   # Claude's: newest per race and card
 # Betting minimums (no weekly minimum since Oct 28, 5:30 p.m. ET): C$3,000 a day and C$100,000 in total by Nov 28 for every AI.
 # The daily minimum becomes 25% of the betting balance (Sports bankroll + Predictions value) once that is under C$12,000.
 from zoneinfo import ZoneInfo as _ZI
@@ -455,13 +456,13 @@ for _t in r.get('trades', []):
         _rows.setdefault(_t['model'], []).append((_t['at'], float(_t.get('amount') or 0)))
 def _betbal(mid):
     if mid == 'claude':
-        sp = 100000.0 + sum(float(b.get('result_cad') or 0) for b in data['bets'] if b.get('status') not in ('Open', None))
+        sp = 100000.0 + sum(float(b.get('result_cad') or 0) for b in data['bets'] if b.get('status') not in ('Open', None)) - sum(float(x['amount']) for x in r.get('claude_penalties', []))
         return sp + sum(float(h.get('value_cad') or 0) for h in data['holdings'] if h['portfolio'] == 'Predictions')
     m = (r.get('models') or {}).get(mid) or {}
     bk, fxr = m.get('books') or {}, r.get('fx') or {}
     tot = 0.0
     if 'Sports' in bk:
-        tot += 100000.0 + sum(x['result'] for x in bk['Sports'].get('bets', []) if x['status'] not in ('Open', 'Void'))
+        tot += 100000.0 + sum(x['result'] for x in bk['Sports'].get('bets', []) if x['status'] not in ('Open', 'Void')) - sum(float(x['amount']) for x in bk['Sports'].get('penalties', []))
     if 'Predictions' in bk:
         pb = bk['Predictions']
         def _cad(q):
@@ -516,6 +517,12 @@ def _lastv(rows):
     rows = sorted(rows, key=lambda x: _when(x[0]))
     pre = [v for a, v in rows if _when(a) <= _FS]
     return (rows[-1][1] if rows else None), (pre[-1] if pre else 100000.0)
+_cfx = (r.get('fx') or {}).get('USDCAD', 1.4)
+_ctot = 0.0   # Claude's total profit since the restart, for the same ELIMINATED flag the others get
+for _e in _EXPS:
+    _v, _b = _lastv([(h['at'], float(h['value'])) for h in data['history'] if h['portfolio'] == _e])
+    if _v is not None:
+        _ctot += (max(_v, 0) - _b) * (_cfx if _e == 'China' else 1)
 for _e in _EXPS:
     v, b0 = _lastv([(h['at'], float(h['value'])) for h in data['history'] if h['portfolio'] == _e])
     if v is not None:
@@ -527,7 +534,7 @@ for _e in _EXPS:
         lb = max([b for b in data['bets'] if _e == 'Sports' and b.get('placed_at')], key=lambda b: _when(b['placed_at']), default=None)
         last = ({'at': lb['placed_at'], 'text': f"Bet {b2c(lb['stake_cad'])} on {lb['pick']}"} if lb else
                 {'at': lt['at'], 'text': f"{lt['action']} {lt['holding']}" + (f" ({b2c(lt['cad'])})" if lt.get('cad') else '')} if lt else None)
-        _es[_e].append({'id': 'claude', 'value': round(v, 2), 'profit': round(max(v, 0) - b0, 2), 'holds': held[:20],
+        _es[_e].append({'id': 'claude', 'value': round(v, 2), 'profit': round(max(v, 0) - b0, 2), 'holds': held[:20], 'busted': v <= 0, 'eliminated': _ctot <= -100000,
                         'pie': [{'name': n, 'value': round(x, 2)} for n, x in hv], 'last': last})
     for _mid, _m in (r.get('models') or {}).items():
         v, _ = _lastv([(h['at'], float(h['value'])) for h in r.get('history', []) if h['model'] == _mid and h['experiment'] == _e])

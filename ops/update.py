@@ -67,6 +67,10 @@ ledger = load('ledger', [])
 fxd = load('fx', {})
 take = load('take', [])
 
+# check the bet results before any file is written, so a bad status can't leave the data half-updated
+for _s in inp.get('bets_settle', []):
+    if _s.get('status') not in ('Won', 'Lost', 'Push', 'Void'):
+        raise SystemExit(f"bets_settle: status must be Won, Lost, Push or Void (got {_s.get('status')!r} for {_s.get('bet')})")
 fx = float(inp['fx']['usdcad'])
 cny = inp['fx'].get('usdcny') or fxd.get('usdcny')
 if inp['fx'].get('usdcny') is None:
@@ -307,7 +311,7 @@ for c in inp.get('bets_closing', []):
 for s in inp.get('bets_settle', []):
     b = by_id[s['bet']]
     b['status'] = s['status']
-    b['result_cad'] = {'Won': b['to_win_cad'], 'Lost': -b['stake_cad'], 'Push': 0}[s['status']]
+    b['result_cad'] = {'Won': b['to_win_cad'], 'Lost': -b['stake_cad'], 'Push': 0, 'Void': 0}[s['status']]
     b['settled_at'] = AT
 if inp.get('bets_new') or inp.get('bets_closing') or inp.get('bets_settle'):
     save('bets', bets)

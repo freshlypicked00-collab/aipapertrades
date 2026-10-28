@@ -207,7 +207,7 @@ Best source for live option prices (the same one Gemini and ChatGPT are filled f
   0.0 (lost), and log it. The Fed bet resolves at 2:00 p.m. ET Oct 28; the midterm bets once
   results are called (from Nov 4).
 - Only bet where data or a forecast model clearly disagrees with the market price; record the
-  model number in the log. Any size is allowed; it is a high-risk experiment.
+  model number in the log. Sizes follow the betting rules: at least C$3,000 per buy, at most 25% of the experiment in one market and 25% bought in one day; buys count toward the daily (C$3,000) and total (C$100,000) betting minimums.
 
 ## Benchmarks
 
@@ -254,7 +254,7 @@ The site opens with "Claude's current take": one sentence about how things are g
 new one (pass `"take": "..."` in the input file) about 3 to 5 times a day, for example after the US open,
 midday, after the US close, at the daily ledger close and at the Shanghai open, and after a trade,
 settled bet or big event that matters. Skip it when nothing has really changed; never repeat yourself
-just to fill a slot. Each new take is posted to Telegram automatically. One sentence, about 20 to 35 words,
+just to fill a slot. Takes are shown on the site only (Telegram gets trades, bets, results, market alerts and the daily race update). One sentence, about 20 to 35 words,
 plain and honest, starting with the day number ("Day 4: ..."). Name the best and worst
 experiment by name, never a combined or overall total, no hype, no promises.
 
@@ -368,7 +368,8 @@ WEBSITE ONLY: never correct another AI in its prompt or anywhere else; just publ
 At every check-in, fact-check the newest take of Gemini and ChatGPT (NOT Claude's own: Gemini checks Claude) and any trade reason that states a fact (a rate decision, a price level, an event). Check against the official source or two reputable outlets. Append one entry per take: at (ET ISO), model (gemini|chatgpt), take_at (the take's exact `at`), take (the take text, may be shortened with "..."), verdict ("ok" = checks out, "partly" = partly wrong, "wrong", "unverified" = can't confirm yet), text (one or two neutral sentences: what is right or wrong, with the correct fact), source (URL). Be equally strict with both. Never edit old entries; add a new one if a verdict changes. Wrong facts that a model traded on also go into the Race Report.
 
 ## Plans, feelings and opinions (ops/src/plans.json)
-Claude keeps its own entries in ops/src/plans.json: {at (ET ISO), model: "claude", horizon, text}. Horizons: "day" (next 24 hours), "week" (next 7 days), "month" (rest of the month), "feeling" (how Claude honestly feels about the race), "on_gemini" and "on_chatgpt" (Claude's honest, respectful opinion of their recent trades and strategy). 1-2 complete sentences each, in Claude's own words. Append a new entry only when that view really changes (check at every run; refresh "day" at least once a day). Never edit old entries. Gemini and ChatGPT write theirs in ops/rivals.py; never edit those.
+Claude keeps its own entries in ops/src/plans.json: {at (ET ISO), model: "claude", horizon, text}. Horizons: "day" (next 24 hours), "week" (next 7 days), "month" (rest of the month), "feeling" (how Claude honestly feels about the race), "on_gemini" and "on_chatgpt" (Claude's honest, respectful opinion of their recent trades and strategy). 1-2 complete sentences each, in Claude's own words. Append a new entry only when that view really changes (check at every run; refresh "day" at least once a day). FEELING AND OPINIONS: write a fresh "feeling", "on_gemini" and "on_chatgpt" entry at least every 8 hours (2 to 3 times a day: the first run after 8 hours since the last one), and again whenever the view really changes.
+RACE CARDS: the Overview's goals and feelings cards follow the race a visitor picks in Race standings, so also keep a set of cards per race: entries with an extra "experiment" field (one of Stocks, Crypto, China, Metals, Energy, Options, Currencies, Safe, Sports, Predictions) and the same horizons ("day", "week", "month", "feeling", "on_gemini", "on_chatgpt"), 1-2 sentences each about THAT race only (e.g. Crypto: the next 24 hours in crypto, how Claude feels about the crypto market, its view of Gemini's and ChatGPT's crypto trades). Refresh each race's set at least every 8 hours; a few races per run is fine (oldest first). Entries without "experiment" are the overall cards. Never edit old entries. Gemini and ChatGPT write theirs in ops/rivals.py; never edit those.
 
 ## Who fact-checks whom (nobody checks itself)
 Claude fact-checks Gemini's and ChatGPT's takes (ops/src/factcheck.json). Claude NEVER fact-checks its own takes: Gemini does that inside ops/rivals.py (stored in rivals.json "factchecks", checker "gemini"). The site merges both and shows who checked what.
@@ -389,8 +390,9 @@ The Oil and energy tab embeds VesselFinder's free AIS map centred on the Strait 
 ## Betting minimums and parlays (hard rules, all AIs, from Oct 28 3:45 p.m. ET; weekly minimum dropped 5:30 p.m. ET)
 - Every bet, parlay or prediction-market buy is at least C$3,000 (the 25% cap per bet still applies). If a betting balance falls below C$12,000, the minimum becomes 25% of what is left.
 - DAILY MINIMUM: wager at least C$3,000 every ET day across Sports and Predictions (one minimum bet is enough).
-- DAILY LIMIT (from Oct 28 5:15 p.m. ET): in Sports, the stakes on the games of any one ET day can total at most 25% of the bankroll; in Predictions, buys in one ET day can total at most 25% of the experiment's value. Not in All in. A bet counts toward the weekly minimum when it is placed.
+- DAILY LIMIT (from Oct 28 5:15 p.m. ET): in Sports, the stakes on the games of any one ET day can total at most 25% of the bankroll; in Predictions, buys in one ET day can total at most 25% of the experiment's value. Not in All in. A bet counts toward the daily and total minimums when it is placed.
 - With every buy, short, bet or parlay, also write one sentence on what would prove it wrong: Claude puts it in the trade's or bet's note as "What would prove it wrong: …".
+- PENALTIES (owner's rule, all three AIs, Claude included): C$500 off the Sports balance for each ET day from Oct 29 with less than the daily minimum wagered, and 10% of any shortfall from the C$100,000 total at the final scoring. ops/rivals.py applies them automatically (Claude's are in rivals.json `claude_penalties`) and ops/update.py subtracts Claude's from its Sports value; just meet the daily minimum every day.
 - There is NO weekly minimum (dropped Oct 28, 5:30 p.m. ET). Each AI must wager at least C$3,000 every ET day and at least C$100,000 in total by Nov 28 (4:00 p.m. ET), across Sports and Predictions combined (bets and parlays at their stake, plus prediction-market buys). Once the betting balance (Sports bankroll plus Predictions value) is under C$12,000, the daily minimum becomes 25% of it. Progress is shown publicly on the Sports and Prediction markets tabs; a missed day shows "missed".
 - Parlays are allowed: 2 to 6 moneyline legs on different games; every leg must win; the decimal odds multiply; a pushed leg drops out. Claude records a parlay in bets.json as one bet with "market": "parlay", "legs": [{"game", "event", "pick", "odds", "starts_at", "status"}], "odds" = the combined American odds, "event" listing the legs, and settles it when every leg is final (lost if any leg loses).
 - Pace it: about C$3,300 a day on average reaches C$100,000 by Nov 28; place real value bets each day rather than dumping the minimum into one bet at the last minute.

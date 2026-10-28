@@ -8,6 +8,7 @@ import json
 from datetime import datetime, timedelta, timezone
 
 UTC = timezone.utc
+RACE_END = datetime(2026, 11, 28, 21, 0, tzinfo=UTC)   # final scoring, 4:00 p.m. ET Nov 28
 CASH_NAME = {'CAD': 'Cash (CAD)', 'USD': 'Cash (US$)'}
 
 
@@ -39,16 +40,18 @@ def build(rivals, claude):
         d = {k: [] for k in ('plans', 'holdings', 'history', 'trades', 'log', 'take', 'ledger', 'prices', 'review', 'rules', 'bets', 'sources')}
 
         # cost basis per position, from the trade list
-        cost = {}
+        cost = {}   # also the realized profit or loss of everything sold, covered, settled or expired
         for t in trades:
             key = (t['experiment'], f"{t['symbol']}|{t['outcome']}" if t.get('outcome') else t['symbol'])
-            c = cost.setdefault(key, {'qty': 0.0, 'cost': 0.0})
+            c = cost.setdefault(key, {'qty': 0.0, 'cost': 0.0, 'realized': 0.0, 'name': t.get('name') or t['symbol']})
             if t['action'] in ('Buy', 'Short'):
                 c['qty'] += t['qty']
                 c['cost'] += t['amount'] if t['action'] == 'Buy' else -t['amount']
             elif t['action'] in ('Sell', 'Cover', 'Settled', 'Expired') and c['qty'] > 0:
                 frac = min(1.0, t['qty'] / c['qty'])
-                c['cost'] *= (1 - frac)
+                part = c['cost'] * frac
+                c['realized'] += (-t['amount'] if t['action'] == 'Cover' else t['amount']) - part
+                c['cost'] -= part
                 c['qty'] -= t['qty']
 
         last_at = max([h['at'] for h in hist] or [datetime.now(UTC).isoformat()])
@@ -70,15 +73,26 @@ def build(rivals, claude):
                 row = {'portfolio': e, 'holding': _clean(p.get('name') or key, e), 'code': key.split('|')[0], 'quantity': p['qty'],
                        'change_pct': price / p['entry'] - 1 if p['entry'] else 0, 'as_of': last_at, 'price_at': p.get('priced_at'),
                        'price_source': {'Predictions': 'Polymarket', 'Options': 'Cboe (15-min delayed)'}.get(e, 'Yahoo Finance')}
+                c['shown'] = True
                 if e == 'China':
                     usd = p['qty'] * price / fx_now['USDCNY']
                     row.update(currency='CNY', entry_local=p['entry'], price_local=price, value_usd=round(usd, 2),
-                               value_cad=round(usd * fx_now['USDCAD'], 2), cost_usd=round(c['cost'], 2))
+                               value_cad=round(usd * fx_now['USDCAD'], 2), cost_usd=round(c['cost'], 2), realized_usd=round(c.get('realized', 0.0), 2))
                 else:
                     if key.count('|'):
                         row['holding'] = f"{p.get('name') or key.split('|')[0]} ({key.split('|')[1]})"
                     row.update(entry_usd=p['entry'], price_usd=price, value_cad=round(p['qty'] * price * fx_now['USDCAD'], 2),
-                               cost_cad=round(c['cost'], 2))
+                               cost_cad=round(c['cost'], 2), realized_cad=round(c.get('realized', 0.0), 2))
+                d['holdings'].append(row)
+            for (ce, ck), c in cost.items():   # positions closed for good: kept as zero rows so their profit or loss still counts
+                if ce != e or c.get('shown') or ck in b['positions'] or abs(c.get('realized', 0.0)) < 0.005:
+                    continue
+                row = {'portfolio': e, 'holding': _clean(c['name'], e) + ' (closed)', 'code': ck.split('|')[0], 'quantity': 0, 'change_pct': 0,
+                       'as_of': last_at, 'price_at': None, 'price_source': ''}
+                if e == 'China':
+                    row.update(currency='CNY', entry_local=None, price_local=None, value_usd=0.0, value_cad=0.0, cost_usd=0.0, realized_usd=round(c['realized'], 2))
+                else:
+                    row.update(entry_usd=None, price_usd=None, value_cad=0.0, cost_cad=0.0, realized_cad=round(c['realized'], 2))
                 d['holdings'].append(row)
             cash = {'portfolio': e, 'holding': CASH_NAME[cur], 'quantity': b['cash'], 'change_pct': 0, 'as_of': last_at,
                     'price_at': None, 'price_source': ''}
@@ -93,6 +107,9 @@ def build(rivals, claude):
             d['history'].append({'at': h['at'], 'portfolio': h['experiment'], 'value': h['value'], 'close': False})
 
         for t in trades:
+            if t['experiment'] == 'Sports' and t['action'] == 'Penalty':
+                d['log'].append({'at': t['at'], 'portfolio': 'Sports', 'action': 'Penalty', 'detail': f"Penalty −C${abs(t['amount']):,.0f}: {t['reason']}"})
+                continue
             if t['experiment'] == 'Sports':
                 sign = '' if t['action'] == 'Bet' else ('+' if t['amount'] >= 0 else '−')
                 d['log'].append({'at': t['at'], 'portfolio': 'Sports', 'action': 'Bet' if t['action'] == 'Bet' else 'Settle',
@@ -118,7 +135,7 @@ def build(rivals, claude):
         for e in exps:
             d['log'].append({'at': started[e].isoformat(), 'portfolio': e, 'action': 'Start',
                              'detail': 'Started with ' + ('US$' if e == 'China' else 'C$') + '100,000.'})
-        recent_cut = datetime.now(UTC) - timedelta(days=3)  # keep the page light: notes from the last 3 days (all are kept in rivals.json)
+        recent_cut = min(datetime.now(UTC), RACE_END) - timedelta(days=3)  # keep the page light: notes from the last 3 days (all are kept in rivals.json)
         for th in rivals.get('thoughts', []):
             if th['model'] == mid and th['experiment'] in exps and _t(th['at']) >= recent_cut:
                 d['log'].append({'at': th['at'], 'portfolio': th['experiment'], 'action': 'Note', 'detail': th['text']})
@@ -131,7 +148,7 @@ def build(rivals, claude):
             d['log'].append({'at': lr['at'], 'portfolio': 'All', 'action': 'Check-in', 'detail': f"Check-in ({m.get('model') or m['label']})."})
         d['log'].sort(key=lambda r: _t(r['at']))
         d['review'] = [{'at': x['at'], 'portfolio': x['experiment'], 'grade': x['grade'], 'text': x['text']} for x in rivals.get('reviews', []) if x['model'] == mid]
-        d['plans'] = list({x['horizon']: x for x in rivals.get('plans', []) if x['model'] == mid}.values())
+        d['plans'] = list({(x.get('experiment'), x['horizon']): x for x in rivals.get('plans', []) if x['model'] == mid}.values())   # newest per race and card
         d['take'] = [{'at': x['at'], 'text': x['text']} for x in rivals.get('takes', []) if x['model'] == mid]
         d['sources'] = [{'title': s['title'], 'url': s['url'], 'portfolios': exps} for s in lr.get('sources', [])]
 
@@ -139,7 +156,7 @@ def build(rivals, claude):
         for e in exps:
             pts = sorted([(started[e], 100000.0)] + [(_t(h['at']), h['value']) for h in hist if h['experiment'] == e])
             day = started[e].astimezone(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
-            now = datetime.now(UTC)
+            now = min(datetime.now(UTC), datetime(2026, 11, 29, tzinfo=UTC))   # the ledger stops with the race (its last day ends Nov 29 00:00 UTC)
             while day + timedelta(days=1) <= now:
                 end = day + timedelta(days=1)
                 before_open = [v for t, v in pts if t <= day]

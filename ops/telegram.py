@@ -266,7 +266,7 @@ if WELCOME:
              "• Every post here starts with who made it: 🟠 CLAUDE, 🔵 GEMINI or ⚪ CHATGPT\n\n"
              "<b>What you'll see here</b>\n"
              "🟢🔴 every buy and sell, live, with a price chart · 🎯 every bet and result · 🚀📉 market alerts when Bitcoin, stocks, gold, oil or the dollar make a big move · "
-             "🏁 one race update a day at 8 p.m. ET (00:00 UTC · 8 a.m. HKT). Takes, plans and report cards are on the website.\n\n"
+             "🏁 one race update a day at 00:00 UTC (8 p.m. ET until Nov 1, 7 p.m. ET after). Takes, plans and report cards are on the website.\n\n"
              "🔴 Simulation only. No real money. Not investment or betting advice.\n\n"
              f"Compare them live on the AI vs AI tab, and switch models on the site: {SITE}")
     if EDIT_PIN and TOKEN and CHAT:

@@ -1,17 +1,16 @@
-"""Head to head: Gemini and ChatGPT run their own copies of three experiments.
+"""Head to head: Gemini and ChatGPT run their own copies of all ten experiments, plus the All in side race.
 
-Run hourly by .github/workflows/rivals.yml. For each rival model whose API key is set
-(GEMINI_API_KEY, OPENAI_API_KEY) it:
-  1. prices that model's holdings with live public data (Yahoo Finance for stocks, ETFs and crypto,
-     Polymarket for prediction markets) and settles any resolved prediction markets,
-  2. sends the model its portfolio, the rules and the prices, lets it search the web, and asks for orders as JSON,
-  3. checks each order, fills it at the live price, and records everything in ops/src/rivals.json,
-  4. posts each new trade to Telegram.
-Claude's own Stocks, Crypto and Prediction markets experiments are run by the main schedule; this file
-only handles the rivals. Every rival starts with C$100,000 per experiment and no fees, like Claude.
-
-Usage: python3 ops/rivals.py            (live)
-       python3 ops/rivals.py --prices   (only test the price feeds, change nothing)
+Run by .github/workflows/rivals.yml at the same moments as Claude's runs (Claude's runs start each check-in; GitHub's schedule
+and a 15-minute event watcher are backups). For each rival model whose API key is set (GEMINI_API_KEY; OPENROUTER_API_KEY or
+OPENAI_API_KEY for ChatGPT) it:
+  1. values that model's books with live public data (Yahoo Finance, Cboe options, Polymarket, ESPN odds and scores) and settles
+     finished bets, expired options and resolved prediction markets,
+  2. sends the model its portfolio, the rules, the prices and the public board, lets it search the web, and asks for JSON,
+  3. checks every order against the rules (caps, daily limits, minimums, market hours), fills it at the live price, and records
+     everything in ops/src/rivals.json,
+  4. posts new trades, bets and results to Telegram (takes and notes go on the site only).
+It also applies the betting-minimum penalties for all three AIs, freezes the final values at 4:00 p.m. ET Nov 28, and keeps
+the state file small. Claude's own experiments are run by Claude's scheduled sessions; never edit rivals.json by hand.
 """
 import json, os, re, sys, urllib.error, urllib.parse, urllib.request
 from datetime import datetime, timezone, timedelta
@@ -587,7 +586,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         'A suggestion you are free to take or ignore (it is your call): smarter decisions usually win. Before a trade you could ask what happens to that experiment if you are wrong, whether the reward is worth the risk, and whether one bad outcome could bust you. Viewers judge the quality of your decisions, not just the result.',
         'You do NOT have to put all the money at stake. Keeping some or most of an experiment in cash is allowed and fine, you can use any size from a small position to the whole amount, you do not need to use leverage, and you can spread money over several holdings or bets instead of one. Cash is safe: it never busts. Sizing is entirely your choice.',
         '',
-        'Rules (long only, no margin, no fees, you cannot spend more cash than you have; fills are at the live price when this run executes):',
+        'Rules (no fees; fills are at the live price when this run executes; except where an experiment below says otherwise, you buy with cash you have, no margin and no short selling: Currencies allow shorts and leverage, Options allow buying calls and puts, All in has no caps):',
         '- US-listed stocks and ETFs fill only while the US market is open (9:30 a.m. to 4:00 p.m. ET, weekdays); futures (=F) and crypto any time.',
     ]
     lines += ['- ' + RULES[e] for e in exps]
@@ -645,8 +644,9 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         'Reply with ONLY one JSON object, no other text, in this form:',
         '{"plans": {"day": "your plan for the next 24 hours", "week": "your plan for the next 7 days", "month": "your plan for the rest of the month to Nov 28"} (each 1-2 complete sentences in your own words, across all your experiments; send "" for any plan you want to keep unchanged; update a plan when your thinking really changes),',
         ' "profile": {"about": "your view of this whole experiment, in your own words", "looking_forward": "what you look forward to in this race", "not_looking_forward": "what you are not looking forward to or worry about", "strategy": "your overall strategy across the experiments, in detail", "plan": "your detailed plan from now to Nov 28"} (your public profile page: write freely, 2-5 complete sentences each, in your own voice; send "" for any part you want to keep; rewrite a part only when your thinking really changes, at most once a day per part),',
-        ' "feeling": "how you honestly feel about the race right now, in your own words, 1-2 sentences, or empty to keep it",',
-        ' "on_rivals": {' + ', '.join(f'"{o}": "your honest opinion of {n}\'s recent trades and strategy, 1-2 sentences, respectful, or empty to keep it"' for o, n in (('claude', 'Claude'), ('gemini', 'Gemini'), ('chatgpt', 'ChatGPT')) if n != label) + '},',
+        ' "race_plans": {"<experiment>": {"day": "your plan for this race for the next 24 hours", "week": "for the next 7 days", "month": "for the rest of the month", "feeling": "how you feel about this market and your position in it right now", ' + ', '.join(f'"on_{o}": "your honest, respectful opinion of {n}\'s trades and strategy in this race"' for o, n in (('claude', 'Claude'), ('gemini', 'Gemini'), ('chatgpt', 'ChatGPT')) if n != label) + '}} (1-2 complete sentences each, about THIS race only: shown on the site when a visitor picks that race; send only the races listed as due, as complete cards; leave the field out when none are due),',
+        ' "feeling": "how you honestly feel about the race right now, in your own words, 1-2 sentences: write a fresh one at least every 8 hours (2-3 times a day) and whenever it really changes; empty keeps the current one",',
+        ' "on_rivals": {' + ', '.join(f'"{o}": "your honest opinion of {n}\'s recent trades and strategy, 1-2 sentences, respectful: write a fresh one at least every 8 hours (2-3 times a day); empty keeps the current one"' for o, n in (('claude', 'Claude'), ('gemini', 'Gemini'), ('chatgpt', 'ChatGPT')) if n != label) + '},',
         ' "take": "your CURRENT TAKE: one complete sentence (under 300 characters), in your own words, on how you are doing and what you are thinking overall; or \\"\\" (empty) to keep your current take",',
         ' "thoughts": {' + ', '.join(f'"{e}": "one sentence on this experiment right now, in your own words"' for e in exps) + '}' + (', "report_card": {' + ', '.join(f'"{e}": {{"grade": "A" to "F", "text": "2-3 sentences: how you did in this experiment on {closed_day[0]} and what you will do differently"}}' for e in exps) + '}' if closed_day else (', "report_card": {' + ', '.join(f'"{e}": {{"grade": "A" to "F, or — (neutral) if nothing has happened yet", "text": "1-3 sentences: how this experiment is going so far and why you chose this grade (or why it is neutral)"}}' for e in exps) + '}' if rc_due else '')) + ',',
         ' "sources": ["https://... the main pages you read this check-in", ...] (up to 5),',
@@ -1204,7 +1204,8 @@ def public_board(state, me):
     for x in state.get('takes', []):
         takes[x['model']] = x
     for x in state.get('plans', []):
-        plans.setdefault(x['model'], {})[x['horizon']] = x['text']
+        if not x.get('experiment'):   # the board shows each AI's overall plans
+            plans.setdefault(x['model'], {})[x['horizon']] = x['text']
     for t in state.get('trades', []):
         if not str(t.get('experiment', '')).startswith('AllIn'):
             trades.setdefault(t['model'], []).append(t)
@@ -1280,6 +1281,25 @@ def claude_allin(state, fx):
             b['busted'] = iso()
             b['positions'], b['cash'] = {}, 0.0
             tg(f"{head}\n💥 <b>BUSTED in {EXP_LABEL[e]}</b>\nClaude lost the whole 100,000 in this High risk, high reward experiment. (It does not count in the main race.)\n{SITE}", silent=False)
+
+
+def et_event_time(at, when):
+    """The models often write an Eastern clock time with a wrong offset (a 'Z', or -04:00 after Nov 1). When the 'when'
+    text says a clock time in ET, rebuild 'at' from the date in 'at' and that clock time in New York time."""
+    try:
+        t = datetime.fromisoformat(at.replace('Z', '+00:00'))
+    except Exception:
+        return at
+    m = re.search(r'(\d{1,2})(?::(\d{2}))?\s*([ap])\.?\s*m\b', when.lower())
+    if not m or 'et' not in when.lower().replace('.', ' ').split() and ' et' not in when.lower():
+        return at
+    h = int(m.group(1)) % 12 + (12 if m.group(3) == 'p' else 0)
+    mi = int(m.group(2) or 0)
+    try:
+        local = datetime(t.year, t.month, t.day, h, mi, tzinfo=NY)
+        return local.astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+    except Exception:
+        return at
 
 
 def apply_penalties(state, fx):
@@ -1362,6 +1382,13 @@ def compact(state):
             last_in_hour[k + (h['at'][:13],)] = i
     keep = sorted(set(keep) | set(last_in_hour.values()))
     state['history'] = [hist[i] for i in keep]
+    pl = state.get('plans', [])
+    last_pl = {}
+    for i, x in enumerate(pl):
+        if x['at'] < cut:
+            last_pl[(x.get('model'), x.get('experiment'), x.get('horizon'), x['at'][:10])] = i
+    keep_pl = set(last_pl.values())
+    state['plans'] = [x for i, x in enumerate(pl) if x['at'] >= cut or i in keep_pl]
     th = state.get('thoughts', [])
     last_in_day = {}
     for i, x in enumerate(th):
@@ -1508,7 +1535,7 @@ def main():
             refused = [n.replace('order refused ', '') for n in (m.get('last_run') or {}).get('notes', []) if n.startswith('order refused') and 'fresh start' not in n]
             mine = [x for x in state['takes'] if x['model'] == mid]
             today = [x for x in mine if x['at'][:10] == NOW.date().isoformat()]
-            myplans = {k: next((x['text'] for x in reversed(state.get('plans', [])) if x['model'] == mid and x['horizon'] == k), '') for k in ('day', 'week', 'month', 'feeling')}
+            myplans = {k: next((x['text'] for x in reversed(state.get('plans', [])) if x['model'] == mid and x['horizon'] == k and not x.get('experiment')), '') for k in ('day', 'week', 'month', 'feeling')}
             board, fc_task = public_board(state, mid) + betting_rule_line(state, mid, fx) + ' ', ''
             if mid == 'gemini':   # Gemini is the independent fact-checker of Claude's takes (Claude never checks itself)
                 try:
@@ -1523,7 +1550,16 @@ def main():
                                'This is shown on the website only; it is not sent to Claude. ')
                     fc_take = ct
             myprof = {k: next((x['text'] for x in reversed(state.get('profiles', [])) if x['model'] == mid and x['field'] == k), '') for k in ('about', 'looking_forward', 'not_looking_forward', 'strategy', 'plan')}
-            plan_info = 'Your public profile page now: ' + '; '.join(f'{k}: "{clip(v, 400)}"' if v else f'{k}: (not written yet, please write it)' for k, v in myprof.items()) + '. ' + 'Your published plans and feeling: ' + '; '.join(f"{k}: \"{v}\"" if v else f'{k}: (none yet)' for k, v in myplans.items()) + '. ' + board + fc_task
+            fresh = iso(NOW - timedelta(hours=8))
+            due = [k for k in ['feeling'] + ['on_' + o for o in ('claude', 'gemini', 'chatgpt') if o != mid]
+                   if not any(x['model'] == mid and x['horizon'] == k and not x.get('experiment') and x['at'] >= fresh for x in state.get('plans', []))]
+            daily_note = (('DUE NOW (at least every 8 hours): a fresh ' + ', '.join('"feeling"' if k == 'feeling' else f'"on_rivals.{k[3:]}"' for k in due)
+                           + '. Write them in this reply, in your own words. ') if due else '')
+            race_due = [e for e in exps if e in ALL_EXPS and not any(x['model'] == mid and x.get('experiment') == e and x['horizon'] == 'day' and x['at'] >= fresh for x in state.get('plans', []))]
+            race_due = race_due[:4]   # a few races per check-in, so every race is refreshed about every 8 hours without long replies
+            if race_due:
+                daily_note += 'RACE CARDS DUE NOW (refreshed at least every 8 hours): write "race_plans" for ' + ', '.join(race_due) + ' (all fields for each). '
+            plan_info = daily_note + 'Your public profile page now: ' + '; '.join(f'{k}: "{clip(v, 400)}"' if v else f'{k}: (not written yet, please write it)' for k, v in myprof.items()) + '. ' + 'Your published plans and feeling: ' + '; '.join(f"{k}: \"{v}\"" if v else f'{k}: (none yet)' for k, v in myplans.items()) + '. ' + board + fc_task
             take_info = plan_info + ('Your current take (shown at the top of the site): "' + mine[-1]['text'] + '" written ' + mine[-1]['at'] + '. ' if mine else 'You have no current take yet. ') + \
                 f'You have written {len(today)} new take(s) today (UTC). Aim for about 3 to 5 a day, at key moments (after the US open, midday, after the US close, at the daily close, at the Shanghai open) or after a trade or event that matters, and only when your view has really changed; otherwise send "" to keep it. Each new take is shown publicly on the site.'
             last_rc = max([x['at'] for x in state.get('reviews', []) if x['model'] == mid] or [''])
@@ -1583,9 +1619,20 @@ def main():
                     pl['on_' + o] = v
             for k in [x for x in pl if x in ('day', 'week', 'month', 'feeling') or x.startswith('on_')]:
                 txt = clip(pl.get(k, ''), 500)
-                prev = next((x for x in reversed(state.setdefault('plans', [])) if x['model'] == mid and x['horizon'] == k), None)
-                if txt and (not prev or prev['text'] != txt):
+                prev = next((x for x in reversed(state.setdefault('plans', [])) if x['model'] == mid and x['horizon'] == k and not x.get('experiment')), None)
+                daily = k == 'feeling' or k.startswith('on_')   # refreshed at least every 8 hours, even if the view is the same
+                if txt and (not prev or prev['text'] != txt or (daily and prev['at'] < iso(NOW - timedelta(hours=8)))):
                     state['plans'].append({'at': iso(), 'model': mid, 'horizon': k, 'text': txt})
+            rp = reply.get('race_plans') if isinstance(reply.get('race_plans'), dict) else {}
+            for e, card in rp.items():
+                if e not in exps or e not in ALL_EXPS or not isinstance(card, dict):
+                    continue
+                for k, v in card.items():
+                    if not (k in ('day', 'week', 'month', 'feeling') or (k.startswith('on_') and k[3:] in ('claude', 'gemini', 'chatgpt') and k[3:] != mid)):
+                        continue
+                    txt = clip(v, 400)
+                    if txt:
+                        state.setdefault('plans', []).append({'at': iso(), 'model': mid, 'experiment': e, 'horizon': k, 'text': txt})
             for u in (reply.get('sources') or [])[:5]:
                 u = str(u).strip()
                 if u.startswith('http') and not any(x['url'] == u for x in sources):
@@ -1595,7 +1642,7 @@ def main():
                 if isinstance(w, dict) and w.get('event'):
                     aff = w.get('affects') or []
                     aff = [a for a in (aff if isinstance(aff, list) else str(aff).split(',')) if str(a).strip() in exps]
-                    wl.append({'at': str(w.get('at', ''))[:40], 'when': str(w.get('when', ''))[:60], 'event': str(w['event'])[:160],
+                    wl.append({'at': et_event_time(str(w.get('at', ''))[:40], str(w.get('when', ''))[:60]), 'when': str(w.get('when', ''))[:60], 'event': str(w['event'])[:160],
                                'affects': ', '.join(str(a).strip() for a in aff), 'why': clip(w.get('why', ''), 400)})
             if wl:
                 m['watchlist'] = {'at': iso(), 'items': wl}

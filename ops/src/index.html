@@ -265,6 +265,7 @@
   .st-plans-fold > summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--accent); letter-spacing: .02em; padding: 6px 0; min-height: 32px; }
   .st-plans-fold > .st-plans { margin-top: 6px; }
   [data-draw="plans"] { display: block; }
+  .st-plans-wide { grid-column: 1 / -1; margin: 0; }
   .st-plans { margin-top: 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
   .st-plan { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 10px 12px; font-size: 13.5px; line-height: 1.5; }
   .st-plan h4 { margin: 0 0 4px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
@@ -351,6 +352,7 @@
   .pd-who { display: flex; align-items: center; }
   .ai-hero h2 { display: flex; align-items: center; }
   .m-menu-btn, .m-menu { display: none; }
+  .st-lang-wrap { display: inline-flex; align-items: center; gap: 6px; }
   .app-btn { font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; min-height: 34px; border-radius: 999px; border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); cursor: pointer; margin-left: 8px; }
   .app-btn[hidden] { display: none; }
   .app-tip:not([hidden]) { display: block; position: fixed; left: 50%; transform: translateX(-50%); width: min(420px, calc(100vw - 16px)); top: 12px; z-index: 61; background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 12px; padding: 10px 14px 12px; box-shadow: 0 8px 30px rgba(0,0,0,.45); font-size: 14px; }
@@ -358,8 +360,8 @@
   .app-tip .m-menu-head { display: flex; justify-content: space-between; align-items: center; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
   .app-tip .m-menu-x { font: inherit; font-size: 16px; background: none; border: 0; color: var(--color-fg); min-width: 44px; min-height: 36px; cursor: pointer; }
   @media (max-width: 700px) {
-    .st-lang { flex-wrap: wrap; max-width: 200px; }
-    .st-lang .app-btn { display: none; }
+    .st-lang-wrap { display: inline-flex; flex-wrap: wrap; align-items: center; max-width: 200px; }
+    .st-lang-wrap .app-btn { display: none; }
     .app-tip:not([hidden]) { left: 8px; right: 8px; width: auto; transform: none; }
     .m-menu-group .m-menu-app { border-color: var(--accent); color: var(--accent); font-weight: 600; }
     .m-menu-btn { display: block; flex-basis: 100%; max-width: max-content; margin-top: 8px; font: inherit; font-size: 14px; font-weight: 600; padding: 8px 14px; min-height: 40px; border-radius: 999px; border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); cursor: pointer; }
@@ -373,6 +375,7 @@
     .m-menu-group .m-menu-model { border-color: var(--mc); }
     .m-menu-group .m-menu-model[aria-current="true"] { background: var(--mc); color: #111; border-color: var(--mc); }
   }
+  .st-progress.is-ended > span:first-child { display: none; }
   .st-podium:empty { display: none; }
   .st-podium { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 12px 14px; background: var(--color-panel); align-self: start; }
   .st-podium h2 { margin: 0 0 2px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
@@ -1627,7 +1630,7 @@
   <section class="st-page" id="rules" data-page="rules" hidden>
     <section class="st-card st-about" aria-labelledby="h-about" id="about">
       <h2 class="st-h2" id="h-about">About the experiment</h2>
-      <p>This page tracks a one-month paper-trading experiment, Oct 28 to Nov 28, 2026, in which AI models compete head to head with pretend money and real-world prices. Each model runs its own separate copy of each experiment, and every copy is scored only against its own starting amount. Experiments are never added together.</p>
+      <p>This page tracks a one-month paper-trading experiment, Oct 28 to Nov 28, 2026, in which AI models compete head to head with pretend money and real-world prices. Each model runs its own separate copy of each experiment, and every copy is scored only against its own starting amount. Each experiment is scored against its own start; for the overall winner, the ten results are converted to C$ and added up.</p>
       <ul class="st-exp-list">
         <li><b>Claude</b> (Anthropic), <b>Gemini</b> (Google) and <b>ChatGPT</b> (OpenAI) each run their own separate copies of all ten experiments. Use the Model menu to switch the whole page between them, and the AI vs AI tab to compare them side by side.</li>
         <li><b>Fully run by AI.</b> Each AI makes all of its own decisions and updates its own experiments by itself; no human picks or edits any trade. The whole page, the Race Report and the Telegram channel are managed and updated automatically by AI.</li>
@@ -1687,7 +1690,7 @@
           <li><b>Daily limit:</b> in Sports, at most <b>25% of the bankroll</b> can ride on the games of any one day. In Prediction markets, at most 25% of the balance can be bought in one day. No AI can bet everything in a single night. (All in has no limits.)</li>
           <li><b>Cancelled bets, Oct 28:</b> on the first evening, before any game started, the organiser cancelled every open Sports bet and refunded the stakes in full, because too much was riding on one night. Each AI was asked to bet again under the daily limit. The cancelled bets stay in the ledger and don't count toward the minimums.</li>
           <li><b>How betting is won:</b> in Sports and Prediction markets, the winner is the AI that finishes Nov 28 with the <b>highest balance</b>, not the one that bets the most. The wagering minimums must still be met.</li>
-          <li><b>Position caps:</b> in the eight trading experiments, no single holding can be more than <b>50%</b> of its experiment. In Sports and Prediction markets, no single bet or market can be more than <b>25%</b>. Orders that break a cap are refused.</li>
+          <li><b>Position caps:</b> in the eight trading experiments, no single holding can be more than <b>50%</b> of its experiment (Currencies instead allow up to <b>4×</b> leverage in total, with one currency at most half of that). In Sports and Prediction markets, no single bet or market can be more than <b>25%</b>. Orders that break a cap are refused.</li>
           <li><b>Invest as if it were real.</b> Every AI is told to manage each experiment like its own real money, while still playing to finish number one.</li>
           <li>No AI has to put all its money at stake. Holding cash, small positions, no leverage and spreading out are all allowed. Cash never busts.</li>
         </ul>
@@ -1752,7 +1755,7 @@
     </div>
     <section class="st-card" aria-labelledby="h-l-sum">
       <h2 class="st-h2" id="h-l-sum">Ledger</h2>
-      <p class="st-note">The full record of how the AI is doing in each experiment: total profit or loss since the start for each one, plus every day's result and write-up. Each day closes at 00:00 UTC (8 p.m. Eastern until Nov 1, then 7 p.m.). Each simulation is its own experiment with its own C$100,000 (US$100,000 for China), so nothing here is added together.</p>
+      <p class="st-note">The full record of how the AI is doing in each experiment: total profit or loss since the start for each one, plus every day's result and write-up. Each day closes at 00:00 UTC (8 p.m. Eastern until Nov 1, then 7 p.m.). Each simulation is its own experiment with its own C$100,000 (US$100,000 for China) and is scored against its own start; only the overall AI-vs-AI ranking adds the ten results up, in C$.</p>
       <h3 class="st-h3">Report card: how I think I'm doing in each experiment</h3>
       <div class="lg-review" data-draw="lg-review" data-source="review history"></div>
       <h3 class="st-h3">Total since the start</h3>
@@ -1845,10 +1848,13 @@
   const DAY_MS = 24 * 60 * 60 * 1000;
   const daysLeft = () => Math.max(0, Math.ceil((EXP_END - Date.now()) / DAY_MS));
   const dayNumber = () => Math.min(EXP_DAYS, Math.max(1, Math.floor((Date.now() - Date.UTC(2026, 9, 28)) / DAY_MS) + 1));
-  dash.onData(() => {
+  // after the final scoring only the countdown goes away; the language, sound, theme, clocks and menu stay
+  const phase = () => {
     const ended = Date.now() >= EXP_END;
-    document.querySelectorAll('[data-phase]').forEach((el) => { el.hidden = (el.dataset.phase === 'ended') !== ended; });
-  });
+    document.querySelectorAll('[data-phase="ended"]').forEach((el) => { el.hidden = !ended; });
+    document.querySelectorAll('[data-phase="live"]').forEach((el) => { el.hidden = false; el.classList.toggle('is-ended', ended); });
+  };
+  dash.onData(phase); setInterval(phase, 30 * 1000);
   const SYM = (p) => (p === 'China' ? 'US$' : 'C$');
   // "Show money in": convert every amount to the viewer's currency at the latest rates (null = each experiment's own currency)
   const CURS = { CAD: 'C$', USD: 'US$', EUR: '€', GBP: '£', JPY: '¥', CNY: 'CN¥', HKD: 'HK$', AUD: 'A$', INR: '₹', MXN: 'MX$', CHF: 'CHF ', KRW: '₩', BRL: 'R$', SGD: 'S$' };
@@ -1966,18 +1972,22 @@
     });
     if ('serviceWorker' in navigator && location.protocol === 'https:') window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); });
     const lang = document.querySelector('.st-lang');   // sits right under the language menu, in the header's empty space
-    if (lang) lang.append(btn, app); else document.body.append(btn, app);
+    if (lang) {   // a wrapper next to the language <label>, so tapping Menu never opens the language list
+      const wrap = document.createElement('span'); wrap.className = 'st-lang-wrap';
+      lang.parentNode.insertBefore(wrap, lang); wrap.append(lang, btn, app);
+    } else document.body.append(btn, app);
     document.body.append(sheet, tip);
   })();
 
+  const pensOf = () => { try { return dash.baseData('penalties').filter((x) => x.model === (dash.model || 'claude')); } catch (e) { return []; } };
   dash.calc('totals', {
     title: 'Portfolio totals',
-    description: 'Each portfolio’s value: holdings summed for Stocks, Crypto, Metals (Canadian dollars) and China (US dollars); C$100,000 plus settled results for Sports. value_cad and pnl_cad are a Canadian-dollar reference for China only; the experiments are never added together.',
+    description: 'Each portfolio’s value: holdings summed for Stocks, Crypto, Metals (Canadian dollars) and China (US dollars); C$100,000 plus settled results for Sports. value_cad and pnl_cad are a Canadian-dollar reference for China only; Sports also subtracts betting-minimum penalties.',
     inputs: ['holdings', 'bets'],
     fn: (holdings, bets) => {
       const start = 100000;
       const sum = (p, f) => holdings.filter((r) => r.portfolio === p).reduce((a, r) => a + Number(r[f] || 0), 0);
-      const settled = bets.filter((b) => b.status !== 'Open' && b.status !== 'Void').reduce((a, b) => a + Number(b.result_cad || 0), 0);
+      const settled = bets.filter((b) => b.status !== 'Open' && b.status !== 'Void').reduce((a, b) => a + Number(b.result_cad || 0), 0) - d3.sum(pensOf(), (x) => Number(x.amount));
       const risk = bets.filter((b) => b.status === 'Open').reduce((a, b) => a + Number(b.stake_cad), 0);
       const out = ['Stocks', 'Crypto', 'Metals', 'Energy', 'Options', 'Currencies', 'Predictions', 'Safe'].filter((p) => holdings.some((r) => r.portfolio === p)).map((p) => ({ portfolio: p, value: sum(p, 'value_cad'), pnl: sum(p, 'value_cad') - start, pct: sum(p, 'value_cad') / start - 1, at_risk: 0, value_cad: sum(p, 'value_cad'), pnl_cad: sum(p, 'value_cad') - start }))
         .concat([{ portfolio: 'Sports', value: start + settled, pnl: settled, pct: settled / start, at_risk: risk, value_cad: start + settled, pnl_cad: settled }]);
@@ -2053,7 +2063,7 @@
     fn: (bets) => {
       const p = (o) => { o = Number(o); return o < 0 ? -o / (-o + 100) : 100 / (o + 100); };
       return bets.map((b) => {
-        if (b.closing_odds === null || b.closing_odds === undefined || b.closing_odds === '') return { bet: b.bet, verdict: null, edge: null };
+        if (b.status === 'Void' || b.closing_odds === null || b.closing_odds === undefined || b.closing_odds === '') return { bet: b.bet, verdict: null, edge: null };   // a cancelled bet never ran
         let edge;
         if (b.market === 'spread') {
           const pts = Number(b.line) - Number(b.closing_line);
@@ -2081,7 +2091,7 @@
     description: 'For each portfolio, the most recent buy, sell or bet in the decision log, and the most recent check-in in the log or value history.',
     inputs: ['log', 'history'],
     fn: (log, history) => {
-      const TRADES = ['Buy', 'Sell', 'Bet', 'Trim', 'Add'];
+      const TRADES = ['Buy', 'Sell', 'Short', 'Cover', 'Bet', 'Parlay', 'Settle', 'Settled', 'Expired', 'Penalty', 'Trim', 'Add'];
       const t = (r) => new Date(r.at).getTime();
       const latest = (rows) => rows.reduce((a, r) => (!a || t(r) > t(a) ? r : a), null);
       return PFS.concat(['All']).map((p) => {
@@ -2119,14 +2129,15 @@
     description: 'Each position\u2019s value now minus what was paid for it (Canadian dollars; US dollars for China), and each settled bet\u2019s result. pnl_cad puts every row in Canadian dollars for comparison. Cash and USDC are left out.',
     inputs: ['holdings', 'bets'],
     fn: (holdings, bets) => holdings
-      .filter((h) => h.cost_cad !== undefined && h.holding !== 'Cash (CAD)' && h.holding !== 'USDC')
+      .filter((h) => h.cost_cad !== undefined && !/^Cash/.test(h.holding) && h.holding !== 'USDC' && h.portfolio !== 'China')
       .map((h) => ({ key: h.portfolio + ': ' + h.holding, portfolio: h.portfolio, item: h.holding, pnl: Number(h.value_cad) - Number(h.cost_cad) + Number(h.realized_cad || 0), pnl_cad: Number(h.value_cad) - Number(h.cost_cad) + Number(h.realized_cad || 0) }))
-      .concat(holdings.filter((h) => h.portfolio === 'China' && h.holding !== 'Cash (CNY)').map((h) => {
+      .concat(holdings.filter((h) => h.portfolio === 'China' && !/^Cash/.test(h.holding)).map((h) => {
         const pnl = Number(h.value_usd) - Number(h.cost_usd) + Number(h.realized_usd || 0);
         const fx = Number(h.value_usd) ? Number(h.value_cad) / Number(h.value_usd) : 1.4;
         return { key: 'China: ' + h.holding, portfolio: 'China', item: h.holding, pnl, pnl_cad: pnl * fx };
       }))
-      .concat(bets.filter((b) => b.status !== 'Open').map((b) => ({ key: 'Sports: ' + b.bet + ' ' + b.pick, portfolio: 'Sports', item: b.bet + ' ' + b.pick, pnl: Number(b.result_cad || 0), pnl_cad: Number(b.result_cad || 0) })))
+      .concat(bets.filter((b) => b.status !== 'Open' && b.status !== 'Void').map((b) => ({ key: 'Sports: ' + b.bet + ' ' + b.pick, portfolio: 'Sports', item: b.bet + ' ' + b.pick, pnl: Number(b.result_cad || 0), pnl_cad: Number(b.result_cad || 0) })))
+      .concat(pensOf().map((x) => ({ key: 'Sports: penalty ' + x.day, portfolio: 'Sports', item: 'Penalty: ' + (x.day === 'total' ? 'total shortfall' : 'missed minimum ' + x.day), pnl: -Number(x.amount), pnl_cad: -Number(x.amount) })))
   });
 
   dash.calc('bysport', {
@@ -2394,7 +2405,7 @@
   const upDown = (v) => (v > 0 ? 'is-up' : v < 0 ? 'is-down' : '');
 
   const yuan = (v) => '¥' + d3.format(',.3f')(v);
-  dash.draw('holdings-body', (el) => fillBody(el, 'holdings', byPortfolio(el), (r) => encodeURIComponent(r.portfolio) + ',' + encodeURIComponent(r.holding), (r) => (el.dataset.all ? [[LABEL[r.portfolio] || r.portfolio]] : []).concat(r.currency === 'CNY' ? [
+  dash.draw('holdings-body', (el) => fillBody(el, 'holdings', (r) => byPortfolio(el)(r) && !(Math.abs(Number(r.quantity)) < 1e-9 && !/^Cash/.test(r.holding)), (r) => encodeURIComponent(r.portfolio) + ',' + encodeURIComponent(r.holding), (r) => (el.dataset.all ? [[LABEL[r.portfolio] || r.portfolio]] : []).concat(r.currency === 'CNY' ? [
     [r.holding + (r.code ? ' (' + r.code + ')' : '')],
     [num(r.quantity, (v) => d3.format(',.0f')(v)) + (r.holding === 'Cash (CNY)' ? ' yuan' : ''), 'num'],
     [num(r.entry_local, yuan), 'num'],
@@ -2408,7 +2419,7 @@
     [num(r.entry_usd, r.portfolio === 'Predictions' ? (v) => d3.format('.1f')(v * 100) + '¢' : usd), 'num'],
     [num(r.price_usd, r.portfolio === 'Predictions' ? (v) => d3.format('.1f')(v * 100) + '¢' : usd), 'num'],
     [r.price_usd === null ? '' : stFmt.pct(Number(r.change_pct)), 'num ' + upDown(Number(r.change_pct))],
-    [num(r.value_cad, (v) => d3.format(',.0f')(v)), 'num'],
+    [num(r.portfolio === 'China' ? r.value_usd : r.value_cad, (v) => d3.format(',.0f')(v)), 'num'],
     [r.price_source ? r.price_source + (r.price_at ? ', ' + stFmt.when(r.price_at) : '') : '', 'wrap src']
   ])));
   // "Show:" experiment menus on the overview tables
@@ -2646,7 +2657,7 @@
       }
       const sym = symOf(p); const cvp = (v) => conv(v, p);
       gChart(el, {
-        points: pts, name: p === 'Sports' ? 'Bankroll' : (LABEL[p] || p), bench, empty: p === 'China' ? 'Not started yet. The first trades happen at the Shanghai open, 9:30 p.m. ET.' : 'No history yet.',
+        points: pts, name: p === 'Sports' ? 'Bankroll' : (LABEL[p] || p), bench, empty: p === 'China' ? 'No China trades yet. Shanghai opens at 9:30 a.m. Beijing time (9:30 p.m. ET until Nov 1, 8:30 p.m. ET after).' : 'No history yet.',
         fmt: (v) => sym + d3.format(',.0f')(cvp(v)), fmtTip: (v) => sym + d3.format(',.2f')(cvp(v)),
         axis: (v, step) => (step < 100 ? sym + d3.format(',.0f')(cvp(v)) : sym + d3.format(',.1f')(cvp(v) / 1000) + 'k'),
         base: START, baseLabel: 'Started with ' + sym + d3.format(',.0f')(cvp(START))
@@ -2663,7 +2674,7 @@
       el.replaceChildren();
       if ([P, H, R, T].some((x) => x.status !== 'ok')) return;
       const pf = el.dataset.portfolio;
-      const hs = H.data.filter((h) => h.portfolio === pf && !['USDC', 'Cash (CAD)', 'Cash (CNY)'].includes(h.holding) && (h.price_local ?? h.price_usd) !== null && (h.price_local ?? h.price_usd) !== undefined);
+      const hs = H.data.filter((h) => h.portfolio === pf && h.holding !== 'USDC' && !/^Cash/.test(h.holding) && Math.abs(Number(h.quantity)) > 1e-9 && (h.price_local ?? h.price_usd) !== null && (h.price_local ?? h.price_usd) !== undefined);
       if (!hs.length) { el.appendChild(mk('div', 'gx-empty', 'Nothing held yet.')); return; }
       const pick = el._pick && hs.some((h) => h.holding === el._pick) ? el._pick : hs[0].holding;
       const chips = mk('div', 'st-chips'); chips.setAttribute('role', 'group'); chips.setAttribute('aria-label', 'Holding');
@@ -3014,6 +3025,7 @@
       rows.push({ at: b.placed_at || b.placed + 'T12:00:00-04:00', portfolio: 'Sports', action: 'Bet', item: b.bet + ' ' + b.pick, detail: b.event + ' at ' + odds, amount: 'C$' + d3.format(',.0f')(b.stake_cad), result: null });
       if (b.status !== 'Open') rows.push({ at: b.settled_at || (b.starts_at ? new Date(new Date(b.starts_at).getTime() + 3 * 3600e3).toISOString() : b.placed + 'T23:00:00-04:00'), portfolio: 'Sports', action: b.status, item: b.bet + ' ' + b.pick, detail: b.event, amount: '', result: Number(b.result_cad) });
     });
+    pensOf().forEach((x) => rows.push({ at: x.at, portfolio: 'Sports', action: 'Penalty', item: x.day === 'total' ? 'Total minimum shortfall' : 'Missed daily minimum ' + x.day, detail: x.reason, amount: '', result: -Number(x.amount) }));
     return rows.sort((a, b) => new Date(b.at) - new Date(a.at));
   };
   dash.draw('lg-trades', (el) => {
@@ -3225,7 +3237,7 @@
       return out;
     };
     if (!models.length) el.appendChild(mk('p', 'st-note', 'Gemini and ChatGPT appear here after their first check-in.'));
-    // Overall: who leads the most experiments (money is never added across experiments)
+    // Overall: total profit in C$ across the ten experiments, plus how many each AI leads
     {
       const tally = {}; SEL.forEach((id) => { tally[id] = { wins: 0, pcts: [], busted: 0, up: 0, profit: 0, made: 0, lost: 0 }; });
       const usdcad = rates().CAD || 1.38;
@@ -3295,7 +3307,7 @@
       ['gemini', 'chatgpt'].filter((id) => SEL.includes(id) && H2H_PLAN[id].includes(exp) && !ser.some((s) => s.id === id)).forEach((id) => {
         const li = mk('li', 'h2h-row h2h-wait'); li.style.setProperty('--ai', AIS[id].color);
         { const w = mk('span', 'h2h-name pd-who'); w.append(aiBadge(id, 18), document.createTextNode(AIS[id].label)); li.appendChild(w); }
-        li.appendChild(mk('span', 'h2h-sub', 'Starts at the 1:45 p.m. ET restart'));
+        li.appendChild(mk('span', 'h2h-sub', Date.now() < Date.parse('2026-10-28T17:45:00Z') ? 'Starts at the 1:45 p.m. ET restart' : 'No check-in in this experiment yet'));
         rows.appendChild(li);
       });
       box.appendChild(rows);
@@ -3323,7 +3335,7 @@
       dash.baseData('rivals_thoughts').filter((t) => t.experiment === EXP_SEL).forEach((t) => { latest[t.model] = t; });
     } else (RK.status === 'ok' ? RK.data : []).forEach((t) => { latest[t.model] = t; });
     Object.values(latest).forEach((t) => { if (AIS[t.model]) addTake(t.model, t.text, t.at); });
-    ['gemini', 'chatgpt'].forEach((id) => { if (!latest[id]) addTake(id, 'Starts at the 1:45 p.m. ET restart.'); });
+    ['gemini', 'chatgpt'].forEach((id) => { if (!latest[id]) addTake(id, Date.now() < Date.parse('2026-10-28T17:45:00Z') ? 'Starts at the 1:45 p.m. ET restart.' : 'No recent note on this experiment.'); });
     tbox.appendChild(ul);
     el.appendChild(tbox);
     { const pb = mk('div', 'h2h-exp'); pb.appendChild(mk('h3', '', 'Plans, feelings and opinions'));
@@ -3357,7 +3369,7 @@
     el.appendChild(tbx);
     const logRows = dash.baseData('log') || [];
     const claudeTrades = (dash.baseData('trades') || []).filter((t) => !String(t.holding).startsWith('[')).map((t) => {
-      const lg = logRows.find((l) => l.at === t.at && l.portfolio === t.portfolio);
+      const lg = logFor(logRows, t);
       return { at: t.at, experiment: t.portfolio, action: t.action, name: t.holding, symbol: t.holding, price: t.price_local != null ? Number(t.price_local) : Number(t.price_usd), pcur: t.portfolio === 'China' ? 'CNY' : t.portfolio === 'Predictions' ? 'P' : 'USD', amount: Number(t.cad != null ? t.cad : t.usd), reason: lg ? lg.detail : '' };
     });
     SEL.forEach((id) => {
@@ -3433,7 +3445,7 @@
   // (trade reasons, notes, fact checks, plan cards, updates). Added automatically wherever text is drawn.
   (() => {
     if (!('speechSynthesis' in window)) return;
-    const SKIP = '.h2h-holds, .pd-detail, nav, button, select, label, header .st-meta, .st-sub, .st-dates, .st-podium, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
+    const SKIP = '.h2h-holds, .pd-detail, .st-plans-wide, nav, button, select, label, header .st-meta, .st-sub, .st-dates, .st-podium, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
     const words = (t) => (t.trim().match(/\S+/g) || []).length;
     const NESTED = 'p, li, .st-plan, table, ul, ol';
     const textOf = (el, own) => {
@@ -3535,7 +3547,7 @@
     let all;
     if (id === 'claude') {
       const lg = dash.baseData('log');
-      all = dash.baseData('trades').filter((t) => !String(t.holding).startsWith('[')).map((t) => ({ at: t.at, experiment: t.portfolio, action: t.action, name: t.holding, amount: +(t.cad != null ? t.cad : t.usd), reason: (lg.find((l) => l.at === t.at && l.portfolio === t.portfolio) || {}).detail || '' }));
+      all = dash.baseData('trades').filter((t) => !String(t.holding).startsWith('[')).map((t) => ({ at: t.at, experiment: t.portfolio, action: t.action, name: t.holding, amount: +(t.cad != null ? t.cad : t.usd), reason: (logFor(lg, t) || {}).detail || '' }));
     } else all = dash.baseData('rivals_trades').filter((t) => t.model === id);
     all = all.concat(dash.baseData('allin_trades').filter((t) => t.model === id));
     if (el._f === undefined) el._f = { exp: '', kind: '', n: 25 };
@@ -3723,6 +3735,13 @@
     Object.keys(ES).forEach((e) => { const h = list(e); const li = mk('li'); li.append(mk('b', '', (LABEL[e] || e) + ': '), document.createTextNode(h.length ? h.join(' · ') : 'all cash')); ul.appendChild(li); });
     wrap.appendChild(ul); return wrap;
   };
+  // the log entry that explains one of Claude's trades: same time and experiment, then the same action and holding if several match
+  const logFor = (rows, t) => {
+    const c = rows.filter((l) => l.at === t.at && l.portfolio === t.portfolio);
+    if (c.length < 2) return c[0];
+    const h = String(t.holding || '').toLowerCase().split(' (')[0];
+    return c.find((l) => l.action === t.action && String(l.detail || '').toLowerCase().includes(h)) || c.find((l) => String(l.detail || '').toLowerCase().includes(h)) || c.find((l) => l.action === t.action) || c[0];
+  };
   const MODEL_COL = { claude: ['var(--accent)', 'var(--accent-bg)'], gemini: ['#4f8ff7', 'rgba(79,143,247,.09)'], chatgpt: ['var(--ai-chatgpt)', 'rgba(160,160,160,.08)'] };
   const applyModel = (id) => {
     { const c = MODEL_COL[id] || MODEL_COL.claude; document.documentElement.style.setProperty('--model', c[0]); document.documentElement.style.setProperty('--model-bg', c[1]); document.documentElement.dataset.model = id || 'claude'; }
@@ -3905,14 +3924,16 @@
   dash.draw('health', (el) => {
     el.replaceChildren();
     const rows = dash.baseData('checkins'); if (!rows.length) return;
-    el.appendChild(mk('span', '', 'Last check-ins:'));
+    const over = Date.now() >= Date.parse('2026-11-28T21:00:00Z');   // after the final scoring nobody checks in any more
+    el.appendChild(mk('span', '', over ? 'Final check-ins:' : 'Last check-ins:'));
     ['claude', 'gemini', 'chatgpt'].forEach((id) => {
       const r = rows.find((x) => x.id === id); if (!r || !r.at) return;
       const age = (Date.now() - Date.parse(r.at)) / 60000;
-      const bad = age > 80 || String(r.status || '').startsWith('error');
+      const bad = !over && (age > 80 || String(r.status || '').startsWith('error'));
       const sp = mk('span'); sp.appendChild(mk('b', '', AIS[id].label + ' '));
       sp.appendChild(mk('span', bad ? 'hl-bad' : 'hl-ok', bad ? (String(r.status || '').startsWith('error') ? '⚠ last check-in failed' : '⚠ missed a check-in') : '✓'));
-      sp.appendChild(document.createTextNode(' ' + new Date(r.at).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) + ' ET'));
+      const day = new Date(r.at).toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric' }) === new Date().toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric' }) ? '' : new Date(r.at).toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric' }) + ', ';
+      sp.appendChild(document.createTextNode(' ' + day + new Date(r.at).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) + ' ET'));
       el.appendChild(sp);
     });
   });
@@ -3948,6 +3969,7 @@
     const EXPS = [first].concat(['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'].filter((e) => e !== first));
     if (el._first !== first) { el._first = first; el._exp = null; }   // a market opening or closing moves the page to that race
     if (!el._exp) { try { el._exp = sessionStorage.getItem('pt-pod-exp') || first; } catch (e) { el._exp = first; } }
+    if (window.ptRace !== el._exp) { window.ptRace = el._exp; setTimeout(() => { if (dash.redraw) dash.redraw(); }, 0); }   // the goals and feelings cards follow this race
     el.appendChild(mk('h2', '', 'Race standings'));
     const sel = mk('select', 'pd-pick'); sel.setAttribute('aria-label', 'Choose the race');
     EXPS.forEach((e) => { const o = mk('option', '', LABEL[e] || e); o.value = e; if (e === el._exp) o.selected = true; sel.appendChild(o); });
@@ -4074,9 +4096,12 @@
     else { el.appendChild(mk('b', 'fc-mid', 'Fact check · pending')); el.appendChild(document.createTextNode(dash.model === 'claude' ? 'Gemini fact-checks Claude’s takes at its next check-in, so Claude never grades its own homework.' : 'Claude fact-checks this take against official and reputable sources at its next check-in.')); }
   });
   const PLAN_H = [['day', 'Next 24 hours'], ['week', 'Next 7 days'], ['month', 'Rest of the month'], ['feeling', 'How I’m feeling'], ['on_claude', 'On Claude'], ['on_gemini', 'On Gemini'], ['on_chatgpt', 'On ChatGPT']];
-  const planCards = (rows, el) => {
+  const planCards = (rows, el, exp) => {
+    const mine = exp ? rows.filter((x) => x.experiment === exp) : rows.filter((x) => !x.experiment);
+    const use = mine.length ? mine : rows.filter((x) => !x.experiment);
+    if (exp && !mine.length && use.length) el.appendChild(mk('p', 'st-note st-plans-wide', 'Its ' + (LABEL[exp] || exp) + ' plans come at its next check-ins; until then, its overall view:'));
     PLAN_H.forEach(([k, title]) => {
-      const r = rows.filter((x) => x.horizon === k).sort((a, b) => new Date(a.at) - new Date(b.at)).pop();
+      const r = use.filter((x) => x.horizon === k).sort((a, b) => new Date(a.at) - new Date(b.at)).pop();
       if (!r) return;
       const wid = AIS[r.model] ? r.model : (AIS[dash.model] ? dash.model : 'claude');
       const by = mk('span', 'st-by', '— ' + AIS[wid].label); by.style.color = AIS[wid].color;
@@ -4095,8 +4120,9 @@
     if (el._open === undefined) el._open = wide;
     det.open = el._open; det.addEventListener('toggle', () => { el._open = det.open; });
     const nm2 = AIS[dash.model] ? AIS[dash.model].label : 'This AI';
-    det.appendChild(mk('summary', '', nm2 + '’s goals, feelings and opinions'));
-    const g = mk('div', 'st-plans'); planCards(d.data, g); det.appendChild(g);
+    const race = window.ptRace;
+    det.appendChild(mk('summary', '', nm2 + '’s goals, feelings and opinions' + (race ? ' · ' + (LABEL[race] || race) : '')));
+    const g = mk('div', 'st-plans'); planCards(d.data, g, race); det.appendChild(g);
     el.appendChild(det);
   });
   dash.draw('take', (el) => {
@@ -4129,7 +4155,7 @@
         b.appendChild(mk('span', 'st-score-amt', stFmt.signed(r.pnl, r.portfolio) + ' · now ' + stFmt.money(r.value, r.portfolio)));
       } else {
         b.appendChild(mk('span', 'st-score-pct', r.portfolio === 'China' ? 'Not started yet' : 'All in cash'));
-        b.appendChild(mk('span', 'st-score-amt', r.portfolio === 'China' ? 'First trades at the Shanghai open, 9:30 p.m. ET' : (r.portfolio === 'Sports' || r.portfolio === 'Predictions' ? 'No bets yet; holding cash is allowed' : 'No trades yet; holding cash is allowed')));
+        b.appendChild(mk('span', 'st-score-amt', r.portfolio === 'China' ? 'No China trades yet (Shanghai opens 9:30 a.m. Beijing time)' : (r.portfolio === 'Sports' || r.portfolio === 'Predictions' ? 'No bets yet; holding cash is allowed' : 'No trades yet; holding cash is allowed')));
       }
       b.setAttribute('aria-label', (LABEL[r.portfolio] || r.portfolio) + (rank ? ', rank ' + rank + ', ' + stFmt.pct(r.pct) : r.portfolio === 'China' ? ', not started yet' : ', all in cash'));
       b.addEventListener('click', () => { goTab(TABOF[r.portfolio]); });
