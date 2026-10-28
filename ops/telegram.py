@@ -158,6 +158,7 @@ msgs = []
 TEST = os.environ.get('TEST') == '1'
 WELCOME = os.environ.get('MODE') == 'welcome'
 ANNOUNCE = os.environ.get('MODE') == 'announce'
+NOTE = os.environ.get('MODE') == 'note'
 SOURCES = load(S + 'sources.json')
 
 
@@ -167,6 +168,10 @@ def source_for(pf, holding):
     best = next((x for x in tagged if any(w in x['title'].lower() for w in words)), tagged[0] if tagged else None)
     return f"\nSource: <a href=\"{esc(best['url'])}\">{esc(best['title'])}</a>" if best else ''
 
+
+if NOTE:
+    send(open('ops/note.txt').read().strip())
+    sys.exit(0)
 
 if ANNOUNCE:
     rows = [{'pf': p, 'day': v, 'total': v} for p, v in (('Stocks', .0641), ('Crypto', .0136), ('China', .0055), ('Currencies', -.0004), ('Metals', -.0051))]

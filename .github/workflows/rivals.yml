@@ -1,8 +1,13 @@
 name: Head to head (Gemini and ChatGPT)
 on:
   schedule:
-    - cron: '37 * * * *'
-    - cron: '35 13 28 10 *'  # fresh start: same minute as Claude's US-open run
+    # Same moments as Claude's runs (times in UTC; GitHub may start them a few minutes late)
+    - cron: '13 * * * *'          # hourly, like Claude's hourly run
+    - cron: '43 13-20 * * 1-5'    # half-hour runs during US market hours (EDT and EST)
+    - cron: '35 13,14 * * 1-5'    # US open, 9:35 a.m. ET (EDT / EST)
+    - cron: '5 20,21 * * 1-5'     # US close, 4:05 p.m. ET (EDT / EST)
+    - cron: '35 1 * * 1-5'        # Shanghai open, 9:35 a.m. Beijing
+    - cron: '5 7 * * 1-5'         # Shanghai close, 3:05 p.m. Beijing
   workflow_dispatch:
     inputs:
       mode:
