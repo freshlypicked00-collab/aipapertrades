@@ -23,7 +23,7 @@ def _series(src='ops/src'):
     except FileNotFoundError:
         pass
     for v in out.values():
-        v.sort()
+        v.sort(key=lambda p: p[0])   # by time only; on a tie the row written last wins (same as the site)
     return out
 
 

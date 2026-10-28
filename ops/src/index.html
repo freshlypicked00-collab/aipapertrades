@@ -336,6 +336,13 @@
   .st-score-top { border-color: rgba(255, 201, 60, .55) !important; box-shadow: inset 0 0 0 1px rgba(255, 201, 60, .25); }
   :root[data-theme="light"] .st-rank-1, :root[data-theme="reader"] .st-rank-1 { color: #9a6a00; }
   .st-viewing .st-crown { margin-left: 6px; color: #ffc93c; }
+  .ai-badge { --bs: 20px; display: inline-flex; width: var(--bs); height: var(--bs); flex: 0 0 auto; vertical-align: middle; margin-right: 7px; }
+  .ai-badge svg { width: 100%; height: 100%; overflow: visible; }
+  .ai-badge .ab-ring { fill: none; stroke: var(--ab, currentColor); stroke-width: 1.5; }
+  .ai-badge .ab-g { fill: none; stroke: #fff; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+  :root[data-theme="light"] .ai-badge .ab-g, :root[data-theme="reader"] .ai-badge .ab-g { stroke: var(--color-fg); }
+  .pd-who { display: flex; align-items: center; }
+  .ai-hero h2 { display: flex; align-items: center; }
   .st-podium:empty { display: none; }
   .st-podium { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 12px 14px; background: var(--color-panel); align-self: start; }
   .st-podium h2 { margin: 0 0 2px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
@@ -3034,6 +3041,19 @@
   // ---------- top of page: the AI's take and the scoreboard
 
   // ---- Head to head: Claude vs Gemini vs ChatGPT ----
+  // Original badges (not the companies' logos): Claude = pen nib, Gemini = twin overlapping circles, ChatGPT = speech bubble.
+  const BADGE = {
+    claude: '<path d="M12 5.2 16.4 11.6 12 18.8 7.6 11.6Z"/><path d="M12 11.4V18.6"/><circle cx="12" cy="10.4" r="1.1"/>',
+    gemini: '<circle cx="9.6" cy="12" r="4.2"/><circle cx="14.4" cy="12" r="4.2"/>',
+    chatgpt: '<path d="M6.6 8.4c0-1 .8-1.8 1.8-1.8h7.2c1 0 1.8.8 1.8 1.8v5c0 1-.8 1.8-1.8 1.8h-4.4l-3 2.6v-2.6c-.9-.1-1.6-.9-1.6-1.8Z"/><path d="M9.6 10.9h.01M12 10.9h.01M14.4 10.9h.01" stroke-width="2.2"/>'
+  };
+  const aiBadge = (id, size) => {
+    const w = document.createElement('span'); w.className = 'ai-badge'; w.setAttribute('aria-hidden', 'true');
+    if (size) w.style.setProperty('--bs', size + 'px');
+    w.innerHTML = '<svg viewBox="0 0 24 24"><circle class="ab-ring" cx="12" cy="12" r="10.8"/><g class="ab-g">' + (BADGE[id] || '') + '</g></svg>';
+    const c = { claude: '#d97757', gemini: '#4f8ff7', chatgpt: 'var(--ai-chatgpt)' }[id]; if (c) w.style.setProperty('--ab', c);
+    return w;
+  };
   const AIS = { claude: { label: 'Claude', color: '#d97757' }, gemini: { label: 'Gemini', color: '#4f8ff7' }, chatgpt: { label: 'ChatGPT', color: 'var(--ai-chatgpt)' } };
   const H2H_EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'];
   const H2H_PLAN = { gemini: H2H_EXPS, chatgpt: H2H_EXPS };
@@ -3111,7 +3131,7 @@
         const ranked = SEL.map((id) => ({ id, ...tally[id], avg: avg(tally[id].pcts) })).sort((a, b) => b.profit - a.profit);
         ranked.forEach((s, i) => {
           const li = mk('li', 'h2h-row'); li.style.setProperty('--ai', AIS[s.id].color);
-          const nm = mk('span', 'h2h-name'); nm.appendChild(mk('span', '', AIS[s.id].label));
+          const nm = mk('span', 'h2h-name'); { const w = mk('span', 'pd-who'); w.append(aiBadge(s.id, 18), document.createTextNode(AIS[s.id].label)); nm.appendChild(w); }
           if (i === 0 && ranked.length > 1 && s.profit !== ranked[1].profit) nm.appendChild(mk('span', 'h2h-lead', '👑 Leading overall'));
           const elim = s.profit <= -100000 || (models.find((x) => x.id === s.id) || {}).eliminated;
           if (elim) { const t = mk('span', 'h2h-lead', 'ELIMINATED'); t.style.color = 'var(--color-bad, #ff5a4e)'; nm.appendChild(t); }
@@ -3136,7 +3156,7 @@
       const ranked = ser.map((s) => ({ ...s, last: s.pts[s.pts.length - 1].v, pct: s.pts[s.pts.length - 1].v / 100000 - 1 })).sort((a, b) => b.pct - a.pct);
       ranked.forEach((s, i) => {
         const li = mk('li', 'h2h-row'); li.style.setProperty('--ai', AIS[s.id].color);
-        const nm = mk('span', 'h2h-name'); nm.appendChild(mk('span', '', AIS[s.id].label));
+        const nm = mk('span', 'h2h-name'); { const w = mk('span', 'pd-who'); w.append(aiBadge(s.id, 18), document.createTextNode(AIS[s.id].label)); nm.appendChild(w); }
         if (i === 0 && ranked.length > 1 && s.pct !== ranked[1].pct) nm.appendChild(mk('span', 'h2h-lead', 'Leading'));
         li.appendChild(nm);
         const mdl = models.find((x) => x.id === s.id);
@@ -3147,7 +3167,7 @@
       });
       ['gemini', 'chatgpt'].filter((id) => SEL.includes(id) && H2H_PLAN[id].includes(exp) && !ser.some((s) => s.id === id)).forEach((id) => {
         const li = mk('li', 'h2h-row h2h-wait'); li.style.setProperty('--ai', AIS[id].color);
-        li.appendChild(mk('span', 'h2h-name', AIS[id].label));
+        { const w = mk('span', 'h2h-name pd-who'); w.append(aiBadge(id, 18), document.createTextNode(AIS[id].label)); li.appendChild(w); }
         li.appendChild(mk('span', 'h2h-sub', 'Starts at the 1:45 p.m. ET restart'));
         rows.appendChild(li);
       });
@@ -3324,7 +3344,7 @@
     const card = (cls) => { const c = mk('section', 'st-card ' + (cls || '')); c.style.setProperty('--ai', AIS[id].color); el.appendChild(c); return c; };
     // hero
     const hero = card('ai-hero');
-    hero.appendChild(mk('h2', '', nm));
+    { const h = mk('h2'); h.append(aiBadge(id, 30), document.createTextNode(nm)); hero.appendChild(h); }
     const meta = (dash.baseData('rivals_models').find((m) => m.id === id) || {});
     hero.appendChild(mk('p', 'ai-co', AI_CO[id] + ' · model: ' + (id === 'claude' ? 'Claude Opus 5.5' : (meta.model || '—')) + ' · everything below is written and decided by ' + nm + ' itself'));
     const fx = rates().CAD || 1.38;
@@ -3423,7 +3443,7 @@
       const rows = mk('ul', 'h2h-rows');
       ranked.forEach((x, i) => {
         const li = mk('li', 'h2h-row'); li.style.setProperty('--ai', AIS[x.id].color);
-        const nm = mk('span', 'h2h-name'); nm.appendChild(mk('span', '', AIS[x.id].label));
+        const nm = mk('span', 'h2h-name'); { const w = mk('span', 'pd-who'); w.append(aiBadge(x.id, 18), document.createTextNode(AIS[x.id].label)); nm.appendChild(w); }
         if (x.book.busted) { const t = mk('span', 'h2h-lead', 'BUSTED'); t.style.color = '#ff5a4e'; nm.appendChild(t); }
         else if (i === 0 && ranked.length > 1 && x.last !== ranked[1].last) nm.appendChild(mk('span', 'h2h-lead', 'Leading'));
         li.appendChild(nm);
@@ -3767,7 +3787,7 @@
     rows.forEach((r, i) => {
       const li = mk('li'); const b = mk('button'); b.type = 'button'; b.style.setProperty('--ai', AIS[r.id].color);
       if (dash.model === r.id) b.setAttribute('aria-current', 'true');
-      b.append(mk('span', 'pd-place', i === 0 ? '👑 1st' : ['1st', '2nd', '3rd'][i] || (i + 1) + 'th'), (() => { const n = mk('span', 'pd-name', AIS[r.id].label); n.appendChild(mk('small', 'pd-leads', (r.leads && r.leads.length) ? 'Leads ' + r.leads.join(', ') : 'Leads no experiment yet')); return n; })());
+      b.append(mk('span', 'pd-place', i === 0 ? '👑 1st' : ['1st', '2nd', '3rd'][i] || (i + 1) + 'th'), (() => { const n = mk('span', 'pd-name'); const w = mk('span', 'pd-who'); w.append(aiBadge(r.id, 20), document.createTextNode(AIS[r.id].label)); n.appendChild(w); n.appendChild(mk('small', 'pd-leads', (r.leads && r.leads.length) ? 'Leads ' + r.leads.join(', ') : 'Leads no experiment yet')); return n; })());
       const a = mk('span', 'pd-amt', (r.total >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(r.total))); tone(a, r.total); b.appendChild(a);
       b.addEventListener('click', () => { const s = document.getElementById('model-pick'); if (s) { s.value = r.id; s.dispatchEvent(new Event('change')); } });
       li.appendChild(b); ol.appendChild(li);
