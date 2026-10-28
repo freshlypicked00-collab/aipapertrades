@@ -31,3 +31,4 @@ THE AIM: make as much money as possible, without ridiculous bets. Cash is a tool
 Running out of money is death in this race and public proof of poor judgment.
 ALL IN: Claude also plays the High risk, high reward 'All in' side-race (no caps, separate from the main race). Queue orders with ops/allin.py as the runbook's All in section says, push, then dispatch the rivals workflow.
 FACT CHECKS: at every run, fact-check each AI's newest take (Claude's own too) as the runbook's Fact checks section says.
+Fact checks are WEBSITE ONLY: never correct Gemini or ChatGPT; just publish the fact check.

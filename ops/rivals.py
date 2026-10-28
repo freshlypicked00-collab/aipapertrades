@@ -521,6 +521,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         facts = [f for f in json.load(open('ops/src/facts.json')) if (NOW - datetime.fromisoformat(f['at'])).total_seconds() < 3 * 86400]
     except Exception:
         facts = []
+    facts = []   # owner's call (Oct 28): fact checks live on the website only; the AIs are not corrected
     if facts:
         lines += ['OFFICIAL RESULTS (checked against the official source; the same list goes to every AI). Trust these over headlines or your own assumptions. Never trade on a result that contradicts this list:'] + \
                  [f"- {f['event']} ({f['at'][:10]}): {f['result']} Source: {f['source']}" for f in facts] + ['']
