@@ -670,10 +670,10 @@ body { background:#0b0b0a; }
     </section>
     <section class="st-card" aria-labelledby="h-c-hold">
       <h2 class="st-h2" id="h-c-hold">Holdings</h2>
-      <p class="st-note">Prices in US dollars; values in Canadian dollars at the latest exchange rate.</p>
+      <p class="st-note">Every coin is bought and priced in US dollars per coin (for example, XRP was bought at US$1.30 per XRP). Quantity is the number of coins held. Values are converted to Canadian dollars at the latest exchange rate.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
-          <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Quantity</th><th data-field="entry_usd" class="num">Entry (US$)</th><th data-field="price_usd" class="num">Now (US$)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th><th data-field="price_source">Price source</th></tr></thead>
+          <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Coins</th><th data-field="entry_usd" class="num">Bought at (US$ per coin)</th><th data-field="price_usd" class="num">Now (US$ per coin)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th><th data-field="price_source">Price source</th></tr></thead>
           <tbody data-draw="holdings-body" data-portfolio="Crypto"></tbody>
         </table>
       </div>
@@ -1979,7 +1979,7 @@ body { background:#0b0b0a; }
   };
   const byPortfolio = (el, alsoBoth) => (r) => !el.dataset.portfolio || r.portfolio === el.dataset.portfolio || (alsoBoth && r.portfolio === 'Both');
   const num = (v, f) => (v === null || v === undefined || v === '') ? '' : f(Number(v));
-  const usd = (v) => Math.abs(v) >= 1000 ? '$' + d3.format(',.0f')(v) : Math.abs(v) >= 0.1 ? '$' + d3.format(',.2f')(v) : '$' + d3.format('.4~r')(v);
+  const usd = (v) => Math.abs(v) >= 1000 ? 'US$' + d3.format(',.0f')(v) : Math.abs(v) >= 0.1 ? 'US$' + d3.format(',.2f')(v) : 'US$' + d3.format('.4~r')(v);
   const upDown = (v) => (v > 0 ? 'is-up' : v < 0 ? 'is-down' : '');
 
   const yuan = (v) => '¥' + d3.format(',.3f')(v);
