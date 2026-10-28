@@ -178,6 +178,11 @@ if ANNOUNCE:
     send(open('ops/announce.txt').read().strip() + f'\n{SITE}', chart_scoreboard(rows, "Claude's first run, final (Oct 26-28)", single='Return since start'))
     sys.exit(0)
 
+EDIT_PIN = os.environ.get('MODE') == 'editwelcome'
+if WELCOME or EDIT_PIN:
+    pass
+if EDIT_PIN:
+    WELCOME = True
 if WELCOME:
     last = {}
     for h in HIST:
@@ -191,22 +196,34 @@ if WELCOME:
              "and they are scored against each other. Nothing is ever added together.\n\n"
              "🟠 <b>Claude</b> (Anthropic): all ten experiments\n"
              "🔵 <b>Gemini</b> (Google): Stocks and anything · Crypto · China stocks · Metals · Oil and energy\n"
-             "🟢 <b>ChatGPT</b> (OpenAI): joining soon\n\n"
+             "🟢 <b>ChatGPT</b> (OpenAI): Stocks and anything · Crypto · Prediction markets\n\n"
              "<b>Trading:</b> Stocks and anything · Crypto · China stocks · Metals · Oil and energy · Options · Currencies · Play it safe\n"
-             "<b>Betting</b> (Claude): Sports · Prediction markets\n\n"
-             "🔁 <b>Fresh start:</b> every trading experiment was reset to C$100,000 (China stocks: US$100,000) so Claude and Gemini start level. "
-             "Both make their opening investments at the US market open, 9:30 a.m. ET Oct 28; China stocks at the Shanghai open. Betting carries on as it was.\n\n"
+             "<b>Betting:</b> Sports (Claude) · Prediction markets (Claude and ChatGPT)\n\n"
+             "🔁 <b>Fresh start:</b> every trading experiment was reset to C$100,000 (China stocks: US$100,000) so all three AIs start level. "
+             "All three make their opening investments at the US market open, 9:30 a.m. ET Oct 28; China stocks at the Shanghai open. Claude's betting carries on as it was.\n\n"
              "<b>How it works</b>\n"
-             "• Each AI checks markets and searches the news on its own (at least hourly), decides for itself and explains every trade in its own words\n"
+             "• All three AIs check in at the same times (hourly, every 30 minutes in US market hours, and at the US and Shanghai opens and closes), search the news themselves, and explain every trade in their own words\n"
              "• Every model writes its own daily report card and grades itself\n"
-             "• A daily accuracy check reviews prices and fixes mistakes\n\n"
+             "• Every post here starts with who made it: 🟠 CLAUDE, 🔵 GEMINI or 🟢 CHATGPT\n\n"
              "<b>What you'll see here</b>\n"
              "🟢🔴 every buy and sell with a price chart (24 hours, 7 days, 30 days) · 🎯 every bet and result · 💬 each AI's take · "
              "📒 the daily close at 8 p.m. ET (00:00 UTC)\n\n"
              "🔴 Simulation only. No real money. Not investment or betting advice.\n\n"
              f"Compare them live on the AI vs AI tab, and switch models on the site: {SITE}")
+    if EDIT_PIN and TOKEN and CHAT:
+        try:
+            chat = json.loads(urllib.request.urlopen(f'https://api.telegram.org/bot{TOKEN}/getChat?chat_id={urllib.parse.quote(CHAT)}', timeout=20).read())['result']
+            pin = chat.get('pinned_message') or {}
+            data = urllib.parse.urlencode({'chat_id': CHAT, 'message_id': pin['message_id'], 'text': intro, 'parse_mode': 'HTML', 'disable_web_page_preview': 'true'}).encode()
+            urllib.request.urlopen(f'https://api.telegram.org/bot{TOKEN}/editMessageText', data, timeout=20).read()
+            print('edited pinned message', pin['message_id'])
+            sys.exit(0)
+        except SystemExit:
+            raise
+        except Exception as e:
+            print('could not edit the pinned message, posting a new one:', e)
     mid = send(intro, 'og.png' if os.path.exists('og.png') else None)
-    lines = [f"🏁 <b>Where things stand: day {day} of 32</b> (Claude; Gemini starts at the open)\n"]
+    lines = [f"🏁 <b>Where things stand: day {day} of 32</b> (Claude; Gemini and ChatGPT start at the open)\n"]
     for i, (pf, v) in enumerate(board, 1):
         sym = 'US$' if pf == 'China' else 'C$'
         ch = v - 100000
@@ -220,7 +237,7 @@ if WELCOME:
     send('\n'.join(lines), chart_scoreboard(rows, f'Day {day} standings'))
     tk = load(S + 'take.json')
     if tk:
-        send(f"💬 <b>The AI's take</b>\n“{esc(tk[-1]['text'])}”\n{SITE}")
+        send(f"🟠 <b>CLAUDE</b> (Anthropic)\n💬 <b>Claude's take</b>\n“{esc(tk[-1]['text'])}”\n{SITE}")
     if TOKEN and CHAT and mid:
         try:
             urllib.request.urlopen(f'https://api.telegram.org/bot{TOKEN}/pinChatMessage', urllib.parse.urlencode({'chat_id': CHAT, 'message_id': mid, 'disable_notification': 'true'}).encode(), timeout=20).read()
@@ -271,7 +288,7 @@ for t in load(S + 'trades.json'):
 oldt = {x['at'] for x in load(S + 'take.json', BEFORE if not TEST else None)}
 for x in load(S + 'take.json'):
     if x['at'] not in oldt:
-        msgs.append((f"💬 <b>The AI's take</b>\n“{esc(x['text'])}”", None))
+        msgs.append((f"💬 <b>Claude's take</b>\n“{esc(x['text'])}”", None))
 
 # closed ledger days
 oldd = {r['day'] for r in load(S + 'ledger.json', BEFORE if not TEST else None)}

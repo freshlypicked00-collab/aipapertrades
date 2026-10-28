@@ -261,9 +261,9 @@
     </p>
     <p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>
     <div class="st-hook">
-      <p class="st-hook-q">Can an AI make money in real markets?</p>
-      <p class="st-hook-sub">Ten separate experiments, each with its own C$100,000 of pretend money and real-world prices. Every trade and bet is public, win or lose, until Nov 28.</p>
-      <p class="st-take"><span class="st-take-l">The AI's take</span><span data-draw="take" data-source="take">—</span></p>
+      <p class="st-hook-q">Which AI makes the most money in real markets?</p>
+      <p class="st-hook-sub">Claude, Gemini and ChatGPT trade head to head from Oct 28 to Nov 28. Each AI runs its own separate copies of the experiments with C$100,000 of pretend money each and real-world prices. Every trade and bet is public, win or lose.</p>
+      <p class="st-take"><span class="st-take-l">Claude's take</span><span data-draw="take" data-source="take">—</span></p>
     </div>
     <section class="st-score" aria-labelledby="h-score">
       <h2 class="st-score-h" id="h-score">Scoreboard <span>Return since each experiment started, best first. Tap one to open it.</span></h2>
@@ -277,13 +277,13 @@
       <a class="st-live-btn" href="https://t.me/papertradesai" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.8-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2L6.5 13.2l-4.7-1.5c-1-.3-1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg>Join @papertradesai</a>
     </section>
     <div class="st-notice-row">
-  <p class="st-notice" role="note"><span class="st-dot" aria-hidden="true"></span><span><b>This is a simulation, not investment advice.</b> No real money is involved. It is a 30-day experiment in which an AI model makes trading and betting decisions using real-world prices, to see how its judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results for all ten will be posted on Nov 28, win or lose.</span></p>
+  <p class="st-notice" role="note"><span class="st-dot" aria-hidden="true"></span><span><b>This is a simulation, not investment advice.</b> No real money is involved. It is a one-month experiment in which AI models make trading and betting decisions using real-world prices, to see how their judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results for all ten will be posted on Nov 28, win or lose.</span></p>
       <div class="st-model" role="group" aria-labelledby="model-l">
         <label class="st-model-l" id="model-l" for="model-pick">Model</label>
         <select id="model-pick" class="model-pick">
           <option value="claude">Claude (Anthropic)</option>
           <option value="gemini">Gemini (Google)</option>
-          <option value="chatgpt" disabled>ChatGPT (OpenAI): N/A</option>
+          <option value="chatgpt" disabled>ChatGPT (OpenAI)</option>
         </select>
         <p class="st-model-note" data-model-note>Showing Claude's ten experiments.</p>
         <button type="button" class="st-model-cmp" data-goto="h2h">Compare all models in AI vs AI →</button>
@@ -1347,7 +1347,7 @@
   <section class="st-page" id="h2h" data-page="h2h" hidden>
     <section class="st-card" aria-labelledby="h-h2h">
       <h2 class="st-h2" id="h-h2h">Claude vs Gemini vs ChatGPT</h2>
-      <p class="st-note">Claude runs all ten experiments on this site. Gemini (Google) runs its own separate copies of five of them: stocks and anything, crypto, China stocks, metals, and oil and energy. ChatGPT (OpenAI) runs its own copies of stocks and anything, crypto, and prediction markets. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored only against its own start; nothing is ever added together. Gemini and ChatGPT check in every hour, search the news themselves and make their own trades. Returns are measured from the day each model joined.</p>
+      <p class="st-note">Claude runs all ten experiments on this site. Gemini (Google) runs its own separate copies of five of them: stocks and anything, crypto, China stocks, metals, and oil and energy. ChatGPT (OpenAI) runs its own copies of stocks and anything, crypto, and prediction markets. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored only against its own start; nothing is ever added together. All three check in at the same times, search the news themselves and make their own trades. The trading experiments all restarted together on Oct 28 (Claude's betting experiments were not reset).</p>
       <div data-draw="h2h" data-source="rivals_models rivals_history rivals_trades rivals_takes history totals take"></div>
     </section>
   </section>
@@ -1357,7 +1357,7 @@
       <select id="model-pick-ledger" class="model-pick">
         <option value="claude">Claude (Anthropic)</option>
         <option value="gemini">Gemini (Google)</option>
-        <option value="chatgpt" disabled>ChatGPT (OpenAI): N/A</option>
+        <option value="chatgpt" disabled>ChatGPT (OpenAI)</option>
       </select>
       <p class="st-model-note" data-model-note>Showing Claude's ten experiments.</p>
     </div>
@@ -1448,29 +1448,32 @@
   </section>
   <section class="st-card st-about" aria-labelledby="h-about" id="about">
     <h2 class="st-h2" id="h-about">About this experiment</h2>
-    <p>This page tracks a one-month paper-trading experiment, Oct 28 to Nov 28, 2026 (the betting experiments began a day earlier and carry on to the same end). An AI model runs ten separate simulations with pretend money and real-world prices, and each one is scored only against its own starting amount. They are never added together.</p>
+    <p>This page tracks a one-month paper-trading experiment, Oct 28 to Nov 28, 2026, in which AI models compete head to head with pretend money and real-world prices. Each model runs its own separate copy of each experiment, and every copy is scored only against its own starting amount. Experiments are never added together.</p>
     <ul class="st-exp-list">
-      <li><b>Trading:</b> stocks and anything, crypto, China stocks on the Shanghai and Shenzhen exchanges (US$100,000), precious metals, oil and energy, options, currencies with leverage, and a low-risk "play it safe" control (C$100,000 each). All eight were reset to a fresh start on Oct 28 so Claude and Gemini start level; the first run (Oct 26–28) is archived.</li>
-      <li><b>Betting:</b> sports betting (C$100,000, Oct 27) and prediction markets (C$100,000, Oct 28).</li>
+      <li><b>Claude</b> (Anthropic) runs all ten experiments. <b>Gemini</b> (Google) runs its own copies of stocks and anything, crypto, China stocks, metals, and oil and energy. <b>ChatGPT</b> (OpenAI) runs its own copies of stocks and anything, crypto, and prediction markets. Use the Model menu to switch the whole page between them, and the AI vs AI tab to compare them side by side.</li>
+    </ul>
+    <ul class="st-exp-list">
+      <li><b>Trading:</b> stocks and anything, crypto, China stocks on the Shanghai and Shenzhen exchanges (US$100,000), precious metals, oil and energy, options, currencies with leverage, and a low-risk "play it safe" control (C$100,000 each). All eight were reset to a fresh start on Oct 28, 9:30 a.m. ET, so every AI starts level; China stocks start at the Shanghai open that evening. Claude's first run (Oct 26–28) is archived.</li>
+      <li><b>Betting:</b> sports betting (C$100,000, from Oct 27) and prediction markets (C$100,000, from Oct 28). Claude's betting experiments were not reset; ChatGPT's prediction markets start fresh at the Oct 28 start.</li>
     </ul>
     <h3 class="st-h3">How it works</h3>
-    <p>The experiment runs on its own. No person approves or places the individual trades; the AI does the work on a fixed schedule and updates this page each time. Each new trade, bet, result and daily close is also posted automatically to the <a href="https://t.me/papertradesai" target="_blank" rel="noopener">@papertradesai Telegram channel</a>.</p>
+    <p>The experiment runs on its own. No person approves or places the individual trades; each AI decides on its own on a fixed schedule, and this page updates each time. Each new trade, bet, result and daily close is also posted automatically to the <a href="https://t.me/papertradesai" target="_blank" rel="noopener">@papertradesai Telegram channel</a>.</p>
     <ul class="st-how">
-      <li><b>Automatic check-ins.</b> The AI runs an update every hour around the clock, every 30 minutes while US markets are open, and 5 minutes after the US and Chinese markets open and close. It also schedules extra check-ins right after big events, such as central-bank decisions, major earnings and election night, and when important news breaks.</li>
-      <li><b>What each check-in does.</b> It looks up current prices, odds and results from public sources, checks every simulation's rules and the latest news, decides whether to buy, sell, bet or hold, and then updates this site.</li>
-      <li><b>How trades are made.</b> Trades only happen during each market's real trading hours, at prices the AI actually found, with the amount, price, time and source recorded. Rules tied to a price work like stop and limit orders: if a price touches its level between check-ins, the trade is filled at that level.</li>
+      <li><b>Automatic check-ins.</b> All three AIs check in at the same times: every hour around the clock, every 30 minutes while US markets are open, and 5 minutes after the US and Chinese markets open and close. Claude also schedules extra check-ins right after big events, such as central-bank decisions, major earnings and election night, and when important news breaks.</li>
+      <li><b>What each check-in does.</b> Each AI looks up current prices, odds and results, searches the latest news itself, decides whether to buy, sell, bet or hold, and explains every decision in its own words. Gemini's and ChatGPT's trades fill at live Yahoo Finance and Polymarket prices at the moment they decide.</li>
+      <li><b>How trades are made.</b> Trades only happen during each market's real trading hours, at prices the AI actually found or was filled at, with the amount, price, time and source recorded. Rules tied to a price work like stop and limit orders: if a price touches its level between check-ins, the trade is filled at that level.</li>
       <li><b>Everything is recorded.</b> Every trade and bet goes into the Ledger automatically, with a one-line reason in each simulation's decision log. Losing trades are never removed.</li>
-      <li><b>Daily review.</b> Each day closes at midnight UTC with every simulation's result and the AI's own write-up and grade. Every evening a separate check re-verifies the last 24 hours of prices, trades and maths against fresh sources and logs any correction it makes.</li>
+      <li><b>Daily review.</b> Each day closes at midnight UTC. Each AI then writes its own report card and grades itself for every experiment it runs. Every evening a separate check re-verifies the last 24 hours of Claude's prices, trades and maths against fresh sources and logs any correction, and flags anything odd in Gemini's and ChatGPT's records.</li>
       <li><b>If something can't be confirmed.</b> If a price can't be found or a source is down, the last known price stays in place and the check-in says so. Nothing is estimated or invented.</li>
     </ul>
     <h3 class="st-h3">Important</h3>
     <ul>
-      <li><b>Independent.</b> This is an independent experiment, not affiliated with, sponsored by or endorsed by any brokerage, sportsbook, exchange or AI company.</li>
-      <li><b>Not advice.</b> Nothing on this page is financial, investment, tax or betting advice, and the AI is not a licensed advisor. The picks are an experiment, not recommendations. Do your own research and talk to a qualified professional before risking real money.</li>
+      <li><b>Independent.</b> This is an independent experiment, not affiliated with, sponsored by or endorsed by any brokerage, sportsbook, exchange or AI company, including Anthropic, Google and OpenAI.</li>
+      <li><b>Not advice.</b> Nothing on this page is financial, investment, tax or betting advice, and no AI here is a licensed advisor. The picks are an experiment, not recommendations. Do your own research and talk to a qualified professional before risking real money.</li>
       <li><b>No real money.</b> No trades or bets were actually placed. Every position and result is hypothetical.</li>
       <li><b>Real prices, simplified.</b> Prices come from public sources (exchange quotes, market news sites, sportsbook odds and prediction-market prices) at the time of each check-in. They may be delayed or differ from prices you could actually get. Fees, taxes, bid-ask spreads and slippage are not included, so real results would be lower.</li>
-      <li><b>High risk on purpose.</b> Every simulation except "play it safe" is run for big returns, not safety. The stocks simulation holds 3x leveraged funds, the currencies simulation borrows to hold positions several times its value, options can expire worthless, and crypto, energy, sports and prediction-market bets can swing sharply. These choices test aggressive decision-making; they do not suit most people.</li>
-      <li><b>Short window, lots of luck.</b> Thirty days is too short to prove skill. A good or bad result here says little about future performance.</li>
+      <li><b>High risk on purpose.</b> Every simulation except "play it safe" is run for big returns, not safety. Leveraged funds can fall fast, the currencies simulation borrows to hold positions several times its value, options can expire worthless, and crypto, energy, sports and prediction-market bets can swing sharply. These choices test aggressive decision-making; they do not suit most people.</li>
+      <li><b>Short window, lots of luck.</b> One month is too short to prove skill, for any of the AIs. A good or bad result here says little about future performance.</li>
       <li><b>Betting is for adults only.</b> Sports odds and prediction-market prices are shown for the experiment, not as an endorsement of any sportsbook or market. If you bet for real, set a limit you can afford to lose, and seek help if it stops being fun.</li>
       <li><b>Results, win or lose.</b> The final results for all ten simulations will be posted here on Nov 28, whether they are good or bad. Losing trades and bets stay in the log.</li>
       <li><b>How it's scored.</b> Values are in Canadian dollars at the latest exchange rate, except China stocks, which are counted in US dollars. Each simulation is compared with a simple benchmark: the S&amp;P 500 and TSX for stocks, holding Bitcoin for crypto, holding gold for metals, the CSI 300 for China stocks, the USO oil fund for energy, the S&amp;P 500 for options, a 2.25% savings account for currencies and "play it safe", and the closing line for sports. Final scoring is Saturday Nov 28 at 4:00 p.m. ET. US markets are shut that day (and close early Friday Nov 27 after Thanksgiving), so the US-traded simulations score at the Nov 27 close; crypto, prediction markets and sports score at the Nov 28 time.</li>
@@ -1492,6 +1495,14 @@
     document.querySelectorAll('[data-phase]').forEach((el) => { el.hidden = (el.dataset.phase === 'ended') !== ended; });
   });
   const SYM = (p) => (p === 'China' ? 'US$' : 'C$');
+  // The private tracker's runtime has no model switching; give it Claude-only stand-ins.
+  if (typeof dash.models !== 'function') {
+    dash.model = 'claude';
+    dash.models = () => ({});
+    dash.baseData = (id) => { const d = dash.data(id); return d && d.status === 'ok' ? d.data : []; };
+    dash.useModel = () => {};
+    dash.onModel = (fn) => { setTimeout(() => fn('claude'), 0); };
+  }
   const PFS_ALL = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'];
   const PFS = PFS_ALL.slice(); // narrowed in place when another model is picked
   const LABEL = { Stocks: 'Stocks and anything', China: 'China stocks (US$)', Energy: 'Oil and energy', Predictions: 'Prediction markets', Safe: 'Play it safe' };
@@ -2236,10 +2247,11 @@
     if (d.status !== 'ok') return null;
     const days = d3.groups(d.data, (r) => r.day).map(([day, rows]) => ({ day, rows, all: rows.find((r) => r.portfolio === 'All'), start_at: rows[0].start_at, end_at: rows[0].end_at }))
       .sort((a, b) => (a.day < b.day ? -1 : 1));
-    days.forEach((x, i) => { x.n = i + 1; });
+    days.forEach((x) => { x.n = Math.floor((Date.parse(x.day + 'T00:00:00Z') - Date.UTC(2026, 9, 28)) / DAY_MS) + 1; });
     return days;
   };
-  const dayTitle = (x) => 'Day ' + x.n + ' · ' + new Date(x.day + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' });
+  const dayLabel = (n) => (n >= 1 ? 'Day ' + n : 'Before the fresh start');
+  const dayTitle = (x) => dayLabel(x.n) + ' · ' + new Date(x.day + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' });
   const dayShort = (x) => new Date(x.day + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' });
 
   // report cards: every saved version, grouped by the ledger day it covers
@@ -2311,7 +2323,7 @@
     const lab = mk('label', '', 'Show report card: ');
     const sel = mk('select'); sel.id = 'lg-review-pick';
     vs.forEach((v, i) => {
-      const o = mk('option', '', 'Day ' + v.n + ' · ' + dayName(v.day) + ' (written ' + stFmt.when(v.t) + ')' + (i === 0 ? ', latest' : ''));
+      const o = mk('option', '', dayLabel(v.n) + ' · ' + dayName(v.day) + ' (written ' + stFmt.when(v.t) + ')' + (i === 0 ? ', latest' : ''));
       o.value = v.at; sel.appendChild(o);
     });
     if (el._pick && vs.some((v) => v.at === el._pick)) sel.value = el._pick;
@@ -2712,7 +2724,7 @@
       });
       return out;
     };
-    if (!models.length) el.appendChild(mk('p', 'st-note', 'Gemini joins at its first hourly check-in. ChatGPT: N/A (not connected yet).'));
+    if (!models.length) el.appendChild(mk('p', 'st-note', 'Gemini and ChatGPT appear here after their first check-in.'));
     H2H_EXPS.forEach((exp) => {
       const box = mk('div', 'h2h-exp');
       box.appendChild(mk('h3', '', LABEL[exp] || exp));
@@ -2731,8 +2743,7 @@
       ['gemini', 'chatgpt'].filter((id) => H2H_PLAN[id].includes(exp) && !ser.some((s) => s.id === id)).forEach((id) => {
         const li = mk('li', 'h2h-row h2h-wait'); li.style.setProperty('--ai', AIS[id].color);
         li.appendChild(mk('span', 'h2h-name', AIS[id].label));
-        if (id === 'chatgpt') { li.appendChild(mk('span', 'h2h-pct', 'N/A')); li.appendChild(mk('span', 'h2h-sub', 'Not connected yet')); }
-        else li.appendChild(mk('span', 'h2h-sub', 'Starts at its first hourly check-in'));
+        li.appendChild(mk('span', 'h2h-sub', 'Starts at the 9:30 a.m. ET fresh start'));
         rows.appendChild(li);
       });
       box.appendChild(rows);
@@ -2753,7 +2764,7 @@
     if (TK.status === 'ok' && TK.data.length) { const t = TK.data[TK.data.length - 1]; addTake('claude', t.text, t.at); }
     const latest = {}; (RK.status === 'ok' ? RK.data : []).forEach((t) => { latest[t.model] = t; });
     Object.values(latest).forEach((t) => { if (AIS[t.model]) addTake(t.model, t.text, t.at); });
-    if (!latest.chatgpt) addTake('chatgpt', 'N/A (not connected yet).');
+    ['gemini', 'chatgpt'].forEach((id) => { if (!latest[id]) addTake(id, 'Starts at the 9:30 a.m. ET fresh start.'); });
     tbox.appendChild(ul);
     el.appendChild(tbox);
     // each rival's trades, separately
@@ -2763,7 +2774,7 @@
       const h = mk('h3', '', AIS[id].label + ' trades'); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px';
       rbox.appendChild(h);
       const connected = models.some((m) => m.id === id);
-      if (!connected) rbox.appendChild(mk('p', 'st-note', id === 'chatgpt' ? 'N/A (not connected yet).' : 'Starts at its first hourly check-in.'));
+      if (!connected) rbox.appendChild(mk('p', 'st-note', 'Starts at the 9:30 a.m. ET fresh start.'));
       else if (!trades.length) rbox.appendChild(mk('p', 'st-note', 'No trades yet.'));
       else {
         const wrap = mk('div', 'h2h-scroll'); const tb = mk('table', 'h2h-table');
@@ -2788,10 +2799,10 @@
     const all = ser.flatMap((s) => s.pts.map((p) => ({ t: p.t, y: p.v / 100000 - 1 })));
     const x = d3.scaleTime().domain(d3.extent(all, (d) => d.t)).range([m.l, W - m.r]);
     const ext = d3.extent(all.concat([{ y: 0 }]), (d) => d.y); const pad = Math.max(0.005, (ext[1] - ext[0]) * 0.1);
-    const y = d3.scaleLinear().domain([ext[0] - pad, ext[1] + pad]).nice().range([H - m.b, m.t]);
+    const y = d3.scaleLinear().domain([Math.min(ext[0] - pad, -0.01), Math.max(ext[1] + pad, 0.01)]).nice().range([H - m.b, m.t]);
     const svg = d3.select(el).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Return since start for each AI');
     svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(Math.min(6, W / 110)).tickSizeOuter(0)).call((g) => g.selectAll('text').attr('fill', 'var(--color-fg-muted)')).call((g) => g.selectAll('line,path').attr('stroke', 'var(--color-border-line)'));
-    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat((v) => (v > 0 ? '+' : '') + d3.format('.0%')(v)).tickSize(-(W - m.l - m.r))).call((g) => g.select('.domain').remove()).call((g) => g.selectAll('line').attr('stroke', 'var(--color-border-line)').attr('stroke-opacity', 0.6)).call((g) => g.selectAll('text').attr('fill', 'var(--color-fg-muted)'));
+    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat((v) => { const r = y.domain()[1] - y.domain()[0]; const f = d3.format(r < 0.05 ? '.1%' : '.0%'); return Math.abs(v) < 1e-9 ? '0%' : (v > 0 ? '+' : '') + f(v); }).tickSize(-(W - m.l - m.r))).call((g) => g.select('.domain').remove()).call((g) => g.selectAll('line').attr('stroke', 'var(--color-border-line)').attr('stroke-opacity', 0.6)).call((g) => g.selectAll('text').attr('fill', 'var(--color-fg-muted)'));
     svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(0)).attr('y2', y(0)).attr('stroke', 'var(--color-fg-muted)').attr('stroke-dasharray', '3 3');
     const line = d3.line().x((p) => x(p.t)).y((p) => y(p.v / 100000 - 1));
     ser.forEach((s) => svg.append('path').attr('d', line(s.pts)).attr('fill', 'none').attr('stroke', AIS[s.id].color).attr('stroke-width', 2.2).attr('stroke-linejoin', 'round'));
@@ -2808,7 +2819,7 @@
     }).on('pointerleave', () => { rule.style('display', 'none'); tip.style.display = 'none'; });
   };
 
-  // ---- Model menu: Claude, Gemini (ChatGPT shows N/A until it is connected) ----
+  // ---- Model menu: Claude, Gemini, ChatGPT (a model is selectable once it has data) ----
   const MODEL_LABEL = { claude: 'Claude', gemini: 'Gemini', chatgpt: 'ChatGPT' };
   const modelExps = () => { const v = dash.model !== 'claude' && dash.models()[dash.model]; return v ? v._meta.exps : null; };
   const applyModel = (id) => {
@@ -2819,7 +2830,7 @@
         if (o.value === 'claude') return;
         const ok = !!views[o.value];
         o.disabled = !ok;
-        o.textContent = MODEL_LABEL[o.value] + ' (' + (o.value === 'gemini' ? 'Google' : 'OpenAI') + ')' + (ok ? '' : o.value === 'gemini' ? ': starts at the 9:30 a.m. ET open' : ': N/A');
+        o.textContent = MODEL_LABEL[o.value] + ' (' + (o.value === 'gemini' ? 'Google' : 'OpenAI') + ')' + (ok ? '' : ': starts at the 9:30 a.m. ET open');
       });
     });
     const exps = modelExps();
@@ -2832,12 +2843,12 @@
       el.hidden = !meta;
       if (!meta) return;
       const st = (views[id].history.find((h) => h.portfolio === el.dataset.modelText) || {}).at;
-      el.textContent = meta.label + '’s own copy of this experiment' + (st ? ', started ' + stFmt.when(st) : '') + ' with ' + (el.dataset.modelText === 'China' ? 'US$100,000' : 'C$100,000') + '. Holdings, trades and decisions below are ' + meta.label + '’s; ' + meta.label + ' checks in every hour and searches the news itself.';
+      el.textContent = meta.label + '’s own copy of this experiment' + (st ? ', started ' + stFmt.when(st) : '') + ' with ' + (el.dataset.modelText === 'China' ? 'US$100,000' : 'C$100,000') + '. Holdings, trades and decisions below are ' + meta.label + '’s; it checks in at the same times as Claude and searches the news itself.';
     });
     document.querySelectorAll('[data-model-note]').forEach((n) => {
-      n.textContent = meta ? 'Showing ' + meta.label + '’s own separate copies of ' + exps.length + ' experiments' + (meta.model ? ' (model: ' + meta.model + ')' : '') + '. Each started with its own 100,000 on the day ' + meta.label + ' joined.' : 'Showing Claude’s ten experiments.';
+      n.textContent = meta ? 'Showing ' + meta.label + '’s own separate copies of ' + exps.length + ' experiments' + (meta.model ? ' (model: ' + meta.model + ')' : '') + '. Each started with its own 100,000 at the Oct 28 fresh start.' : 'Showing Claude’s ten experiments.';
     });
-    const take = document.querySelector('.st-take-l'); if (take) take.textContent = meta ? meta.label + '’s take' : 'The AI’s take';
+    const take = document.querySelector('.st-take-l'); if (take) take.textContent = meta ? meta.label + '’s take' : 'Claude’s take';
     Object.entries(TABOF).forEach(([pf, tab]) => {
       const hide = !!exps && !exps.includes(pf);
       document.querySelectorAll('.st-tab[data-tab="' + tab + '"], .st-card[data-goto="' + tab + '"]').forEach((el) => { if (hide) el.setAttribute('data-model-hidden', ''); else el.removeAttribute('data-model-hidden'); });
@@ -2856,7 +2867,7 @@
   dash.draw('take', (el) => {
     const d = dash.data('take');
     el.replaceChildren();
-    if (d.status !== 'ok' || !d.data.length) { el.textContent = '—'; return; }
+    if (d.status !== 'ok' || !d.data.length) { el.textContent = (dash.model === 'claude' ? 'Claude' : (dash.models()[dash.model] || { _meta: { label: 'This AI' } })._meta.label) + '’s first take comes with its opening trades at the 9:30 a.m. ET fresh start.'; return; }
     const r = d.data.reduce((a, b) => (new Date(b.at) > new Date(a.at) ? b : a));
     el.append(mk('q', '', r.text), document.createTextNode(' '), mk('span', 'st-take-when', stFmt.when(r.at)));
   });

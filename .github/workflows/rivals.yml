@@ -8,6 +8,10 @@ on:
     - cron: '5 20,21 * * 1-5'     # US close, 4:05 p.m. ET (EDT / EST)
     - cron: '35 1 * * 1-5'        # Shanghai open, 9:35 a.m. Beijing
     - cron: '5 7 * * 1-5'         # Shanghai close, 3:05 p.m. Beijing
+    # Oct 28 event runs, matching Claude's extra runs (Bank of Canada, Fed, Microsoft/Alphabet earnings)
+    - cron: '50 13 28 10 *'
+    - cron: '5 18 28 10 *'
+    - cron: '25 20 28 10 *'
   workflow_dispatch:
     inputs:
       mode:

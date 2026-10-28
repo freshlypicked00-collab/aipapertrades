@@ -518,7 +518,7 @@ def tg_trade(label, t, source=None, photo=None):
            f"{fmt_price(t)}, {money(t['amount'], t['cur'])}\n<i>{esc(t['reason'])}</i>")
     if source:
         msg += f"\nSource: <a href=\"{esc(source['url'])}\">{esc(source['title'][:80])}</a>"
-    tg_photo(msg + f'\n⚔️ AI vs AI: Claude vs Gemini · {SITE}', photo)
+    tg_photo(msg + f'\n⚔️ AI vs AI: Claude vs Gemini vs ChatGPT · {SITE}', photo)
 
 
 # ---------------- main ----------------
@@ -548,6 +548,7 @@ def main():
                 m['books'][e] = new_book(e)
                 m['started'][e] = iso()
         notes = []
+        day_posts = []
         if 'Predictions' in exps:
             for t in settle_predictions(mid, m['books']['Predictions'], fx, state):
                 tg_trade(r['label'], t, None, chart(r['label'], r['color'], 'Predictions', state, mid))
@@ -598,6 +599,7 @@ def main():
                         state.setdefault('reviews', []).append({'at': iso(), 'model': mid, 'day': closed[0], 'experiment': e,
                                                                 'grade': str(g.get('grade', ''))[:2].strip() or None, 'text': str(g.get('text', ''))[:700]})
                 m['graded_day'] = closed[0]
+                day_posts.append((r, closed, rc))
             for o in (reply.get('orders') or [])[:MAX_ORDERS]:
                 try:
                     made.append(execute(mid, exps, m['books'], o, fx, state))
@@ -616,6 +618,17 @@ def main():
         if mid == 'gemini' and GEMINI_NO_SEARCH:
             notes.append('web search quota unavailable this run; decided from the prices and portfolio given')
         m['last_run'] = {'at': iso(), 'status': status, 'notes': notes[-12:], 'sources': sources[:8], 'orders': len(made)}
+        for rr, cl, rc in day_posts:
+            n = (datetime.fromisoformat(cl[0]) - datetime(2026, 10, 28)).days + 1
+            head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '🟢 <b>CHATGPT</b> (OpenAI)'}.get(rr['label'], rr['label'])
+            lines = [head, f"📒 <b>Day {n} closed: {datetime.fromisoformat(cl[0]).strftime('%a %b %-d')}</b> (00:00 UTC)"]
+            for e, res in cl[1].items():
+                g = rc.get(e) if isinstance(rc.get(e), dict) else {}
+                lines.append(f"\n<b>{EXP_LABEL[e]}</b>: {esc(res)}" + (f" · grade <b>{esc(g.get('grade', ''))}</b>" if g.get('grade') else ''))
+                if g.get('text'):
+                    lines.append(f"<i>{esc(str(g['text'])[:500])}</i>")
+            lines.append(f"\nIn {rr['label']}'s own words. Each experiment is separate. Simulation only. {SITE}")
+            tg('\n'.join(lines)[:4000])
         for t in made:
             pic = None
             if t['experiment'] != 'Predictions':

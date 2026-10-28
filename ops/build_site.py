@@ -287,10 +287,10 @@ html = f"""<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Paper Trades - AI Trading Experiment</title>
-<meta name="description" content="Can an AI trade? Ten separate 30-day experiments with pretend money and real prices: stocks, crypto, China stocks, metals, energy, options, currencies, a safe control, sports bets and prediction markets. Every decision logged. Not investment advice.">
+<meta name="description" content="Claude vs Gemini vs ChatGPT: AI models trade head to head with pretend money and real prices, Oct 28 to Nov 28, 2026. Stocks, crypto, China stocks, metals, energy, options, currencies, a safe control, sports bets and prediction markets. Every decision logged. Not investment advice.">
 <meta property="og:title" content="Paper Trades - AI Trading Experiment">
 <meta property="og:site_name" content="Paper Trades">
-<meta property="og:description" content="Can an AI trade? Ten separate 30-day experiments with pretend money and real prices: stocks, crypto, China stocks, metals, energy, options, currencies, a safe control, sports bets and prediction markets. Every decision logged. Not investment advice.">
+<meta property="og:description" content="Claude vs Gemini vs ChatGPT: AI models trade head to head with pretend money and real prices, Oct 28 to Nov 28, 2026. Stocks, crypto, China stocks, metals, energy, options, currencies, a safe control, sports bets and prediction markets. Every decision logged. Not investment advice.">
 <meta property="og:image" content="https://papertrades.ai/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
