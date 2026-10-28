@@ -5,7 +5,7 @@ runs ten separate simulations with real-world prices, each with its own starting
 - Trading: **Stocks** (anything, C$100,000), **Crypto** (C$100,000), **China** (Shanghai and
   Shenzhen stocks, US$100,000, counted in US dollars), **Metals** (C$100,000), **Energy**,
   **Options**, **Currencies** (forex with leverage) and **Safe** (a low-risk control), C$100,000 each.
-- Gambling: **Sports** (betting) and **Predictions** (prediction markets), C$100,000 each.
+- Betting: **Sports** (betting) and **Predictions** (prediction markets), C$100,000 each.
 All but Safe are run high risk, high reward; Safe is deliberately cautious.
 No real money moves. The public site is https://papertrades.ai (this repo,
 served by GitHub Pages). A private tracker mirrors the same data; its link is
