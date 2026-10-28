@@ -54,6 +54,19 @@ except Exception:
 CUR_SYM = {'CAD': 'C$', 'USD': 'US$', 'CNY': '¥'}
 
 
+def clip(text, n):
+    """Never cut mid-sentence: keep the text whole if it fits, else end at the last full sentence (or clause) before n."""
+    t = ' '.join(str(text or '').split())
+    if len(t) <= n:
+        return t
+    cut = t[:n]
+    for marks in ('.!?', ';:', ','):
+        i = max(cut.rfind(m) for m in marks)
+        if i > n * 0.4:
+            return cut[:i + 1] if cut[i] in '.!?' else cut[:i].rstrip() + '.'
+    return cut[:cut.rfind(' ')].rstrip(' ,;:') + '.'
+
+
 def iso(t=None):
     return (t or NOW).isoformat().replace('+00:00', 'Z')
 
@@ -537,7 +550,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
     lines += [
         '',
         'Reply with ONLY one JSON object, no other text, in this form:',
-        '{"take": "your CURRENT TAKE: one sentence, in your own words, on how you are doing and what you are thinking overall; or \\"\\" (empty) to keep your current take",',
+        '{"take": "your CURRENT TAKE: one complete sentence (under 300 characters), in your own words, on how you are doing and what you are thinking overall; or \\"\\" (empty) to keep your current take",',
         ' "thoughts": {' + ', '.join(f'"{e}": "one sentence on this experiment right now, in your own words"' for e in exps) + '}' + (', "report_card": {' + ', '.join(f'"{e}": {{"grade": "A" to "F", "text": "2-3 sentences: how you did in this experiment on {closed_day[0]} and what you will do differently"}}' for e in exps) + '}' if closed_day else '') + ',',
         ' "sources": ["https://... the main pages you read this check-in", ...] (up to 5),',
         ' "watchlist": [{"at": "ISO date-time, ET", "when": "short human time, e.g. Thu Oct 29, 8:30 a.m. ET", "event": "what is coming up", "affects": ["experiment", ...], "why": "one sentence, in your own words, on why it matters to you"}] (up to 8 upcoming events you are watching),',
@@ -565,7 +578,7 @@ def execute(model_id, exps, books, order, fx, state):
         raise ValueError('the restart begins at 1:45 p.m. ET Oct 28; no trades before then')
     book = books[exp]
     action = str(order.get('action', '')).lower()
-    reason = str(order.get('reason', ''))[:400]
+    reason = clip(order.get('reason', ''), 600)
     if book.get('busted'):
         raise ValueError(f'you are BUSTED in {EXP_LABEL[exp]} (it fell to zero on {book["busted"][:10]}); no more trades there')
     if exp == 'Sports':
@@ -989,7 +1002,7 @@ def main():
                 text, src2 = r['ask'](key, m['model'], prompt + '\n\nIMPORTANT: reply with ONLY the JSON object, starting with { and ending with }. No other text.')
                 sources = sources or src2
                 reply = parse_reply(text)
-            take = str(reply.get('take', ''))[:300] or None
+            take = clip(reply.get('take', ''), 600) or None
             for u in (reply.get('sources') or [])[:5]:
                 u = str(u).strip()
                 if u.startswith('http') and not any(x['url'] == u for x in sources):
@@ -1000,12 +1013,12 @@ def main():
                     aff = w.get('affects') or []
                     aff = [a for a in (aff if isinstance(aff, list) else str(aff).split(',')) if str(a).strip() in exps]
                     wl.append({'at': str(w.get('at', ''))[:40], 'when': str(w.get('when', ''))[:60], 'event': str(w['event'])[:160],
-                               'affects': ', '.join(str(a).strip() for a in aff), 'why': str(w.get('why', ''))[:300]})
+                               'affects': ', '.join(str(a).strip() for a in aff), 'why': clip(w.get('why', ''), 400)})
             if wl:
                 m['watchlist'] = {'at': iso(), 'items': wl}
             for e, txt in (reply.get('thoughts') or {}).items():
                 if e in exps and str(txt).strip():
-                    state.setdefault('thoughts', []).append({'at': iso(), 'model': mid, 'experiment': e, 'text': str(txt)[:400]})
+                    state.setdefault('thoughts', []).append({'at': iso(), 'model': mid, 'experiment': e, 'text': clip(txt, 600)})
             rc = reply.get('report_card') or {}
             if closed and rc:
                 for e, g in rc.items():
