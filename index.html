@@ -245,7 +245,9 @@
   .st-alloc-h { margin: 0; font-size: var(--cds-font-size-body); font-weight: 600; }
   .st-alloc-bar { display: flex; height: 22px; border-radius: 4px; overflow: hidden; gap: 2px; }
   .st-alloc-seg { height: 100%; min-width: 3px; }
-  .st-alloc-key { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: var(--cds-font-size-body); }
+  .st-alloc-row { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; }
+  .st-pie { width: 180px; height: 180px; flex: none; }
+  .st-alloc-key { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: var(--cds-font-size-body); }
   .st-alloc-key i { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
   .st-alloc-key b { font-weight: 600; }
   [data-dash-source-state=empty] { color: transparent; }
@@ -2702,14 +2704,26 @@ body { background:#0b0b0a; }
     const coins = rows.filter((r) => !cash(r)).map((r) => r.holding);
     const col = (r) => (cash(r) ? 'var(--color-fg-muted)' : dash.colors[coins.indexOf(r.holding) % 4]);
     el.appendChild(mk('h3', 'st-alloc-h', "What I'm holding"));
-    const bar = mk('div', 'st-alloc-bar'); bar.setAttribute('role', 'img');
-    bar.setAttribute('aria-label', rows.map((r) => r.holding + ' ' + d3.format('.0%')(r.value_cad / total)).join(', '));
-    rows.forEach((r, i) => {
-      const seg = mk('div', 'st-alloc-seg'); seg.style.width = (r.value_cad / total * 100) + '%'; seg.style.background = col(r, i);
-      seg.title = r.holding + ': ' + stFmt.cad(r.value_cad) + ' (' + d3.format('.0%')(r.value_cad / total) + ')';
-      bar.appendChild(seg);
-    });
-    el.appendChild(bar);
+    const row = mk('div', 'st-alloc-row'); el.appendChild(row);
+    const S = 180, R = S / 2;
+    const svg = d3.select(row).append('svg').attr('viewBox', `0 0 ${S} ${S}`).attr('class', 'st-pie').attr('role', 'img')
+      .attr('aria-label', 'Share of the portfolio: ' + rows.map((r) => r.holding + ' ' + d3.format('.0%')(r.value_cad / total)).join(', '));
+    const g = svg.append('g').attr('transform', `translate(${R},${R})`);
+    const arcs = d3.pie().sort(null).value((r) => Number(r.value_cad))(rows);
+    const arc = d3.arc().innerRadius(0).outerRadius(R - 2);
+    const tip = mk('div', 'gx-tip'); tip.style.display = 'none'; row.style.position = 'relative'; row.appendChild(tip);
+    g.selectAll('path').data(arcs).join('path').attr('d', arc)
+      .style('fill', (a) => col(a.data)).style('stroke', 'var(--color-panel)').attr('stroke-width', 2)
+      .on('pointerenter pointermove', (ev, a) => {
+        tip.replaceChildren(mk('b', '', a.data.holding), mk('span', '', d3.format('.0%')(a.data.value_cad / total) + ' · ' + stFmt.cad(a.data.value_cad)));
+        tip.style.display = 'block';
+        const [mx, my] = d3.pointer(ev, row); tip.style.left = (mx + 12) + 'px'; tip.style.top = (my - 10) + 'px';
+      })
+      .on('pointerleave', () => { tip.style.display = 'none'; });
+    g.selectAll('text').data(arcs.filter((a) => a.endAngle - a.startAngle > 0.35)).join('text')
+      .attr('transform', (a) => `translate(${d3.arc().innerRadius(R * 0.55).outerRadius(R * 0.55).centroid(a)})`)
+      .attr('text-anchor', 'middle').attr('dy', '0.35em').attr('font-size', 13).attr('font-weight', 600)
+      .style('fill', '#0b0b0a').style('pointer-events', 'none').text((a) => d3.format('.0%')(a.data.value_cad / total));
     const key = mk('ul', 'st-alloc-key');
     rows.forEach((r, i) => {
       const li = mk('li');
@@ -2717,7 +2731,7 @@ body { background:#0b0b0a; }
       li.append(sw, mk('b', '', r.holding + ' '), document.createTextNode(d3.format('.0%')(r.value_cad / total) + ' · ' + stFmt.cad(r.value_cad)));
       key.appendChild(li);
     });
-    el.appendChild(key);
+    row.appendChild(key);
   });
 
   // chips that switch a chart's simulation
