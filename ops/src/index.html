@@ -163,7 +163,9 @@
   .st-sources li { break-inside: avoid; margin-bottom: 2px; }
   .st-sources a { color: var(--color-fg-muted); }
   .lg-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
-  .lg-pick label { font-size: var(--cds-font-size-body); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .lg-pick label { font-size: var(--cds-font-size-body); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; max-width: 100%; }
+  .lg-pick select { min-width: 0; width: auto; max-width: 100%; text-overflow: ellipsis; }
+  .lg-pick > * { min-width: 0; }
   .lg-pick select { font: inherit; font-size: 14px; padding: 6px 8px; background: var(--color-bg); color: var(--color-fg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); max-width: 100%; }
   .lg-pick select:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   .lg-review-box { display: flex; flex-direction: column; gap: 10px; }
@@ -176,6 +178,13 @@
   .lg-spark-wrap { display: flex; flex-direction: column; gap: 2px; margin-top: 4px; }
   .lg-spark { width: 100%; height: 44px; display: block; }
   .lg-spark-cap { font-size: 11.5px; color: var(--color-fg-muted); }
+  .st-alloc { display: flex; flex-direction: column; gap: 8px; }
+  .st-alloc-h { margin: 0; font-size: var(--cds-font-size-body); font-weight: 600; }
+  .st-alloc-bar { display: flex; height: 22px; border-radius: 4px; overflow: hidden; gap: 2px; }
+  .st-alloc-seg { height: 100%; min-width: 3px; }
+  .st-alloc-key { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: var(--cds-font-size-body); }
+  .st-alloc-key i { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .st-alloc-key b { font-weight: 600; }
   [data-dash-source-state=empty] { color: transparent; }
   [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
 </style>
@@ -506,7 +515,8 @@
     </section>
     <section class="st-card" aria-labelledby="h-c-hold">
       <h2 class="st-h2" id="h-c-hold">Holdings</h2>
-      <p class="st-note">Every coin is bought and priced in US dollars per coin (for example, XRP was bought at US$1.30 per XRP). Quantity is the number of coins held. Values are converted to Canadian dollars at the latest exchange rate.</p>
+      <div class="st-alloc" data-draw="alloc" data-source="holdings" data-portfolio="Crypto"></div>
+      <p class="st-note">Every coin is bought and priced in US dollars per coin (for example, XRP was bought at US$1.30 per XRP). Coins is the number of each coin held. Values are converted to Canadian dollars at the latest exchange rate.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
           <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Coins</th><th data-field="entry_usd" class="num">Bought at (US$ per coin)</th><th data-field="price_usd" class="num">Now (US$ per coin)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th><th data-field="price_source">Price source</th></tr></thead>
@@ -2384,10 +2394,16 @@
   const tradeRows = () => {
     const T = dash.data('trades'), B = dash.data('bets');
     if (T.status !== 'ok' || B.status !== 'ok') return null;
+    const COIN = { Bitcoin: 'BTC', Ethereum: 'ETH', Solana: 'SOL', XRP: 'XRP' };
     const px = (t) => {
-      if (t.portfolio === 'China') return '¥' + d3.format(',.3f')(t.price_local);
-      if (t.portfolio === 'Predictions') return d3.format('.1f')(t.price_usd * 100) + '¢';
-      return t.price_usd >= 1000 ? '$' + d3.format(',.0f')(t.price_usd) : '$' + d3.format(',.2f')(t.price_usd);
+      if (t.portfolio === 'China') return '¥' + d3.format(',.3f')(t.price_local) + ' per share';
+      if (t.portfolio === 'Predictions') return d3.format('.1f')(t.price_usd * 100) + '¢ per share';
+      if (t.holding === 'Japanese yen') return 'USD/JPY ' + d3.format('.2f')(1 / t.price_usd);
+      if (t.holding === 'US dollar') return 'US dollars, valued in Canadian dollars at the time';
+      const v = t.price_usd;
+      const num = 'US$' + (v >= 1000 ? d3.format(',.0f')(v) : v >= 0.1 ? d3.format(',.2f')(v) : d3.format('.4~r')(v));
+      const unit = COIN[t.holding] ? ' per ' + COIN[t.holding] : t.portfolio === 'Metals' ? ' per ounce' : t.portfolio === 'Options' ? ' per share (100 shares per contract)' : ' per share';
+      return num + unit;
     };
     const rows = T.data.map((t) => ({
       at: t.at, portfolio: t.portfolio, action: t.action, item: t.holding,
@@ -2503,6 +2519,36 @@
       li.appendChild(a);
       el.appendChild(li);
     });
+  });
+
+  dash.draw('alloc', (el) => {
+    const d = dash.data('holdings');
+    el.replaceChildren();
+    if (d.status !== 'ok') return;
+    const pf = el.dataset.portfolio;
+    const rows = d.data.filter((r) => r.portfolio === pf && Number(r.value_cad) > 0).sort((a, b) => b.value_cad - a.value_cad);
+    const total = d3.sum(rows, (r) => Number(r.value_cad));
+    if (!total) return;
+    const cash = (r) => r.holding === 'USDC' || r.holding.startsWith('Cash');
+    const coins = rows.filter((r) => !cash(r)).map((r) => r.holding);
+    const col = (r) => (cash(r) ? 'var(--color-fg-muted)' : dash.colors[coins.indexOf(r.holding) % 4]);
+    el.appendChild(mk('h3', 'st-alloc-h', "What I'm holding"));
+    const bar = mk('div', 'st-alloc-bar'); bar.setAttribute('role', 'img');
+    bar.setAttribute('aria-label', rows.map((r) => r.holding + ' ' + d3.format('.0%')(r.value_cad / total)).join(', '));
+    rows.forEach((r, i) => {
+      const seg = mk('div', 'st-alloc-seg'); seg.style.width = (r.value_cad / total * 100) + '%'; seg.style.background = col(r, i);
+      seg.title = r.holding + ': ' + stFmt.cad(r.value_cad) + ' (' + d3.format('.0%')(r.value_cad / total) + ')';
+      bar.appendChild(seg);
+    });
+    el.appendChild(bar);
+    const key = mk('ul', 'st-alloc-key');
+    rows.forEach((r, i) => {
+      const li = mk('li');
+      const sw = mk('i'); sw.style.background = col(r, i);
+      li.append(sw, mk('b', '', r.holding + ' '), document.createTextNode(d3.format('.0%')(r.value_cad / total) + ' · ' + stFmt.cad(r.value_cad)));
+      key.appendChild(li);
+    });
+    el.appendChild(key);
   });
 
   // chips that switch a chart's simulation
