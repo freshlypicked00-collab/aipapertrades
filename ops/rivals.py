@@ -458,7 +458,7 @@ def standings(state, fx, me):
             total += (v - 100000) * (fx['USDCAD'] if e == 'China' else 1)
             parts.append(f"{EXP_LABEL[e]} {(v / 100000 - 1) * 100:+.1f}%")
         if parts:
-            rows.append((total, f"- {nm}{' (you)' if mid == me else ''}: total profit {'+' if total >= 0 else '-'}C${abs(total):,.0f}; " + ', '.join(parts)))
+            rows.append((total, f"- {nm}{' (you)' if mid == me else ''}: total profit {'+' if total >= 0 else '-'}C${abs(total):,.0f}" + (f" (C${100000 + total:,.0f} away from elimination)" if mid == me else '') + "; " + ', '.join(parts)))
     if not rows:
         return []
     rows.sort(key=lambda x: -x[0])
@@ -473,6 +473,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         f'You run {len(exps)} SEPARATE experiments, each started with its own 100,000 of pretend money. Each is judged against its own start, and the overall race between the AIs is decided by total profit in C$ across all of them. The experiment ends Nov 28, 2026 at 4:00 p.m. ET (US stock markets are closed that Saturday; the last US trading day is Friday Nov 27, which closes early at 1:00 p.m. ET).',
         'Goal: high risk, high reward. Try to finish each experiment with as much money as possible. Holding is fine; trade when you have a reason.',
         'BUST RULE: if any experiment falls to zero (or below), you are BUSTED in that experiment: it is closed for good, you are out of that race, and it is marked BUSTED publicly for the rest of the month, in front of everyone watching. Going all-in on a single bet or a maximum-leverage position can end an experiment in one move. Bold is fine; reckless is not. You only win if you are still standing on Nov 28.',
+        'ELIMINATION RULE (new, applies to every AI, Claude included): if your TOTAL profit across all your experiments (in C$, China converted from US$) reaches -C$100,000 or worse, you are ELIMINATED from the whole race: every experiment is closed and frozen at once, no more trades or bets for the rest of the month, announced publicly. Keep your overall losses in mind, not just each experiment on its own.',
         'A suggestion you are free to take or ignore (it is your call): smarter decisions usually win. Before a trade you could ask what happens to that experiment if you are wrong, whether the reward is worth the risk, and whether one bad outcome could bust you. Viewers judge the quality of your decisions, not just the result.',
         'You do NOT have to put all the money at stake. Keeping some or most of an experiment in cash is allowed and fine, you can use any size from a small position to the whole amount, you do not need to use leverage, and you can spread money over several holdings or bets instead of one. Cash is safe: it never busts. Sizing is entirely your choice.',
         '',
@@ -895,6 +896,8 @@ def main():
             if e not in m['books']:
                 m['books'][e] = new_book(e)
                 m['started'][e] = iso()
+        if m.get('eliminated'):   # lost C$100,000 overall: out of the whole race, frozen
+            continue
         notes = []
         day_posts = []
         settled = []
@@ -1000,6 +1003,13 @@ def main():
                 b['busted'] = iso()
                 head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(r['label'], r['label'])
                 tg(f"{head}\n💥 <b>BUSTED in {EXP_LABEL[e]}</b>\n{r['label']} lost the whole 100,000 in this experiment and is out of that race for the rest of the month.\n{SITE}", silent=False)
+        overall = sum((values[e] - 100000) * (fx['USDCAD'] if e == 'China' else 1) for e in exps)
+        if overall <= -100000 and NOW >= FRESH_START:
+            m['eliminated'] = iso()
+            for e in exps:
+                m['books'][e].setdefault('busted', iso())
+            head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(r['label'], r['label'])
+            tg(f"{head}\n☠️ <b>ELIMINATED</b>\n{r['label']} has lost C${-overall:,.0f} in total across its experiments, past the C$100,000 limit. It is out of the whole race: every experiment is closed and frozen at its final value for the rest of the month.\n{SITE}", silent=False)
         if take:
             last = next((x for x in reversed(state['takes']) if x['model'] == mid), None)
             n_today = sum(1 for x in state['takes'] if x['model'] == mid and x['at'][:10] == NOW.date().isoformat())

@@ -2838,7 +2838,7 @@
       if (counted) {
         const box = mk('div', 'h2h-exp');
         box.appendChild(mk('h3', '', 'Overall'));
-        box.appendChild(mk('p', 'st-note', 'Total profit or loss across the ' + counted + ' experiments every AI shown has started, in Canadian dollars (China converted from US$ at the latest rate). Ranked by total profit. The final winner is decided on Nov 28.'));
+        box.appendChild(mk('p', 'st-note', 'Total profit or loss across the ' + counted + ' experiments every AI shown has started, in Canadian dollars (China converted from US$ at the latest rate). Ranked by total profit. The final winner is decided on Nov 28. An AI whose total loss reaches C$100,000 is ELIMINATED from the whole race.'));
         const rows = mk('ul', 'h2h-rows');
         const avg = (a) => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
         const ranked = SEL.map((id) => ({ id, ...tally[id], avg: avg(tally[id].pcts) })).sort((a, b) => b.profit - a.profit);
@@ -2846,6 +2846,8 @@
           const li = mk('li', 'h2h-row'); li.style.setProperty('--ai', AIS[s.id].color);
           const nm = mk('span', 'h2h-name'); nm.appendChild(mk('span', '', AIS[s.id].label));
           if (i === 0 && ranked.length > 1 && s.profit !== ranked[1].profit) nm.appendChild(mk('span', 'h2h-lead', 'Leading overall'));
+          const elim = s.profit <= -100000 || (models.find((x) => x.id === s.id) || {}).eliminated;
+          if (elim) { const t = mk('span', 'h2h-lead', 'ELIMINATED'); t.style.color = 'var(--color-bad, #ff5a4e)'; nm.appendChild(t); }
           li.appendChild(nm);
           const pf = mk('span', 'h2h-pct', (s.profit >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(s.profit))); tone(pf, s.profit); li.appendChild(pf);
           li.appendChild(mk('span', 'h2h-sub', 'total profit · leads ' + s.wins + ' of ' + counted + ' experiments'));

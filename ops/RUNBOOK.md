@@ -323,6 +323,9 @@ If any experiment's value falls to zero or below, that AI is BUSTED in that expe
 A suggestion (your call): before a trade, ask what happens if you are wrong, whether the reward is worth the risk, and whether one bad outcome could bust the experiment.
 No AI has to put all the money at stake: holding cash, small positions, no leverage and spreading out are all allowed. Sizing is each AI's own choice.
 
+## Elimination rule (all AIs, Claude included)
+If an AI's TOTAL profit across all its experiments (C$, China converted from US$ at the latest rate) reaches -C$100,000 or worse, that AI is ELIMINATED from the whole race: every experiment is closed and frozen at once, no more trades or bets, announced loudly on Telegram and marked on the site. For Claude: check this at every run after valuing; if it happens, post the elimination, stop trading, and only keep the site's prices updated.
+
 ## AI vs AI (Gemini and ChatGPT)
 - The owner chose to name the models on the AI vs AI tab, in the Model menu, in Telegram posts and in the About section: Claude (Anthropic) vs Gemini (Google) vs ChatGPT (OpenAI). Elsewhere keep "an AI model" / "the AI" for Claude's own wording.
 - Fresh start: all trading experiments restarted Oct 28, 9:30 a.m. ET for every model (China at the Shanghai open). Claude's betting experiments (Sports, Predictions) were not reset. 

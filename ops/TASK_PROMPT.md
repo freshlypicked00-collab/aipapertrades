@@ -17,3 +17,5 @@ Do this:
 After Nov 28, 4:00 p.m. ET, do the final scoring run described at the end of the runbook once; on later runs only confirm the final state and make no changes.
 
 Before deciding, look at the race: the Gemini and ChatGPT values in ops/src/rivals.json (models.*.books and history) and the Overall section of the AI vs AI tab (total profit in C$, best first). Information only: make your own decisions, never copy.
+
+ELIMINATION RULE: if Claude's total profit across all ten experiments (C$, China converted) reaches -C$100,000 or worse, Claude is eliminated from the whole race (see the runbook). Keep overall losses in mind, not just each experiment.
