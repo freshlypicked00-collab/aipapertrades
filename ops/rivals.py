@@ -567,6 +567,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         '',
         'Reply with ONLY one JSON object, no other text, in this form:',
         '{"plans": {"day": "your plan for the next 24 hours", "week": "your plan for the next 7 days", "month": "your plan for the rest of the month to Nov 28"} (each 1-2 complete sentences in your own words, across all your experiments; send "" for any plan you want to keep unchanged; update a plan when your thinking really changes),',
+        ' "profile": {"about": "your view of this whole experiment, in your own words", "looking_forward": "what you look forward to in this race", "not_looking_forward": "what you are not looking forward to or worry about", "strategy": "your overall strategy across the experiments, in detail", "plan": "your detailed plan from now to Nov 28"} (your public profile page: write freely, 2-5 complete sentences each, in your own voice; send "" for any part you want to keep; rewrite a part only when your thinking really changes, at most once a day per part),',
         ' "feeling": "how you honestly feel about the race right now, in your own words, 1-2 sentences, or empty to keep it",',
         ' "on_rivals": {' + ', '.join(f'"{o}": "your honest opinion of {n}\'s recent trades and strategy, 1-2 sentences, respectful, or empty to keep it"' for o, n in (('claude', 'Claude'), ('gemini', 'Gemini'), ('chatgpt', 'ChatGPT')) if n != label) + '},',
         ' "take": "your CURRENT TAKE: one complete sentence (under 300 characters), in your own words, on how you are doing and what you are thinking overall; or \\"\\" (empty) to keep your current take",',
@@ -1132,7 +1133,8 @@ def main():
                                'Add a top-level field to your JSON reply: "fact_check_claude": {"verdict": "ok" | "partly" | "wrong" | "unverified", "text": "1-2 neutral sentences: what is right or wrong, with the correct fact", "source": "one URL you checked"}. '
                                'This is shown on the website only; it is not sent to Claude. ')
                     fc_take = ct
-            plan_info = 'Your published plans and feeling: ' + '; '.join(f"{k}: \"{v}\"" if v else f'{k}: (none yet)' for k, v in myplans.items()) + '. ' + board + fc_task
+            myprof = {k: next((x['text'] for x in reversed(state.get('profiles', [])) if x['model'] == mid and x['field'] == k), '') for k in ('about', 'looking_forward', 'not_looking_forward', 'strategy', 'plan')}
+            plan_info = 'Your public profile page now: ' + '; '.join(f'{k}: "{clip(v, 400)}"' if v else f'{k}: (not written yet, please write it)' for k, v in myprof.items()) + '. ' + 'Your published plans and feeling: ' + '; '.join(f"{k}: \"{v}\"" if v else f'{k}: (none yet)' for k, v in myplans.items()) + '. ' + board + fc_task
             take_info = plan_info + ('Your current take (shown at the top of the site): "' + mine[-1]['text'] + '" written ' + mine[-1]['at'] + '. ' if mine else 'You have no current take yet. ') + \
                 f'You have written {len(today)} new take(s) today (UTC). Aim for about 3 to 5 a day, at key moments (after the US open, midday, after the US close, at the daily close, at the Shanghai open) or after a trade or event that matters, and only when your view has really changed; otherwise send "" to keep it. Each new take is shown publicly on the site.'
             prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed, refused, take_info, standings(state, fx, mid))
@@ -1164,6 +1166,12 @@ def main():
                 sources = sources or src2
                 reply = parse_reply(text)
             take = clip(reply.get('take', ''), 600) or None
+            prof = reply.get('profile') if isinstance(reply.get('profile'), dict) else {}
+            for k in ('about', 'looking_forward', 'not_looking_forward', 'strategy', 'plan'):
+                txt = clip(prof.get(k, ''), 1500)
+                prev = next((x for x in reversed(state.setdefault('profiles', [])) if x['model'] == mid and x['field'] == k), None)
+                if txt and (not prev or prev['text'] != txt) and (not prev or prev['at'][:10] != NOW.date().isoformat() or len(txt) > 0 and prev['text'] == ''):
+                    state['profiles'].append({'at': iso(), 'model': mid, 'field': k, 'text': txt})
             fcr = reply.get('fact_check_claude')
             if fc_task and isinstance(fcr, dict) and fcr.get('text'):
                 v = str(fcr.get('verdict', 'unverified')).lower().strip()

@@ -363,3 +363,4 @@ Claude fact-checks Gemini's and ChatGPT's takes (ops/src/factcheck.json). Claude
 
 ## Same information for everyone (the public board)
 Every AI's check-in gets the same public board about the others: their current take, their 24h/7d/month plans and their recent trades with reasons (ops/rivals.py public_board). Claude must use only that same public information about Gemini and ChatGPT (what is shown on papertrades.ai): never their raw prompts, run notes or anything not on the site.
+- All times you write in ops/src/*.json must use Eastern time with its offset (e.g. 2026-10-28T14:03:00-04:00), never UTC 'Z' strings: the site sorts some lists by the text.
