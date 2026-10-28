@@ -26,6 +26,8 @@ EXP_LABEL = {'Stocks': 'Stocks and anything', 'Crypto': 'Crypto', 'China': 'Chin
 BOOK_CUR = {'China': 'USD'}  # every other experiment is counted in C$
 START = 100000.0
 MAX_ORDERS = 10
+MODEL_TIMEOUT = 240   # seconds per model request
+MODEL_BUDGET = 540    # seconds per AI per check-in, across all fallbacks
 UA = {'User-Agent': 'Mozilla/5.0 (PaperTrades price check)'}
 SITE = 'https://papertrades.ai'
 NOW = datetime.now(timezone.utc).replace(microsecond=0)
@@ -196,12 +198,12 @@ def ask_openrouter(key, model, prompt):
            'HTTP-Referer': SITE, 'X-Title': 'Paper Trades'}
     body = {'model': model, 'messages': [{'role': 'user', 'content': prompt}], 'plugins': [{'id': 'web', 'max_results': 6}]}
     try:
-        j = get_json('https://openrouter.ai/api/v1/chat/completions', hdr, json.dumps(body).encode(), timeout=600)
+        j = get_json('https://openrouter.ai/api/v1/chat/completions', hdr, json.dumps(body).encode(), timeout=MODEL_TIMEOUT)
     except urllib.error.HTTPError as e:
         if e.code not in (400, 402, 404):
             raise
         body.pop('plugins')
-        j = get_json('https://openrouter.ai/api/v1/chat/completions', hdr, json.dumps(body).encode(), timeout=600)
+        j = get_json('https://openrouter.ai/api/v1/chat/completions', hdr, json.dumps(body).encode(), timeout=MODEL_TIMEOUT)
     msg = j['choices'][0]['message']
     sources = [{'title': a['url_citation'].get('title') or a['url_citation']['url'], 'url': a['url_citation']['url']}
                for a in msg.get('annotations') or [] if a.get('type') == 'url_citation']
@@ -212,12 +214,12 @@ def ask_openai(key, model, prompt):
     body = {'model': model, 'input': prompt, 'tools': [{'type': 'web_search'}]}
     hdr = {'Authorization': f'Bearer {key}', 'Content-Type': 'application/json'}
     try:
-        j = get_json('https://api.openai.com/v1/responses', hdr, json.dumps(body).encode(), timeout=600)
+        j = get_json('https://api.openai.com/v1/responses', hdr, json.dumps(body).encode(), timeout=MODEL_TIMEOUT)
     except urllib.error.HTTPError as e:
         if e.code != 400:
             raise
         body.pop('tools')
-        j = get_json('https://api.openai.com/v1/responses', hdr, json.dumps(body).encode(), timeout=600)
+        j = get_json('https://api.openai.com/v1/responses', hdr, json.dumps(body).encode(), timeout=MODEL_TIMEOUT)
     out, sources = [], []
     for item in j.get('output', []):
         for c in item.get('content', []) or []:
@@ -235,16 +237,16 @@ GEMINI_NO_SEARCH = False
 def ask_gemini(key, model, prompt):
     import time
     last = None
-    for attempt in range(3):
+    for attempt in range(2):
         try:
-            return _ask_gemini(key, model, prompt, search=attempt < 2)
+            return _ask_gemini(key, model, prompt, search=attempt == 0)
         except urllib.error.HTTPError as e:
             last = e
             if e.code not in (429, 500, 503):
                 raise
         except Exception as e:
             last = e
-        time.sleep(15 * (attempt + 1))
+        time.sleep(10)
     raise last
 
 
@@ -257,12 +259,12 @@ def _ask_gemini(key, model, prompt, search=True):
         global GEMINI_NO_SEARCH
         GEMINI_NO_SEARCH = True
     try:
-        j = get_json(url, {'Content-Type': 'application/json'}, json.dumps(body).encode(), timeout=600)
+        j = get_json(url, {'Content-Type': 'application/json'}, json.dumps(body).encode(), timeout=MODEL_TIMEOUT)
     except urllib.error.HTTPError as e:
         if e.code != 400 or 'tools' not in body:
             raise
         body.pop('tools')
-        j = get_json(url, {'Content-Type': 'application/json'}, json.dumps(body).encode(), timeout=600)
+        j = get_json(url, {'Content-Type': 'application/json'}, json.dumps(body).encode(), timeout=MODEL_TIMEOUT)
     cand = j['candidates'][0]
     text = ''.join(p.get('text', '') for p in cand.get('content', {}).get('parts', []))
     sources = [{'title': c['web'].get('title') or c['web']['uri'], 'url': c['web']['uri']}
@@ -572,7 +574,12 @@ def main():
                 if res:
                     closed = (day, res)
             prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed)
+            import time as _time
+            t0 = _time.time()
             for i, model in enumerate(picks):
+                if i and _time.time() - t0 > MODEL_BUDGET:
+                    notes.append('out of time for more fallbacks this check-in')
+                    raise RuntimeError('no model answered in time')
                 try:
                     text, sources = r['ask'](key, model, prompt)
                     m['model'] = model
