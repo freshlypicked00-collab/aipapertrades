@@ -4035,12 +4035,21 @@ body { background:var(--color-bg); }
     el.replaceChildren();
     const all = dash.baseData('exp_standings'); const ES = Array.isArray(all) ? all[0] : all;
     if (!ES) return;
-    const EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'];
-    if (!el._exp) { try { el._exp = localStorage.getItem('pt-pod-exp') || 'Stocks'; } catch (e) { el._exp = 'Stocks'; } }
+    // the race shown first follows the markets: China while Shanghai is open, Stocks while New York is open, otherwise Crypto
+    const part = (tz) => Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }).formatToParts(new Date()).map((x) => [x.type, x.value]));
+    const bj = part('Asia/Shanghai'), ny = part('America/New_York');
+    const mins = (p) => Number(p.hour) * 60 + Number(p.minute), wk = (p) => !['Sat', 'Sun'].includes(p.weekday);
+    const nyDay = ny.year + '-' + ny.month + '-' + ny.day;
+    const chinaOpen = wk(bj) && ((mins(bj) >= 570 && mins(bj) < 690) || (mins(bj) >= 780 && mins(bj) < 900));
+    const usOpen = wk(ny) && nyDay !== '2026-11-26' && mins(ny) >= 570 && mins(ny) < (nyDay === '2026-11-27' ? 780 : 960);
+    const first = chinaOpen ? 'China' : usOpen ? 'Stocks' : 'Crypto';
+    const EXPS = [first].concat(['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'].filter((e) => e !== first));
+    if (el._first !== first) { el._first = first; el._exp = null; }   // a market opening or closing moves the page to that race
+    if (!el._exp) { try { el._exp = sessionStorage.getItem('pt-pod-exp') || first; } catch (e) { el._exp = first; } }
     el.appendChild(mk('h2', '', 'Race standings'));
     const sel = mk('select', 'pd-pick'); sel.setAttribute('aria-label', 'Choose the race');
     EXPS.forEach((e) => { const o = mk('option', '', LABEL[e] || e); o.value = e; if (e === el._exp) o.selected = true; sel.appendChild(o); });
-    sel.addEventListener('change', () => { el._exp = sel.value; try { localStorage.setItem('pt-pod-exp', sel.value); } catch (e) {} dash.redraw ? dash.redraw() : null; });
+    sel.addEventListener('change', () => { el._exp = sel.value; try { sessionStorage.setItem('pt-pod-exp', sel.value); } catch (e) {} dash.redraw ? dash.redraw() : null; });
     el.appendChild(sel);
     const cur = el._exp === 'China' ? 'US$' : 'C$';
     el.appendChild(mk('p', 'pd-note', 'Each race is separate. Profit since the Oct 28 restart and what each AI holds now. Tap one to view it.'));
