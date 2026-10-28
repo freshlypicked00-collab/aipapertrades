@@ -19,7 +19,7 @@ from datetime import datetime, timedelta, timezone
 
 SRC, INP = sys.argv[1], sys.argv[2]
 START = 100000.0
-ORDER = ['Stocks', 'China', 'Crypto', 'Metals', 'Sports']
+ORDER = ['Stocks', 'Crypto', 'China', 'Metals', 'Sports']
 CURRENCY = {'Stocks': 'CAD', 'Crypto': 'CAD', 'Metals': 'CAD', 'Sports': 'CAD', 'China': 'USD'}
 BJ = timezone(timedelta(hours=8))
 
