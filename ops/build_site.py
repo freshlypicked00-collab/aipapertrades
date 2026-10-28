@@ -40,7 +40,7 @@ markup = sub(markup, '<p class="st-note">Each tab lists the sources used for it;
              '<p class="st-note">Data last refreshed <b data-draw="refreshed">—</b>. Each tab lists the sources used for it; the Ledger tab has the full list.</p>', 1)
 # sources list at the very end of the About card
 markup = sub(markup, '  </section>\n</div>\n', '''  </section>
-  <footer class="st-foot">Paper Trades is an independent 30-day experiment. No real money. Not investment or betting advice.</footer>
+  <footer class="st-foot">Paper Trades is an independent one-month experiment: Claude vs Gemini vs ChatGPT. No real money. Not investment or betting advice.</footer>
 </div>
 ''', 1)
 
