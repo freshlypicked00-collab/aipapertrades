@@ -159,8 +159,8 @@ def pick_gemini(key):
     out = [want] if want else []
     for tier in ('pro', 'flash'):
         c = [n for n in names if re.fullmatch(r'gemini-\d+(\.\d+)?-' + tier + r'(-preview(-[\d-]+)?)?', n)]
-        out += sorted(c, key=rank, reverse=True)[:2]
-    for extra in ('gemini-flash-latest', 'gemini-2.5-flash'):
+        out += sorted(c, key=rank, reverse=True)[:1]
+    for extra in ('gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-2.5-flash'):
         if extra in names and extra not in out:
             out.append(extra)
     return out or ['gemini-2.5-flash']
@@ -449,7 +449,13 @@ def main():
                     m['model'] = model
                     break
                 except Exception as e:
-                    notes.append(f'{model}: ' + (f'HTTP {e.code}' if isinstance(e, urllib.error.HTTPError) else str(e)[:120]))
+                    detail = ''
+                    if isinstance(e, urllib.error.HTTPError):
+                        try:
+                            detail = ' ' + json.loads(e.read()).get('error', {}).get('message', '')[:220]
+                        except Exception:
+                            pass
+                    notes.append(f'{model}: ' + (f'HTTP {e.code}{detail}' if isinstance(e, urllib.error.HTTPError) else str(e)[:120]))
                     if i == len(picks) - 1:
                         raise
             reply = parse_reply(text)
