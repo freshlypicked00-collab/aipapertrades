@@ -53,7 +53,7 @@ script += """
 
 # --- live New York clock, market status, and a per-second countdown
 markup = sub(markup, '<span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 28</span>',
-  '<span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 28</span>\n      <span class="st-clock">New York <b class="st-count" data-draw="clock">—</b></span>\n      <span class="st-clock">Hong Kong <b class="st-count" data-draw="clock-hk">—</b></span>\n      <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b></span>\n      <span class="st-clock"><span class="st-mkt" data-draw="market">—</span> <span class="st-mkt" data-draw="market-cn">—</span></span>', 1)
+  '<span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 28</span>\n      <span class="st-clock">New York <b class="st-count" data-draw="clock">—</b></span>\n      <span class="st-clock">Hong Kong <b class="st-count" data-draw="clock-hk">—</b></span>\n      <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b></span>\n      <span class="st-clock"><span class="st-mkt" data-draw="market">—</span> <span class="st-mkt" data-draw="market-cn">—</span></span>\n      <button type="button" class="st-theme" id="theme-btn" aria-pressed="false">Dark mode</button>', 1)
 script = sub(script, """el.textContent = d + (d === 1 ? ' day, ' : ' days, ') + h + (h === 1 ? ' hour' : ' hours');
       };
       tick();
@@ -65,6 +65,19 @@ script = sub(script, """el.textContent = d + (d === 1 ? ' day, ' : ' days, ') + 
       tick();
       return setInterval(tick, 1000);""", 1)
 script += """
+  (function () {
+    const btn = document.getElementById('theme-btn');
+    if (!btn) return;
+    const show = () => { const dark = document.documentElement.dataset.theme === 'dark'; btn.textContent = dark ? 'Light mode' : 'Dark mode'; btn.setAttribute('aria-pressed', String(dark)); };
+    btn.addEventListener('click', () => {
+      const dark = document.documentElement.dataset.theme !== 'dark';
+      if (dark) document.documentElement.dataset.theme = 'dark'; else delete document.documentElement.dataset.theme;
+      try { localStorage.setItem('pt-theme', dark ? 'dark' : 'light'); } catch (e) {}
+      show();
+      if (dash.redraw) dash.redraw();
+    });
+    show();
+  })();
   dash.draw('clock', {
     mount: (el) => {
       const f = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit', second: '2-digit' });
@@ -134,29 +147,38 @@ script += """
 """
 
 TERMINAL = """
+/* Light is the default; the theme button switches to dark (remembered per viewer). */
 :root, :root { --font-sans: "IBM Plex Sans Condensed", system-ui, sans-serif; --font-serif: "IBM Plex Mono", ui-monospace, monospace;
+ --color-bg:#f7f4ec; --color-panel:#ffffff; --color-fg:#1c1a16; --color-fg-muted:#6a6355; --color-border-line:#ddd5c3;
+ --color-ok:#13824a; --color-warn:#a96500; --color-bad:#c4372c; --cds-text-secondary:#6a6355; --cds-surface-popover:#ffffff; --cds-border:#cfc6b2;
+ --cds-chart-grid:#ece6d8; --cds-chart-axis:#c9bfa9; --cds-chart-reference:#8f8673;
+ --series-1:#b86e00; --series-2:#1f78b4; --series-3:#13824a; --series-4:#8c6d1f; --cds-radius:2px; color-scheme:light;
+ --accent:#a96500; --accent-bg:rgba(169,101,0,.07); --card-inset:#f1ece0; --title:#1c1a16; }
+:root[data-theme="dark"] {
  --color-bg:#0b0b0a; --color-panel:#121210; --color-fg:#f2e9d8; --color-fg-muted:#9b927f; --color-border-line:#2b2923;
  --color-ok:#3ddc84; --color-warn:#ffb000; --color-bad:#ff5a4e; --cds-text-secondary:#9b927f; --cds-surface-popover:#1a1916; --cds-border:#3a372f;
  --cds-chart-grid:#1e1d19; --cds-chart-axis:#3a372f; --cds-chart-reference:#6b6555;
- --series-1:#ffb000; --series-2:#4fc3f7; --series-3:#3ddc84; --series-4:#e8d48b; --cds-radius:2px; color-scheme:dark; }
-:root:not(#pt-a):not(#pt-b) { --ai-chatgpt:#f2f2f2; }  /* the live site is always dark: ChatGPT is white */
-body { background:#0b0b0a; }
-.st-title { font-family: var(--font-serif); text-transform: uppercase; letter-spacing: .08em; color: #ffb000; font-size: 26px; }
-.st-title::before { content: "▮ "; color:#ffb000; }
-.st-card { border-color:#2b2923; box-shadow: inset 0 1px 0 #1d1c18; }
-.st-big { font-family: var(--font-serif); font-weight:500; letter-spacing:-.02em; color:#f2e9d8; }
+ --series-1:#ffb000; --series-2:#4fc3f7; --series-3:#3ddc84; --series-4:#e8d48b; color-scheme:dark;
+ --accent:#ffb000; --accent-bg:rgba(255,176,0,.06); --card-inset:#1d1c18; --title:#ffffff; }
+:root:not(#pt-a):not(#pt-b) { --ai-chatgpt:#262626; }   /* ChatGPT: near-black on light, white on dark */
+:root[data-theme="dark"]:not(#pt-a):not(#pt-b) { --ai-chatgpt:#f2f2f2; }
+body { background:var(--color-bg); }
+.st-title { font-family: var(--font-serif); text-transform: uppercase; letter-spacing: .08em; color: var(--accent); font-size: 26px; }
+.st-title::before { content: "▮ "; color:var(--accent); }
+.st-card { border-color:var(--color-border-line); box-shadow: inset 0 1px 0 var(--card-inset); }
+.st-big { font-family: var(--font-serif); font-weight:500; letter-spacing:-.02em; color:var(--color-fg); }
 .st-label, .st-table th, .st-h2 { font-family: var(--font-serif); text-transform: uppercase; letter-spacing:.06em; }
-.st-label { color:#ffb000; }
-.st-h2 { font-size: 14px; color:#ffb000; }
+.st-label { color:var(--accent); }
+.st-h2 { font-size: 14px; color:var(--accent); }
 .st-tab { font-family: var(--font-serif); text-transform: uppercase; letter-spacing:.06em; font-size:13px; }
-.st-tab[aria-selected="true"] { color:#ffb000; border-bottom-color:#ffb000; }
-.st-notice { border-color:#ffb000; background: rgba(255,176,0,.06); }
+.st-tab[aria-selected="true"] { color:var(--accent); border-bottom-color:var(--accent); }
+.st-notice { border-color:var(--accent); background: var(--accent-bg); }
 .st-table td { font-family: var(--font-serif); font-size: 13px; }
-.st-progress .st-count { font-family: var(--font-serif); color:#ffb000; }
+.st-progress .st-count { font-family: var(--font-serif); color:var(--accent); }
 
-  .st-title { display: flex; align-items: center; gap: 14px; color: #ffffff; }
+  .st-title { display: flex; align-items: center; gap: 14px; color: var(--title); }
   .st-title::before { content: none; }
-  .st-logo { width: 1.4em; height: 1.4em; flex: none; border-radius: 8px; box-shadow: 0 0 0 1px #2b2923; }
+  .st-logo { width: 1.4em; height: 1.4em; flex: none; border-radius: 8px; box-shadow: 0 0 0 1px var(--color-border-line); }
   .st-clock { display: inline-flex; align-items: baseline; gap: 8px; }
   .st-mkt { font-family: var(--font-serif); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--color-fg-muted); }
   .st-mkt.is-open { color: var(--color-ok); }
@@ -164,6 +186,10 @@ body { background:#0b0b0a; }
   .st-mkt + .st-mkt { margin-left: 10px; }
   .st-progress .st-count { font-variant-numeric: tabular-nums; }
   .st-sources a { color: var(--color-fg-muted); }
+  .st-theme { margin-left: auto; font: 600 12px var(--font-serif); text-transform: uppercase; letter-spacing: .06em; color: var(--color-fg);
+    background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 6px 12px; cursor: pointer; min-height: 32px; }
+  .st-theme:hover { border-color: var(--accent); }
+  .st-theme:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 """
 
 TOKENS = """
@@ -235,7 +261,7 @@ SHIM = r"""
       loader() {},
       draw(name, def) { draws.push([name, def]); },
       setLink(name) { try { history.replaceState(null, '', '#' + name); } catch (e) {} },
-      params: () => ({}), setParams() {}, resetParams() {}, refresh() {},
+      params: () => ({}), setParams() {}, resetParams() {}, refresh() {}, redraw() { schedule(); },
       model: 'claude',
       models() { return base && base.models ? base.models : {}; },
       baseData(id) { return base && base[id] ? base[id] : []; },
@@ -285,6 +311,7 @@ SHIM = r"""
 html = f"""<!doctype html>
 <html lang="en">
 <head>
+<script>try {{ if (localStorage.getItem('pt-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; }} catch (e) {{}}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Paper Trades - AI Trading Experiment</title>

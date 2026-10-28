@@ -833,6 +833,12 @@ def main():
         assert g
         return
     state = load_state()
+    if os.environ.get('EVENT') == 'schedule':
+        # GitHub's own schedule is only a safety net: Claude's runs start the rival check-in at the same moment.
+        lasts = [datetime.fromisoformat(m['last_run']['at'].replace('Z', '+00:00')) for m in state.get('models', {}).values() if m.get('last_run')]
+        if lasts and NOW - max(lasts) < timedelta(minutes=35):
+            print('a check-in ran in the last 35 minutes; skipping this scheduled backup run')
+            return
     fx = get_fx()
     ran = []
     for mid, r in RIVALS.items():
