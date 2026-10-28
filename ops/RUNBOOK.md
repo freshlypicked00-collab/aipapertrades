@@ -59,13 +59,8 @@ then publishes everything. It runs every hour.
      Number bets S6, S7, ... continuing from the highest id.
 5. **Decide trades.** Apply `rules.json` strictly, then judgment on new information (news,
    earnings, central banks). Stocks trade only while the market is open. Each trade needs a
-   one-sentence reason. Current plans not fully captured as price rules:
-   - SOXL: the "trim a quarter at $108.60" rule only applies until Wed Oct 28, 4:00 p.m. ET;
-     remove it after. On Thu Oct 29 at the first market-hours run, if Microsoft or Alphabet
-     cut AI spending plans in their Oct 28 earnings, sell most of the SOXL.
-   - Crypto: USDC reserve is deployed by the Bitcoin rules; whatever is left goes into the
-     portfolio after the Nov 3 US midterms unless the picture has clearly soured.
-   - Metals: cash reserve is deployed only by the gold rules.
+   one-sentence reason. Plans not captured as price rules go in the log when you make them
+   (the plans from before the Oct 28 fresh start no longer apply).
    - China: see the China section below.
    Update rules when plans change (`rules_add` / `rules_remove`), keeping `label`, `asset`,
    `level`, `direction` on price rules.
@@ -113,13 +108,11 @@ then publishes everything. It runs every hour.
   `"fraction"` (rounded down to whole lots unless selling everything). Cash is `Cash (CNY)`.
 - **Prices:** ETNet quote pages work: `https://www.etnet.com.hk/www/sc/ashares/quote.php?code=588000`
   (always check the name on the page matches the code; some codes return the wrong stock). Find
-  others through web search. Holdings: `STAR 50 ETF` (588000), `Semiconductor ETF` (512480).
-- **Benchmark:** CSI 300 (`indexes.csi300`). The first level you supply becomes its start (it was
-  not recorded at entry), so supply the Oct 28 close at the first run after 3:00 p.m. Beijing, then
-  every run when you have it.
-- **Plan:** the portfolio is a rebound bet on beaten-down Chinese tech (STAR 50 down ~40% from its
-  July peak) supported by state-backed ETF buying and strong chip earnings. Follow the price rules
-  in `rules.json`. Watch the Fifth Plenum communique (Oct 29) and the plenum rule.
+  others through web search.
+- **Benchmark:** CSI 300 (`indexes.csi300`). After the fresh start its start level is set at the first
+  China trade from the level you supply; supply it every run when you have it.
+- **Plan:** decide fresh at the Shanghai open after the reset (the earlier STAR 50 / semiconductor
+  positions were closed by the reset and are archived).
 - **Events:** add China events with `"affects": "China"` only.
 
 ## Daily accuracy check
@@ -168,36 +161,28 @@ judgment: at most 6 such news runs a day, and none for routine moves. Mark new b
 major earnings for held names, key data, election night, market opens with planned orders) with
 `extra_run` when you add them.
 
-## Opening orders, Wed Oct 28 (do these at the first run after 9:30 a.m. ET)
+## Opening orders, Wed Oct 28 — FRESH START (all eight trading experiments)
 
-Do each once; skip if `trades.json` already has trades for that portfolio. Use live quotes, put
-the reasons in the log, then add price rules (with `asset`, `level`, `direction`, `label`)
-computed from the actual fill prices.
+At 4:40 a.m. ET on Oct 28 the owner reset every trading experiment (Stocks, Crypto, China, Metals,
+Energy, Options, Currencies, Safe) to 100,000 in cash (C$100,000; China US$100,000) so Claude and
+Gemini start level, head to head. Betting (Sports, Predictions) was NOT reset; keep running it as before.
+The earlier trading run is archived in `ops/archive/`; never restore it.
 
-- **Energy** (high risk; oil near $100 on Strait of Hormuz attacks, a US blockade of Iran and low
-  diesel stocks; the risk is a Hormuz deal): buy C$40,000 UCO (2x crude oil), C$20,000 FRO
-  (Frontline, oil tankers; freight rates are soaring), C$20,000 VLO (Valero, refiner; diesel
-  margins), keep C$20,000 cash. Rules: sell half UCO at the next run after any announced deal to
-  reopen Hormuz; sell half UCO if it falls 15% below entry; sell a third of UCO at 25% above entry;
-  if WTI falls below $92 without a deal, add C$10,000 UCO.
-- **Options** (high risk, high reward; earnings week): buy calls, about 5% out of the money, using
-  the ask price and whole contracts (`qty` = contracts x 100): MSFT expiring Oct 30, about
-  C$12,000; GOOGL expiring Oct 30, about C$12,000; AMZN expiring Oct 30 (earnings Oct 29), about
-  C$12,000; NVDA expiring Nov 20, about 10% out of the money, about C$20,000. Keep the rest in cash
-  for later plays (AMD Nov 3, post-midterm moves, Nvidia earnings). Rules: sell the MSFT and GOOGL
-  calls at the first market-hours run on Oct 29, win or lose (don't hold through time decay); sell
-  the AMZN calls at the first run on Oct 30; sell half of any option that doubles. Name holdings
-  like `MSFT Oct 30 $560 call`; price = premium per share. If you can't find a live option quote
-  from a chain page (search "<ticker> option chain <expiry date>"; Barchart, Nasdaq, Yahoo, MarketChameleon), skip that trade and log why.
-- **Safe** (the control; low risk): buy C$40,000 SGOV (US Treasury bills), C$25,000 SCHD
-  (dividend stocks), C$15,000 BND (US bonds), C$10,000 GLD (gold), keep C$10,000 cash. Rules: no
-  leverage, no single stocks, no options; rebalance only if a holding drifts more than 5 points
-  from its target; gold never more than 10%. Its benchmark is a savings account at 2.25% a year
-  (the Bank of Canada rate), calculated by the page from its first trade.
+- Make NO trading-experiment trades before 9:30 a.m. ET Oct 28 (not even crypto), so both AIs start at the
+  same moment. Gemini is held to the same rule.
+- At the first run after 9:30 a.m. ET, open Stocks, Crypto, Metals, Energy, Options, Currencies and Safe
+  with fresh decisions of your own: you may buy the same kinds of things as before or something new.
+  Use live quotes, log a short reason for each, and add price rules (`asset`, `level`, `direction`, `label`)
+  from the actual fills. Each experiment keeps its own rules below (Safe stays the low-risk control: no
+  leverage, no single stocks, no options; Currencies may use up to 8x leverage; Options use whole contracts
+  with `qty` = contracts x 100 and live chain quotes; China lots of 100, T+1).
+- China opens at the first run after the Shanghai open (9:30 a.m. Beijing, 9:30 p.m. ET Oct 28).
+- Benchmarks (indexes, Bitcoin, gold, savings) restart automatically at each experiment's first trade.
+- Write a new "AI's take" at that run.
 
 ## Currencies (forex, high risk)
 
-- Opened Oct 28, 12:25 a.m. ET with C$100,000 and leverage: positions up to 8x the account.
+- Restarts fresh at the first run after 9:30 a.m. ET Oct 28 with C$100,000 and leverage: positions up to 8x the account.
   Currencies are holdings priced in US dollars per unit: `US dollar` (always 1.0), `Japanese yen`
   (1 / USD/JPY), and add others the same way (`Euro` = EUR/USD, `British pound` = GBP/USD).
 - `Buy` a currency to go long (cash may go negative; that's borrowing). `Short` (with `cad` or
@@ -220,7 +205,7 @@ computed from the actual fill prices.
 
 ## Benchmarks
 
-Metals is compared with holding gold (from its Oct 27, 7:30 p.m. start); the update tool takes this from the `Gold` price automatically.
+Metals is compared with holding gold (from its first trade after the fresh start); the update tool takes this from the `Gold` price automatically.
 
 ## Benchmarks for the new experiments
 
@@ -237,7 +222,7 @@ Write `when` in Eastern time (e.g. "Wed Oct 28, 9:45 a.m."); the page adds the U
 - Every price has a `source` and the `at` time of the quote.
 - **Crypto** (Bitcoin, Ethereum, Solana, XRP): quotes under 30 minutes old; check two
   sources and use one that agrees with the other within 0.5%.
-- **Stocks** (SOXL, TQQQ) and the **S&P 500 / S&P/TSX** levels: live quotes during market
+- **Stocks** and the **S&P 500 / S&P/TSX** levels: live quotes during market
   hours; outside them use the last close and set `"market_closed": true`. Include
   `indexes` (`sp500`, `tsx`) whenever you have them.
 - **Metals** (Gold, Silver): spot prices, not futures. If only futures are available, say
@@ -299,9 +284,8 @@ updates. Write plainly, in past tense, without naming the AI model or company.
 }
 ```
 
-Asset names must match `holdings.json` (`SOXL`, `TQQQ`, `Bitcoin`, `Ethereum`, `Solana`,
-`XRP`, `Gold`, `Silver`, `STAR 50 ETF`, `Semiconductor ETF`, plus the Predictions, Energy,
-Options and Safe holdings). Buys may give `qty` (exact shares) instead of `cad`. Asset names are
+Asset names must match `holdings.json` (for example `Bitcoin`, `Gold`, tickers like `NVDA`, and
+the Predictions holdings). Buys may give `qty` (exact shares) instead of `cad`. Asset names are
 global keys for prices, so if two portfolios hold the same ticker, give each the same price. Prices are US dollars except
 China, which is in yuan. `cad` amounts are Canadian dollars.
 
@@ -328,6 +312,7 @@ biggest win and loss. Then stop: later runs only confirm the final state.
 
 ## AI vs AI (Gemini and ChatGPT)
 - The owner chose to name the models on the "AI vs AI" tab: Claude vs Gemini vs ChatGPT. That tab, its Telegram posts and the README may name Claude, Gemini (Google) and ChatGPT (OpenAI). Everywhere else keep saying "an AI model" / "the AI".
+- Gemini started fresh with Claude on Oct 28 (no trades before 9:30 a.m. ET; US-listed orders only during US market hours, China only during Shanghai hours, crypto any time after the start).
 - Gemini and ChatGPT are run by `.github/workflows/rivals.yml` (hourly at :37) and `ops/rivals.py`, not by these scheduled runs. Gemini plays Stocks, Crypto, China, Metals and Energy; ChatGPT plays Stocks, Crypto and Predictions. Their state is `ops/src/rivals.json`.
 - Scheduled runs must NOT edit `ops/src/rivals.json` or trade for the rivals. Just keep it when rebuilding (build_site.py reads it). If `git pull --rebase` conflicts on index.html or data.json, take the latest origin version and rebuild.
 - The daily accuracy check may read rivals.json and report anything odd (a price far off, a refused-order pattern, `last_run.status` errors) in its report, but changes nothing there.

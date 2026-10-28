@@ -16,6 +16,9 @@ Usage: python3 ops/rivals.py            (live)
 import json, os, re, sys, urllib.error, urllib.parse, urllib.request
 from datetime import datetime, timezone, timedelta
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import tgcharts  # noqa: E402
+
 STATE = 'ops/src/rivals.json'
 ALL_EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Predictions']
 EXP_LABEL = {'Stocks': 'Stocks and anything', 'Crypto': 'Crypto', 'China': 'China stocks', 'Metals': 'Metals',
@@ -27,6 +30,12 @@ UA = {'User-Agent': 'Mozilla/5.0 (PaperTrades price check)'}
 SITE = 'https://papertrades.ai'
 NOW = datetime.now(timezone.utc).replace(microsecond=0)
 BJ = timezone(timedelta(hours=8))
+FRESH_START = datetime(2026, 10, 28, 13, 30, tzinfo=timezone.utc)  # 9:30 a.m. ET: Claude and Gemini start level
+try:
+    from zoneinfo import ZoneInfo
+    NY = ZoneInfo('America/New_York')
+except Exception:
+    NY = timezone(timedelta(hours=-4))
 CUR_SYM = {'CAD': 'C$', 'USD': 'US$', 'CNY': '¥'}
 
 
@@ -100,6 +109,12 @@ def quote(exp, symbol, outcome=None):
         if exp != 'Crypto' and symbol.endswith('-USD'):
             raise ValueError('crypto belongs in the Crypto experiment')
     return px, cur, {'name': name}
+
+
+def us_open():
+    t = NOW.astimezone(NY)
+    hm = t.hour * 60 + t.minute
+    return t.weekday() < 5 and 570 <= hm < 960
 
 
 def china_open():
@@ -229,9 +244,9 @@ def _ask_gemini(key, model, prompt, search=True):
 
 
 RIVALS = {
-    'gemini': {'label': 'Gemini', 'company': 'Google', 'env': 'GEMINI_API_KEY', 'pick': pick_gemini, 'ask': ask_gemini,
+    'gemini': {'label': 'Gemini', 'company': 'Google', 'color': '#4f8ff7', 'env': 'GEMINI_API_KEY', 'pick': pick_gemini, 'ask': ask_gemini,
                'exps': ['Stocks', 'Crypto', 'China', 'Metals', 'Energy']},
-    'chatgpt': {'label': 'ChatGPT', 'company': 'OpenAI', 'env': 'OPENAI_API_KEY', 'pick': pick_openai, 'ask': ask_openai,
+    'chatgpt': {'label': 'ChatGPT', 'company': 'OpenAI', 'color': '#10a37f', 'env': 'OPENAI_API_KEY', 'pick': pick_openai, 'ask': ask_openai,
                 'exps': ['Stocks', 'Crypto', 'Predictions']},
 }
 
@@ -257,6 +272,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None):
         'Goal: high risk, high reward. Try to finish each experiment with as much money as possible. Holding is fine; trade when you have a reason.',
         '',
         'Rules (long only, no margin, no fees, you cannot spend more cash than you have; fills are at the live price when this run executes):',
+        '- US-listed stocks and ETFs fill only while the US market is open (9:30 a.m. to 4:00 p.m. ET, weekdays); futures (=F) and crypto any time.',
     ]
     lines += ['- ' + RULES[e] for e in exps]
     lines += [f'Exchange rates now: USD/CAD {fx["USDCAD"]:.4f}, USD/CNY {fx["USDCNY"]:.4f}.', 'Use web search to check news and current prices before deciding.', '', 'Your portfolios now:']
@@ -306,6 +322,10 @@ def execute(model_id, exps, books, order, fx, state):
         raise ValueError(f'unknown action {action!r}')
     if action == 'sell' and key not in book['positions']:
         raise ValueError(f'no {key} position to sell')
+    if NOW < FRESH_START:
+        raise ValueError('the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then')
+    if exp in ('Stocks', 'Metals', 'Energy') and not sym.endswith('=F') and not us_open():
+        raise ValueError('US market is closed; US-listed orders fill only 9:30 a.m. to 4:00 p.m. ET on weekdays')
     if exp == 'China' and not china_open():
         raise ValueError('China market is closed; orders fill only during Shanghai/Shenzhen trading hours')
     px, pcur, info = quote(exp, sym, outcome)
@@ -379,6 +399,67 @@ def settle_predictions(model_id, book, fx, state):
 
 
 # ---------------- telegram ----------------
+def tg_photo(text, photo):
+    tok, chat = os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID')
+    if not (tok and chat and photo):
+        return tg(text)
+    b = '----pt' + str(os.getpid())
+    parts = [f'--{b}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode() for k, v in (('chat_id', chat), ('caption', text[:1020]), ('parse_mode', 'HTML'))]
+    parts.append(f'--{b}\r\nContent-Disposition: form-data; name="photo"; filename="c.png"\r\nContent-Type: image/png\r\n\r\n'.encode() + open(photo, 'rb').read() + f'\r\n--{b}--\r\n'.encode())
+    try:
+        req = urllib.request.Request(f'https://api.telegram.org/bot{tok}/sendPhoto', b''.join(parts), {'Content-Type': f'multipart/form-data; boundary={b}'})
+        urllib.request.urlopen(req, timeout=30).read()
+    except Exception as e:
+        print('telegram photo failed', e)
+        tg(text)
+
+
+def chart(label, color, exp, state, mid):
+    """Value of one model's experiment: 24 hours, 7 days, since start."""
+    try:
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
+        import matplotlib.dates as md
+        plt.rcParams.update({'text.parse_math': False, 'font.size': 11, 'text.color': '#f2e9d8', 'xtick.color': '#9b927f', 'ytick.color': '#9b927f'})
+        m = state['models'][mid]
+        st = datetime.fromisoformat(m['started'][exp].replace('Z', '+00:00'))
+        pts = sorted([(st, START)] + [(datetime.fromisoformat(h['at'].replace('Z', '+00:00')), h['value']) for h in state['history'] if h['model'] == mid and h['experiment'] == exp])
+        cur = m['books'][exp]['cur']
+        fig, axes = plt.subplots(1, 3, figsize=(12, 4.2), facecolor='#0b0b0a')
+        for ax, (title, span) in zip(axes, (('24 hours', timedelta(hours=24)), ('7 days', timedelta(days=7)), ('Since start', None))):
+            sel = [p for p in pts if span is None or p[0] >= NOW - span]
+            prev = [p for p in pts if span is not None and p[0] < NOW - span]
+            sel = (prev[-1:] + sel) if len(prev[-1:] + sel) >= 2 else pts
+            xs, ys = [p[0] for p in sel], [p[1] for p in sel]
+            if len(xs) == 1:
+                xs, ys = [xs[0], NOW], [ys[0], ys[0]]
+            up = ys[-1] >= ys[0]
+            ax.set_facecolor('#0b0b0a')
+            ax.plot(xs, ys, color=color, lw=2.2)
+            ax.axhline(START, color='#9b927f', lw=.8, ls='--')
+            ch = ys[-1] - ys[0]
+            ax.set_title(f"{title}   {'+' if ch >= 0 else '-'}{CUR_SYM[cur]}{abs(ch):,.0f}", color='#3ddc84' if up else '#ff5a4e', loc='left', fontsize=12)
+            rng = max(ys + [START]) - min(ys + [START])
+            ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _, r=rng: f'{v / 1000:,.1f}k' if r < 5000 else f'{v / 1000:,.0f}k'))
+            loc = md.AutoDateLocator(maxticks=5)
+            ax.xaxis.set_major_locator(loc)
+            ax.xaxis.set_major_formatter(md.ConciseDateFormatter(loc))
+            for sp in ax.spines.values():
+                sp.set_color('#2b2923')
+            ax.grid(color='#2b2923', lw=.6)
+        fig.suptitle(f"PAPER TRADES · {label} · {EXP_LABEL[exp]} · {money(pts[-1][1], cur)} (started {money(START, cur)})", color=color, fontsize=13, x=.01, ha='left', fontweight='bold')
+        fig.text(.99, .01, 'AI vs AI · Simulation only · papertrades.ai', color='#9b927f', ha='right', fontsize=9)
+        fig.tight_layout(rect=(0, .03, 1, .94))
+        path = f'/tmp/rival_{mid}_{exp}.png'
+        fig.savefig(path, dpi=110, facecolor='#0b0b0a')
+        plt.close(fig)
+        return path
+    except Exception as e:
+        print('chart failed', e)
+        return None
+
+
 def tg(text):
     tok, chat = os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID')
     if not (tok and chat):
@@ -402,14 +483,14 @@ def fmt_price(t):
     return CUR_SYM[t['pcur']] + (f"{t['price']:,.2f}" if t['price'] >= 100 else f"{t['price']:,.4f}".rstrip('0').rstrip('.')) + unit
 
 
-def tg_trade(label, t, source=None):
+def tg_trade(label, t, source=None, photo=None):
     icon = {'Buy': '🟢', 'Sell': '🔴', 'Settled': '🏁'}.get(t['action'], '•')
     what = f"{t['symbol']} {t['outcome']}" if t.get('outcome') else t['symbol']
     msg = (f"{icon} <b>{label} · {EXP_LABEL[t['experiment']]}: {t['action']} {esc(what)}</b>\n{esc(t['name'])}\n"
            f"{fmt_price(t)}, {money(t['amount'], t['cur'])}\n<i>{esc(t['reason'])}</i>")
     if source:
         msg += f"\nSource: <a href=\"{esc(source['url'])}\">{esc(source['title'][:80])}</a>"
-    tg(msg + f'\n⚔️ AI vs AI: Claude vs Gemini vs ChatGPT · {SITE}')
+    tg_photo(msg + f'\n⚔️ AI vs AI: Claude vs Gemini · {SITE}', photo)
 
 
 # ---------------- main ----------------
@@ -438,7 +519,7 @@ def main():
         notes = []
         if 'Predictions' in exps:
             for t in settle_predictions(mid, m['books']['Predictions'], fx, state):
-                tg_trade(r['label'], t)
+                tg_trade(r['label'], t, None, chart(r['label'], r['color'], 'Predictions', state, mid))
         values = {e: value_book(e, m['books'][e], fx, notes) for e in exps}
         status, take, sources, made = 'ok', None, [], []
         try:
@@ -505,7 +586,10 @@ def main():
             notes.append('web search quota unavailable this run; decided from the prices and portfolio given')
         m['last_run'] = {'at': iso(), 'status': status, 'notes': notes[-12:], 'sources': sources[:8], 'orders': len(made)}
         for t in made:
-            tg_trade(r['label'], t, sources[0] if sources else None)
+            pic = None
+            if t['experiment'] != 'Predictions':
+                pic = tgcharts.price_chart(t['symbol'], f"{r['label']} · {EXP_LABEL[t['experiment']]}", r['color'], t['price'], t['action'], f"/tmp/rp_{mid}_{len(state['trades'])}_{t['symbol']}.png")
+            tg_trade(r['label'], t, sources[0] if sources else None, pic or chart(r['label'], r['color'], t['experiment'], state, mid))
         ran.append(f"{r['label']} ({m.get('model')}): {status}, {len(made)} trade(s), " + ', '.join(f'{e} {money(values[e], m["books"][e]["cur"])}' for e in exps))
     if not ran:
         print('no rival API keys set; nothing to do')

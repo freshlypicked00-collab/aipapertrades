@@ -6,6 +6,8 @@ a new "AI's take", and each newly closed ledger day (results, scoreboard, report
 Needs the secrets TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID; does nothing without them.
 """
 import json, os, subprocess, sys, urllib.parse, urllib.request
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import tgcharts  # noqa: E402
 from datetime import datetime, timezone, timedelta
 
 TOKEN, CHAT = os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID')
@@ -171,22 +173,28 @@ if WELCOME:
     order = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
     board = sorted(((pf, last.get(pf, 100000)) for pf in order), key=lambda x: -x[1])
     day = (datetime.now(timezone.utc) - datetime(2026, 10, 26, tzinfo=timezone.utc)).days + 1
-    intro = ("👋 <b>Welcome to Paper Trades</b>\n\n"
-             "An AI model is running <b>ten separate paper-trading and betting experiments</b> for 30 days (Oct 26 – Nov 26, 2026), "
-             "using real-world prices. Each starts with its own C$100,000 (China stocks: US$100,000) and is judged only against that. "
-             "They are never added together.\n\n"
+    intro = ("👋 <b>Welcome to Paper Trades: AI vs AI</b>\n\n"
+             "Several AI models trade <b>head to head</b> with pretend money and real-world prices until Nov 26, 2026. "
+             "Each model runs its <b>own separate copy</b> of each experiment, starting from the same 100,000 at the same moment, "
+             "and they are scored against each other. Nothing is ever added together.\n\n"
+             "🟠 <b>Claude</b> (Anthropic): all ten experiments\n"
+             "🔵 <b>Gemini</b> (Google): Stocks and anything · Crypto · China stocks · Metals · Oil and energy\n"
+             "🟢 <b>ChatGPT</b> (OpenAI): joining soon\n\n"
              "<b>Trading:</b> Stocks and anything · Crypto · China stocks · Metals · Oil and energy · Options · Currencies · Play it safe\n"
-             "<b>Betting:</b> Sports · Prediction markets\n\n"
+             "<b>Betting</b> (Claude): Sports · Prediction markets\n\n"
+             "🔁 <b>Fresh start:</b> every trading experiment was reset to C$100,000 (China stocks: US$100,000) so Claude and Gemini start level. "
+             "Both make their opening investments at the US market open, 9:30 a.m. ET Oct 28; China stocks at the Shanghai open. Betting carries on as it was.\n\n"
              "<b>How it works</b>\n"
-             "• The AI checks markets and news every hour, every half hour while US markets are open, and at the US and China opens and closes\n"
-             "• It decides and records every trade and bet itself, with its reasons and sources\n"
+             "• Each AI checks markets and searches the news on its own (at least hourly), decides for itself and explains every trade in its own words\n"
+             "• Every model writes its own daily report card and grades itself\n"
              "• A daily accuracy check reviews prices and fixes mistakes\n\n"
              "<b>What you'll see here</b>\n"
-             "🟢🔴 every trade · 🎯 every bet and result · 💬 the AI's take · 📒 the daily close at 8 p.m. ET (00:00 UTC) with results and report-card grades\n\n"
+             "🟢🔴 every buy and sell with a price chart (24 hours, 7 days, 30 days) · 🎯 every bet and result · 💬 each AI's take · "
+             "📒 the daily close at 8 p.m. ET (00:00 UTC)\n\n"
              "🔴 Simulation only. No real money. Not investment or betting advice.\n\n"
-             f"Full tracker, ledger and charts: {SITE}")
+             f"Compare them live on the AI vs AI tab, and switch models on the site: {SITE}")
     mid = send(intro, 'og.png' if os.path.exists('og.png') else None)
-    lines = [f"🏁 <b>Where things stand: day {day} of 32</b>\n"]
+    lines = [f"🏁 <b>Where things stand: day {day} of 32</b> (Claude; Gemini starts at the open)\n"]
     for i, (pf, v) in enumerate(board, 1):
         sym = 'US$' if pf == 'China' else 'C$'
         ch = v - 100000
@@ -226,7 +234,8 @@ for t in load(S + 'trades.json'):
     else:
         price = f"US${t['price_usd']:,.2f}, C${t['cad']:,.0f}"
     why = next((e['detail'] for e in reversed(log) if e['portfolio'] == pf and e['at'][:16] == t['at'][:16]), '') or t.get('note', '')
-    msgs.append((f"{ICON.get(a, '•')} <b>{esc(LABEL.get(pf, pf))}: {a} {esc(h)}</b>\n{price}\n{when(t['at'])}" + (f"\n<i>{esc(why[:400])}</i>" if why else '') + source_for(pf, h), pf))
+    msgs.append((f"{ICON.get(a, '•')} <b>{esc(LABEL.get(pf, pf))}: {a} {esc(h)}</b>\n{price}\n{when(t['at'])}" + (f"\n<i>{esc(why[:400])}</i>" if why else '') + source_for(pf, h),
+                 ('trade', pf, tgcharts.symbol_for(pf, h, t.get('code')), t.get('price_local') or t.get('price_usd'), a)))
 if TEST:
     msgs = [('🧪 <b>TEST POST</b> (a replay of the latest trade, not a new one)\n\n' + m, p) for m, p in msgs[-1:]]
 
@@ -275,6 +284,12 @@ for day in sorted({r['day'] for r in ledger} - oldd):
     msgs.append(('\n'.join(lines), ('close', srows, f"Day {n} close")))
 
 for i, (m, pic) in enumerate(msgs):
-    photo = chart_scoreboard(pic[1], pic[2]) if isinstance(pic, tuple) else chart_section(pic, i) if pic else None
+    if isinstance(pic, tuple) and pic[0] == 'trade':
+        _, pf_, sym_, px_, act_ = pic
+        photo = (tgcharts.price_chart(sym_, 'Claude · ' + LABEL.get(pf_, pf_), '#d97757', px_, act_, f'/tmp/pt_trade_{i}.png') if sym_ else None) or chart_section(pf_, i)
+    elif isinstance(pic, tuple):
+        photo = chart_scoreboard(pic[1], pic[2])
+    else:
+        photo = chart_section(pic, i) if pic else None
     send(m + ('' if SITE in m else f'\n{SITE}'), photo)
 print(f'{len(msgs)} message(s)')

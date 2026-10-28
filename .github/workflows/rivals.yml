@@ -2,6 +2,7 @@ name: Head to head (Gemini and ChatGPT)
 on:
   schedule:
     - cron: '37 * * * *'
+    - cron: '35 13 28 10 *'  # fresh start: same minute as Claude's US-open run
   workflow_dispatch:
     inputs:
       mode:
@@ -24,6 +25,8 @@ jobs:
       - name: Test price feeds
         if: ${{ inputs.mode == 'prices' }}
         run: python3 ops/rivals.py --prices
+      - run: pip install -q matplotlib
+        if: ${{ inputs.mode != 'prices' }}
       - name: Let each rival model decide and trade
         if: ${{ inputs.mode != 'prices' }}
         env:

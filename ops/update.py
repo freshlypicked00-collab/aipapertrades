@@ -347,7 +347,14 @@ for r in rules:
         crossed.append((r['portfolio'], a, r.get('label'), lvl, d, q['price'], hi, lo))
 if 'Bitcoin' in P:
     bench.append({'series': 'Bitcoin', 'at': P['Bitcoin'].get('at') or AT, 'level': float(P['Bitcoin']['price']), 'fx': fx, 'source': P['Bitcoin'].get('source', '')})
+    _started = {t['portfolio'] for t in trades}
     for r in benchmark:
+        if r.get('btc_start_usd') is None:  # after a fresh start the comparison begins at the first trade
+            if r['portfolio'] not in _started:
+                continue
+            r['btc_start_usd'] = float(P['Bitcoin']['price'])
+            r['fx_start'] = fx
+            r['start_at'] = min(t['at'] for t in trades if t['portfolio'] == r['portfolio'])
         r['btc_now_usd'] = float(P['Bitcoin']['price'])
         r['fx_now'] = fx
         r['as_of'] = AT
