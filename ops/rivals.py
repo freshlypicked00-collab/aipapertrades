@@ -429,9 +429,9 @@ def main():
                     text, sources = r['ask'](key, model, prompt)
                     m['model'] = model
                     break
-                except urllib.error.HTTPError as e:
-                    notes.append(f'{model}: HTTP {e.code}')
-                    if e.code not in (429, 403, 404, 503) or i == len(picks) - 1:
+                except Exception as e:
+                    notes.append(f'{model}: ' + (f'HTTP {e.code}' if isinstance(e, urllib.error.HTTPError) else str(e)[:120]))
+                    if i == len(picks) - 1:
                         raise
             reply = parse_reply(text)
             take = str(reply.get('take', ''))[:300] or None
