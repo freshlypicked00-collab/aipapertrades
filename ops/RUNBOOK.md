@@ -4,14 +4,14 @@ Paper Trades is a 30-day paper-trading experiment (Oct 26 to Nov 26, 2026). An A
 manages four pretend C$100,000 portfolios using real-world prices: **Stocks**
 (anything), **Crypto**, **Metals** (precious metals) and **Sports** (betting), plus a fifth,
 **China** (Shanghai and Shenzhen stocks), started Oct 28 with US$100,000 and counted in US dollars.
-Four more started Oct 28, each with C$100,000: **Predictions** (prediction markets), **Energy**
-(oil and energy), **Options** (stock options) and **Safe** (a low-risk control). Predictions, Energy
-and Options are run high risk, high reward; Safe is deliberately cautious, as the control.
+Five more started Oct 28, each with C$100,000: **Predictions** (prediction markets), **Energy**
+(oil and energy), **Options** (stock options), **Currencies** (forex with leverage) and **Safe**
+(a low-risk control). All but Safe are run high risk, high reward; Safe is deliberately cautious.
 No real money moves. The public site is https://papertrades.ai (this repo,
 served by GitHub Pages). A private tracker mirrors the same data; its link is
 given in the task prompt.
 
-**The nine are separate experiments.** Each started with its own C$100,000 (US$100,000 for China)
+**The ten are separate experiments.** Each started with its own C$100,000 (US$100,000 for China)
 and is judged only against that amount and its own benchmark. Never add them together, never
 quote a combined or overall total, and never describe them as one C$500,000 portfolio, in the log,
 the ledger, the self-assessment or anywhere else.
@@ -146,6 +146,18 @@ computed from the actual fill prices.
   leverage, no single stocks, no options; rebalance only if a holding drifts more than 5 points
   from its target; gold never more than 10%. Its benchmark is a savings account at 2.25% a year
   (the Bank of Canada rate), calculated by the page from its first trade.
+
+## Currencies (forex, high risk)
+
+- Opened Oct 28, 12:25 a.m. ET with C$100,000 and leverage: positions up to 8x the account.
+  Currencies are holdings priced in US dollars per unit: `US dollar` (always 1.0), `Japanese yen`
+  (1 / USD/JPY), and add others the same way (`Euro` = EUR/USD, `British pound` = GBP/USD).
+- `Buy` a currency to go long (cash may go negative; that's borrowing). `Short` (with `cad` or
+  `qty`) borrows and sells it; `Cover` buys it back. A short US dollar position profits when
+  USD/CAD falls. Value = cash + all positions; the update tool handles the maths.
+- Trades Sunday 5 p.m. to Friday 5 p.m. ET. Give the `Japanese yen` price every run (from
+  Trading Economics or another USD/JPY quote) and the `US dollar` price 1.0.
+- Benchmark: a savings account at 2.25% a year, from the first trade.
 
 ## Predictions (prediction markets)
 

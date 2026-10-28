@@ -19,7 +19,8 @@ from datetime import datetime, timedelta, timezone
 
 SRC, INP = sys.argv[1], sys.argv[2]
 START = 100000.0
-ORDER = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Safe', 'Sports', 'Predictions']
+ORDER = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
+MARGIN = {'Currencies'}  # cash may go negative (borrowing); shorts allowed
 CURRENCY = {p: ('USD' if p == 'China' else 'CAD') for p in ORDER}
 BENCH_NAMES = {'sp500': 'S&P 500', 'csi300': 'CSI 300', 'uso': 'Oil (USO fund)'}
 BJ = timezone(timedelta(hours=8))
@@ -188,7 +189,7 @@ for t in inp.get('trades', []):
         else:
             fund['quantity'] = round(fund['quantity'] - cad, 2)
         fund['cost_cad'] = round(fund.get('cost_cad', 0) - cad, 2)
-        if fund['quantity'] < -0.01:
+        if fund['quantity'] < -0.01 and pf not in MARGIN:
             raise SystemExit(f'Not enough {fund_name} in {pf} for this buy')
         if r is None:
             r = {'portfolio': pf, 'holding': h, 'quantity': 0, 'entry_usd': price, 'price_usd': price,
@@ -196,7 +197,7 @@ for t in inp.get('trades', []):
             idx = max([i for i, x in enumerate(holdings) if x['portfolio'] == pf] or [len(holdings) - 1]) + 1
             holdings.insert(idx, r)
         q0 = r['quantity']
-        r['entry_usd'] = round((q0 * r['entry_usd'] + qty * price) / (q0 + qty), 6)
+        r['entry_usd'] = round((q0 * r['entry_usd'] + qty * price) / (q0 + qty), 10)
         r['quantity'] = round(q0 + qty, 6)
         r['cost_cad'] = round(r.get('cost_cad', 0) + cad, 2)
     elif action == 'Sell':
@@ -226,6 +227,31 @@ for t in inp.get('trades', []):
             dest['quantity'] = round(dest['quantity'] + dq, 6)
             dest['cost_cad'] = round(dest.get('cost_cad', 0) + cad, 2)
             trades.append({'at': AT, 'portfolio': pf, 'holding': dest['holding'], 'action': 'Buy', 'price_usd': dp, 'cad': round(cad, 2)})
+    elif action in ('Short', 'Cover'):
+        if pf not in MARGIN:
+            raise SystemExit(f'Short selling is only allowed in {sorted(MARGIN)}')
+        qty = float(t['qty']) if 'qty' in t else cad / fx / price
+        cad = qty * price * fx
+        if r is None:
+            r = {'portfolio': pf, 'holding': h, 'quantity': 0, 'entry_usd': price, 'price_usd': price,
+                 'change_pct': 0, 'value_cad': 0, 'as_of': AT, 'cost_cad': 0, 'price_source': '', 'price_at': None}
+            holdings.insert(max(i for i, x in enumerate(holdings) if x['portfolio'] == pf) + 1, r)
+        q0 = r['quantity']
+        if action == 'Short':  # borrow and sell: quantity goes negative, cash goes up
+            r['entry_usd'] = round((abs(q0) * r['entry_usd'] + qty * price) / (abs(q0) + qty), 8)
+            r['quantity'] = round(q0 - qty, 6)
+            r['cost_cad'] = round(r.get('cost_cad', 0) - cad, 2)
+            fund['quantity'] = round(fund['quantity'] + cad, 2)
+            fund['cost_cad'] = round(fund.get('cost_cad', 0) + cad, 2)
+        else:  # buy back
+            qty = min(qty, abs(q0))
+            cad = qty * price * fx
+            cost_back = r.get('cost_cad', 0) * qty / abs(q0)  # negative
+            r['realized_cad'] = round(r.get('realized_cad', 0) + (-cost_back) - cad, 2)
+            r['cost_cad'] = round(r.get('cost_cad', 0) - cost_back, 2)
+            r['quantity'] = round(q0 + qty, 6)
+            fund['quantity'] = round(fund['quantity'] - cad, 2)
+            fund['cost_cad'] = round(fund.get('cost_cad', 0) - cad, 2)
     else:
         raise SystemExit(f'Unknown trade action {action}')
     trades.append({'at': AT, 'portfolio': pf, 'holding': h, 'action': action, 'price_usd': price, 'cad': round(cad, 2)})

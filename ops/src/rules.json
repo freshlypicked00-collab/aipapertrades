@@ -206,5 +206,37 @@
   "level": null,
   "direction": null,
   "label": "Settlement"
+ },
+ {
+  "portfolio": "Currencies",
+  "rule": "Leverage: total positions may be up to 8 times the account value; borrowing shows as negative cash. If the account falls to C$70,000, cut every position in half.",
+  "asset": null,
+  "level": null,
+  "direction": null,
+  "label": "Leverage"
+ },
+ {
+  "portfolio": "Currencies",
+  "rule": "Cut half the yen trade if USD/JPY rises above 160.50 (yen price 0.0062305), where Japan would likely step in anyway but the trade is wrong.",
+  "asset": "Japanese yen",
+  "level": 0.0062305,
+  "direction": "below",
+  "label": "Cut half"
+ },
+ {
+  "portfolio": "Currencies",
+  "rule": "Take half the yen profit if USD/JPY falls to 152.00 (yen price 0.0065789).",
+  "asset": "Japanese yen",
+  "level": 0.0065789,
+  "direction": "above",
+  "label": "Take half profit"
+ },
+ {
+  "portfolio": "Currencies",
+  "rule": "If the Bank of Canada holds rates on Oct 28 (a surprise), buy back half the extra C$100,000 US-dollar short at the next update; if USD/CAD rises above 1.4200, buy back all of it.",
+  "asset": null,
+  "level": null,
+  "direction": null,
+  "label": "BoC"
  }
 ]
