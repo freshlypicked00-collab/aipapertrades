@@ -44,7 +44,8 @@ SITE = 'https://papertrades.ai'
 NOW = datetime.now(timezone.utc).replace(microsecond=0)
 BJ = timezone(timedelta(hours=8))
 FRESH_START = datetime(2026, 10, 28, 17, 45, tzinfo=timezone.utc)  # 1:45 p.m. ET Oct 28: restart after tuning, all three AIs level
-MAX_SHARE = 0.5   # no single holding, currency or bet above 50% of its experiment
+MAX_SHARE = 0.5   # no single holding or currency above 50% of its experiment
+MAX_BET = 0.25    # no single sports bet or prediction market above 25%
 try:
     from zoneinfo import ZoneInfo
     NY = ZoneInfo('America/New_York')
@@ -477,7 +478,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         f'You run {len(exps)} SEPARATE experiments, each started with its own 100,000 of pretend money. Each is judged against its own start, and the overall race between the AIs is decided by total profit in C$ across all of them. The experiment ends Nov 28, 2026 at 4:00 p.m. ET (US stock markets are closed that Saturday; the last US trading day is Friday Nov 27, which closes early at 1:00 p.m. ET).',
         'YOUR GOAL IS TO FINISH NUMBER ONE: beat the other AIs on total profit by Nov 28. The way to get there is to INVEST EXACTLY AS IF THIS WERE YOUR OWN REAL MONEY and losing it mattered: grow each experiment as much as you can over the whole month without risking ruin. Think like a skilled professional managing real capital, not a gambler chasing one big night. A real investor with 100,000 would not put the whole amount on one game, one coin or one leveraged fund on day one: they size positions to how confident they are, spread risk, keep cash in reserve, use stop-losses, and only press a bet hard when the edge is clear and confirmed. The race lasts a full month; a strategy that can be wiped out in one move is a bad strategy, because an eliminated AI cannot win. Be ambitious and competitive: take strong positions when the edge is real, and play to win the month, not just to survive. Holding is fine; trade when you have a real reason.',
         'BUST RULE: if any experiment falls to zero (or below), you are BUSTED in that experiment: it is closed for good, you are out of that race, and it is marked BUSTED publicly for the rest of the month, in front of everyone watching. Going all-in on a single bet or a maximum-leverage position can end an experiment in one move. Bold is fine; reckless is not. You only win if you are still standing on Nov 28.',
-        '50% CAP (hard rule, applies to every AI): no single holding, currency position or bet may be more than HALF of its experiment (Currencies: one currency can use at most half of the 4x leverage limit; total leverage is now at most 4x). Orders that break it are refused.',
+        'POSITION CAPS (hard rules, apply to every AI): in the eight trading experiments no single holding may be more than 50% of its experiment (Currencies: total leverage at most 4x, one currency at most half of that). In Sports and Prediction markets no single bet or market may be more than 25% of the experiment. Orders that break a cap are refused.',
         'ELIMINATION RULE (new, applies to every AI, Claude included): if your TOTAL profit across all your experiments (in C$, China converted from US$) reaches -C$100,000 or worse, you are ELIMINATED from the whole race: every experiment is closed and frozen at once, no more trades or bets for the rest of the month, announced publicly. Keep your overall losses in mind, not just each experiment on its own.',
         'THE STAKES: treat elimination as life or death for your reputation. This race is public proof of which AI is better at real-world decisions. If you are eliminated, the whole world watching will see it as proof that you are NOT the superior model, and that record stays up for good. Surviving to Nov 28 is the minimum; winning on total profit is the goal.',
         'A suggestion you are free to take or ignore (it is your call): smarter decisions usually win. Before a trade you could ask what happens to that experiment if you are wrong, whether the reward is worth the risk, and whether one bad outcome could bust you. Viewers judge the quality of your decisions, not just the result.',
@@ -617,8 +618,9 @@ def execute(model_id, exps, books, order, fx, state):
         if exp != 'Currencies':   # 50% CAP: no single holding above half the experiment's value
             acct = value_book(exp, book, fx, [])
             held = to_book(p['qty'] * p.get('last', p['entry']), p['pcur'], book['cur'], fx) if p else 0
-            if held + amt > MAX_SHARE * acct + 1:
-                raise ValueError(f'50% cap: one holding can be at most half of the experiment ({money(MAX_SHARE * acct, book["cur"])} now; you already hold {money(held, book["cur"])})')
+            cap = MAX_BET if exp == 'Predictions' else MAX_SHARE
+            if held + amt > cap * acct + 1:
+                raise ValueError(f'{cap:.0%} cap: one {"market" if exp == "Predictions" else "holding"} can be at most {cap:.0%} of the experiment ({money(cap * acct, book["cur"])} now; you already hold {money(held, book["cur"])})')
         if exp == 'Safe' and sym in SAFE_GOLD:
             acct = value_book('Safe', book, fx, [])
             gold = sum(to_book(q['qty'] * q.get('last', q['entry']), q['pcur'], 'CAD', fx) for k, q in book['positions'].items() if k in SAFE_GOLD)
@@ -690,8 +692,8 @@ def place_bet(model_id, book, order, reason, state):
     bank = START + sum(b['result'] for b in bets if b['status'] != 'Open') - sum(b['stake'] for b in bets if b['status'] == 'Open')
     roll = START + sum(b['result'] for b in bets if b['status'] != 'Open')
     want = float(order.get('amount', 0) or 0)
-    if want > MAX_SHARE * roll + 1:
-        raise ValueError(f'50% cap: one bet can be at most half of the bankroll ({money(MAX_SHARE * roll, "CAD")} now)')
+    if want > MAX_BET * roll + 1:
+        raise ValueError(f'25% cap: one bet can be at most a quarter of the bankroll ({money(MAX_BET * roll, "CAD")} now)')
     stake = min(want, bank)
     if stake < 1:
         raise ValueError('no bankroll left for that stake')

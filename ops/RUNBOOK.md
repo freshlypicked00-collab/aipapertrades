@@ -326,8 +326,8 @@ No AI has to put all the money at stake: holding cash, small positions, no lever
 ## RESTART Oct 28, 1:45 p.m. ET (17:45 UTC)
 The morning of Oct 28 (9:30 a.m. to 1:45 p.m. ET) was a tuning run: the AIs had been told "high risk, high reward" and several went all-in. Every experiment of every AI (Claude included, all ten) was reset to 100,000 at 1:45 p.m. ET. The tuning results are in the ledger (practice rows, day 2026-10-27, label "Tuning and practice runs") and archived in ops/archive/2026-10-28-1728-tuning-run. They do not count. Claude: at the first run at or after 1:45 p.m. ET Oct 28, make fresh opening decisions for all nine non-China experiments (China at the Shanghai open), following the new rules.
 
-## 50% CAP (hard rule, all AIs)
-No single holding, currency position or bet may be more than 50% of its experiment's value at the time of the order. Currencies: total leverage at most 4x, one currency at most half of that. Gemini and ChatGPT orders that break it are refused by ops/rivals.py; Claude must follow it too.
+## POSITION CAPS (hard rules, all AIs)
+Trading experiments: no single holding or currency position may be more than 50% of its experiment's value at the time of the order. Sports and Predictions: no single bet or market may be more than 25% of the experiment. Currencies: total leverage at most 4x, one currency at most half of that. Gemini and ChatGPT orders that break it are refused by ops/rivals.py; Claude must follow it too.
 
 ## Elimination rule (all AIs, Claude included)
 If an AI's TOTAL profit across all its experiments (C$, China converted from US$ at the latest rate) reaches -C$100,000 or worse, that AI is ELIMINATED from the whole race: every experiment is closed and frozen at once, no more trades or bets, announced loudly on Telegram and marked on the site. For Claude: check this at every run after valuing; if it happens, post the elimination, stop trading, and only keep the site's prices updated.

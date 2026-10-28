@@ -25,3 +25,4 @@ BETTING RESET: Claude's Sports and Predictions restarted at C$100,000 on Oct 28,
 INVEST AS IF IT WERE REAL MONEY: manage every experiment like your own real capital that you cannot afford to lose. Size to conviction, spread risk, keep cash in reserve, use stops; never an all-in single bet.
 THE GOAL IS STILL TO FINISH NUMBER ONE on total profit: invest like real money to stay alive, and play to win.
 RESTART: every experiment was reset to 100,000 at 1:45 p.m. ET Oct 28 (see the runbook). 50% CAP: no single holding, currency or bet above half of its experiment; Currencies at most 4x leverage.
+CAPS UPDATE: trading 50% per holding; Sports and Predictions 25% per bet or market.
