@@ -36,7 +36,7 @@ def build(rivals, claude):
         started = {e: _t(m.get('started', {}).get(e) or m.get('started_at') or rivals['history'][0]['at']) for e in exps}
         trades = [t for t in rivals['trades'] if t['model'] == mid and t['experiment'] in exps]
         hist = [h for h in rivals['history'] if h['model'] == mid and h['experiment'] in exps]
-        d = {k: [] for k in ('holdings', 'history', 'trades', 'log', 'take', 'ledger', 'prices', 'review', 'rules', 'bets', 'sources')}
+        d = {k: [] for k in ('plans', 'holdings', 'history', 'trades', 'log', 'take', 'ledger', 'prices', 'review', 'rules', 'bets', 'sources')}
 
         # cost basis per position, from the trade list
         cost = {}
@@ -131,6 +131,7 @@ def build(rivals, claude):
             d['log'].append({'at': lr['at'], 'portfolio': 'All', 'action': 'Check-in', 'detail': f"Check-in ({m.get('model') or m['label']})."})
         d['log'].sort(key=lambda r: _t(r['at']))
         d['review'] = [{'at': x['at'], 'portfolio': x['experiment'], 'grade': x['grade'], 'text': x['text']} for x in rivals.get('reviews', []) if x['model'] == mid]
+        d['plans'] = [x for x in rivals.get('plans', []) if x['model'] == mid]
         d['take'] = [{'at': x['at'], 'text': x['text']} for x in rivals.get('takes', []) if x['model'] == mid]
         d['sources'] = [{'title': s['title'], 'url': s['url'], 'portfolios': exps} for s in lr.get('sources', [])]
 

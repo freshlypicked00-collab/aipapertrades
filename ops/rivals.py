@@ -566,7 +566,10 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
     lines += [
         '',
         'Reply with ONLY one JSON object, no other text, in this form:',
-        '{"take": "your CURRENT TAKE: one complete sentence (under 300 characters), in your own words, on how you are doing and what you are thinking overall; or \\"\\" (empty) to keep your current take",',
+        '{"plans": {"day": "your plan for the next 24 hours", "week": "your plan for the next 7 days", "month": "your plan for the rest of the month to Nov 28"} (each 1-2 complete sentences in your own words, across all your experiments; send "" for any plan you want to keep unchanged; update a plan when your thinking really changes),',
+        ' "feeling": "how you honestly feel about the race right now, in your own words, 1-2 sentences, or empty to keep it",',
+        ' "on_rivals": {' + ', '.join(f'"{o}": "your honest opinion of {n}\'s recent trades and strategy, 1-2 sentences, respectful, or empty to keep it"' for o, n in (('claude', 'Claude'), ('gemini', 'Gemini'), ('chatgpt', 'ChatGPT')) if n != label) + '},',
+        ' "take": "your CURRENT TAKE: one complete sentence (under 300 characters), in your own words, on how you are doing and what you are thinking overall; or \\"\\" (empty) to keep your current take",',
         ' "thoughts": {' + ', '.join(f'"{e}": "one sentence on this experiment right now, in your own words"' for e in exps) + '}' + (', "report_card": {' + ', '.join(f'"{e}": {{"grade": "A" to "F", "text": "2-3 sentences: how you did in this experiment on {closed_day[0]} and what you will do differently"}}' for e in exps) + '}' if closed_day else '') + ',',
         ' "sources": ["https://... the main pages you read this check-in", ...] (up to 5),',
         ' "watchlist": [{"at": "ISO date-time, ET", "when": "short human time, e.g. Thu Oct 29, 8:30 a.m. ET", "event": "what is coming up", "affects": ["experiment", ...], "why": "one sentence, in your own words, on why it matters to you"}] (up to 8 upcoming events you are watching),',
@@ -993,7 +996,15 @@ def main():
             refused = [n.replace('order refused ', '') for n in (m.get('last_run') or {}).get('notes', []) if n.startswith('order refused') and 'fresh start' not in n]
             mine = [x for x in state['takes'] if x['model'] == mid]
             today = [x for x in mine if x['at'][:10] == NOW.date().isoformat()]
-            take_info = ('Your current take (shown at the top of the site): "' + mine[-1]['text'] + '" written ' + mine[-1]['at'] + '. ' if mine else 'You have no current take yet. ') + \
+            myplans = {k: next((x['text'] for x in reversed(state.get('plans', [])) if x['model'] == mid and x['horizon'] == k), '') for k in ('day', 'week', 'month', 'feeling')}
+            others = [t for t in state['trades'] if t['model'] != mid][-8:]
+            try:
+                others += [{'model': 'claude', 'experiment': t['portfolio'], 'action': t['action'], 'name': t['holding'], 'amount': t.get('cad') or 0, 'reason': ''} for t in json.load(open('ops/src/trades.json')) if not str(t['holding']).startswith('[')][-8:]
+            except Exception:
+                pass
+            plan_info = 'Your published plans and feeling: ' + '; '.join(f"{k}: \"{v}\"" if v else f'{k}: (none yet)' for k, v in myplans.items()) + '. ' + \
+                ('Recent trades by the other AIs (for your opinions): ' + '; '.join(f"{t['model']} {EXP_LABEL.get(t['experiment'], t['experiment'])} {t['action']} {t['name']} {money(abs(t.get('amount') or 0), 'CAD')}" for t in others) + '. ' if others else '')
+            take_info = plan_info + ('Your current take (shown at the top of the site): "' + mine[-1]['text'] + '" written ' + mine[-1]['at'] + '. ' if mine else 'You have no current take yet. ') + \
                 f'You have written {len(today)} new take(s) today (UTC). Aim for about 3 to 5 a day, at key moments (after the US open, midday, after the US close, at the daily close, at the Shanghai open) or after a trade or event that matters, and only when your view has really changed; otherwise send "" to keep it. Each new take is posted publicly.'
             prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed, refused, take_info, standings(state, fx, mid))
             import time as _time
@@ -1024,6 +1035,16 @@ def main():
                 sources = sources or src2
                 reply = parse_reply(text)
             take = clip(reply.get('take', ''), 600) or None
+            pl = reply.get('plans') if isinstance(reply.get('plans'), dict) else {}
+            pl = dict(pl, feeling=reply.get('feeling', ''))
+            for o, v in (reply.get('on_rivals') or {}).items() if isinstance(reply.get('on_rivals'), dict) else []:
+                if o in ('claude', 'gemini', 'chatgpt') and o != mid:
+                    pl['on_' + o] = v
+            for k in [x for x in pl if x in ('day', 'week', 'month', 'feeling') or x.startswith('on_')]:
+                txt = clip(pl.get(k, ''), 500)
+                prev = next((x for x in reversed(state.setdefault('plans', [])) if x['model'] == mid and x['horizon'] == k), None)
+                if txt and (not prev or prev['text'] != txt):
+                    state['plans'].append({'at': iso(), 'model': mid, 'horizon': k, 'text': txt})
             for u in (reply.get('sources') or [])[:5]:
                 u = str(u).strip()
                 if u.startswith('http') and not any(x['url'] == u for x in sources):

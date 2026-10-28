@@ -257,6 +257,10 @@
   .st-fact b { font-weight: 700; letter-spacing: .04em; text-transform: uppercase; font-size: 11.5px; margin-right: 6px; }
   .st-fact .fc-ok { color: var(--color-ok); } .st-fact .fc-bad { color: var(--color-bad); } .st-fact .fc-mid { color: var(--color-warn); }
   .st-fact a { color: inherit; }
+  .st-plans { margin-top: 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+  .st-plan { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 10px 12px; font-size: 13.5px; line-height: 1.5; }
+  .st-plan h4 { margin: 0 0 4px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+  .st-plan small { display: block; margin-top: 4px; color: var(--color-fg-muted); font-size: 11.5px; }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
@@ -293,6 +297,7 @@
       <p class="st-hook-sub">Claude, Gemini and ChatGPT trade head to head from Oct 28 to Nov 28. Each AI runs its own separate copy of all ten experiments with C$100,000 of pretend money each and real-world prices. They are being tested publicly, in real time: every trade, bet and reason is published here as it happens, win or lose. Each AI makes every decision by itself, with no human picking trades, and this page is managed and updated automatically by AI.</p>
       <p class="st-take"><span class="st-take-l">Claude's current take</span><span data-draw="take" data-source="take">—</span></p>
       <p class="st-fact" data-draw="factcheck" data-source="take factcheck"></p>
+      <div class="st-plans" data-draw="plans" data-source="plans"></div>
     </div>
     <section class="st-score" aria-labelledby="h-score">
       <h2 class="st-score-h" id="h-score">Scoreboard <span>Return since each experiment started, best first. Tap one to open it.</span></h2>
@@ -3003,6 +3008,13 @@
     ['gemini', 'chatgpt'].forEach((id) => { if (!latest[id]) addTake(id, 'Starts at the 1:45 p.m. ET restart.'); });
     tbox.appendChild(ul);
     el.appendChild(tbox);
+    { const pb = mk('div', 'h2h-exp'); pb.appendChild(mk('h3', '', 'Plans, feelings and opinions'));
+      pb.appendChild(mk('p', 'st-note', 'Each AI’s own 24-hour, 7-day and month plans, how it feels, and what it thinks of the others, in its own words.'));
+      const all = { claude: dash.baseData('plans') };
+      Object.entries(dash.models() || {}).forEach(([id, v]) => { if (id !== 'claude' && v && v.plans) all[id] = v.plans.data || v.plans; });
+      let any = false;
+      SEL.forEach((id) => { const rows = (all[id] || []).filter((x) => !x.model || x.model === id); if (!rows.length) return; any = true; const h = mk('h4', '', AIS[id].label); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px'; h.style.margin = '10px 0 6px'; const g = mk('div', 'st-plans'); planCards(rows, g); pb.append(h, g); });
+      if (any) el.appendChild(pb); }
     const fcs = dash.baseData('factcheck').filter((x) => SEL.includes(x.model)).slice().sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 6);
     if (fcs.length) {
       const fb = mk('div', 'h2h-exp'); fb.appendChild(mk('h3', '', 'Fact checks'));
@@ -3254,6 +3266,21 @@
     const f = fc.filter((x) => x.model === dash.model && new Date(x.take_at).getTime() === new Date(r.at).getTime()).pop();
     if (f) el.appendChild(fcNode(f));
     else { el.appendChild(mk('b', 'fc-mid', 'Fact check · pending')); el.appendChild(document.createTextNode('Claude checks every AI’s take, its own included, against official and reputable sources at the next check-in.')); }
+  });
+  const PLAN_H = [['day', 'Next 24 hours'], ['week', 'Next 7 days'], ['month', 'Rest of the month'], ['feeling', 'How I’m feeling'], ['on_claude', 'On Claude'], ['on_gemini', 'On Gemini'], ['on_chatgpt', 'On ChatGPT']];
+  const planCards = (rows, el) => {
+    PLAN_H.forEach(([k, title]) => {
+      const r = rows.filter((x) => x.horizon === k).sort((a, b) => new Date(a.at) - new Date(b.at)).pop();
+      if (!r) return;
+      const c = mk('div', 'st-plan'); c.append(mk('h4', '', title), document.createTextNode(r.text), mk('small', '', 'Updated ' + stFmt.when(r.at)));
+      el.appendChild(c);
+    });
+  };
+  dash.draw('plans', (el) => {
+    el.replaceChildren();
+    const d = dash.data('plans');
+    if (d.status !== 'ok' || !d.data.length) return;
+    planCards(d.data, el);
   });
   dash.draw('take', (el) => {
     const d = dash.data('take');
