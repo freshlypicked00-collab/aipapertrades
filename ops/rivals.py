@@ -436,7 +436,7 @@ def money(v, cur):
     return CUR_SYM[cur] + f'{v:,.0f}'
 
 
-def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refused=()):
+def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refused=(), take_info=''):
     lines = [
         f'You are {label}, taking part in Paper Trades (papertrades.ai), a public paper-trading experiment that compares AI models with pretend money and real prices.',
         f'You are being put to the test publicly, in front of the world, in real time: every trade, every reason, your take, your watchlist and your daily report card are published live on papertrades.ai and the @PaperTradesAI Telegram channel, side by side with the other AIs (Claude, Gemini and ChatGPT). Viewers will see exactly how you think and whether you win or lose. Make decisions you would stand behind in public.',
@@ -474,6 +474,8 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
             lines.append(f'  - {key} ({p.get("name", key)}): {p["qty"]:,.4f} units, average cost {cs}{p["entry"]:,.4f}, now {cs}{p.get("last", p["entry"]):,.4f}')
     if closed_day:
         lines.append(f'\nThe trading day {closed_day[0]} (UTC) has just closed. Your results for that day: ' + '; '.join(f'{EXP_LABEL[e]} {r}' for e, r in closed_day[1].items()) + '. Grade yourself honestly in report_card.')
+    if take_info:
+        lines.append('\n' + take_info)
     if refused:
         lines.append('\nOrders refused at your last check-in (fix these if you still want them):')
         lines += ['  - ' + n for n in refused[-8:]]
@@ -483,7 +485,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
     lines += [
         '',
         'Reply with ONLY one JSON object, no other text, in this form:',
-        '{"take": "one sentence, in your own words, on how you are doing and what you are thinking overall",',
+        '{"take": "your CURRENT TAKE: one sentence, in your own words, on how you are doing and what you are thinking overall; or \\"\\" (empty) to keep your current take",',
         ' "thoughts": {' + ', '.join(f'"{e}": "one sentence on this experiment right now, in your own words"' for e in exps) + '}' + (', "report_card": {' + ', '.join(f'"{e}": {{"grade": "A" to "F", "text": "2-3 sentences: how you did in this experiment on {closed_day[0]} and what you will do differently"}}' for e in exps) + '}' if closed_day else '') + ',',
         ' "sources": ["https://... the main pages you read this check-in", ...] (up to 5),',
         ' "watchlist": [{"at": "ISO date-time, ET", "when": "short human time, e.g. Thu Oct 29, 8:30 a.m. ET", "event": "what is coming up", "affects": ["experiment", ...], "why": "one sentence, in your own words, on why it matters to you"}] (up to 8 upcoming events you are watching),',
@@ -886,7 +888,11 @@ def main():
                 if res:
                     closed = (day, res)
             refused = [n.replace('order refused ', '') for n in (m.get('last_run') or {}).get('notes', []) if n.startswith('order refused') and 'fresh start' not in n]
-            prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed, refused)
+            mine = [x for x in state['takes'] if x['model'] == mid]
+            today = [x for x in mine if x['at'][:10] == NOW.date().isoformat()]
+            take_info = ('Your current take (shown at the top of the site): "' + mine[-1]['text'] + '" written ' + mine[-1]['at'] + '. ' if mine else 'You have no current take yet. ') + \
+                f'You have written {len(today)} new take(s) today (UTC). Aim for about 3 to 5 a day, at key moments (after the US open, midday, after the US close, at the daily close, at the Shanghai open) or after a trade or event that matters, and only when your view has really changed; otherwise send "" to keep it. Each new take is posted publicly.'
+            prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed, refused, take_info)
             import time as _time
             t0 = _time.time()
             for i, model in enumerate(picks):
@@ -953,16 +959,12 @@ def main():
             state['history'].append({'at': iso(), 'model': mid, 'experiment': e, 'value': values[e]})
         if take:
             last = next((x for x in reversed(state['takes']) if x['model'] == mid), None)
-            if not last or last['text'] != take:
+            n_today = sum(1 for x in state['takes'] if x['model'] == mid and x['at'][:10] == NOW.date().isoformat())
+            if (not last or last['text'] != take) and n_today < 6:   # a new take, at most 6 a day
                 state['takes'].append({'at': iso(), 'model': mid, 'text': take})
-            # Telegram: at most once per slot (after the US open, midday, after the US close, at the daily close)
-            et = NOW.astimezone(NY)
-            slot = next((n for n, h in (('close', 20), ('pm', 16), ('mid', 12), ('open', 9.5)) if et.hour + et.minute / 60 >= h), None)
-            key = f"{et.date()}-{slot}"
-            if slot and m.get('take_posted') != key and NOW >= FRESH_START:
-                m['take_posted'] = key
-                head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(r['label'], r['label'])
-                tg(f"{head}\n💬 <b>{r['label']}'s current take</b>\n“{esc(take)}”\n{SITE}")
+                if NOW >= FRESH_START:
+                    head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(r['label'], r['label'])
+                    tg(f"{head}\n💬 <b>{r['label']}'s current take</b>\n“{esc(take)}”\n{SITE}")
         if mid == 'gemini' and GEMINI_NO_SEARCH:
             notes.append('web search quota unavailable this run; decided from the prices and portfolio given')
         m['last_run'] = {'at': iso(), 'status': status, 'notes': notes[-12:], 'sources': sources[:8], 'orders': len(made), 'search': SEARCH_LOG[-2:]}
