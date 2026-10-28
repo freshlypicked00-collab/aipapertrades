@@ -419,6 +419,14 @@
     .st-hook > * { grid-column: 1; }
     .st-hook > .st-podium { grid-column: 2; grid-row: 1 / span 8; }
   }
+  /* the viewed AI's own colour on its take, goals and opinions (Claude orange, Gemini blue, ChatGPT white) */
+  :root { --model: #d97757; --model-bg: rgba(217,119,87,.08); }
+  .st-take { border-left-color: var(--model) !important; }
+  .st-take-l { color: var(--model) !important; }
+  .st-plans-fold > summary { color: var(--model); }
+  .st-plans-box .st-plan { border-color: color-mix(in srgb, var(--model) 35%, var(--color-border-line)); border-top: 3px solid var(--model); background: var(--model-bg); }
+  .st-plans-box .st-plan h4 { color: var(--model); }
+  .st-viewing { color: var(--model) !important; }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
@@ -3731,7 +3739,9 @@ body { background:var(--color-bg); }
       if (on) chaching();
     };
   })();
+  const MODEL_COL = { claude: ['#d97757', 'rgba(217,119,87,.08)'], gemini: ['#4f8ff7', 'rgba(79,143,247,.09)'], chatgpt: ['var(--ai-chatgpt)', 'rgba(160,160,160,.08)'] };
   const applyModel = (id) => {
+    { const c = MODEL_COL[id] || MODEL_COL.claude; document.documentElement.style.setProperty('--model', c[0]); document.documentElement.style.setProperty('--model-bg', c[1]); }
     { const v = document.getElementById('viewing-name'); if (v) { v.textContent = ({ claude: 'Claude Opus 5.5 (Anthropic)', gemini: 'Gemini (Google)', chatgpt: 'ChatGPT (OpenAI)' })[id] || id; const L = dash.baseData('leader'); if (L === id) v.appendChild(mk('span', 'st-crown', '👑 leading the race')); } }
     const views = dash.models();
     document.querySelectorAll('.model-pick').forEach((sel) => {
