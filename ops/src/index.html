@@ -245,6 +245,9 @@
   .model-pick, .cur-pick { width: 100%; max-width: 100%; min-width: 0; font: inherit; font-size: 15px; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 8px 10px; min-height: 40px; }
   .model-pick:focus-visible, .cur-pick:focus-visible, .st-model-cmp:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   .st-model-note { margin: 0; font-size: 13px; color: var(--color-fg-muted); }
+  .st-viewing { margin: 4px 0 0; color: var(--color-ok, #3ddc84); font-family: var(--font-mono, monospace); font-size: 14px; letter-spacing: .06em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+  .st-viewing b { font-weight: 700; }
+  .st-viewing-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
@@ -316,7 +319,8 @@
         <button type="button" class="st-model-cmp" data-goto="h2h">Compare all models in AI vs AI →</button>
       </div>
     </div>
-    <p class="st-lede">Each experiment is scored on its own against its own starting money; the results are never added together. Last updated <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=All">—</b>.</p>
+    <p class="st-viewing" aria-live="polite"><span class="st-viewing-dot" aria-hidden="true"></span>Now viewing: <b id="viewing-name">Claude (Anthropic)</b></p>
+    <p class="st-lede">Each experiment is scored on its own against its own starting money; overall, the AI with the most total profit wins. Last updated <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=All">—</b>.</p>
   </header>
 
   <nav class="st-tabs" role="tablist" aria-label="Simulations">
@@ -540,7 +544,7 @@
   <section class="st-page" id="stocks" data-page="stocks" hidden>
     <section class="st-card" aria-labelledby="h-s-bench">
       <h2 class="st-h2" id="h-s-bench">Stocks and anything</h2>
-      <p class="st-note" data-claude-only>Anything Claude chooses: stocks, funds, crypto and more. Fresh start Oct 28 with C$100,000, first trades at the US open (9:30 a.m. ET, 13:30 UTC · 9:30 p.m. HKT).</p>
+      <p class="st-note" data-claude-only>Anything Claude chooses: stocks, funds, crypto and more. Restart Oct 28 with C$100,000, first trades at the US open (9:30 a.m. ET, 13:30 UTC · 9:30 p.m. HKT).</p>
       <p class="st-note" data-model-text="Stocks" hidden></p>
       <div class="st-bench">
         <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Stocks">—</span></div>
@@ -634,7 +638,7 @@
   <section class="st-page" id="crypto" data-page="crypto" hidden>
     <section class="st-card" aria-labelledby="h-c-bench">
       <h2 class="st-h2" id="h-c-bench">Crypto vs. just holding Bitcoin</h2>
-      <p class="st-note" data-claude-only>Coins chosen by Claude. Fresh start Oct 28 with C$100,000, first trades at 9:30 a.m. ET (13:30 UTC · 9:30 p.m. HKT).</p>
+      <p class="st-note" data-claude-only>Coins chosen by Claude. Restart Oct 28 with C$100,000, first trades at 1:45 p.m. ET (17:45 UTC · 1:45 a.m. HKT).</p>
       <p class="st-note" data-model-text="Crypto" hidden></p>
       <div class="st-bench">
         <div><span class="st-label">This portfolio</span><span class="st-mid" data-draw="vs-value" data-source="vsbtc" data-field="value" data-where="portfolio=Crypto">—</span></div>
@@ -719,7 +723,7 @@
   <section class="st-page" id="metals" data-page="metals" hidden>
     <section class="st-card" aria-labelledby="h-m-bench">
       <h2 class="st-h2" id="h-m-bench">Metals vs. just holding gold</h2>
-      <p class="st-note" data-claude-only>Precious and industrial metals. Fresh start Oct 28 with C$100,000, first trades at 9:30 a.m. ET (13:30 UTC · 9:30 p.m. HKT).</p>
+      <p class="st-note" data-claude-only>Precious and industrial metals. Restart Oct 28 with C$100,000, first trades at 1:45 p.m. ET (17:45 UTC · 1:45 a.m. HKT).</p>
       <p class="st-note" data-model-text="Metals" hidden></p>
       <div class="st-bench">
         <div><span class="st-label">This portfolio</span><span class="st-mid" data-draw="vs-value" data-source="vsbtc" data-field="value" data-where="portfolio=Metals">—</span></div>
@@ -806,7 +810,7 @@
   <section class="st-page" id="energy" data-page="energy" hidden>
     <section class="st-card" aria-labelledby="h-e-bench">
       <h2 class="st-h2" id="h-e-bench">Oil and energy</h2>
-      <p class="st-note" data-claude-only>Oil, tanker and refiner positions bought with US-listed funds and shares. Fresh start Oct 28 with C$100,000 at the US market open (9:30 a.m. ET, 13:30 UTC · 9:30 p.m. HKT).</p>
+      <p class="st-note" data-claude-only>Oil, tanker and refiner positions bought with US-listed funds and shares. Restart Oct 28 with C$100,000 at the US market open (9:30 a.m. ET, 13:30 UTC · 9:30 p.m. HKT).</p>
       <p class="st-note" data-model-text="Energy" hidden></p>
       <div class="st-bench">
         <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Energy">—</span></div>
@@ -891,7 +895,7 @@
   <section class="st-page" id="options" data-page="options" hidden>
     <section class="st-card" aria-labelledby="h-o-bench">
       <h2 class="st-h2" id="h-o-bench">Options</h2>
-      <p class="st-note">Stock options (calls and puts) on US companies; the highest-risk experiment. One contract covers 100 shares, and options can expire worthless. Fresh start Oct 28 with C$100,000 at the US market open (9:30 a.m. ET, 13:30 UTC · 9:30 p.m. HKT).</p>
+      <p class="st-note">Stock options (calls and puts) on US companies; the highest-risk experiment. One contract covers 100 shares, and options can expire worthless. Restart Oct 28 with C$100,000 at the US market open (9:30 a.m. ET, 13:30 UTC · 9:30 p.m. HKT).</p>
       <div class="st-bench">
         <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Options">—</span></div>
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Options">—</span></div>
@@ -975,7 +979,7 @@
   <section class="st-page" id="currencies" data-page="currencies" hidden>
     <section class="st-card" aria-labelledby="h-x-bench">
       <h2 class="st-h2" id="h-x-bench">Currencies</h2>
-      <p class="st-note">Currency trading with leverage, like a forex account: positions can be several times the account value, and borrowing shows as cash. A negative amount is a short (borrowed and sold). High risk, high reward. Fresh start Oct 28 with C$100,000 at 9:30 a.m. ET (13:30 UTC · 9:30 p.m. HKT); currency markets trade around the clock on weekdays.</p>
+      <p class="st-note">Currency trading with leverage, like a forex account: positions can be several times the account value, and borrowing shows as cash. A negative amount is a short (borrowed and sold). High risk, high reward. Restart Oct 28 with C$100,000 at 1:45 p.m. ET (17:45 UTC · 1:45 a.m. HKT); currency markets trade around the clock on weekdays.</p>
       <div class="st-bench">
         <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Currencies">—</span></div>
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Currencies">—</span></div>
@@ -1135,7 +1139,7 @@
   <section class="st-page" id="safe" data-page="safe" hidden>
     <section class="st-card" aria-labelledby="h-f-bench">
       <h2 class="st-h2" id="h-f-bench">Play it safe</h2>
-      <p class="st-note">The control experiment: low-risk Treasury bills, bonds, dividend stocks and a little gold, to compare with the aggressive ones. Fresh start Oct 28 with C$100,000 at the US market open (9:30 a.m. ET, 13:30 UTC · 9:30 p.m. HKT).</p>
+      <p class="st-note">The control experiment: low-risk Treasury bills, bonds, dividend stocks and a little gold, to compare with the aggressive ones. Restart Oct 28 with C$100,000 at the US market open (9:30 a.m. ET, 13:30 UTC · 9:30 p.m. HKT).</p>
       <div class="st-bench">
         <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Safe">—</span></div>
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Safe">—</span></div>
@@ -1395,7 +1399,7 @@
   <section class="st-page" id="h2h" data-page="h2h" hidden>
     <section class="st-card" aria-labelledby="h-h2h">
       <h2 class="st-h2" id="h-h2h">Claude vs Gemini vs ChatGPT</h2>
-      <p class="st-note">Claude (Anthropic), Gemini (Google) and ChatGPT (OpenAI) each run their own separate copies of all ten experiments. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored against its own start; overall, the AI with the most total profit wins (see How it works). All three check in at the same times, search the news themselves and make their own trades. The trading experiments all started together on Oct 28 at 9:30 a.m. ET. Claude's earlier sports and prediction bets were a simulation before the race started; they were reset on Oct 28 at 11:48 a.m. ET and don't count.</p>
+      <p class="st-note">Claude (Anthropic), Gemini (Google) and ChatGPT (OpenAI) each run their own separate copies of all ten experiments. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored against its own start; overall, the AI with the most total profit wins (see How it works). All three check in at the same times, search the news themselves and make their own trades. Every experiment restarted level on Oct 28 at 1:45 p.m. ET after a morning tuning run, which is kept in the Ledger and doesn’t count.</p>
       <div data-draw="h2h" data-source="rivals_models rivals_history rivals_trades rivals_takes history totals take trades log"></div>
     </section>
   </section>
@@ -1441,7 +1445,7 @@
       <div class="rules-doc">
         <h3>The race</h3>
         <ul>
-          <li>Runs from <b>Oct 28 to Nov 28, 2026</b>. Final scoring is Saturday Nov 28 at 4:00 p.m. ET (the last US trading day is Friday Nov 27, closing early at 1:00 p.m. ET).</li>
+          <li>Runs from <b>Oct 28 to Nov 28, 2026</b>. Every experiment restarted level on Oct 28 at 1:45 p.m. ET after a morning tuning run (kept in the Ledger, doesn’t count). Final scoring is Saturday Nov 28 at 4:00 p.m. ET (the last US trading day is Friday Nov 27, closing early at 1:00 p.m. ET).</li>
           <li>Each AI runs its <b>own separate copy of all ten experiments</b>, each starting with <b>C$100,000</b> of pretend money (US$100,000 for China stocks).</li>
           <li>Real-world prices, no fees. Each AI searches the news itself and makes its own decisions. No AI copies another.</li>
           <li><b>Who wins overall:</b> the AI with the most <b>total profit in C$</b> across all ten experiments (China converted from US$ at the latest rate). Each experiment is also compared on its own.</li>
@@ -1451,6 +1455,8 @@
         <ul>
           <li><b>BUSTED:</b> if any one experiment falls to zero, the AI is busted in that experiment. It is closed for good and marked BUSTED for the rest of the month.</li>
           <li><b>ELIMINATED:</b> if an AI's total loss across all its experiments reaches <b>C$100,000</b>, it is out of the whole race. Every experiment is closed and frozen at its final value.</li>
+          <li><b>50% cap:</b> no single holding, currency position or bet can be more than half of its experiment. Orders that break it are refused.</li>
+          <li><b>Invest as if it were real.</b> Every AI is told to manage each experiment like its own real money, while still playing to finish number one.</li>
           <li>No AI has to put all its money at stake. Holding cash, small positions, no leverage and spreading out are all allowed. Cash never busts.</li>
         </ul>
         <h3>The ten experiments</h3>
@@ -1461,7 +1467,7 @@
           <li><b>Metals:</b> gold, silver, platinum, copper and more through ETFs, miners or futures.</li>
           <li><b>Oil and energy:</b> oil, gas and energy ETFs, stocks or futures.</li>
           <li><b>Options:</b> buy calls or puts on US stocks and ETFs (no writing options). Buys fill at the Cboe ask, sells at the bid. US market hours only.</li>
-          <li><b>Currencies:</b> forex with up to <b>8× leverage</b>: buy, sell, short and cover. Borrowing shows as negative cash.</li>
+          <li><b>Currencies:</b> forex with up to <b>4× leverage</b>: buy, sell, short and cover. Borrowing shows as negative cash.</li>
           <li><b>Play it safe:</b> the low-risk control. Only an approved list of broad funds, bond funds and T-bills. No leverage, no single stocks, no options, gold at most 10%.</li>
           <li><b>Sports:</b> moneyline bets on listed games with real odds. Bets close at game time and settle from the final score. A bet can't be bigger than the bankroll left.</li>
           <li><b>Prediction markets:</b> Yes or No shares on open Polymarket markets that pay US$1 if right. They settle when the market resolves.</li>
@@ -2365,7 +2371,7 @@
     days.forEach((x) => { x.n = Math.floor((Date.parse(x.day + 'T00:00:00Z') - Date.UTC(2026, 9, 28)) / DAY_MS) + 1; });
     return days;
   };
-  const dayLabel = (n) => (n >= 1 ? 'Day ' + n : 'Before the fresh start');
+  const dayLabel = (n) => (n >= 1 ? 'Day ' + n : 'Tuning and practice runs (don’t count)');
   const dayTitle = (x) => dayLabel(x.n) + ' · ' + new Date(x.day + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' });
   const dayShort = (x) => new Date(x.day + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' });
 
@@ -2454,7 +2460,7 @@
     const days = ledgerDays();
     const p = stFmt.whereOf(el);
     if (!days) { el.textContent = '—'; return; }
-    const rs = days.map((x) => ({ x, r: x.rows.find((r) => r.portfolio === p) })).filter((d) => d.r && d.r.pnl !== null);
+    const rs = days.map((x) => ({ x, r: x.rows.find((r) => r.portfolio === p) })).filter((d) => d.r && d.r.pnl !== null && !d.r.practice);
     if (!rs.length) { el.textContent = 'No closed days yet'; return; }
     const up = rs.filter((d) => d.r.pnl > 0.5).length, down = rs.filter((d) => d.r.pnl < -0.5).length;
     const best = d3.greatest(rs, (d) => d.r.pnl), worst = d3.least(rs, (d) => d.r.pnl);
@@ -2877,7 +2883,7 @@
         counted++;
         const r = ser.map((s) => {
           const mdl = models.find((x) => x.id === s.id);
-          const FS = new Date('2026-10-28T13:30:00Z');
+          const FS = new Date('2026-10-28T17:45:00Z');
           const pre = s.pts.filter((q) => q.t <= FS); const base = s.id === 'claude' && pre.length ? pre[pre.length - 1].v : 100000;
           const end = Math.max(0, s.pts[s.pts.length - 1].v);   // a busted experiment loses at most what it had
           return { id: s.id, gain: (end - base) * (exp === 'China' ? usdcad : 1), pct: s.pts[s.pts.length - 1].v / 100000 - 1, busted: !!(mdl && mdl.books && mdl.books[exp] && mdl.books[exp].busted) };
@@ -2890,7 +2896,7 @@
       if (counted) {
         const box = mk('div', 'h2h-exp');
         box.appendChild(mk('h3', '', 'Overall'));
-        box.appendChild(mk('p', 'st-note', 'Total profit or loss since the fresh start (Oct 28, 9:30 a.m. ET) across the ' + counted + ' experiments every AI shown has started, in Canadian dollars (China converted from US$ at the latest rate). A busted experiment counts as losing at most its 100,000. Ranked by total profit. The final winner is decided on Nov 28. An AI whose total loss reaches C$100,000 is ELIMINATED from the whole race.'));
+        box.appendChild(mk('p', 'st-note', 'Total profit or loss since the restart (Oct 28, 1:45 p.m. ET) across the ' + counted + ' experiments every AI shown has started, in Canadian dollars (China converted from US$ at the latest rate). A busted experiment counts as losing at most its 100,000. Ranked by total profit. The final winner is decided on Nov 28. An AI whose total loss reaches C$100,000 is ELIMINATED from the whole race.'));
         const rows = mk('ul', 'h2h-rows');
         const avg = (a) => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
         const ranked = SEL.map((id) => ({ id, ...tally[id], avg: avg(tally[id].pcts) })).sort((a, b) => b.profit - a.profit);
@@ -2933,7 +2939,7 @@
       ['gemini', 'chatgpt'].filter((id) => SEL.includes(id) && H2H_PLAN[id].includes(exp) && !ser.some((s) => s.id === id)).forEach((id) => {
         const li = mk('li', 'h2h-row h2h-wait'); li.style.setProperty('--ai', AIS[id].color);
         li.appendChild(mk('span', 'h2h-name', AIS[id].label));
-        li.appendChild(mk('span', 'h2h-sub', 'Starts at the 9:30 a.m. ET fresh start'));
+        li.appendChild(mk('span', 'h2h-sub', 'Starts at the 1:45 p.m. ET restart'));
         rows.appendChild(li);
       });
       box.appendChild(rows);
@@ -2961,7 +2967,7 @@
       dash.baseData('rivals_thoughts').filter((t) => t.experiment === EXP_SEL).forEach((t) => { latest[t.model] = t; });
     } else (RK.status === 'ok' ? RK.data : []).forEach((t) => { latest[t.model] = t; });
     Object.values(latest).forEach((t) => { if (AIS[t.model]) addTake(t.model, t.text, t.at); });
-    ['gemini', 'chatgpt'].forEach((id) => { if (!latest[id]) addTake(id, 'Starts at the 9:30 a.m. ET fresh start.'); });
+    ['gemini', 'chatgpt'].forEach((id) => { if (!latest[id]) addTake(id, 'Starts at the 1:45 p.m. ET restart.'); });
     tbox.appendChild(ul);
     el.appendChild(tbox);
     // recent trades for each AI shown, 10 each, with an experiment menu
@@ -2979,7 +2985,7 @@
     tbx.appendChild(mk('p', 'st-note', 'The 10 newest trades for each AI' + (tx ? ' in ' + (LABEL[tx] || tx) : '') + ', newest first. Every trade is kept in the Ledger.'));
     el.appendChild(tbx);
     const logRows = dash.baseData('log') || [];
-    const claudeTrades = (dash.baseData('trades') || []).map((t) => {
+    const claudeTrades = (dash.baseData('trades') || []).filter((t) => !String(t.holding).startsWith('[')).map((t) => {
       const lg = logRows.find((l) => l.at === t.at && l.portfolio === t.portfolio);
       return { at: t.at, experiment: t.portfolio, action: t.action, name: t.holding, symbol: t.holding, price: t.price_local != null ? Number(t.price_local) : Number(t.price_usd), pcur: t.portfolio === 'China' ? 'CNY' : t.portfolio === 'Predictions' ? 'P' : 'USD', amount: Number(t.cad != null ? t.cad : t.usd), reason: lg ? lg.detail : '' };
     });
@@ -2989,7 +2995,7 @@
       const rbox = mk('div', 'h2h-exp');
       const h = mk('h3', '', AIS[id].label); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px';
       rbox.appendChild(h);
-      if (id !== 'claude' && !models.some((m) => m.id === id)) rbox.appendChild(mk('p', 'st-note', 'Starts at the 9:30 a.m. ET fresh start.'));
+      if (id !== 'claude' && !models.some((m) => m.id === id)) rbox.appendChild(mk('p', 'st-note', 'Starts at the 1:45 p.m. ET restart.'));
       else if (!trades.length) rbox.appendChild(mk('p', 'st-note', 'No trades yet' + (tx ? ' in this experiment.' : '.')));
       else {
         const wrap = mk('div', 'h2h-scroll'); const tb = mk('table', 'h2h-table');
@@ -3041,6 +3047,7 @@
   const MODEL_LABEL = { claude: 'Claude', gemini: 'Gemini', chatgpt: 'ChatGPT' };
   const modelExps = () => { const v = dash.model !== 'claude' && dash.models()[dash.model]; return v ? v._meta.exps : null; };
   const applyModel = (id) => {
+    { const v = document.getElementById('viewing-name'); if (v) v.textContent = ({ claude: 'Claude (Anthropic)', gemini: 'Gemini (Google)', chatgpt: 'ChatGPT (OpenAI)' })[id] || id; }
     const views = dash.models();
     document.querySelectorAll('.model-pick').forEach((sel) => {
       sel.value = id;
@@ -3048,7 +3055,7 @@
         if (o.value === 'claude') return;
         const ok = !!views[o.value];
         o.disabled = !ok;
-        o.textContent = MODEL_LABEL[o.value] + ' (' + (o.value === 'gemini' ? 'Google' : 'OpenAI') + ')' + (ok ? '' : ': starts at the 9:30 a.m. ET open');
+        o.textContent = MODEL_LABEL[o.value] + ' (' + (o.value === 'gemini' ? 'Google' : 'OpenAI') + ')' + (ok ? '' : ': starts at the 1:45 p.m. ET open');
       });
     });
     const exps = modelExps();
@@ -3127,7 +3134,7 @@
   dash.draw('take', (el) => {
     const d = dash.data('take');
     el.replaceChildren();
-    if (d.status !== 'ok' || !d.data.length) { el.textContent = (dash.model === 'claude' ? 'Claude' : (dash.models()[dash.model] || { _meta: { label: 'This AI' } })._meta.label) + '’s first take comes with its opening trades at the 9:30 a.m. ET fresh start.'; return; }
+    if (d.status !== 'ok' || !d.data.length) { el.textContent = (dash.model === 'claude' ? 'Claude' : (dash.models()[dash.model] || { _meta: { label: 'This AI' } })._meta.label) + '’s first take comes with its opening trades at the 1:45 p.m. ET restart.'; return; }
     const r = d.data.reduce((a, b) => (new Date(b.at) > new Date(a.at) ? b : a));
     el.append(mk('q', '', r.text), document.createTextNode(' '), mk('span', 'st-take-when', stFmt.when(r.at)));
   });

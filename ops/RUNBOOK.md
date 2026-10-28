@@ -174,7 +174,7 @@ The earlier trading run is archived in `ops/archive/`; never restore it.
   with fresh decisions of your own: you may buy the same kinds of things as before or something new.
   Use live quotes, log a short reason for each, and add price rules (`asset`, `level`, `direction`, `label`)
   from the actual fills. Each experiment keeps its own rules below (Safe stays the low-risk control: no
-  leverage, no single stocks, no options; Currencies may use up to 8x leverage; Options use whole contracts
+  leverage, no single stocks, no options; Currencies may use up to 4x leverage; Options use whole contracts
   with `qty` = contracts x 100 and live chain quotes; China lots of 100, T+1).
 - China opens at the first run after the Shanghai open (9:30 a.m. Beijing, 9:30 p.m. ET Oct 28).
 - Benchmarks (indexes, Bitcoin, gold, savings) restart automatically at each experiment's first trade.
@@ -186,7 +186,7 @@ Best source for live option prices (the same one Gemini and ChatGPT are filled f
 
 ## Currencies (forex, high risk)
 
-- Restarts fresh at the first run after 9:30 a.m. ET Oct 28 with C$100,000 and leverage: positions up to 8x the account.
+- Restarts fresh at the first run after 9:30 a.m. ET Oct 28 with C$100,000 and leverage: positions up to 4x the account.
   Currencies are holdings priced in US dollars per unit: `US dollar` (always 1.0), `Japanese yen`
   (1 / USD/JPY), and add others the same way (`Euro` = EUR/USD, `British pound` = GBP/USD).
 - `Buy` a currency to go long (cash may go negative; that's borrowing). `Short` (with `cad` or
@@ -323,13 +323,19 @@ If any experiment's value falls to zero or below, that AI is BUSTED in that expe
 A suggestion (your call): before a trade, ask what happens if you are wrong, whether the reward is worth the risk, and whether one bad outcome could bust the experiment.
 No AI has to put all the money at stake: holding cash, small positions, no leverage and spreading out are all allowed. Sizing is each AI's own choice.
 
+## RESTART Oct 28, 1:45 p.m. ET (17:45 UTC)
+The morning of Oct 28 (9:30 a.m. to 1:45 p.m. ET) was a tuning run: the AIs had been told "high risk, high reward" and several went all-in. Every experiment of every AI (Claude included, all ten) was reset to 100,000 at 1:45 p.m. ET. The tuning results are in the ledger (practice rows, day 2026-10-27, label "Tuning and practice runs") and archived in ops/archive/2026-10-28-1728-tuning-run. They do not count. Claude: at the first run at or after 1:45 p.m. ET Oct 28, make fresh opening decisions for all nine non-China experiments (China at the Shanghai open), following the new rules.
+
+## 50% CAP (hard rule, all AIs)
+No single holding, currency position or bet may be more than 50% of its experiment's value at the time of the order. Currencies: total leverage at most 4x, one currency at most half of that. Gemini and ChatGPT orders that break it are refused by ops/rivals.py; Claude must follow it too.
+
 ## Elimination rule (all AIs, Claude included)
 If an AI's TOTAL profit across all its experiments (C$, China converted from US$ at the latest rate) reaches -C$100,000 or worse, that AI is ELIMINATED from the whole race: every experiment is closed and frozen at once, no more trades or bets, announced loudly on Telegram and marked on the site. For Claude: check this at every run after valuing; if it happens, post the elimination, stop trading, and only keep the site's prices updated.
 
 ## AI vs AI (Gemini and ChatGPT)
 - The owner chose to name the models on the AI vs AI tab, in the Model menu, in Telegram posts and in the About section: Claude (Anthropic) vs Gemini (Google) vs ChatGPT (OpenAI). Elsewhere keep "an AI model" / "the AI" for Claude's own wording.
 - Fresh start: all trading experiments restarted Oct 28, 9:30 a.m. ET for every model (China at the Shanghai open). Claude's betting experiments (Sports, Predictions) were reset to C$100,000 on Oct 28, 11:48 a.m. ET (15:48 UTC); the earlier bets were a simulation before the race started, labelled in the ledger and archived in ops/archive/2026-10-28-1548-before-betting-reset. They do not count. Start new bets from there. 
-- Gemini and ChatGPT each play all ten experiments (Options via Cboe quotes and OCC symbols, Currencies with up to 8x leverage, Play it safe limited to a list of low-risk funds, Sports moneylines from ESPN odds, Predictions on Polymarket). Each also writes its own watchlist for the Coming up table. They are run by `.github/workflows/rivals.yml` and `ops/rivals.py` at the same times as Claude's scheduled runs (hourly at :13, :43 during US hours, the US and Shanghai opens and closes). Gemini uses the Gemini API (paid tier, newest Pro model first, falls back to Flash); ChatGPT uses OpenAI's newest GPT model through OpenRouter (`OPENROUTER_API_KEY`) or the OpenAI API (`OPENAI_API_KEY`). US-listed orders fill only in US market hours, China only in Shanghai hours, nothing before the fresh start. Fills are at live Yahoo Finance / Polymarket prices.
+- Gemini and ChatGPT each play all ten experiments (Options via Cboe quotes and OCC symbols, Currencies with up to 4x leverage, Play it safe limited to a list of low-risk funds, Sports moneylines from ESPN odds, Predictions on Polymarket). Each also writes its own watchlist for the Coming up table. They are run by `.github/workflows/rivals.yml` and `ops/rivals.py` at the same times as Claude's scheduled runs (hourly at :13, :43 during US hours, the US and Shanghai opens and closes). Gemini uses the Gemini API (paid tier, newest Pro model first, falls back to Flash); ChatGPT uses OpenAI's newest GPT model through OpenRouter (`OPENROUTER_API_KEY`) or the OpenAI API (`OPENAI_API_KEY`). US-listed orders fill only in US market hours, China only in Shanghai hours, nothing before the fresh start. Fills are at live Yahoo Finance / Polymarket prices.
 - Each rival writes its own words: trade reasons, a take, one note per experiment per run, and a daily report card with grades (asked at the first run after 00:00 UTC). These and its daily close are posted to Telegram under its own name.
 - SAME MOMENT: at the START of every run (scheduled or extra, before you look anything up), start a rival check-in so Gemini and ChatGPT check in at the same moment as you:
   `gh api -X POST repos/freshlypicked00-collab/aipapertrades/actions/workflows/rivals.yml/dispatches -f ref=main -f 'inputs[mode]=run'`

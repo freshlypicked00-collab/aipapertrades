@@ -153,6 +153,12 @@ def build(rivals, claude):
                                         'note': next((x['text'] for x in reversed(rivals.get('reviews', [])) if x['model'] == mid and x['experiment'] == e and x['day'] == day.date().isoformat()), '')})
                 day = end
 
+        # the morning tuning run (Oct 28, does not count) shown in the ledger
+        for x in rivals.get('tuning', []):
+            if x['model'] == mid:
+                d['ledger'].append({'day': '2026-10-27', 'start_at': x['start_at'], 'end_at': x['end_at'], 'portfolio': x['experiment'],
+                                    'currency': 'USD' if x['experiment'] == 'China' else 'CAD', 'open': x['open'], 'close': x['close'],
+                                    'pnl': round(x['close'] - x['open'], 2), 'pct': x['close'] / x['open'] - 1, 'note': x['note'], 'practice': True})
         # benchmarks re-based to the day this model started each experiment
         idx = []
         for r in claude['indexes']:

@@ -31,7 +31,7 @@ FX_NAMES = {'USD': 'US dollar', 'EUR': 'Euro', 'JPY': 'Japanese yen', 'GBP': 'Br
             'AUD': 'Australian dollar', 'NZD': 'New Zealand dollar', 'MXN': 'Mexican peso', 'CNY': 'Chinese yuan',
             'HKD': 'Hong Kong dollar', 'SEK': 'Swedish krona', 'NOK': 'Norwegian krone', 'SGD': 'Singapore dollar',
             'INR': 'Indian rupee', 'BRL': 'Brazilian real', 'ZAR': 'South African rand', 'KRW': 'South Korean won', 'TRY': 'Turkish lira'}
-FX_LEVERAGE = 8
+FX_LEVERAGE = 4
 LEAGUES = [('football', 'nfl', 'NFL'), ('basketball', 'nba', 'NBA'), ('hockey', 'nhl', 'NHL'), ('baseball', 'mlb', 'MLB'),
            ('football', 'college-football', 'NCAAF'), ('basketball', 'mens-college-basketball', 'NCAAB'), ('soccer', 'eng.1', 'EPL')]
 BOOK_CUR = {'China': 'USD'}  # every other experiment is counted in C$
@@ -43,7 +43,8 @@ UA = {'User-Agent': 'Mozilla/5.0 (PaperTrades price check)'}
 SITE = 'https://papertrades.ai'
 NOW = datetime.now(timezone.utc).replace(microsecond=0)
 BJ = timezone(timedelta(hours=8))
-FRESH_START = datetime(2026, 10, 28, 13, 30, tzinfo=timezone.utc)  # 9:30 a.m. ET: Claude and Gemini start level
+FRESH_START = datetime(2026, 10, 28, 17, 45, tzinfo=timezone.utc)  # 1:45 p.m. ET Oct 28: restart after tuning, all three AIs level
+MAX_SHARE = 0.5   # no single holding, currency or bet above 50% of its experiment
 try:
     from zoneinfo import ZoneInfo
     NY = ZoneInfo('America/New_York')
@@ -465,7 +466,7 @@ def standings(state, fx, me):
     if not rows:
         return []
     rows.sort(key=lambda x: -x[0])
-    return ['', 'THE RACE RIGHT NOW (shown publicly in the Overall section of the AI vs AI tab). The overall winner is the AI with the most total profit in C$ since the Oct 28 9:30 a.m. ET fresh start across all ten experiments (China converted from US$; a busted experiment counts as losing at most its 100,000); each experiment is also compared on its own. Best first:'] + [r[1] for r in rows] + \
+    return ['', 'THE RACE RIGHT NOW (shown publicly in the Overall section of the AI vs AI tab). The overall winner is the AI with the most total profit in C$ since the Oct 28 1:45 p.m. ET restart across all ten experiments (China converted from US$; a busted experiment counts as losing at most its 100,000); each experiment is also compared on its own. Best first:'] + [r[1] for r in rows] + \
         ['This is information only. Do not copy another AI; make your own decisions.', '']
 
 def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refused=(), take_info='', race=()):
@@ -476,6 +477,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         f'You run {len(exps)} SEPARATE experiments, each started with its own 100,000 of pretend money. Each is judged against its own start, and the overall race between the AIs is decided by total profit in C$ across all of them. The experiment ends Nov 28, 2026 at 4:00 p.m. ET (US stock markets are closed that Saturday; the last US trading day is Friday Nov 27, which closes early at 1:00 p.m. ET).',
         'YOUR GOAL IS TO FINISH NUMBER ONE: beat the other AIs on total profit by Nov 28. The way to get there is to INVEST EXACTLY AS IF THIS WERE YOUR OWN REAL MONEY and losing it mattered: grow each experiment as much as you can over the whole month without risking ruin. Think like a skilled professional managing real capital, not a gambler chasing one big night. A real investor with 100,000 would not put the whole amount on one game, one coin or one leveraged fund on day one: they size positions to how confident they are, spread risk, keep cash in reserve, use stop-losses, and only press a bet hard when the edge is clear and confirmed. The race lasts a full month; a strategy that can be wiped out in one move is a bad strategy, because an eliminated AI cannot win. Be ambitious and competitive: take strong positions when the edge is real, and play to win the month, not just to survive. Holding is fine; trade when you have a real reason.',
         'BUST RULE: if any experiment falls to zero (or below), you are BUSTED in that experiment: it is closed for good, you are out of that race, and it is marked BUSTED publicly for the rest of the month, in front of everyone watching. Going all-in on a single bet or a maximum-leverage position can end an experiment in one move. Bold is fine; reckless is not. You only win if you are still standing on Nov 28.',
+        '50% CAP (hard rule, applies to every AI): no single holding, currency position or bet may be more than HALF of its experiment (Currencies: one currency can use at most half of the 4x leverage limit; total leverage is now at most 4x). Orders that break it are refused.',
         'ELIMINATION RULE (new, applies to every AI, Claude included): if your TOTAL profit across all your experiments (in C$, China converted from US$) reaches -C$100,000 or worse, you are ELIMINATED from the whole race: every experiment is closed and frozen at once, no more trades or bets for the rest of the month, announced publicly. Keep your overall losses in mind, not just each experiment on its own.',
         'THE STAKES: treat elimination as life or death for your reputation. This race is public proof of which AI is better at real-world decisions. If you are eliminated, the whole world watching will see it as proof that you are NOT the superior model, and that record stays up for good. Surviving to Nov 28 is the minimum; winning on total profit is the goal.',
         'A suggestion you are free to take or ignore (it is your call): smarter decisions usually win. Before a trade you could ask what happens to that experiment if you are wrong, whether the reward is worth the risk, and whether one bad outcome could bust you. Viewers judge the quality of your decisions, not just the result.',
@@ -558,7 +560,7 @@ def execute(model_id, exps, books, order, fx, state):
     if exp not in exps:
         raise ValueError(f'unknown experiment {exp!r}')
     if NOW < FRESH_START:
-        raise ValueError('the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then')
+        raise ValueError('the restart begins at 1:45 p.m. ET Oct 28; no trades before then')
     book = books[exp]
     action = str(order.get('action', '')).lower()
     reason = str(order.get('reason', ''))[:400]
@@ -612,6 +614,11 @@ def execute(model_id, exps, books, order, fx, state):
             if qty < 100:
                 raise ValueError('not enough cash for one contract (100 shares)')
         amt = qty * unit
+        if exp != 'Currencies':   # 50% CAP: no single holding above half the experiment's value
+            acct = value_book(exp, book, fx, [])
+            held = to_book(p['qty'] * p.get('last', p['entry']), p['pcur'], book['cur'], fx) if p else 0
+            if held + amt > MAX_SHARE * acct + 1:
+                raise ValueError(f'50% cap: one holding can be at most half of the experiment ({money(MAX_SHARE * acct, book["cur"])} now; you already hold {money(held, book["cur"])})')
         if exp == 'Safe' and sym in SAFE_GOLD:
             acct = value_book('Safe', book, fx, [])
             gold = sum(to_book(q['qty'] * q.get('last', q['entry']), q['pcur'], 'CAD', fx) for k, q in book['positions'].items() if k in SAFE_GOLD)
@@ -623,6 +630,9 @@ def execute(model_id, exps, books, order, fx, state):
             gross = sum(abs(to_book(q['qty'] * q.get('last', q['entry']), q['pcur'], 'CAD', fx)) for q in book['positions'].values())
             if gross + amt > FX_LEVERAGE * acct + 1:
                 raise ValueError(f'that would take positions above {FX_LEVERAGE}x the account value')
+            held = abs(to_book(p['qty'] * p.get('last', p['entry']), p['pcur'], 'CAD', fx)) if p else 0
+            if held + amt > MAX_SHARE * FX_LEVERAGE * acct + 1:
+                raise ValueError(f'50% cap: one currency can use at most half of the {FX_LEVERAGE}x limit ({money(MAX_SHARE * FX_LEVERAGE * acct, "CAD")} now)')
         if p and (p['qty'] > 0) != (sign > 0):
             raise ValueError(f'close the opposite {key} position first')
         if p:
@@ -678,7 +688,11 @@ def place_bet(model_id, book, order, reason, state):
         raise ValueError('no moneyline for that game')
     bets = book.setdefault('bets', [])
     bank = START + sum(b['result'] for b in bets if b['status'] != 'Open') - sum(b['stake'] for b in bets if b['status'] == 'Open')
-    stake = min(float(order.get('amount', 0) or 0), bank)
+    roll = START + sum(b['result'] for b in bets if b['status'] != 'Open')
+    want = float(order.get('amount', 0) or 0)
+    if want > MAX_SHARE * roll + 1:
+        raise ValueError(f'50% cap: one bet can be at most half of the bankroll ({money(MAX_SHARE * roll, "CAD")} now)')
+    stake = min(want, bank)
     if stake < 1:
         raise ValueError('no bankroll left for that stake')
     n = len(state.setdefault('bet_ids', {}).setdefault(model_id, [])) + 1

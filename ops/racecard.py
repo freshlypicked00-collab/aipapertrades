@@ -5,7 +5,7 @@ standings() returns rows for all three AIs; race_card() draws a 1200x675 PNG for
 import json
 from datetime import datetime, timezone, timedelta
 
-FS = datetime(2026, 10, 28, 13, 30, tzinfo=timezone.utc)
+FS = datetime(2026, 10, 28, 17, 45, tzinfo=timezone.utc)
 AIS = {'claude': ('Claude', 'Anthropic', '#d97757'), 'gemini': ('Gemini', 'Google', '#4f8ff7'), 'chatgpt': ('ChatGPT', 'OpenAI', '#f2f2f2')}
 LABEL = {'Stocks': 'Stocks', 'Crypto': 'Crypto', 'China': 'China stocks', 'Metals': 'Metals', 'Energy': 'Oil and energy', 'Options': 'Options',
          'Currencies': 'Currencies', 'Safe': 'Play it safe', 'Sports': 'Sports', 'Predictions': 'Prediction markets'}
@@ -64,7 +64,7 @@ def race_card(rows, big, title, path='/tmp/pt_race.png'):
     ax.text(60, 70, 'PAPER TRADES', color='#ffb000', fontsize=22, fontweight='bold', family='monospace')
     ax.text(60, 112, title, color=FG, fontsize=17)
     ax.text(1140, 70, 'Which AI makes the most money?', color=MUTED, fontsize=13, ha='right')
-    ax.text(60, 160, 'TOTAL PROFIT SINCE THE OCT 28 START (C$, ALL 10 EXPERIMENTS)', color=MUTED, fontsize=11, family='monospace')
+    ax.text(60, 160, 'TOTAL PROFIT SINCE THE OCT 28 RESTART (C$, ALL 10 EXPERIMENTS)', color=MUTED, fontsize=11, family='monospace')
     y = 215
     for i, r in enumerate(rows):
         name, co, col = AIS[r['id']]
