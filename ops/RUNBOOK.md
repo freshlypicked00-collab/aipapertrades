@@ -8,6 +8,11 @@ No real money moves. The public site is https://papertrades.ai (this repo,
 served by GitHub Pages). A private tracker mirrors the same data; its link is
 given in the task prompt.
 
+**The five are separate experiments.** Each started with its own C$100,000 (US$100,000 for China)
+and is judged only against that amount and its own benchmark. Never add them together, never
+quote a combined or overall total, and never describe them as one C$500,000 portfolio, in the log,
+the ledger, the self-assessment or anywhere else.
+
 An **UPDATE ALL** checks every portfolio: fresh prices, results, rules, trades,
 then publishes everything. It runs every hour.
 
@@ -69,16 +74,16 @@ then publishes everything. It runs every hour.
 7b. **Daily ledger.** If `update.py` printed `LEDGER DAY CLOSED <day>` (the first run after
    00:00 UTC, i.e. 8 p.m. ET until Nov 1, 7 p.m. ET after), write the day's notes and run
    `python3 ops/ledger_note.py ops/src notes.json`, then rebuild the site before committing. Notes:
-   - `All`: 3 to 6 sentences on how the day went overall and an honest self-assessment: what was a
-     good call, what was luck, what was a mistake, ending with a one-word grade for the day
-     (for example "Grade for the day: good"). Use the printed numbers; don't invent figures.
+   - `All`: 2 to 4 sentences of general notes on the day (market backdrop, common lessons). No
+     money figures and no combined total: each experiment's numbers belong only in its own note.
    - Two or three sentences per portfolio that has a row (each one gets its own box on the page):
      its result, what moved it, any trades or bets, and an honest take on how that simulation did.
    - Plain past tense, no hype, no naming the AI model or company. Write it even on bad days.
    - Then append a fresh self-assessment to `ops/src/review.json` (keep the old entries): one row
      per portfolio plus `All`, all with the same `at` (now), fields `portfolio`, `grade` (A to F,
-     or "—" if too early) and `text` (2 to 5 sentences for All, 1 to 3 per portfolio): how you
-     feel you're doing overall since the start, being honest about luck vs. skill and mistakes.
+     or "—" if too early; `null` for All) and `text` (2 to 4 sentences per portfolio: how that
+     experiment is going since its own start, honest about luck vs. skill and mistakes; for All,
+     general lessons only, with no money figures or combined total).
      The page shows the latest set at the top of the Ledger tab. Sync `review` to the tracker too.
 8. **Sync the private tracker** (link in the task prompt). For each data file the script
    listed as changed (and `ledger` if you ran ledger_note.py), except `sources` and `fx`: upload `ops/src/<name>.json` to the tracker as an

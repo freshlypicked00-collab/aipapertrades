@@ -129,7 +129,7 @@
   .lg-pending { color: var(--color-fg-muted); font-style: italic; }
   .lg-today { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: baseline; }
   .lg-review { display: flex; flex-direction: column; gap: 12px; }
-  .lg-review .lg-note { font-size: 16px; }
+  .lg-review .lg-note { font-size: 15px; max-width: 80ch; }
   .lg-grade { display: inline-block; min-width: 2.2em; text-align: center; padding: 1px 8px; border: 1px solid var(--color-border-line); border-radius: 999px; font-weight: 600; margin-right: 8px; }
   .lg-review ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; max-width: 80ch; font-size: var(--cds-font-size-body); line-height: 1.55; }
   .st-page#ledger .lg-sim .lg-sim-pnl { font-size: 22px; }
@@ -156,7 +156,7 @@
     </p>
     <p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>
     <p class="st-notice" role="note"><span class="st-dot" aria-hidden="true"></span><span><b>This is a simulation, not investment advice.</b> No real money is involved. It is a 30-day experiment in which an AI model makes trading and betting decisions using real-world prices, to see how its judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results for all five will be posted on Nov 26, win or lose.</span></p>
-    <p class="st-lede">Five paper simulations, scored on Nov 26, 2026: four started with <span data-draw="start">—</span> each and the Chinese stocks one with US$100,000. Together they are worth <b data-draw="combined" data-source="combined" data-field="total">—</b> in Canadian dollars, a change of <b data-draw="combined-pnl" data-source="combined" data-field="pnl">—</b>. Last updated <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=All">—</b>.</p>
+    <p class="st-lede">Five separate paper-trading experiments, each run and scored on its own on Nov 26, 2026. Each one started with its own <span data-draw="start">—</span> (US$100,000 for Chinese stocks) and is judged only against that starting amount; the results are never added together. Last updated <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=All">—</b>.</p>
   </header>
 
   <nav class="st-tabs" role="tablist" aria-label="Simulations">
@@ -694,47 +694,38 @@
   <section class="st-page" id="ledger" data-page="ledger" hidden>
     <section class="st-card" aria-labelledby="h-l-sum">
       <h2 class="st-h2" id="h-l-sum">Ledger</h2>
-      <p class="st-note">The full record of how the AI is doing: total profit or loss since the start for each simulation, plus every day's result and write-up. Each day closes at midnight UTC (8 p.m. Eastern until Nov 1, then 7 p.m.). For every day: what each simulation made or lost, and the AI's own write-up of how it did. Combined figures are in Canadian dollars, with the Chinese stocks result converted from US dollars.</p>
-      <h3 class="st-h3">How I think I'm doing</h3>
+      <p class="st-note">The full record of how the AI is doing in each experiment: total profit or loss since the start for each one, plus every day's result and write-up. Each day closes at midnight UTC (8 p.m. Eastern until Nov 1, then 7 p.m.). For every day: what each simulation made or lost, and the AI's own write-up of how it did. Each simulation is its own experiment with its own C$100,000 (US$100,000 for China), so nothing here is added together.</p>
+      <h3 class="st-h3">How I think I'm doing in each experiment</h3>
       <div class="lg-review" data-draw="lg-review" data-source="review"></div>
       <h3 class="st-h3">Total since the start</h3>
       <div class="lg-sims">
-        <div class="lg-sim"><span class="lg-sim-name">Stocks</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Stocks">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Stocks">—</span></div>
-        <div class="lg-sim"><span class="lg-sim-name">Crypto</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Crypto">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Crypto">—</span></div>
-        <div class="lg-sim"><span class="lg-sim-name">Metals</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Metals">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Metals">—</span></div>
-        <div class="lg-sim"><span class="lg-sim-name">Sports</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Sports">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Sports">—</span></div>
-        <div class="lg-sim"><span class="lg-sim-name">China (US$)</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=China">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=China">—</span></div>
-        <div class="lg-sim"><span class="lg-sim-name">All combined</span><span class="lg-sim-pnl" data-draw="combined-pnl" data-source="combined" data-field="pnl">—</span><span class="lg-sim-range" data-draw="combined" data-source="combined" data-field="total">—</span></div>
+        <div class="lg-sim"><span class="lg-sim-name">Stocks</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Stocks">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Stocks">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Stocks">—</span></div>
+        <div class="lg-sim"><span class="lg-sim-name">Crypto</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Crypto">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Crypto">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Crypto">—</span></div>
+        <div class="lg-sim"><span class="lg-sim-name">Metals</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Metals">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Metals">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Metals">—</span></div>
+        <div class="lg-sim"><span class="lg-sim-name">Sports</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Sports">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Sports">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Sports">—</span></div>
+        <div class="lg-sim"><span class="lg-sim-name">China (US$)</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=China">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=China">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=China">—</span></div>
       </div>
-      <h3 class="st-h3">Day by day</h3>
-      <div class="st-bench">
-        <div><span class="st-label">Days closed</span><span class="st-mid" data-draw="lg-stat" data-source="ledger" data-stat="days">—</span></div>
-        <div><span class="st-label">Up days / down days</span><span class="st-mid" data-draw="lg-stat" data-source="ledger" data-stat="updown">—</span></div>
-        <div><span class="st-label">Best day</span><span class="st-mid" data-draw="lg-stat" data-source="ledger" data-stat="best">—</span></div>
-        <div><span class="st-label">Worst day</span><span class="st-mid" data-draw="lg-stat" data-source="ledger" data-stat="worst">—</span></div>
-      </div>
-      <p class="st-meta lg-today"><span>Today so far (closes at midnight UTC): <b data-draw="lg-today" data-source="history">—</b></span></p>
+      <p class="st-meta lg-today"><span>Today so far, each experiment on its own (the day closes at midnight UTC): <b data-draw="lg-today" data-source="history">—</b></span></p>
     </section>
     <section class="st-card" aria-labelledby="h-l-chart">
       <h2 class="st-h2" id="h-l-chart">Profit or loss by day</h2>
-      <p class="st-note">"Each day" shows what was made or lost that day; "Running total" shows the total since the start at the end of each day. Green is up, red is down. Hover or tap a bar for the exact amount.</p>
+      <p class="st-note">"Each day" shows what was made or lost that day; "Running total" shows the total since the start at the end of each day. Pick an experiment; each one is shown on its own. Green is up, red is down. Hover or tap a bar for the exact amount.</p>
       <div class="st-chips" role="group" aria-label="View" data-mode-for="lg-bars">
         <button type="button" data-v="day" aria-pressed="true">Each day</button>
         <button type="button" data-v="total" aria-pressed="false">Running total</button>
       </div>
       <div class="st-chips" role="group" aria-label="Simulation" data-chips-for="lg-bars">
-        <button type="button" data-v="All" aria-pressed="true">All combined</button>
-        <button type="button" data-v="Stocks" aria-pressed="false">Stocks</button>
+        <button type="button" data-v="Stocks" aria-pressed="true">Stocks</button>
         <button type="button" data-v="Crypto" aria-pressed="false">Crypto</button>
         <button type="button" data-v="Metals" aria-pressed="false">Metals</button>
         <button type="button" data-v="Sports" aria-pressed="false">Sports</button>
         <button type="button" data-v="China" aria-pressed="false">China</button>
       </div>
-      <div class="gx" id="lg-bars" data-draw="lg-bars" data-source="ledger" data-portfolio="All"></div>
+      <div class="gx" id="lg-bars" data-draw="lg-bars" data-source="ledger" data-portfolio="Stocks"></div>
     </section>
     <section class="st-card" aria-labelledby="h-l-days">
       <h2 class="st-h2" id="h-l-days">Day by day</h2>
-      <p class="st-note">Newest first. Each simulation gets its own result, its total since the start and a write-up for the day; the combined total and overall take are underneath. Open "Decisions this day" for every trade, bet and note logged that day.</p>
+      <p class="st-note">Newest first. Each experiment gets its own result, its total since the start and a write-up for the day, with general notes on the day underneath. Open "Decisions this day" for every trade, bet and note logged that day.</p>
       <div class="lg-days" data-draw="lg-days" data-source="ledger log"></div>
     </section>
   </section>
@@ -793,7 +784,7 @@
 
   dash.calc('totals', {
     title: 'Portfolio totals',
-    description: 'Each portfolio’s value: holdings summed for Stocks, Crypto, Metals (Canadian dollars) and China (US dollars); C$100,000 plus settled results for Sports. value_cad converts China to Canadian dollars for the combined total.',
+    description: 'Each portfolio’s value: holdings summed for Stocks, Crypto, Metals (Canadian dollars) and China (US dollars); C$100,000 plus settled results for Sports. value_cad and pnl_cad are a Canadian-dollar reference for China only; the experiments are never added together.',
     inputs: ['holdings', 'bets'],
     fn: (holdings, bets) => {
       const start = 100000;
@@ -965,15 +956,6 @@
     }
   });
 
-  dash.calc('combined', {
-    title: 'All combined',
-    description: 'Every portfolio’s value in Canadian dollars added together (China converted from US dollars), and the total profit since each one started.',
-    inputs: ['totals'],
-    fn: (totals) => {
-      const total = totals.reduce((a, r) => a + r.value_cad, 0);
-      return [{ total, pnl: totals.reduce((a, r) => a + r.pnl_cad, 0) }];
-    }
-  });
 
   dash.calc('betstats', {
     title: 'Betting record',
@@ -1023,14 +1005,6 @@
     },
     update: () => {},
     unmount: (el, id) => clearInterval(id)
-  });
-  dash.draw('combined', (el) => {
-    const d = dash.data('combined');
-    el.textContent = d.status === 'ok' && d.data[0] ? stFmt.cad(d.data[0].total) : '—';
-  });
-  dash.draw('combined-pnl', (el) => {
-    const d = dash.data('combined');
-    el.textContent = d.status === 'ok' && d.data[0] ? stFmt.signedCad(d.data[0].pnl) : '—';
   });
   dash.draw('asof', (el) => {
     const d = dash.data('holdings');
@@ -1514,36 +1488,30 @@
     const latestAt = d3.max(d.data, (r) => +new Date(r.at));
     const rows = d.data.filter((r) => +new Date(r.at) === latestAt);
     const all = rows.find((r) => r.portfolio === 'All');
-    if (all) {
-      const p = mk('p', 'lg-note');
-      if (all.grade) p.appendChild(mk('span', 'lg-grade', all.grade));
-      p.appendChild(document.createTextNode(all.text));
-      el.appendChild(p);
-    }
     const ul = mk('ul');
     rows.filter((r) => r.portfolio !== 'All').forEach((r) => {
       const li = mk('li');
       if (r.grade) li.appendChild(mk('span', 'lg-grade', r.grade));
-      li.append(mk('b', '', (r.portfolio === 'China' ? 'China' : r.portfolio) + ': '), document.createTextNode(r.text));
+      li.append(mk('b', '', (r.portfolio === 'China' ? 'China (US$)' : r.portfolio) + ': '), document.createTextNode(r.text));
       ul.appendChild(li);
     });
     el.appendChild(ul);
+    if (all) {
+      const p = mk('p', 'lg-note');
+      p.append(mk('b', '', 'General notes: '), document.createTextNode(all.text));
+      el.appendChild(p);
+    }
     el.appendChild(mk('p', 'st-note', 'Written by the AI on ' + stFmt.when(new Date(latestAt)) + ' ET and rewritten at the end of each day. Older versions stay in the data.'));
   });
-  dash.draw('lg-stat', (el) => {
+  dash.draw('lg-simstats', (el) => {
     const days = ledgerDays();
+    const p = stFmt.whereOf(el);
     if (!days) { el.textContent = '—'; return; }
-    const tot = days.filter((x) => x.all).map((x) => ({ x, v: Number(x.all.pnl) }));
-    const k = el.dataset.stat;
-    el.classList.remove('is-up', 'is-down');
-    if (k === 'days') el.textContent = String(days.length);
-    else if (k === 'updown') el.textContent = tot.filter((r) => r.v > 0.5).length + ' up · ' + tot.filter((r) => r.v < -0.5).length + ' down';
-    else {
-      const best = k === 'best' ? d3.greatest(tot, (r) => r.v) : d3.least(tot, (r) => r.v);
-      if (!best || (k === 'worst' && best.v >= -0.5) || (k === 'best' && best.v <= 0.5)) { el.textContent = k === 'worst' ? 'No down days yet' : 'No up days yet'; return; }
-      tone(el, best.v);
-      el.textContent = stFmt.signed(best.v, 'All') + ' (' + dayShort(best.x) + ')';
-    }
+    const rs = days.map((x) => ({ x, r: x.rows.find((r) => r.portfolio === p) })).filter((d) => d.r && d.r.pnl !== null);
+    if (!rs.length) { el.textContent = 'No closed days yet'; return; }
+    const up = rs.filter((d) => d.r.pnl > 0.5).length, down = rs.filter((d) => d.r.pnl < -0.5).length;
+    const best = d3.greatest(rs, (d) => d.r.pnl), worst = d3.least(rs, (d) => d.r.pnl);
+    el.textContent = up + ' up ' + (up === 1 ? 'day' : 'days') + ' · ' + down + ' down · best ' + (best.r.pnl > 0.5 ? stFmt.signed(best.r.pnl, p) + ' (' + dayShort(best.x) + ')' : 'none yet') + ' · worst ' + (worst.r.pnl < -0.5 ? stFmt.signed(worst.r.pnl, p) + ' (' + dayShort(worst.x) + ')' : 'none yet');
   });
 
   dash.draw('lg-today', (el) => {
@@ -1562,11 +1530,9 @@
       const before = s.filter((r) => r.t <= start);
       const o = near.length ? d3.least(near, (r) => Math.abs(r.t - start) - (r.t >= start ? 0.5 : 0)).v : before.length ? before[before.length - 1].v : START;
       const v = s[s.length - 1].v - o;
-      total += p === 'China' ? v * fx : v;
       parts.push(p + ' ' + stFmt.signed(v, p));
     });
-    tone(el, total);
-    el.textContent = stFmt.signed(total, 'All') + ' combined (' + parts.join(' · ') + ')';
+    el.textContent = parts.join(' · ');
   });
 
   dash.draw('lg-bars', (el) => {
@@ -1574,18 +1540,18 @@
       el.replaceChildren();
       const days = ledgerDays();
       if (!days) return;
-      const p = el.dataset.portfolio || 'All';
+      const p = el.dataset.portfolio || 'Stocks';
       const cum = el.dataset.mode === 'total';
       let run = 0;
-      const rows = days.map((x) => ({ x, r: x.rows.find((r) => r.portfolio === p) })).filter((d) => d.r)
+      const rows = days.map((x) => ({ x, r: x.rows.find((r) => r.portfolio === p) })).filter((d) => d.r && d.r.pnl !== null)
         .map((d) => {
           if (!cum) return d;
           run += Number(d.r.pnl);
-          const v = p === 'All' ? run : Number(d.r.close) - START;
-          return { x: d.x, r: { ...d.r, pnl: v, pct: p === 'All' ? null : v / START } };
+          const v = Number(d.r.close) - START;
+          return { x: d.x, r: { ...d.r, pnl: v, pct: v / START } };
         });
       if (!rows.length) { el.appendChild(mk('div', 'gx-empty', 'No closed days for this simulation yet.')); return; }
-      const sym = p === 'China' ? 'China' : 'All';
+      const sym = p;
       const plot = mk('div', 'gx-plot'); el.appendChild(plot);
       const W = Math.max(280, plot.clientWidth || el.clientWidth || 640), H = 250;
       const M = { t: 24, r: 8, b: 30 };
@@ -1657,15 +1623,8 @@
       });
       card.appendChild(grid);
       const ov = mk('div', 'lg-overall');
-      const ovh = mk('p', 'lg-overall-h');
-      ovh.appendChild(document.createTextNode('Overall, all simulations combined: '));
-      const t = mk('b', '', x.all ? stFmt.signed(Number(x.all.pnl), 'All') : '—'); if (x.all) tone(t, Number(x.all.pnl));
-      ovh.appendChild(t);
-      const cumAll = days.filter((d) => d.day <= x.day && d.all).reduce((a, d) => a + Number(d.all.pnl), 0);
-      ovh.appendChild(document.createTextNode(' that day · total since start: '));
-      const ct = mk('b', '', stFmt.signed(cumAll, 'All')); tone(ct, cumAll); ovh.appendChild(ct);
-      ov.appendChild(ovh);
-      ov.appendChild(x.all && x.all.note ? mk('p', 'lg-note', x.all.note) : mk('p', 'lg-note lg-pending', 'The overall write-up is added at the next check-in.'));
+      ov.appendChild(mk('p', 'lg-overall-h', 'Notes on the day'));
+      ov.appendChild(x.all && x.all.note ? mk('p', 'lg-note', x.all.note) : mk('p', 'lg-note lg-pending', 'Notes are added at the next check-in.'));
       card.appendChild(ov);
       if (L.status === 'ok') {
         const a = +new Date(x.start_at), b = +new Date(x.end_at);

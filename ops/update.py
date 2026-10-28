@@ -389,23 +389,23 @@ if first_points:
                              'portfolio': pf, 'currency': CURRENCY[pf], 'open': round(o, 2), 'close': round(c, 2),
                              'pnl': round(c - o, 2), 'pct': round(c / o - 1, 5), 'note': ''})
             if rows:
-                pnl_cad = sum(r['pnl'] * (fx if r['currency'] == 'USD' else 1) for r in rows)
-                rows.insert(0, {'day': key, 'start_at': rows[0]['start_at'], 'end_at': rows[0]['end_at'], 'portfolio': 'All', 'currency': 'CAD',
-                                'open': None, 'close': None, 'pnl': round(pnl_cad, 2), 'pct': None, 'fx': fx, 'note': ''})
+                # 'All' only holds the general notes for the day; the experiments are never added together
+                rows.insert(0, {'day': key, 'start_at': rows[0]['start_at'], 'end_at': rows[0]['end_at'], 'portfolio': 'All', 'currency': None,
+                                'open': None, 'close': None, 'pnl': None, 'pct': None, 'note': ''})
                 ledger.extend(rows)
                 closed_now.append((key, rows))
         d += timedelta(days=1)
 if closed_now:
     save('ledger', ledger)
 
-print('Totals:', json.dumps(tot), '(China in US$, the rest in C$)')
-comb = sum(v * (fx if pf == 'China' else 1) for pf, v in tot.items())
-start_c = sum(START * (fx if pf == 'China' else 1) for pf in tot)
-print('Combined: C$%.0f (%+.0f)' % (comb, comb - start_c))
+print('Each experiment on its own (never add them together):')
+for pf, v in tot.items():
+    print('   %-7s %s%.0f (%+.0f since start)' % (pf, 'US$' if pf == 'China' else 'C$', v, v - START))
 for key, rows in closed_now:
     print('LEDGER DAY CLOSED', key, '- write notes with ops/ledger_note.py:')
     for r in rows:
-        print('   %-7s %+12.2f %s' % (r['portfolio'], r['pnl'], r['currency']))
+        if r['portfolio'] != 'All':
+            print('   %-7s %+12.2f %s' % (r['portfolio'], r['pnl'], r['currency']))
 if warnings:
     print('WARNINGS:')
     for w in warnings:
