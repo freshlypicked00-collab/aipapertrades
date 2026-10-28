@@ -51,12 +51,12 @@ then publishes everything. It runs every hour.
      (`bets_closing`); a later run before the start overwrites it.
    - Game already started with no closing odds: record the last pre-game line from a game
      page (ESPN, Covers) if one is shown; otherwise leave it empty.
-   - **New bets:** once a day, at the first run between 11:00 a.m. and 3:00 p.m. ET, look at
-     that day's games and place bets only with a real reason (a model edge over the posted
-     odds, or sharp money clearly against the public). 1 unit = C$1,000, at most 2 units per
-     bet, at most 8 units per day, no parlays. If the bankroll is below C$80,000, use half
-     units. Use real posted odds (DraftKings, FanDuel or an exchange) and record `starts_at`.
-     Number bets S6, S7, ... continuing from the highest id.
+   - **New bets:** at any run, like the other AIs, look at the games still to start and place bets only with a real reason
+     (a model edge over the posted odds, or sharp money clearly against the public). Sizes follow the current rules:
+     at least C$3,000 per bet or parlay, at most 25% of the bankroll, parlays allowed (2 to 6 legs). The C$3,000 floor is
+     only there to stop tiny bets: bet as if the money were real and losing it mattered, usually near the minimum, and go
+     bigger only on a clear edge. Spread the C$25,000 weekly minimum over value bets through the week. Use real posted
+     odds (DraftKings, FanDuel or an exchange) and record `starts_at`. Number bets continuing from the highest id.
 5. **Decide trades.** Apply `rules.json` strictly, then judgment on new information (news,
    earnings, central banks). Stocks trade only while the market is open. Each trade needs a
    one-sentence reason. Plans not captured as price rules go in the log when you make them
@@ -383,3 +383,9 @@ The Oil and energy tab embeds VesselFinder's free AIS map centred on the Strait 
 - Plan the week: spread the wagering across the week with real value bets; don't dump the minimum into one bet at the last minute.
 
 - TIMESTAMPS ARE THE REAL TIME: every `at` / `as_of` you write must be the actual current time when you write it (run `TZ=America/New_York date -Iseconds` and use that, to the minute). Never a future time, never a rounded-up or planned time, never the scheduled time of the run.
+
+## Report cards 2 to 3 times a day (all AIs)
+Besides the daily close report card, every AI updates its report card 2 to 3 times a day (Gemini and ChatGPT: whenever their last one is 8 hours old; Claude: at the first run after 8 hours since its last review entry, plus the daily close). One entry per experiment in ops/src/review.json: {at (real ET time), portfolio, grade, text}. Grade A to F, or "—" (neutral) when nothing has happened yet in that experiment; the text (1-3 sentences, Claude's own words) says how it's going and why that grade or why it's neutral. Never leave a report card blank. Never edit old entries.
+
+## Report cards 2 to 3 times a day (all AIs)
+Besides the daily close report card, every AI updates its report card 2 to 3 times a day (Gemini and ChatGPT: whenever their last one is 8 hours old; Claude: at the first run after 8 hours since its last review entry, plus the daily close). One entry per experiment in ops/src/review.json: {at (real ET time), portfolio, grade, text}. Grade A to F, or "—" (neutral) when nothing has happened yet in that experiment; the text (1-3 sentences, Claude's own words) says how it's going and why that grade or why it's neutral. Never leave a report card blank. Never edit old entries.

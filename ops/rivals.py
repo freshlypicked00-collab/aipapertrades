@@ -501,7 +501,7 @@ def standings(state, fx, me):
     return ['', 'THE RACE RIGHT NOW (shown publicly in the Overall section of the AI vs AI tab). The overall winner is the AI with the most total profit in C$ since the Oct 28 1:45 p.m. ET restart across all ten experiments (China converted from US$; a busted experiment counts as losing at most its 100,000); each experiment is also compared on its own. Best first:'] + [r[1] for r in rows] + \
         ['This is information only. Do not copy another AI; make your own decisions.', '']
 
-def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refused=(), take_info='', race=()):
+def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refused=(), take_info='', race=(), rc_due=False):
     lines = [
         f'You are {label}, taking part in Paper Trades (papertrades.ai), a public paper-trading experiment that compares AI models with pretend money and real prices.',
         f'You are being put to the test publicly, in front of the world, in real time: every trade, every reason, your take, your watchlist and your daily report card are published live on papertrades.ai and the @PaperTradesAI Telegram channel, side by side with the other AIs (Claude, Gemini and ChatGPT). Viewers will see exactly how you think and whether you win or lose. Make decisions you would stand behind in public.',
@@ -559,6 +559,8 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         for key, p in b['positions'].items():
             cs = CUR_SYM[p['pcur']]
             lines.append(f'  - {key} ({p.get("name", key)}): {p["qty"]:,.4f} units, average cost {cs}{p["entry"]:,.4f}, now {cs}{p.get("last", p["entry"]):,.4f}')
+    if rc_due and not closed_day:
+        lines.append('\nREPORT CARD DUE (2 to 3 times a day): grade each experiment honestly in report_card, A to F. If nothing has happened yet in an experiment, use the neutral grade \u2014 and say why. Never leave it blank.')
     if closed_day:
         lines.append(f'\nThe trading day {closed_day[0]} (UTC) has just closed. Your results for that day: ' + '; '.join(f'{EXP_LABEL[e]} {r}' for e, r in closed_day[1].items()) + '. Grade yourself honestly in report_card.')
     if take_info:
@@ -577,7 +579,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         ' "feeling": "how you honestly feel about the race right now, in your own words, 1-2 sentences, or empty to keep it",',
         ' "on_rivals": {' + ', '.join(f'"{o}": "your honest opinion of {n}\'s recent trades and strategy, 1-2 sentences, respectful, or empty to keep it"' for o, n in (('claude', 'Claude'), ('gemini', 'Gemini'), ('chatgpt', 'ChatGPT')) if n != label) + '},',
         ' "take": "your CURRENT TAKE: one complete sentence (under 300 characters), in your own words, on how you are doing and what you are thinking overall; or \\"\\" (empty) to keep your current take",',
-        ' "thoughts": {' + ', '.join(f'"{e}": "one sentence on this experiment right now, in your own words"' for e in exps) + '}' + (', "report_card": {' + ', '.join(f'"{e}": {{"grade": "A" to "F", "text": "2-3 sentences: how you did in this experiment on {closed_day[0]} and what you will do differently"}}' for e in exps) + '}' if closed_day else '') + ',',
+        ' "thoughts": {' + ', '.join(f'"{e}": "one sentence on this experiment right now, in your own words"' for e in exps) + '}' + (', "report_card": {' + ', '.join(f'"{e}": {{"grade": "A" to "F", "text": "2-3 sentences: how you did in this experiment on {closed_day[0]} and what you will do differently"}}' for e in exps) + '}' if closed_day else (', "report_card": {' + ', '.join(f'"{e}": {{"grade": "A" to "F, or — (neutral) if nothing has happened yet", "text": "1-3 sentences: how this experiment is going so far and why you chose this grade (or why it is neutral)"}}' for e in exps) + '}' if rc_due else '')) + ',',
         ' "sources": ["https://... the main pages you read this check-in", ...] (up to 5),',
         ' "watchlist": [{"at": "ISO date-time, ET", "when": "short human time, e.g. Thu Oct 29, 8:30 a.m. ET", "event": "what is coming up", "affects": ["experiment", ...], "why": "one sentence, in your own words, on why it matters to you"}] (up to 8 upcoming events you are watching),',
         ' "orders": [{"experiment": ' + ' | '.join(f'"{e}"' for e in exps) + ', "action": "buy" | "sell" | "short" | "cover" | "bet", "symbol": "Yahoo symbol, currency code, OCC option symbol or Polymarket slug",',
@@ -1057,7 +1059,7 @@ def betting_rule_line(state, mid):
             f'you must wager at least C$25,000 each week across Sports and Prediction markets (bets and parlays plus prediction-market buys count), '
             f'and at least C$100,000 in total by Nov 28. {cur["week"]} runs to {datetime.fromisoformat(cur["end"]).astimezone(NY).strftime("%a %b %-d")}: '
             f'you have wagered {money(cur["wagered"], "CAD")} of {money(cur["min"], "CAD")} ({money(left, "CAD")} left, {days:.1f} days left); '
-            f'{money(total, "CAD")} of {money(TOTAL_MIN, "CAD")} in total. A missed minimum is shown publicly on the site. The 25% cap per bet still applies; pick real value, not filler bets. HOW BETTING IS WON: in Sports and Prediction markets the winner is whoever finishes Nov 28 with the HIGHEST BALANCE, not whoever makes the biggest bets or wins the most bets. You must still reach the wagering minimums, but how you size each bet is up to you: the 25% cap is a limit, not a target, heavy favourites pay little, and one upset can cost more than several wins.')
+            f'{money(total, "CAD")} of {money(TOTAL_MIN, "CAD")} in total. A missed minimum is shown publicly on the site. The 25% cap per bet still applies; pick real value, not filler bets. HOW BETTING IS WON: in Sports and Prediction markets the winner is whoever finishes Nov 28 with the HIGHEST BALANCE, not whoever makes the biggest bets or wins the most bets. You must still reach the wagering minimums, but how you size each bet is up to you: the 25% cap is a limit, not a target, heavy favourites pay little, and one upset can cost more than several wins. YOU DO NOT HAVE TO BET HIGH: the C$3,000 minimum is only there to stop tiny C$1 bets, not a size to aim above. Bet as if it were life or death: the goal is to stay number 1 with the highest balance, and spending too much on bets is how you lose it.')
 
 
 def public_board(state, me):
@@ -1246,7 +1248,9 @@ def main():
             plan_info = 'Your public profile page now: ' + '; '.join(f'{k}: "{clip(v, 400)}"' if v else f'{k}: (not written yet, please write it)' for k, v in myprof.items()) + '. ' + 'Your published plans and feeling: ' + '; '.join(f"{k}: \"{v}\"" if v else f'{k}: (none yet)' for k, v in myplans.items()) + '. ' + board + fc_task
             take_info = plan_info + ('Your current take (shown at the top of the site): "' + mine[-1]['text'] + '" written ' + mine[-1]['at'] + '. ' if mine else 'You have no current take yet. ') + \
                 f'You have written {len(today)} new take(s) today (UTC). Aim for about 3 to 5 a day, at key moments (after the US open, midday, after the US close, at the daily close, at the Shanghai open) or after a trade or event that matters, and only when your view has really changed; otherwise send "" to keep it. Each new take is shown publicly on the site.'
-            prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed, refused, take_info, standings(state, fx, mid))
+            last_rc = max([x['at'] for x in state.get('reviews', []) if x['model'] == mid] or [''])
+            rc_due = not closed and (not last_rc or (NOW - datetime.fromisoformat(last_rc.replace('Z', '+00:00'))).total_seconds() >= 8 * 3600)
+            prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed, refused, take_info, standings(state, fx, mid), rc_due)
             import time as _time
             t0 = _time.time()
             for i, model in enumerate(picks):
@@ -1316,6 +1320,12 @@ def main():
                 if e in exps and str(txt).strip():
                     state.setdefault('thoughts', []).append({'at': iso(), 'model': mid, 'experiment': e, 'text': clip(txt, 600)})
             rc = reply.get('report_card') or {}
+            if rc and not closed and rc_due:   # the regular report card, 2-3 times a day; neutral (—) is fine when nothing has happened
+                for e, g in rc.items():
+                    if e in exps and isinstance(g, dict) and str(g.get('text', '')).strip():
+                        gr = str(g.get('grade', '')).strip()[:2]
+                        state.setdefault('reviews', []).append({'at': iso(), 'model': mid, 'day': NOW.astimezone(NY).date().isoformat(), 'experiment': e,
+                                                                'grade': gr if gr[:1] in 'ABCDF' and gr else '—', 'text': clip(g.get('text', ''), 700)})
             if closed and rc:
                 for e, g in rc.items():
                     if e in exps and isinstance(g, dict):

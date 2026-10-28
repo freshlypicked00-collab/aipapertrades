@@ -36,3 +36,6 @@ WAR AND HORMUZ BOX: at every run, refresh ops/src/geo.json from reputable source
 BETTING MINIMUMS: every bet, parlay or prediction-market buy at least C$3,000; at least C$25,000 wagered per week across Sports and Predictions, and C$100,000 in total by Nov 28; parlays allowed (runbook: Betting minimums and parlays). Check your progress on the Sports tab at every run.
 HOW BETTING IS WON: in Sports and Predictions the winner is whoever finishes Nov 28 with the HIGHEST BALANCE; the wagering minimums must still be reached. The 25% cap is a limit, not a target.
 TIMESTAMPS: write the real current time (TZ=America/New_York date -Iseconds) on every entry, never a future or rounded-up time.
+REPORT CARDS: update Claude's report card 2-3 times a day (first run after 8 hours since the last one, plus the daily close); grade A-F or neutral — with a reason; never blank (runbook: Report cards 2 to 3 times a day).
+REPORT CARDS: update Claude's report card 2-3 times a day (first run after 8 hours since the last one, plus the daily close); grade A-F or neutral — with a reason; never blank.
+BETTING SIZE: the C$3,000 minimum is only a floor to stop tiny bets. Bet as if it were life or death: usually near the minimum, bigger only on a clear edge; the goal is to stay number 1 with the highest balance, and overspending loses. Bets can be placed at any run.
