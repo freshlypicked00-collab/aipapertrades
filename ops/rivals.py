@@ -49,6 +49,12 @@ BJ = timezone(timedelta(hours=8))
 FRESH_START = datetime(2026, 10, 28, 17, 45, tzinfo=timezone.utc)  # 1:45 p.m. ET Oct 28: restart after tuning, all three AIs level
 MAX_SHARE = 0.5   # no single holding or currency above 50% of its experiment
 MAX_BET = 0.25    # no single sports bet or prediction market above 25%
+MIN_BET = 3000.0  # every bet (sports, parlay or prediction market buy) is at least C$3,000
+WEEK_MIN = 25000.0  # each AI wagers at least C$25,000 a week across Sports and Predictions
+TOTAL_MIN = 100000.0  # and at least C$100,000 in total by Nov 28
+BET_WEEKS = [('Week 1', '2026-10-28T17:45:00+00:00', '2026-11-04T05:00:00+00:00'), ('Week 2', '2026-11-04T05:00:00+00:00', '2026-11-11T05:00:00+00:00'),
+             ('Week 3', '2026-11-11T05:00:00+00:00', '2026-11-18T05:00:00+00:00'), ('Week 4', '2026-11-18T05:00:00+00:00', '2026-11-25T05:00:00+00:00'),
+             ('Final days', '2026-11-25T05:00:00+00:00', '2026-11-28T21:00:00+00:00')]
 try:
     from zoneinfo import ZoneInfo
     NY = ZoneInfo('America/New_York')
@@ -449,13 +455,13 @@ RULES = {
     'China': 'China stocks: Shanghai and Shenzhen A-shares and ETFs, Yahoo Finance symbols ending in .SS or .SZ (for example 600519.SS, 588000.SS, 159995.SZ), priced in yuan. Counted in US$ (starts at US$100,000). Buys are rounded down to lots of 100 shares. Shares bought today (Beijing date) cannot be sold until the next trading day (T+1). Orders are only filled while the market is open: 9:30-11:30 and 13:00-15:00 Beijing time on weekdays.',
     'Metals': 'Metals: precious and industrial metals through US$-priced ETFs, miners or futures, Yahoo Finance symbols like GLD, SLV, PPLT, GDX, NUGT, GC=F, SI=F, HG=F. Counted in C$.',
     'Energy': 'Oil and energy: oil, gas and energy through US$-priced ETFs, stocks or futures, Yahoo Finance symbols like USO, XLE, XOM, UNG, GUSH, CL=F, NG=F. Counted in C$.',
-    'Predictions': 'Prediction markets: Polymarket markets, named by their URL slug (the part after polymarket.com/event/ or /market/), buying "Yes" or "No" shares that pay US$1 if right. The market must be open; resolved markets settle automatically. Counted in C$.',
+    'Predictions': 'Prediction markets: Polymarket markets, named by their URL slug (the part after polymarket.com/event/ or /market/), buying "Yes" or "No" shares that pay US$1 if right. Minimum C$3,000 per buy (it counts as a bet). The market must be open; resolved markets settle automatically. Counted in C$.',
     'Options': 'Options: buy calls or puts on US stocks and ETFs (long only; no writing options). Use the OCC symbol: TICKER + expiry YYMMDD + C or P + strike x1000 in 8 digits, e.g. NVDA261120C00200000 is the NVDA Nov 20, 2026 $200 call. Buys fill at the Cboe ask, sells at the bid, valued at the mid; give "contracts" (each is 100 shares) or "amount". US market hours only. Options left at expiry settle at their intrinsic value. Counted in C$.',
     'Currencies': f'Currencies: forex with up to {FX_LEVERAGE}x leverage, like a forex account. Positions are currency codes ({", ".join(FX_NAMES)}), each valued in US$ and converted to C$. Actions: "buy" (go long, amount in C$), "sell" (close part of a long, fraction), "short" (borrow and sell, amount in C$), "cover" (buy back part of a short, fraction). Cash may go negative (borrowing). Total position size may not exceed {FX_LEVERAGE}x the account value. Trades Sunday 5 p.m. to Friday 5 p.m. ET. Counted in C$.',
     'Safe': 'Play it safe: the low-risk control. Only these funds: ' + ', '.join(sorted(SAFE_OK)) + '. No leverage, no single stocks, no options, gold funds (GLD, IAU, GLDM) at most 10% of the account. US market hours only. Counted in C$.',
     'AllInTrading': 'All in: trading (HIGH RISK, HIGH REWARD, separate fun experiment): its own C$100,000; any US$-listed stock or ETF, any crypto (BTC-USD style) or any option (OCC symbol, filled at the Cboe ask/bid). NO position caps here: you may go all in on one idea. Stocks and options trade in US market hours, crypto around the clock. It is NOT counted in the overall race or the elimination rule; busting it only closes it. Goal: the biggest number you can get. Counted in C$.',
-    'AllInSports': 'All in: sports (HIGH RISK, HIGH REWARD, separate fun experiment): its own C$100,000 sports bankroll, moneyline bets on the same games as Sports (action "bet" with "game", "pick", "amount"). NO bet caps here: you may bet the whole bankroll. NOT counted in the overall race or the elimination rule; busting it only closes it. Goal: the biggest number you can get. Counted in C$.',
-    'Sports': 'Sports: moneyline bets on the games listed below (odds from ESPN). Action "bet" with "game" (the game id), "pick" ("home" or "away") and "amount" (stake in C$). The bankroll counts settled bets only; you cannot stake more than the bankroll minus open stakes. Bets close when the game starts and settle automatically from the final score. Counted in C$.',
+    'AllInSports': 'All in: sports (HIGH RISK, HIGH REWARD, separate fun experiment): its own C$100,000 sports bankroll, moneyline bets on the same games as Sports (action "bet" with "game", "pick", "amount"; parlays allowed with action "parlay" and "legs"). NO bet caps here: you may bet the whole bankroll (minimum C$3,000 a bet). NOT counted in the overall race or the elimination rule; busting it only closes it. Goal: the biggest number you can get. Counted in C$.',
+    'Sports': 'Sports: moneyline bets on the games listed below (odds from ESPN). Action "bet" with "game" (the game id), "pick" ("home" or "away") and "amount" (stake in C$). PARLAYS ARE ALLOWED: action "parlay" with "legs": [{"game": id, "pick": "home"|"away"}, ...] (2 to 6 different games) and "amount"; every leg must win, the odds multiply, a pushed leg drops out. Minimum stake C$3,000 per bet or parlay. The bankroll counts settled bets only; you cannot stake more than the bankroll minus open stakes. Bets close when the game starts and settle automatically from the final score. Counted in C$.',
 }
 
 
@@ -633,6 +639,8 @@ def execute(model_id, exps, books, order, fx, state):
     today = NOW.astimezone(BJ).date().isoformat()
     if action in ('buy', 'short'):
         want = float(order.get('amount', order.get('amount_cad', 0)) or 0)
+        if exp == 'Predictions' and want < MIN_BET:
+            raise ValueError(f'minimum bet is {money(MIN_BET, "CAD")} (prediction market buys count as bets)')
         if (exp == 'Options' or (exp == 'AllInTrading' and OCC.match(sym))) and order.get('contracts'):
             want = int(order['contracts']) * 100 * unit
         if exp != 'Currencies':
@@ -706,14 +714,22 @@ def execute(model_id, exps, books, order, fx, state):
     return t
 
 
-def place_bet(model_id, book, order, reason, state, exp='Sports'):
-    gid = str(order.get('game', '')).strip()
+def _dec(ml):
+    return 1 + (ml / 100 if ml > 0 else 100 / abs(ml))
+
+
+def _american(dec):
+    return round((dec - 1) * 100) if dec >= 2 else round(-100 / (dec - 1))
+
+
+def _leg(gid, pick):
+    gid = str(gid or '').strip()
     g = espn_games().get(gid)
     if not g:
         raise ValueError(f'game {gid!r} is not in the list of games open for betting')
     if g['state'] != 'pre' or datetime.fromisoformat(g['start'].replace('Z', '+00:00')) <= NOW:
         raise ValueError(f"{g['name']} has already started")
-    pick = str(order.get('pick', '')).lower()
+    pick = str(pick or '').lower()
     if pick not in ('home', 'away'):
         team = pick
         pick = 'home' if team and team in g['home'].lower() else 'away' if team and team in g['away'].lower() else ''
@@ -722,24 +738,54 @@ def place_bet(model_id, book, order, reason, state, exp='Sports'):
     ml = g[f'{pick}_ml']
     if not ml:
         raise ValueError('no moneyline for that game')
+    return {'game': gid, 'sport': g['sport'], 'league': g['league'], 'short': g['short'], 'event': f"{g['away']} @ {g['home']}",
+            'pick': pick, 'pick_team': g[pick], 'odds': ml, 'starts_at': g['start'], 'status': 'Open'}
+
+
+def place_bet(model_id, book, order, reason, state, exp='Sports'):
+    legs_in = order.get('legs') if isinstance(order.get('legs'), list) else None
+    parlay = str(order.get('action', '')).lower() == 'parlay' or bool(legs_in)
+    if parlay:
+        if not legs_in or not 2 <= len(legs_in) <= 6:
+            raise ValueError('a parlay needs 2 to 6 legs: "legs": [{"game": id, "pick": "home"|"away"}, ...]')
+        legs = [_leg(x.get('game'), x.get('pick')) for x in legs_in if isinstance(x, dict)]
+        if len({x['game'] for x in legs}) != len(legs):
+            raise ValueError('each parlay leg must be a different game')
+        dec = 1.0
+        for x in legs:
+            dec *= _dec(x['odds'])
+        ml = _american(dec)
+    else:
+        leg = _leg(order.get('game'), order.get('pick'))
+        legs, ml = None, leg['odds']
     bets = book.setdefault('bets', [])
     bank = START + sum(b['result'] for b in bets if b['status'] != 'Open') - sum(b['stake'] for b in bets if b['status'] == 'Open')
     roll = START + sum(b['result'] for b in bets if b['status'] != 'Open')
     want = float(order.get('amount', 0) or 0)
+    if want < MIN_BET:
+        raise ValueError(f'minimum bet is {money(MIN_BET, "CAD")}')
     if exp not in ALLIN and want > MAX_BET * roll + 1:
         raise ValueError(f'25% cap: one bet can be at most a quarter of the bankroll ({money(MAX_BET * roll, "CAD")} now)')
     stake = min(want, bank)
-    if stake < 1:
-        raise ValueError('no bankroll left for that stake')
+    if stake < MIN_BET:
+        raise ValueError(f'not enough bankroll left for the {money(MIN_BET, "CAD")} minimum bet')
     n = len(state.setdefault('bet_ids', {}).setdefault(model_id, [])) + 1
     bid = f"{model_id[0].upper()}{n}"
     state['bet_ids'][model_id].append(bid)
-    b = {'id': bid, 'game': gid, 'sport': g['sport'], 'league': g['league'], 'short': g['short'], 'event': f"{g['away']} @ {g['home']}",
-         'pick': pick, 'pick_team': g[pick], 'odds': ml, 'stake': round(stake, 2), 'to_win': round(payout(stake, ml), 2),
-         'starts_at': g['start'], 'placed_at': iso(), 'status': 'Open', 'result': 0.0, 'reason': reason}
+    if legs:
+        b = {'id': bid, 'game': legs[0]['game'], 'sport': legs[0]['sport'], 'league': legs[0]['league'], 'short': f'{len(legs)}-leg parlay',
+             'event': ' + '.join(x['event'] for x in legs), 'pick': 'parlay', 'pick_team': ' + '.join(x['pick_team'] for x in legs), 'odds': ml,
+             'stake': round(stake, 2), 'to_win': round(payout(stake, ml), 2), 'starts_at': min(x['starts_at'] for x in legs),
+             'placed_at': iso(), 'status': 'Open', 'result': 0.0, 'reason': reason, 'legs': legs}
+        name = f"{len(legs)}-leg parlay: " + ' + '.join(f"{x['pick_team']} ({x['short']})" for x in legs)
+    else:
+        b = {'id': bid, 'game': leg['game'], 'sport': leg['sport'], 'league': leg['league'], 'short': leg['short'], 'event': leg['event'],
+             'pick': leg['pick'], 'pick_team': leg['pick_team'], 'odds': ml, 'stake': round(stake, 2), 'to_win': round(payout(stake, ml), 2),
+             'starts_at': leg['starts_at'], 'placed_at': iso(), 'status': 'Open', 'result': 0.0, 'reason': reason}
+        name = f"{b['short']}: {b['pick_team']} moneyline ({b['event']})"
     bets.append(b)
     t = {'at': iso(), 'model': model_id, 'experiment': exp, 'action': 'Bet', 'symbol': bid, 'outcome': None,
-         'name': f"{g['short']}: {b['pick_team']} moneyline ({b['event']})", 'price': ml, 'pcur': 'CAD', 'qty': 1,
+         'name': name, 'price': ml, 'pcur': 'CAD', 'qty': 1,
          'amount': b['stake'], 'cur': 'CAD', 'fx': None, 'reason': reason, 'bet': bid}
     state['trades'].append(t)
     return t
@@ -749,6 +795,34 @@ def settle_bets(model_id, book, state, exp='Sports'):
     out = []
     for b in book.get('bets', []):
         if b['status'] != 'Open':
+            continue
+        if b.get('legs'):   # parlay: every leg must win; a pushed leg drops out
+            for x in b['legs']:
+                if x['status'] == 'Open':
+                    g = game_result(x)
+                    if g:
+                        x['status'] = 'Push' if g['winner'] is None else ('Won' if g['winner'] == x['pick'] else 'Lost')
+                        x['final'] = f"{g['away']} {g['away_score']}, {g['home']} {g['home_score']}"
+            if any(x['status'] == 'Lost' for x in b['legs']):
+                b.update(status='Lost', result=-b['stake'])
+            elif all(x['status'] != 'Open' for x in b['legs']):
+                won = [x for x in b['legs'] if x['status'] == 'Won']
+                if not won:
+                    b.update(status='Push', result=0.0)
+                else:
+                    dec = 1.0
+                    for x in won:
+                        dec *= _dec(x['odds'])
+                    b.update(status='Won', result=round(b['stake'] * (dec - 1), 2))
+            else:
+                continue
+            b['settled_at'] = iso()
+            b['final'] = '; '.join(f"{x['pick_team']} {x['status'].lower()}" + (f" ({x['final']})" if x.get('final') else '') for x in b['legs'])
+            t = {'at': iso(), 'model': model_id, 'experiment': exp, 'action': b['status'], 'symbol': b['id'], 'outcome': None,
+                 'name': f"{b['short']}: {b['pick_team']}", 'price': b['odds'], 'pcur': 'CAD', 'qty': 1,
+                 'amount': round(b['result'], 2), 'cur': 'CAD', 'fx': None, 'reason': 'Legs: ' + b['final'] + '.', 'bet': b['id']}
+            state['trades'].append(t)
+            out.append(t)
             continue
         g = game_result(b)
         if not g:
@@ -951,6 +1025,41 @@ def price_alerts(state):
     a['sent'] = a['sent'][-60:]
 
 
+def wagered(state, mid, claude=False):
+    """C$ wagered per betting week (Sports bets and parlays plus Prediction-market buys), and in total since the restart."""
+    rows = []
+    if claude:
+        try:
+            for b in json.load(open('ops/src/bets.json')):
+                rows.append((b.get('placed_at'), float(b.get('stake_cad') or 0)))
+            for t in json.load(open('ops/src/trades.json')):
+                if t['portfolio'] == 'Predictions' and t['action'] == 'Buy' and not str(t['holding']).startswith('['):
+                    rows.append((t['at'], float(t.get('cad') or 0)))
+        except Exception:
+            pass
+    else:
+        rows = [(t['at'], float(t['amount'] or 0)) for t in state.get('trades', []) if t.get('model') == mid
+                and t['experiment'] in ('Sports', 'Predictions') and t['action'] in ('Bet', 'Buy')]
+    weeks = []
+    for name, a, b in BET_WEEKS:
+        A, B = datetime.fromisoformat(a), datetime.fromisoformat(b)
+        amt = sum(v for at, v in rows if at and A <= datetime.fromisoformat(str(at).replace('Z', '+00:00')) < B)
+        weeks.append({'week': name, 'start': a, 'end': b, 'wagered': round(amt, 2), 'min': WEEK_MIN if name.startswith('Week') else 0})
+    return weeks, round(sum(v for at, v in rows if at and datetime.fromisoformat(str(at).replace('Z', '+00:00')) >= FRESH_START), 2)
+
+
+def betting_rule_line(state, mid):
+    weeks, total = wagered(state, mid)
+    cur = next((w for w in weeks if datetime.fromisoformat(w['start']) <= NOW < datetime.fromisoformat(w['end'])), weeks[-1])
+    days = max(0.0, (datetime.fromisoformat(cur['end']) - NOW).total_seconds() / 86400)
+    left = max(0.0, cur['min'] - cur['wagered'])
+    return ('BETTING MINIMUMS (hard rules for every AI, Claude included): every bet, parlay or prediction-market buy is at least C$3,000; '
+            f'you must wager at least C$25,000 each week across Sports and Prediction markets (bets and parlays plus prediction-market buys count), '
+            f'and at least C$100,000 in total by Nov 28. {cur["week"]} runs to {datetime.fromisoformat(cur["end"]).astimezone(NY).strftime("%a %b %-d")}: '
+            f'you have wagered {money(cur["wagered"], "CAD")} of {money(cur["min"], "CAD")} ({money(left, "CAD")} left, {days:.1f} days left); '
+            f'{money(total, "CAD")} of {money(TOTAL_MIN, "CAD")} in total. A missed minimum is shown publicly on the site. The 25% cap per bet still applies; pick real value, not filler bets.')
+
+
 def public_board(state, me):
     """What everyone can see on papertrades.ai about the OTHER AIs: their current take, plans and recent trades with reasons.
     Every AI gets the same board, so no one has an information edge."""
@@ -1120,7 +1229,7 @@ def main():
             mine = [x for x in state['takes'] if x['model'] == mid]
             today = [x for x in mine if x['at'][:10] == NOW.date().isoformat()]
             myplans = {k: next((x['text'] for x in reversed(state.get('plans', [])) if x['model'] == mid and x['horizon'] == k), '') for k in ('day', 'week', 'month', 'feeling')}
-            board, fc_task = public_board(state, mid), ''
+            board, fc_task = public_board(state, mid) + betting_rule_line(state, mid) + ' ', ''
             if mid == 'gemini':   # Gemini is the independent fact-checker of Claude's takes (Claude never checks itself)
                 try:
                     ct = max(json.load(open('ops/src/take.json')), key=lambda x: datetime.fromisoformat(x['at'].replace('Z', '+00:00')))

@@ -375,3 +375,9 @@ At every check-in, look for news on the 2026 Iran war and the Strait of Hormuz (
 
 ## Live ship map (shipmap.html)
 The Oil and energy tab embeds VesselFinder's free AIS map centred on the Strait of Hormuz (static page shipmap.html at the repo root, loaded only when the tab opens). No maintenance needed; don't remove the file.
+
+## Betting minimums and parlays (hard rules, all AIs, from Oct 28 3:45 p.m. ET)
+- Every bet, parlay or prediction-market buy is at least C$3,000 (the 25% cap per bet still applies).
+- Each AI must wager at least C$25,000 per betting week across Sports and Predictions combined (bets and parlays at their stake, plus prediction-market buys), and at least C$100,000 in total by Nov 28. Betting weeks (ET): Week 1 Oct 28 1:45 p.m. to Nov 3, Week 2 Nov 4-10, Week 3 Nov 11-17, Week 4 Nov 18-24, then final days Nov 25-28 (no weekly minimum, but the C$100,000 total must be reached). Progress is shown publicly on the Sports and Prediction markets tabs; a missed week shows "missed".
+- Parlays are allowed: 2 to 6 moneyline legs on different games; every leg must win; the decimal odds multiply; a pushed leg drops out. Claude records a parlay in bets.json as one bet with "market": "parlay", "legs": [{"game", "event", "pick", "odds", "starts_at", "status"}], "odds" = the combined American odds, "event" listing the legs, and settles it when every leg is final (lost if any leg loses).
+- Plan the week: spread the wagering across the week with real value bets; don't dump the minimum into one bet at the last minute.

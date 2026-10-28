@@ -420,6 +420,24 @@ data['checkins'] = ([{'id': 'claude', 'at': _cl.isoformat() if _cl else None, 's
 data['geo'] = [json.load(open(os.path.join(SRC, 'geo.json')))] if os.path.exists(os.path.join(SRC, 'geo.json')) else []
 data['profiles'] = data['profile'] + r.get('profiles', [])
 data['rivals_plans'] = r.get('plans', [])
+# Betting minimums: C$ wagered per betting week (Sports bets and parlays plus Prediction-market buys) for every AI
+_W = [('Week 1', '2026-10-28T17:45:00+00:00', '2026-11-04T05:00:00+00:00'), ('Week 2', '2026-11-04T05:00:00+00:00', '2026-11-11T05:00:00+00:00'),
+      ('Week 3', '2026-11-11T05:00:00+00:00', '2026-11-18T05:00:00+00:00'), ('Week 4', '2026-11-18T05:00:00+00:00', '2026-11-25T05:00:00+00:00'),
+      ('Final days', '2026-11-25T05:00:00+00:00', '2026-11-28T21:00:00+00:00')]
+def _when(x):
+    return datetime.fromisoformat(str(x).replace('Z', '+00:00'))
+_rows = {'claude': [(b.get('placed_at'), float(b.get('stake_cad') or 0)) for b in data['bets'] if b.get('placed_at')] +
+                   [(t['at'], float(t.get('cad') or 0)) for t in data['trades'] if t['portfolio'] == 'Predictions' and t['action'] == 'Buy' and not str(t['holding']).startswith('[')]}
+for _t in r.get('trades', []):
+    if _t.get('experiment') in ('Sports', 'Predictions') and _t.get('action') in ('Bet', 'Buy') and _t.get('model') in ('gemini', 'chatgpt'):
+        _rows.setdefault(_t['model'], []).append((_t['at'], float(_t.get('amount') or 0)))
+data['betmins'] = []
+for _m in ('claude', 'gemini', 'chatgpt'):
+    _rs = [(a, v) for a, v in _rows.get(_m, []) if _when(a) >= _when(_W[0][1])]
+    for _n, _a, _b in _W:
+        data['betmins'].append({'model': _m, 'week': _n, 'start': _a, 'end': _b, 'min': 25000 if _n.startswith('Week') else 0,
+                                'wagered': round(sum(v for a, v in _rs if _when(_a) <= _when(a) < _when(_b)), 2)})
+    data['betmins'].append({'model': _m, 'week': 'Total', 'start': _W[0][1], 'end': _W[-1][2], 'min': 100000, 'wagered': round(sum(v for a, v in _rs), 2)})
 data['rivals_thoughts'] = [x for x in r.get('thoughts', []) if x['at'].replace('Z', '+00:00') >= _cut]
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import model_views

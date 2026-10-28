@@ -370,6 +370,13 @@
   .st-shipmap .shipmap-cover span { background: rgba(0,0,0,.65); border-radius: 999px; padding: 7px 14px; }
   .st-shipmap .shipmap-wait { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--color-fg-muted); font-size: 13px; }
   @media (max-width: 600px) { .st-shipmap { height: 380px; } }
+  .bm-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+  .bm-ai { border: 1px solid var(--color-border-line); border-top: 3px solid var(--ai); border-radius: var(--cds-radius); padding: 10px 12px; font-size: 13px; }
+  .bm-ai b { display: block; font-size: 14px; margin-bottom: 6px; }
+  .bm-row { margin: 6px 0; }
+  .bm-bar { height: 8px; border-radius: 4px; background: var(--color-border-line); overflow: hidden; margin-top: 3px; }
+  .bm-bar i { display: block; height: 100%; background: var(--ai); }
+  .bm-miss { color: var(--color-bad); font-weight: 600; } .bm-ok { color: var(--color-ok); font-weight: 600; }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
@@ -1366,6 +1373,11 @@ body { background:var(--color-bg); }
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Predictions">—</b></span>
       </p>
     </section>
+    <section class="st-card" aria-labelledby="h-pm-min">
+      <h2 class="st-h2" id="h-pm-min">Betting minimums</h2>
+      <p class="st-note">Every AI must wager at least C$25,000 each week across Sports and Prediction markets, at least C$100,000 by Nov 28, and at least C$3,000 per bet. Parlays are allowed.</p>
+      <div data-draw="betmins" data-source="betmins"></div>
+    </section>
     <section class="st-card" aria-labelledby="h-p-hold">
       <h2 class="st-h2" id="h-p-hold">Holdings</h2>
       <p class="st-note">Share prices in US cents (the market’s probability); values in Canadian dollars.</p>
@@ -1530,6 +1542,11 @@ body { background:var(--color-bg); }
         <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Sports">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Sports">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Sports">—</b></span>
       </p>
+    </section>
+    <section class="st-card" aria-labelledby="h-bm-min">
+      <h2 class="st-h2" id="h-bm-min">Betting minimums</h2>
+      <p class="st-note">Every AI must wager at least C$25,000 each week across Sports and Prediction markets, at least C$100,000 by Nov 28, and at least C$3,000 per bet. Parlays are allowed.</p>
+      <div data-draw="betmins" data-source="betmins"></div>
     </section>
     <section class="st-card" aria-labelledby="h-b-bets">
       <h2 class="st-h2" id="h-b-bets">Bets</h2>
@@ -1754,6 +1771,7 @@ body { background:var(--color-bg); }
         <ul>
           <li><b>BUSTED:</b> if any one experiment falls to zero, the AI is busted in that experiment. It is closed for good and marked BUSTED for the rest of the month.</li>
           <li><b>ELIMINATED:</b> if an AI's total loss across all its experiments reaches <b>C$100,000</b>, it is out of the whole race. Every experiment is closed and frozen at its final value.</li>
+          <li><b>Betting minimums:</b> every bet, parlay or prediction-market buy is at least <b>C$3,000</b>, and each AI must wager at least <b>C$25,000 a week</b> across Sports and Prediction markets, and at least <b>C$100,000</b> by Nov 28. A missed minimum is shown publicly on the Sports and Prediction markets tabs.</li>
           <li><b>Position caps:</b> in the eight trading experiments, no single holding can be more than <b>50%</b> of its experiment. In Sports and Prediction markets, no single bet or market can be more than <b>25%</b>. Orders that break a cap are refused.</li>
           <li><b>Invest as if it were real.</b> Every AI is told to manage each experiment like its own real money, while still playing to finish number one.</li>
           <li>No AI has to put all its money at stake. Holding cash, small positions, no leverage and spreading out are all allowed. Cash never busts.</li>
@@ -1768,7 +1786,7 @@ body { background:var(--color-bg); }
           <li><b>Options:</b> buy calls or puts on US stocks and ETFs (no writing options). Buys fill at the Cboe ask, sells at the bid. US market hours only.</li>
           <li><b>Currencies:</b> forex with up to <b>4× leverage</b>: buy, sell, short and cover. Borrowing shows as negative cash.</li>
           <li><b>Play it safe:</b> the low-risk control. Only an approved list of broad funds, bond funds and T-bills. No leverage, no single stocks, no options, gold at most 10%.</li>
-          <li><b>Sports:</b> moneyline bets on listed games with real odds. Bets close at game time and settle from the final score. A bet can't be bigger than the bankroll left.</li>
+          <li><b>Sports:</b> moneyline bets and parlays (2 to 6 games, every leg must win) on listed games with real odds. Bets close at game time and settle from the final score.</li>
           <li><b>Prediction markets:</b> Yes or No shares on open Polymarket markets that pay US$1 if right. They settle when the market resolves.</li>
         </ul>
         <h3>All in (High risk, high reward)</h3>
@@ -3784,6 +3802,31 @@ body { background:var(--color-bg); }
     cover.addEventListener('click', () => { f.style.pointerEvents = 'auto'; cover.remove(); });
     f.addEventListener('load', () => { const w = el.querySelector('.shipmap-wait'); if (w) w.remove(); });
     el.append(f, cover);
+  });
+  dash.draw('betmins', (el) => {
+    el.replaceChildren();
+    const rows = dash.baseData('betmins'); if (!rows.length) return;
+    const now = Date.now(); const grid = mk('div', 'bm-grid');
+    ['claude', 'gemini', 'chatgpt'].forEach((id) => {
+      const mine = rows.filter((r) => r.model === id);
+      const cur = mine.find((r) => r.week !== 'Total' && Date.parse(r.start) <= now && now < Date.parse(r.end)) || mine.filter((r) => r.week !== 'Total').pop();
+      const tot = mine.find((r) => r.week === 'Total');
+      const box = mk('div', 'bm-ai'); box.style.setProperty('--ai', AIS[id].color); box.appendChild(mk('b', '', AIS[id].label));
+      const line = (label, r) => {
+        const d = mk('div', 'bm-row'); const pct = r.min ? Math.min(1, r.wagered / r.min) : 1;
+        d.appendChild(document.createTextNode(label + ': C$' + d3.format(',.0f')(r.wagered) + (r.min ? ' of C$' + d3.format(',.0f')(r.min) : '') + ' '));
+        if (r.min && r.wagered >= r.min) d.appendChild(mk('span', 'bm-ok', '✓ met'));
+        else if (r.min && Date.parse(r.end) <= now) d.appendChild(mk('span', 'bm-miss', '✗ missed'));
+        else if (r.min) d.appendChild(mk('span', '', '· C$' + d3.format(',.0f')(r.min - r.wagered) + ' to go'));
+        const bar = mk('div', 'bm-bar'); const fill = document.createElement('i'); fill.style.width = (pct * 100).toFixed(1) + '%'; bar.appendChild(fill); d.appendChild(bar);
+        return d;
+      };
+      if (cur) box.appendChild(line(cur.week + ' (to ' + new Date(Date.parse(cur.end) - 1000).toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric' }) + ')', cur));
+      mine.filter((r) => r.week.startsWith('Week') && Date.parse(r.end) <= now).forEach((r) => box.appendChild(line(r.week, r)));
+      if (tot) box.appendChild(line('Total by Nov 28', tot));
+      grid.appendChild(box);
+    });
+    el.appendChild(grid);
   });
   dash.draw('geo', (el) => {
     el.replaceChildren();

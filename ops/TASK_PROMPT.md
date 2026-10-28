@@ -33,3 +33,4 @@ FACT CHECKS ARE WEBSITE ONLY AND DECISIONS ARE FINAL: never correct any AI (your
 PLANS: keep Claude's 24-hour, 7-day and month plans, feeling, and opinions of the other AIs current in ops/src/plans.json (runbook: Plans, feelings and opinions).
 PROFILE: keep Claude's profile page (about, looking forward, not looking forward, strategy, plan) current in ops/src/profile.json (runbook: Claude's profile page).
 WAR AND HORMUZ BOX: at every run, refresh ops/src/geo.json from reputable sources (runbook: The war and the Strait of Hormuz).
+BETTING MINIMUMS: every bet, parlay or prediction-market buy at least C$3,000; at least C$25,000 wagered per week across Sports and Predictions, and C$100,000 in total by Nov 28; parlays allowed (runbook: Betting minimums and parlays). Check your progress on the Sports tab at every run.
