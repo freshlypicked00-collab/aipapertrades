@@ -2108,39 +2108,32 @@
     "Predictions"
    ],
    "last_run": {
-    "at": "2026-10-28T12:32:45Z",
+    "at": "2026-10-28T13:38:03Z",
     "status": "ok",
-    "notes": [
-     "order refused (Crypto buy BTC-USD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Crypto buy SOL-USD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Metals buy GC=F): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Metals buy SI=F): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Energy buy CL=F): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Energy buy NG=F): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Currencies buy EUR): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Currencies buy JPY): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Sports bet game 401909882 home): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Sports bet game 401909886 away): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then"
-    ],
+    "notes": [],
     "sources": [
      {
-      "title": "finance.yahoo.com/quote/BTC-USD",
-      "url": "https://finance.yahoo.com/quote/BTC-USD"
+      "title": "finance.yahoo.com/",
+      "url": "https://finance.yahoo.com/"
      },
      {
-      "title": "finance.yahoo.com/quote/GC=F",
-      "url": "https://finance.yahoo.com/quote/GC=F"
+      "title": "zacks.com/",
+      "url": "https://www.zacks.com/"
      },
      {
-      "title": "finance.yahoo.com/quote/CL=F",
-      "url": "https://finance.yahoo.com/quote/CL=F"
+      "title": "decrypt.co/",
+      "url": "https://decrypt.co/"
      },
      {
-      "title": "espn.com/nba/lines",
-      "url": "https://www.espn.com/nba/lines"
+      "title": "kitco.com/",
+      "url": "https://www.kitco.com/"
+     },
+     {
+      "title": "barchart.com/",
+      "url": "https://www.barchart.com/"
      }
     ],
-    "orders": 0,
+    "orders": 10,
     "search": [
      {
       "model": "gemini-3.1-pro-preview",
@@ -2151,13 +2144,42 @@
    "books": {
     "Stocks": {
      "cur": "CAD",
-     "cash": 100000.0,
-     "positions": {}
+     "cash": 999.9999999999927,
+     "positions": {
+      "TSLA": {
+       "qty": 87.74939795173167,
+       "entry": 405.324,
+       "pcur": "USD",
+       "name": "Tesla, Inc.",
+       "opened_at": "2026-10-28T13:38:03Z",
+       "last": 405.324,
+       "priced_at": "2026-10-28T13:38:03Z"
+      },
+      "NVDA": {
+       "qty": 158.82582651751102,
+       "entry": 219.458,
+       "pcur": "USD",
+       "name": "NVIDIA Corporation",
+       "opened_at": "2026-10-28T13:38:03Z",
+       "last": 219.458,
+       "priced_at": "2026-10-28T13:38:03Z"
+      }
+     }
     },
     "Crypto": {
      "cur": "CAD",
-     "cash": 100000.0,
-     "positions": {}
+     "cash": 5000.0,
+     "positions": {
+      "BTC-USD": {
+       "qty": 0.8377485597355465,
+       "entry": 80665.23,
+       "pcur": "USD",
+       "name": "Bitcoin USD",
+       "opened_at": "2026-10-28T13:38:03Z",
+       "last": 80665.23,
+       "priced_at": "2026-10-28T13:38:03Z"
+      }
+     }
     },
     "China": {
      "cur": "USD",
@@ -2166,34 +2188,121 @@
     },
     "Metals": {
      "cur": "CAD",
-     "cash": 100000.0,
-     "positions": {}
+     "cash": 10000.0,
+     "positions": {
+      "GLD": {
+       "qty": 172.6643469326766,
+       "entry": 370.78,
+       "pcur": "USD",
+       "name": "SPDR Gold Shares",
+       "opened_at": "2026-10-28T13:38:03Z",
+       "last": 370.78,
+       "priced_at": "2026-10-28T13:38:03Z"
+      }
+     }
     },
     "Energy": {
      "cur": "CAD",
-     "cash": 100000.0,
-     "positions": {}
+     "cash": 10000.0,
+     "positions": {
+      "XLE": {
+       "qty": 934.332845237855,
+       "entry": 68.52,
+       "pcur": "USD",
+       "name": "State Street Energy Select Sector SPDR ETF",
+       "opened_at": "2026-10-28T13:38:03Z",
+       "last": 68.52,
+       "priced_at": "2026-10-28T13:38:03Z"
+      }
+     }
     },
     "Options": {
      "cur": "CAD",
-     "cash": 100000.0,
-     "positions": {}
+     "cash": 75766.8196,
+     "positions": {
+      "SPY261120C00770000": {
+       "qty": 1300,
+       "entry": 13.26,
+       "pcur": "USD",
+       "name": "SPY Nov 20 $770 call",
+       "opened_at": "2026-10-28T13:38:03Z",
+       "last": 13.059999999999999,
+       "priced_at": "2026-10-28T13:38:03Z"
+      }
+     }
     },
     "Currencies": {
      "cur": "CAD",
-     "cash": 100000.0,
-     "positions": {}
+     "cash": 500000.0,
+     "positions": {
+      "JPY": {
+       "qty": -45164364.41319071,
+       "entry": 0.0063,
+       "pcur": "USD",
+       "name": "Japanese yen",
+       "opened_at": "2026-10-28T13:38:03Z",
+       "last": 0.0063,
+       "priced_at": "2026-10-28T13:38:03Z"
+      }
+     }
     },
     "Safe": {
      "cur": "CAD",
-     "cash": 100000.0,
-     "positions": {}
+     "cash": 5000.0,
+     "positions": {
+      "SGOV": {
+       "qty": 671.1009399900354,
+       "entry": 100.696,
+       "pcur": "USD",
+       "name": "iShares 0-3 Month Treasury Bond ETF",
+       "opened_at": "2026-10-28T13:38:03Z",
+       "last": 100.696,
+       "priced_at": "2026-10-28T13:38:03Z"
+      }
+     }
     },
     "Sports": {
      "cur": "CAD",
      "cash": 100000.0,
      "positions": {},
-     "bets": []
+     "bets": [
+      {
+       "id": "G1",
+       "game": "401909886",
+       "sport": "basketball",
+       "league": "nba",
+       "short": "NBA",
+       "event": "New York Knicks @ Chicago Bulls",
+       "pick": "away",
+       "pick_team": "New York Knicks",
+       "odds": -270,
+       "stake": 10000.0,
+       "to_win": 3703.7,
+       "starts_at": "2026-10-29T00:00Z",
+       "placed_at": "2026-10-28T13:38:03Z",
+       "status": "Open",
+       "result": 0.0,
+       "reason": "The Knicks are strong favorites on the road against the Bulls, providing a solid momentum play."
+      },
+      {
+       "id": "G2",
+       "game": "401909892",
+       "sport": "basketball",
+       "league": "nba",
+       "short": "NBA",
+       "event": "Los Angeles Lakers @ LA Clippers",
+       "pick": "away",
+       "pick_team": "Los Angeles Lakers",
+       "odds": -198,
+       "stake": 10000.0,
+       "to_win": 5050.51,
+       "starts_at": "2026-10-29T02:30Z",
+       "placed_at": "2026-10-28T13:38:03Z",
+       "status": "Open",
+       "result": 0.0,
+       "reason": "The Lakers are favored in their matchup against the Clippers, with strong odds backing an away victory."
+      }
+     ]
     },
     "Predictions": {
      "cur": "CAD",
@@ -2232,43 +2341,32 @@
     "Predictions"
    ],
    "last_run": {
-    "at": "2026-10-28T12:32:45Z",
+    "at": "2026-10-28T13:38:03Z",
     "status": "ok",
-    "notes": [
-     "order refused (Stocks buy SOXL): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Crypto buy SOL-USD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (China buy 159995.SZ): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Metals buy AGQ): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Energy buy GUSH): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Options buy NVDA261120C00240000): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Currencies short USD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Safe buy SGOV): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Safe buy GLD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Sports bet game 401909887 away): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then"
-    ],
+    "notes": [],
     "sources": [
      {
-      "title": "apnews.com/article/b07c5abe1fbaacc7618aeb610eaa91e0",
-      "url": "https://apnews.com/article/b07c5abe1fbaacc7618aeb610eaa91e0"
+      "title": "apnews.com/article/eae2932c0c253be1039e1545909656a8",
+      "url": "https://apnews.com/article/eae2932c0c253be1039e1545909656a8"
      },
      {
-      "title": "apnews.com/article/c06793b0c50641444701d5d098ccc2c8",
-      "url": "https://apnews.com/article/c06793b0c50641444701d5d098ccc2c8"
+      "title": "axios.com/2026/10/27/fed-warsh-inflation-energy-rates",
+      "url": "https://www.axios.com/2026/10/27/fed-warsh-inflation-energy-rates"
      },
      {
-      "title": "investing.com/news/economy-news/fed-likely-to-go-into-waitandsee-mode-on-",
-      "url": "https://www.investing.com/news/economy-news/fed-likely-to-go-into-waitandsee-mode-on-rates-4978243"
+      "title": "solana.com/news",
+      "url": "https://solana.com/news"
      },
      {
       "title": "brecorder.com/news/40446302",
       "url": "https://www.brecorder.com/news/40446302"
      },
      {
-      "title": "investing.com/news/commodities-news/oil-prices-rise-after-attack-on-saudi",
-      "url": "https://www.investing.com/news/commodities-news/oil-prices-rise-after-attack-on-saudi-arabian-refinery-reignites-supply-concerns-4977369"
+      "title": "kiplinger.com/investing/economy/this-weeks-economic-calendar",
+      "url": "https://www.kiplinger.com/investing/economy/this-weeks-economic-calendar"
      }
     ],
-    "orders": 0,
+    "orders": 9,
     "search": [
      {
       "model": "gemini-3.1-pro-preview",
@@ -2284,13 +2382,33 @@
    "books": {
     "Stocks": {
      "cur": "CAD",
-     "cash": 100000.0,
-     "positions": {}
+     "cash": 0.0,
+     "positions": {
+      "SOXL": {
+       "qty": 685.9582830354422,
+       "entry": 103.7,
+       "pcur": "USD",
+       "name": "Direxion Daily Semiconductor Bull 3X Shares",
+       "opened_at": "2026-10-28T13:38:03Z",
+       "last": 103.7,
+       "priced_at": "2026-10-28T13:38:03Z"
+      }
+     }
     },
     "Crypto": {
      "cur": "CAD",
-     "cash": 100000.0,
-     "positions": {}
+     "cash": 0.0,
+     "positions": {
+      "SOL-USD": {
+       "qty": 700.9644654195444,
+       "entry": 101.48,
+       "pcur": "USD",
+       "name": "Solana USD",
+       "opened_at": "2026-10-28T13:38:03Z",
+       "last": 101.48,
+       "priced_at": "2026-10-28T13:38:03Z"
+      }
+     }
     },
     "China": {
      "cur": "USD",
@@ -2299,34 +2417,112 @@
     },
     "Metals": {
      "cur": "CAD",
-     "cash": 100000.0,
-     "positions": {}
+     "cash": 0.0,
+     "positions": {
+      "AGQ": {
+       "qty": 1354.5439198471934,
+       "entry": 52.515,
+       "pcur": "USD",
+       "name": "ProShares Ultra Silver",
+       "opened_at": "2026-10-28T13:38:03Z",
+       "last": 52.515,
+       "priced_at": "2026-10-28T13:38:03Z"
+      }
+     }
     },
     "Energy": {
      "cur": "CAD",
-     "cash": 100000.0,
-     "positions": {}
+     "cash": 0.0,
+     "positions": {
+      "UCO": {
+       "qty": 1062.2545202833624,
+       "entry": 66.965,
+       "pcur": "USD",
+       "name": "ProShares Ultra Bloomberg Crude Oil",
+       "opened_at": "2026-10-28T13:38:03Z",
+       "last": 66.965,
+       "priced_at": "2026-10-28T13:38:03Z"
+      }
+     }
     },
     "Options": {
      "cur": "CAD",
-     "cash": 100000.0,
-     "positions": {}
+     "cash": 230.37399999999616,
+     "positions": {
+      "NVDA261120C00230000": {
+       "qty": 15100,
+       "entry": 4.7,
+       "pcur": "USD",
+       "name": "NVDA Nov 20 $230 call",
+       "opened_at": "2026-10-28T13:38:03Z",
+       "last": 4.7,
+       "priced_at": "2026-10-28T13:38:03Z"
+      }
+     }
     },
     "Currencies": {
      "cur": "CAD",
-     "cash": 100000.0,
-     "positions": {}
+     "cash": 900000.0,
+     "positions": {
+      "USD": {
+       "qty": -569070.9916062029,
+       "entry": 1.0,
+       "pcur": "USD",
+       "name": "US dollar",
+       "opened_at": "2026-10-28T13:38:03Z",
+       "last": 1.0,
+       "priced_at": "2026-10-28T13:38:03Z"
+      }
+     }
     },
     "Safe": {
      "cur": "CAD",
-     "cash": 100000.0,
-     "positions": {}
+     "cash": 0.0,
+     "positions": {
+      "VOO": {
+       "qty": 90.3842027285852,
+       "entry": 708.315,
+       "pcur": "USD",
+       "name": "Vanguard S&P 500 ETF",
+       "opened_at": "2026-10-28T13:38:03Z",
+       "last": 708.315,
+       "priced_at": "2026-10-28T13:38:03Z"
+      },
+      "GLD": {
+       "qty": 19.18492743696407,
+       "entry": 370.78,
+       "pcur": "USD",
+       "name": "SPDR Gold Shares",
+       "opened_at": "2026-10-28T13:38:03Z",
+       "last": 370.78,
+       "priced_at": "2026-10-28T13:38:03Z"
+      }
+     }
     },
     "Sports": {
      "cur": "CAD",
      "cash": 100000.0,
      "positions": {},
-     "bets": []
+     "bets": [
+      {
+       "id": "C1",
+       "game": "401909890",
+       "sport": "basketball",
+       "league": "nba",
+       "short": "NBA",
+       "event": "San Antonio Spurs @ Utah Jazz",
+       "pick": "away",
+       "pick_team": "San Antonio Spurs",
+       "odds": -650,
+       "stake": 100000.0,
+       "to_win": 15384.62,
+       "starts_at": "2026-10-29T01:00Z",
+       "placed_at": "2026-10-28T13:38:03Z",
+       "status": "Open",
+       "result": 0.0,
+       "reason": "San Antonio is the largest listed favorite and I am accepting single-game risk for a quick bankroll gain."
+      }
+     ]
     },
     "Predictions": {
      "cur": "CAD",
@@ -2336,7 +2532,363 @@
    }
   }
  ],
- "rivals_trades": [],
+ "rivals_trades": [
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Stocks",
+   "action": "Buy",
+   "symbol": "TSLA",
+   "outcome": null,
+   "name": "Tesla, Inc.",
+   "price": 405.324,
+   "pcur": "USD",
+   "qty": 87.74939795173167,
+   "amount": 50000.0,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6544
+   },
+   "reason": "TSLA has broken out of a multi-month consolidation pattern and is showing strong momentum on robotaxi and SpaceX merger speculations."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Stocks",
+   "action": "Buy",
+   "symbol": "NVDA",
+   "outcome": null,
+   "name": "NVIDIA Corporation",
+   "price": 219.458,
+   "pcur": "USD",
+   "qty": 158.82582651751102,
+   "amount": 49000.0,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6544
+   },
+   "reason": "Nvidia's participation in Meta's equity offering highlights its deep integration and continued dominance in AI hardware spending."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Crypto",
+   "action": "Buy",
+   "symbol": "BTC-USD",
+   "outcome": null,
+   "name": "Bitcoin USD",
+   "price": 80665.23,
+   "pcur": "USD",
+   "qty": 0.8377485597355465,
+   "amount": 95000.0,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6544
+   },
+   "reason": "Bitcoin is seeing renewed institutional accumulation and ETF inflows, supporting a rally alongside technology stocks."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Metals",
+   "action": "Buy",
+   "symbol": "GLD",
+   "outcome": null,
+   "name": "SPDR Gold Shares",
+   "price": 370.78,
+   "pcur": "USD",
+   "qty": 172.6643469326766,
+   "amount": 90000.0,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6544
+   },
+   "reason": "Gold prices are fundamentally supported ahead of the upcoming Federal Reserve interest rate decision."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Energy",
+   "action": "Buy",
+   "symbol": "XLE",
+   "outcome": null,
+   "name": "State Street Energy Select Sector SPDR ETF",
+   "price": 68.52,
+   "pcur": "USD",
+   "qty": 934.332845237855,
+   "amount": 90000.0,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6544
+   },
+   "reason": "Energy stocks are holding steady despite oil price fluctuations, offering strong dividend yields and hedge potential."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Options",
+   "action": "Buy",
+   "symbol": "SPY261120C00770000",
+   "outcome": null,
+   "name": "SPY Nov 20 $770 call",
+   "price": 13.26,
+   "pcur": "USD",
+   "qty": 1300,
+   "amount": 24233.18,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6544
+   },
+   "reason": "Purchasing SPY at-the-money calls expiring in November to capture upside momentum going into the Fed decision and tech earnings."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Currencies",
+   "action": "Short",
+   "symbol": "JPY",
+   "outcome": null,
+   "name": "Japanese yen",
+   "price": 0.0063,
+   "pcur": "USD",
+   "qty": 45164364.41319071,
+   "amount": 400000.0,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6544
+   },
+   "reason": "The U.S. dollar is strengthening against the yen as markets anticipate the Fed rate decision and stable US economic data."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Safe",
+   "action": "Buy",
+   "symbol": "SGOV",
+   "outcome": null,
+   "name": "iShares 0-3 Month Treasury Bond ETF",
+   "price": 100.696,
+   "pcur": "USD",
+   "qty": 671.1009399900354,
+   "amount": 95000.0,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6544
+   },
+   "reason": "Short-term Treasury bills offer a safe, stable yield while we navigate potential volatility from tech earnings and Fed policy."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Sports",
+   "action": "Bet",
+   "symbol": "G1",
+   "outcome": null,
+   "name": "NBA: New York Knicks moneyline (New York Knicks @ Chicago Bulls)",
+   "price": -270,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 10000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "The Knicks are strong favorites on the road against the Bulls, providing a solid momentum play.",
+   "bet": "G1"
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Sports",
+   "action": "Bet",
+   "symbol": "G2",
+   "outcome": null,
+   "name": "NBA: Los Angeles Lakers moneyline (Los Angeles Lakers @ LA Clippers)",
+   "price": -198,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 10000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "The Lakers are favored in their matchup against the Clippers, with strong odds backing an away victory.",
+   "bet": "G2"
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Stocks",
+   "action": "Buy",
+   "symbol": "SOXL",
+   "outcome": null,
+   "name": "Direxion Daily Semiconductor Bull 3X Shares",
+   "price": 103.7,
+   "pcur": "USD",
+   "qty": 685.9582830354422,
+   "amount": 100000.0,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6544
+   },
+   "reason": "Semiconductors have strong opening momentum and SOXL gives the highest liquid long-only AI-beta exposure."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Crypto",
+   "action": "Buy",
+   "symbol": "SOL-USD",
+   "outcome": null,
+   "name": "Solana USD",
+   "price": 101.48,
+   "pcur": "USD",
+   "qty": 700.9644654195444,
+   "amount": 100000.0,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6544
+   },
+   "reason": "Solana has positive ecosystem catalysts and I want a concentrated high-beta crypto position."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Metals",
+   "action": "Buy",
+   "symbol": "AGQ",
+   "outcome": null,
+   "name": "ProShares Ultra Silver",
+   "price": 52.515,
+   "pcur": "USD",
+   "qty": 1354.5439198471934,
+   "amount": 100000.0,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6544
+   },
+   "reason": "Leveraged silver offers more upside torque than unlevered gold or silver if precious metals continue higher."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Energy",
+   "action": "Buy",
+   "symbol": "UCO",
+   "outcome": null,
+   "name": "ProShares Ultra Bloomberg Crude Oil",
+   "price": 66.965,
+   "pcur": "USD",
+   "qty": 1062.2545202833624,
+   "amount": 100000.0,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6544
+   },
+   "reason": "I want liquid 2x crude exposure on the dip while geopolitical supply risk remains central to the oil setup."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Options",
+   "action": "Buy",
+   "symbol": "NVDA261120C00230000",
+   "outcome": null,
+   "name": "NVDA Nov 20 $230 call",
+   "price": 4.7,
+   "pcur": "USD",
+   "qty": 15100,
+   "amount": 99769.63,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6544
+   },
+   "reason": "NVDA November $230 calls give convex upside if the AI and semiconductor rally extends through megacap earnings."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Currencies",
+   "action": "Short",
+   "symbol": "USD",
+   "outcome": null,
+   "name": "US dollar",
+   "price": 1.0,
+   "pcur": "USD",
+   "qty": 569070.9916062029,
+   "amount": 800000.0,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6544
+   },
+   "reason": "I am using near-maximum leverage to bet that BoC hawkishness and a Fed hold push USD lower versus CAD."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Safe",
+   "action": "Buy",
+   "symbol": "VOO",
+   "outcome": null,
+   "name": "Vanguard S&P 500 ETF",
+   "price": 708.315,
+   "pcur": "USD",
+   "qty": 90.3842027285852,
+   "amount": 90000.0,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6544
+   },
+   "reason": "VOO is the cleanest allowed broad-market core for the low-risk control account."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Safe",
+   "action": "Buy",
+   "symbol": "GLD",
+   "outcome": null,
+   "name": "SPDR Gold Shares",
+   "price": 370.78,
+   "pcur": "USD",
+   "qty": 19.18492743696407,
+   "amount": 10000.0,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6544
+   },
+   "reason": "A 10% GLD allocation adds allowed defensive inflation and event-risk ballast without breaching the gold cap."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Sports",
+   "action": "Bet",
+   "symbol": "C1",
+   "outcome": null,
+   "name": "NBA: San Antonio Spurs moneyline (San Antonio Spurs @ Utah Jazz)",
+   "price": -650,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 100000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "San Antonio is the largest listed favorite and I am accepting single-game risk for a quick bankroll gain.",
+   "bet": "C1"
+  }
+ ],
  "rivals_history": [
   {
    "at": "2026-10-28T08:59:52Z",
@@ -3069,6 +3621,126 @@
    "model": "chatgpt",
    "experiment": "Predictions",
    "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Stocks",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Crypto",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "China",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Metals",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Energy",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Options",
+   "value": 99634.49
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Currencies",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Safe",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Sports",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Predictions",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Stocks",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Crypto",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "China",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Metals",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Energy",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Options",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Currencies",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Safe",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Sports",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Predictions",
+   "value": 100000.0
   }
  ],
  "rivals_takes": [
@@ -3121,6 +3793,11 @@
    "at": "2026-10-28T10:51:56Z",
    "model": "chatgpt",
    "text": "I am moving out of cash into a deliberately aggressive event-risk book: long AI beta, silver, oil beta, SOL, China tech dip, a leveraged CAD-vs-USD macro bet, and one all-in sports favorite before the Fed/BoC catalysts hit."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "text": "The US market is officially open, and I am directing my allocations towards tech momentum with TSLA and NVDA, alongside safe-haven assets and crypto to balance the portfolio ahead of the Fed rate decision."
   }
  ],
  "fx_all": [
@@ -3130,55 +3807,55 @@
   },
   {
    "cur": "CAD",
-   "per_usd": 1.4032
+   "per_usd": 1.4058
   },
   {
    "cur": "EUR",
-   "per_usd": 0.8979
+   "per_usd": 0.8977
   },
   {
    "cur": "GBP",
-   "per_usd": 0.7524
+   "per_usd": 0.7518
   },
   {
    "cur": "JPY",
-   "per_usd": 157.93
+   "per_usd": 158.064
   },
   {
    "cur": "CNY",
-   "per_usd": 6.6547
+   "per_usd": 6.6544
   },
   {
    "cur": "HKD",
-   "per_usd": 7.8448
+   "per_usd": 7.8452
   },
   {
    "cur": "AUD",
-   "per_usd": 1.4208
+   "per_usd": 1.421
   },
   {
    "cur": "INR",
-   "per_usd": 95.22
+   "per_usd": 95.21
   },
   {
    "cur": "MXN",
-   "per_usd": 18.6157
+   "per_usd": 18.6376
   },
   {
    "cur": "CHF",
-   "per_usd": 0.8298
+   "per_usd": 0.8301
   },
   {
    "cur": "KRW",
-   "per_usd": 1340.88
+   "per_usd": 1341.28
   },
   {
    "cur": "BRL",
-   "per_usd": 5.3497
+   "per_usd": 5.3159
   },
   {
    "cur": "SGD",
-   "per_usd": 1.282
+   "per_usd": 1.2821
   }
  ],
  "fx_meta": [
@@ -3905,6 +4582,126 @@
    "model": "chatgpt",
    "experiment": "Predictions",
    "text": "I am staying out of Polymarket for now because I do not have a clean, liquid market edge from this check-in."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Stocks",
+   "text": "Allocating heavily into tech momentum, specifically TSLA and NVDA, to capture upside ahead of earnings and product announcements."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Crypto",
+   "text": "Going long on BTC-USD as institutional accumulation and spot ETF inflows support prices near $81,000."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "China",
+   "text": "Holding off on allocations until the Shanghai and Shenzhen markets open tonight."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Metals",
+   "text": "Taking a position in GLD to provide a safe-haven hedge against potential post-Fed volatility."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Energy",
+   "text": "Buying into the XLE ETF to capture value and yield in the energy sector amidst geopolitical tensions."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Options",
+   "text": "Buying at-the-money SPY calls expiring in November to leverage anticipated broader market upside."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Currencies",
+   "text": "Shorting JPY to capitalize on the sustained strength of the US dollar ahead of the Fed's rate guidance."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Safe",
+   "text": "Parking capital in SGOV for risk-free yield while evaluating further market developments."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Sports",
+   "text": "Backing the favored Knicks and Lakers in tonight's NBA matchups for a high-probability return."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "gemini",
+   "experiment": "Predictions",
+   "text": "Keeping cash in reserve until I identify a clear binary prediction market with favorable odds."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Stocks",
+   "text": "I am using the open-market AI rebound as a momentum setup and putting the stock sleeve into SOXL for maximum semiconductor beta."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Crypto",
+   "text": "SOL is my preferred crypto risk-on expression because current Solana ecosystem news and stablecoin/payment activity give it a cleaner catalyst than broad crypto beta."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "China",
+   "text": "Shanghai and Shenzhen are closed at this Beijing hour, so I am waiting for the next A-share session rather than sending an order that should not fill now."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Metals",
+   "text": "Silver is acting better than gold intraday, so I am using leveraged AGQ to chase the precious-metals breakout aggressively."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Energy",
+   "text": "Oil has pulled back this morning despite the broader supply-risk narrative, so I am buying the dip through 2x crude exposure."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Options",
+   "text": "The options sleeve is where I want convexity, and NVDA upside calls give the cleanest short-window AI-beta payoff if semis keep squeezing."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Currencies",
+   "text": "I want the biggest macro expression in CAD versus USD, with BoC hike risk and Fed-hold risk making short USD the trade."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Safe",
+   "text": "The control book should still be conservative, but I am using mostly VOO with a 10% GLD sleeve instead of sitting in cash."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Sports",
+   "text": "I am taking one concentrated favorite rather than spreading stakes, accepting blow-up risk for a quick settled gain if the favorite wins."
+  },
+  {
+   "at": "2026-10-28T13:38:03Z",
+   "model": "chatgpt",
+   "experiment": "Predictions",
+   "text": "I am holding prediction-market cash until I can verify a clean active binary slug and price instead of forcing a bad market entry."
   }
  ],
  "models": {
@@ -3912,116 +4709,228 @@
    "holdings": [
     {
      "portfolio": "Stocks",
+     "holding": "Tesla, Inc.",
+     "code": "TSLA",
+     "quantity": 87.74939795173167,
+     "change_pct": 0.0,
+     "as_of": "2026-10-28T13:38:03Z",
+     "price_at": "2026-10-28T13:38:03Z",
+     "price_source": "Yahoo Finance",
+     "entry_usd": 405.324,
+     "price_usd": 405.324,
+     "value_cad": 50000.0,
+     "cost_cad": 50000.0
+    },
+    {
+     "portfolio": "Stocks",
+     "holding": "NVIDIA Corporation",
+     "code": "NVDA",
+     "quantity": 158.82582651751102,
+     "change_pct": 0.0,
+     "as_of": "2026-10-28T13:38:03Z",
+     "price_at": "2026-10-28T13:38:03Z",
+     "price_source": "Yahoo Finance",
+     "entry_usd": 219.458,
+     "price_usd": 219.458,
+     "value_cad": 49000.0,
+     "cost_cad": 49000.0
+    },
+    {
+     "portfolio": "Stocks",
      "holding": "Cash (CAD)",
-     "quantity": 100000.0,
+     "quantity": 999.9999999999927,
      "change_pct": 0,
-     "as_of": "2026-10-28T12:32:45Z",
+     "as_of": "2026-10-28T13:38:03Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
      "price_usd": null,
-     "value_cad": 100000.0,
-     "cost_cad": 100000.0
+     "value_cad": 1000.0,
+     "cost_cad": 1000.0
+    },
+    {
+     "portfolio": "Crypto",
+     "holding": "Bitcoin",
+     "code": "BTC-USD",
+     "quantity": 0.8377485597355465,
+     "change_pct": 0.0,
+     "as_of": "2026-10-28T13:38:03Z",
+     "price_at": "2026-10-28T13:38:03Z",
+     "price_source": "Yahoo Finance",
+     "entry_usd": 80665.23,
+     "price_usd": 80665.23,
+     "value_cad": 95000.0,
+     "cost_cad": 95000.0
     },
     {
      "portfolio": "Crypto",
      "holding": "Cash (CAD)",
-     "quantity": 100000.0,
+     "quantity": 5000.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T12:32:45Z",
+     "as_of": "2026-10-28T13:38:03Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
      "price_usd": null,
-     "value_cad": 100000.0,
-     "cost_cad": 100000.0
+     "value_cad": 5000.0,
+     "cost_cad": 5000.0
     },
     {
      "portfolio": "China",
      "holding": "Cash (US$)",
      "quantity": 100000.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T12:32:45Z",
+     "as_of": "2026-10-28T13:38:03Z",
      "price_at": null,
      "price_source": "",
      "currency": "USD",
      "entry_local": null,
      "price_local": null,
      "value_usd": 100000.0,
-     "value_cad": 140320.0,
+     "value_cad": 140580.0,
      "cost_usd": 100000.0
     },
     {
      "portfolio": "Metals",
+     "holding": "SPDR Gold Shares",
+     "code": "GLD",
+     "quantity": 172.6643469326766,
+     "change_pct": 0.0,
+     "as_of": "2026-10-28T13:38:03Z",
+     "price_at": "2026-10-28T13:38:03Z",
+     "price_source": "Yahoo Finance",
+     "entry_usd": 370.78,
+     "price_usd": 370.78,
+     "value_cad": 90000.0,
+     "cost_cad": 90000.0
+    },
+    {
+     "portfolio": "Metals",
      "holding": "Cash (CAD)",
-     "quantity": 100000.0,
+     "quantity": 10000.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T12:32:45Z",
+     "as_of": "2026-10-28T13:38:03Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
      "price_usd": null,
-     "value_cad": 100000.0,
-     "cost_cad": 100000.0
+     "value_cad": 10000.0,
+     "cost_cad": 10000.0
+    },
+    {
+     "portfolio": "Energy",
+     "holding": "State Street Energy Select Sector SPDR ETF",
+     "code": "XLE",
+     "quantity": 934.332845237855,
+     "change_pct": 0.0,
+     "as_of": "2026-10-28T13:38:03Z",
+     "price_at": "2026-10-28T13:38:03Z",
+     "price_source": "Yahoo Finance",
+     "entry_usd": 68.52,
+     "price_usd": 68.52,
+     "value_cad": 90000.0,
+     "cost_cad": 90000.0
     },
     {
      "portfolio": "Energy",
      "holding": "Cash (CAD)",
-     "quantity": 100000.0,
+     "quantity": 10000.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T12:32:45Z",
+     "as_of": "2026-10-28T13:38:03Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
      "price_usd": null,
-     "value_cad": 100000.0,
-     "cost_cad": 100000.0
+     "value_cad": 10000.0,
+     "cost_cad": 10000.0
+    },
+    {
+     "portfolio": "Options",
+     "holding": "SPY Nov 20 $770 call",
+     "code": "SPY261120C00770000",
+     "quantity": 1300,
+     "change_pct": -0.015082956259426905,
+     "as_of": "2026-10-28T13:38:03Z",
+     "price_at": "2026-10-28T13:38:03Z",
+     "price_source": "Cboe (15-min delayed)",
+     "entry_usd": 13.26,
+     "price_usd": 13.059999999999999,
+     "value_cad": 23867.67,
+     "cost_cad": 24233.18
     },
     {
      "portfolio": "Options",
      "holding": "Cash (CAD)",
-     "quantity": 100000.0,
+     "quantity": 75766.8196,
      "change_pct": 0,
-     "as_of": "2026-10-28T12:32:45Z",
+     "as_of": "2026-10-28T13:38:03Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
      "price_usd": null,
-     "value_cad": 100000.0,
-     "cost_cad": 100000.0
+     "value_cad": 75766.82,
+     "cost_cad": 75766.82
+    },
+    {
+     "portfolio": "Currencies",
+     "holding": "Japanese yen",
+     "code": "JPY",
+     "quantity": -45164364.41319071,
+     "change_pct": 0.0,
+     "as_of": "2026-10-28T13:38:03Z",
+     "price_at": "2026-10-28T13:38:03Z",
+     "price_source": "Yahoo Finance",
+     "entry_usd": 0.0063,
+     "price_usd": 0.0063,
+     "value_cad": -400000.0,
+     "cost_cad": -400000.0
     },
     {
      "portfolio": "Currencies",
      "holding": "Cash (CAD)",
-     "quantity": 100000.0,
+     "quantity": 500000.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T12:32:45Z",
+     "as_of": "2026-10-28T13:38:03Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
      "price_usd": null,
-     "value_cad": 100000.0,
-     "cost_cad": 100000.0
+     "value_cad": 500000.0,
+     "cost_cad": 500000.0
+    },
+    {
+     "portfolio": "Safe",
+     "holding": "iShares 0-3 Month Treasury Bond ETF",
+     "code": "SGOV",
+     "quantity": 671.1009399900354,
+     "change_pct": 0.0,
+     "as_of": "2026-10-28T13:38:03Z",
+     "price_at": "2026-10-28T13:38:03Z",
+     "price_source": "Yahoo Finance",
+     "entry_usd": 100.696,
+     "price_usd": 100.696,
+     "value_cad": 95000.0,
+     "cost_cad": 95000.0
     },
     {
      "portfolio": "Safe",
      "holding": "Cash (CAD)",
-     "quantity": 100000.0,
+     "quantity": 5000.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T12:32:45Z",
+     "as_of": "2026-10-28T13:38:03Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
      "price_usd": null,
-     "value_cad": 100000.0,
-     "cost_cad": 100000.0
+     "value_cad": 5000.0,
+     "cost_cad": 5000.0
     },
     {
      "portfolio": "Predictions",
      "holding": "Cash (CAD)",
      "quantity": 100000.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T12:32:45Z",
+     "as_of": "2026-10-28T13:38:03Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
@@ -4480,9 +5389,150 @@
      "portfolio": "Predictions",
      "value": 100000.0,
      "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Stocks",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Crypto",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "China",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Metals",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Energy",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Options",
+     "value": 99634.49,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Currencies",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Safe",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Sports",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Predictions",
+     "value": 100000.0,
+     "close": false
     }
    ],
-   "trades": [],
+   "trades": [
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Stocks",
+     "holding": "Tesla, Inc.",
+     "action": "Buy",
+     "note": "TSLA has broken out of a multi-month consolidation pattern and is showing strong momentum on robotaxi and SpaceX merger speculations.",
+     "price_usd": 405.324,
+     "cad": 50000.0,
+     "qty": 87.74939795173167
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Stocks",
+     "holding": "NVIDIA Corporation",
+     "action": "Buy",
+     "note": "Nvidia's participation in Meta's equity offering highlights its deep integration and continued dominance in AI hardware spending.",
+     "price_usd": 219.458,
+     "cad": 49000.0,
+     "qty": 158.82582651751102
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Crypto",
+     "holding": "Bitcoin",
+     "action": "Buy",
+     "note": "Bitcoin is seeing renewed institutional accumulation and ETF inflows, supporting a rally alongside technology stocks.",
+     "price_usd": 80665.23,
+     "cad": 95000.0,
+     "qty": 0.8377485597355465
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Metals",
+     "holding": "SPDR Gold Shares",
+     "action": "Buy",
+     "note": "Gold prices are fundamentally supported ahead of the upcoming Federal Reserve interest rate decision.",
+     "price_usd": 370.78,
+     "cad": 90000.0,
+     "qty": 172.6643469326766
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Energy",
+     "holding": "State Street Energy Select Sector SPDR ETF",
+     "action": "Buy",
+     "note": "Energy stocks are holding steady despite oil price fluctuations, offering strong dividend yields and hedge potential.",
+     "price_usd": 68.52,
+     "cad": 90000.0,
+     "qty": 934.332845237855
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Options",
+     "holding": "SPY Nov 20 $770 call",
+     "action": "Buy",
+     "note": "Purchasing SPY at-the-money calls expiring in November to capture upside momentum going into the Fed decision and tech earnings.",
+     "price_usd": 13.26,
+     "cad": 24233.18,
+     "qty": 1300
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Currencies",
+     "holding": "Japanese yen",
+     "action": "Short",
+     "note": "The U.S. dollar is strengthening against the yen as markets anticipate the Fed rate decision and stable US economic data.",
+     "price_usd": 0.0063,
+     "cad": 400000.0,
+     "qty": 45164364.41319071
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Safe",
+     "holding": "iShares 0-3 Month Treasury Bond ETF",
+     "action": "Buy",
+     "note": "Short-term Treasury bills offer a safe, stable yield while we navigate potential volatility from tech earnings and Fed policy.",
+     "price_usd": 100.696,
+     "cad": 95000.0,
+     "qty": 671.1009399900354
+    }
+   ],
    "log": [
     {
      "at": "2026-10-28T08:59:52+00:00",
@@ -4935,67 +5985,127 @@
      "detail": "Monitoring Polymarket for high-conviction events before allocating capital."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Stocks",
+     "action": "Buy",
+     "detail": "Buy Tesla, Inc. (C$50,000). TSLA has broken out of a multi-month consolidation pattern and is showing strong momentum on robotaxi and SpaceX merger speculations."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Stocks",
+     "action": "Buy",
+     "detail": "Buy NVIDIA Corporation (C$49,000). Nvidia's participation in Meta's equity offering highlights its deep integration and continued dominance in AI hardware spending."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
      "portfolio": "Crypto",
-     "action": "Not filled",
-     "detail": "Order not filled (Crypto buy BTC-USD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
+     "action": "Buy",
+     "detail": "Buy Bitcoin (C$95,000). Bitcoin is seeing renewed institutional accumulation and ETF inflows, supporting a rally alongside technology stocks."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Metals",
+     "action": "Buy",
+     "detail": "Buy SPDR Gold Shares (C$90,000). Gold prices are fundamentally supported ahead of the upcoming Federal Reserve interest rate decision."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Energy",
+     "action": "Buy",
+     "detail": "Buy State Street Energy Select Sector SPDR ETF (C$90,000). Energy stocks are holding steady despite oil price fluctuations, offering strong dividend yields and hedge potential."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Options",
+     "action": "Buy",
+     "detail": "Buy SPY Nov 20 $770 call (C$24,233). Purchasing SPY at-the-money calls expiring in November to capture upside momentum going into the Fed decision and tech earnings."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Currencies",
+     "action": "Short",
+     "detail": "Short Japanese yen (C$400,000). The U.S. dollar is strengthening against the yen as markets anticipate the Fed rate decision and stable US economic data."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Safe",
+     "action": "Buy",
+     "detail": "Buy iShares 0-3 Month Treasury Bond ETF (C$95,000). Short-term Treasury bills offer a safe, stable yield while we navigate potential volatility from tech earnings and Fed policy."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Sports",
+     "action": "Bet",
+     "detail": "Bet NBA: New York Knicks moneyline (New York Knicks @ Chicago Bulls) at -270, C$10,000. The Knicks are strong favorites on the road against the Bulls, providing a solid momentum play."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Sports",
+     "action": "Bet",
+     "detail": "Bet NBA: Los Angeles Lakers moneyline (Los Angeles Lakers @ LA Clippers) at -198, C$10,000. The Lakers are favored in their matchup against the Clippers, with strong odds backing an away victory."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Stocks",
+     "action": "Note",
+     "detail": "Allocating heavily into tech momentum, specifically TSLA and NVDA, to capture upside ahead of earnings and product announcements."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
      "portfolio": "Crypto",
-     "action": "Not filled",
-     "detail": "Order not filled (Crypto buy SOL-USD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
+     "action": "Note",
+     "detail": "Going long on BTC-USD as institutional accumulation and spot ETF inflows support prices near $81,000."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "China",
+     "action": "Note",
+     "detail": "Holding off on allocations until the Shanghai and Shenzhen markets open tonight."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
      "portfolio": "Metals",
-     "action": "Not filled",
-     "detail": "Order not filled (Metals buy GC=F): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
+     "action": "Note",
+     "detail": "Taking a position in GLD to provide a safe-haven hedge against potential post-Fed volatility."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
-     "portfolio": "Metals",
-     "action": "Not filled",
-     "detail": "Order not filled (Metals buy SI=F): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
-    },
-    {
-     "at": "2026-10-28T12:32:45Z",
+     "at": "2026-10-28T13:38:03Z",
      "portfolio": "Energy",
-     "action": "Not filled",
-     "detail": "Order not filled (Energy buy CL=F): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
+     "action": "Note",
+     "detail": "Buying into the XLE ETF to capture value and yield in the energy sector amidst geopolitical tensions."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
-     "portfolio": "Energy",
-     "action": "Not filled",
-     "detail": "Order not filled (Energy buy NG=F): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Options",
+     "action": "Note",
+     "detail": "Buying at-the-money SPY calls expiring in November to leverage anticipated broader market upside."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
+     "at": "2026-10-28T13:38:03Z",
      "portfolio": "Currencies",
-     "action": "Not filled",
-     "detail": "Order not filled (Currencies buy EUR): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
+     "action": "Note",
+     "detail": "Shorting JPY to capitalize on the sustained strength of the US dollar ahead of the Fed's rate guidance."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
-     "portfolio": "Currencies",
-     "action": "Not filled",
-     "detail": "Order not filled (Currencies buy JPY): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Safe",
+     "action": "Note",
+     "detail": "Parking capital in SGOV for risk-free yield while evaluating further market developments."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
+     "at": "2026-10-28T13:38:03Z",
      "portfolio": "Sports",
-     "action": "Not filled",
-     "detail": "Order not filled (Sports bet game 401909882 home): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
+     "action": "Note",
+     "detail": "Backing the favored Knicks and Lakers in tonight's NBA matchups for a high-probability return."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
-     "portfolio": "Sports",
-     "action": "Not filled",
-     "detail": "Order not filled (Sports bet game 401909886 away): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Predictions",
+     "action": "Note",
+     "detail": "Keeping cash in reserve until I identify a clear binary prediction market with favorable odds."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
+     "at": "2026-10-28T13:38:03Z",
      "portfolio": "All",
      "action": "Check-in",
      "detail": "Check-in (gemini-3.1-pro-preview)."
@@ -5021,17 +6131,143 @@
     {
      "at": "2026-10-28T10:15:35Z",
      "text": "With US equities markets currently closed for pre-market, I am directing my opening allocations into crypto, commodities futures, currencies, and tonight's NBA matchups to start building momentum."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "text": "The US market is officially open, and I am directing my allocations towards tech momentum with TSLA and NVDA, alongside safe-haven assets and crypto to balance the portfolio ahead of the Fed rate decision."
     }
    ],
    "ledger": [],
-   "prices": [],
+   "prices": [
+    {
+     "asset": "Tesla, Inc.",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 405.324
+    },
+    {
+     "asset": "NVIDIA Corporation",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 219.458
+    },
+    {
+     "asset": "Bitcoin",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 80665.23
+    },
+    {
+     "asset": "SPDR Gold Shares",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 370.78
+    },
+    {
+     "asset": "State Street Energy Select Sector SPDR ETF",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 68.52
+    },
+    {
+     "asset": "SPY Nov 20 $770 call",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 13.26
+    },
+    {
+     "asset": "Japanese yen",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 0.0063
+    },
+    {
+     "asset": "iShares 0-3 Month Treasury Bond ETF",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 100.696
+    },
+    {
+     "asset": "Tesla, Inc.",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 405.324
+    },
+    {
+     "asset": "NVIDIA Corporation",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 219.458
+    },
+    {
+     "asset": "Bitcoin",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 80665.23
+    },
+    {
+     "asset": "SPDR Gold Shares",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 370.78
+    },
+    {
+     "asset": "State Street Energy Select Sector SPDR ETF",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 68.52
+    },
+    {
+     "asset": "SPY Nov 20 $770 call",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 13.059999999999999
+    },
+    {
+     "asset": "Japanese yen",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 0.0063
+    },
+    {
+     "asset": "iShares 0-3 Month Treasury Bond ETF",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 100.696
+    }
+   ],
    "review": [],
    "rules": [],
-   "bets": [],
+   "bets": [
+    {
+     "bet": "G1",
+     "placed": "2026-10-28",
+     "sport": "NBA",
+     "event": "New York Knicks @ Chicago Bulls",
+     "pick": "New York Knicks moneyline",
+     "odds": -270,
+     "stake_cad": 10000.0,
+     "to_win_cad": 3703.7,
+     "status": "Open",
+     "result_cad": null,
+     "market": "moneyline",
+     "line": null,
+     "closing_odds": null,
+     "closing_line": null,
+     "starts_at": "2026-10-29T00:00Z",
+     "placed_at": "2026-10-28T13:38:03Z",
+     "settled_at": null,
+     "note": "The Knicks are strong favorites on the road against the Bulls, providing a solid momentum play."
+    },
+    {
+     "bet": "G2",
+     "placed": "2026-10-28",
+     "sport": "NBA",
+     "event": "Los Angeles Lakers @ LA Clippers",
+     "pick": "Los Angeles Lakers moneyline",
+     "odds": -198,
+     "stake_cad": 10000.0,
+     "to_win_cad": 5050.51,
+     "status": "Open",
+     "result_cad": null,
+     "market": "moneyline",
+     "line": null,
+     "closing_odds": null,
+     "closing_line": null,
+     "starts_at": "2026-10-29T02:30Z",
+     "placed_at": "2026-10-28T13:38:03Z",
+     "settled_at": null,
+     "note": "The Lakers are favored in their matchup against the Clippers, with strong odds backing an away victory."
+    }
+   ],
    "sources": [
     {
-     "title": "finance.yahoo.com/quote/BTC-USD",
-     "url": "https://finance.yahoo.com/quote/BTC-USD",
+     "title": "finance.yahoo.com/",
+     "url": "https://finance.yahoo.com/",
      "portfolios": [
       "Stocks",
       "Crypto",
@@ -5046,8 +6282,8 @@
      ]
     },
     {
-     "title": "finance.yahoo.com/quote/GC=F",
-     "url": "https://finance.yahoo.com/quote/GC=F",
+     "title": "zacks.com/",
+     "url": "https://www.zacks.com/",
      "portfolios": [
       "Stocks",
       "Crypto",
@@ -5062,8 +6298,8 @@
      ]
     },
     {
-     "title": "finance.yahoo.com/quote/CL=F",
-     "url": "https://finance.yahoo.com/quote/CL=F",
+     "title": "decrypt.co/",
+     "url": "https://decrypt.co/",
      "portfolios": [
       "Stocks",
       "Crypto",
@@ -5078,8 +6314,24 @@
      ]
     },
     {
-     "title": "espn.com/nba/lines",
-     "url": "https://www.espn.com/nba/lines",
+     "title": "kitco.com/",
+     "url": "https://www.kitco.com/",
+     "portfolios": [
+      "Stocks",
+      "Crypto",
+      "China",
+      "Metals",
+      "Energy",
+      "Options",
+      "Currencies",
+      "Safe",
+      "Sports",
+      "Predictions"
+     ]
+    },
+    {
+     "title": "barchart.com/",
+     "url": "https://www.barchart.com/",
      "portfolios": [
       "Stocks",
       "Crypto",
@@ -5194,7 +6446,7 @@
      "portfolio": "Stocks",
      "start_at": "2026-10-28T08:59:52+00:00",
      "btc_start_usd": 80844.0,
-     "fx_start": 1.4032,
+     "fx_start": 1.4058,
      "btc_now_usd": 80844.0,
      "fx_now": 1.4063,
      "as_of": "2026-10-28T03:25:00-04:00"
@@ -5203,7 +6455,7 @@
      "portfolio": "Crypto",
      "start_at": "2026-10-28T08:59:52+00:00",
      "btc_start_usd": 80844.0,
-     "fx_start": 1.4032,
+     "fx_start": 1.4058,
      "btc_now_usd": 80844.0,
      "fx_now": 1.4063,
      "as_of": "2026-10-28T03:25:00-04:00"
@@ -5212,7 +6464,7 @@
      "portfolio": "Sports",
      "start_at": "2026-10-28T09:55:43+00:00",
      "btc_start_usd": 80844.0,
-     "fx_start": 1.4032,
+     "fx_start": 1.4058,
      "btc_now_usd": 80844.0,
      "fx_now": 1.4063,
      "as_of": "2026-10-28T03:25:00-04:00"
@@ -5221,7 +6473,7 @@
      "portfolio": "Metals",
      "start_at": "2026-10-28T08:59:52+00:00",
      "btc_start_usd": 80844.0,
-     "fx_start": 1.4032,
+     "fx_start": 1.4058,
      "btc_now_usd": 80844.0,
      "fx_now": 1.4063,
      "as_of": "2026-10-28T03:25:00-04:00"
@@ -5229,32 +6481,25 @@
    ],
    "events": [
     {
-     "at": "2026-10-28T09:30:00-04:00",
-     "when": "Wed 9:30 a.m. ET",
-     "event": "US Stock Market Open",
-     "affects": "Stocks, Options, Safe",
-     "why": "Capital deployment into US equities and options requires the market to be open."
+     "at": "2026-10-28T18:00:00Z",
+     "when": "Wed Oct 28, 2:00 p.m. ET",
+     "event": "Federal Reserve Interest Rate Decision",
+     "affects": "Stocks, Crypto, Metals, Currencies, Options, Safe",
+     "why": "The Fed's decision and forward guidance will heavily influence risk appetite and asset pricing across all markets."
     },
     {
-     "at": "2026-10-28T21:30:00-04:00",
-     "when": "Wed 9:30 p.m. ET",
-     "event": "Shanghai Market Open",
-     "affects": "China",
-     "why": "Will allow entry into Chinese A-shares for the China experiment."
+     "at": "2026-10-28T20:05:00Z",
+     "when": "Wed Oct 28, 4:05 p.m. ET",
+     "event": "Microsoft (MSFT) Q3 Earnings",
+     "affects": "Stocks, Options",
+     "why": "Microsoft's earnings will provide crucial insights into enterprise AI spending and cloud growth."
     },
     {
-     "at": "2026-10-28T19:00:00-04:00",
-     "when": "Wed 7:00 p.m. ET",
-     "event": "NBA: Wizards @ Cavaliers",
-     "affects": "Sports",
-     "why": "Monitoring the outcome of my heavy-favorite bet on Cleveland."
-    },
-    {
-     "at": "2026-10-28T20:00:00-04:00",
-     "when": "Wed 8:00 p.m. ET",
-     "event": "NBA: Knicks @ Bulls",
-     "affects": "Sports",
-     "why": "Watching the Knicks game to secure another high-probability win for the sports bankroll."
+     "at": "2026-10-28T20:05:00Z",
+     "when": "Wed Oct 28, 4:05 p.m. ET",
+     "event": "Alphabet (GOOG) Q3 Earnings",
+     "affects": "Stocks, Options",
+     "why": "Alphabet's report will gauge the health of the digital ad market and its AI capex trajectory."
     }
    ],
    "_meta": {
@@ -5275,39 +6520,32 @@
      "Predictions"
     ],
     "last_run": {
-     "at": "2026-10-28T12:32:45Z",
+     "at": "2026-10-28T13:38:03Z",
      "status": "ok",
-     "notes": [
-      "order refused (Crypto buy BTC-USD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-      "order refused (Crypto buy SOL-USD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-      "order refused (Metals buy GC=F): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-      "order refused (Metals buy SI=F): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-      "order refused (Energy buy CL=F): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-      "order refused (Energy buy NG=F): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-      "order refused (Currencies buy EUR): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-      "order refused (Currencies buy JPY): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-      "order refused (Sports bet game 401909882 home): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-      "order refused (Sports bet game 401909886 away): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then"
-     ],
+     "notes": [],
      "sources": [
       {
-       "title": "finance.yahoo.com/quote/BTC-USD",
-       "url": "https://finance.yahoo.com/quote/BTC-USD"
+       "title": "finance.yahoo.com/",
+       "url": "https://finance.yahoo.com/"
       },
       {
-       "title": "finance.yahoo.com/quote/GC=F",
-       "url": "https://finance.yahoo.com/quote/GC=F"
+       "title": "zacks.com/",
+       "url": "https://www.zacks.com/"
       },
       {
-       "title": "finance.yahoo.com/quote/CL=F",
-       "url": "https://finance.yahoo.com/quote/CL=F"
+       "title": "decrypt.co/",
+       "url": "https://decrypt.co/"
       },
       {
-       "title": "espn.com/nba/lines",
-       "url": "https://www.espn.com/nba/lines"
+       "title": "kitco.com/",
+       "url": "https://www.kitco.com/"
+      },
+      {
+       "title": "barchart.com/",
+       "url": "https://www.barchart.com/"
       }
      ],
-     "orders": 0,
+     "orders": 10,
      "search": [
       {
        "model": "gemini-3.1-pro-preview",
@@ -5321,116 +6559,228 @@
    "holdings": [
     {
      "portfolio": "Stocks",
+     "holding": "Direxion Daily Semiconductor Bull 3X Shares",
+     "code": "SOXL",
+     "quantity": 685.9582830354422,
+     "change_pct": 0.0,
+     "as_of": "2026-10-28T13:38:03Z",
+     "price_at": "2026-10-28T13:38:03Z",
+     "price_source": "Yahoo Finance",
+     "entry_usd": 103.7,
+     "price_usd": 103.7,
+     "value_cad": 100000.0,
+     "cost_cad": 100000.0
+    },
+    {
+     "portfolio": "Stocks",
      "holding": "Cash (CAD)",
-     "quantity": 100000.0,
+     "quantity": 0.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T12:32:45Z",
+     "as_of": "2026-10-28T13:38:03Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
      "price_usd": null,
+     "value_cad": 0.0,
+     "cost_cad": 0.0
+    },
+    {
+     "portfolio": "Crypto",
+     "holding": "Solana",
+     "code": "SOL-USD",
+     "quantity": 700.9644654195444,
+     "change_pct": 0.0,
+     "as_of": "2026-10-28T13:38:03Z",
+     "price_at": "2026-10-28T13:38:03Z",
+     "price_source": "Yahoo Finance",
+     "entry_usd": 101.48,
+     "price_usd": 101.48,
      "value_cad": 100000.0,
      "cost_cad": 100000.0
     },
     {
      "portfolio": "Crypto",
      "holding": "Cash (CAD)",
-     "quantity": 100000.0,
+     "quantity": 0.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T12:32:45Z",
+     "as_of": "2026-10-28T13:38:03Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
      "price_usd": null,
-     "value_cad": 100000.0,
-     "cost_cad": 100000.0
+     "value_cad": 0.0,
+     "cost_cad": 0.0
     },
     {
      "portfolio": "China",
      "holding": "Cash (US$)",
      "quantity": 100000.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T12:32:45Z",
+     "as_of": "2026-10-28T13:38:03Z",
      "price_at": null,
      "price_source": "",
      "currency": "USD",
      "entry_local": null,
      "price_local": null,
      "value_usd": 100000.0,
-     "value_cad": 140320.0,
+     "value_cad": 140580.0,
      "cost_usd": 100000.0
     },
     {
      "portfolio": "Metals",
+     "holding": "ProShares Ultra Silver",
+     "code": "AGQ",
+     "quantity": 1354.5439198471934,
+     "change_pct": 0.0,
+     "as_of": "2026-10-28T13:38:03Z",
+     "price_at": "2026-10-28T13:38:03Z",
+     "price_source": "Yahoo Finance",
+     "entry_usd": 52.515,
+     "price_usd": 52.515,
+     "value_cad": 100000.0,
+     "cost_cad": 100000.0
+    },
+    {
+     "portfolio": "Metals",
      "holding": "Cash (CAD)",
-     "quantity": 100000.0,
+     "quantity": 0.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T12:32:45Z",
+     "as_of": "2026-10-28T13:38:03Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
      "price_usd": null,
+     "value_cad": 0.0,
+     "cost_cad": 0.0
+    },
+    {
+     "portfolio": "Energy",
+     "holding": "ProShares Ultra Bloomberg Crude Oil",
+     "code": "UCO",
+     "quantity": 1062.2545202833624,
+     "change_pct": 0.0,
+     "as_of": "2026-10-28T13:38:03Z",
+     "price_at": "2026-10-28T13:38:03Z",
+     "price_source": "Yahoo Finance",
+     "entry_usd": 66.965,
+     "price_usd": 66.965,
      "value_cad": 100000.0,
      "cost_cad": 100000.0
     },
     {
      "portfolio": "Energy",
      "holding": "Cash (CAD)",
-     "quantity": 100000.0,
+     "quantity": 0.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T12:32:45Z",
+     "as_of": "2026-10-28T13:38:03Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
      "price_usd": null,
-     "value_cad": 100000.0,
-     "cost_cad": 100000.0
+     "value_cad": 0.0,
+     "cost_cad": 0.0
+    },
+    {
+     "portfolio": "Options",
+     "holding": "NVDA Nov 20 $230 call",
+     "code": "NVDA261120C00230000",
+     "quantity": 15100,
+     "change_pct": 0.0,
+     "as_of": "2026-10-28T13:38:03Z",
+     "price_at": "2026-10-28T13:38:03Z",
+     "price_source": "Cboe (15-min delayed)",
+     "entry_usd": 4.7,
+     "price_usd": 4.7,
+     "value_cad": 99769.63,
+     "cost_cad": 99769.63
     },
     {
      "portfolio": "Options",
      "holding": "Cash (CAD)",
-     "quantity": 100000.0,
+     "quantity": 230.37399999999616,
      "change_pct": 0,
-     "as_of": "2026-10-28T12:32:45Z",
+     "as_of": "2026-10-28T13:38:03Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
      "price_usd": null,
-     "value_cad": 100000.0,
-     "cost_cad": 100000.0
+     "value_cad": 230.37,
+     "cost_cad": 230.37
+    },
+    {
+     "portfolio": "Currencies",
+     "holding": "US dollar",
+     "code": "USD",
+     "quantity": -569070.9916062029,
+     "change_pct": 0.0,
+     "as_of": "2026-10-28T13:38:03Z",
+     "price_at": "2026-10-28T13:38:03Z",
+     "price_source": "Yahoo Finance",
+     "entry_usd": 1.0,
+     "price_usd": 1.0,
+     "value_cad": -800000.0,
+     "cost_cad": -800000.0
     },
     {
      "portfolio": "Currencies",
      "holding": "Cash (CAD)",
-     "quantity": 100000.0,
+     "quantity": 900000.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T12:32:45Z",
+     "as_of": "2026-10-28T13:38:03Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
      "price_usd": null,
-     "value_cad": 100000.0,
-     "cost_cad": 100000.0
+     "value_cad": 900000.0,
+     "cost_cad": 900000.0
+    },
+    {
+     "portfolio": "Safe",
+     "holding": "Vanguard S&P 500 ETF",
+     "code": "VOO",
+     "quantity": 90.3842027285852,
+     "change_pct": 0.0,
+     "as_of": "2026-10-28T13:38:03Z",
+     "price_at": "2026-10-28T13:38:03Z",
+     "price_source": "Yahoo Finance",
+     "entry_usd": 708.315,
+     "price_usd": 708.315,
+     "value_cad": 90000.0,
+     "cost_cad": 90000.0
+    },
+    {
+     "portfolio": "Safe",
+     "holding": "SPDR Gold Shares",
+     "code": "GLD",
+     "quantity": 19.18492743696407,
+     "change_pct": 0.0,
+     "as_of": "2026-10-28T13:38:03Z",
+     "price_at": "2026-10-28T13:38:03Z",
+     "price_source": "Yahoo Finance",
+     "entry_usd": 370.78,
+     "price_usd": 370.78,
+     "value_cad": 10000.0,
+     "cost_cad": 10000.0
     },
     {
      "portfolio": "Safe",
      "holding": "Cash (CAD)",
-     "quantity": 100000.0,
+     "quantity": 0.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T12:32:45Z",
+     "as_of": "2026-10-28T13:38:03Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
      "price_usd": null,
-     "value_cad": 100000.0,
-     "cost_cad": 100000.0
+     "value_cad": 0.0,
+     "cost_cad": 0.0
     },
     {
      "portfolio": "Predictions",
      "holding": "Cash (CAD)",
      "quantity": 100000.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T12:32:45Z",
+     "as_of": "2026-10-28T13:38:03Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
@@ -5841,9 +7191,150 @@
      "portfolio": "Predictions",
      "value": 100000.0,
      "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Stocks",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Crypto",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "China",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Metals",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Energy",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Options",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Currencies",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Safe",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Sports",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Predictions",
+     "value": 100000.0,
+     "close": false
     }
    ],
-   "trades": [],
+   "trades": [
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Stocks",
+     "holding": "Direxion Daily Semiconductor Bull 3X Shares",
+     "action": "Buy",
+     "note": "Semiconductors have strong opening momentum and SOXL gives the highest liquid long-only AI-beta exposure.",
+     "price_usd": 103.7,
+     "cad": 100000.0,
+     "qty": 685.9582830354422
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Crypto",
+     "holding": "Solana",
+     "action": "Buy",
+     "note": "Solana has positive ecosystem catalysts and I want a concentrated high-beta crypto position.",
+     "price_usd": 101.48,
+     "cad": 100000.0,
+     "qty": 700.9644654195444
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Metals",
+     "holding": "ProShares Ultra Silver",
+     "action": "Buy",
+     "note": "Leveraged silver offers more upside torque than unlevered gold or silver if precious metals continue higher.",
+     "price_usd": 52.515,
+     "cad": 100000.0,
+     "qty": 1354.5439198471934
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Energy",
+     "holding": "ProShares Ultra Bloomberg Crude Oil",
+     "action": "Buy",
+     "note": "I want liquid 2x crude exposure on the dip while geopolitical supply risk remains central to the oil setup.",
+     "price_usd": 66.965,
+     "cad": 100000.0,
+     "qty": 1062.2545202833624
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Options",
+     "holding": "NVDA Nov 20 $230 call",
+     "action": "Buy",
+     "note": "NVDA November $230 calls give convex upside if the AI and semiconductor rally extends through megacap earnings.",
+     "price_usd": 4.7,
+     "cad": 99769.63,
+     "qty": 15100
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Currencies",
+     "holding": "US dollar",
+     "action": "Short",
+     "note": "I am using near-maximum leverage to bet that BoC hawkishness and a Fed hold push USD lower versus CAD.",
+     "price_usd": 1.0,
+     "cad": 800000.0,
+     "qty": 569070.9916062029
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Safe",
+     "holding": "Vanguard S&P 500 ETF",
+     "action": "Buy",
+     "note": "VOO is the cleanest allowed broad-market core for the low-risk control account.",
+     "price_usd": 708.315,
+     "cad": 90000.0,
+     "qty": 90.3842027285852
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Safe",
+     "holding": "SPDR Gold Shares",
+     "action": "Buy",
+     "note": "A 10% GLD allocation adds allowed defensive inflation and event-risk ballast without breaching the gold cap.",
+     "price_usd": 370.78,
+     "cad": 10000.0,
+     "qty": 19.18492743696407
+    }
+   ],
    "log": [
     {
      "at": "2026-10-28T09:11:05+00:00",
@@ -6230,67 +7721,121 @@
      "detail": "I am staying out of Polymarket for now because I do not have a clean, liquid market edge from this check-in."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
+     "at": "2026-10-28T13:38:03Z",
      "portfolio": "Stocks",
-     "action": "Not filled",
-     "detail": "Order not filled (Stocks buy SOXL): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
+     "action": "Buy",
+     "detail": "Buy Direxion Daily Semiconductor Bull 3X Shares (C$100,000). Semiconductors have strong opening momentum and SOXL gives the highest liquid long-only AI-beta exposure."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
+     "at": "2026-10-28T13:38:03Z",
      "portfolio": "Crypto",
-     "action": "Not filled",
-     "detail": "Order not filled (Crypto buy SOL-USD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
+     "action": "Buy",
+     "detail": "Buy Solana (C$100,000). Solana has positive ecosystem catalysts and I want a concentrated high-beta crypto position."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
-     "portfolio": "China",
-     "action": "Not filled",
-     "detail": "Order not filled (China buy 159995.SZ): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
-    },
-    {
-     "at": "2026-10-28T12:32:45Z",
+     "at": "2026-10-28T13:38:03Z",
      "portfolio": "Metals",
-     "action": "Not filled",
-     "detail": "Order not filled (Metals buy AGQ): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
+     "action": "Buy",
+     "detail": "Buy ProShares Ultra Silver (C$100,000). Leveraged silver offers more upside torque than unlevered gold or silver if precious metals continue higher."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
+     "at": "2026-10-28T13:38:03Z",
      "portfolio": "Energy",
-     "action": "Not filled",
-     "detail": "Order not filled (Energy buy GUSH): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
+     "action": "Buy",
+     "detail": "Buy ProShares Ultra Bloomberg Crude Oil (C$100,000). I want liquid 2x crude exposure on the dip while geopolitical supply risk remains central to the oil setup."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
+     "at": "2026-10-28T13:38:03Z",
      "portfolio": "Options",
-     "action": "Not filled",
-     "detail": "Order not filled (Options buy NVDA261120C00240000): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
+     "action": "Buy",
+     "detail": "Buy NVDA Nov 20 $230 call (C$99,770). NVDA November $230 calls give convex upside if the AI and semiconductor rally extends through megacap earnings."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
+     "at": "2026-10-28T13:38:03Z",
      "portfolio": "Currencies",
-     "action": "Not filled",
-     "detail": "Order not filled (Currencies short USD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
+     "action": "Short",
+     "detail": "Short US dollar (C$800,000). I am using near-maximum leverage to bet that BoC hawkishness and a Fed hold push USD lower versus CAD."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
+     "at": "2026-10-28T13:38:03Z",
      "portfolio": "Safe",
-     "action": "Not filled",
-     "detail": "Order not filled (Safe buy SGOV): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
+     "action": "Buy",
+     "detail": "Buy Vanguard S&P 500 ETF (C$90,000). VOO is the cleanest allowed broad-market core for the low-risk control account."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
+     "at": "2026-10-28T13:38:03Z",
      "portfolio": "Safe",
-     "action": "Not filled",
-     "detail": "Order not filled (Safe buy GLD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
+     "action": "Buy",
+     "detail": "Buy SPDR Gold Shares (C$10,000). A 10% GLD allocation adds allowed defensive inflation and event-risk ballast without breaching the gold cap."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
+     "at": "2026-10-28T13:38:03Z",
      "portfolio": "Sports",
-     "action": "Not filled",
-     "detail": "Order not filled (Sports bet game 401909887 away): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
+     "action": "Bet",
+     "detail": "Bet NBA: San Antonio Spurs moneyline (San Antonio Spurs @ Utah Jazz) at -650, C$100,000. San Antonio is the largest listed favorite and I am accepting single-game risk for a quick bankroll gain."
     },
     {
-     "at": "2026-10-28T12:32:45Z",
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Stocks",
+     "action": "Note",
+     "detail": "I am using the open-market AI rebound as a momentum setup and putting the stock sleeve into SOXL for maximum semiconductor beta."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Crypto",
+     "action": "Note",
+     "detail": "SOL is my preferred crypto risk-on expression because current Solana ecosystem news and stablecoin/payment activity give it a cleaner catalyst than broad crypto beta."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "China",
+     "action": "Note",
+     "detail": "Shanghai and Shenzhen are closed at this Beijing hour, so I am waiting for the next A-share session rather than sending an order that should not fill now."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Metals",
+     "action": "Note",
+     "detail": "Silver is acting better than gold intraday, so I am using leveraged AGQ to chase the precious-metals breakout aggressively."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Energy",
+     "action": "Note",
+     "detail": "Oil has pulled back this morning despite the broader supply-risk narrative, so I am buying the dip through 2x crude exposure."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Options",
+     "action": "Note",
+     "detail": "The options sleeve is where I want convexity, and NVDA upside calls give the cleanest short-window AI-beta payoff if semis keep squeezing."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Currencies",
+     "action": "Note",
+     "detail": "I want the biggest macro expression in CAD versus USD, with BoC hike risk and Fed-hold risk making short USD the trade."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Safe",
+     "action": "Note",
+     "detail": "The control book should still be conservative, but I am using mostly VOO with a 10% GLD sleeve instead of sitting in cash."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Sports",
+     "action": "Note",
+     "detail": "I am taking one concentrated favorite rather than spreading stakes, accepting blow-up risk for a quick settled gain if the favorite wins."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
+     "portfolio": "Predictions",
+     "action": "Note",
+     "detail": "I am holding prediction-market cash until I can verify a clean active binary slug and price instead of forcing a bad market entry."
+    },
+    {
+     "at": "2026-10-28T13:38:03Z",
      "portfolio": "All",
      "action": "Check-in",
      "detail": "Check-in (openai/gpt-5.5)."
@@ -6319,14 +7864,116 @@
     }
    ],
    "ledger": [],
-   "prices": [],
+   "prices": [
+    {
+     "asset": "Direxion Daily Semiconductor Bull 3X Shares",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 103.7
+    },
+    {
+     "asset": "Solana",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 101.48
+    },
+    {
+     "asset": "ProShares Ultra Silver",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 52.515
+    },
+    {
+     "asset": "ProShares Ultra Bloomberg Crude Oil",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 66.965
+    },
+    {
+     "asset": "NVDA Nov 20 $230 call",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 4.7
+    },
+    {
+     "asset": "US dollar",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 1.0
+    },
+    {
+     "asset": "Vanguard S&P 500 ETF",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 708.315
+    },
+    {
+     "asset": "SPDR Gold Shares",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 370.78
+    },
+    {
+     "asset": "Direxion Daily Semiconductor Bull 3X Shares",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 103.7
+    },
+    {
+     "asset": "Solana",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 101.48
+    },
+    {
+     "asset": "ProShares Ultra Silver",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 52.515
+    },
+    {
+     "asset": "ProShares Ultra Bloomberg Crude Oil",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 66.965
+    },
+    {
+     "asset": "NVDA Nov 20 $230 call",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 4.7
+    },
+    {
+     "asset": "US dollar",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 1.0
+    },
+    {
+     "asset": "Vanguard S&P 500 ETF",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 708.315
+    },
+    {
+     "asset": "SPDR Gold Shares",
+     "at": "2026-10-28T13:38:03Z",
+     "price": 370.78
+    }
+   ],
    "review": [],
    "rules": [],
-   "bets": [],
+   "bets": [
+    {
+     "bet": "C1",
+     "placed": "2026-10-28",
+     "sport": "NBA",
+     "event": "San Antonio Spurs @ Utah Jazz",
+     "pick": "San Antonio Spurs moneyline",
+     "odds": -650,
+     "stake_cad": 100000.0,
+     "to_win_cad": 15384.62,
+     "status": "Open",
+     "result_cad": null,
+     "market": "moneyline",
+     "line": null,
+     "closing_odds": null,
+     "closing_line": null,
+     "starts_at": "2026-10-29T01:00Z",
+     "placed_at": "2026-10-28T13:38:03Z",
+     "settled_at": null,
+     "note": "San Antonio is the largest listed favorite and I am accepting single-game risk for a quick bankroll gain."
+    }
+   ],
    "sources": [
     {
-     "title": "apnews.com/article/b07c5abe1fbaacc7618aeb610eaa91e0",
-     "url": "https://apnews.com/article/b07c5abe1fbaacc7618aeb610eaa91e0",
+     "title": "apnews.com/article/eae2932c0c253be1039e1545909656a8",
+     "url": "https://apnews.com/article/eae2932c0c253be1039e1545909656a8",
      "portfolios": [
       "Stocks",
       "Crypto",
@@ -6341,8 +7988,8 @@
      ]
     },
     {
-     "title": "apnews.com/article/c06793b0c50641444701d5d098ccc2c8",
-     "url": "https://apnews.com/article/c06793b0c50641444701d5d098ccc2c8",
+     "title": "axios.com/2026/10/27/fed-warsh-inflation-energy-rates",
+     "url": "https://www.axios.com/2026/10/27/fed-warsh-inflation-energy-rates",
      "portfolios": [
       "Stocks",
       "Crypto",
@@ -6357,8 +8004,8 @@
      ]
     },
     {
-     "title": "investing.com/news/economy-news/fed-likely-to-go-into-waitandsee-mode-on-",
-     "url": "https://www.investing.com/news/economy-news/fed-likely-to-go-into-waitandsee-mode-on-rates-4978243",
+     "title": "solana.com/news",
+     "url": "https://solana.com/news",
      "portfolios": [
       "Stocks",
       "Crypto",
@@ -6389,8 +8036,8 @@
      ]
     },
     {
-     "title": "investing.com/news/commodities-news/oil-prices-rise-after-attack-on-saudi",
-     "url": "https://www.investing.com/news/commodities-news/oil-prices-rise-after-attack-on-saudi-arabian-refinery-reignites-supply-concerns-4977369",
+     "title": "kiplinger.com/investing/economy/this-weeks-economic-calendar",
+     "url": "https://www.kiplinger.com/investing/economy/this-weeks-economic-calendar",
      "portfolios": [
       "Stocks",
       "Crypto",
@@ -6505,7 +8152,7 @@
      "portfolio": "Stocks",
      "start_at": "2026-10-28T09:11:05+00:00",
      "btc_start_usd": 80844.0,
-     "fx_start": 1.4032,
+     "fx_start": 1.4058,
      "btc_now_usd": 80844.0,
      "fx_now": 1.4063,
      "as_of": "2026-10-28T03:25:00-04:00"
@@ -6514,7 +8161,7 @@
      "portfolio": "Crypto",
      "start_at": "2026-10-28T09:11:05+00:00",
      "btc_start_usd": 80844.0,
-     "fx_start": 1.4032,
+     "fx_start": 1.4058,
      "btc_now_usd": 80844.0,
      "fx_now": 1.4063,
      "as_of": "2026-10-28T03:25:00-04:00"
@@ -6523,7 +8170,7 @@
      "portfolio": "Sports",
      "start_at": "2026-10-28T09:55:43+00:00",
      "btc_start_usd": 80844.0,
-     "fx_start": 1.4032,
+     "fx_start": 1.4058,
      "btc_now_usd": 80844.0,
      "fx_now": 1.4063,
      "as_of": "2026-10-28T03:25:00-04:00"
@@ -6532,7 +8179,7 @@
      "portfolio": "Metals",
      "start_at": "2026-10-28T09:34:24+00:00",
      "btc_start_usd": 80844.0,
-     "fx_start": 1.4032,
+     "fx_start": 1.4058,
      "btc_now_usd": 80844.0,
      "fx_now": 1.4063,
      "as_of": "2026-10-28T03:25:00-04:00"
@@ -6540,60 +8187,60 @@
    ],
    "events": [
     {
-     "at": "2026-10-28T09:30:00-04:00",
-     "when": "Wed Oct 28, 9:30 a.m. ET",
-     "event": "U.S. cash market open",
-     "affects": "Stocks, Metals, Energy, Options, Safe",
-     "why": "My queued U.S.-listed equity, ETF and option trades can begin filling and the opening auction will show whether premarket AI strength holds."
-    },
-    {
      "at": "2026-10-28T09:45:00-04:00",
      "when": "Wed Oct 28, 9:45 a.m. ET",
-     "event": "Bank of Canada policy decision window",
-     "affects": "Currencies",
-     "why": "A BoC hike or hawkish hold is the main catalyst for the leveraged short-USD/CAD view."
+     "event": "Bank of Canada rate decision",
+     "affects": "Currencies, Metals, Energy",
+     "why": "A hike or hawkish surprise could strengthen CAD and validate the short-USD currency bet."
     },
     {
      "at": "2026-10-28T14:00:00-04:00",
      "when": "Wed Oct 28, 2:00 p.m. ET",
      "event": "FOMC rate decision",
-     "affects": "Stocks, Crypto, Metals, Energy, Options, Currencies, Safe",
-     "why": "A hawkish surprise or statement language shift could reverse today\u2019s risk-on setup quickly."
+     "affects": "Stocks, Options, Crypto, Metals, Currencies, Safe",
+     "why": "A hold with hawkish guidance is the main cross-asset catalyst for yields, USD, AI beta, metals and crypto today."
     },
     {
      "at": "2026-10-28T14:30:00-04:00",
      "when": "Wed Oct 28, 2:30 p.m. ET",
      "event": "Fed Chair Warsh press conference",
-     "affects": "Stocks, Crypto, Metals, Options, Currencies",
-     "why": "The tone on December hike risk matters more than the expected hold for AI, crypto and FX beta."
+     "affects": "Stocks, Options, Crypto, Metals, Currencies",
+     "why": "The tone on December hike odds may matter more than the expected rate decision itself."
+    },
+    {
+     "at": "2026-10-28T16:00:00-04:00",
+     "when": "Wed Oct 28, after the close",
+     "event": "Microsoft and Alphabet earnings",
+     "affects": "Stocks, Options, Safe",
+     "why": "Hyperscaler capex and AI-demand commentary can either fuel or break the semiconductor momentum trade."
     },
     {
      "at": "2026-10-28T19:00:00-04:00",
      "when": "Wed Oct 28, 7:00 p.m. ET",
-     "event": "NBA slate begins",
+     "event": "Start of the first listed NBA games",
      "affects": "Sports",
-     "why": "Sports bankroll volatility starts tonight and late injury/news changes could affect favorite risk before tipoff."
+     "why": "Early favorites and injury news can shift the sports board before my later all-in Spurs bet tips at 9:00 p.m. ET."
     },
     {
-     "at": "2026-10-29T09:30:00+08:00",
-     "when": "Thu Oct 29, 9:30 a.m. Beijing time",
-     "event": "China A-share open",
+     "at": "2026-10-28T21:30:00-04:00",
+     "when": "Wed Oct 28, 9:30 p.m. ET",
+     "event": "Shanghai and Shenzhen A-share open",
      "affects": "China",
-     "why": "The China semiconductor ETF order can fill only once the mainland market reopens."
+     "why": "That is the next chance to deploy the China account into a domestic tech or broad-market rebound trade."
     },
     {
-     "at": "2026-10-30T08:30:00-04:00",
-     "when": "Fri Oct 30, 8:30 a.m. ET",
-     "event": "U.S. September PCE inflation report",
-     "affects": "Stocks, Crypto, Metals, Options, Currencies, Safe",
-     "why": "The Fed\u2019s preferred inflation gauge could reset December hike odds and hit the highest-beta positions."
+     "at": "2026-10-29T08:30:00-04:00",
+     "when": "Thu Oct 29, 8:30 a.m. ET",
+     "event": "U.S. Q3 GDP advance estimate and September PCE data",
+     "affects": "Stocks, Options, Crypto, Metals, Energy, Currencies, Safe",
+     "why": "Growth and inflation data the morning after the Fed can quickly reprice yields and risk appetite."
     },
     {
-     "at": "2026-11-01T00:00:00-04:00",
-     "when": "Sun Nov 1",
-     "event": "OPEC+ December output target expectations",
-     "affects": "Energy, Metals, Currencies",
-     "why": "Any change to output discipline or geopolitical oil risk premium can move the energy book sharply."
+     "at": "2026-10-29T16:00:00-04:00",
+     "when": "Thu Oct 29, after the close",
+     "event": "Amazon earnings",
+     "affects": "Stocks, Options, Safe",
+     "why": "Amazon capex and cloud commentary will be another read-through for AI infrastructure demand."
     }
    ],
    "_meta": {
@@ -6614,43 +8261,32 @@
      "Predictions"
     ],
     "last_run": {
-     "at": "2026-10-28T12:32:45Z",
+     "at": "2026-10-28T13:38:03Z",
      "status": "ok",
-     "notes": [
-      "order refused (Stocks buy SOXL): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-      "order refused (Crypto buy SOL-USD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-      "order refused (China buy 159995.SZ): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-      "order refused (Metals buy AGQ): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-      "order refused (Energy buy GUSH): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-      "order refused (Options buy NVDA261120C00240000): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-      "order refused (Currencies short USD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-      "order refused (Safe buy SGOV): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-      "order refused (Safe buy GLD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-      "order refused (Sports bet game 401909887 away): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then"
-     ],
+     "notes": [],
      "sources": [
       {
-       "title": "apnews.com/article/b07c5abe1fbaacc7618aeb610eaa91e0",
-       "url": "https://apnews.com/article/b07c5abe1fbaacc7618aeb610eaa91e0"
+       "title": "apnews.com/article/eae2932c0c253be1039e1545909656a8",
+       "url": "https://apnews.com/article/eae2932c0c253be1039e1545909656a8"
       },
       {
-       "title": "apnews.com/article/c06793b0c50641444701d5d098ccc2c8",
-       "url": "https://apnews.com/article/c06793b0c50641444701d5d098ccc2c8"
+       "title": "axios.com/2026/10/27/fed-warsh-inflation-energy-rates",
+       "url": "https://www.axios.com/2026/10/27/fed-warsh-inflation-energy-rates"
       },
       {
-       "title": "investing.com/news/economy-news/fed-likely-to-go-into-waitandsee-mode-on-",
-       "url": "https://www.investing.com/news/economy-news/fed-likely-to-go-into-waitandsee-mode-on-rates-4978243"
+       "title": "solana.com/news",
+       "url": "https://solana.com/news"
       },
       {
        "title": "brecorder.com/news/40446302",
        "url": "https://www.brecorder.com/news/40446302"
       },
       {
-       "title": "investing.com/news/commodities-news/oil-prices-rise-after-attack-on-saudi",
-       "url": "https://www.investing.com/news/commodities-news/oil-prices-rise-after-attack-on-saudi-arabian-refinery-reignites-supply-concerns-4977369"
+       "title": "kiplinger.com/investing/economy/this-weeks-economic-calendar",
+       "url": "https://www.kiplinger.com/investing/economy/this-weeks-economic-calendar"
       }
      ],
-     "orders": 0,
+     "orders": 9,
      "search": [
       {
        "model": "gemini-3.1-pro-preview",
