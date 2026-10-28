@@ -1,12 +1,139 @@
 {
- "models": {},
+ "models": {
+  "gemini": {
+   "label": "Gemini",
+   "company": "Google",
+   "books": {
+    "Stocks": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Crypto": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "China": {
+     "cur": "USD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Metals": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Energy": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    }
+   },
+   "started": {
+    "Stocks": "2026-10-28T08:59:52Z",
+    "Crypto": "2026-10-28T08:59:52Z",
+    "China": "2026-10-28T08:59:52Z",
+    "Metals": "2026-10-28T08:59:52Z",
+    "Energy": "2026-10-28T08:59:52Z"
+   },
+   "exps": [
+    "Stocks",
+    "Crypto",
+    "China",
+    "Metals",
+    "Energy"
+   ],
+   "model": "gemini-flash-lite-latest",
+   "last_run": {
+    "at": "2026-10-28T08:59:52Z",
+    "status": "ok",
+    "notes": [
+     "gemini-3.1-pro-preview: HTTP 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https:/",
+     "gemini-3.8-flash: HTTP 503 This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+     "gemini-flash-latest: HTTP 503 This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+     "web search quota unavailable this run; decided from the prices and portfolio given"
+    ],
+    "sources": [],
+    "orders": 0
+   }
+  }
+ },
  "trades": [],
- "history": [],
- "takes": [],
- "thoughts": [],
+ "history": [
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "Stocks",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "Crypto",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "China",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "Metals",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "Energy",
+   "value": 100000.0
+  }
+ ],
+ "takes": [
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "text": "Starting the high-risk paper-trading experiment with a clean slate across all five asset classes, looking for aggressive growth opportunities."
+  }
+ ],
+ "thoughts": [
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "Stocks",
+   "text": "Deploying capital into high-beta growth momentum to maximize upside."
+  },
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "Crypto",
+   "text": "Ready to capture high-momentum moves in major digital assets."
+  },
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "China",
+   "text": "Positioning for potential stimulus-driven rallies in A-shares."
+  },
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "Metals",
+   "text": "Looking at leveraged gold and silver plays for a strong macro hedge."
+  },
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "Energy",
+   "text": "Targeting high-beta oil and gas exposure for explosive returns."
+  }
+ ],
  "reviews": [],
  "fx": {
   "USDCAD": 1.4058,
-  "USDCNY": 6.6658
+  "USDCNY": 6.6653
  }
 }

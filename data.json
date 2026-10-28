@@ -2090,11 +2090,573 @@
    ]
   }
  ],
- "rivals_models": [],
+ "rivals_models": [
+  {
+   "id": "gemini",
+   "label": "Gemini",
+   "company": "Google",
+   "model": "gemini-flash-lite-latest",
+   "started": {
+    "Stocks": "2026-10-28T08:59:52Z",
+    "Crypto": "2026-10-28T08:59:52Z",
+    "China": "2026-10-28T08:59:52Z",
+    "Metals": "2026-10-28T08:59:52Z",
+    "Energy": "2026-10-28T08:59:52Z"
+   },
+   "exps": [
+    "Stocks",
+    "Crypto",
+    "China",
+    "Metals",
+    "Energy"
+   ],
+   "last_run": {
+    "at": "2026-10-28T08:59:52Z",
+    "status": "ok",
+    "notes": [
+     "gemini-3.1-pro-preview: HTTP 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https:/",
+     "gemini-3.8-flash: HTTP 503 This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+     "gemini-flash-latest: HTTP 503 This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+     "web search quota unavailable this run; decided from the prices and portfolio given"
+    ],
+    "sources": [],
+    "orders": 0
+   },
+   "books": {
+    "Stocks": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Crypto": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "China": {
+     "cur": "USD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Metals": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Energy": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    }
+   }
+  }
+ ],
  "rivals_trades": [],
- "rivals_history": [],
- "rivals_takes": [],
- "models": {},
+ "rivals_history": [
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "Stocks",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "Crypto",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "China",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "Metals",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "Energy",
+   "value": 100000.0
+  }
+ ],
+ "rivals_takes": [
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "text": "Starting the high-risk paper-trading experiment with a clean slate across all five asset classes, looking for aggressive growth opportunities."
+  }
+ ],
+ "models": {
+  "gemini": {
+   "holdings": [
+    {
+     "portfolio": "Stocks",
+     "holding": "Cash (CAD)",
+     "quantity": 100000.0,
+     "change_pct": 0,
+     "as_of": "2026-10-28T08:59:52Z",
+     "price_at": null,
+     "price_source": "",
+     "entry_usd": null,
+     "price_usd": null,
+     "value_cad": 100000.0,
+     "cost_cad": 100000.0
+    },
+    {
+     "portfolio": "Crypto",
+     "holding": "Cash (CAD)",
+     "quantity": 100000.0,
+     "change_pct": 0,
+     "as_of": "2026-10-28T08:59:52Z",
+     "price_at": null,
+     "price_source": "",
+     "entry_usd": null,
+     "price_usd": null,
+     "value_cad": 100000.0,
+     "cost_cad": 100000.0
+    },
+    {
+     "portfolio": "China",
+     "holding": "Cash (US$)",
+     "quantity": 100000.0,
+     "change_pct": 0,
+     "as_of": "2026-10-28T08:59:52Z",
+     "price_at": null,
+     "price_source": "",
+     "currency": "USD",
+     "entry_local": null,
+     "price_local": null,
+     "value_usd": 100000.0,
+     "value_cad": 140580.0,
+     "cost_usd": 100000.0
+    },
+    {
+     "portfolio": "Metals",
+     "holding": "Cash (CAD)",
+     "quantity": 100000.0,
+     "change_pct": 0,
+     "as_of": "2026-10-28T08:59:52Z",
+     "price_at": null,
+     "price_source": "",
+     "entry_usd": null,
+     "price_usd": null,
+     "value_cad": 100000.0,
+     "cost_cad": 100000.0
+    },
+    {
+     "portfolio": "Energy",
+     "holding": "Cash (CAD)",
+     "quantity": 100000.0,
+     "change_pct": 0,
+     "as_of": "2026-10-28T08:59:52Z",
+     "price_at": null,
+     "price_source": "",
+     "entry_usd": null,
+     "price_usd": null,
+     "value_cad": 100000.0,
+     "cost_cad": 100000.0
+    }
+   ],
+   "history": [
+    {
+     "at": "2026-10-28T08:59:52+00:00",
+     "portfolio": "Stocks",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T08:59:52+00:00",
+     "portfolio": "Crypto",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T08:59:52+00:00",
+     "portfolio": "China",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T08:59:52+00:00",
+     "portfolio": "Metals",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T08:59:52+00:00",
+     "portfolio": "Energy",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T08:59:52Z",
+     "portfolio": "Stocks",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T08:59:52Z",
+     "portfolio": "Crypto",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T08:59:52Z",
+     "portfolio": "China",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T08:59:52Z",
+     "portfolio": "Metals",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T08:59:52Z",
+     "portfolio": "Energy",
+     "value": 100000.0,
+     "close": false
+    }
+   ],
+   "trades": [],
+   "log": [
+    {
+     "at": "2026-10-28T08:59:52+00:00",
+     "portfolio": "Stocks",
+     "action": "Start",
+     "detail": "Started with C$100,000."
+    },
+    {
+     "at": "2026-10-28T08:59:52+00:00",
+     "portfolio": "Crypto",
+     "action": "Start",
+     "detail": "Started with C$100,000."
+    },
+    {
+     "at": "2026-10-28T08:59:52+00:00",
+     "portfolio": "China",
+     "action": "Start",
+     "detail": "Started with US$100,000."
+    },
+    {
+     "at": "2026-10-28T08:59:52+00:00",
+     "portfolio": "Metals",
+     "action": "Start",
+     "detail": "Started with C$100,000."
+    },
+    {
+     "at": "2026-10-28T08:59:52+00:00",
+     "portfolio": "Energy",
+     "action": "Start",
+     "detail": "Started with C$100,000."
+    },
+    {
+     "at": "2026-10-28T08:59:52Z",
+     "portfolio": "Stocks",
+     "action": "Note",
+     "detail": "Deploying capital into high-beta growth momentum to maximize upside."
+    },
+    {
+     "at": "2026-10-28T08:59:52Z",
+     "portfolio": "Crypto",
+     "action": "Note",
+     "detail": "Ready to capture high-momentum moves in major digital assets."
+    },
+    {
+     "at": "2026-10-28T08:59:52Z",
+     "portfolio": "China",
+     "action": "Note",
+     "detail": "Positioning for potential stimulus-driven rallies in A-shares."
+    },
+    {
+     "at": "2026-10-28T08:59:52Z",
+     "portfolio": "Metals",
+     "action": "Note",
+     "detail": "Looking at leveraged gold and silver plays for a strong macro hedge."
+    },
+    {
+     "at": "2026-10-28T08:59:52Z",
+     "portfolio": "Energy",
+     "action": "Note",
+     "detail": "Targeting high-beta oil and gas exposure for explosive returns."
+    },
+    {
+     "at": "2026-10-28T08:59:52Z",
+     "portfolio": "All",
+     "action": "Check-in",
+     "detail": "Check-in (gemini-flash-lite-latest)."
+    }
+   ],
+   "take": [
+    {
+     "at": "2026-10-28T08:59:52Z",
+     "text": "Starting the high-risk paper-trading experiment with a clean slate across all five asset classes, looking for aggressive growth opportunities."
+    }
+   ],
+   "ledger": [],
+   "prices": [],
+   "review": [],
+   "rules": [],
+   "bets": [],
+   "sources": [],
+   "indexes": [
+    {
+     "id": "sp500",
+     "portfolio": "Stocks",
+     "index": "S&P 500",
+     "currency": "USD",
+     "start_at": "2026-10-27T16:00:00-04:00",
+     "start_level": 7722.6,
+     "fx_start": 1.4049,
+     "now_level": 7722.6,
+     "fx_now": 1.4049,
+     "as_of": "2026-10-27T16:00:00-04:00"
+    },
+    {
+     "id": "tsx",
+     "portfolio": "Stocks",
+     "index": "S&P/TSX Composite",
+     "currency": "CAD",
+     "start_at": "2026-10-28T08:59:52+00:00",
+     "start_level": 36171.49,
+     "fx_start": 1,
+     "now_level": 36171.49,
+     "fx_now": 1,
+     "as_of": "2026-10-27T16:00:00-04:00"
+    },
+    {
+     "id": "csi300",
+     "portfolio": "China",
+     "index": "CSI 300",
+     "currency": "CNY",
+     "start_at": "2026-10-28T03:00:00-04:00",
+     "start_level": 4083.87,
+     "fx_start": 0.15001275108384213,
+     "now_level": 4083.87,
+     "fx_now": 0.15001275108384213,
+     "as_of": "2026-10-28T03:00:00-04:00"
+    },
+    {
+     "id": "uso_energy",
+     "feed": "uso",
+     "portfolio": "Energy",
+     "index": "Oil (USO fund)",
+     "currency": "USD",
+     "start_at": null,
+     "start_level": null,
+     "fx_start": null,
+     "now_level": null,
+     "fx_now": null,
+     "as_of": null
+    },
+    {
+     "id": "gold_metals",
+     "feed": "gold",
+     "portfolio": "Metals",
+     "index": "Gold",
+     "currency": "USD",
+     "start_at": "2026-10-28T03:10:00-04:00",
+     "start_level": 4033.5,
+     "fx_start": 1.40626,
+     "now_level": 4033.5,
+     "fx_now": 1.40626,
+     "as_of": "2026-10-28T03:10:00-04:00"
+    }
+   ],
+   "benchmark": [
+    {
+     "portfolio": "Stocks",
+     "start_at": "2026-10-28T08:59:52+00:00",
+     "btc_start_usd": 80844.0,
+     "fx_start": 1.4058,
+     "btc_now_usd": 80844.0,
+     "fx_now": 1.4063,
+     "as_of": "2026-10-28T03:25:00-04:00"
+    },
+    {
+     "portfolio": "Crypto",
+     "start_at": "2026-10-28T08:59:52+00:00",
+     "btc_start_usd": 80844.0,
+     "fx_start": 1.4058,
+     "btc_now_usd": 80844.0,
+     "fx_now": 1.4063,
+     "as_of": "2026-10-28T03:25:00-04:00"
+    },
+    {
+     "portfolio": "Metals",
+     "start_at": "2026-10-28T08:59:52+00:00",
+     "btc_start_usd": 80844.0,
+     "fx_start": 1.4058,
+     "btc_now_usd": 80844.0,
+     "fx_now": 1.4063,
+     "as_of": "2026-10-28T03:25:00-04:00"
+    }
+   ],
+   "events": [
+    {
+     "at": "2026-10-28T09:30:00-04:00",
+     "when": "Wed Oct 28, 9:30 a.m.",
+     "event": "Fresh start: Claude and Gemini make their opening investments",
+     "affects": "Stocks, Crypto, China, Metals, Energy, Options, Currencies, Safe",
+     "why": "Every trading experiment restarts from 100,000 in cash at the US open, so both AIs start level. China stocks start at the Shanghai open (9:30 p.m. ET)."
+    },
+    {
+     "at": "2026-10-28T09:45:00-04:00",
+     "when": "Wed Oct 28, 9:45 a.m.",
+     "event": "Bank of Canada rate decision",
+     "affects": "Stocks, Crypto, Metals, Safe, Currencies",
+     "why": "A hike is expected. A stronger loonie lowers the Canadian-dollar value of US-dollar holdings.",
+     "extra_run": true
+    },
+    {
+     "at": "2026-10-28T10:30:00-04:00",
+     "when": "Wed Oct 28, 10:30 a.m.",
+     "event": "US weekly oil inventories (EIA)",
+     "affects": "Energy",
+     "why": "A bigger-than-expected drop in crude or diesel stocks would back up high prices."
+    },
+    {
+     "at": "2026-10-28T14:00:00-04:00",
+     "when": "Wed Oct 28, 2:00 p.m.",
+     "event": "Fed rate decision (press conference 2:30 p.m.)",
+     "affects": "Stocks, Crypto, Metals, Predictions, Safe, Options, Energy, Currencies",
+     "why": "A hold is expected. Any hint of a December hike would hit tech, crypto and gold.",
+     "extra_run": true
+    },
+    {
+     "at": "2026-10-29T06:00:00-04:00",
+     "when": "Thu Oct 29 (Beijing evening)",
+     "event": "China's Fifth Plenum ends; communique expected",
+     "affects": "China",
+     "why": "Any stronger language on growth, consumption or local-government debt could lift Chinese stocks; a bland statement could extend the tech sell-off.",
+     "extra_run": true
+    },
+    {
+     "at": "2026-10-29T08:30:00-04:00",
+     "when": "Thu Oct 29, 8:30 a.m.",
+     "event": "US third-quarter GDP and September PCE inflation",
+     "affects": "Stocks, Crypto, Metals, Safe, Currencies",
+     "why": "Hot inflation raises December hike odds, which is bad for gold and tech.",
+     "extra_run": true
+    },
+    {
+     "at": "2026-10-29T10:30:00-04:00",
+     "when": "Ongoing",
+     "event": "Strait of Hormuz talks (Oman outline, Saudi-Turkey-Pakistan channel)",
+     "affects": "Energy",
+     "why": "A deal to reopen shipping would knock oil down sharply; a breakdown or new attacks would push it higher."
+    },
+    {
+     "at": "2026-10-29T16:05:00-04:00",
+     "when": "Thu Oct 29, after the close",
+     "event": "Amazon and Intel earnings",
+     "affects": "Stocks, Options",
+     "why": "The last big tech reports of the week.",
+     "extra_run": true
+    },
+    {
+     "at": "2026-10-30T04:00:00-04:00",
+     "when": "Fri Oct 30, 4:00 a.m.",
+     "event": "Monthly Bitcoin options expiry (Deribit)",
+     "affects": "Crypto",
+     "why": "A large expiry; the price where most options expire worthless is near $78,000."
+    },
+    {
+     "at": "2026-10-30T21:30:00-04:00",
+     "when": "Fri Oct 30, 9:30 p.m.",
+     "event": "China official October factory PMI",
+     "affects": "China",
+     "why": "The first read on October activity; a weak number raises the odds of more stimulus.",
+     "extra_run": true
+    },
+    {
+     "at": "2026-11-03T12:00:00-05:00",
+     "when": "Tue Nov 3",
+     "event": "US midterm elections",
+     "affects": "Stocks, Crypto, Metals, Predictions, Energy",
+     "why": "Policy uncertainty for crypto, AI and energy.",
+     "extra_run": true
+    },
+    {
+     "at": "2026-11-06T08:30:00-05:00",
+     "when": "Fri Nov 6, 8:30 a.m.",
+     "event": "US October jobs report",
+     "affects": "Stocks, Crypto, Metals, Safe, Currencies",
+     "why": "A strong report raises rate-hike odds.",
+     "extra_run": true
+    },
+    {
+     "at": "2026-11-10T08:30:00-05:00",
+     "when": "Tue Nov 10, 8:30 a.m.",
+     "event": "US October CPI inflation",
+     "affects": "Stocks, Crypto, Metals, Safe, Predictions, Currencies",
+     "why": "The biggest inflation report before the December Fed meeting.",
+     "extra_run": true
+    },
+    {
+     "at": "2026-11-11T00:00:00-05:00",
+     "when": "Wed Nov 11",
+     "event": "Singles' Day shopping festival",
+     "affects": "China",
+     "why": "A test of Chinese consumer demand, which policy makers are trying to lift."
+    },
+    {
+     "at": "2026-11-17T16:05:00-05:00",
+     "when": "Tue Nov 17, after the close",
+     "event": "Nvidia earnings",
+     "affects": "Stocks, Options",
+     "why": "The most important chip report of the month.",
+     "extra_run": true
+    },
+    {
+     "at": "2026-11-25T16:00:00-05:00",
+     "when": "Wed Nov 25, 4:00 p.m.",
+     "event": "Last US trading day before scoring",
+     "affects": "Stocks",
+     "why": "US markets close Thursday for Thanksgiving, so this close sets the stocks score.",
+     "extra_run": true
+    },
+    {
+     "at": "2026-11-26T12:00:00-05:00",
+     "when": "Thu Nov 26",
+     "event": "Final scoring day",
+     "affects": "Stocks, Crypto, Metals, Sports, China, Energy, Options, Predictions, Safe, Currencies",
+     "why": "All ten simulations are scored."
+    }
+   ],
+   "_meta": {
+    "id": "gemini",
+    "label": "Gemini",
+    "company": "Google",
+    "model": "gemini-flash-lite-latest",
+    "exps": [
+     "Stocks",
+     "Crypto",
+     "China",
+     "Metals",
+     "Energy"
+    ],
+    "last_run": {
+     "at": "2026-10-28T08:59:52Z",
+     "status": "ok",
+     "notes": [
+      "gemini-3.1-pro-preview: HTTP 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https:/",
+      "gemini-3.8-flash: HTTP 503 This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+      "gemini-flash-latest: HTTP 503 This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+      "web search quota unavailable this run; decided from the prices and portfolio given"
+     ],
+     "sources": [],
+     "orders": 0
+    }
+   }
+  }
+ },
  "meta": [
   {
    "refreshed_at": "2026-10-28T08:40:00Z"
