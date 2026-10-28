@@ -128,6 +128,16 @@
   .lg-day details ul { margin: 8px 0 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; font-size: var(--cds-font-size-body); }
   .lg-pending { color: var(--color-fg-muted); font-style: italic; }
   .lg-today { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: baseline; }
+  .lg-sims { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 12px; }
+  .lg-sim { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .lg-sim-name { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--color-fg-muted); }
+  .lg-sim-pnl { font-family: var(--font-anthropic-serif); font-size: 26px; line-height: 1.15; }
+  .lg-sim-pct { font-size: 15px; }
+  .lg-sim-range { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .lg-sim-note { margin: 6px 0 0; font-size: 14.5px; line-height: 1.55; }
+  .lg-overall { border-top: 1px solid var(--color-border-line); padding-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .lg-overall-h { margin: 0; font-size: 15px; color: var(--color-fg-muted); }
+  .lg-overall-h b { font-size: 17px; }
   [data-dash-source-state=empty] { color: transparent; }
   [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
 </style>
@@ -703,7 +713,7 @@
     </section>
     <section class="st-card" aria-labelledby="h-l-days">
       <h2 class="st-h2" id="h-l-days">Day by day</h2>
-      <p class="st-note">Newest first. Open "Decisions this day" to see every trade, bet and check-in note logged during that day.</p>
+      <p class="st-note">Newest first. Each simulation gets its own result and write-up for the day; the combined total and overall take are underneath. Open "Decisions this day" for every trade, bet and note logged that day.</p>
       <div class="lg-days" data-draw="lg-days" data-source="ledger log"></div>
     </section>
   </section>
@@ -1576,30 +1586,29 @@
       const head = mk('div', 'lg-head');
       const h3 = mk('h3', '', dayTitle(x));
       h3.appendChild(mk('span', 'lg-span', etWeekday(x.start_at) + ', ' + etHour(x.start_at) + ' to ' + etWeekday(x.end_at) + ', ' + etHour(x.end_at) + ' ET (midnight to midnight UTC)'));
-      const tot = mk('span', 'lg-total');
-      if (x.all) { tone(tot, Number(x.all.pnl)); tot.textContent = stFmt.signed(Number(x.all.pnl), 'All'); }
-      head.append(h3, tot);
+      head.appendChild(h3);
       card.appendChild(head);
-      const summary = x.all && x.all.note ? mk('p', 'lg-note', x.all.note) : mk('p', 'lg-note lg-pending', 'The write-up for this day is added at the next check-in.');
-      card.appendChild(summary);
-      const wrap = mk('div', 'st-wrap');
-      const table = mk('table', 'st-table');
-      table.innerHTML = '<thead><tr><th>Simulation</th><th class="num">Start of day</th><th class="num">End of day</th><th class="num">Profit</th><th class="num">Change</th></tr></thead>';
-      const tb = mk('tbody');
+      const grid = mk('div', 'lg-sims');
       x.rows.filter((r) => r.portfolio !== 'All').forEach((r) => {
-        const tr = mk('tr');
-        const cells = [[NAMES[r.portfolio] || r.portfolio, ''], [stFmt.money(r.open, r.portfolio), 'num'], [stFmt.money(r.close, r.portfolio), 'num'],
-          [stFmt.signed(r.pnl, r.portfolio), 'num ' + upDown(r.pnl)], [stFmt.pct(r.pct), 'num ' + upDown(r.pnl)]];
-        cells.forEach(([t, c]) => tr.appendChild(mk('td', c, t)));
-        tb.appendChild(tr);
+        const c = mk('div', 'lg-sim');
+        c.appendChild(mk('span', 'lg-sim-name', NAMES[r.portfolio] || r.portfolio));
+        const big = mk('span', 'lg-sim-pnl', stFmt.signed(r.pnl, r.portfolio)); tone(big, r.pnl);
+        c.appendChild(big);
+        const pc = mk('span', 'lg-sim-pct', stFmt.pct(r.pct)); tone(pc, r.pnl);
+        c.appendChild(pc);
+        c.appendChild(mk('span', 'lg-sim-range', stFmt.money(r.open, r.portfolio) + ' → ' + stFmt.money(r.close, r.portfolio)));
+        c.appendChild(r.note ? mk('p', 'lg-sim-note', r.note) : mk('p', 'lg-sim-note lg-pending', 'Write-up added at the next check-in.'));
+        grid.appendChild(c);
       });
-      table.appendChild(tb); wrap.appendChild(table); card.appendChild(wrap);
-      const notes = x.rows.filter((r) => r.portfolio !== 'All' && r.note);
-      if (notes.length) {
-        const ul = mk('ul', 'lg-notes');
-        notes.forEach((r) => { const li = mk('li'); li.append(mk('b', '', (NAMES[r.portfolio] || r.portfolio) + ': '), document.createTextNode(r.note)); ul.appendChild(li); });
-        card.appendChild(ul);
-      }
+      card.appendChild(grid);
+      const ov = mk('div', 'lg-overall');
+      const ovh = mk('p', 'lg-overall-h');
+      ovh.appendChild(document.createTextNode('Overall, all simulations combined: '));
+      const t = mk('b', '', x.all ? stFmt.signed(Number(x.all.pnl), 'All') : '—'); if (x.all) tone(t, Number(x.all.pnl));
+      ovh.appendChild(t);
+      ov.appendChild(ovh);
+      ov.appendChild(x.all && x.all.note ? mk('p', 'lg-note', x.all.note) : mk('p', 'lg-note lg-pending', 'The overall write-up is added at the next check-in.'));
+      card.appendChild(ov);
       if (L.status === 'ok') {
         const a = +new Date(x.start_at), b = +new Date(x.end_at);
         const ev = L.data.filter((r) => +new Date(r.at) >= a && +new Date(r.at) < b).sort((p, q) => new Date(p.at) - new Date(q.at));

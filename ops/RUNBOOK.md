@@ -72,7 +72,8 @@ then publishes everything. It runs every hour.
    - `All`: 3 to 6 sentences on how the day went overall and an honest self-assessment: what was a
      good call, what was luck, what was a mistake, ending with a one-word grade for the day
      (for example "Grade for the day: good"). Use the printed numbers; don't invent figures.
-   - One or two sentences per portfolio that has a row: what moved it and any trades or bets.
+   - Two or three sentences per portfolio that has a row (each one gets its own box on the page):
+     its result, what moved it, any trades or bets, and an honest take on how that simulation did.
    - Plain past tense, no hype, no naming the AI model or company. Write it even on bad days.
 8. **Sync the private tracker** (link in the task prompt). For each data file the script
    listed as changed (and `ledger` if you ran ledger_note.py), except `sources` and `fx`: upload `ops/src/<name>.json` to the tracker as an
