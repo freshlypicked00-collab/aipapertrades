@@ -180,6 +180,10 @@ The earlier trading run is archived in `ops/archive/`; never restore it.
 - Benchmarks (indexes, Bitcoin, gold, savings) restart automatically at each experiment's first trade.
 - Write a new "AI's take" at that run.
 
+## Options quotes
+Best source for live option prices (the same one Gemini and ChatGPT are filled from): WebFetch
+`https://cdn.cboe.com/api/global/delayed_quotes/options/<TICKER>.json` (Cboe delayed quotes; each option has `option` in OCC format, e.g. NVDA261120C00230000, plus `bid`, `ask`, `last_trade_price`). Buy at the ask, value at the mid. If it can't be fetched, try Barchart, Nasdaq or Yahoo chain pages.
+
 ## Currencies (forex, high risk)
 
 - Restarts fresh at the first run after 9:30 a.m. ET Oct 28 with C$100,000 and leverage: positions up to 8x the account.
