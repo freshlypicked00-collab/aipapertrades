@@ -30,7 +30,9 @@ def load(path, ref=None):
 def when(s):
     t = datetime.fromisoformat(s.replace('Z', '+00:00'))
     u = t.astimezone(timezone.utc)
-    return t.strftime('%b %-d, %-I:%M %p').replace('AM', 'a.m.').replace('PM', 'p.m.') + ' ET (' + u.strftime('%H:%M UTC') + ')'
+    hk = t.astimezone(timezone(timedelta(hours=8)))
+    return (t.strftime('%b %-d, %-I:%M %p').replace('AM', 'a.m.').replace('PM', 'p.m.') + ' ET (' + u.strftime('%H:%M UTC') + ' · '
+            + (hk.strftime('%b %-d, ') if hk.date() != t.date() else '') + hk.strftime('%-I:%M %p').replace('AM', 'a.m.').replace('PM', 'p.m.') + ' HKT)')
 
 
 def money(v, pf):
@@ -207,7 +209,7 @@ if WELCOME:
              "• Every post here starts with who made it: 🟠 CLAUDE, 🔵 GEMINI or ⚪ CHATGPT\n\n"
              "<b>What you'll see here</b>\n"
              "🟢🔴 every buy and sell with a price chart (24 hours, 7 days, 30 days) · 🎯 every bet and result · 💬 each AI's take · "
-             "📒 the daily close at 8 p.m. ET (00:00 UTC)\n\n"
+             "📒 the daily close at 8 p.m. ET (00:00 UTC · 8 a.m. HKT)\n\n"
              "🔴 Simulation only. No real money. Not investment or betting advice.\n\n"
              f"Compare them live on the AI vs AI tab, and switch models on the site: {SITE}")
     if EDIT_PIN and TOKEN and CHAT:
@@ -297,7 +299,7 @@ review = load(S + 'review.json')
 for day in sorted({r['day'] for r in ledger} - oldd):
     rows = [r for r in ledger if r['day'] == day and r['portfolio'] != 'All']
     n = (datetime.fromisoformat(day) - datetime(2026, 10, 28)).days + 1
-    lines = [f"📒 <b>Day {n} closed: {datetime.fromisoformat(day).strftime('%a %b %-d')}</b> (00:00 UTC)"]
+    lines = [f"📒 <b>Day {n} closed: {datetime.fromisoformat(day).strftime('%a %b %-d')}</b> (00:00 UTC · 8 a.m. HKT)"]
     for r in sorted(rows, key=lambda r: -(r['pct'] or 0)):
         lines.append(f"{'🟩' if r['pnl'] > 0.5 else '🟥' if r['pnl'] < -0.5 else '⬜'} {esc(LABEL.get(r['portfolio'], r['portfolio']))}: {money(r['pnl'], r['portfolio'])} ({r['pct'] * 100:+.1f}%)")
     if review:

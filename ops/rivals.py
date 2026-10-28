@@ -1011,6 +1011,13 @@ def main():
         print('no rival API keys set; nothing to do')
         return
     state['fx'] = fx
+    allfx = {'USD': 1.0}
+    for c in ('CAD', 'EUR', 'GBP', 'JPY', 'CNY', 'HKD', 'AUD', 'INR', 'MXN', 'CHF', 'KRW', 'BRL', 'SGD'):
+        try:
+            allfx[c] = yahoo(f'{c}=X')[0]   # units of c per US$1
+        except Exception:
+            pass
+    state['fx_all'] = allfx
     try:
         g = espn_games()
         state['feeds'] = {'at': iso(), 'espn_games': len(g), 'open_with_moneylines': sum(1 for x in g.values() if x['state'] == 'pre' and x['home_ml'] and x['away_ml'])}

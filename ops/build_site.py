@@ -365,6 +365,8 @@ data['rivals_models'] = [{'id': k, **{x: v.get(x) for x in ('label', 'company', 
 for k in ('trades', 'history', 'takes'):
     data['rivals_' + k] = r[k]
 _cut = (datetime.now(timezone.utc) - __import__('datetime').timedelta(days=2)).isoformat()
+data['fx_all'] = [{'cur': k, 'per_usd': v} for k, v in (r.get('fx_all') or {}).items()]
+data['fx_meta'] = [json.load(open(os.path.join(SRC, 'fx.json')))]
 data['rivals_thoughts'] = [x for x in r.get('thoughts', []) if x['at'].replace('Z', '+00:00') >= _cut]
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import model_views

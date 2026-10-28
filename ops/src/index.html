@@ -240,8 +240,8 @@
   .st-model-inline { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 14px; }
   .st-model-inline .st-model-note { flex: 1 1 220px; }
   .st-model-l { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--color-fg-muted); }
-  .model-pick { width: 100%; max-width: 100%; min-width: 0; font: inherit; font-size: 15px; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 8px 10px; min-height: 40px; }
-  .model-pick:focus-visible, .st-model-cmp:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .model-pick, .cur-pick { width: 100%; max-width: 100%; min-width: 0; font: inherit; font-size: 15px; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 8px 10px; min-height: 40px; }
+  .model-pick:focus-visible, .cur-pick:focus-visible, .st-model-cmp:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   .st-model-note { margin: 0; font-size: 13px; color: var(--color-fg-muted); }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
@@ -279,7 +279,7 @@
     <section class="st-live" aria-labelledby="h-live">
       <div class="st-live-text">
         <h2 class="st-live-h" id="h-live"><span class="st-live-dot" aria-hidden="true"></span>Real-time updates</h2>
-        <p class="st-live-p">Get every trade, bet, result and the 8 p.m. ET (00:00 UTC) daily close as it happens, with charts, on Telegram.</p>
+        <p class="st-live-p">Get every trade, bet, result and the 8 p.m. ET (00:00 UTC · 8 a.m. HKT) daily close as it happens, with charts, on Telegram.</p>
       </div>
       <a class="st-live-btn" href="https://t.me/PaperTradesAI" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.8-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2L6.5 13.2l-4.7-1.5c-1-.3-1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg>Join @PaperTradesAI</a>
     </section>
@@ -293,6 +293,16 @@
           <option value="chatgpt" disabled>ChatGPT (OpenAI)</option>
         </select>
         <p class="st-model-note" data-model-note>Showing Claude's ten experiments.</p>
+        <label class="st-model-l" for="cur-pick">Show money in</label>
+        <select id="cur-pick" class="cur-pick">
+          <option value="">Each experiment's own (C$, or US$ for China)</option>
+          <option value="CAD">Canadian dollars (C$)</option><option value="USD">US dollars (US$)</option><option value="EUR">Euros (€)</option>
+          <option value="GBP">British pounds (£)</option><option value="JPY">Japanese yen (¥)</option><option value="CNY">Chinese yuan (CN¥)</option>
+          <option value="HKD">Hong Kong dollars (HK$)</option><option value="AUD">Australian dollars (A$)</option><option value="INR">Indian rupees (₹)</option>
+          <option value="MXN">Mexican pesos (MX$)</option><option value="CHF">Swiss francs (CHF)</option><option value="KRW">South Korean won (₩)</option>
+          <option value="BRL">Brazilian reais (R$)</option><option value="SGD">Singapore dollars (S$)</option>
+        </select>
+        <p class="st-model-note" id="cur-note" hidden>Converted at the latest exchange rates for viewing only. Each experiment still runs in its own currency.</p>
         <button type="button" class="st-model-cmp" data-goto="h2h">Compare all models in AI vs AI →</button>
       </div>
     </div>
@@ -506,7 +516,7 @@
   <section class="st-page" id="stocks" data-page="stocks" hidden>
     <section class="st-card" aria-labelledby="h-s-bench">
       <h2 class="st-h2" id="h-s-bench">Stocks and anything</h2>
-      <p class="st-note" data-claude-only>Anything Claude chooses: stocks, funds, crypto and more. Fresh start Oct 28 with C$100,000, first trades at the US open (9:30 a.m. ET, 13:30 UTC).</p>
+      <p class="st-note" data-claude-only>Anything Claude chooses: stocks, funds, crypto and more. Fresh start Oct 28 with C$100,000, first trades at the US open (9:30 a.m. ET, 13:30 UTC · 9:30 p.m. HKT).</p>
       <p class="st-note" data-model-text="Stocks" hidden></p>
       <div class="st-bench">
         <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Stocks">—</span></div>
@@ -599,7 +609,7 @@
   <section class="st-page" id="crypto" data-page="crypto" hidden>
     <section class="st-card" aria-labelledby="h-c-bench">
       <h2 class="st-h2" id="h-c-bench">Crypto vs. just holding Bitcoin</h2>
-      <p class="st-note" data-claude-only>Coins chosen by Claude. Fresh start Oct 28 with C$100,000, first trades at 9:30 a.m. ET (13:30 UTC).</p>
+      <p class="st-note" data-claude-only>Coins chosen by Claude. Fresh start Oct 28 with C$100,000, first trades at 9:30 a.m. ET (13:30 UTC · 9:30 p.m. HKT).</p>
       <p class="st-note" data-model-text="Crypto" hidden></p>
       <div class="st-bench">
         <div><span class="st-label">This portfolio</span><span class="st-mid" data-draw="vs-value" data-source="vsbtc" data-field="value" data-where="portfolio=Crypto">—</span></div>
@@ -684,7 +694,7 @@
   <section class="st-page" id="metals" data-page="metals" hidden>
     <section class="st-card" aria-labelledby="h-m-bench">
       <h2 class="st-h2" id="h-m-bench">Metals vs. just holding gold</h2>
-      <p class="st-note" data-claude-only>Precious and industrial metals. Fresh start Oct 28 with C$100,000, first trades at 9:30 a.m. ET (13:30 UTC).</p>
+      <p class="st-note" data-claude-only>Precious and industrial metals. Fresh start Oct 28 with C$100,000, first trades at 9:30 a.m. ET (13:30 UTC · 9:30 p.m. HKT).</p>
       <p class="st-note" data-model-text="Metals" hidden></p>
       <div class="st-bench">
         <div><span class="st-label">This portfolio</span><span class="st-mid" data-draw="vs-value" data-source="vsbtc" data-field="value" data-where="portfolio=Metals">—</span></div>
@@ -770,7 +780,7 @@
   <section class="st-page" id="energy" data-page="energy" hidden>
     <section class="st-card" aria-labelledby="h-e-bench">
       <h2 class="st-h2" id="h-e-bench">Oil and energy</h2>
-      <p class="st-note" data-claude-only>Oil, tanker and refiner positions bought with US-listed funds and shares; high risk, high reward. Fresh start Oct 28 with C$100,000 at the US market open (9:30 a.m. ET, 13:30 UTC).</p>
+      <p class="st-note" data-claude-only>Oil, tanker and refiner positions bought with US-listed funds and shares; high risk, high reward. Fresh start Oct 28 with C$100,000 at the US market open (9:30 a.m. ET, 13:30 UTC · 9:30 p.m. HKT).</p>
       <p class="st-note" data-model-text="Energy" hidden></p>
       <div class="st-bench">
         <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Energy">—</span></div>
@@ -854,7 +864,7 @@
   <section class="st-page" id="options" data-page="options" hidden>
     <section class="st-card" aria-labelledby="h-o-bench">
       <h2 class="st-h2" id="h-o-bench">Options</h2>
-      <p class="st-note">Stock options (calls and puts) on US companies; the highest-risk experiment. One contract covers 100 shares, and options can expire worthless. Fresh start Oct 28 with C$100,000 at the US market open (9:30 a.m. ET, 13:30 UTC).</p>
+      <p class="st-note">Stock options (calls and puts) on US companies; the highest-risk experiment. One contract covers 100 shares, and options can expire worthless. Fresh start Oct 28 with C$100,000 at the US market open (9:30 a.m. ET, 13:30 UTC · 9:30 p.m. HKT).</p>
       <div class="st-bench">
         <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Options">—</span></div>
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Options">—</span></div>
@@ -937,7 +947,7 @@
   <section class="st-page" id="currencies" data-page="currencies" hidden>
     <section class="st-card" aria-labelledby="h-x-bench">
       <h2 class="st-h2" id="h-x-bench">Currencies</h2>
-      <p class="st-note">Currency trading with leverage, like a forex account: positions can be several times the account value, and borrowing shows as cash. A negative amount is a short (borrowed and sold). High risk, high reward. Fresh start Oct 28 with C$100,000 at 9:30 a.m. ET (13:30 UTC); currency markets trade around the clock on weekdays.</p>
+      <p class="st-note">Currency trading with leverage, like a forex account: positions can be several times the account value, and borrowing shows as cash. A negative amount is a short (borrowed and sold). High risk, high reward. Fresh start Oct 28 with C$100,000 at 9:30 a.m. ET (13:30 UTC · 9:30 p.m. HKT); currency markets trade around the clock on weekdays.</p>
       <div class="st-bench">
         <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Currencies">—</span></div>
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Currencies">—</span></div>
@@ -1015,7 +1025,7 @@
   <section class="st-page" id="predictions" data-page="predictions" hidden>
     <section class="st-card" aria-labelledby="h-p-bench">
       <h2 class="st-h2" id="h-p-bench">Prediction markets</h2>
-      <p class="st-note">Bets on real-world events at Polymarket and Kalshi prices. A share costs 0 to 100 cents and pays US$1 if the outcome happens, nothing if it doesn’t, so the price is the market’s probability. <span data-claude-only>Started Oct 28 at 12:10 a.m. ET (04:10 UTC).</span><span data-model-start="Predictions" hidden></span></p>
+      <p class="st-note">Bets on real-world events at Polymarket and Kalshi prices. A share costs 0 to 100 cents and pays US$1 if the outcome happens, nothing if it doesn’t, so the price is the market’s probability. <span data-claude-only>Started Oct 28 at 12:10 a.m. ET (04:10 UTC · 12:10 p.m. HKT).</span><span data-model-start="Predictions" hidden></span></p>
       <div class="st-bench">
         <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Predictions">—</span></div>
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Predictions">—</span></div>
@@ -1096,7 +1106,7 @@
   <section class="st-page" id="safe" data-page="safe" hidden>
     <section class="st-card" aria-labelledby="h-f-bench">
       <h2 class="st-h2" id="h-f-bench">Play it safe</h2>
-      <p class="st-note">The control experiment: low-risk Treasury bills, bonds, dividend stocks and a little gold, to compare with the aggressive ones. Fresh start Oct 28 with C$100,000 at the US market open (9:30 a.m. ET, 13:30 UTC).</p>
+      <p class="st-note">The control experiment: low-risk Treasury bills, bonds, dividend stocks and a little gold, to compare with the aggressive ones. Fresh start Oct 28 with C$100,000 at the US market open (9:30 a.m. ET, 13:30 UTC · 9:30 p.m. HKT).</p>
       <div class="st-bench">
         <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Safe">—</span></div>
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Safe">—</span></div>
@@ -1179,7 +1189,7 @@
   <section class="st-page" id="sports" data-page="sports" hidden>
     <section class="st-card" aria-labelledby="h-b-bench">
       <h2 class="st-h2" id="h-b-bench">Sports bankroll</h2>
-      <p class="st-note">Bankroll counts settled bets only. <span data-claude-only>Started Oct 27 at 4:54 p.m. ET (20:54 UTC).</span><span data-model-start="Sports" hidden></span> On open bets: <span data-draw="at-risk" data-source="totals" data-field="at_risk" data-where="portfolio=Sports">—</span>.</p>
+      <p class="st-note">Bankroll counts settled bets only. <span data-claude-only>Started Oct 27 at 4:54 p.m. ET (20:54 UTC · 4:54 a.m. HKT).</span><span data-model-start="Sports" hidden></span> On open bets: <span data-draw="at-risk" data-source="totals" data-field="at_risk" data-where="portfolio=Sports">—</span>.</p>
       <div class="st-bench">
         <div><span class="st-label">Bankroll</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Sports">—</span></div>
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Sports">—</span></div>
@@ -1386,7 +1396,7 @@
         <div class="lg-sim"><span class="lg-sim-name">Sports</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Sports">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Sports">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Sports">—</span></div>
         <div class="lg-sim"><span class="lg-sim-name">Prediction markets</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Predictions">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Predictions">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Predictions">—</span></div>
       </div>
-      <p class="st-meta lg-today"><span>Today so far, each experiment on its own (the day closes at midnight UTC): <b data-draw="lg-today" data-source="history">—</b></span></p>
+      <p class="st-meta lg-today"><span>Today so far, each experiment on its own (the day closes at midnight UTC, 8 a.m. HKT): <b data-draw="lg-today" data-source="history">—</b></span></p>
     </section>
     <section class="st-card" aria-labelledby="h-l-chart">
       <h2 class="st-h2" id="h-l-chart">Profit or loss by day</h2>
@@ -1502,6 +1512,13 @@
     document.querySelectorAll('[data-phase]').forEach((el) => { el.hidden = (el.dataset.phase === 'ended') !== ended; });
   });
   const SYM = (p) => (p === 'China' ? 'US$' : 'C$');
+  // "Show money in": convert every amount to the viewer's currency at the latest rates (null = each experiment's own currency)
+  const CURS = { CAD: 'C$', USD: 'US$', EUR: '€', GBP: '£', JPY: '¥', CNY: 'CN¥', HKD: 'HK$', AUD: 'A$', INR: '₹', MXN: 'MX$', CHF: 'CHF ', KRW: '₩', BRL: 'R$', SGD: 'S$' };
+  let DISP = null;
+  try { const c = localStorage.getItem('pt-cur'); if (c && CURS[c]) DISP = c; } catch (e) {}
+  const rates = () => { const r = { USD: 1 }; dash.baseData('fx_all').forEach((x) => { r[x.cur] = Number(x.per_usd); }); if (!r.CAD) { const f = dash.baseData('fx_meta')[0]; if (f) r.CAD = Number(f.usdcad); } return r; };
+  const conv = (v, p) => { if (!DISP || v === null || v === undefined) return v; const r = rates(); const base = p === 'China' ? 'USD' : 'CAD'; return r[base] && r[DISP] ? Number(v) / r[base] * r[DISP] : v; };
+  const symOf = (p) => (DISP && rates()[DISP] ? CURS[DISP] : SYM(p));
   // The private tracker's runtime has no model switching; give it Claude-only stand-ins.
   if (typeof dash.models !== 'function') {
     dash.model = 'claude';
@@ -1514,10 +1531,10 @@
   const PFS = PFS_ALL.slice(); // narrowed in place when another model is picked
   const LABEL = { Stocks: 'Stocks and anything', China: 'China stocks (US$)', Energy: 'Oil and energy', Predictions: 'Prediction markets', Safe: 'Play it safe' };
   window.stFmt = {
-    money: (v, p) => SYM(p) + d3.format(',.0f')(v),
-    signed: (v, p) => (v >= 0 ? '+' : '−') + SYM(p) + d3.format(',.0f')(Math.abs(v)),
-    cad: (v) => 'C$' + d3.format(',.0f')(v),
-    signedCad: (v) => (v >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(v)),
+    money: (v, p) => symOf(p) + d3.format(',.0f')(conv(v, p)),
+    signed: (v, p) => (v >= 0 ? '+' : '−') + symOf(p) + d3.format(',.0f')(Math.abs(conv(v, p))),
+    cad: (v) => symOf('Stocks') + d3.format(',.0f')(conv(v, 'Stocks')),
+    signedCad: (v) => (v >= 0 ? '+' : '−') + symOf('Stocks') + d3.format(',.0f')(Math.abs(conv(v, 'Stocks'))),
     pct: (v) => (v >= 0 ? '+' : '−') + d3.format('.1%')(Math.abs(v)),
     when: (s) => d3.timeFormat('%b %-d, %-I:%M %p')(new Date(s)).replace('AM', 'a.m.').replace('PM', 'p.m.'),
     whereOf: (el) => new URLSearchParams(el.dataset.where || '').get('portfolio')
@@ -1838,7 +1855,7 @@
       .forEach((r) => {
         const tr = document.createElement('tr');
         tr.dataset.key = encodeURIComponent(r.at) + ',' + encodeURIComponent(r.event);
-        const wt = /[ap]\.m\./.test(r.when) ? r.when + ' ET (' + utcStr(r.at, true) + ')' : r.when;
+        const wt = /[ap]\.m\./.test(r.when) && r.at ? r.when.replace(/ ET$/, '') + ' ET (' + utcStr(r.at, true) + ' · ' + hkStr(r.at, true) + ')' : r.when;
         const cells = p ? [wt, r.event, r.why] : [wt, r.event, r.affects, r.why];
         cells.forEach((text, i) => {
           const td = document.createElement('td');
@@ -2013,11 +2030,14 @@
   const utcStr = (t, withDay) => { const q = Object.fromEntries(UTCF.formatToParts(new Date(t)).map((x) => [x.type, x.value])); return (withDay ? q.month + ' ' + q.day + ', ' : '') + q.hour + ':' + q.minute + ' UTC'; };
   stFmt.whenET = (t) => { const p = etParts(t); return p.month + ' ' + p.day + ', ' + p.hour + ':' + p.minute + ' ' + ampm(p); };
   // every time on the page: Eastern first, then UTC for readers elsewhere (with the UTC date when it differs)
+  const HKF = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Hong_Kong', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+  const hkStr = (t, withDay) => { const q = Object.fromEntries(HKF.formatToParts(new Date(t)).map((x) => [x.type, x.value])); return (withDay ? q.month + ' ' + q.day + ', ' : '') + q.hour + ':' + q.minute + ' ' + ampm(q) + ' HKT'; };
+  // every time on the page: Eastern first, then UTC and Hong Kong for readers elsewhere (with the date when it differs)
   stFmt.when = (t) => {
     const p = etParts(t);
     const q = Object.fromEntries(UTCF.formatToParts(new Date(t)).map((x) => [x.type, x.value]));
-    const sameDay = q.month === p.month && q.day === p.day;
-    return stFmt.whenET(t) + ' ET (' + utcStr(t, !sameDay) + ')';
+    const h = Object.fromEntries(HKF.formatToParts(new Date(t)).map((x) => [x.type, x.value]));
+    return stFmt.whenET(t) + ' ET (' + utcStr(t, !(q.month === p.month && q.day === p.day)) + ' · ' + hkStr(t, !(h.month === p.month && h.day === p.day)) + ')';
   };
   const etHour = (t) => { const p = etParts(t); return p.hour + (p.minute === '00' ? '' : ':' + p.minute) + ' ' + ampm(p); };
   const etDay = (t) => { const p = etParts(t); return p.month + ' ' + p.day; };
@@ -2194,12 +2214,12 @@
         const ref = rows.filter((r) => r.t <= t0).pop() || rows[0];
         if (ref) bench = { name: bn, points: rows.filter((r) => r.t >= ref.t).map((r) => ({ t: r.t < t0 ? t0 : r.t, v: START * r.v / ref.v })) };
       }
-      const sym = SYM(p);
+      const sym = symOf(p); const cvp = (v) => conv(v, p);
       gChart(el, {
         points: pts, name: p === 'Sports' ? 'Bankroll' : (LABEL[p] || p), bench, empty: 'Not started yet. The first trades happen at the next market open.',
-        fmt: (v) => sym + d3.format(',.0f')(v), fmtTip: (v) => sym + d3.format(',.2f')(v),
-        axis: (v, step) => (step < 100 ? sym + d3.format(',.0f')(v) : sym + d3.format(',.1f')(v / 1000) + 'k'),
-        base: START, baseLabel: 'Started with ' + sym + '100,000'
+        fmt: (v) => sym + d3.format(',.0f')(cvp(v)), fmtTip: (v) => sym + d3.format(',.2f')(cvp(v)),
+        axis: (v, step) => (step < 100 ? sym + d3.format(',.0f')(cvp(v)) : sym + d3.format(',.1f')(cvp(v) / 1000) + 'k'),
+        base: START, baseLabel: 'Started with ' + sym + d3.format(',.0f')(cvp(START))
       });
     };
     el._redraw = run;
@@ -2311,9 +2331,9 @@
         const all = histPts(p);
         const before = all.filter((q) => +q.t < t0);
         const pts = (before.length ? [{ t: new Date(t0), v: before[before.length - 1].v }] : []).concat(all.filter((q) => +q.t >= t0 && +q.t <= t1));
-        const sym = SYM(p);
-        gChart(g, { points: pts, name: (LABEL[p] || p), fmt: (x) => sym + d3.format(',.0f')(x), fmtTip: (x) => sym + d3.format(',.2f')(x),
-          axis: (x, step) => (step < 100 ? sym + d3.format(',.0f')(x) : sym + d3.format(',.1f')(x / 1000) + 'k'), base: START, baseLabel: 'Started with ' + sym + '100,000',
+        const sym = symOf(p); const cvp = (v) => conv(v, p);
+        gChart(g, { points: pts, name: (LABEL[p] || p), fmt: (x) => sym + d3.format(',.0f')(cvp(x)), fmtTip: (x) => sym + d3.format(',.2f')(cvp(x)),
+          axis: (x, step) => (step < 100 ? sym + d3.format(',.0f')(cvp(x)) : sym + d3.format(',.1f')(cvp(x) / 1000) + 'k'), base: START, baseLabel: 'Started with ' + sym + d3.format(',.0f')(cvp(START)),
           empty: 'This simulation had not started yet.', height: 220 });
       };
       PFS.forEach((p) => { const b = mk('button', '', LABEL[p] || p); b.type = 'button'; b.dataset.v = p; b.addEventListener('click', () => { box._p = p; draw(p); }); chips.appendChild(b); });
@@ -2399,7 +2419,7 @@
       const ext = Math.max(Math.abs(d3.min(vals.concat(0))), Math.abs(d3.max(vals.concat(0)))) || 1000;
       const y = d3.scaleLinear([Math.min(0, d3.min(vals)) - ext * 0.1, Math.max(0, d3.max(vals)) + ext * 0.1], [H - M.b, M.t]).nice(4);
       const ticks = y.ticks(4);
-      const axis = (v) => (v < 0 ? '−' : '') + (p === 'China' ? 'US$' : 'C$') + d3.format(',.1~f')(Math.abs(v) / 1000) + 'k';
+      const axis = (v) => (v < 0 ? '−' : '') + symOf(p) + d3.format(',.1~f')(Math.abs(conv(v, p)) / 1000) + 'k';
       const measure = (t) => { const n = svg.append('text').attr('font-size', 13).text(t); const w = n.node().getComputedTextLength(); n.remove(); return w; };
       M.l = Math.ceil(d3.max(ticks, (v) => measure(axis(v)))) + 12;
       const x = d3.scaleBand(rows.map((d) => d.x.day), [M.l, W - M.r]).padding(0.25);
@@ -2459,7 +2479,7 @@
       const card = mk('article', 'lg-day');
       const head = mk('div', 'lg-head');
       const h3 = mk('h3', '', dayTitle(x));
-      h3.appendChild(mk('span', 'lg-span', etWeekday(x.start_at) + ', ' + etHour(x.start_at) + ' to ' + etWeekday(x.end_at) + ', ' + etHour(x.end_at) + ' ET (00:00 to 00:00 UTC)'));
+      h3.appendChild(mk('span', 'lg-span', etWeekday(x.start_at) + ', ' + etHour(x.start_at) + ' to ' + etWeekday(x.end_at) + ', ' + etHour(x.end_at) + ' ET (00:00 to 00:00 UTC · 8 a.m. to 8 a.m. HKT)'));
       head.appendChild(h3);
       card.appendChild(head);
       const grid = mk('div', 'lg-sims');
@@ -2906,6 +2926,18 @@
     if (exps && pfOf && !exps.includes(pfOf)) goTab('overview');
   };
   dash.onModel(applyModel);
+  (function () {
+    const sel = document.getElementById('cur-pick'); const note = document.getElementById('cur-note');
+    if (!sel) return;
+    sel.value = DISP || '';
+    if (note) note.hidden = !DISP;
+    sel.addEventListener('change', () => {
+      DISP = sel.value || null;
+      try { if (DISP) localStorage.setItem('pt-cur', DISP); else localStorage.removeItem('pt-cur'); } catch (e) {}
+      if (note) note.hidden = !DISP;
+      if (dash.redraw) dash.redraw(); else location.reload();
+    });
+  })();
   document.querySelectorAll('.model-pick').forEach((sel) => sel.addEventListener('change', () => {
     try { localStorage.setItem('pt-model', sel.value); } catch (e) {}
     dash.useModel(sel.value);
