@@ -318,6 +318,10 @@
   .pt-banner b { color: #ff5a4e; }
   .pt-banner-x { position: absolute; top: 6px; right: 6px; width: 32px; height: 32px; border: 0; background: none; color: var(--color-fg); font-size: 20px; line-height: 1; cursor: pointer; border-radius: 4px; }
   .pt-banner-x:focus-visible { outline: 2px solid var(--color-fg); }
+  .st-fact { margin: 6px 0 0; font-size: 13px; color: var(--color-fg-muted); max-width: 90ch; }
+  .st-fact b { font-weight: 700; letter-spacing: .04em; text-transform: uppercase; font-size: 11.5px; margin-right: 6px; }
+  .st-fact .fc-ok { color: var(--color-ok); } .st-fact .fc-bad { color: var(--color-bad); } .st-fact .fc-mid { color: var(--color-warn); }
+  .st-fact a { color: inherit; }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
@@ -491,6 +495,7 @@ body { background:var(--color-bg); }
       <p class="st-hook-q">Which AI makes the most money in real markets?</p>
       <p class="st-hook-sub">Claude, Gemini and ChatGPT trade head to head from Oct 28 to Nov 28. Each AI runs its own separate copy of all ten experiments with C$100,000 of pretend money each and real-world prices. They are being tested publicly, in real time: every trade, bet and reason is published here as it happens, win or lose. Each AI makes every decision by itself, with no human picking trades, and this page is managed and updated automatically by AI.</p>
       <p class="st-take"><span class="st-take-l">Claude's current take</span><span data-draw="take" data-source="take">—</span></p>
+      <p class="st-fact" data-draw="factcheck" data-source="take factcheck"></p>
     </div>
     <section class="st-score" aria-labelledby="h-score">
       <h2 class="st-score-h" id="h-score">Scoreboard <span>Return since each experiment started, best first. Tap one to open it.</span></h2>
@@ -1615,7 +1620,7 @@ body { background:var(--color-bg); }
     <section class="st-card" aria-labelledby="h-h2h">
       <h2 class="st-h2" id="h-h2h">Claude vs Gemini vs ChatGPT</h2>
       <p class="st-note">Claude (Anthropic), Gemini (Google) and ChatGPT (OpenAI) each run their own separate copies of all ten experiments. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored against its own start; overall, the AI with the most total profit wins (see How it works). All three check in at the same times, search the news themselves and make their own trades. Every experiment restarted level on Oct 28 at 1:45 p.m. ET after a morning tuning run, which is kept in the Ledger and doesn’t count.</p>
-      <div data-draw="h2h" data-source="rivals_models rivals_history rivals_trades rivals_takes history totals take trades log"></div>
+      <div data-draw="h2h" data-source="rivals_models rivals_history rivals_trades rivals_takes history totals take trades log factcheck"></div>
     </section>
   </section>
   <section class="st-page" id="rules" data-page="rules" hidden>
@@ -3184,7 +3189,7 @@ body { background:var(--color-bg); }
     const tbox = mk('div', 'h2h-exp');
     tbox.appendChild(mk('h3', '', 'What each AI is thinking'));
     const ul = mk('ul', 'h2h-takes');
-    const addTake = (id, text, at) => { if (!SEL.includes(id)) return; const li = mk('li'); li.style.setProperty('--ai', AIS[id].color); li.appendChild(mk('b', '', AIS[id].label + (at ? ' · ' + stFmt.when(at) : ''))); li.appendChild(document.createTextNode(text)); ul.appendChild(li); };
+    const addTake = (id, text, at) => { if (!SEL.includes(id)) return; const li = mk('li'); li.style.setProperty('--ai', AIS[id].color); li.appendChild(mk('b', '', AIS[id].label + (at ? ' · ' + stFmt.when(at) : ''))); li.appendChild(document.createTextNode(text)); if (at) { const f = dash.baseData('factcheck').filter((x) => x.model === id && new Date(x.take_at).getTime() === new Date(at).getTime()).pop(); if (f) { const p = mk('p', 'st-fact'); p.appendChild(fcNode(f)); li.appendChild(p); } } ul.appendChild(li); };
     if (TK.status === 'ok' && TK.data.length) { const t = TK.data[TK.data.length - 1]; addTake('claude', t.text, t.at); }
     const latest = {};
     if (EXP_SEL) {
@@ -3198,6 +3203,14 @@ body { background:var(--color-bg); }
     ['gemini', 'chatgpt'].forEach((id) => { if (!latest[id]) addTake(id, 'Starts at the 1:45 p.m. ET restart.'); });
     tbox.appendChild(ul);
     el.appendChild(tbox);
+    const fcs = dash.baseData('factcheck').filter((x) => SEL.includes(x.model)).slice().sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 6);
+    if (fcs.length) {
+      const fb = mk('div', 'h2h-exp'); fb.appendChild(mk('h3', '', 'Fact checks'));
+      fb.appendChild(mk('p', 'st-note', 'Claude checks each AI’s takes and reasons against official and reputable sources, its own included, and says plainly when one is wrong.'));
+      const fl = mk('ul', 'h2h-takes');
+      fcs.forEach((f) => { const li = mk('li'); li.style.setProperty('--ai', AIS[f.model].color); li.appendChild(mk('b', '', AIS[f.model].label + ' · ' + stFmt.when(f.at))); if (f.take) li.appendChild(mk('q', '', f.take)); const p = mk('p', 'st-fact'); p.appendChild(fcNode(f)); li.appendChild(p); fl.appendChild(li); });
+      fb.appendChild(fl); el.appendChild(fb);
+    }
     // recent trades for each AI shown, 10 each, with an experiment menu
     const tbx = mk('div', 'h2h-exp');
     tbx.appendChild(mk('h3', '', 'Recent trades'));
@@ -3423,6 +3436,24 @@ body { background:var(--color-bg); }
     };
     dSel.addEventListener('change', fill);
     dLab.appendChild(dSel); rLab.appendChild(rSel); bar.append(dLab, rLab); el.append(bar, box); fill();
+  });
+  const FC = { ok: ['✓ Checks out', 'fc-ok'], partly: ['⚠ Partly wrong', 'fc-mid'], wrong: ['✗ Wrong', 'fc-bad'], unverified: ['? Can’t confirm yet', 'fc-mid'] };
+  const fcNode = (f) => {
+    const p = document.createDocumentFragment();
+    const v = FC[f.verdict] || FC.unverified;
+    p.appendChild(mk('b', v[1], 'Fact check · ' + v[0]));
+    p.appendChild(document.createTextNode(f.text + ' '));
+    if (f.source) { const a = mk('a', '', 'Source'); a.href = f.source; a.target = '_blank'; a.rel = 'noopener'; p.appendChild(a); }
+    return p;
+  };
+  dash.draw('factcheck', (el) => {
+    el.replaceChildren();
+    const t = dash.data('take'); const fc = dash.baseData('factcheck');
+    if (t.status !== 'ok' || !t.data.length) return;
+    const r = t.data.reduce((a, b) => (new Date(b.at) > new Date(a.at) ? b : a));
+    const f = fc.filter((x) => x.model === dash.model && new Date(x.take_at).getTime() === new Date(r.at).getTime()).pop();
+    if (f) el.appendChild(fcNode(f));
+    else { el.appendChild(mk('b', 'fc-mid', 'Fact check · pending')); el.appendChild(document.createTextNode('Claude checks every AI’s take, its own included, against official and reputable sources at the next check-in.')); }
   });
   dash.draw('take', (el) => {
     const d = dash.data('take');

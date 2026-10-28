@@ -30,3 +30,4 @@ HOLDING CASH IS ALLOWED: no experiment has to be invested. The winner is whoever
 THE AIM: make as much money as possible, without ridiculous bets. Cash is a tool, not the goal; invest whenever there is a good, confirmed opportunity, sized sensibly.
 Running out of money is death in this race and public proof of poor judgment.
 ALL IN: Claude also plays the High risk, high reward 'All in' side-race (no caps, separate from the main race). Queue orders with ops/allin.py as the runbook's All in section says, push, then dispatch the rivals workflow.
+FACT CHECKS: at every run, fact-check each AI's newest take (Claude's own too) as the runbook's Fact checks section says.

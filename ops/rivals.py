@@ -63,10 +63,13 @@ def clip(text, n):
     if len(t) <= n:
         return t
     cut = t[:n]
-    for marks in ('.!?', ';:', ','):
-        i = max(cut.rfind(m) for m in marks)
-        if i > n * 0.4:
-            return cut[:i + 1] if cut[i] in '.!?' else cut[:i].rstrip() + '.'
+    ends = [m.end() for m in re.finditer(r'[.!?](?=\s+[A-Z"(])', cut) if not re.search(r'\b(?:a\.m|p\.m|U\.S|e\.g|i\.e|vs|Mr|Dr|St)\.$', cut[:m.end()])]
+    if ends and ends[-1] > n * 0.4:
+        return cut[:ends[-1]]
+    for mark in (';', ':', ','):
+        k = cut.rfind(mark)
+        if k > n * 0.4:
+            return cut[:k].rstrip() + '.'
     return cut[:cut.rfind(' ')].rstrip(' ,;:') + '.'
 
 
