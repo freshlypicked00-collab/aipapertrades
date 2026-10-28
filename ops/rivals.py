@@ -160,6 +160,9 @@ def pick_gemini(key):
     for tier in ('pro', 'flash'):
         c = [n for n in names if re.fullmatch(r'gemini-\d+(\.\d+)?-' + tier + r'(-preview(-[\d-]+)?)?', n)]
         out += sorted(c, key=rank, reverse=True)[:2]
+    for extra in ('gemini-flash-latest', 'gemini-2.5-flash'):
+        if extra in names and extra not in out:
+            out.append(extra)
     return out or ['gemini-2.5-flash']
 
 
@@ -184,16 +187,21 @@ def ask_openai(key, model, prompt):
     return '\n'.join(out), sources
 
 
+GEMINI_NO_SEARCH = False
+
+
 def ask_gemini(key, model, prompt):
     url = f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}'
     body = {'contents': [{'role': 'user', 'parts': [{'text': prompt}]}], 'tools': [{'google_search': {}}]}
     try:
         j = get_json(url, {'Content-Type': 'application/json'}, json.dumps(body).encode(), timeout=600)
     except urllib.error.HTTPError as e:
-        if e.code != 400:
+        if e.code not in (400, 429):
             raise
-        body.pop('tools')
+        body.pop('tools')  # search grounding can have its own quota; try again without it
         j = get_json(url, {'Content-Type': 'application/json'}, json.dumps(body).encode(), timeout=600)
+        global GEMINI_NO_SEARCH
+        GEMINI_NO_SEARCH = True
     cand = j['candidates'][0]
     text = ''.join(p.get('text', '') for p in cand.get('content', {}).get('parts', []))
     sources = [{'title': c['web'].get('title') or c['web']['uri'], 'url': c['web']['uri']}
@@ -442,6 +450,8 @@ def main():
             last = next((x for x in reversed(state['takes']) if x['model'] == mid), None)
             if not last or last['text'] != take:
                 state['takes'].append({'at': iso(), 'model': mid, 'text': take})
+        if mid == 'gemini' and GEMINI_NO_SEARCH:
+            notes.append('web search quota unavailable this run; decided from the prices and portfolio given')
         m['last_run'] = {'at': iso(), 'status': status, 'notes': notes[-12:], 'sources': sources[:8], 'orders': len(made)}
         for t in made:
             tg_trade(r['label'], t, sources[0] if sources else None)
