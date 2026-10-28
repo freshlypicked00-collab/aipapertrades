@@ -438,12 +438,11 @@
   /* tab bar at the top: sticky while scrolling; one swipeable row on phones */
   .st-tabs { position: sticky; top: 0; z-index: 40; background: var(--color-bg); margin: 8px 0 14px; padding-top: 2px; box-shadow: 0 6px 12px -10px rgba(0,0,0,.6); }
   @media (min-width: 701px) { .st-tabs .st-tab { padding: 6px 10px; font-size: 13.5px; } .st-tabs .st-tabgroup { padding-top: 15px; } .st-tabs .st-tabgroup-l { font-size: 10px; } }
-  @media (max-width: 700px) {
-    .st-tabs { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch; margin-left: -16px; margin-right: -16px; padding-left: 12px; padding-right: 12px; }
-    .st-tabs::-webkit-scrollbar { display: none; }
-    .st-tabs .st-tabgroup { flex-wrap: nowrap; flex: none; }
-    .st-tabs .st-tab { white-space: nowrap; flex: none; }
-    .st-tabs .st-tabgroup-hr { min-width: 0; }
+  @media (max-width: 700px) {   /* phones keep the original layout: tabs after the intro, wrapped, not sticky */
+    .st { display: flex; flex-direction: column; }
+    .st > * { order: 2; }
+    .st > header.st-head, .st > .st-head2 { order: 0; }
+    .st > nav.st-tabs { order: 1; position: static; box-shadow: none; margin: 4px 0 8px; }
   }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
@@ -622,7 +621,7 @@ body { background:var(--color-bg); }
       <span class="st-clock">New York <b class="st-count" data-draw="clock">—</b></span>
       <span class="st-clock">Hong Kong <b class="st-count" data-draw="clock-hk">—</b></span>
       <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b></span>
-      <span class="st-clock st-since">Last update <b class="st-count" data-draw="since-update">—</b></span>
+      <span class="st-clock st-since"><span class="st-since-who">Last update</span> <b class="st-count" data-draw="since-update">—</b></span>
       <span class="st-clock"><span class="st-mkt" data-draw="market">—</span> <span class="st-mkt" data-draw="market-cn">—</span></span>
       <label class="st-lang notranslate" translate="no" title="Language"><span aria-hidden="true">🌐</span><select id="lang-pick" aria-label="Language"><option value="en">English</option><option value="zh-CN">中文 (简体)</option><option value="zh-TW">中文 (繁體)</option><option value="hi">हिन्दी</option><option value="es">Español</option><option value="fr">Français</option><option value="ar">العربية</option><option value="bn">বাংলা</option><option value="pt">Português</option><option value="ru">Русский</option><option value="id">Bahasa Indonesia</option><option value="ur">اردو</option><option value="de">Deutsch</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="tr">Türkçe</option></select></label> <button type="button" class="st-theme" id="sound-btn" aria-pressed="false" title="Play a cha-ching when an AI makes C$100 or more">🔈 Sound off</button> <button type="button" class="st-theme" id="theme-btn">Light mode</button>
     </p>
@@ -2050,7 +2049,7 @@ body { background:var(--color-bg); }
   const goTab = (name, jump) => {
     showTab(name); dash.setLink(name);
     { const t = document.querySelector('.st-tab[aria-selected="true"]'); const bar = document.querySelector('.st-tabs'); if (t && bar && bar.scrollWidth > bar.clientWidth) bar.scrollTo({ left: t.offsetLeft - bar.clientWidth / 2 + t.offsetWidth / 2, behavior: 'smooth' }); }
-    if (jump === false) return;
+    if (jump === false || !(window.matchMedia && window.matchMedia('(min-width: 701px)').matches)) return;
     // the tabs sit at the top now, so bring the chosen tab's content into view just under the sticky tab bar
     requestAnimationFrame(() => {
       const pg = document.querySelector('.st-page:not([hidden])'); const bar = document.querySelector('.st-tabs');
@@ -3933,7 +3932,10 @@ body { background:var(--color-bg); }
     mount: (el) => {
       const tick = () => {
         const rows = dash.baseData('checkins') || [];
-        const ts = rows.map((r) => Date.parse(r.at)).filter((t) => t > 0);
+        const id = dash.model || 'claude';
+        const ts = rows.filter((r) => r.id === id).map((r) => Date.parse(r.at)).filter((t) => t > 0);
+        const lab = el.parentElement && el.parentElement.querySelector('.st-since-who');
+        if (lab) lab.textContent = (AIS[id] ? AIS[id].label : 'Claude') + ' last updated';
         if (!ts.length) { el.textContent = '—'; return; }
         let m = Math.max(0, Math.floor((Date.now() - Math.max(...ts)) / 60000));
         const d = Math.floor(m / 1440); m -= d * 1440; const h = Math.floor(m / 60); m -= h * 60;
