@@ -332,6 +332,27 @@
     .st-hook-sub.is-folded { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
     .hook-more { display: inline-block; font: inherit; font-size: 13px; color: var(--accent); background: none; border: 0; padding: 2px 0; cursor: pointer; min-height: 32px; }
   }
+  .st-rank-1 { color: #ffc93c; }
+  .st-score-top { border-color: rgba(255, 201, 60, .55) !important; box-shadow: inset 0 0 0 1px rgba(255, 201, 60, .25); }
+  :root[data-theme="light"] .st-rank-1, :root[data-theme="reader"] .st-rank-1 { color: #9a6a00; }
+  .st-viewing .st-crown { margin-left: 6px; color: #ffc93c; }
+  .st-podium:empty { display: none; }
+  .st-podium { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 12px 14px; background: var(--color-panel); align-self: start; }
+  .st-podium h2 { margin: 0 0 2px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  .st-podium p.pd-note { margin: 0 0 8px; font-size: 12px; color: var(--color-fg-muted); }
+  .st-podium ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .st-podium li button { width: 100%; display: grid; grid-template-columns: 64px 1fr auto; align-items: center; gap: 8px; font: inherit; color: var(--color-fg); background: transparent; border: 1px solid var(--color-border-line); border-left: 4px solid var(--ai); border-radius: var(--cds-radius); padding: 8px 10px; cursor: pointer; text-align: left; min-height: 44px; }
+  .st-podium li button:hover, .st-podium li button[aria-current="true"] { background: var(--card-inset, #1d1c18); }
+  .st-podium .pd-place { font-weight: 700; font-size: 13px; }
+  .st-podium li:first-child .pd-place { color: #ffc93c; }
+  :root[data-theme="light"] .st-podium li:first-child .pd-place, :root[data-theme="reader"] .st-podium li:first-child .pd-place { color: #9a6a00; }
+  .st-podium .pd-name { font-weight: 600; }
+  .st-podium .pd-amt { font-family: var(--font-serif, monospace); font-size: 14px; }
+  @media (min-width: 1000px) {
+    .st-hook { display: grid; grid-template-columns: minmax(0, 1fr) 300px; column-gap: 28px; }
+    .st-hook > * { grid-column: 1; }
+    .st-hook > .st-podium { grid-column: 2; grid-row: 1 / span 8; }
+  }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
@@ -365,6 +386,7 @@
     </p>
     <p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>
     <div class="st-hook">
+      <aside class="st-podium" data-draw="podium" data-source="standings" aria-label="Race standings"></aside>
       <p class="st-hook-q">Which AI makes the most money in real markets?</p>
       <p class="st-hook-sub" id="hook-sub">Claude, Gemini and ChatGPT trade head to head from Oct 28 to Nov 28. Each AI runs its own separate copy of all ten experiments with C$100,000 of pretend money each and real-world prices. They are being tested publicly, in real time: every trade, bet and reason is published here as it happens, win or lose. Each AI makes every decision by itself, with no human picking trades, and this page is managed and updated automatically by AI.</p>
       <p class="st-take"><span class="st-take-l">Claude's current take</span><span data-draw="take" data-source="take">—</span></p>
@@ -3053,7 +3075,7 @@
         ranked.forEach((s, i) => {
           const li = mk('li', 'h2h-row'); li.style.setProperty('--ai', AIS[s.id].color);
           const nm = mk('span', 'h2h-name'); nm.appendChild(mk('span', '', AIS[s.id].label));
-          if (i === 0 && ranked.length > 1 && s.profit !== ranked[1].profit) nm.appendChild(mk('span', 'h2h-lead', 'Leading overall'));
+          if (i === 0 && ranked.length > 1 && s.profit !== ranked[1].profit) nm.appendChild(mk('span', 'h2h-lead', '👑 Leading overall'));
           const elim = s.profit <= -100000 || (models.find((x) => x.id === s.id) || {}).eliminated;
           if (elim) { const t = mk('span', 'h2h-lead', 'ELIMINATED'); t.style.color = 'var(--color-bad, #ff5a4e)'; nm.appendChild(t); }
           li.appendChild(nm);
@@ -3221,7 +3243,7 @@
   // (trade reasons, notes, fact checks, plan cards, updates). Added automatically wherever text is drawn.
   (() => {
     if (!('speechSynthesis' in window)) return;
-    const SKIP = 'nav, button, select, label, header .st-meta, .st-sub, .st-dates, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
+    const SKIP = 'nav, button, select, label, header .st-meta, .st-sub, .st-dates, .st-podium, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
     const words = (t) => (t.trim().match(/\S+/g) || []).length;
     const NESTED = 'p, li, .st-plan, table, ul, ol';
     const textOf = (el, own) => {
@@ -3490,7 +3512,7 @@
     };
   })();
   const applyModel = (id) => {
-    { const v = document.getElementById('viewing-name'); if (v) v.textContent = ({ claude: 'Claude Opus 5.5 (Anthropic)', gemini: 'Gemini (Google)', chatgpt: 'ChatGPT (OpenAI)' })[id] || id; }
+    { const v = document.getElementById('viewing-name'); if (v) { v.textContent = ({ claude: 'Claude Opus 5.5 (Anthropic)', gemini: 'Gemini (Google)', chatgpt: 'ChatGPT (OpenAI)' })[id] || id; const L = dash.baseData('leader'); if (L === id) v.appendChild(mk('span', 'st-crown', '👑 leading the race')); } }
     const views = dash.models();
     document.querySelectorAll('.model-pick').forEach((sel) => {
       sel.value = id;
@@ -3677,6 +3699,22 @@
     f.addEventListener('load', () => { const w = el.querySelector('.shipmap-wait'); if (w) w.remove(); });
     el.append(f, cover);
   });
+  dash.draw('podium', (el) => {
+    el.replaceChildren();
+    const rows = dash.baseData('standings'); if (!rows || !rows.length) return;
+    el.appendChild(mk('h2', '', 'Race standings'));
+    el.appendChild(mk('p', 'pd-note', 'Total profit since the Oct 28 restart, all ten experiments. Tap one to view it.'));
+    const ol = mk('ol');
+    rows.forEach((r, i) => {
+      const li = mk('li'); const b = mk('button'); b.type = 'button'; b.style.setProperty('--ai', AIS[r.id].color);
+      if (dash.model === r.id) b.setAttribute('aria-current', 'true');
+      b.append(mk('span', 'pd-place', i === 0 ? '👑 1st' : ['1st', '2nd', '3rd'][i] || (i + 1) + 'th'), mk('span', 'pd-name', AIS[r.id].label));
+      const a = mk('span', 'pd-amt', (r.total >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(r.total))); tone(a, r.total); b.appendChild(a);
+      b.addEventListener('click', () => { const s = document.getElementById('model-pick'); if (s) { s.value = r.id; s.dispatchEvent(new Event('change')); } });
+      li.appendChild(b); ol.appendChild(li);
+    });
+    el.appendChild(ol);
+  });
   dash.draw('betmins', (el) => {
     el.replaceChildren();
     const rows = dash.baseData('betmins'); if (!rows.length) return;
@@ -3783,8 +3821,9 @@
     const wait = rowsAll.filter((r) => !started.has(r.portfolio));
     const item = (r, rank) => {
       const li = mk('li');
-      const b = mk('button', rank ? '' : 'st-score-wait'); b.type = 'button';
-      const nm = mk('span', 'st-score-name'); if (rank) nm.appendChild(mk('b', '', '#' + rank)); nm.appendChild(document.createTextNode(LABEL[r.portfolio] || r.portfolio));
+      const b = mk('button', rank ? (rank === 1 ? 'st-score-top' : '') : 'st-score-wait'); b.type = 'button';
+      const ORD = (n) => n + (['th', 'st', 'nd', 'rd'][(n % 100 - 20) % 10] || ['th', 'st', 'nd', 'rd'][n % 100] || 'th');
+      const nm = mk('span', 'st-score-name'); if (rank) nm.appendChild(mk('b', rank === 1 ? 'st-rank-1' : '', rank === 1 ? '👑 1st' : ORD(rank))); nm.appendChild(document.createTextNode(LABEL[r.portfolio] || r.portfolio));
       b.appendChild(nm);
       if (rank) {
         const pc = mk('span', 'st-score-pct', stFmt.pct(r.pct)); tone(pc, r.pnl); b.appendChild(pc);

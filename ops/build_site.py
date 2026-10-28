@@ -311,7 +311,7 @@ SHIM = r"""
       if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', schedule);
       fetch('data.json?v=' + Date.now(), { cache: 'no-store' })
         .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-        .then((json) => { base = json; Object.assign(raw, json); status = 'ok'; let m = 'claude'; try { m = localStorage.getItem('pt-model') || 'claude'; } catch (e) {} if (m !== 'claude' && json.models && json.models[m]) api.useModel(m); else { modelListeners.forEach((fn) => { try { fn('claude'); } catch (e) {} }); runAll(); } })
+        .then((json) => { base = json; Object.assign(raw, json); status = 'ok'; let m = json.leader || 'claude'; try { m = localStorage.getItem('pt-model') || m; } catch (e) {} if (m !== 'claude' && json.models && json.models[m]) api.useModel(m); else { modelListeners.forEach((fn) => { try { fn('claude'); } catch (e) {} }); runAll(); } })
         .catch((e) => { console.error('data.json failed to load', e); status = 'error'; runAll(); });
       // live refresh: check for new data every minute while the page is open
       setInterval(() => {
@@ -331,6 +331,8 @@ SHIM = r"""
 
 # Live preview picture for shared links: the race card with the current standings (falls back to the logo picture).
 OG_V = ''
+LEADER = 'claude'
+STANDINGS = []
 try:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import racecard, hashlib
@@ -344,6 +346,8 @@ try:
         racecard.race_card(_rows, None, 'Live standings · ' + _now.strftime('%a %b %-d, %-I:%M %p ET'), os.path.join(OUT, 'og.png'), height=6.3)
         json.dump({'sig': _sig, 'at': _now.isoformat()}, open(_ogj, 'w'))
     OG_V = _sig
+    STANDINGS = [{'id': r['id'], 'total': round(r['total'], 2)} for r in _rows]
+    LEADER = _rows[0]['id'] if _rows and len(_rows) > 1 and _rows[0]['total'] != _rows[1]['total'] else 'claude'
 except Exception as _e:
     print('preview picture not updated:', _e)
 
@@ -438,6 +442,8 @@ for _m in ('claude', 'gemini', 'chatgpt'):
         data['betmins'].append({'model': _m, 'week': _n, 'start': _a, 'end': _b, 'min': 25000 if _n.startswith('Week') else 0,
                                 'wagered': round(sum(v for a, v in _rs if _when(_a) <= _when(a) < _when(_b)), 2)})
     data['betmins'].append({'model': _m, 'week': 'Total', 'start': _W[0][1], 'end': _W[-1][2], 'min': 100000, 'wagered': round(sum(v for a, v in _rs), 2)})
+data['standings'] = STANDINGS
+data['leader'] = LEADER   # the AI leading the race on total profit; the page opens on it unless the viewer picked one
 data['rivals_thoughts'] = [x for x in r.get('thoughts', []) if x['at'].replace('Z', '+00:00') >= _cut]
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import model_views
