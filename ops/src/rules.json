@@ -1,1 +1,82 @@
-[]
+[
+ {
+  "portfolio": "Stocks",
+  "rule": "Sell all SPY if it falls to $735 (stop).",
+  "asset": "SPY",
+  "level": 735,
+  "direction": "below",
+  "label": "Stop"
+ },
+ {
+  "portfolio": "Stocks",
+  "rule": "Sell all QQQ if it falls to $685 (stop).",
+  "asset": "QQQ",
+  "level": 685,
+  "direction": "below",
+  "label": "Stop"
+ },
+ {
+  "portfolio": "Crypto",
+  "rule": "Sell all Bitcoin if it falls to $75,500 (stop).",
+  "asset": "Bitcoin",
+  "level": 75500,
+  "direction": "below",
+  "label": "Stop"
+ },
+ {
+  "portfolio": "Metals",
+  "rule": "Sell all gold if it falls to $3,880 (stop).",
+  "asset": "Gold",
+  "level": 3880,
+  "direction": "below",
+  "label": "Stop"
+ },
+ {
+  "portfolio": "Metals",
+  "rule": "Sell all silver if it falls to $50.00 (stop).",
+  "asset": "Silver",
+  "level": 50,
+  "direction": "below",
+  "label": "Stop"
+ },
+ {
+  "portfolio": "Energy",
+  "rule": "Sell all USO if it falls to $155 (stop).",
+  "asset": "USO",
+  "level": 155,
+  "direction": "below",
+  "label": "Stop"
+ },
+ {
+  "portfolio": "Energy",
+  "rule": "Sell all XLE if it falls to $64.50 (stop).",
+  "asset": "XLE",
+  "level": 64.5,
+  "direction": "below",
+  "label": "Stop"
+ },
+ {
+  "portfolio": "Currencies",
+  "rule": "Sell all yen if USD/JPY rises to 161.0 (yen price 0.006211; stop).",
+  "asset": "Japanese yen",
+  "level": 0.006211,
+  "direction": "below",
+  "label": "Stop"
+ },
+ {
+  "portfolio": "Currencies",
+  "rule": "Cover the US dollar short if USD/CAD rises to 1.4200 (stop, checked each run from the USD/CAD rate).",
+  "asset": null,
+  "level": null,
+  "direction": null,
+  "label": "Stop"
+ },
+ {
+  "portfolio": "Safe",
+  "rule": "Safe holds only T-bill funds and cash: no leverage, no single stocks, no options.",
+  "asset": null,
+  "level": null,
+  "direction": null,
+  "label": null
+ }
+]
