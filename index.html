@@ -417,8 +417,9 @@
   .ai-hero h2 { display: flex; align-items: center; }
   .m-menu-btn, .m-menu { display: none; }
   @media (max-width: 700px) {
-    .m-menu-btn { display: block; position: fixed; left: 12px; bottom: 14px; z-index: 60; font: inherit; font-size: 14px; font-weight: 600; padding: 10px 14px; min-height: 44px; border-radius: 999px; border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); box-shadow: 0 4px 16px rgba(0,0,0,.35); }
-    .m-menu:not([hidden]) { display: block; position: fixed; left: 8px; right: 8px; bottom: 68px; max-height: 72vh; overflow-y: auto; z-index: 61; background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 12px; padding: 10px 12px 12px; box-shadow: 0 8px 30px rgba(0,0,0,.45); }
+    .st-lang { flex-wrap: wrap; max-width: 200px; }
+    .m-menu-btn { display: block; flex-basis: 100%; max-width: max-content; margin-top: 8px; font: inherit; font-size: 14px; font-weight: 600; padding: 8px 14px; min-height: 40px; border-radius: 999px; border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); cursor: pointer; }
+    .m-menu:not([hidden]) { display: block; position: fixed; left: 8px; right: 8px; top: 12px; max-height: 80vh; overflow-y: auto; z-index: 61; background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 12px; padding: 10px 12px 12px; box-shadow: 0 8px 30px rgba(0,0,0,.45); }
     .m-menu-head { display: flex; justify-content: space-between; align-items: center; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
     .m-menu-x { font: inherit; font-size: 16px; background: none; border: 0; color: var(--color-fg); min-width: 44px; min-height: 36px; cursor: pointer; }
     .m-menu-group { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 8px; }
@@ -2145,11 +2146,13 @@ body { background:var(--color-bg); }
     };
     const label = () => { const id = dash.model || 'claude'; btn.replaceChildren(document.createTextNode('☰ Menu · ')); const n = document.createElement('span'); n.textContent = AIS[id].label; n.style.color = AIS[id].color; btn.appendChild(n); };
     const toggle = (open) => { if (open) build(); sheet.hidden = !open; btn.setAttribute('aria-expanded', String(open)); };
-    label(); setInterval(label, 2000);
+    label(); setInterval(label, 1000);
     { const sel = document.getElementById('model-pick'); if (sel) sel.addEventListener('change', () => setTimeout(label, 50)); }
     btn.addEventListener('click', () => toggle(sheet.hidden));
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !sheet.hidden) toggle(false); });
-    document.body.append(btn, sheet);
+    const lang = document.querySelector('.st-lang');   // sits right under the language menu, in the header's empty space
+    if (lang) lang.appendChild(btn); else document.body.append(btn);
+    document.body.append(sheet);
   })();
 
   dash.calc('totals', {
