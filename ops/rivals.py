@@ -1179,7 +1179,7 @@ def main():
                 if v not in ('ok', 'partly', 'wrong', 'unverified') or not src.startswith('http'):
                     v = 'unverified' if not src.startswith('http') else v
                 state.setdefault('factchecks', []).append({'at': iso(), 'model': 'claude', 'checker': 'gemini', 'take_at': fc_take['at'], 'take': clip(fc_take['text'], 300),
-                                                           'verdict': v if v in ('ok', 'partly', 'wrong', 'unverified') else 'unverified', 'text': clip(fcr['text'], 500), 'source': src if src.startswith('http') else ''})
+                                                           'verdict': v if v in ('ok', 'partly', 'wrong', 'unverified') else 'unverified', 'text': clip(re.sub(r'\s*\[\d+(?:,\s*\d+)*\]', '', str(fcr['text'])), 500), 'source': src if src.startswith('http') else ''})
             pl = reply.get('plans') if isinstance(reply.get('plans'), dict) else {}
             pl = dict(pl, feeling=reply.get('feeling', ''))
             for o, v in (reply.get('on_rivals') or {}).items() if isinstance(reply.get('on_rivals'), dict) else []:
