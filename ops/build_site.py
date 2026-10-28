@@ -236,7 +236,7 @@ SHIM = r"""
     const schedule = () => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; runAll(); }); };
     window.addEventListener('DOMContentLoaded', () => {
       runAll();
-      new MutationObserver(schedule).observe(document.getElementById('dash-root'), { attributes: true, attributeFilter: ['hidden'], subtree: true });
+      new MutationObserver((ms) => { if (ms.some((m) => m.target.matches && m.target.matches('[data-page]'))) schedule(); }).observe(document.getElementById('dash-root'), { attributes: true, attributeFilter: ['hidden'], subtree: true });
       let w = window.innerWidth;
       window.addEventListener('resize', () => { if (window.innerWidth !== w) { w = window.innerWidth; schedule(); } });
       if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', schedule);
@@ -286,7 +286,7 @@ open(os.path.join(OUT, 'index.html'), 'w').write(html)
 
 # ---- data.json ----
 data = {}
-for name in ('holdings', 'history', 'bets', 'log', 'rules', 'benchmark', 'indexes', 'events', 'prices', 'trades', 'bench_history'):
+for name in ('holdings', 'history', 'bets', 'log', 'rules', 'benchmark', 'indexes', 'events', 'prices', 'trades', 'bench_history', 'ledger'):
     data[name] = json.load(open(os.path.join(SRC, name + '.json')))
 data['sources'] = json.load(open(os.path.join(SRC, 'sources.json')))
 times = [r['at'] for r in data['log'] + data['history']]

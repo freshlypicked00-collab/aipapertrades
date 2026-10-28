@@ -144,6 +144,43 @@
   .st-table td.wrap { min-width: 14rem; }
   .st-table td.src { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); min-width: 11rem; }
   .st-pill { display: inline-block; padding: 0 var(--cds-pad-sm); border-radius: 999px; font-size: var(--cds-font-size-caption); border: 1px solid var(--color-border-line); }
+
+  .st-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .st-chips button { font: inherit; font-size: var(--cds-font-size-body); padding: 5px 14px; border-radius: 999px; border: 1px solid var(--color-border-line); background: none; color: var(--color-fg-muted); cursor: pointer; }
+  .st-chips button:hover { color: var(--color-fg); border-color: var(--color-fg-muted); }
+  .st-chips button[aria-pressed="true"] { color: var(--color-bg); background: var(--color-fg); border-color: var(--color-fg); }
+  .st-chips button:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .gx { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .gx-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 10px 16px; }
+  .gx-now { display: flex; flex-direction: column; gap: 2px; }
+  .gx-val { font-family: var(--font-serif); font-size: 34px; line-height: 1.1; }
+  .gx-chg { font-size: 16px; }
+  .gx-when { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .gx-ranges { display: flex; gap: 2px; }
+  .gx-ranges button { font: inherit; font-size: 13px; padding: 4px 12px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--color-fg-muted); cursor: pointer; }
+  .gx-ranges button[aria-pressed="true"] { color: var(--color-fg); border-bottom-color: var(--color-fg); }
+  .gx-plot { position: relative; touch-action: pan-y; min-height: 200px; }
+  .gx-plot svg { display: block; overflow: visible; }
+  .gx-tip { position: absolute; top: 0; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: 6px 10px; font-size: 14px; pointer-events: none; white-space: nowrap; line-height: 1.35; z-index: 2; }
+  .gx-tip b { font-size: 16px; font-weight: 600; }
+  .gx-tip span { display: block; color: var(--color-fg-muted); font-size: 12.5px; }
+  .gx-key { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; }
+  .gx-key i { display: inline-block; width: 22px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 6px; }
+  .gx-key i.dash { border-top-style: dashed; }
+  .gx-empty { color: var(--color-fg-muted); font-size: var(--cds-font-size-body); padding: 40px 0; text-align: center; }
+  .lg-days { display: flex; flex-direction: column; gap: var(--cds-gap-lg); }
+  .lg-day { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: 12px; }
+  .lg-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px; }
+  .lg-head h3 { margin: 0; font-size: 19px; font-weight: 600; }
+  .lg-head .lg-span { display: block; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-weight: 400; margin-top: 2px; }
+  .lg-total { font-family: var(--font-serif); font-size: 28px; }
+  .lg-note { margin: 0; font-size: 15.5px; line-height: 1.6; max-width: 75ch; }
+  .lg-notes { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; max-width: 75ch; font-size: var(--cds-font-size-body); }
+  .lg-notes b { font-weight: 600; }
+  .lg-day details summary { cursor: pointer; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); }
+  .lg-day details ul { margin: 8px 0 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; font-size: var(--cds-font-size-body); }
+  .lg-pending { color: var(--color-fg-muted); font-style: italic; }
+  .lg-today { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: baseline; }
   [data-dash-source-state=empty] { color: transparent; }
   [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
 
@@ -228,7 +265,7 @@ body { background:#0b0b0a; }
     const schedule = () => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; runAll(); }); };
     window.addEventListener('DOMContentLoaded', () => {
       runAll();
-      new MutationObserver(schedule).observe(document.getElementById('dash-root'), { attributes: true, attributeFilter: ['hidden'], subtree: true });
+      new MutationObserver((ms) => { if (ms.some((m) => m.target.matches && m.target.matches('[data-page]'))) schedule(); }).observe(document.getElementById('dash-root'), { attributes: true, attributeFilter: ['hidden'], subtree: true });
       let w = window.innerWidth;
       window.addEventListener('resize', () => { if (window.innerWidth !== w) { w = window.innerWidth; schedule(); } });
       if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', schedule);
@@ -253,8 +290,8 @@ body { background:#0b0b0a; }
       <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b> <span class="st-mkt" data-draw="market">—</span></span>
     </p>
     <p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>
-    <p class="st-notice" role="note"><span class="st-dot" aria-hidden="true"></span><span><b>This is a simulation, not investment advice.</b> No real money is involved. It is a 30-day experiment in which an AI model makes trading and betting decisions using real-world prices, to see how its judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results will be posted on Nov 26, win or lose.</span></p>
-    <p class="st-lede">Four paper simulations, each starting with <span data-draw="start">—</span>, scored on Nov 26, 2026. Together they are worth <b data-draw="combined" data-source="combined" data-field="total">—</b>, a change of <b data-draw="combined-pnl" data-source="combined" data-field="pnl">—</b>. Last updated <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=All">—</b>.</p>
+    <p class="st-notice" role="note"><span class="st-dot" aria-hidden="true"></span><span><b>This is a simulation, not investment advice.</b> No real money is involved. It is a 30-day experiment in which an AI model makes trading and betting decisions using real-world prices, to see how its judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results for all five will be posted on Nov 26, win or lose.</span></p>
+    <p class="st-lede">Five paper simulations, scored on Nov 26, 2026: four started with <span data-draw="start">—</span> each and the Chinese stocks one with US$100,000. Together they are worth <b data-draw="combined" data-source="combined" data-field="total">—</b> in Canadian dollars, a change of <b data-draw="combined-pnl" data-source="combined" data-field="pnl">—</b>. Last updated <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=All">—</b>.</p>
   </header>
 
   <nav class="st-tabs" role="tablist" aria-label="Simulations">
@@ -263,6 +300,8 @@ body { background:#0b0b0a; }
     <button class="st-tab" role="tab" data-tab="crypto" aria-selected="false">Crypto</button>
     <button class="st-tab" role="tab" data-tab="metals" aria-selected="false">Metals</button>
     <button class="st-tab" role="tab" data-tab="sports" aria-selected="false">Sports</button>
+    <button class="st-tab" role="tab" data-tab="china" aria-selected="false">China</button>
+    <button class="st-tab" role="tab" data-tab="ledger" aria-selected="false">Daily ledger</button>
   </nav>
 
   <!-- Overview -->
@@ -316,8 +355,20 @@ body { background:#0b0b0a; }
           <span>Beat the closing line: <b data-draw="clv-sum" data-source="clvsum" data-field="beat" data-row="0">—</b></span>
         </span>
       </button>
+      <button class="st-card" data-goto="china">
+        <span class="st-label">Chinese stocks (US$)</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=China">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=China">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=China">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=China">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=China">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=China">—</b></span>
+          <span>Vs. CSI 300: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=csi300">—</b></span>
+        </span>
+      </button>
     </div>
-    <p class="st-note">The big figure is total net profit since the start. "Last 24 hours" compares with the check-in closest to 24 hours earlier, or the start if a simulation is newer. "Worst drop" is the biggest fall from a high point, measured at check-ins. Stocks are compared with putting the same <span data-draw="start">—</span> into the S&amp;P 500; crypto and metals with putting it into Bitcoin. Positive means the portfolio is ahead.</p>
+    <p class="st-note">The big figure is total net profit since the start. "Last 24 hours" compares with the check-in closest to 24 hours earlier, or the start if a simulation is newer. "Worst drop" is the biggest fall from a high point, measured at check-ins. Stocks are compared with putting the same <span data-draw="start">—</span> into the S&amp;P 500, crypto and metals with putting it into Bitcoin, and Chinese stocks with the CSI 300 index. Positive means the portfolio is ahead. The Chinese stocks simulation is counted in US dollars.</p>
 
     <section class="st-card" aria-labelledby="h-events-all">
       <h2 class="st-h2" id="h-events-all">Coming up</h2>
@@ -331,9 +382,16 @@ body { background:#0b0b0a; }
     </section>
 
     <section class="st-card" aria-labelledby="h-ret">
-      <h2 class="st-h2" id="h-ret">Return vs. the market</h2>
-      <p class="st-note">Each simulation's return since it started, in Canadian dollars, against simply holding the S&amp;P 500 or Bitcoin from the Oct 26 close (dashed lines).</p>
-      <div class="st-chart" data-draw="ret-chart" data-source="history bench_history"></div>
+      <h2 class="st-h2" id="h-ret">How each simulation is doing</h2>
+      <p class="st-note">Pick a simulation. Move your cursor along the chart (or drag a finger on a phone) to see the exact value at each check-in.</p>
+      <div class="st-chips" role="group" aria-label="Simulation" data-chips-for="perf-overview">
+        <button type="button" data-v="Stocks" aria-pressed="true">Stocks</button>
+        <button type="button" data-v="Crypto" aria-pressed="false">Crypto</button>
+        <button type="button" data-v="Metals" aria-pressed="false">Metals</button>
+        <button type="button" data-v="Sports" aria-pressed="false">Sports</button>
+        <button type="button" data-v="China" aria-pressed="false">China</button>
+      </div>
+      <div class="gx" id="perf-overview" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Stocks"></div>
     </section>
 
     <section class="st-card" aria-labelledby="h-trig-all">
@@ -387,15 +445,20 @@ body { background:#0b0b0a; }
         <div><span class="st-label">Ahead of the TSX by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=tsx">—</span></div>
       </div>
     </section>
+    <section class="st-card" aria-labelledby="h-s-chart">
+      <h2 class="st-h2" id="h-s-chart">Value over time</h2>
+      <p class="st-note">The grey dashed line is the same C$100,000 left in the S&amp;P 500. Hover or drag along the chart for exact values.</p>
+      <div class="gx" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Stocks"></div>
+    </section>
     <section class="st-card" aria-labelledby="h-s-trig">
       <h2 class="st-h2" id="h-s-trig">Distance to the next trade</h2>
       <p class="st-note">This portfolio's price rules, closest first.</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Stocks"></div>
     </section>
     <section class="st-card" aria-labelledby="h-s-px">
-      <h2 class="st-h2" id="h-s-px">Prices since entry</h2>
-      <p class="st-note">Each holding's price at every check-in (US dollars). Dotted line: entry price. Coloured lines: rule levels within range. Triangles: buys and sells.</p>
-      <div class="st-minis" data-draw="price-grid" data-source="prices holdings rules trades" data-portfolio="Stocks"></div>
+      <h2 class="st-h2" id="h-s-px">Prices</h2>
+      <p class="st-note">Pick a holding to see its price (US dollars) at each check-in since it was bought. The dotted line is the price paid; dashed lines are the prices that would trigger a trade. Hover for exact prices.</p>
+      <div class="gx" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Stocks"></div>
     </section>
     <section class="st-card" aria-labelledby="h-s-contrib">
       <h2 class="st-h2" id="h-s-contrib">What made or lost money</h2>
@@ -411,11 +474,6 @@ body { background:#0b0b0a; }
           <tbody data-draw="events-body" data-portfolio="Stocks" data-limit="6"></tbody>
         </table>
       </div>
-    </section>
-    <section class="st-card" aria-labelledby="h-s-chart">
-      <h2 class="st-h2" id="h-s-chart">Value over time</h2>
-      <p class="st-note">The dashed line is the <span data-draw="start">—</span> start.</p>
-      <div class="st-chart" data-draw="chart" data-source="history" data-portfolio="Stocks"></div>
     </section>
     <section class="st-card" aria-labelledby="h-s-hold">
       <h2 class="st-h2" id="h-s-hold">Holdings</h2>
@@ -465,15 +523,20 @@ body { background:#0b0b0a; }
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Crypto">—</b></span>
       </p>
     </section>
+    <section class="st-card" aria-labelledby="h-c-chart">
+      <h2 class="st-h2" id="h-c-chart">Value over time</h2>
+      <p class="st-note">The grey dashed line is the same C$100,000 left in Bitcoin. Hover or drag along the chart for exact values.</p>
+      <div class="gx" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Crypto"></div>
+    </section>
     <section class="st-card" aria-labelledby="h-c-trig">
       <h2 class="st-h2" id="h-c-trig">Distance to the next trade</h2>
       <p class="st-note">This portfolio's price rules, closest first.</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Crypto"></div>
     </section>
     <section class="st-card" aria-labelledby="h-c-px">
-      <h2 class="st-h2" id="h-c-px">Prices since entry</h2>
-      <p class="st-note">Each holding's price at every check-in (US dollars). Dotted line: entry price. Coloured lines: rule levels within range. Triangles: buys and sells.</p>
-      <div class="st-minis" data-draw="price-grid" data-source="prices holdings rules trades" data-portfolio="Crypto"></div>
+      <h2 class="st-h2" id="h-c-px">Prices</h2>
+      <p class="st-note">Pick a holding to see its price (US dollars) at each check-in since it was bought. The dotted line is the price paid; dashed lines are the prices that would trigger a trade. Hover for exact prices.</p>
+      <div class="gx" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Crypto"></div>
     </section>
     <section class="st-card" aria-labelledby="h-c-contrib">
       <h2 class="st-h2" id="h-c-contrib">What made or lost money</h2>
@@ -489,11 +552,6 @@ body { background:#0b0b0a; }
           <tbody data-draw="events-body" data-portfolio="Crypto" data-limit="6"></tbody>
         </table>
       </div>
-    </section>
-    <section class="st-card" aria-labelledby="h-c-chart">
-      <h2 class="st-h2" id="h-c-chart">Value over time</h2>
-      <p class="st-note">The dashed line is the <span data-draw="start">—</span> start.</p>
-      <div class="st-chart" data-draw="chart" data-source="history" data-portfolio="Crypto"></div>
     </section>
     <section class="st-card" aria-labelledby="h-c-hold">
       <h2 class="st-h2" id="h-c-hold">Holdings</h2>
@@ -543,15 +601,20 @@ body { background:#0b0b0a; }
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Metals">—</b></span>
       </p>
     </section>
+    <section class="st-card" aria-labelledby="h-m-chart">
+      <h2 class="st-h2" id="h-m-chart">Value over time</h2>
+      <p class="st-note">The grey dashed line is the same C$100,000 left in Bitcoin. Hover or drag along the chart for exact values.</p>
+      <div class="gx" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Metals"></div>
+    </section>
     <section class="st-card" aria-labelledby="h-m-trig">
       <h2 class="st-h2" id="h-m-trig">Distance to the next trade</h2>
       <p class="st-note">This portfolio's price rules, closest first.</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Metals"></div>
     </section>
     <section class="st-card" aria-labelledby="h-m-px">
-      <h2 class="st-h2" id="h-m-px">Prices since entry</h2>
-      <p class="st-note">Each holding's price at every check-in (US dollars). Dotted line: entry price. Coloured lines: rule levels within range. Triangles: buys and sells.</p>
-      <div class="st-minis" data-draw="price-grid" data-source="prices holdings rules trades" data-portfolio="Metals"></div>
+      <h2 class="st-h2" id="h-m-px">Prices</h2>
+      <p class="st-note">Pick a holding to see its price (US dollars) at each check-in since it was bought. The dotted line is the price paid; dashed lines are the prices that would trigger a trade. Hover for exact prices.</p>
+      <div class="gx" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Metals"></div>
     </section>
     <section class="st-card" aria-labelledby="h-m-contrib">
       <h2 class="st-h2" id="h-m-contrib">What made or lost money</h2>
@@ -567,11 +630,6 @@ body { background:#0b0b0a; }
           <tbody data-draw="events-body" data-portfolio="Metals" data-limit="6"></tbody>
         </table>
       </div>
-    </section>
-    <section class="st-card" aria-labelledby="h-m-chart">
-      <h2 class="st-h2" id="h-m-chart">Value over time</h2>
-      <p class="st-note">The dashed line is the <span data-draw="start">—</span> start.</p>
-      <div class="st-chart" data-draw="chart" data-source="history" data-portfolio="Metals"></div>
     </section>
     <section class="st-card" aria-labelledby="h-m-hold">
       <h2 class="st-h2" id="h-m-hold">Holdings</h2>
@@ -618,6 +676,11 @@ body { background:#0b0b0a; }
         <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Sports">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Sports">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Sports">—</b></span>
       </p>
+    </section>
+    <section class="st-card" aria-labelledby="h-b-chart">
+      <h2 class="st-h2" id="h-b-chart">Bankroll over time</h2>
+      <p class="st-note">The bankroll only moves when a bet settles. Hover or drag along the chart for exact values.</p>
+      <div class="gx" data-draw="perf-chart" data-source="history" data-portfolio="Sports"></div>
     </section>
     <section class="st-card" aria-labelledby="h-b-events">
       <h2 class="st-h2" id="h-b-events">Coming up</h2>
@@ -682,9 +745,121 @@ body { background:#0b0b0a; }
       </div>
     </section>
   </section>
+
+  <!-- China -->
+  <section class="st-page" id="china" data-page="china" hidden>
+    <section class="st-card" aria-labelledby="h-z-bench">
+      <h2 class="st-h2" id="h-z-bench">Chinese stocks portfolio</h2>
+      <p class="st-note">Shares and funds listed in Shanghai and Shenzhen, bought in yuan and counted in US dollars. Started Oct 28, 11:20 a.m. Beijing time (Oct 27, 11:20 p.m. ET) with US$100,000.</p>
+      <div class="st-bench">
+        <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=China">—</span></div>
+        <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=China">—</span></div>
+        <div><span class="st-label">Total net profit</span><span class="st-mid" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=China">—</span></div>
+        <div><span class="st-label">Worst drop from peak</span><span class="st-mid" data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=China">—</span></div>
+        <div><span class="st-label">All in the CSI 300</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=csi300">—</span></div>
+        <div><span class="st-label">Ahead of the CSI 300 by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=csi300">—</span></div>
+      </div>
+      <p class="st-meta">
+        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=China">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=China">—</span></span>
+        <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=China">—</b></span>
+        <span>Market hours: 9:30–11:30 a.m. and 1:00–3:00 p.m. Beijing time, which is 9:30–11:30 p.m. and 1:00–3:00 a.m. ET (an hour earlier from Nov 2). The CSI 300 comparison starts from the first index level recorded after the portfolio opened.</span>
+      </p>
+    </section>
+    <section class="st-card" aria-labelledby="h-z-chart">
+      <h2 class="st-h2" id="h-z-chart">Value over time</h2>
+      <p class="st-note">In US dollars. The grey dashed line is the same US$100,000 put into the CSI 300 index (China's 300 largest companies). Hover or drag along the chart for exact values.</p>
+      <div class="gx" data-draw="perf-chart" data-source="history bench_history" data-portfolio="China"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-z-trig">
+      <h2 class="st-h2" id="h-z-trig">Distance to the next trade</h2>
+      <p class="st-note">This portfolio's price rules, closest first. Prices in yuan (¥).</p>
+      <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="China"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-z-px">
+      <h2 class="st-h2" id="h-z-px">Prices</h2>
+      <p class="st-note">Pick a holding to see its price in yuan at each check-in since it was bought. The dotted line is the price paid; dashed lines are the prices that would trigger a trade.</p>
+      <div class="gx" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="China"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-z-contrib">
+      <h2 class="st-h2" id="h-z-contrib">What made or lost money</h2>
+      <p class="st-note">Profit or loss on each position since it was bought, in US dollars. Cash is left out.</p>
+      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="China"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-z-events">
+      <h2 class="st-h2" id="h-z-events">Coming up</h2>
+      <p class="st-note">Events ahead that could move this simulation. Times are Eastern.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="events" data-row-key="at,event">
+          <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
+          <tbody data-draw="events-body" data-portfolio="China" data-limit="6"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-z-hold">
+      <h2 class="st-h2" id="h-z-hold">Holdings</h2>
+      <p class="st-note">Prices in yuan (¥); values in US dollars at the latest exchange rate.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
+          <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Shares</th><th data-field="entry_local" class="num">Entry (¥)</th><th data-field="price_local" class="num">Now (¥)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_usd" class="num">Value (US$)</th><th data-field="price_source">Price source</th></tr></thead>
+          <tbody data-draw="holdings-body" data-portfolio="China"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-z-rules">
+      <h2 class="st-h2" id="h-z-rules">Rules in force</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="rules" data-row-key="rule">
+          <thead><tr><th data-field="rule">Rule</th></tr></thead>
+          <tbody data-draw="rules-body" data-portfolio="China"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-z-log">
+      <h2 class="st-h2" id="h-z-log">Decision log</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="log" data-row-key="at,portfolio">
+          <thead><tr><th data-field="at">When</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
+          <tbody data-draw="log-body" data-portfolio="China"></tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+
+  <!-- Daily ledger -->
+  <section class="st-page" id="ledger" data-page="ledger" hidden>
+    <section class="st-card" aria-labelledby="h-l-sum">
+      <h2 class="st-h2" id="h-l-sum">Daily ledger</h2>
+      <p class="st-note">Each day closes at midnight UTC (8 p.m. Eastern until Nov 1, then 7 p.m.). For every day: what each simulation made or lost, and the AI's own write-up of how it did. Combined figures are in Canadian dollars, with the Chinese stocks result converted from US dollars.</p>
+      <div class="st-bench">
+        <div><span class="st-label">Days closed</span><span class="st-mid" data-draw="lg-stat" data-source="ledger" data-stat="days">—</span></div>
+        <div><span class="st-label">Up days / down days</span><span class="st-mid" data-draw="lg-stat" data-source="ledger" data-stat="updown">—</span></div>
+        <div><span class="st-label">Best day</span><span class="st-mid" data-draw="lg-stat" data-source="ledger" data-stat="best">—</span></div>
+        <div><span class="st-label">Worst day</span><span class="st-mid" data-draw="lg-stat" data-source="ledger" data-stat="worst">—</span></div>
+      </div>
+      <p class="st-meta lg-today"><span>Today so far (closes at midnight UTC): <b data-draw="lg-today" data-source="history">—</b></span></p>
+    </section>
+    <section class="st-card" aria-labelledby="h-l-chart">
+      <h2 class="st-h2" id="h-l-chart">Profit or loss by day</h2>
+      <p class="st-note">Green bars are up days, red bars are down days. Hover or tap a bar for the exact amount.</p>
+      <div class="st-chips" role="group" aria-label="Simulation" data-chips-for="lg-bars">
+        <button type="button" data-v="All" aria-pressed="true">All combined</button>
+        <button type="button" data-v="Stocks" aria-pressed="false">Stocks</button>
+        <button type="button" data-v="Crypto" aria-pressed="false">Crypto</button>
+        <button type="button" data-v="Metals" aria-pressed="false">Metals</button>
+        <button type="button" data-v="Sports" aria-pressed="false">Sports</button>
+        <button type="button" data-v="China" aria-pressed="false">China</button>
+      </div>
+      <div class="gx" id="lg-bars" data-draw="lg-bars" data-source="ledger" data-portfolio="All"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-l-days">
+      <h2 class="st-h2" id="h-l-days">Day by day</h2>
+      <p class="st-note">Newest first. Open "Decisions this day" to see every trade, bet and check-in note logged during that day.</p>
+      <div class="lg-days" data-draw="lg-days" data-source="ledger log"></div>
+    </section>
+  </section>
   <section class="st-card st-about" aria-labelledby="h-about" id="about">
     <h2 class="st-h2" id="h-about">About this experiment</h2>
-    <p>This page tracks a 30-day paper-trading experiment, Oct 26 to Nov 26, 2026. An AI model was given <span data-draw="start">—</span> of pretend money in each of four simulations and asked to manage it as it saw fit. The page owner checks in through the month, and the AI looks up current prices and news, decides whether to trade, and records each decision and its reasoning here.</p>
+    <p>This page tracks a 30-day paper-trading experiment, Oct 26 to Nov 26, 2026. An AI model was given <span data-draw="start">—</span> of pretend money in each of four simulations, plus US$100,000 for a fifth in Chinese stocks added on Oct 28, and asked to manage it as it saw fit. The page owner checks in through the month, and the AI looks up current prices and news, decides whether to trade, and records each decision and its reasoning here.</p>
     <ul>
       <li><b>Independent.</b> This is an independent experiment, not affiliated with, sponsored by or endorsed by any brokerage, sportsbook, exchange or AI company.</li>
       <li><b>Not advice.</b> Nothing on this page is financial, investment, tax or betting advice, and the AI is not a licensed advisor. The picks are an experiment, not recommendations. Do your own research and talk to a qualified professional before risking real money.</li>
@@ -693,8 +868,8 @@ body { background:#0b0b0a; }
       <li><b>High risk on purpose.</b> The stocks portfolio holds 3x leveraged funds, and crypto, metals and sports bets can swing sharply. These choices were made to test aggressive decision-making, not because they suit most people. Leveraged funds can lose a large share of their value in a single day.</li>
       <li><b>Short window, lots of luck.</b> Thirty days is too short to prove skill. A good or bad result here says little about future performance.</li>
       <li><b>Sports betting is for adults only.</b> Odds are shown for the experiment, not as an endorsement of any sportsbook. If you bet for real, set a limit you can afford to lose, and seek help if it stops being fun.</li>
-      <li><b>Results, win or lose.</b> The final results for all four simulations will be posted here on Nov 26, whether they are good or bad. Losing trades and bets stay in the log.</li>
-      <li><b>How it's scored.</b> Values are in Canadian dollars at the latest exchange rate. Each simulation is compared with a simple benchmark (the S&amp;P 500 and TSX for stocks, holding Bitcoin for crypto and metals, the closing line for sports). US markets are closed on Nov 26 for Thanksgiving, so the stocks score uses the Nov 25 close.</li>
+      <li><b>Results, win or lose.</b> The final results for all five simulations will be posted here on Nov 26, whether they are good or bad. Losing trades and bets stay in the log.</li>
+      <li><b>How it's scored.</b> Values are in Canadian dollars at the latest exchange rate, except the Chinese stocks simulation, which is counted in US dollars. Each simulation is compared with a simple benchmark (the S&amp;P 500 and TSX for stocks, holding Bitcoin for crypto and metals, the closing line for sports, the CSI 300 for Chinese stocks). US markets are closed on Nov 26 for Thanksgiving, so the stocks score uses the Nov 25 close.</li>
     </ul>
     <p class="st-note">Data last refreshed <b data-draw="refreshed">—</b>. The sources used for prices, odds and news are listed below.</p>
     <h3 class="st-h3" id="h-sources">Sources</h3>
@@ -716,7 +891,10 @@ body { background:#0b0b0a; }
     const ended = Date.now() >= EXP_END;
     document.querySelectorAll('[data-phase]').forEach((el) => { el.hidden = (el.dataset.phase === 'ended') !== ended; });
   });
+  const SYM = (p) => (p === 'China' ? 'US$' : 'C$');
   window.stFmt = {
+    money: (v, p) => SYM(p) + d3.format(',.0f')(v),
+    signed: (v, p) => (v >= 0 ? '+' : '−') + SYM(p) + d3.format(',.0f')(Math.abs(v)),
     cad: (v) => 'C$' + d3.format(',.0f')(v),
     signedCad: (v) => (v >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(v)),
     pct: (v) => (v >= 0 ? '+' : '−') + d3.format('.1%')(Math.abs(v)),
@@ -725,7 +903,7 @@ body { background:#0b0b0a; }
   };
 
   // Tabs
-  const TABS = ['overview', 'stocks', 'crypto', 'metals', 'sports'];
+  const TABS = ['overview', 'stocks', 'crypto', 'metals', 'sports', 'china', 'ledger'];
   const showTab = (name) => {
     if (!TABS.includes(name)) name = 'overview';
     document.querySelectorAll('[data-page]').forEach((s) => { s.hidden = s.dataset.page !== name; });
@@ -738,15 +916,21 @@ body { background:#0b0b0a; }
 
   dash.calc('totals', {
     title: 'Portfolio totals',
-    description: 'Each portfolio’s value: holdings summed for Stocks, Crypto and Metals; C$100,000 plus settled results for Sports.',
+    description: 'Each portfolio’s value: holdings summed for Stocks, Crypto, Metals (Canadian dollars) and China (US dollars); C$100,000 plus settled results for Sports. value_cad converts China to Canadian dollars for the combined total.',
     inputs: ['holdings', 'bets'],
     fn: (holdings, bets) => {
       const start = 100000;
-      const sum = (p) => holdings.filter((r) => r.portfolio === p).reduce((a, r) => a + Number(r.value_cad), 0);
+      const sum = (p, f) => holdings.filter((r) => r.portfolio === p).reduce((a, r) => a + Number(r[f] || 0), 0);
       const settled = bets.filter((b) => b.status !== 'Open').reduce((a, b) => a + Number(b.result_cad || 0), 0);
       const risk = bets.filter((b) => b.status === 'Open').reduce((a, b) => a + Number(b.stake_cad), 0);
-      return ['Stocks', 'Crypto', 'Metals'].map((p) => ({ portfolio: p, value: sum(p), pnl: sum(p) - start, pct: sum(p) / start - 1, at_risk: 0 }))
-        .concat([{ portfolio: 'Sports', value: start + settled, pnl: settled, pct: settled / start, at_risk: risk }]);
+      const out = ['Stocks', 'Crypto', 'Metals'].map((p) => ({ portfolio: p, value: sum(p, 'value_cad'), pnl: sum(p, 'value_cad') - start, pct: sum(p, 'value_cad') / start - 1, at_risk: 0, value_cad: sum(p, 'value_cad'), pnl_cad: sum(p, 'value_cad') - start }))
+        .concat([{ portfolio: 'Sports', value: start + settled, pnl: settled, pct: settled / start, at_risk: risk, value_cad: start + settled, pnl_cad: settled }]);
+      if (holdings.some((r) => r.portfolio === 'China')) {
+        const usd = sum('China', 'value_usd'), cad = sum('China', 'value_cad');
+        const fx = usd ? cad / usd : 1;
+        out.push({ portfolio: 'China', value: usd, pnl: usd - start, pct: usd / start - 1, at_risk: 0, value_cad: cad, pnl_cad: (usd - start) * fx });
+      }
+      return out;
     }
   });
 
@@ -765,7 +949,7 @@ body { background:#0b0b0a; }
     title: '24-hour net profit',
     description: 'Each portfolio\u2019s latest value minus its value at the last check-in at least 24 hours earlier, or its start if it is newer than 24 hours.',
     inputs: ['history'],
-    fn: (history) => ['Stocks', 'Crypto', 'Metals', 'Sports'].map((p) => {
+    fn: (history) => ['Stocks', 'Crypto', 'Metals', 'Sports', 'China'].map((p) => {
       const s = history.filter((r) => r.portfolio === p).map((r) => ({ t: new Date(r.at).getTime(), v: Number(r.value) })).sort((a, b) => a.t - b.t);
       if (!s.length) return { portfolio: p, day: null };
       const last = s[s.length - 1];
@@ -780,10 +964,11 @@ body { background:#0b0b0a; }
     description: 'What C$100,000 put into each index at the stocks simulation\u2019s start would be worth now (S&P 500 converted at the start and current exchange rates; index levels without dividends), and how far the stocks portfolio is ahead.',
     inputs: ['totals', 'indexes'],
     fn: (totals, indexes) => {
-      const t = totals.find((r) => r.portfolio === 'Stocks');
       return indexes.map((i) => {
-        const index_value = 100000 / Number(i.fx_start) / Number(i.start_level) * Number(i.now_level) * Number(i.fx_now);
-        return { id: i.id, index: i.index, value: t ? t.value : null, index_value, diff: t ? t.value - index_value : null };
+        const t = totals.find((r) => r.portfolio === (i.portfolio || 'Stocks'));
+        const ready = i.start_level && i.now_level;
+        const index_value = ready ? 100000 / Number(i.fx_start) / Number(i.start_level) * Number(i.now_level) * Number(i.fx_now) : null;
+        return { id: i.id, portfolio: i.portfolio || 'Stocks', index: i.index, value: t ? t.value : null, index_value, diff: t && ready ? t.value - index_value : null };
       });
     }
   });
@@ -792,7 +977,7 @@ body { background:#0b0b0a; }
     title: 'Worst drop from peak',
     description: 'For each portfolio, the biggest fall from its highest check-in value to any later check-in value.',
     inputs: ['history'],
-    fn: (history) => ['Stocks', 'Crypto', 'Metals', 'Sports'].map((p) => {
+    fn: (history) => ['Stocks', 'Crypto', 'Metals', 'Sports', 'China'].map((p) => {
       const s = history.filter((r) => r.portfolio === p).map((r) => ({ t: new Date(r.at).getTime(), v: Number(r.value) })).sort((a, b) => a.t - b.t);
       let peak = -Infinity, worst_pct = 0, worst_cad = 0;
       for (const r of s) {
@@ -841,7 +1026,7 @@ body { background:#0b0b0a; }
       const TRADES = ['Buy', 'Sell', 'Bet', 'Trim', 'Add'];
       const t = (r) => new Date(r.at).getTime();
       const latest = (rows) => rows.reduce((a, r) => (!a || t(r) > t(a) ? r : a), null);
-      return ['Stocks', 'Crypto', 'Metals', 'Sports', 'All'].map((p) => {
+      return ['Stocks', 'Crypto', 'Metals', 'Sports', 'China', 'All'].map((p) => {
         const mine = (r) => p === 'All' || r.portfolio === p;
         const trade = latest(log.filter((r) => mine(r) && TRADES.includes(r.action)));
         const upd = latest(log.filter(mine).concat(history.filter(mine)));
@@ -862,22 +1047,28 @@ body { background:#0b0b0a; }
     inputs: ['rules', 'holdings'],
     fn: (rules, holdings) => rules.filter((r) => r.asset && r.level !== null && r.level !== undefined).map((r) => {
       const h = holdings.find((x) => x.portfolio === r.portfolio && x.holding === r.asset);
-      const price = h && h.price_usd !== null ? Number(h.price_usd) : null;
+      const raw = h ? (h.price_local ?? h.price_usd) : null;
+      const price = raw !== null && raw !== undefined ? Number(raw) : null;
       const level = Number(r.level);
       const dist = price ? (level - price) / price : null;
       const hit = price !== null && (r.direction === 'above' ? price >= level : price <= level);
-      return { rule: r.rule, portfolio: r.portfolio, asset: r.asset, label: r.label, direction: r.direction, level, price, distance_pct: dist, away: dist === null ? null : Math.abs(dist), hit };
+      return { rule: r.rule, portfolio: r.portfolio, asset: r.asset, label: r.label, direction: r.direction, level, price, currency: h && h.currency === 'CNY' ? 'CNY' : 'USD', distance_pct: dist, away: dist === null ? null : Math.abs(dist), hit };
     })
   });
 
   dash.calc('contrib', {
     title: 'Profit or loss by position',
-    description: 'Each position\u2019s value now minus what was paid for it (Canadian dollars), and each settled bet\u2019s result. Cash and USDC are left out.',
+    description: 'Each position\u2019s value now minus what was paid for it (Canadian dollars; US dollars for China), and each settled bet\u2019s result. pnl_cad puts every row in Canadian dollars for comparison. Cash and USDC are left out.',
     inputs: ['holdings', 'bets'],
     fn: (holdings, bets) => holdings
       .filter((h) => h.cost_cad !== undefined && h.holding !== 'Cash (CAD)' && h.holding !== 'USDC')
-      .map((h) => ({ key: h.portfolio + ': ' + h.holding, portfolio: h.portfolio, item: h.holding, pnl: Number(h.value_cad) - Number(h.cost_cad) + Number(h.realized_cad || 0) }))
-      .concat(bets.filter((b) => b.status !== 'Open').map((b) => ({ key: 'Sports: ' + b.bet + ' ' + b.pick, portfolio: 'Sports', item: b.bet + ' ' + b.pick, pnl: Number(b.result_cad || 0) })))
+      .map((h) => ({ key: h.portfolio + ': ' + h.holding, portfolio: h.portfolio, item: h.holding, pnl: Number(h.value_cad) - Number(h.cost_cad) + Number(h.realized_cad || 0), pnl_cad: Number(h.value_cad) - Number(h.cost_cad) + Number(h.realized_cad || 0) }))
+      .concat(holdings.filter((h) => h.portfolio === 'China' && h.holding !== 'Cash (CNY)').map((h) => {
+        const pnl = Number(h.value_usd) - Number(h.cost_usd) + Number(h.realized_usd || 0);
+        const fx = Number(h.value_usd) ? Number(h.value_cad) / Number(h.value_usd) : 1.4;
+        return { key: 'China: ' + h.holding, portfolio: 'China', item: h.holding, pnl, pnl_cad: pnl * fx };
+      }))
+      .concat(bets.filter((b) => b.status !== 'Open').map((b) => ({ key: 'Sports: ' + b.bet + ' ' + b.pick, portfolio: 'Sports', item: b.bet + ' ' + b.pick, pnl: Number(b.result_cad || 0), pnl_cad: Number(b.result_cad || 0) })))
   });
 
   dash.calc('bysport', {
@@ -898,12 +1089,12 @@ body { background:#0b0b0a; }
   });
 
   dash.calc('combined', {
-    title: 'All three combined',
-    description: 'The three portfolio values added together, and the change from the C$100,000 each one started with.',
+    title: 'All combined',
+    description: 'Every portfolio’s value in Canadian dollars added together (China converted from US dollars), and the total profit since each one started.',
     inputs: ['totals'],
     fn: (totals) => {
-      const total = totals.reduce((a, r) => a + r.value, 0);
-      return [{ total, pnl: total - 100000 * totals.length }];
+      const total = totals.reduce((a, r) => a + r.value_cad, 0);
+      return [{ total, pnl: totals.reduce((a, r) => a + r.pnl_cad, 0) }];
     }
   });
 
@@ -972,13 +1163,13 @@ body { background:#0b0b0a; }
     el.textContent = d.status === 'ok' && d.data[0] ? stFmt.when(d.data[0].as_of) + ' ET' : '—';
   });
   dash.draw('tile-value', (el) => {
-    const r = rowFor('totals', stFmt.whereOf(el));
-    el.textContent = r ? stFmt.cad(r.value) : '—';
+    const p = stFmt.whereOf(el), r = rowFor('totals', p);
+    el.textContent = r ? stFmt.money(r.value, p) : '—';
   });
   dash.draw('tile-pnl', (el) => {
-    const r = rowFor('totals', stFmt.whereOf(el));
+    const p = stFmt.whereOf(el), r = rowFor('totals', p);
     tone(el, r ? r.pnl : 0);
-    el.textContent = r ? stFmt.signedCad(r.pnl) + ' (' + stFmt.pct(r.pct) + ')' : '—';
+    el.textContent = r ? stFmt.signed(r.pnl, p) + ' (' + stFmt.pct(r.pct) + ')' : '—';
   });
   dash.draw('at-risk', (el) => {
     const r = rowFor('totals', stFmt.whereOf(el));
@@ -999,16 +1190,16 @@ body { background:#0b0b0a; }
     el.textContent = ok ? stFmt.signedCad(r.diff) : '—';
   });
   dash.draw('day-pnl', (el) => {
-    const r = rowFor('pnl24', stFmt.whereOf(el));
+    const p = stFmt.whereOf(el), r = rowFor('pnl24', p);
     const ok = r && r.day !== null;
     tone(el, ok ? r.day : 0);
-    el.textContent = ok ? stFmt.signedCad(r.day) : '—';
+    el.textContent = ok ? stFmt.signed(r.day, p) : '—';
   });
   dash.draw('idx-value', (el) => {
     const d = dash.data('vsindex');
     const id = new URLSearchParams(el.dataset.where || '').get('id');
     const r = d.status === 'ok' ? d.data.find((x) => x.id === id) : null;
-    el.textContent = r ? stFmt.cad(r.index_value) : '—';
+    el.textContent = r && r.index_value !== null ? stFmt.money(r.index_value, r.portfolio) : 'Pending';
   });
   dash.draw('idx-diff', (el) => {
     const d = dash.data('vsindex');
@@ -1016,13 +1207,13 @@ body { background:#0b0b0a; }
     const r = d.status === 'ok' ? d.data.find((x) => x.id === id) : null;
     const ok = r && r.diff !== null;
     tone(el, ok ? r.diff : 0);
-    el.textContent = ok ? stFmt.signedCad(r.diff) : '—';
+    el.textContent = ok ? stFmt.signed(r.diff, r.portfolio) : '—';
   });
   dash.draw('dd', (el) => {
-    const r = rowFor('drawdown', stFmt.whereOf(el));
+    const p = stFmt.whereOf(el), r = rowFor('drawdown', p);
     const ok = r && r.peak !== null;
     tone(el, ok && r.worst_cad < -0.5 ? -1 : 0);
-    el.textContent = ok ? (r.worst_pct < 0 ? '−' : '') + d3.format('.2%')(Math.abs(r.worst_pct)) + ' (' + stFmt.cad(Math.abs(r.worst_cad)) + ')' : '—';
+    el.textContent = ok ? (r.worst_pct < 0 ? '−' : '') + d3.format('.2%')(Math.abs(r.worst_pct)) + ' (' + stFmt.money(Math.abs(r.worst_cad), p) + ')' : '—';
   });
   dash.draw('clv-sum', (el) => {
     const d = dash.data('clvsum');
@@ -1038,7 +1229,7 @@ body { background:#0b0b0a; }
     const now = Date.now() - 30 * 60 * 1000;
     d.data
       .filter((r) => new Date(r.at).getTime() >= now)
-      .filter((r) => !p || r.affects === 'All' || r.affects.split(', ').includes(p))
+      .filter((r) => !p || r.affects.split(', ').includes(p))
       .sort((a, b) => new Date(a.at) - new Date(b.at))
       .slice(0, limit)
       .forEach((r) => {
@@ -1066,130 +1257,35 @@ body { background:#0b0b0a; }
     const r = rowFor('lasts', stFmt.whereOf(el));
     el.textContent = r && r.last_update_at ? stFmt.when(r.last_update_at) + ' ET' : '—';
   });
-  // Generic line chart: series [{name, color, dashed, points:[{t: Date, v}]}]
-  window.stLine = (el, series, o) => {
-    el.replaceChildren();
-    const pts = series.flatMap((s) => s.points.map((p) => ({ t: p.t, v: p.v, s })));
-    if (!pts.length) { el.textContent = '—'; return; }
-    const fs = o.fs || 12;
-    const W = Math.max(240, el.clientWidth), H = o.height || 260;
-    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
-    const ys = pts.map((p) => p.v).concat(o.refY !== undefined ? [o.refY] : []).concat((o.levels || []).map((l) => l.v));
-    let lo = d3.min(ys), hi = d3.max(ys);
-    const pad = Math.max(o.minPad || 0, (hi - lo) * 0.12) || Math.abs(hi) * 0.02 || 1;
-    const y = d3.scaleLinear([lo - pad, hi + pad], [H - 24, 10]).nice();
-    const measure = (t) => { const n = svg.append('text').attr('font-size', fs).text(t); const w = n.node().getComputedTextLength(); n.remove(); return w; };
-    const ticks = y.ticks(o.ticks || 5);
-    const left = Math.ceil(d3.max(ticks, (v) => measure(o.fmtY(v)))) + 8;
-    const labels = o.endLabels === false ? [] : series.filter((s) => s.points.length).map((s) => {
-      const p = s.points[s.points.length - 1];
-      return { s, p, text: s.name + ' ' + o.fmtY(p.v) };
-    });
-    const right = labels.length ? Math.ceil(d3.max(labels, (l) => measure(l.text))) + 12 : (o.levels && o.levels.length ? Math.ceil(d3.max(o.levels, (l) => measure(l.label))) + 8 : 8);
-    let [t0, t1] = d3.extent(pts, (p) => p.t);
-    if (+t0 === +t1) { t0 = new Date(+t0 - 3600e3); t1 = new Date(+t1 + 3600e3); }
-    const x = d3.scaleTime([t0, t1], [left, W - right]);
-    svg.append('g').selectAll('line').data(ticks).join('line')
-      .attr('x1', left).attr('x2', W - right).attr('y1', (v) => y(v)).attr('y2', (v) => y(v))
-      .style('stroke', 'var(--cds-chart-grid)').attr('stroke-width', 1);
-    svg.append('g').selectAll('text').data(ticks).join('text')
-      .attr('x', left - 6).attr('y', (v) => y(v)).attr('dy', '0.32em').attr('text-anchor', 'end')
-      .attr('font-size', fs).style('fill', 'var(--color-fg-muted)').text(o.fmtY);
-    const xa = svg.append('g').attr('transform', `translate(0,${H - 24})`)
-      .call(d3.axisBottom(x).ticks(Math.max(2, Math.floor((W - left - right) / (o.xStep || 120)))).tickFormat(d3.timeFormat(o.fmtX === 'auto' ? ((t1 - t0) < 3 * 86400e3 ? '%-I %p' : '%b %-d') : (o.fmtX || '%b %-d, %-I %p'))).tickSizeOuter(0));
-    xa.attr('font-size', null).attr('font-family', null);
-    xa.selectAll('text').attr('font-size', fs).style('fill', 'var(--color-fg-muted)');
-    xa.selectAll('line, path').style('stroke', 'var(--cds-chart-axis)');
-    if (o.refY !== undefined) {
-      svg.append('line').attr('x1', left).attr('x2', W - right).attr('y1', y(o.refY)).attr('y2', y(o.refY))
-        .style('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', o.refDash || '4 4');
-    }
-    (o.levels || []).forEach((l) => {
-      svg.append('line').attr('x1', left).attr('x2', W - right).attr('y1', y(l.v)).attr('y2', y(l.v))
-        .style('stroke', l.color).attr('stroke-width', 1).attr('stroke-dasharray', l.dash || '2 3');
-      svg.append('text').attr('x', W - right + 4).attr('y', y(l.v)).attr('dy', '0.32em').attr('font-size', fs - 1)
-        .style('fill', l.color).text(l.label);
-    });
-    const line = d3.line().x((d) => x(d.t)).y((d) => y(d.v));
-    series.forEach((s) => {
-      if (!s.points.length) return;
-      svg.append('path').datum(s.points).attr('d', line).style('fill', 'none').style('stroke', s.color)
-        .attr('stroke-width', s.width || 2).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round')
-        .attr('stroke-dasharray', s.dashed ? '5 4' : null);
-      if (!s.dashed) svg.append('g').selectAll('circle').data(s.points).join('circle')
-        .attr('cx', (d) => x(d.t)).attr('cy', (d) => y(d.v)).attr('r', o.dot || 3).style('fill', s.color);
-    });
-    (o.markers || []).forEach((m) => {
-      const cx = x(m.t), cy = y(m.v), r = 6;
-      const d = m.kind === 'Sell' ? `M${cx - r},${cy - r - 2} L${cx + r},${cy - r - 2} L${cx},${cy - 2} Z` : `M${cx - r},${cy + r + 2} L${cx + r},${cy + r + 2} L${cx},${cy + 2} Z`;
-      svg.append('path').attr('d', d).style('fill', m.kind === 'Sell' ? 'var(--color-bad)' : 'var(--color-ok)');
-    });
-    const lab = labels.map((l) => ({ ...l, y: y(l.p.v) })).sort((a, b) => a.y - b.y);
-    for (let i = 1; i < lab.length; i++) if (lab[i].y - lab[i - 1].y < fs + 3) lab[i].y = lab[i - 1].y + fs + 3;
-    svg.append('g').selectAll('text').data(lab).join('text')
-      .attr('x', (l) => x(l.p.t) + 8).attr('y', (l) => l.y).attr('dy', '0.32em').attr('font-size', fs)
-      .style('fill', (l) => l.s.dashed ? 'var(--color-fg-muted)' : 'var(--color-fg)').text((l) => l.text);
-    const tip = document.createElement('div'); tip.className = 'st-tip'; tip.hidden = true; el.appendChild(tip);
-    const dot = svg.append('circle').attr('r', 5).style('fill', 'none').attr('stroke-width', 2).attr('visibility', 'hidden');
-    svg.on('pointermove', (ev) => {
-      const [mx, my] = d3.pointer(ev);
-      const near = d3.least(pts, (p) => Math.hypot(x(p.t) - mx, y(p.v) - my));
-      if (!near) return;
-      dot.attr('cx', x(near.t)).attr('cy', y(near.v)).style('stroke', near.s.color).attr('visibility', 'visible');
-      tip.replaceChildren();
-      const a = document.createElement('div'); a.className = 'st-tip-when'; a.textContent = stFmt.when(near.t) + ' ET';
-      const b = document.createElement('div'); b.textContent = near.s.name + ': ' + (o.fmtTip || o.fmtY)(near.v);
-      tip.append(a, b); tip.hidden = false;
-      const sc = el.clientWidth / W, tw = tip.offsetWidth;
-      tip.style.left = Math.min(Math.max(0, x(near.t) * sc - tw / 2), el.clientWidth - tw) + 'px';
-      tip.style.top = Math.max(0, y(near.v) * sc - tip.offsetHeight - 10) + 'px';
-    });
-    svg.on('pointerleave', () => { tip.hidden = true; dot.attr('visibility', 'hidden'); });
-  };
-
-  dash.draw('ret-chart', (el) => {
-    const h = dash.data('history'), b = dash.data('bench_history');
-    if (h.status !== 'ok' || b.status !== 'ok') { el.replaceChildren(); el.textContent = '—'; return; }
-    const ORDER = ['Stocks', 'Crypto', 'Sports', 'Metals'];
-    const series = ORDER.map((n, i) => ({
-      name: n, color: dash.colors[i],
-      points: h.data.filter((r) => r.portfolio === n).map((r) => ({ t: new Date(r.at), v: Number(r.value) / START - 1 })).sort((a, c) => a.t - c.t)
-    })).filter((s) => s.points.length);
-    ['S&P 500', 'Bitcoin'].forEach((n) => {
-      const rows = b.data.filter((r) => r.series === n).map((r) => ({ t: new Date(r.at), cad: Number(r.level) * Number(r.fx) })).sort((a, c) => a.t - c.t);
-      if (!rows.length) return;
-      series.push({ name: n, color: 'var(--color-fg-muted)', dashed: true, width: 1.5, points: rows.map((r) => ({ t: r.t, v: r.cad / rows[0].cad - 1 })) });
-    });
-    const pct = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + d3.format('.1%')(Math.abs(v));
-    stLine(el, series, { fmtY: pct, refY: 0, minPad: 0.005 });
-  });
-
   dash.draw('triggers', (el) => {
     const d = dash.data('triggers');
     el.replaceChildren();
     if (d.status !== 'ok') return;
     const p = el.dataset.portfolio, limit = Number(el.dataset.limit) || 99;
-    const fmtP = (v) => v >= 1000 ? '$' + d3.format(',.0f')(v) : '$' + d3.format(',.2f')(v);
-    d.data.filter((r) => !p || r.portfolio === p).filter((r) => r.price !== null)
-      .sort((a, b) => (a.hit === b.hit ? a.away - b.away : a.hit ? -1 : 1)).slice(0, limit)
-      .forEach((r) => {
-        const row = document.createElement('div'); row.className = 'st-trow';
-        const near = !r.hit && r.away < 0.05;
-        const nm = document.createElement('div'); nm.className = 'nm';
-        const b = document.createElement('b'); b.textContent = r.asset;
-        const sp = document.createElement('span'); sp.textContent = r.portfolio + ': ' + r.label;
-        nm.append(b, sp);
-        const px = document.createElement('div'); px.className = 'px';
-        px.textContent = 'Now ' + fmtP(r.price) + ' → ' + (r.direction === 'above' ? 'above ' : 'below ') + fmtP(r.level);
-        const tr = document.createElement('div'); tr.className = 'st-track';
-        const fill = document.createElement('div'); fill.className = 'st-fill' + (r.hit ? ' hit' : near ? ' near' : '');
-        fill.style.width = (r.hit ? 100 : Math.max(3, (1 - Math.min(r.away / 0.25, 1)) * 100)) + '%';
-        tr.appendChild(fill);
-        const aw = document.createElement('div'); aw.className = 'aw' + (r.hit ? ' hit' : near ? ' near' : '');
-        aw.textContent = r.hit ? 'Triggered' : d3.format('.1%')(r.away) + ' away';
-        row.append(nm, px, tr, aw);
-        el.appendChild(row);
-      });
+    const fmtP = (v, c) => (c === 'CNY' ? '¥' + d3.format(',.3f')(v) : v >= 1000 ? '$' + d3.format(',.0f')(v) : '$' + d3.format(',.2f')(v));
+    const rows = d.data.filter((r) => !p || r.portfolio === p).filter((r) => r.price !== null)
+      .sort((a, b) => (a.hit === b.hit ? a.away - b.away : a.hit ? -1 : 1)).slice(0, limit);
+    if (!rows.length) { const n = document.createElement('p'); n.className = 'st-note'; n.textContent = 'No price rules right now.'; el.appendChild(n); return; }
+    rows.forEach((r) => {
+      const row = document.createElement('div'); row.className = 'st-trow';
+      const near = !r.hit && r.away < 0.05;
+      const nm = document.createElement('div'); nm.className = 'nm';
+      const b = document.createElement('b'); b.textContent = r.asset;
+      const sp = document.createElement('span'); sp.textContent = (p ? '' : r.portfolio + ' · ') + 'now ' + fmtP(r.price, r.currency);
+      nm.append(b, sp);
+      const px = document.createElement('div'); px.className = 'px';
+      px.textContent = (r.direction === 'above' ? 'If it rises to ' : 'If it falls to ') + fmtP(r.level, r.currency) + ':';
+      const what = document.createElement('span'); what.textContent = r.label; px.appendChild(what);
+      const tr = document.createElement('div'); tr.className = 'st-track';
+      tr.title = 'The fuller the bar, the closer the price is to the trigger';
+      const fill = document.createElement('div'); fill.className = 'st-fill' + (r.hit ? ' hit' : near ? ' near' : '');
+      fill.style.width = (r.hit ? 100 : Math.max(3, (1 - Math.min(r.away / 0.25, 1)) * 100)) + '%';
+      tr.appendChild(fill);
+      const aw = document.createElement('div'); aw.className = 'aw' + (r.hit ? ' hit' : near ? ' near' : '');
+      aw.textContent = r.hit ? 'Triggered' : d3.format('.1%')(r.away) + (r.direction === 'above' ? ' to go up' : ' to go down');
+      row.append(nm, px, tr, aw);
+      el.appendChild(row);
+    });
   });
 
   dash.draw('contrib-bars', (el) => {
@@ -1203,7 +1299,7 @@ body { background:#0b0b0a; }
       const n = document.createElement('p'); n.className = 'st-note'; n.textContent = running ? 'No bets have settled yet.' : 'Nothing to show yet.';
       el.appendChild(n); return;
     }
-    const max = d3.max(rows, (r) => Math.abs(r.pnl)) || 1;
+    const max = d3.max(rows, (r) => Math.abs(r.pnl_cad ?? r.pnl)) || 1;
     let total = 0;
     rows.forEach((r) => {
       total += r.pnl;
@@ -1211,51 +1307,13 @@ body { background:#0b0b0a; }
       const lbl = document.createElement('div'); lbl.className = 'lbl'; lbl.textContent = p ? r.item : r.key; lbl.title = r.key;
       const tr = document.createElement('div'); tr.className = 'st-btrack';
       const bar = document.createElement('div'); bar.className = 'st-bar ' + (r.pnl >= 0 ? 'up' : 'down');
-      bar.style.width = (Math.abs(r.pnl) / max * 50) + '%';
+      bar.style.width = (Math.abs(r.pnl_cad ?? r.pnl) / max * 50) + '%';
       tr.appendChild(bar);
-      const val = document.createElement('div'); val.className = 'val ' + upDown(r.pnl); val.textContent = stFmt.signedCad(r.pnl);
+      const val = document.createElement('div'); val.className = 'val ' + upDown(r.pnl); val.textContent = stFmt.signed(r.pnl, r.portfolio);
       if (running) { const ru = document.createElement('span'); ru.className = 'run'; ru.textContent = 'Total ' + stFmt.signedCad(total); val.appendChild(ru); }
       row.append(lbl, tr, val);
       el.appendChild(row);
     });
-  });
-
-  dash.draw('price-grid', (el) => {
-    const P = dash.data('prices'), H = dash.data('holdings'), R = dash.data('rules'), T = dash.data('trades');
-    el.replaceChildren();
-    if ([P, H, R, T].some((x) => x.status !== 'ok')) return;
-    const pf = el.dataset.portfolio;
-    const fmtP = (v) => v >= 1000 ? '$' + d3.format(',.0f')(v) : '$' + d3.format(',.2f')(v);
-    const jobs = [];
-    H.data.filter((h) => h.portfolio === pf && h.price_usd !== null && h.holding !== 'USDC').forEach((h, i) => {
-      const card = document.createElement('div'); card.className = 'st-mini';
-      const head = document.createElement('div'); head.className = 'st-mini-h';
-      const nm = document.createElement('b'); nm.textContent = h.holding;
-      const ch = document.createElement('span'); ch.className = upDown(Number(h.change_pct));
-      ch.textContent = fmtP(Number(h.price_usd)) + '  ' + stFmt.pct(Number(h.change_pct));
-      head.append(nm, ch);
-      const box = document.createElement('div'); box.className = 'st-mini-c';
-      const note = document.createElement('p'); note.className = 'st-mini-n';
-      card.append(head, box, note);
-      el.appendChild(card);
-      const pts = P.data.filter((r) => r.asset === h.holding).map((r) => ({ t: new Date(r.at), v: Number(r.price) })).sort((a, b) => a.t - b.t);
-      const firstBuy = T.data.find((t) => t.portfolio === pf && t.holding === h.holding);
-      const since = firstBuy ? new Date(firstBuy.at) : null;
-      const shown = since ? pts.filter((p) => p.t >= since) : pts;
-      const cur = Number(h.price_usd);
-      const rules = R.data.filter((r) => r.portfolio === pf && r.asset === h.holding && r.level !== null);
-      const inRange = rules.filter((r) => Math.abs(r.level - cur) / cur <= 0.12);
-      const out = rules.filter((r) => Math.abs(r.level - cur) / cur > 0.12);
-      const levels = [{ v: Number(h.entry_usd), label: 'entry', color: 'var(--color-fg-muted)', dash: '1 3' }]
-        .concat(inRange.map((r) => ({ v: Number(r.level), label: fmtP(Number(r.level)), color: r.direction === 'above' ? 'var(--color-ok)' : 'var(--color-bad)', dash: '4 3' })));
-      const markers = T.data.filter((t) => t.portfolio === pf && t.holding === h.holding).map((t) => ({ t: new Date(t.at), v: Number(t.price_usd), kind: t.action }));
-      jobs.push(() => stLine(box, [{ name: h.holding, color: dash.colors[i % dash.colors.length], points: shown }], {
-        height: 130, fs: 10, ticks: 3, xStep: 90, fmtX: 'auto', endLabels: false, dot: 2.5,
-        fmtY: (v) => v >= 1000 ? '$' + d3.format(',.0f')(v) : '$' + d3.format(',.2f')(v), levels, markers
-      }));
-      note.textContent = out.length ? 'Further away: ' + out.map((r) => r.label + ' at ' + fmtP(Number(r.level))).join('; ') + '.' : '';
-    });
-    jobs.forEach((j) => j());
   });
 
   dash.draw('bysport-body', (el) => fillBody(el, 'bysport', () => true, null, (r) => [
@@ -1290,7 +1348,16 @@ body { background:#0b0b0a; }
   const usd = (v) => v >= 1000 ? '$' + d3.format(',.0f')(v) : '$' + d3.format(',.2f')(v);
   const upDown = (v) => (v > 0 ? 'is-up' : v < 0 ? 'is-down' : '');
 
-  dash.draw('holdings-body', (el) => fillBody(el, 'holdings', byPortfolio(el), (r) => encodeURIComponent(r.portfolio) + ',' + encodeURIComponent(r.holding), (r) => [
+  const yuan = (v) => '¥' + d3.format(',.3f')(v);
+  dash.draw('holdings-body', (el) => fillBody(el, 'holdings', byPortfolio(el), (r) => encodeURIComponent(r.portfolio) + ',' + encodeURIComponent(r.holding), (r) => r.currency === 'CNY' ? [
+    [r.holding + (r.code ? ' (' + r.code + ')' : '')],
+    [num(r.quantity, (v) => d3.format(',.0f')(v)) + (r.holding === 'Cash (CNY)' ? ' yuan' : ''), 'num'],
+    [num(r.entry_local, yuan), 'num'],
+    [num(r.price_local, yuan), 'num'],
+    [r.price_local === null || r.price_local === undefined ? '' : stFmt.pct(Number(r.change_pct)), 'num ' + upDown(Number(r.change_pct))],
+    [num(r.value_usd, (v) => d3.format(',.0f')(v)), 'num'],
+    [r.price_source ? r.price_source + (r.price_at ? ', ' + stFmt.when(r.price_at) : '') : '', 'wrap src']
+  ] : [
     [r.holding],
     [num(r.quantity, (v) => v >= 100 ? d3.format(',.2f')(v) : d3.format(',.4f')(v)), 'num'],
     [num(r.entry_usd, usd), 'num'],
@@ -1329,74 +1396,396 @@ body { background:#0b0b0a; }
       : [[stFmt.when(r.at)], [r.action], [r.detail, 'wrap']]);
   });
 
-  dash.draw('chart', (el) => {
-    const h = dash.data('history');
+  // ---------- Eastern-time formatting (labels say ET, so format in ET whatever the viewer's time zone)
+  const ETF = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+  const etParts = (t) => Object.fromEntries(ETF.formatToParts(new Date(t)).map((x) => [x.type, x.value]));
+  const ampm = (p) => (p.dayPeriod || '').toUpperCase().startsWith('A') ? 'a.m.' : 'p.m.';
+  stFmt.when = (t) => { const p = etParts(t); return p.month + ' ' + p.day + ', ' + p.hour + ':' + p.minute + ' ' + ampm(p); };
+  const etHour = (t) => { const p = etParts(t); return p.hour + (p.minute === '00' ? '' : ':' + p.minute) + ' ' + ampm(p); };
+  const etDay = (t) => { const p = etParts(t); return p.month + ' ' + p.day; };
+  const etWeekday = (t) => { const p = etParts(t); return p.weekday + ', ' + p.month + ' ' + p.day; };
+  const mk = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; };
+
+  // ---------- Google-style line chart: one line, a big current value, hover for exact values
+  let gxSeq = 0;
+  window.gChart = (el, cfg) => {
     el.replaceChildren();
-    if (h.status !== 'ok' || !h.data.length) { el.textContent = '—'; return; }
-    const only = el.dataset.portfolio;
-    const rows = h.data.map((r) => ({ p: r.portfolio, t: new Date(r.at), v: Number(r.value) })).filter((r) => !only || r.p === only);
-    if (!rows.length) { el.textContent = '—'; return; }
-    const ORDER = ['Stocks', 'Crypto', 'Sports', 'Metals'];
-    const names = ORDER.filter((n) => rows.some((r) => r.p === n));
-    const color = (n) => dash.colors[ORDER.indexOf(n)];
-    const W = Math.max(280, el.clientWidth), H = 260;
-    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`)
-      .attr('font-family', 'var(--font-sans)');
-    const lo = Math.min(START, d3.min(rows, (d) => d.v)), hi = Math.max(START, d3.max(rows, (d) => d.v));
-    const pad = Math.max(500, (hi - lo) * 0.12);
-    const y = d3.scaleLinear([lo - pad, hi + pad], [H - 28, 12]).nice();
-    const fmtY = (v) => 'C$' + d3.format(',.1f')(v / 1000) + 'k';
-    const last = names.map((n) => { const s = rows.filter((r) => r.p === n).sort((a, b) => a.t - b.t); return { n, d: s[s.length - 1] }; });
-    const measure = (txt) => { const t = svg.append('text').attr('font-size', 12).text(txt); const w = t.node().getComputedTextLength(); t.remove(); return w; };
-    const left = Math.ceil(d3.max(y.ticks(5), (v) => measure(fmtY(v)))) + 10;
-    const right = Math.ceil(d3.max(last, (l) => measure(l.n + ' ' + fmtY(l.d.v)))) + 14;
-    let [t0, t1] = d3.extent(rows, (d) => d.t);
-    if (+t0 === +t1) { t0 = new Date(+t0 - 3600e3); t1 = new Date(+t1 + 3600e3); }
-    const x = d3.scaleTime([t0, t1], [left, W - right]);
-    svg.append('g').selectAll('line').data(y.ticks(5)).join('line')
-      .attr('x1', left).attr('x2', W - right).attr('y1', (v) => y(v)).attr('y2', (v) => y(v))
-      .style('stroke', 'var(--cds-chart-grid)').attr('stroke-width', 1);
-    svg.append('g').selectAll('text').data(y.ticks(5)).join('text')
-      .attr('x', left - 8).attr('y', (v) => y(v)).attr('dy', '0.32em').attr('text-anchor', 'end')
-      .attr('font-size', 12).style('fill', 'var(--color-fg-muted)').text(fmtY);
-    const xa = svg.append('g').attr('transform', `translate(0,${H - 28})`)
-      .call(d3.axisBottom(x).ticks(Math.max(2, Math.floor((W - left - right) / 120))).tickFormat(d3.timeFormat('%b %-d, %-I %p')).tickSizeOuter(0));
-    xa.attr('font-size', null).attr('font-family', null);
-    xa.selectAll('text').attr('font-size', 12).style('fill', 'var(--color-fg-muted)');
-    xa.selectAll('line, path').style('stroke', 'var(--cds-chart-axis)');
-    svg.append('line').attr('x1', left).attr('x2', W - right).attr('y1', y(START)).attr('y2', y(START))
-      .style('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '4 4');
-    const line = d3.line().x((d) => x(d.t)).y((d) => y(d.v));
-    names.forEach((n) => {
-      const s = rows.filter((r) => r.p === n).sort((a, b) => a.t - b.t);
-      svg.append('path').datum(s).attr('d', line).attr('fill', 'none').attr('stroke', color(n))
-        .attr('stroke-width', 2).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round');
-      svg.append('g').selectAll('circle').data(s).join('circle').attr('cx', (d) => x(d.t)).attr('cy', (d) => y(d.v))
-        .attr('r', 3).attr('fill', color(n));
-    });
-    const labels = last.map((l) => ({ ...l, y: y(l.d.v) })).sort((a, b) => a.y - b.y);
-    for (let i = 1; i < labels.length; i++) if (labels[i].y - labels[i - 1].y < 15) labels[i].y = labels[i - 1].y + 15;
-    svg.append('g').selectAll('text').data(labels).join('text')
-      .attr('x', (l) => x(l.d.t) + 8).attr('y', (l) => l.y).attr('dy', '0.32em').attr('font-size', 12)
-      .style('fill', 'var(--color-fg)').text((l) => l.n + ' ' + fmtY(l.d.v));
-    const tip = document.createElement('div'); tip.className = 'st-tip'; tip.hidden = true; el.appendChild(tip);
-    const dot = svg.append('circle').attr('r', 5).attr('fill', 'none').attr('stroke-width', 2).attr('visibility', 'hidden');
-    svg.on('pointermove', (ev) => {
-      const [mx, my] = d3.pointer(ev);
-      const near = d3.least(rows, (d) => Math.hypot(x(d.t) - mx, y(d.v) - my));
-      if (!near) return;
-      dot.attr('cx', x(near.t)).attr('cy', y(near.v)).attr('stroke', color(near.p)).attr('visibility', 'visible');
-      tip.replaceChildren();
-      const a = document.createElement('div'); a.className = 'st-tip-when'; a.textContent = stFmt.when(near.t) + ' ET';
-      const b = document.createElement('div'); b.textContent = near.p + ': ' + stFmt.cad(near.v);
-      tip.append(a, b); tip.hidden = false;
-      const scale = el.clientWidth / W;
-      const tw = tip.offsetWidth;
-      tip.style.left = Math.min(Math.max(0, x(near.t) * scale - tw / 2), el.clientWidth - tw) + 'px';
-      tip.style.top = Math.max(0, y(near.v) * scale - tip.offsetHeight - 10) + 'px';
-    });
-    svg.on('pointerleave', () => { tip.hidden = true; dot.attr('visibility', 'hidden'); });
+    const all = cfg.points.slice().sort((a, b) => a.t - b.t);
+    if (!all.length) { el.appendChild(mk('div', 'gx-empty', cfg.empty || 'No check-ins yet.')); return; }
+    const top = mk('div', 'gx-top'), now = mk('div', 'gx-now');
+    const val = mk('span', 'gx-val'), chg = mk('span', 'gx-chg'), when = mk('span', 'gx-when');
+    now.append(val, chg, when);
+    const rangesEl = mk('div', 'gx-ranges');
+    rangesEl.setAttribute('role', 'group'); rangesEl.setAttribute('aria-label', 'Time range');
+    top.append(now, rangesEl);
+    const plot = mk('div', 'gx-plot');
+    const key = mk('p', 'gx-key');
+    el.append(top, plot, key);
+    const RANGES = [['24 hours', 864e5], ['7 days', 7 * 864e5], ['All', Infinity]];
+    const fmtTip = cfg.fmtTip || cfg.fmt;
+    const draw = () => {
+      const range = el._range || 'All';
+      rangesEl.replaceChildren();
+      RANGES.forEach(([name]) => {
+        const b = mk('button', '', name); b.type = 'button';
+        b.setAttribute('aria-pressed', String(name === range));
+        b.addEventListener('click', () => { el._range = name; draw(); });
+        rangesEl.appendChild(b);
+      });
+      const span = RANGES.find((r) => r[0] === range)[1];
+      const last = all[all.length - 1];
+      const from = +last.t - span;
+      let pts = all.filter((p) => +p.t >= from);
+      const before = all.filter((p) => +p.t < from);
+      if (before.length && span !== Infinity) pts = [before[before.length - 1]].concat(pts);
+      const ref = span === Infinity || pts.length < 2 ? cfg.base : pts[0].v;
+      const refName = span === Infinity || pts.length < 2 ? (cfg.sinceLabel || 'since start') : 'over the last ' + range;
+      val.textContent = cfg.fmt(last.v);
+      const diff = ref === undefined || ref === null ? null : last.v - ref;
+      chg.className = 'gx-chg ' + (diff > 0 ? 'is-up' : diff < 0 ? 'is-down' : '');
+      chg.textContent = diff === null ? '' : (diff >= 0 ? '▲ ' : '▼ ') + (cfg.fmtDiff ? cfg.fmtDiff(diff) : cfg.fmt(Math.abs(diff))) + ' (' + stFmt.pct(ref ? last.v / ref - 1 : 0) + ') ' + refName;
+      when.textContent = 'Latest check-in: ' + stFmt.when(last.t) + ' ET';
+      const up = diff === null || diff >= 0;
+      const color = up ? 'var(--color-ok)' : 'var(--color-bad)';
+
+      const W = Math.max(280, plot.clientWidth || el.clientWidth || 640);
+      const H = cfg.height || (W < 520 ? 230 : 290);
+      const M = { t: 58, r: 12, b: 28 };
+      plot.replaceChildren();
+      const svg = d3.select(plot).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img')
+        .attr('aria-label', (cfg.name || 'Value') + ' chart. Latest ' + cfg.fmt(last.v) + '.');
+      const id = 'gx' + (++gxSeq);
+      const bench = cfg.bench ? cfg.bench.points.filter((p) => +p.t >= +pts[0].t - 1) : [];
+      const ys = pts.map((p) => p.v).concat(bench.map((p) => p.v)).concat(cfg.base !== undefined && cfg.base !== null ? [cfg.base] : []).concat((cfg.levels || []).map((l) => l.v));
+      let lo = d3.min(ys), hi = d3.max(ys);
+      const pad = (hi - lo) * 0.12 || Math.abs(hi) * 0.01 || 1;
+      const y = d3.scaleLinear([lo - pad, hi + pad], [H - M.b, M.t]).nice(4);
+      const ticks = y.ticks(4);
+      const measure = (t) => { const n = svg.append('text').attr('font-size', 13).text(t); const w = n.node().getComputedTextLength(); n.remove(); return w; };
+      M.l = Math.ceil(d3.max(ticks, (v) => measure(cfg.axis(v)))) + 12;
+      let t0 = pts[0].t, t1 = last.t;
+      if (+t0 === +t1) { t0 = new Date(+t0 - 3600e3); t1 = new Date(+t1 + 3600e3); }
+      const x = d3.scaleTime([t0, t1], [M.l, W - M.r]);
+      // grid + y labels
+      svg.append('g').selectAll('line').data(ticks).join('line')
+        .attr('x1', M.l).attr('x2', W - M.r).attr('y1', (v) => y(v)).attr('y2', (v) => y(v))
+        .style('stroke', 'var(--cds-chart-grid)');
+      svg.append('g').selectAll('text').data(ticks).join('text')
+        .attr('x', M.l - 10).attr('y', (v) => y(v)).attr('dy', '0.32em').attr('text-anchor', 'end').attr('font-size', 13)
+        .style('fill', 'var(--color-fg-muted)').text(cfg.axis);
+      // x labels
+      const spanMs = t1 - t0;
+      const xt = x.ticks(Math.max(2, Math.min(6, Math.floor((W - M.l) / 120))));
+      svg.append('g').selectAll('text').data(xt).join('text')
+        .attr('x', (t) => x(t)).attr('y', H - 8).attr('text-anchor', 'middle').attr('font-size', 13)
+        .style('fill', 'var(--color-fg-muted)').text((t) => (spanMs < 2 * 864e5 ? etHour(t) : etDay(t)));
+      // start / paid line
+      if (cfg.base !== undefined && cfg.base !== null) {
+        svg.append('line').attr('x1', M.l).attr('x2', W - M.r).attr('y1', y(cfg.base)).attr('y2', y(cfg.base))
+          .style('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '1 4').attr('stroke-width', 1.5).attr('stroke-linecap', 'round');
+        svg.append('text').attr('x', M.l + 6).attr('y', y(cfg.base) - 6).attr('font-size', 12.5).style('fill', 'var(--color-fg-muted)').text(cfg.baseLabel);
+      }
+      // trigger levels
+      (cfg.levels || []).forEach((l) => {
+        svg.append('line').attr('x1', M.l).attr('x2', W - M.r).attr('y1', y(l.v)).attr('y2', y(l.v))
+          .style('stroke', l.color).attr('stroke-dasharray', '6 4').attr('stroke-width', 1.2);
+        svg.append('text').attr('x', W - M.r - 4).attr('y', y(l.v) - 6).attr('text-anchor', 'end').attr('font-size', 12.5)
+          .style('fill', 'var(--color-fg)').text(l.label);
+      });
+      // area + line
+      const grad = svg.append('defs').append('linearGradient').attr('id', id).attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', 1);
+      grad.append('stop').attr('offset', '0%').style('stop-color', color).style('stop-opacity', 0.22);
+      grad.append('stop').attr('offset', '100%').style('stop-color', color).style('stop-opacity', 0);
+      if (pts.length > 1) {
+        svg.append('path').datum(pts).attr('d', d3.area().x((d) => x(d.t)).y0(H - M.b).y1((d) => y(d.v))).style('fill', `url(#${id})`);
+        if (bench.length > 1) svg.append('path').datum(bench).attr('d', d3.line().x((d) => x(d.t)).y((d) => y(d.v)))
+          .style('fill', 'none').style('stroke', 'var(--color-fg-muted)').attr('stroke-width', 1.5).attr('stroke-dasharray', '5 4');
+        svg.append('path').datum(pts).attr('d', d3.line().x((d) => x(d.t)).y((d) => y(d.v)))
+          .style('fill', 'none').style('stroke', color).attr('stroke-width', 2.5).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round');
+      }
+      svg.append('circle').attr('cx', x(last.t)).attr('cy', y(last.v)).attr('r', 4.5).style('fill', color);
+      // trade markers
+      (cfg.markers || []).filter((m) => +m.t >= +pts[0].t - 1).forEach((m) => {
+        const cx = x(m.t), cy = y(m.v), r = 7, sell = m.kind === 'Sell';
+        const d = sell ? `M${cx - r},${cy - 10 - r} L${cx + r},${cy - 10 - r} L${cx},${cy - 8} Z` : `M${cx - r},${cy + 10 + r} L${cx + r},${cy + 10 + r} L${cx},${cy + 8} Z`;
+        svg.append('path').attr('d', d).style('fill', sell ? 'var(--color-bad)' : 'var(--color-ok)').style('stroke', 'var(--color-panel)').attr('stroke-width', 1.5);
+      });
+      // legend
+      key.replaceChildren();
+      const item = (cls, colorVar, text) => { const s = mk('span'); const i = mk('i', cls); i.style.borderTopColor = colorVar; s.append(i, document.createTextNode(text)); key.appendChild(s); };
+      item('', color, cfg.name || 'Value');
+      if (bench.length > 1) item('dash', 'var(--color-fg-muted)', cfg.bench.name + ' (same money, for comparison)');
+      if (cfg.markers && cfg.markers.length) { const s = mk('span'); s.innerHTML = '<b style="color:var(--color-ok)">▲</b> bought &nbsp;<b style="color:var(--color-bad)">▼</b> sold'; key.appendChild(s); }
+      // hover: crosshair + tooltip at the top
+      const cross = svg.append('line').attr('y1', M.t - 4).attr('y2', H - M.b).style('stroke', 'var(--color-fg-muted)').attr('stroke-dasharray', '3 3').attr('visibility', 'hidden');
+      const dot = svg.append('circle').attr('r', 6).style('fill', color).style('stroke', 'var(--color-panel)').attr('stroke-width', 2).attr('visibility', 'hidden');
+      const bdot = svg.append('circle').attr('r', 4.5).style('fill', 'var(--color-fg-muted)').attr('visibility', 'hidden');
+      const tip = mk('div', 'gx-tip'); tip.style.display = 'none'; plot.appendChild(tip);
+      const bis = d3.bisector((d) => d.t).center;
+      const nearest = (arr, t) => arr[Math.max(0, Math.min(arr.length - 1, bis(arr, t)))];
+      const show = (ev) => {
+        const [mx] = d3.pointer(ev, svg.node());
+        const t = x.invert(mx);
+        const p = nearest(pts, t);
+        const px = x(p.t);
+        cross.attr('x1', px).attr('x2', px).attr('visibility', 'visible');
+        dot.attr('cx', px).attr('cy', y(p.v)).attr('visibility', 'visible');
+        tip.replaceChildren();
+        tip.appendChild(mk('b', '', fmtTip(p.v)));
+        const ch = cfg.base ? ' · ' + stFmt.pct(p.v / cfg.base - 1) + ' ' + (cfg.sinceLabel || 'since start') : '';
+        tip.appendChild(mk('span', '', stFmt.when(p.t) + ' ET' + ch));
+        if (bench.length) {
+          const bp = nearest(bench, p.t);
+          if (Math.abs(bp.t - p.t) < 6 * 3600e3) {
+            bdot.attr('cx', x(bp.t)).attr('cy', y(bp.v)).attr('visibility', 'visible');
+            tip.appendChild(mk('span', '', cfg.bench.name + ': ' + fmtTip(bp.v)));
+          } else bdot.attr('visibility', 'hidden');
+        }
+        (cfg.markers || []).filter((m) => Math.abs(m.t - p.t) < 30 * 60e3).forEach((m) => tip.appendChild(mk('span', '', (m.kind === 'Sell' ? 'Sold at ' : 'Bought at ') + fmtTip(m.v))));
+        tip.style.display = 'block';
+        const sc = plot.clientWidth / W, tw = tip.offsetWidth;
+        tip.style.left = Math.min(Math.max(0, px * sc - tw / 2), plot.clientWidth - tw) + 'px';
+      };
+      svg.append('rect').attr('x', M.l).attr('y', M.t - 10).attr('width', W - M.l - M.r).attr('height', H - M.b - M.t + 10)
+        .style('fill', 'transparent').style('cursor', 'crosshair')
+        .on('pointermove', show).on('pointerdown', show)
+        .on('pointerleave', () => { tip.style.display = 'none'; cross.attr('visibility', 'hidden'); dot.attr('visibility', 'hidden'); bdot.attr('visibility', 'hidden'); });
+    };
+    draw();
+  };
+
+  // ---------- value over time, per simulation
+  const BENCH = { Stocks: 'S&P 500', Crypto: 'Bitcoin', Metals: 'Bitcoin', China: 'CSI 300' };
+  dash.draw('perf-chart', (el) => {
+    const run = () => {
+      const h = dash.data('history'), b = dash.data('bench_history');
+      if (h.status !== 'ok') { el.replaceChildren(); return; }
+      const p = el.dataset.portfolio;
+      const pts = h.data.filter((r) => r.portfolio === p).map((r) => ({ t: new Date(r.at), v: Number(r.value) })).sort((a, c) => a.t - c.t);
+      let bench = null;
+      const bn = BENCH[p];
+      if (bn && b.status === 'ok' && pts.length) {
+        const t0 = pts[0].t;
+        const rows = b.data.filter((r) => r.series === bn).map((r) => ({ t: new Date(r.at), v: Number(r.level) * Number(r.fx) })).sort((a, c) => a.t - c.t);
+        const ref = rows.filter((r) => r.t <= t0).pop() || rows[0];
+        if (ref) bench = { name: bn, points: rows.filter((r) => r.t >= ref.t).map((r) => ({ t: r.t < t0 ? t0 : r.t, v: START * r.v / ref.v })) };
+      }
+      const sym = SYM(p);
+      gChart(el, {
+        points: pts, name: p === 'Sports' ? 'Bankroll' : p + ' portfolio', bench,
+        fmt: (v) => sym + d3.format(',.0f')(v), fmtTip: (v) => sym + d3.format(',.2f')(v),
+        axis: (v) => sym + d3.format(',.1f')(v / 1000) + 'k',
+        base: START, baseLabel: 'Started with ' + sym + '100,000'
+      });
+    };
+    el._redraw = run;
+    run();
   });
+
+  // ---------- one holding's price, picked with chips
+  dash.draw('price-chart', (el) => {
+    const run = () => {
+      const P = dash.data('prices'), H = dash.data('holdings'), R = dash.data('rules'), T = dash.data('trades');
+      el.replaceChildren();
+      if ([P, H, R, T].some((x) => x.status !== 'ok')) return;
+      const pf = el.dataset.portfolio;
+      const hs = H.data.filter((h) => h.portfolio === pf && !['USDC', 'Cash (CAD)', 'Cash (CNY)'].includes(h.holding) && (h.price_local ?? h.price_usd) !== null && (h.price_local ?? h.price_usd) !== undefined);
+      if (!hs.length) { el.appendChild(mk('div', 'gx-empty', 'Nothing held yet.')); return; }
+      const pick = el._pick && hs.some((h) => h.holding === el._pick) ? el._pick : hs[0].holding;
+      const chips = mk('div', 'st-chips'); chips.setAttribute('role', 'group'); chips.setAttribute('aria-label', 'Holding');
+      hs.forEach((h) => {
+        const b = mk('button', '', h.holding); b.type = 'button'; b.setAttribute('aria-pressed', String(h.holding === pick));
+        b.addEventListener('click', () => { el._pick = h.holding; run(); });
+        chips.appendChild(b);
+      });
+      const box = mk('div', 'gx'); const note = mk('p', 'st-note');
+      el.append(chips, box, note);
+      const h = hs.find((x) => x.holding === pick);
+      const cny = h.currency === 'CNY';
+      const f = (v) => (cny ? '¥' + d3.format(',.3f')(v) : v >= 1000 ? '$' + d3.format(',.0f')(v) : '$' + d3.format(',.2f')(v));
+      const fa = (v) => (cny ? '¥' + d3.format(',.2f')(v) : v >= 1000 ? '$' + d3.format(',.0f')(v) : '$' + d3.format(',.' + (v < 10 ? 2 : 0) + 'f')(v));
+      const firstBuy = T.data.find((t) => t.portfolio === pf && t.holding === h.holding);
+      const since = firstBuy ? +new Date(firstBuy.at) - 5 * 60e3 : 0;
+      const pts = P.data.filter((r) => r.asset === h.holding).map((r) => ({ t: new Date(r.at), v: Number(r.price) })).filter((p) => +p.t >= since).sort((a, b) => a.t - b.t);
+      const entry = Number(h.entry_local ?? h.entry_usd);
+      const cur = Number(h.price_local ?? h.price_usd);
+      const rules = R.data.filter((r) => r.portfolio === pf && r.asset === h.holding && r.level !== null && r.level !== undefined);
+      const inRange = rules.filter((r) => Math.abs(r.level - cur) / cur <= 0.15);
+      const out = rules.filter((r) => Math.abs(r.level - cur) / cur > 0.15);
+      const levels = inRange.map((r) => ({ v: Number(r.level), label: r.label + ' at ' + f(Number(r.level)), color: r.direction === 'above' ? 'var(--color-ok)' : 'var(--color-bad)' }));
+      const markers = T.data.filter((t) => t.portfolio === pf && t.holding === h.holding).map((t) => ({ t: new Date(t.at), v: Number(t.price_local ?? t.price_usd), kind: t.action }));
+      gChart(box, { points: pts, name: h.holding + ' price', fmt: f, axis: fa, base: entry, baseLabel: 'Paid ' + f(entry) + ' on average', sinceLabel: 'since bought', levels, markers });
+      note.textContent = out.length ? 'Further away: ' + out.map((r) => r.label.toLowerCase() + ' at ' + f(Number(r.level))).join('; ') + '.' : '';
+    };
+    el._redraw = run;
+    run();
+  });
+
+  // ---------- daily ledger
+  const ledgerDays = () => {
+    const d = dash.data('ledger');
+    if (d.status !== 'ok') return null;
+    const days = d3.groups(d.data, (r) => r.day).map(([day, rows]) => ({ day, rows, all: rows.find((r) => r.portfolio === 'All'), start_at: rows[0].start_at, end_at: rows[0].end_at }))
+      .sort((a, b) => (a.day < b.day ? -1 : 1));
+    days.forEach((x, i) => { x.n = i + 1; });
+    return days;
+  };
+  const dayTitle = (x) => 'Day ' + x.n + ' · ' + new Date(x.day + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' });
+  const dayShort = (x) => new Date(x.day + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' });
+
+  dash.draw('lg-stat', (el) => {
+    const days = ledgerDays();
+    if (!days) { el.textContent = '—'; return; }
+    const tot = days.filter((x) => x.all).map((x) => ({ x, v: Number(x.all.pnl) }));
+    const k = el.dataset.stat;
+    el.classList.remove('is-up', 'is-down');
+    if (k === 'days') el.textContent = String(days.length);
+    else if (k === 'updown') el.textContent = tot.filter((r) => r.v > 0.5).length + ' up · ' + tot.filter((r) => r.v < -0.5).length + ' down';
+    else {
+      const best = k === 'best' ? d3.greatest(tot, (r) => r.v) : d3.least(tot, (r) => r.v);
+      if (!best || (k === 'worst' && best.v >= -0.5) || (k === 'best' && best.v <= 0.5)) { el.textContent = k === 'worst' ? 'No down days yet' : 'No up days yet'; return; }
+      tone(el, best.v);
+      el.textContent = stFmt.signed(best.v, 'All') + ' (' + dayShort(best.x) + ')';
+    }
+  });
+
+  dash.draw('lg-today', (el) => {
+    const h = dash.data('history'), hd = dash.data('holdings');
+    if (h.status !== 'ok') { el.textContent = '—'; return; }
+    const now = new Date();
+    const start = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+    let fx = 1.4;
+    if (hd.status === 'ok') { const c = hd.data.filter((r) => r.portfolio === 'China'); const u = d3.sum(c, (r) => Number(r.value_usd)); if (u) fx = d3.sum(c, (r) => Number(r.value_cad)) / u; }
+    const parts = [];
+    let total = 0;
+    ['Stocks', 'Crypto', 'Metals', 'Sports', 'China'].forEach((p) => {
+      const s = h.data.filter((r) => r.portfolio === p).map((r) => ({ t: +new Date(r.at), v: Number(r.value) })).sort((a, b) => a.t - b.t);
+      if (!s.length) return;
+      const near = s.filter((r) => Math.abs(r.t - start) <= 3600e3);
+      const before = s.filter((r) => r.t <= start);
+      const o = near.length ? d3.least(near, (r) => Math.abs(r.t - start) - (r.t >= start ? 0.5 : 0)).v : before.length ? before[before.length - 1].v : START;
+      const v = s[s.length - 1].v - o;
+      total += p === 'China' ? v * fx : v;
+      parts.push(p + ' ' + stFmt.signed(v, p));
+    });
+    tone(el, total);
+    el.textContent = stFmt.signed(total, 'All') + ' combined (' + parts.join(' · ') + ')';
+  });
+
+  dash.draw('lg-bars', (el) => {
+    const run = () => {
+      el.replaceChildren();
+      const days = ledgerDays();
+      if (!days) return;
+      const p = el.dataset.portfolio || 'All';
+      const rows = days.map((x) => ({ x, r: x.rows.find((r) => r.portfolio === p) })).filter((d) => d.r);
+      if (!rows.length) { el.appendChild(mk('div', 'gx-empty', 'No closed days for this simulation yet.')); return; }
+      const sym = p === 'China' ? 'China' : 'All';
+      const plot = mk('div', 'gx-plot'); el.appendChild(plot);
+      const W = Math.max(280, plot.clientWidth || el.clientWidth || 640), H = 250;
+      const M = { t: 24, r: 8, b: 30 };
+      const svg = d3.select(plot).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Profit or loss by day');
+      const vals = rows.map((d) => Number(d.r.pnl));
+      const ext = Math.max(Math.abs(d3.min(vals.concat(0))), Math.abs(d3.max(vals.concat(0)))) || 1000;
+      const y = d3.scaleLinear([Math.min(0, d3.min(vals)) - ext * 0.1, Math.max(0, d3.max(vals)) + ext * 0.1], [H - M.b, M.t]).nice(4);
+      const ticks = y.ticks(4);
+      const axis = (v) => (v < 0 ? '−' : '') + (p === 'China' ? 'US$' : 'C$') + d3.format(',.1~f')(Math.abs(v) / 1000) + 'k';
+      const measure = (t) => { const n = svg.append('text').attr('font-size', 13).text(t); const w = n.node().getComputedTextLength(); n.remove(); return w; };
+      M.l = Math.ceil(d3.max(ticks, (v) => measure(axis(v)))) + 12;
+      const x = d3.scaleBand(rows.map((d) => d.x.day), [M.l, W - M.r]).padding(0.25);
+      svg.append('g').selectAll('line').data(ticks).join('line').attr('x1', M.l).attr('x2', W - M.r).attr('y1', (v) => y(v)).attr('y2', (v) => y(v))
+        .style('stroke', (v) => (v === 0 ? 'var(--cds-chart-axis)' : 'var(--cds-chart-grid)'));
+      svg.append('g').selectAll('text').data(ticks).join('text').attr('x', M.l - 10).attr('y', (v) => y(v)).attr('dy', '0.32em').attr('text-anchor', 'end')
+        .attr('font-size', 13).style('fill', 'var(--color-fg-muted)').text(axis);
+      const bw = Math.min(56, x.bandwidth());
+      const every = Math.ceil(rows.length / Math.max(1, Math.floor((W - M.l) / 64)));
+      svg.append('g').selectAll('text').data(rows).join('text').attr('x', (d) => x(d.x.day) + x.bandwidth() / 2).attr('y', H - 9).attr('text-anchor', 'middle')
+        .attr('font-size', 12.5).style('fill', 'var(--color-fg-muted)').text((d, i) => (i % every === 0 ? dayShort(d.x) : ''));
+      const tip = mk('div', 'gx-tip'); tip.style.display = 'none'; plot.appendChild(tip);
+      const g = svg.append('g').selectAll('g').data(rows).join('g');
+      g.append('rect').attr('x', (d) => x(d.x.day) + (x.bandwidth() - bw) / 2).attr('width', bw)
+        .attr('y', (d) => y(Math.max(0, d.r.pnl))).attr('height', (d) => Math.max(2, Math.abs(y(d.r.pnl) - y(0))))
+        .attr('rx', 3).style('fill', (d) => (d.r.pnl > 0.5 ? 'var(--color-ok)' : d.r.pnl < -0.5 ? 'var(--color-bad)' : 'var(--color-fg-muted)'));
+      if (rows.length <= 10) g.append('text').attr('x', (d) => x(d.x.day) + x.bandwidth() / 2).attr('y', (d) => (d.r.pnl >= 0 ? y(d.r.pnl) - 6 : y(d.r.pnl) + 16))
+        .attr('text-anchor', 'middle').attr('font-size', 12.5).style('fill', 'var(--color-fg)').text((d) => stFmt.signed(d.r.pnl, sym));
+      g.append('rect').attr('x', (d) => x(d.x.day)).attr('width', x.bandwidth()).attr('y', M.t).attr('height', H - M.t - M.b).style('fill', 'transparent')
+        .on('pointerenter pointerdown', (ev, d) => {
+          tip.replaceChildren(mk('b', '', stFmt.signed(d.r.pnl, sym)), mk('span', '', dayTitle(d.x) + (d.r.pct !== null && d.r.pct !== undefined ? ' · ' + stFmt.pct(d.r.pct) : '')));
+          tip.style.display = 'block';
+          const sc = plot.clientWidth / W, tw = tip.offsetWidth;
+          tip.style.left = Math.min(Math.max(0, (x(d.x.day) + x.bandwidth() / 2) * sc - tw / 2), plot.clientWidth - tw) + 'px';
+        })
+        .on('pointerleave', () => { tip.style.display = 'none'; });
+    };
+    el._redraw = run;
+    run();
+  });
+
+  dash.draw('lg-days', (el) => {
+    el.replaceChildren();
+    const days = ledgerDays();
+    const L = dash.data('log');
+    if (!days) return;
+    if (!days.length) { el.appendChild(mk('p', 'st-note', 'The first day closes at midnight UTC.')); return; }
+    const NAMES = { Stocks: 'Stocks', Crypto: 'Crypto', Metals: 'Metals', Sports: 'Sports', China: 'China (US$)' };
+    days.slice().reverse().forEach((x) => {
+      const card = mk('article', 'lg-day');
+      const head = mk('div', 'lg-head');
+      const h3 = mk('h3', '', dayTitle(x));
+      h3.appendChild(mk('span', 'lg-span', etWeekday(x.start_at) + ', ' + etHour(x.start_at) + ' to ' + etWeekday(x.end_at) + ', ' + etHour(x.end_at) + ' ET (midnight to midnight UTC)'));
+      const tot = mk('span', 'lg-total');
+      if (x.all) { tone(tot, Number(x.all.pnl)); tot.textContent = stFmt.signed(Number(x.all.pnl), 'All'); }
+      head.append(h3, tot);
+      card.appendChild(head);
+      const summary = x.all && x.all.note ? mk('p', 'lg-note', x.all.note) : mk('p', 'lg-note lg-pending', 'The write-up for this day is added at the next check-in.');
+      card.appendChild(summary);
+      const wrap = mk('div', 'st-wrap');
+      const table = mk('table', 'st-table');
+      table.innerHTML = '<thead><tr><th>Simulation</th><th class="num">Start of day</th><th class="num">End of day</th><th class="num">Profit</th><th class="num">Change</th></tr></thead>';
+      const tb = mk('tbody');
+      x.rows.filter((r) => r.portfolio !== 'All').forEach((r) => {
+        const tr = mk('tr');
+        const cells = [[NAMES[r.portfolio] || r.portfolio, ''], [stFmt.money(r.open, r.portfolio), 'num'], [stFmt.money(r.close, r.portfolio), 'num'],
+          [stFmt.signed(r.pnl, r.portfolio), 'num ' + upDown(r.pnl)], [stFmt.pct(r.pct), 'num ' + upDown(r.pnl)]];
+        cells.forEach(([t, c]) => tr.appendChild(mk('td', c, t)));
+        tb.appendChild(tr);
+      });
+      table.appendChild(tb); wrap.appendChild(table); card.appendChild(wrap);
+      const notes = x.rows.filter((r) => r.portfolio !== 'All' && r.note);
+      if (notes.length) {
+        const ul = mk('ul', 'lg-notes');
+        notes.forEach((r) => { const li = mk('li'); li.append(mk('b', '', (NAMES[r.portfolio] || r.portfolio) + ': '), document.createTextNode(r.note)); ul.appendChild(li); });
+        card.appendChild(ul);
+      }
+      if (L.status === 'ok') {
+        const a = +new Date(x.start_at), b = +new Date(x.end_at);
+        const ev = L.data.filter((r) => +new Date(r.at) >= a && +new Date(r.at) < b).sort((p, q) => new Date(p.at) - new Date(q.at));
+        const det = mk('details');
+        det.appendChild(mk('summary', '', 'Decisions this day (' + ev.length + ')'));
+        const ul = mk('ul');
+        if (!ev.length) ul.appendChild(mk('li', '', 'Nothing logged.'));
+        ev.forEach((r) => { const li = mk('li'); li.append(mk('b', '', stFmt.when(r.at) + ' ET · ' + r.portfolio + ' · ' + r.action + ': '), document.createTextNode(r.detail)); ul.appendChild(li); });
+        det.appendChild(ul);
+        card.appendChild(det);
+      }
+      el.appendChild(card);
+    });
+  });
+
+  // chips that switch a chart's simulation
+  document.querySelectorAll('[data-chips-for]').forEach((g) => {
+    g.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
+      g.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      const t = document.getElementById(g.dataset.chipsFor);
+      t.dataset.portfolio = b.dataset.v;
+      if (t._redraw) t._redraw();
+    }));
+  });
+  // redraw charts when they become visible or the window is resized
+  const redrawVisible = () => document.querySelectorAll('[data-draw="perf-chart"], [data-draw="price-chart"], [data-draw="lg-bars"]').forEach((e) => { if (e._redraw && e.offsetParent !== null) e._redraw(); });
+  let rz;
+  window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(redrawVisible, 150); });
+  document.querySelectorAll('.st-tab, [data-goto]').forEach((b) => b.addEventListener('click', () => requestAnimationFrame(redrawVisible)));
 
   dash.draw('refreshed', (el) => {
     const d = dash.data('meta');

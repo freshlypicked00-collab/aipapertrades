@@ -2,7 +2,8 @@
 
 Paper Trades is a 30-day paper-trading experiment (Oct 26 to Nov 26, 2026). An AI
 manages four pretend C$100,000 portfolios using real-world prices: **Stocks**
-(anything), **Crypto**, **Metals** (precious metals) and **Sports** (betting).
+(anything), **Crypto**, **Metals** (precious metals) and **Sports** (betting), plus a fifth,
+**China** (Shanghai and Shenzhen stocks), started Oct 28 with US$100,000 and counted in US dollars.
 No real money moves. The public site is https://papertrades.ai (this repo,
 served by GitHub Pages). A private tracker mirrors the same data; its link is
 given in the task prompt.
@@ -18,8 +19,11 @@ then publishes everything. It runs every hour.
   - `bets.json`: every bet (odds, stake, status, result, closing odds, `starts_at`).
   - `history.json`, `prices.json`, `bench_history.json`: time series (appended by the script).
   - `trades.json`, `log.json`, `events.json`, `benchmark.json`, `indexes.json`, `sources.json`.
+  - `ledger.json`: the daily ledger (one row per portfolio per UTC day plus an `All` row with the write-up).
+  - `fx.json`: the last USD/CAD and USD/CNY rates (used when a run has no fresh USD/CNY).
   - `index.html`: the tracker page source (the site is built from it).
-- `ops/update.py`: applies one update from an input file.
+- `ops/update.py`: applies one update from an input file and closes finished ledger days.
+- `ops/ledger_note.py`: attaches the daily write-ups to a closed ledger day.
 - `ops/build_site.py`: builds `index.html`, `data.json`, `CNAME`, `.nojekyll` at the repo root.
 
 ## Steps
@@ -54,6 +58,7 @@ then publishes everything. It runs every hour.
    - Crypto: USDC reserve is deployed by the Bitcoin rules; whatever is left goes into the
      portfolio after the Nov 3 US midterms unless the picture has clearly soured.
    - Metals: cash reserve is deployed only by the gold rules.
+   - China: see the China section below.
    Update rules when plans change (`rules_add` / `rules_remove`), keeping `label`, `asset`,
    `level`, `direction` on price rules.
 6. **Write the input file** (format below) to a temp path and run
@@ -61,14 +66,50 @@ then publishes everything. It runs every hour.
    fresh `git checkout ops/src` if something is wrong.
 7. **Build and publish the site:** `python3 ops/build_site.py ops/src .`, then commit
    (`UPDATE ALL <Mon D, h:mm a.m./p.m. ET>`), `git pull --rebase`, and push to `main`.
+7b. **Daily ledger.** If `update.py` printed `LEDGER DAY CLOSED <day>` (the first run after
+   00:00 UTC, i.e. 8 p.m. ET until Nov 1, 7 p.m. ET after), write the day's notes and run
+   `python3 ops/ledger_note.py ops/src notes.json`, then rebuild the site before committing. Notes:
+   - `All`: 3 to 6 sentences on how the day went overall and an honest self-assessment: what was a
+     good call, what was luck, what was a mistake, ending with a one-word grade for the day
+     (for example "Grade for the day: good"). Use the printed numbers; don't invent figures.
+   - One or two sentences per portfolio that has a row: what moved it and any trades or bets.
+   - Plain past tense, no hype, no naming the AI model or company. Write it even on bad days.
 8. **Sync the private tracker** (link in the task prompt). For each data file the script
-   listed as changed, except `sources`: upload `ops/src/<name>.json` to the tracker as an
+   listed as changed (and `ledger` if you ran ledger_note.py), except `sources` and `fx`: upload `ops/src/<name>.json` to the tracker as an
    asset, then update the dataset document `datasets/<name>` with
    `source: {kind: "file", url: <the new /_blob/... url>, name: "<name>.json"}` and
    `updated: {at: <now ISO>, by: "AI"}`. Read the `datasets` collection first for the
    versions and write all updates in one batch. Do not change the tracker page itself.
 9. **Report** in a few lines: the four totals, any trades or bets with reasons, settled
    bets, and anything you couldn't confirm.
+
+## China (Shanghai and Shenzhen)
+
+- Counted in **US dollars**; prices are in **yuan**. Give `fx.usdcny` (with `cny_source`, `cny_at`)
+  on every run; check two sources (a spot quote such as Pound Sterling Live/Barchart, and the
+  PBOC fixing or its market estimate) and use the spot rate.
+- **Trading hours:** 9:30–11:30 a.m. and 1:00–3:00 p.m. Beijing time, weekdays. That is
+  9:30–11:30 p.m. and 1:00–3:00 a.m. ET until Nov 1, then 8:30–10:30 p.m. and 12:00–2:00 a.m. ET.
+  Trade China only in a run that falls inside those hours; otherwise just revalue it with the last
+  close (`"market_closed": true`).
+- **Rules of the market** (enforced by `update.py`): buy in lots of 100 shares (`"shares"`),
+  shares bought on a Beijing date can't be sold until the next trading day, sells by `"shares"` or
+  `"fraction"` (rounded down to whole lots unless selling everything). Cash is `Cash (CNY)`.
+- **Prices:** ETNet quote pages work: `https://www.etnet.com.hk/www/sc/ashares/quote.php?code=588000`
+  (always check the name on the page matches the code; some codes return the wrong stock). Find
+  others through web search. Holdings: `STAR 50 ETF` (588000), `Semiconductor ETF` (512480).
+- **Benchmark:** CSI 300 (`indexes.csi300`). The first level you supply becomes its start (it was
+  not recorded at entry), so supply the Oct 28 close at the first run after 3:00 p.m. Beijing, then
+  every run when you have it.
+- **Plan:** the portfolio is a rebound bet on beaten-down Chinese tech (STAR 50 down ~40% from its
+  July peak) supported by state-backed ETF buying and strong chip earnings. Follow the price rules
+  in `rules.json`. Watch the Fifth Plenum communique (Oct 29) and the plenum rule.
+- **Events:** add China events with `"affects": "China"` only.
+
+## Events
+
+Each portfolio's tab shows only events whose `affects` lists it, so tag events precisely
+(`"Stocks"`, `"Crypto, Metals"`, ...). Never use `"All"`; list the portfolios instead.
 
 ## Price standard
 
@@ -117,13 +158,24 @@ updates. Write plainly, in past tense, without naming the AI model or company.
 ```
 
 Asset names must match `holdings.json` (`SOXL`, `TQQQ`, `Bitcoin`, `Ethereum`, `Solana`,
-`XRP`, `Gold`, `Silver`). Prices are US dollars. `cad` amounts are Canadian dollars.
+`XRP`, `Gold`, `Silver`, `STAR 50 ETF`, `Semiconductor ETF`). Prices are US dollars except
+China, which is in yuan. `cad` amounts are Canadian dollars.
+
+China extras for the input file:
+
+```json
+"fx": {"usdcad": 1.4049, "source": "...", "at": "...", "usdcny": 6.678, "cny_source": "...", "cny_at": "..."},
+"prices": {"STAR 50 ETF": {"price": 1.362, "source": "ETNet (SH 588000)", "at": "..."}},
+"indexes": {"csi300": {"level": 4090.1, "source": "...", "at": "..."}},
+"trades": [{"portfolio": "China", "holding": "STAR 50 ETF", "code": "588000", "action": "Buy", "shares": 48800, "price": 1.25}]
+```
 Use `fraction` for sells as a share of the position. Log actions: `Buy`, `Sell`, `Bet`,
 `Settle`, `Hold`, `Rule`, `Check`.
 
 ## Final scoring (after Nov 26, 4:00 p.m. ET)
 
-Stocks score at the Nov 25 close (US markets are closed Nov 26). Crypto, Metals and
+Stocks score at the Nov 25 close (US markets are closed Nov 26). China scores at the
+Nov 26 Shanghai close (3:00 p.m. Beijing, 2:00 a.m. ET Nov 26). Crypto, Metals and
 Sports score at Nov 26, 4:00 p.m. ET; settle or void any remaining bets. Add a
 "Final result" log entry per portfolio with the result, versus its benchmark, and the
 biggest win and loss. Then stop: later runs only confirm the final state.
