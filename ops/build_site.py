@@ -317,6 +317,11 @@ data = {}
 for name in ('holdings', 'history', 'bets', 'log', 'rules', 'benchmark', 'indexes', 'events', 'prices', 'trades', 'bench_history', 'ledger', 'review', 'take'):
     data[name] = json.load(open(os.path.join(SRC, name + '.json')))
 data['sources'] = json.load(open(os.path.join(SRC, 'sources.json')))
+rv = os.path.join(SRC, 'rivals.json')
+r = json.load(open(rv)) if os.path.exists(rv) else {'models': {}, 'trades': [], 'history': [], 'takes': []}
+data['rivals_models'] = [{'id': k, **{x: v.get(x) for x in ('label', 'company', 'model', 'started_at', 'last_run')}, 'books': v['books']} for k, v in r['models'].items()]
+for k in ('trades', 'history', 'takes'):
+    data['rivals_' + k] = r[k]
 times = [r['at'] for r in data['log'] + data['history']]
 data['meta'] = [{'refreshed_at': max(times, key=lambda t: datetime.fromisoformat(t))}]
 json.dump(data, open(os.path.join(OUT, 'data.json'), 'w'), indent=1)

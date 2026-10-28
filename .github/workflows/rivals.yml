@@ -1,0 +1,56 @@
+name: Head to head (Gemini and ChatGPT)
+on:
+  schedule:
+    - cron: '37 * * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'run = a normal hourly run; prices = only test the price feeds'
+        default: run
+        type: choice
+        options: [run, prices]
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: rivals
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test price feeds
+        if: ${{ inputs.mode == 'prices' }}
+        run: python3 ops/rivals.py --prices
+      - name: Let each rival model decide and trade
+        if: ${{ inputs.mode != 'prices' }}
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 ops/rivals.py
+      - name: Publish
+        if: ${{ inputs.mode != 'prices' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          [ -f ops/src/rivals.json ] || exit 0
+          cp ops/src/rivals.json /tmp/rivals.json
+          git config user.name "paper-trades-bot"
+          git config user.email "paper-trades-bot@users.noreply.github.com"
+          for i in 1 2 3 4 5; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            cp /tmp/rivals.json ops/src/rivals.json
+            python3 ops/build_site.py ops/src .
+            git add ops/src/rivals.json index.html data.json
+            git diff --cached --quiet && exit 0
+            git commit -qm "Head to head: hourly Gemini and ChatGPT run"
+            git push -q origin HEAD:main && break
+            sleep $((i * 7))
+          done
+          gh api -X POST repos/${{ github.repository }}/pages/builds >/dev/null || true

@@ -208,6 +208,27 @@
   .st-score-pct { font-family: var(--font-anthropic-serif); font-size: 24px; line-height: 1.15; font-variant-numeric: tabular-nums; }
   .st-score-amt { font-size: 12.5px; color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
   .st-score-wait .st-score-pct { font-size: 15px; color: var(--color-fg-muted); font-family: inherit; }
+  .h2h-exp { display: flex; flex-direction: column; gap: 10px; padding-top: 14px; border-top: 1px solid var(--color-border-line); margin-top: 14px; }
+  .h2h-exp h3 { margin: 0; font-size: 15px; }
+  .h2h-rows { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px; }
+  .h2h-row { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; border-top: 3px solid var(--ai); }
+  .h2h-row .h2h-name { font-weight: 600; display: flex; justify-content: space-between; gap: 8px; }
+  .h2h-row .h2h-lead { font-size: 11px; font-weight: 600; color: var(--color-ok); text-transform: uppercase; letter-spacing: .05em; }
+  .h2h-row .h2h-pct { font-family: var(--font-anthropic-serif); font-size: 24px; font-variant-numeric: tabular-nums; }
+  .h2h-row .h2h-sub { font-size: 12.5px; color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+  .h2h-wait { opacity: .7; }
+  .h2h-chart { position: relative; }
+  .h2h-chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .h2h-chart .h2h-tip { position: absolute; top: 0; pointer-events: none; background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 6px 8px; font-size: 12px; display: none; white-space: nowrap; }
+  .h2h-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--color-fg-muted); margin: 0; }
+  .h2h-legend span::before { content: ""; display: inline-block; width: 10px; height: 3px; border-radius: 2px; background: var(--ai); margin-right: 6px; vertical-align: middle; }
+  .h2h-takes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .h2h-takes li { border-left: 3px solid var(--ai); padding-left: 10px; font-size: 14px; }
+  .h2h-takes b { display: block; font-size: 12px; color: var(--color-fg-muted); font-weight: 600; }
+  .h2h-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .h2h-table th, .h2h-table td { text-align: left; padding: 6px 8px 6px 0; border-bottom: 1px solid var(--color-border-line); vertical-align: top; }
+  .h2h-table th { color: var(--color-fg-muted); font-weight: 500; }
+  .h2h-scroll { overflow-x: auto; }
   .st-live { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); padding: 12px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
   .st-live-text { flex: 1 1 260px; display: flex; flex-direction: column; gap: 2px; }
   .st-live-h { margin: 0; font-size: 14px; font-weight: 600; color: var(--color-fg); display: flex; align-items: center; gap: 8px; }
@@ -251,6 +272,7 @@
   <nav class="st-tabs" role="tablist" aria-label="Simulations">
     <button class="st-tab" role="tab" data-tab="overview" aria-selected="true">Overview</button>
     <button class="st-tab" role="tab" data-tab="ledger" aria-selected="false">Ledger</button>
+    <button class="st-tab st-tab-h2h" role="tab" data-tab="h2h" aria-selected="false">AI vs AI</button>
     <div class="st-tabgroup" role="presentation"><span class="st-tabgroup-l">Trading</span>
       <button class="st-tab" role="tab" data-tab="stocks" aria-selected="false">Stocks and anything</button>
       <button class="st-tab" role="tab" data-tab="crypto" aria-selected="false">Crypto</button>
@@ -1293,6 +1315,13 @@
   </section>
 
   <!-- Daily ledger -->
+  <section class="st-page" id="h2h" data-page="h2h" hidden>
+    <section class="st-card" aria-labelledby="h-h2h">
+      <h2 class="st-h2" id="h-h2h">Claude vs Gemini vs ChatGPT</h2>
+      <p class="st-note">Three AI models run their own separate copies of the same three experiments: stocks and anything, crypto, and prediction markets. Each copy starts with its own C$100,000, follows the same rules with real-world prices and no fees, and is scored only against its own start. Claude runs every experiment on this site; Gemini (Google) and ChatGPT (OpenAI) check in every hour, search the news themselves and make their own trades. Returns are measured from the day each model joined.</p>
+      <div data-draw="h2h" data-source="rivals_models rivals_history rivals_trades rivals_takes history totals take"></div>
+    </section>
+  </section>
   <section class="st-page" id="ledger" data-page="ledger" hidden>
     <section class="st-card" aria-labelledby="h-l-sum">
       <h2 class="st-h2" id="h-l-sum">Ledger</h2>
@@ -1438,7 +1467,7 @@
   };
 
   // Tabs
-  const TABS = ['overview', 'stocks', 'crypto', 'metals', 'sports', 'china', 'energy', 'options', 'predictions', 'safe', 'currencies', 'support', 'ledger'];
+  const TABS = ['h2h', 'overview', 'stocks', 'crypto', 'metals', 'sports', 'china', 'energy', 'options', 'predictions', 'safe', 'currencies', 'support', 'ledger'];
   const showTab = (name) => {
     if (!TABS.includes(name)) name = 'overview';
     document.querySelectorAll('[data-page]').forEach((s) => { s.hidden = s.dataset.page !== name; });
@@ -2621,6 +2650,113 @@
   });
 
   // ---------- top of page: the AI's take and the scoreboard
+
+  // ---- Head to head: Claude vs Gemini vs ChatGPT ----
+  const AIS = { claude: { label: 'Claude', color: '#d97757' }, gemini: { label: 'Gemini', color: '#4f8ff7' }, chatgpt: { label: 'ChatGPT', color: '#10a37f' } };
+  const H2H_EXPS = ['Stocks', 'Crypto', 'Predictions'];
+  dash.draw('h2h', (el) => {
+    const M = dash.data('rivals_models'), RH = dash.data('rivals_history'), RT = dash.data('rivals_trades'), RK = dash.data('rivals_takes');
+    const CH = dash.data('history'), TK = dash.data('take');
+    el.replaceChildren();
+    if (CH.status !== 'ok') return;
+    const models = M.status === 'ok' ? M.data : [];
+    const rh = RH.status === 'ok' ? RH.data : [];
+    const series = (exp) => {
+      const out = [];
+      const c = CH.data.filter((r) => r.portfolio === exp).map((r) => ({ t: new Date(r.at), v: Number(r.value) })).sort((a, b) => a.t - b.t);
+      if (c.length) out.push({ id: 'claude', pts: c });
+      models.forEach((m) => {
+        const p = rh.filter((r) => r.model === m.id && r.experiment === exp).map((r) => ({ t: new Date(r.at), v: Number(r.value) })).sort((a, b) => a.t - b.t);
+        if (p.length) out.push({ id: m.id, pts: [{ t: new Date(m.started_at), v: 100000 }].concat(p), model: m.model });
+      });
+      return out;
+    };
+    if (!models.length) el.appendChild(mk('p', 'st-note', 'Gemini and ChatGPT join at their first hourly check-in after they are connected. Until then, only Claude’s results show below.'));
+    H2H_EXPS.forEach((exp) => {
+      const box = mk('div', 'h2h-exp');
+      box.appendChild(mk('h3', '', LABEL[exp] || exp));
+      const ser = series(exp);
+      const rows = mk('ul', 'h2h-rows');
+      const ranked = ser.map((s) => ({ ...s, last: s.pts[s.pts.length - 1].v, pct: s.pts[s.pts.length - 1].v / 100000 - 1 })).sort((a, b) => b.pct - a.pct);
+      ranked.forEach((s, i) => {
+        const li = mk('li', 'h2h-row'); li.style.setProperty('--ai', AIS[s.id].color);
+        const nm = mk('span', 'h2h-name'); nm.appendChild(mk('span', '', AIS[s.id].label));
+        if (i === 0 && ranked.length > 1 && s.pct !== ranked[1].pct) nm.appendChild(mk('span', 'h2h-lead', 'Leading'));
+        li.appendChild(nm);
+        const pc = mk('span', 'h2h-pct', stFmt.pct(s.pct)); tone(pc, s.pct); li.appendChild(pc);
+        li.appendChild(mk('span', 'h2h-sub', 'Now ' + stFmt.cad(s.last) + ' · started ' + d3.timeFormat('%b %-d')(s.pts[0].t)));
+        rows.appendChild(li);
+      });
+      ['gemini', 'chatgpt'].filter((id) => !ser.some((s) => s.id === id)).forEach((id) => {
+        const li = mk('li', 'h2h-row h2h-wait'); li.style.setProperty('--ai', AIS[id].color);
+        li.appendChild(mk('span', 'h2h-name', AIS[id].label));
+        li.appendChild(mk('span', 'h2h-sub', 'Not started yet'));
+        rows.appendChild(li);
+      });
+      box.appendChild(rows);
+      if (ser.length) {
+        const legend = mk('p', 'h2h-legend');
+        ser.forEach((s) => { const sp = mk('span', '', AIS[s.id].label); sp.style.setProperty('--ai', AIS[s.id].color); legend.appendChild(sp); });
+        const ch = mk('div', 'h2h-chart');
+        box.append(legend, ch);
+        requestAnimationFrame(() => h2hChart(ch, ser));
+      }
+      el.appendChild(box);
+    });
+    // latest takes
+    const tbox = mk('div', 'h2h-exp');
+    tbox.appendChild(mk('h3', '', 'What each AI is thinking'));
+    const ul = mk('ul', 'h2h-takes');
+    const addTake = (id, text, at) => { const li = mk('li'); li.style.setProperty('--ai', AIS[id].color); li.appendChild(mk('b', '', AIS[id].label + (at ? ' · ' + stFmt.when(at) : ''))); li.appendChild(document.createTextNode(text)); ul.appendChild(li); };
+    if (TK.status === 'ok' && TK.data.length) { const t = TK.data[TK.data.length - 1]; addTake('claude', t.text, t.at); }
+    const latest = {}; (RK.status === 'ok' ? RK.data : []).forEach((t) => { latest[t.model] = t; });
+    Object.values(latest).forEach((t) => { if (AIS[t.model]) addTake(t.model, t.text, t.at); });
+    tbox.appendChild(ul);
+    el.appendChild(tbox);
+    // rival trades
+    const trades = (RT.status === 'ok' ? RT.data : []).slice().reverse().slice(0, 40);
+    const rbox = mk('div', 'h2h-exp');
+    rbox.appendChild(mk('h3', '', 'Gemini and ChatGPT trades'));
+    if (!trades.length) rbox.appendChild(mk('p', 'st-note', 'No trades yet. Claude’s trades are in each experiment’s tab and the Ledger.'));
+    else {
+      const wrap = mk('div', 'h2h-scroll'); const tb = mk('table', 'h2h-table');
+      const hr = mk('tr'); ['When', 'AI', 'Experiment', 'Trade', 'Price', 'Amount', 'Why'].forEach((h) => hr.appendChild(mk('th', '', h))); tb.appendChild(hr);
+      trades.forEach((t) => {
+        const tr = mk('tr');
+        const what = t.action + ' ' + (t.name && t.name !== t.symbol ? t.name + ' (' + t.symbol + ')' : t.symbol) + (t.outcome ? ': ' + t.outcome : '');
+        const px = t.experiment === 'Predictions' ? (t.price_usd * 100).toFixed(1) + '¢ a share' : 'US$' + d3.format(t.price_usd >= 100 ? ',.2f' : ',.4~f')(t.price_usd) + (t.experiment === 'Crypto' ? ' per coin' : ' per share');
+        [stFmt.when(t.at), (AIS[t.model] || { label: t.model }).label, LABEL[t.experiment] || t.experiment, what, px, stFmt.cad(t.cad), t.reason].forEach((v) => tr.appendChild(mk('td', '', v)));
+        tb.appendChild(tr);
+      });
+      wrap.appendChild(tb); rbox.appendChild(wrap);
+    }
+    el.appendChild(rbox);
+  });
+  const h2hChart = (el, ser) => {
+    el.replaceChildren();
+    const W = Math.max(280, el.clientWidth || 600), H = 220, m = { t: 10, r: 12, b: 24, l: 46 };
+    const all = ser.flatMap((s) => s.pts.map((p) => ({ t: p.t, y: p.v / 100000 - 1 })));
+    const x = d3.scaleTime().domain(d3.extent(all, (d) => d.t)).range([m.l, W - m.r]);
+    const ext = d3.extent(all.concat([{ y: 0 }]), (d) => d.y); const pad = Math.max(0.005, (ext[1] - ext[0]) * 0.1);
+    const y = d3.scaleLinear().domain([ext[0] - pad, ext[1] + pad]).nice().range([H - m.b, m.t]);
+    const svg = d3.select(el).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', 'Return since start for each AI');
+    svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(Math.min(6, W / 110)).tickSizeOuter(0)).call((g) => g.selectAll('text').attr('fill', 'var(--color-fg-muted)')).call((g) => g.selectAll('line,path').attr('stroke', 'var(--color-border-line)'));
+    svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat((v) => (v > 0 ? '+' : '') + d3.format('.0%')(v)).tickSize(-(W - m.l - m.r))).call((g) => g.select('.domain').remove()).call((g) => g.selectAll('line').attr('stroke', 'var(--color-border-line)').attr('stroke-opacity', 0.6)).call((g) => g.selectAll('text').attr('fill', 'var(--color-fg-muted)'));
+    svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(0)).attr('y2', y(0)).attr('stroke', 'var(--color-fg-muted)').attr('stroke-dasharray', '3 3');
+    const line = d3.line().x((p) => x(p.t)).y((p) => y(p.v / 100000 - 1));
+    ser.forEach((s) => svg.append('path').attr('d', line(s.pts)).attr('fill', 'none').attr('stroke', AIS[s.id].color).attr('stroke-width', 2.2).attr('stroke-linejoin', 'round'));
+    const rule = svg.append('line').attr('y1', m.t).attr('y2', H - m.b).attr('stroke', 'var(--color-fg-muted)').style('display', 'none');
+    const tip = mk('div', 'h2h-tip'); el.appendChild(tip);
+    const at = (s, t) => { let best = null; s.pts.forEach((p) => { if (p.t <= t) best = p; }); return best; };
+    svg.on('pointermove', (ev) => {
+      const [px] = d3.pointer(ev); const t = x.invert(px);
+      rule.attr('x1', px).attr('x2', px).style('display', null);
+      tip.replaceChildren(mk('div', '', stFmt.when(t)));
+      ser.forEach((s) => { const p = at(s, t); if (p) { const r = mk('div', '', AIS[s.id].label + ': ' + stFmt.pct(p.v / 100000 - 1)); r.style.color = AIS[s.id].color; tip.appendChild(r); } });
+      tip.style.display = 'block';
+      const left = px / W * el.clientWidth; tip.style.left = Math.min(left + 10, el.clientWidth - tip.offsetWidth) + 'px';
+    }).on('pointerleave', () => { rule.style('display', 'none'); tip.style.display = 'none'; });
+  };
   dash.draw('take', (el) => {
     const d = dash.data('take');
     el.replaceChildren();
