@@ -218,6 +218,10 @@ computed from the actual fill prices.
 - Only bet where data or a forecast model clearly disagrees with the market price; record the
   model number in the log. Any size is allowed; it is a high-risk experiment.
 
+## Benchmarks
+
+Metals is compared with holding gold (from its Oct 27, 7:30 p.m. start); the update tool takes this from the `Gold` price automatically.
+
 ## Benchmarks for the new experiments
 
 Supply `indexes.uso` (the USO fund's price, for Energy) and `indexes.sp500` every market-hours

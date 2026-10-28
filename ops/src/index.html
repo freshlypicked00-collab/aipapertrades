@@ -272,7 +272,7 @@
           <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Metals">—</b></span>
           <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Metals">—</b></span>
           <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Metals">—</b></span>
-          <span>Vs. just holding Bitcoin: <b data-draw="vs-diff" data-source="vsbtc" data-field="diff" data-where="portfolio=Metals">—</b></span>
+          <span>Vs. just holding gold: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=gold_metals">—</b></span>
         </span>
       </button>
       <button class="st-card" data-goto="energy">
@@ -350,7 +350,7 @@
         </span>
       </button>
     </div>
-    <p class="st-note">The big figure is total net profit since the start. "Last 24 hours" compares with the check-in closest to 24 hours earlier, or the start if a simulation is newer. "Worst drop" is the biggest fall from a high point, measured at check-ins. Each "Vs." line compares a simulation with putting the same money into a simple benchmark: the S&amp;P 500 for stocks and options, Bitcoin for crypto and metals, the CSI 300 for China stocks, the USO oil fund for energy, and a 2.25% savings account for currencies and "play it safe". Positive means the simulation is ahead. China stocks are counted in US dollars.</p>
+    <p class="st-note">The big figure is total net profit since the start. "Last 24 hours" compares with the check-in closest to 24 hours earlier, or the start if a simulation is newer. "Worst drop" is the biggest fall from a high point, measured at check-ins. Each "Vs." line compares a simulation with putting the same money into a simple benchmark: the S&amp;P 500 for stocks and options, Bitcoin for crypto, gold for metals, the CSI 300 for China stocks, the USO oil fund for energy, and a 2.25% savings account for currencies and "play it safe". Positive means the simulation is ahead. China stocks are counted in US dollars.</p>
 
     <section class="st-card" aria-labelledby="h-events-all">
       <h2 class="st-h2" id="h-events-all">Coming up</h2>
@@ -584,12 +584,12 @@
   <!-- Metals -->
   <section class="st-page" id="metals" data-page="metals" hidden>
     <section class="st-card" aria-labelledby="h-m-bench">
-      <h2 class="st-h2" id="h-m-bench">Metals vs. just holding Bitcoin</h2>
+      <h2 class="st-h2" id="h-m-bench">Metals vs. just holding gold</h2>
       <p class="st-note">Gold and silver at spot prices, plus cash. Started Oct 27 at 7:30 p.m.</p>
       <div class="st-bench">
         <div><span class="st-label">This portfolio</span><span class="st-mid" data-draw="vs-value" data-source="vsbtc" data-field="value" data-where="portfolio=Metals">—</span></div>
-        <div><span class="st-label">All in Bitcoin</span><span class="st-mid" data-draw="vs-btc" data-source="vsbtc" data-field="btc_value" data-where="portfolio=Metals">—</span></div>
-        <div><span class="st-label">Ahead of Bitcoin by</span><span class="st-mid" data-draw="vs-diff" data-source="vsbtc" data-field="diff" data-where="portfolio=Metals">—</span></div>
+        <div><span class="st-label">All in gold</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=gold_metals">—</span></div>
+        <div><span class="st-label">Ahead of gold by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=gold_metals">—</span></div>
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Metals">—</span></div>
         <div><span class="st-label">Total net profit</span><span class="st-mid" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Metals">—</span></div>
         <div><span class="st-label">Worst drop from peak</span><span class="st-mid" data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Metals">—</span></div>
@@ -611,7 +611,7 @@
     </section>
     <section class="st-card" aria-labelledby="h-m-chart">
       <h2 class="st-h2" id="h-m-chart">Value over time</h2>
-      <p class="st-note">The grey dashed line is the same C$100,000 left in Bitcoin. Hover or drag along the chart for exact values.</p>
+      <p class="st-note">The grey dashed line is the same C$100,000 put into gold. Hover or drag along the chart for exact values.</p>
       <div class="gx" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Metals"></div>
     </section>
     <section class="st-card" aria-labelledby="h-m-trig">
@@ -1361,7 +1361,7 @@
       <li><b>Short window, lots of luck.</b> Thirty days is too short to prove skill. A good or bad result here says little about future performance.</li>
       <li><b>Betting is for adults only.</b> Sports odds and prediction-market prices are shown for the experiment, not as an endorsement of any sportsbook or market. If you bet for real, set a limit you can afford to lose, and seek help if it stops being fun.</li>
       <li><b>Results, win or lose.</b> The final results for all ten simulations will be posted here on Nov 26, whether they are good or bad. Losing trades and bets stay in the log.</li>
-      <li><b>How it's scored.</b> Values are in Canadian dollars at the latest exchange rate, except China stocks, which are counted in US dollars. Each simulation is compared with a simple benchmark: the S&amp;P 500 and TSX for stocks, holding Bitcoin for crypto and metals, the CSI 300 for China stocks, the USO oil fund for energy, the S&amp;P 500 for options, a 2.25% savings account for currencies and "play it safe", and the closing line for sports. US markets are closed on Nov 26 for Thanksgiving, so the US-traded simulations score at the Nov 25 close.</li>
+      <li><b>How it's scored.</b> Values are in Canadian dollars at the latest exchange rate, except China stocks, which are counted in US dollars. Each simulation is compared with a simple benchmark: the S&amp;P 500 and TSX for stocks, holding Bitcoin for crypto, holding gold for metals, the CSI 300 for China stocks, the USO oil fund for energy, the S&amp;P 500 for options, a 2.25% savings account for currencies and "play it safe", and the closing line for sports. US markets are closed on Nov 26 for Thanksgiving, so the US-traded simulations score at the Nov 25 close.</li>
     </ul>
     <p class="st-note">Each tab lists the sources used for it; the Ledger tab has the full list.</p>
   </section>
@@ -2034,7 +2034,7 @@
   };
 
   // ---------- value over time, per simulation
-  const BENCH = { Stocks: 'S&P 500', Crypto: 'Bitcoin', Metals: 'Bitcoin', China: 'CSI 300', Energy: 'Oil (USO fund)', Options: 'S&P 500' };
+  const BENCH = { Stocks: 'S&P 500', Crypto: 'Bitcoin', Metals: 'Gold', China: 'CSI 300', Energy: 'Oil (USO fund)', Options: 'S&P 500' };
   dash.draw('perf-chart', (el) => {
     const run = () => {
       const h = dash.data('history'), b = dash.data('bench_history');

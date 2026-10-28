@@ -22,7 +22,7 @@ START = 100000.0
 ORDER = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
 MARGIN = {'Currencies'}  # cash may go negative (borrowing); shorts allowed
 CURRENCY = {p: ('USD' if p == 'China' else 'CAD') for p in ORDER}
-BENCH_NAMES = {'sp500': 'S&P 500', 'csi300': 'CSI 300', 'uso': 'Oil (USO fund)'}
+BENCH_NAMES = {'sp500': 'S&P 500', 'csi300': 'CSI 300', 'uso': 'Oil (USO fund)', 'gold': 'Gold'}
 BJ = timezone(timedelta(hours=8))
 
 
@@ -351,7 +351,9 @@ if 'Bitcoin' in P:
         r['fx_now'] = fx
         r['as_of'] = AT
     save('benchmark', benchmark)
-ix = inp.get('indexes', {})
+ix = dict(inp.get('indexes', {}))
+if 'Gold' in P and 'gold' not in ix:  # the Metals benchmark follows the gold price
+    ix['gold'] = {'level': P['Gold']['price'], 'at': P['Gold'].get('at'), 'source': P['Gold'].get('source', '')}
 for key, name in BENCH_NAMES.items():
     if key in ix:
         f = 1 / cny if key == 'csi300' else fx  # bench_history fx turns the level into the portfolio's currency
