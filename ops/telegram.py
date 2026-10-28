@@ -172,9 +172,9 @@ if WELCOME:
         last[h['portfolio']] = h['value']
     order = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
     board = sorted(((pf, last.get(pf, 100000)) for pf in order), key=lambda x: -x[1])
-    day = (datetime.now(timezone.utc) - datetime(2026, 10, 26, tzinfo=timezone.utc)).days + 1
+    day = (datetime.now(timezone.utc) - datetime(2026, 10, 28, tzinfo=timezone.utc)).days + 1
     intro = ("👋 <b>Welcome to Paper Trades: AI vs AI</b>\n\n"
-             "Several AI models trade <b>head to head</b> with pretend money and real-world prices until Nov 26, 2026. "
+             "Several AI models trade <b>head to head</b> with pretend money and real-world prices from Oct 28 to Nov 28, 2026. "
              "Each model runs its <b>own separate copy</b> of each experiment, starting from the same 100,000 at the same moment, "
              "and they are scored against each other. Nothing is ever added together.\n\n"
              "🟠 <b>Claude</b> (Anthropic): all ten experiments\n"
@@ -267,7 +267,7 @@ ledger = load(S + 'ledger.json')
 review = load(S + 'review.json')
 for day in sorted({r['day'] for r in ledger} - oldd):
     rows = [r for r in ledger if r['day'] == day and r['portfolio'] != 'All']
-    n = (datetime.fromisoformat(day) - datetime(2026, 10, 26)).days + 1
+    n = (datetime.fromisoformat(day) - datetime(2026, 10, 28)).days + 1
     lines = [f"📒 <b>Day {n} closed: {datetime.fromisoformat(day).strftime('%a %b %-d')}</b> (00:00 UTC)"]
     for r in sorted(rows, key=lambda r: -(r['pct'] or 0)):
         lines.append(f"{'🟩' if r['pnl'] > 0.5 else '🟥' if r['pnl'] < -0.5 else '⬜'} {esc(LABEL.get(r['portfolio'], r['portfolio']))}: {money(r['pnl'], r['portfolio'])} ({r['pct'] * 100:+.1f}%)")
@@ -291,5 +291,6 @@ for i, (m, pic) in enumerate(msgs):
         photo = chart_scoreboard(pic[1], pic[2])
     else:
         photo = chart_section(pic, i) if pic else None
+    m = '🟠 <b>CLAUDE</b> (Anthropic)\n' + m
     send(m + ('' if SITE in m else f'\n{SITE}'), photo)
 print(f'{len(msgs)} message(s)')

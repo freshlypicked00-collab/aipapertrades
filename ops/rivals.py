@@ -268,7 +268,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None):
     lines = [
         f'You are {label}, taking part in Paper Trades (papertrades.ai), a public paper-trading experiment that compares AI models with pretend money and real prices.',
         f'It is now {NOW.astimezone(timezone(timedelta(hours=-4))).strftime("%A %b %-d, %Y, %-I:%M %p")} ET ({iso()}). Beijing time: {NOW.astimezone(BJ).strftime("%a %-I:%M %p")}.',
-        f'You run {len(exps)} SEPARATE experiments, each started with its own 100,000 of pretend money. Each is judged only against its own start; they are never added together. The experiment ends Nov 26, 2026 at 4:00 p.m. ET.',
+        f'You run {len(exps)} SEPARATE experiments, each started with its own 100,000 of pretend money. Each is judged only against its own start; they are never added together. The experiment ends Nov 28, 2026 at 4:00 p.m. ET (US stock markets are closed that Saturday; the last US trading day is Friday Nov 27, which closes early at 1:00 p.m. ET).',
         'Goal: high risk, high reward. Try to finish each experiment with as much money as possible. Holding is fine; trade when you have a reason.',
         '',
         'Rules (long only, no margin, no fees, you cannot spend more cash than you have; fills are at the live price when this run executes):',
@@ -486,7 +486,8 @@ def fmt_price(t):
 def tg_trade(label, t, source=None, photo=None):
     icon = {'Buy': '🟢', 'Sell': '🔴', 'Settled': '🏁'}.get(t['action'], '•')
     what = f"{t['symbol']} {t['outcome']}" if t.get('outcome') else t['symbol']
-    msg = (f"{icon} <b>{label} · {EXP_LABEL[t['experiment']]}: {t['action']} {esc(what)}</b>\n{esc(t['name'])}\n"
+    head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '🟢 <b>CHATGPT</b> (OpenAI)'}.get(label, f'<b>{label.upper()}</b>')
+    msg = (f"{head}\n{icon} <b>{EXP_LABEL[t['experiment']]}: {t['action']} {esc(what)}</b>\n{esc(t['name'])}\n"
            f"{fmt_price(t)}, {money(t['amount'], t['cur'])}\n<i>{esc(t['reason'])}</i>")
     if source:
         msg += f"\nSource: <a href=\"{esc(source['url'])}\">{esc(source['title'][:80])}</a>"

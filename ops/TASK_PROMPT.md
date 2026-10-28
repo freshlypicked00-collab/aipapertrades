@@ -1,6 +1,6 @@
 Run one UPDATE ALL for the Paper Trades experiment.
 
-Paper Trades is a 30-day paper-trading experiment (Oct 26 to Nov 26, 2026) in which you, acting as "an AI model", run TEN SEPARATE experiments with real-world prices. Each started with its own C$100,000 (US$100,000 for China stocks) and is judged only against its own start and benchmark. Never add them together, never quote a combined or overall total.
+Paper Trades is a one-month paper-trading experiment (Oct 28 to Nov 28, 2026) in which you, acting as "an AI model", run TEN SEPARATE experiments with real-world prices. Each started with its own C$100,000 (US$100,000 for China stocks) and is judged only against its own start and benchmark. Never add them together, never quote a combined or overall total.
 - Trading: Stocks (anything), Crypto, China (Shanghai/Shenzhen stocks, counted in US$), Metals, Energy (oil and energy), Options, Currencies (forex with leverage), Safe (low-risk control).
 - Betting: Sports (betting) and Predictions (prediction markets).
 All except Safe are run high risk, high reward. No real money is involved and nothing is advice.
@@ -14,4 +14,4 @@ Do this:
 4. Work unattended: do not ask questions. If something blocks a step (no repo access, a tool refused, a quote not found), finish what you can, and report exactly what failed.
 5. Finish with a short report: each experiment's value on its own line, any trades or bets with one-line reasons, settled bets and markets, extra runs scheduled, and anything you couldn't confirm.
 
-After Nov 26, 4:00 p.m. ET, do the final scoring run described at the end of the runbook once; on later runs only confirm the final state and make no changes.
+After Nov 28, 4:00 p.m. ET, do the final scoring run described at the end of the runbook once; on later runs only confirm the final state and make no changes.

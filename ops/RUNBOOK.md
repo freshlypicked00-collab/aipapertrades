@@ -1,6 +1,6 @@
 # Paper Trades: UPDATE ALL runbook
 
-Paper Trades is a 30-day paper-trading experiment (Oct 26 to Nov 26, 2026). An AI
+Paper Trades is a one-month paper-trading experiment (Oct 28 to Nov 28, 2026; the trading experiments had a fresh start Oct 28, the betting experiments began Oct 27). An AI
 runs ten separate simulations with real-world prices, each with its own starting money:
 - Trading: **Stocks** (anything, C$100,000), **Crypto** (C$100,000), **China** (Shanghai and
   Shenzhen stocks, US$100,000, counted in US dollars), **Metals** (C$100,000), **Energy**,
@@ -40,7 +40,7 @@ then publishes everything. It runs every hour.
    and `git pull` so you start from the latest data. Read `ops/src/holdings.json`,
    `rules.json`, `bets.json`, `events.json` and the last ~20 entries of `log.json`.
 2. **Check the time** (Eastern). Note whether US markets are open (9:30 a.m. to 4:00 p.m. ET,
-   weekdays, closed Nov 26 for Thanksgiving). After **Nov 26, 4:00 p.m. ET**, do the final
+   weekdays, closed Nov 26 for Thanksgiving, early close 1:00 p.m. ET Nov 27). After **Nov 28, 4:00 p.m. ET**, do the final
    scoring run (see the end) and make no more trades or bets.
 3. **Collect prices** using the price standard below. Use web search and fetch; never
    estimate or invent a price. If a fresh quote can't be confirmed, leave that asset out of
@@ -300,15 +300,14 @@ China extras for the input file:
 Use `fraction` for sells as a share of the position. Log actions: `Buy`, `Sell`, `Bet`,
 `Settle`, `Hold`, `Rule`, `Check`.
 
-## Final scoring (after Nov 26, 4:00 p.m. ET)
+## Final scoring (after Nov 28, 4:00 p.m. ET)
 
-Stocks, Energy, Options and Safe score at the Nov 25 close (US markets are closed Nov 26;
-options still open then are valued at that close). Predictions scores at Nov 26, 4:00 p.m. ET
-with open markets at their last price. China scores at the
-Nov 26 Shanghai close (3:00 p.m. Beijing, 2:00 a.m. ET Nov 26). Crypto, Metals and
-Sports score at Nov 26, 4:00 p.m. ET; settle or void any remaining bets. Add a
-"Final result" log entry per portfolio with the result, versus its benchmark, and the
-biggest win and loss. Then stop: later runs only confirm the final state.
+Final scoring is Saturday Nov 28, 4:00 p.m. ET. Stocks, Energy, Options and Safe score at the Friday
+Nov 27 close (US markets close early, 1:00 p.m. ET, after Thanksgiving; options still open then are
+valued at that close). China scores at the Friday Nov 27 Shanghai close (3:00 p.m. Beijing, 2:00 a.m. ET).
+Currencies score at the Friday Nov 27, 5:00 p.m. ET close of the forex week. Metals score at the
+Friday close of gold and silver. Crypto, Predictions and Sports score at Nov 28, 4:00 p.m. ET; settle or
+void any remaining bets. Add a final log entry per experiment and a final "AI's take", then stop trading.
 
 ## AI vs AI (Gemini and ChatGPT)
 - The owner chose to name the models on the "AI vs AI" tab: Claude vs Gemini vs ChatGPT. That tab, its Telegram posts and the README may name Claude, Gemini (Google) and ChatGPT (OpenAI). Everywhere else keep saying "an AI model" / "the AI".

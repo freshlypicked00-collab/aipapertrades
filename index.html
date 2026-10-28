@@ -294,11 +294,11 @@
   .h2h-scroll { overflow-x: auto; }
   .st-notice-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: stretch; }
   .st-notice-row .st-notice { flex: 1 1 480px; margin: 0; }
-  .st-model { flex: 0 1 300px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .st-model { flex: 0 1 300px; min-width: 0; max-width: 100%; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
   .st-model-inline { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 14px; }
   .st-model-inline .st-model-note { flex: 1 1 220px; }
   .st-model-l { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--color-fg-muted); }
-  .model-pick { font: inherit; font-size: 15px; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 8px 10px; min-height: 40px; }
+  .model-pick { width: 100%; max-width: 100%; min-width: 0; font: inherit; font-size: 15px; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 8px 10px; min-height: 40px; }
   .model-pick:focus-visible, .st-model-cmp:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   .st-model-note { margin: 0; font-size: 13px; color: var(--color-fg-muted); }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
@@ -431,7 +431,7 @@ body { background:#0b0b0a; }
     <h1 class="st-title"><svg class="st-logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#17201c"/><path d="M7 22l6-6 4 4 8-9" stroke="#4cc283" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Paper Trades</span></h1>
     <p class="st-progress" data-phase="live">
       <span>Day <b data-draw="day-num">—</b> of <b data-draw="day-total">—</b></span>
-      <span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 26</span>
+      <span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 28</span>
       <span class="st-clock">New York <b class="st-count" data-draw="clock">—</b></span>
       <span class="st-clock">Hong Kong <b class="st-count" data-draw="clock-hk">—</b></span>
       <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b></span>
@@ -440,7 +440,7 @@ body { background:#0b0b0a; }
     <p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>
     <div class="st-hook">
       <p class="st-hook-q">Can an AI make money in real markets?</p>
-      <p class="st-hook-sub">Ten separate experiments, each with its own C$100,000 of pretend money and real-world prices. Every trade and bet is public, win or lose, until Nov 26.</p>
+      <p class="st-hook-sub">Ten separate experiments, each with its own C$100,000 of pretend money and real-world prices. Every trade and bet is public, win or lose, until Nov 28.</p>
       <p class="st-take"><span class="st-take-l">The AI's take</span><span data-draw="take" data-source="take">—</span></p>
     </div>
     <section class="st-score" aria-labelledby="h-score">
@@ -455,7 +455,7 @@ body { background:#0b0b0a; }
       <a class="st-live-btn" href="https://t.me/papertradesai" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.8-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2L6.5 13.2l-4.7-1.5c-1-.3-1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg>Join @papertradesai</a>
     </section>
     <div class="st-notice-row">
-  <p class="st-notice" role="note"><span class="st-dot" aria-hidden="true"></span><span><b>This is a simulation, not investment advice.</b> No real money is involved. It is a 30-day experiment in which an AI model makes trading and betting decisions using real-world prices, to see how its judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results for all ten will be posted on Nov 26, win or lose.</span></p>
+  <p class="st-notice" role="note"><span class="st-dot" aria-hidden="true"></span><span><b>This is a simulation, not investment advice.</b> No real money is involved. It is a 30-day experiment in which an AI model makes trading and betting decisions using real-world prices, to see how its judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results for all ten will be posted on Nov 28, win or lose.</span></p>
       <div class="st-model" role="group" aria-labelledby="model-l">
         <label class="st-model-l" id="model-l" for="model-pick">Model</label>
         <select id="model-pick" class="model-pick">
@@ -1626,7 +1626,7 @@ body { background:#0b0b0a; }
   </section>
   <section class="st-card st-about" aria-labelledby="h-about" id="about">
     <h2 class="st-h2" id="h-about">About this experiment</h2>
-    <p>This page tracks a 30-day paper-trading experiment, Oct 26 to Nov 26, 2026. An AI model runs ten separate simulations with pretend money and real-world prices, and each one is scored only against its own starting amount. They are never added together.</p>
+    <p>This page tracks a one-month paper-trading experiment, Oct 28 to Nov 28, 2026 (the betting experiments began a day earlier and carry on to the same end). An AI model runs ten separate simulations with pretend money and real-world prices, and each one is scored only against its own starting amount. They are never added together.</p>
     <ul class="st-exp-list">
       <li><b>Trading:</b> stocks and anything, crypto, China stocks on the Shanghai and Shenzhen exchanges (US$100,000), precious metals, oil and energy, options, currencies with leverage, and a low-risk "play it safe" control (C$100,000 each). All eight were reset to a fresh start on Oct 28 so Claude and Gemini start level; the first run (Oct 26–28) is archived.</li>
       <li><b>Betting:</b> sports betting (C$100,000, Oct 27) and prediction markets (C$100,000, Oct 28).</li>
@@ -1650,8 +1650,8 @@ body { background:#0b0b0a; }
       <li><b>High risk on purpose.</b> Every simulation except "play it safe" is run for big returns, not safety. The stocks simulation holds 3x leveraged funds, the currencies simulation borrows to hold positions several times its value, options can expire worthless, and crypto, energy, sports and prediction-market bets can swing sharply. These choices test aggressive decision-making; they do not suit most people.</li>
       <li><b>Short window, lots of luck.</b> Thirty days is too short to prove skill. A good or bad result here says little about future performance.</li>
       <li><b>Betting is for adults only.</b> Sports odds and prediction-market prices are shown for the experiment, not as an endorsement of any sportsbook or market. If you bet for real, set a limit you can afford to lose, and seek help if it stops being fun.</li>
-      <li><b>Results, win or lose.</b> The final results for all ten simulations will be posted here on Nov 26, whether they are good or bad. Losing trades and bets stay in the log.</li>
-      <li><b>How it's scored.</b> Values are in Canadian dollars at the latest exchange rate, except China stocks, which are counted in US dollars. Each simulation is compared with a simple benchmark: the S&amp;P 500 and TSX for stocks, holding Bitcoin for crypto, holding gold for metals, the CSI 300 for China stocks, the USO oil fund for energy, the S&amp;P 500 for options, a 2.25% savings account for currencies and "play it safe", and the closing line for sports. US markets are closed on Nov 26 for Thanksgiving, so the US-traded simulations score at the Nov 25 close.</li>
+      <li><b>Results, win or lose.</b> The final results for all ten simulations will be posted here on Nov 28, whether they are good or bad. Losing trades and bets stay in the log.</li>
+      <li><b>How it's scored.</b> Values are in Canadian dollars at the latest exchange rate, except China stocks, which are counted in US dollars. Each simulation is compared with a simple benchmark: the S&amp;P 500 and TSX for stocks, holding Bitcoin for crypto, holding gold for metals, the CSI 300 for China stocks, the USO oil fund for energy, the S&amp;P 500 for options, a 2.25% savings account for currencies and "play it safe", and the closing line for sports. Final scoring is Saturday Nov 28 at 4:00 p.m. ET. US markets are shut that day (and close early Friday Nov 27 after Thanksgiving), so the US-traded simulations score at the Nov 27 close; crypto, prediction markets and sports score at the Nov 28 time.</li>
     </ul>
     <p class="st-note">Data last refreshed <b data-draw="refreshed">—</b>. Each tab lists the sources used for it; the Ledger tab has the full list.</p>
   </section>
@@ -1661,12 +1661,12 @@ body { background:#0b0b0a; }
 <script>
 
   const START = 100000;
-  const EXP_START = new Date('2026-10-26T16:00:00-04:00').getTime();
-  const EXP_END = new Date('2026-11-26T16:00:00-05:00').getTime();
-  const EXP_DAYS = 32;  // Oct 26 to Nov 26, counted by UTC day like the ledger
+  const EXP_START = new Date('2026-10-28T09:30:00-04:00').getTime();
+  const EXP_END = new Date('2026-11-28T16:00:00-05:00').getTime();
+  const EXP_DAYS = 32;  // Oct 28 to Nov 28, counted by UTC day like the ledger
   const DAY_MS = 24 * 60 * 60 * 1000;
   const daysLeft = () => Math.max(0, Math.ceil((EXP_END - Date.now()) / DAY_MS));
-  const dayNumber = () => Math.min(EXP_DAYS, Math.max(1, Math.floor((Date.now() - Date.UTC(2026, 9, 26)) / DAY_MS) + 1));
+  const dayNumber = () => Math.min(EXP_DAYS, Math.max(1, Math.floor((Date.now() - Date.UTC(2026, 9, 28)) / DAY_MS) + 1));
   dash.onData(() => {
     const ended = Date.now() >= EXP_END;
     document.querySelectorAll('[data-phase]').forEach((el) => { el.hidden = (el.dataset.phase === 'ended') !== ended; });
@@ -2434,7 +2434,7 @@ body { background:#0b0b0a; }
       // written in the first 3 hours after midnight UTC = the report for the day that just closed
       const ref = new Date(+t - 6 * 3600e3);  // written within 6 hours after midnight UTC = report for the day that just closed
       const day = ref.toISOString().slice(0, 10);
-      return { at, t, day, n: Math.floor((Date.UTC(+day.slice(0, 4), +day.slice(5, 7) - 1, +day.slice(8, 10)) - Date.UTC(2026, 9, 26)) / 864e5) + 1, rows };
+      return { at, t, day, n: Math.floor((Date.UTC(+day.slice(0, 4), +day.slice(5, 7) - 1, +day.slice(8, 10)) - Date.UTC(2026, 9, 28)) / 864e5) + 1, rows };
     });
     return groups.sort((a, b) => b.t - a.t);
   };

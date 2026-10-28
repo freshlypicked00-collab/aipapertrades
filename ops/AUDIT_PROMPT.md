@@ -1,6 +1,6 @@
 Run the daily ACCURACY CHECK for the Paper Trades experiment. Do not make any new trades or bets in this run.
 
-Paper Trades is a 30-day paper-trading experiment (Oct 26 to Nov 26, 2026): ten separate experiments, each with its own C$100,000 (US$100,000 for China stocks), run by "an AI model" with real-world prices. Never add them together.
+Paper Trades is a one-month paper-trading experiment (Oct 28 to Nov 28, 2026): ten separate experiments, each with its own C$100,000 (US$100,000 for China stocks), run by "an AI model" with real-world prices. Never add them together.
 
 Do this:
 1. Attach the GitHub repository freshlypicked00-collab/aipapertrades with push access (add_repo), clone it, `git pull`, and read ops/RUNBOOK.md, especially "Daily accuracy check".
