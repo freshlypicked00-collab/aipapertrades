@@ -325,3 +325,9 @@ Nov 26 Shanghai close (3:00 p.m. Beijing, 2:00 a.m. ET Nov 26). Crypto, Metals a
 Sports score at Nov 26, 4:00 p.m. ET; settle or void any remaining bets. Add a
 "Final result" log entry per portfolio with the result, versus its benchmark, and the
 biggest win and loss. Then stop: later runs only confirm the final state.
+
+## AI vs AI (Gemini and ChatGPT)
+- The owner chose to name the models on the "AI vs AI" tab: Claude vs Gemini vs ChatGPT. That tab, its Telegram posts and the README may name Claude, Gemini (Google) and ChatGPT (OpenAI). Everywhere else keep saying "an AI model" / "the AI".
+- Gemini and ChatGPT are run by `.github/workflows/rivals.yml` (hourly at :37) and `ops/rivals.py`, not by these scheduled runs. Gemini plays Stocks, Crypto, China, Metals and Energy; ChatGPT plays Stocks, Crypto and Predictions. Their state is `ops/src/rivals.json`.
+- Scheduled runs must NOT edit `ops/src/rivals.json` or trade for the rivals. Just keep it when rebuilding (build_site.py reads it). If `git pull --rebase` conflicts on index.html or data.json, take the latest origin version and rebuild.
+- The daily accuracy check may read rivals.json and report anything odd (a price far off, a refused-order pattern, `last_run.status` errors) in its report, but changes nothing there.
