@@ -2817,6 +2817,45 @@
       return out;
     };
     if (!models.length) el.appendChild(mk('p', 'st-note', 'Gemini and ChatGPT appear here after their first check-in.'));
+    // Overall: who leads the most experiments (money is never added across experiments)
+    if (!EXP_SEL) {
+      const tally = {}; SEL.forEach((id) => { tally[id] = { wins: 0, pcts: [], busted: 0, up: 0 }; });
+      let counted = 0;
+      H2H_EXPS.forEach((exp) => {
+        const ser = series(exp).filter((x) => SEL.includes(x.id));
+        if (ser.length < SEL.length) return;
+        counted++;
+        const r = ser.map((s) => {
+          const mdl = models.find((x) => x.id === s.id);
+          return { id: s.id, pct: s.pts[s.pts.length - 1].v / 100000 - 1, busted: !!(mdl && mdl.books && mdl.books[exp] && mdl.books[exp].busted) };
+        });
+        r.forEach((x) => { tally[x.id].pcts.push(x.pct); if (x.busted) tally[x.id].busted++; if (x.pct > 0) tally[x.id].up++; });
+        const best = Math.max(...r.map((x) => x.pct));
+        const top = r.filter((x) => x.pct === best);
+        if (top.length === 1) tally[top[0].id].wins++;
+      });
+      if (counted) {
+        const box = mk('div', 'h2h-exp');
+        box.appendChild(mk('h3', '', 'Overall'));
+        box.appendChild(mk('p', 'st-note', 'Who leads the most experiments right now, out of the ' + counted + ' that every AI shown has started. The average is of each experiment’s own return; money is never added across experiments. The final winner is decided on Nov 28.'));
+        const rows = mk('ul', 'h2h-rows');
+        const avg = (a) => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
+        const ranked = SEL.map((id) => ({ id, ...tally[id], avg: avg(tally[id].pcts) })).sort((a, b) => b.wins - a.wins || b.avg - a.avg);
+        ranked.forEach((s, i) => {
+          const li = mk('li', 'h2h-row'); li.style.setProperty('--ai', AIS[s.id].color);
+          const nm = mk('span', 'h2h-name'); nm.appendChild(mk('span', '', AIS[s.id].label));
+          if (i === 0 && ranked.length > 1 && (s.wins !== ranked[1].wins || s.avg !== ranked[1].avg)) nm.appendChild(mk('span', 'h2h-lead', 'Leading overall'));
+          li.appendChild(nm);
+          li.appendChild(mk('span', 'h2h-pct', s.wins + ' of ' + counted));
+          li.appendChild(mk('span', 'h2h-sub', 'experiments led'));
+          const av = mk('span', 'h2h-sub', 'Average return ' + stFmt.pct(s.avg)); tone(av, s.avg); li.appendChild(av);
+          li.appendChild(mk('span', 'h2h-sub', s.up + ' up · ' + (s.pcts.length - s.up) + ' flat or down' + (s.busted ? ' · ' + s.busted + ' BUSTED' : '')));
+          rows.appendChild(li);
+        });
+        box.appendChild(rows);
+        el.appendChild(box);
+      }
+    }
     H2H_EXPS.filter((exp) => (!EXP_SEL || exp === EXP_SEL) && Object.values(H2H_PLAN).some((l) => l.includes(exp))).forEach((exp) => {
       const box = mk('div', 'h2h-exp');
       box.appendChild(mk('h3', '', LABEL[exp] || exp));
