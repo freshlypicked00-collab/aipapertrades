@@ -32,10 +32,10 @@ def build(rivals, claude):
     out = {}
     fx_now = rivals.get('fx') or {'USDCAD': claude['fx'].get('usdcad'), 'USDCNY': claude['fx'].get('usdcny')}
     for mid, m in rivals.get('models', {}).items():
-        exps = m.get('exps', list(m['books']))
+        exps = [e for e in m.get('exps', list(m['books'])) if not e.startswith('AllIn')]   # All in has its own tab
         started = {e: _t(m.get('started', {}).get(e) or m.get('started_at') or rivals['history'][0]['at']) for e in exps}
-        trades = [t for t in rivals['trades'] if t['model'] == mid]
-        hist = [h for h in rivals['history'] if h['model'] == mid]
+        trades = [t for t in rivals['trades'] if t['model'] == mid and t['experiment'] in exps]
+        hist = [h for h in rivals['history'] if h['model'] == mid and h['experiment'] in exps]
         d = {k: [] for k in ('holdings', 'history', 'trades', 'log', 'take', 'ledger', 'prices', 'review', 'rules', 'bets', 'sources')}
 
         # cost basis per position, from the trade list

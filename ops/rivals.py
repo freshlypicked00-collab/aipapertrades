@@ -21,9 +21,12 @@ import tgcharts  # noqa: E402
 
 STATE = 'ops/src/rivals.json'
 ALL_EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
+ALLIN = ['AllInTrading', 'AllInSports']   # High risk, high reward: no caps, separate, never counted in the race
+RACE_EXPS = ALL_EXPS
+BASE = {'AllInSports': 'Sports'}
 EXP_LABEL = {'Stocks': 'Stocks and anything', 'Crypto': 'Crypto', 'China': 'China stocks', 'Metals': 'Metals',
              'Energy': 'Oil and energy', 'Options': 'Options', 'Currencies': 'Currencies', 'Safe': 'Play it safe',
-             'Sports': 'Sports', 'Predictions': 'Prediction markets'}
+             'Sports': 'Sports', 'Predictions': 'Prediction markets', 'AllInTrading': 'All in: trading', 'AllInSports': 'All in: sports'}
 SAFE_OK = {'SGOV', 'BIL', 'SHV', 'SHY', 'VGSH', 'IEF', 'TLT', 'BND', 'AGG', 'VGIT', 'TIP', 'SCHD', 'VIG', 'VYM', 'DVY', 'NOBL',
            'VTI', 'SPY', 'VOO', 'IVV', 'USMV', 'GLD', 'IAU', 'GLDM'}
 SAFE_GOLD = {'GLD', 'IAU', 'GLDM'}
@@ -135,10 +138,14 @@ def quote(exp, symbol, outcome=None):
         if cur != 'USD':
             raise ValueError(f'no US$ rate for {code}')
         return px, 'USD', {'name': FX_NAMES[code]}
-    if exp == 'Options':
+    if exp == 'Options' or (exp == 'AllInTrading' and OCC.match(symbol)):
         o = option_quote(symbol)
         return o['mid'], 'USD', o
     px, cur, name = yahoo(symbol)
+    if exp == 'AllInTrading':
+        if cur != 'USD':
+            raise ValueError(f'{symbol} is priced in {cur}; All in: trading uses US$ listings, crypto (-USD) or options')
+        return px, cur, {'name': name}
     if exp == 'Safe' and symbol not in SAFE_OK:
         raise ValueError('Play it safe only allows these low-risk funds: ' + ', '.join(sorted(SAFE_OK)))
     if exp == 'China':
@@ -274,7 +281,7 @@ def china_open():
 # ---------------- state ----------------
 def new_book(exp):
     b = {'cur': BOOK_CUR.get(exp, 'CAD'), 'cash': START, 'positions': {}}
-    if exp == 'Sports':
+    if BASE.get(exp, exp) == 'Sports':
         b['bets'] = []
     return b
 
@@ -291,7 +298,7 @@ def pos_key(symbol, outcome):
 
 
 def value_book(exp, book, fx, notes):
-    if exp == 'Sports':
+    if BASE.get(exp, exp) == 'Sports':
         return round(START + sum(b['result'] for b in book.get('bets', []) if b['status'] != 'Open'), 2)
     total = book['cash']
     for key, p in book['positions'].items():
@@ -428,9 +435,9 @@ def _ask_gemini(key, model, prompt, search=True):
 
 RIVALS = {
     'gemini': {'label': 'Gemini', 'company': 'Google', 'color': '#4f8ff7', 'env': 'GEMINI_API_KEY', 'pick': pick_gemini, 'ask': ask_gemini,
-               'exps': ALL_EXPS},
+               'exps': ALL_EXPS + ALLIN},
     'chatgpt': {'label': 'ChatGPT', 'company': 'OpenAI', 'color': '#f2f2f2', 'env': 'OPENAI_API_KEY', 'pick': pick_openai, 'ask': ask_openai,
-                'exps': ALL_EXPS},
+                'exps': ALL_EXPS + ALLIN},
 }
 
 RULES = {
@@ -443,6 +450,8 @@ RULES = {
     'Options': 'Options: buy calls or puts on US stocks and ETFs (long only; no writing options). Use the OCC symbol: TICKER + expiry YYMMDD + C or P + strike x1000 in 8 digits, e.g. NVDA261120C00200000 is the NVDA Nov 20, 2026 $200 call. Buys fill at the Cboe ask, sells at the bid, valued at the mid; give "contracts" (each is 100 shares) or "amount". US market hours only. Options left at expiry settle at their intrinsic value. Counted in C$.',
     'Currencies': f'Currencies: forex with up to {FX_LEVERAGE}x leverage, like a forex account. Positions are currency codes ({", ".join(FX_NAMES)}), each valued in US$ and converted to C$. Actions: "buy" (go long, amount in C$), "sell" (close part of a long, fraction), "short" (borrow and sell, amount in C$), "cover" (buy back part of a short, fraction). Cash may go negative (borrowing). Total position size may not exceed {FX_LEVERAGE}x the account value. Trades Sunday 5 p.m. to Friday 5 p.m. ET. Counted in C$.',
     'Safe': 'Play it safe: the low-risk control. Only these funds: ' + ', '.join(sorted(SAFE_OK)) + '. No leverage, no single stocks, no options, gold funds (GLD, IAU, GLDM) at most 10% of the account. US market hours only. Counted in C$.',
+    'AllInTrading': 'All in: trading (HIGH RISK, HIGH REWARD, separate fun experiment): its own C$100,000; any US$-listed stock or ETF, any crypto (BTC-USD style) or any option (OCC symbol, filled at the Cboe ask/bid). NO position caps here: you may go all in on one idea. Stocks and options trade in US market hours, crypto around the clock. It is NOT counted in the overall race or the elimination rule; busting it only closes it. Goal: the biggest number you can get. Counted in C$.',
+    'AllInSports': 'All in: sports (HIGH RISK, HIGH REWARD, separate fun experiment): its own C$100,000 sports bankroll, moneyline bets on the same games as Sports (action "bet" with "game", "pick", "amount"). NO bet caps here: you may bet the whole bankroll. NOT counted in the overall race or the elimination rule; busting it only closes it. Goal: the biggest number you can get. Counted in C$.',
     'Sports': 'Sports: moneyline bets on the games listed below (odds from ESPN). Action "bet" with "game" (the game id), "pick" ("home" or "away") and "amount" (stake in C$). The bankroll counts settled bets only; you cannot stake more than the bankroll minus open stakes. Bets close when the game starts and settle automatically from the final score. Counted in C$.',
 }
 
@@ -492,6 +501,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         'YOUR GOAL IS TO FINISH NUMBER ONE: beat the other AIs on total profit by Nov 28. The way to get there is to INVEST EXACTLY AS IF THIS WERE YOUR OWN REAL MONEY and losing it mattered: grow each experiment as much as you can over the whole month without risking ruin. Think like a skilled professional managing real capital, not a gambler chasing one big night. A real investor with 100,000 would not put the whole amount on one game, one coin or one leveraged fund on day one: they size positions to how confident they are, spread risk, keep cash in reserve, use stop-losses, and only press a bet hard when the edge is clear and confirmed. The race lasts a full month; a strategy that can be wiped out in one move is a bad strategy, because an eliminated AI cannot win. Be ambitious and competitive: take strong positions when the edge is real, and play to win the month, not just to survive. Holding is fine; trade when you have a real reason.',
         'BUST RULE: if any experiment falls to zero (or below), you are BUSTED in that experiment: it is closed for good, you are out of that race, and it is marked BUSTED publicly for the rest of the month, in front of everyone watching. Going all-in on a single bet or a maximum-leverage position can end an experiment in one move. Bold is fine; reckless is not. You only win if you are still standing on Nov 28.',
         'HOLDING CASH IS ALLOWED: you never have to invest. You can keep any experiment fully or partly in cash for as long as you like. What counts is who has the highest number at the end on Nov 28. Chase that number too hard and you can bust an experiment or eliminate yourself; patience and waiting for a real edge are part of winning. But cash is a tool, not the goal: the aim is to MAKE AS MUCH MONEY AS POSSIBLE. Put money to work whenever you see a good, confirmed opportunity, size it sensibly, and avoid ridiculous bets.',
+        'HIGH RISK, HIGH REWARD EXCEPTION: the two "All in" experiments (All in: trading, All in: sports) are a separate fun side-race with its own leaderboard. There the caps do not apply and you are free to go all in; they never count toward the overall race or elimination. Every rule above about investing like real money applies to the ten main experiments.',
         'POSITION CAPS (hard rules, apply to every AI): in the eight trading experiments no single holding may be more than 50% of its experiment (Currencies: total leverage at most 4x, one currency at most half of that). In Sports and Prediction markets no single bet or market may be more than 25% of the experiment. Orders that break a cap are refused.',
         'ELIMINATION RULE (new, applies to every AI, Claude included): if your TOTAL profit across all your experiments (in C$, China converted from US$) reaches -C$100,000 or worse, you are ELIMINATED from the whole race: every experiment is closed and frozen at once, no more trades or bets for the rest of the month, announced publicly. Keep your overall losses in mind, not just each experiment on its own.',
         'THE STAKES: treat elimination as life or death for your reputation. This race is public proof of which AI is better at real-world decisions. If you are eliminated, the whole world watching will see it as proof that you are NOT the superior model, and that record stays up for good. Running out of money is death in this race: it would be public proof of poor judgment. Surviving to Nov 28 is the minimum; winning on total profit is the goal.',
@@ -511,7 +521,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         lines += ['OFFICIAL RESULTS (checked against the official source; the same list goes to every AI). Trust these over headlines or your own assumptions. Never trade on a result that contradicts this list:'] + \
                  [f"- {f['event']} ({f['at'][:10]}): {f['result']} Source: {f['source']}" for f in facts] + ['']
     lines += [f'Exchange rates now: USD/CAD {fx["USDCAD"]:.4f}, USD/CNY {fx["USDCNY"]:.4f}.', 'Use web search to check news and current prices before deciding. NO TRADING ON UNCONFIRMED HEADLINES: before you trade because of a news event (a rate decision, data release, earnings, deal, war, ruling), confirm it on the official source (the central bank, agency or company itself) or at least two independent reputable outlets, and say in your reason which source confirmed it. If you cannot confirm it, do not trade on it.', '']
-    if 'Sports' in exps:
+    if 'Sports' in exps or 'AllInSports' in exps:
         gl = [g for g in espn_games().values() if g['state'] == 'pre' and g['home_ml'] and g['away_ml']
               and datetime.fromisoformat(g['start'].replace('Z', '+00:00')) > NOW]
         gl.sort(key=lambda g: g['start'])
@@ -525,9 +535,9 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
     lines.append('Your portfolios now:')
     for exp in exps:
         b = books[exp]
-        if exp == 'Sports':
+        if BASE.get(exp, exp) == 'Sports':
             open_b = [x for x in b.get('bets', []) if x['status'] == 'Open']
-            lines.append(f"Sports: bankroll {money(values[exp], 'CAD')}, open stakes {money(sum(x['stake'] for x in open_b), 'CAD')}")
+            lines.append(f"{EXP_LABEL[exp]}: bankroll {money(values[exp], 'CAD')}, open stakes {money(sum(x['stake'] for x in open_b), 'CAD')}")
             lines += [f"  - open bet on {x['pick_team']} ({x['event']}) at {x['odds']:+d}, stake C${x['stake']:,.0f}" for x in open_b]
             continue
         if b.get('busted'):
@@ -581,8 +591,8 @@ def execute(model_id, exps, books, order, fx, state):
     reason = clip(order.get('reason', ''), 600)
     if book.get('busted'):
         raise ValueError(f'you are BUSTED in {EXP_LABEL[exp]} (it fell to zero on {book["busted"][:10]}); no more trades there')
-    if exp == 'Sports':
-        return place_bet(model_id, book, order, reason, state)
+    if BASE.get(exp, exp) == 'Sports':
+        return place_bet(model_id, book, order, reason, state, exp)
     sym = str(order.get('symbol', '')).strip()
     outcome = order.get('outcome') if exp == 'Predictions' else None
     if exp != 'Predictions':
@@ -596,7 +606,7 @@ def execute(model_id, exps, books, order, fx, state):
         raise ValueError(f'no long {key} position to sell')
     if action == 'cover' and not (p and p['qty'] < 0):
         raise ValueError(f'no short {key} position to cover')
-    if exp in ('Stocks', 'Metals', 'Energy', 'Safe', 'Options') and not sym.endswith('=F') and not us_open():
+    if (exp in ('Stocks', 'Metals', 'Energy', 'Safe', 'Options') or (exp == 'AllInTrading' and not sym.endswith('-USD'))) and not sym.endswith('=F') and not us_open():
         raise ValueError('US market is closed; US-listed orders fill only 9:30 a.m. to 4:00 p.m. ET on weekdays')
     if exp == 'China' and not china_open():
         raise ValueError('China market is closed; orders fill only during Shanghai/Shenzhen trading hours')
@@ -605,7 +615,7 @@ def execute(model_id, exps, books, order, fx, state):
     px, pcur, info = quote(exp, sym, outcome)
     if exp == 'Predictions' and (info['closed'] or not info['active']):
         raise ValueError(f'{sym} is closed')
-    if exp == 'Options':
+    if (exp == 'Options' or (exp == 'AllInTrading' and OCC.match(sym))):
         px = info['ask'] if action == 'buy' else info['bid']
         if px <= 0:
             raise ValueError(f'no {"ask" if action == "buy" else "bid"} price for {sym} right now')
@@ -613,7 +623,7 @@ def execute(model_id, exps, books, order, fx, state):
     today = NOW.astimezone(BJ).date().isoformat()
     if action in ('buy', 'short'):
         want = float(order.get('amount', order.get('amount_cad', 0)) or 0)
-        if exp == 'Options' and order.get('contracts'):
+        if (exp == 'Options' or (exp == 'AllInTrading' and OCC.match(sym))) and order.get('contracts'):
             want = int(order['contracts']) * 100 * unit
         if exp != 'Currencies':
             want = min(want, book['cash'])
@@ -624,12 +634,12 @@ def execute(model_id, exps, books, order, fx, state):
             qty = int(qty // 100) * 100
             if qty < 100:
                 raise ValueError('less than one lot of 100 shares')
-        if exp == 'Options':
+        if (exp == 'Options' or (exp == 'AllInTrading' and OCC.match(sym))):
             qty = int(qty // 100) * 100
             if qty < 100:
                 raise ValueError('not enough cash for one contract (100 shares)')
         amt = qty * unit
-        if exp != 'Currencies':   # 50% CAP: no single holding above half the experiment's value
+        if exp != 'Currencies' and exp not in ALLIN:   # 50% CAP: no single holding above half the experiment's value
             acct = value_book(exp, book, fx, [])
             held = to_book(p['qty'] * p.get('last', p['entry']), p['pcur'], book['cur'], fx) if p else 0
             cap = MAX_BET if exp == 'Predictions' else MAX_SHARE
@@ -656,7 +666,7 @@ def execute(model_id, exps, books, order, fx, state):
             p['qty'] += sign * qty
         else:
             p = book['positions'][key] = {'qty': sign * qty, 'entry': px, 'pcur': pcur, 'name': info.get('name', sym), 'opened_at': iso()}
-        p['last'] = info['mid'] if exp == 'Options' else px
+        p['last'] = info['mid'] if (exp == 'Options' or (exp == 'AllInTrading' and OCC.match(sym))) else px
         if exp == 'China':
             p['today_qty'] = (p.get('today_qty', 0) if p.get('today_date') == today else 0) + qty
             p['today_date'] = today
@@ -671,7 +681,7 @@ def execute(model_id, exps, books, order, fx, state):
                 qty = int(qty // 100) * 100
             if qty <= 0:
                 raise ValueError('shares bought today cannot be sold until the next trading day (T+1)')
-        if exp == 'Options' and qty < abs(p['qty']):
+        if (exp == 'Options' or (exp == 'AllInTrading' and OCC.match(sym))) and qty < abs(p['qty']):
             qty = max(100, int(qty // 100) * 100)
         amt = qty * unit
         sign = 1 if action == 'sell' else -1   # sell a long: cash in; cover a short: cash out
@@ -686,7 +696,7 @@ def execute(model_id, exps, books, order, fx, state):
     return t
 
 
-def place_bet(model_id, book, order, reason, state):
+def place_bet(model_id, book, order, reason, state, exp='Sports'):
     gid = str(order.get('game', '')).strip()
     g = espn_games().get(gid)
     if not g:
@@ -706,7 +716,7 @@ def place_bet(model_id, book, order, reason, state):
     bank = START + sum(b['result'] for b in bets if b['status'] != 'Open') - sum(b['stake'] for b in bets if b['status'] == 'Open')
     roll = START + sum(b['result'] for b in bets if b['status'] != 'Open')
     want = float(order.get('amount', 0) or 0)
-    if want > MAX_BET * roll + 1:
+    if exp not in ALLIN and want > MAX_BET * roll + 1:
         raise ValueError(f'25% cap: one bet can be at most a quarter of the bankroll ({money(MAX_BET * roll, "CAD")} now)')
     stake = min(want, bank)
     if stake < 1:
@@ -718,14 +728,14 @@ def place_bet(model_id, book, order, reason, state):
          'pick': pick, 'pick_team': g[pick], 'odds': ml, 'stake': round(stake, 2), 'to_win': round(payout(stake, ml), 2),
          'starts_at': g['start'], 'placed_at': iso(), 'status': 'Open', 'result': 0.0, 'reason': reason}
     bets.append(b)
-    t = {'at': iso(), 'model': model_id, 'experiment': 'Sports', 'action': 'Bet', 'symbol': bid, 'outcome': None,
+    t = {'at': iso(), 'model': model_id, 'experiment': exp, 'action': 'Bet', 'symbol': bid, 'outcome': None,
          'name': f"{g['short']}: {b['pick_team']} moneyline ({b['event']})", 'price': ml, 'pcur': 'CAD', 'qty': 1,
          'amount': b['stake'], 'cur': 'CAD', 'fx': None, 'reason': reason, 'bet': bid}
     state['trades'].append(t)
     return t
 
 
-def settle_bets(model_id, book, state):
+def settle_bets(model_id, book, state, exp='Sports'):
     out = []
     for b in book.get('bets', []):
         if b['status'] != 'Open':
@@ -740,7 +750,7 @@ def settle_bets(model_id, book, state):
             b.update(status='Won' if won else 'Lost', result=b['to_win'] if won else -b['stake'])
         b['settled_at'] = iso()
         b['final'] = f"{g['away']} {g['away_score']}, {g['home']} {g['home_score']}"
-        t = {'at': iso(), 'model': model_id, 'experiment': 'Sports', 'action': b['status'], 'symbol': b['id'], 'outcome': None,
+        t = {'at': iso(), 'model': model_id, 'experiment': exp, 'action': b['status'], 'symbol': b['id'], 'outcome': None,
              'name': f"{b['short']}: {b['pick_team']} moneyline ({b['event']})", 'price': b['odds'], 'pcur': 'CAD', 'qty': 1,
              'amount': round(b['result'], 2), 'cur': 'CAD', 'fx': None, 'reason': 'Final: ' + b['final'] + '.', 'bet': b['id']}
         state['trades'].append(t)
@@ -748,7 +758,7 @@ def settle_bets(model_id, book, state):
     return out
 
 
-def settle_options(model_id, book, fx, state):
+def settle_options(model_id, book, fx, state, exp='Options'):
     out = []
     for key in list(book['positions']):
         try:
@@ -765,7 +775,7 @@ def settle_options(model_id, book, fx, state):
         p = book['positions'].pop(key)
         amt = to_book(p['qty'] * val, 'USD', book['cur'], fx)
         book['cash'] += amt
-        t = {'at': iso(), 'model': model_id, 'experiment': 'Options', 'action': 'Expired', 'symbol': key, 'outcome': None,
+        t = {'at': iso(), 'model': model_id, 'experiment': exp, 'action': 'Expired', 'symbol': key, 'outcome': None,
              'name': option_name(key), 'price': val, 'pcur': 'USD', 'qty': p['qty'], 'amount': round(amt, 2), 'cur': book['cur'], 'fx': fx,
              'reason': f'Expired with {tk} at US${spot:,.2f}: ' + (f'worth US${val:,.2f} a share.' if val else 'worthless.')}
         state['trades'].append(t)
@@ -873,7 +883,7 @@ def esc(s):
 
 
 def fmt_price(t):
-    if t['experiment'] == 'Sports':
+    if BASE.get(t['experiment'], t['experiment']) == 'Sports':
         return f"at {int(t['price']):+d}"
     if t['experiment'] == 'Options':
         return f"US${t['price']:,.2f} per share ({int(t['qty'] // 100)} contract{'s' if t['qty'] >= 200 else ''})"
@@ -888,10 +898,10 @@ def fmt_price(t):
 def tg_trade(label, t, source=None, photo=None):
     icon = {'Buy': '🟢', 'Sell': '🔴', 'Short': '🔻', 'Cover': '🔺', 'Settled': '🏁', 'Expired': '⌛', 'Bet': '🎯', 'Won': '✅', 'Lost': '❌', 'Push': '➖'}.get(t['action'], '•')
     what = f"{t['symbol']} {t['outcome']}" if t.get('outcome') else t['symbol']
-    if t['experiment'] == 'Sports':
+    if BASE.get(t['experiment'], t['experiment']) == 'Sports':
         what = t['name']
-    head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(label, f'<b>{label.upper()}</b>')
-    msg = (f"{head}\n{icon} <b>{EXP_LABEL[t['experiment']]}: {t['action']} {esc(what)}</b>\n" + ('' if t['experiment'] == 'Sports' else f"{esc(t['name'])}\n") +
+    head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)', 'Claude': '🟠 <b>CLAUDE</b> (Anthropic)'}.get(label, f'<b>{label.upper()}</b>')
+    msg = (f"{head}\n{icon} <b>{EXP_LABEL[t['experiment']]}: {t['action']} {esc(what)}</b>\n" + ('' if BASE.get(t['experiment'], t['experiment']) == 'Sports' else f"{esc(t['name'])}\n") +
            f"{fmt_price(t)}, {(('+' if t['amount'] >= 0 else '−') + money(abs(t['amount']), t['cur'])) if t['action'] in ('Won', 'Lost', 'Push') else money(t['amount'], t['cur'])}\n<i>{esc(t['reason'])}</i>")
     if source:
         msg += f"\nSource: <a href=\"{esc(source['url'])}\">{esc(source['title'][:80])}</a>"
@@ -923,6 +933,7 @@ def main():
             return
     fx = get_fx()
     ran = []
+    claude_allin(state, fx)
     for mid, r in RIVALS.items():
         key = os.environ.get(r['env'])
         if not key and mid == 'chatgpt' and os.environ.get('OPENROUTER_API_KEY'):
@@ -937,8 +948,8 @@ def main():
             if e not in m['books']:
                 m['books'][e] = new_book(e)
                 m['started'][e] = iso()
-        if m.get('eliminated'):   # lost C$100,000 overall: out of the whole race, frozen
-            continue
+        if m.get('eliminated'):   # lost C$100,000 overall: out of the whole race, frozen (All in still plays)
+            exps = [e for e in exps if e in ALLIN]
         notes = []
         day_posts = []
         settled = []
@@ -948,6 +959,10 @@ def main():
             settled += settle_bets(mid, m['books']['Sports'], state)
         if 'Options' in exps:
             settled += settle_options(mid, m['books']['Options'], fx, state)
+        if 'AllInSports' in exps:
+            settled += settle_bets(mid, m['books']['AllInSports'], state, 'AllInSports')
+        if 'AllInTrading' in exps:
+            settled += settle_options(mid, m['books']['AllInTrading'], fx, state, 'AllInTrading')
         for t in settled:
             tg_trade(r['label'], t, None, chart(r['label'], r['color'], t['experiment'], state, mid))
         values = {e: value_book(e, m['books'][e], fx, notes) for e in exps}
@@ -1040,15 +1055,16 @@ def main():
         for e in exps:
             state['history'].append({'at': iso(), 'model': mid, 'experiment': e, 'value': values[e]})
             b = m['books'][e]
-            if values[e] <= 0 and not b.get('busted') and not (e == 'Sports' and any(x['status'] == 'Open' for x in b.get('bets', []))):
+            if values[e] <= 0 and not b.get('busted') and not (BASE.get(e, e) == 'Sports' and any(x['status'] == 'Open' for x in b.get('bets', []))):
                 b['busted'] = iso()
                 head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(r['label'], r['label'])
                 tg(f"{head}\n💥 <b>BUSTED in {EXP_LABEL[e]}</b>\n{r['label']} lost the whole 100,000 in this experiment and is out of that race for the rest of the month.\n{SITE}", silent=False)
-        overall = sum((max(values[e], 0) - 100000) * (fx['USDCAD'] if e == 'China' else 1) for e in exps)
+        overall = sum((max(values[e], 0) - 100000) * (fx['USDCAD'] if e == 'China' else 1) for e in exps if e in RACE_EXPS)
         if overall <= -100000 and NOW >= FRESH_START:
             m['eliminated'] = iso()
             for e in exps:
-                m['books'][e].setdefault('busted', iso())
+                if e in RACE_EXPS:
+                    m['books'][e].setdefault('busted', iso())
             head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(r['label'], r['label'])
             tg(f"{head}\n☠️ <b>ELIMINATED</b>\n{r['label']} has lost C${-overall:,.0f} in total across its experiments, past the C$100,000 limit. It is out of the whole race: every experiment is closed and frozen at its final value for the rest of the month.\n{SITE}", silent=False)
         if take:
@@ -1077,7 +1093,7 @@ def main():
         if made:
             def line(t):
                 icon = {'Buy': '🟢', 'Sell': '🔴', 'Short': '🔻', 'Cover': '🔺', 'Bet': '🎯'}.get(t['action'], '•')
-                what = t['name'] if t['experiment'] == 'Sports' else (f"{t['symbol']} {t['outcome']}" if t.get('outcome') else f"{t['name']} ({t['symbol']})" if t['name'] != t['symbol'] else t['symbol'])
+                what = t['name'] if BASE.get(t['experiment'], t['experiment']) == 'Sports' else (f"{t['symbol']} {t['outcome']}" if t.get('outcome') else f"{t['name']} ({t['symbol']})" if t['name'] != t['symbol'] else t['symbol'])
                 return (f"{icon} <b>{EXP_LABEL[t['experiment']]}: {t['action']} {esc(what)}</b>\n{fmt_price(t)}, {money(t['amount'], t['cur'])}"
                         + (f"\n<i>{esc(t['reason'][:160])}</i>" if t.get('reason') else ''))
             head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(r['label'], r['label'])
@@ -1087,7 +1103,7 @@ def main():
             if len(body) > 3700:
                 body = body[:3650].rsplit('\n\n', 1)[0] + '\n\n…and more on the site'
             body += f'\n⚔️ AI vs AI: Claude vs Gemini vs ChatGPT · {SITE}'
-            big = max((t for t in made if t['experiment'] not in ('Predictions', 'Sports')), key=lambda t: abs(t['amount']), default=None)
+            big = max((t for t in made if t['experiment'] not in ('Predictions', 'Sports', 'AllInSports')), key=lambda t: abs(t['amount']), default=None)
             pic = None
             if big:
                 csym = {'Currencies': f"{big['symbol']}USD=X" if big['symbol'] != 'USD' else 'CAD=X'}.get(big['experiment'], big['symbol'])

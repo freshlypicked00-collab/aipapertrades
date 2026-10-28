@@ -53,7 +53,7 @@ script += """
 
 # --- live New York clock, market status, and a per-second countdown
 markup = sub(markup, '<span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 28</span>',
-  '<span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 28</span>\n      <span class="st-clock">New York <b class="st-count" data-draw="clock">—</b></span>\n      <span class="st-clock">Hong Kong <b class="st-count" data-draw="clock-hk">—</b></span>\n      <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b></span>\n      <span class="st-clock"><span class="st-mkt" data-draw="market">—</span> <span class="st-mkt" data-draw="market-cn">—</span></span>\n      <button type="button" class="st-theme" id="theme-btn" aria-pressed="false">Light mode</button>', 1)
+  '<span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 28</span>\n      <span class="st-clock">New York <b class="st-count" data-draw="clock">—</b></span>\n      <span class="st-clock">Hong Kong <b class="st-count" data-draw="clock-hk">—</b></span>\n      <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b></span>\n      <span class="st-clock"><span class="st-mkt" data-draw="market">—</span> <span class="st-mkt" data-draw="market-cn">—</span></span>\n      <button type="button" class="st-theme" id="theme-btn" >Light mode</button>', 1)
 script = sub(script, """el.textContent = d + (d === 1 ? ' day, ' : ' days, ') + h + (h === 1 ? ' hour' : ' hours');
       };
       tick();
@@ -68,11 +68,13 @@ script += """
   (function () {
     const btn = document.getElementById('theme-btn');
     if (!btn) return;
-    const show = () => { const light = document.documentElement.dataset.theme === 'light'; btn.textContent = light ? 'Dark mode' : 'Light mode'; btn.setAttribute('aria-pressed', String(light)); };
+    const MODES = ['dark', 'light', 'reader'], NAME = { dark: 'Dark mode', light: 'Light mode', reader: 'Reader mode' };
+    const cur = () => document.documentElement.dataset.theme || 'dark';
+    const show = () => { const n = MODES[(MODES.indexOf(cur()) + 1) % 3]; btn.textContent = NAME[n]; btn.title = 'Now: ' + NAME[cur()] + '. Click for ' + NAME[n] + '.'; btn.setAttribute('aria-label', 'Switch to ' + NAME[n] + ' (now ' + NAME[cur()] + ')'); };
     btn.addEventListener('click', () => {
-      const light = document.documentElement.dataset.theme !== 'light';
-      if (light) document.documentElement.dataset.theme = 'light'; else delete document.documentElement.dataset.theme;
-      try { localStorage.setItem('pt-theme', light ? 'light' : 'dark'); } catch (e) {}
+      const n = MODES[(MODES.indexOf(cur()) + 1) % 3];
+      if (n === 'dark') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = n;
+      try { localStorage.setItem('pt-theme', n); } catch (e) {}
       show();
       if (dash.redraw) dash.redraw();
     });
@@ -160,8 +162,16 @@ TERMINAL = """
  --cds-chart-grid:#dbd4c5; --cds-chart-axis:#bdb29b; --cds-chart-reference:#857c6a;
  --series-1:#a86400; --series-2:#1d6fa5; --series-3:#137a46; --series-4:#82661d; color-scheme:light;
  --accent:#9a5c00; --accent-bg:rgba(154,92,0,.07); --card-inset:#e9e4d9; --title:#24221d; }
+:root[data-theme="reader"] {
+ --color-bg:#f4ecd8; --color-panel:#f8f1e1; --color-fg:#433a2c; --color-fg-muted:#7a6d58; --color-border-line:#e0d4b8;
+ --color-ok:#3f7d4f; --color-warn:#8a5a1c; --color-bad:#a24a3d; --cds-text-secondary:#7a6d58; --cds-surface-popover:#f8f1e1; --cds-border:#d8caa9;
+ --cds-chart-grid:#e9dfc7; --cds-chart-axis:#cdbf9f; --cds-chart-reference:#9c8f76;
+ --series-1:#8a5a1c; --series-2:#3d6e8f; --series-3:#3f7d4f; --series-4:#8a7340; color-scheme:light;
+ --accent:#8a5a1c; --accent-bg:rgba(138,90,28,.06); --card-inset:#f1e8d2; --title:#3a3125; }
+:root[data-theme="reader"] body { font-size: 17px; line-height: 1.65; letter-spacing: .005em; }
+:root[data-theme="reader"] .st-note, :root[data-theme="reader"] p { line-height: 1.7; }
 :root:not(#pt-a):not(#pt-b) { --ai-chatgpt:#f2f2f2; }   /* ChatGPT: white on dark, near-black on light */
-:root[data-theme="light"]:not(#pt-a):not(#pt-b) { --ai-chatgpt:#2a2a2a; }
+:root[data-theme="light"]:not(#pt-a):not(#pt-b), :root[data-theme="reader"]:not(#pt-a):not(#pt-b) { --ai-chatgpt:#3a3125; }
 body { background:var(--color-bg); }
 .st-title { font-family: var(--font-serif); text-transform: uppercase; letter-spacing: .08em; color: var(--accent); font-size: 26px; }
 .st-title::before { content: "▮ "; color:var(--accent); }
@@ -311,7 +321,7 @@ SHIM = r"""
 html = f"""<!doctype html>
 <html lang="en">
 <head>
-<script>try {{ if (localStorage.getItem('pt-theme') === 'light') document.documentElement.dataset.theme = 'light'; }} catch (e) {{}}</script>
+<script>try {{ const t = localStorage.getItem('pt-theme'); if (t === 'light' || t === 'reader') document.documentElement.dataset.theme = t; }} catch (e) {{}}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Paper Trades - AI Trading Experiment</title>
@@ -368,6 +378,12 @@ for k in ('trades', 'history', 'takes'):
 _cut = (datetime.now(timezone.utc) - __import__('datetime').timedelta(days=2)).isoformat()
 data['fx_all'] = [{'cur': k, 'per_usd': v} for k, v in (r.get('fx_all') or {}).items()]
 data['fx_meta'] = [json.load(open(os.path.join(SRC, 'fx.json')))]
+_ai = [{'id': 'claude', 'started': (r.get('claude_allin') or {}).get('started'), 'books': (r.get('claude_allin') or {}).get('books', {})}] if r.get('claude_allin') else []
+data['allin_models'] = _ai + [{'id': k, 'started': v.get('started'), 'books': {e: b for e, b in v['books'].items() if e.startswith('AllIn')}} for k, v in r['models'].items()]
+data['allin_trades'] = [t for t in r['trades'] if str(t.get('experiment', '')).startswith('AllIn')]
+data['allin_history'] = [h for h in r['history'] if str(h.get('experiment', '')).startswith('AllIn')]
+data['rivals_trades'] = [t for t in r['trades'] if not str(t.get('experiment', '')).startswith('AllIn') and t.get('model') != 'claude']
+data['rivals_history'] = [h for h in r['history'] if not str(h.get('experiment', '')).startswith('AllIn') and h.get('model') != 'claude']
 data['rivals_thoughts'] = [x for x in r.get('thoughts', []) if x['at'].replace('Z', '+00:00') >= _cut]
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import model_views

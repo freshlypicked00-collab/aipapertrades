@@ -29,3 +29,4 @@ CAPS UPDATE: trading 50% per holding; Sports and Predictions 25% per bet or mark
 HOLDING CASH IS ALLOWED: no experiment has to be invested. The winner is whoever has the highest number on Nov 28; chasing it too hard can bust or eliminate you.
 THE AIM: make as much money as possible, without ridiculous bets. Cash is a tool, not the goal; invest whenever there is a good, confirmed opportunity, sized sensibly.
 Running out of money is death in this race and public proof of poor judgment.
+ALL IN: Claude also plays the High risk, high reward 'All in' side-race (no caps, separate from the main race). Queue orders with ops/allin.py as the runbook's All in section says, push, then dispatch the rivals workflow.

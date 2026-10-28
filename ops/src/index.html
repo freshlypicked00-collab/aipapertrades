@@ -147,7 +147,8 @@
   .st-tabs { align-items: flex-end; row-gap: 6px; }
   .st-tab-support { margin-left: auto; border-left: 1px solid var(--color-border-line); }
   .st-tabgroup { display: flex; flex-wrap: wrap; align-items: flex-end; position: relative; padding-top: 18px; margin: 0 6px; border-left: 1px solid var(--color-border-line); padding-left: 6px; }
-  .st-tabgroup-l { position: absolute; top: 0; left: 18px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-fg-muted); }
+  .st-tabgroup-hr { min-width: 200px; }
+  .st-tabgroup-l { position: absolute; top: 0; left: 18px; white-space: nowrap; pointer-events: none; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-fg-muted); }
   .st-tiles-4 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); }
   @media (min-width: 1100px) { .st-tiles-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
   .st-group-h { margin: 6px 0 -6px; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-fg-muted); font-weight: 500; }
@@ -349,6 +350,9 @@
     <div class="st-tabgroup" role="presentation"><span class="st-tabgroup-l">Betting</span>
       <button class="st-tab" role="tab" data-tab="sports" aria-selected="false">Sports</button>
       <button class="st-tab" role="tab" data-tab="predictions" aria-selected="false">Prediction markets</button>
+    </div>
+    <div class="st-tabgroup st-tabgroup-hr" role="presentation"><span class="st-tabgroup-l">High risk, high reward</span>
+      <button class="st-tab" role="tab" data-tab="allin" aria-selected="false">All in</button>
     </div>
     <button class="st-tab st-tab-support" role="tab" data-tab="support" aria-selected="false">Support</button>
   </nav>
@@ -1493,6 +1497,13 @@
       </div>
     </section>
   </section>
+  <section class="st-page" id="allin" data-page="allin" hidden>
+    <section class="st-card" aria-labelledby="h-allin">
+      <h2 class="st-h2" id="h-allin">All in</h2>
+      <p class="st-note">The fun side-race. Each AI gets an extra C$100,000 for trading and another C$100,000 for sports, with <b>no limits</b>: no position caps, and it can bet the whole lot on one idea. Here the goal is simply the biggest number. All in is completely separate: it never counts toward the main race, and busting here doesn't eliminate anyone. Same real prices and odds, same check-ins.</p>
+      <div data-draw="allin" data-source="allin_models allin_history allin_trades"></div>
+    </section>
+  </section>
   <section class="st-page" id="ledger" data-page="ledger" hidden>
     <div class="st-model st-model-inline" role="group" aria-label="Model for the ledger">
       <label class="st-model-l" for="model-pick-ledger">Model</label>
@@ -1632,7 +1643,7 @@
   };
 
   // Tabs
-  const TABS = ['h2h', 'rules', 'overview', 'stocks', 'crypto', 'metals', 'sports', 'china', 'energy', 'options', 'predictions', 'safe', 'currencies', 'support', 'ledger'];
+  const TABS = ['h2h', 'rules', 'allin', 'overview', 'stocks', 'crypto', 'metals', 'sports', 'china', 'energy', 'options', 'predictions', 'safe', 'currencies', 'support', 'ledger'];
   const showTab = (name) => {
     if (!TABS.includes(name)) name = 'overview';
     document.querySelectorAll('[data-page]').forEach((s) => { s.hidden = s.dataset.page !== name; });
@@ -3025,6 +3036,65 @@
     });
   };
   dash.draw('h2h', h2hDraw);
+  dash.draw('allin', (el) => {
+    el.replaceChildren();
+    const MS = dash.baseData('allin_models'), HS = dash.baseData('allin_history'), TS = dash.baseData('allin_trades');
+    if (!MS.length) { el.appendChild(mk('p', 'st-note', 'All in starts at the next check-in.')); return; }
+    const usdcad = rates().CAD || 1.38;
+    const order = ['claude', 'gemini', 'chatgpt'];
+    [['AllInTrading', 'All in: trading', 'Any stock, ETF, crypto or option, no caps.'], ['AllInSports', 'All in: sports', 'Moneyline bets on real games, no caps.']].forEach(([exp, title, sub]) => {
+      const box = mk('div', 'h2h-exp');
+      box.appendChild(mk('h3', '', title));
+      box.appendChild(mk('p', 'st-note', sub + ' Started with C$100,000 each.'));
+      const ser = order.map((id) => {
+        const m = MS.find((x) => x.id === id); if (!m || !m.books || !m.books[exp]) return null;
+        const pts = HS.filter((h) => h.model === id && h.experiment === exp).map((h) => ({ t: new Date(h.at), v: Number(h.value) })).sort((a, b) => a.t - b.t);
+        const st = new Date((m.started || {})[exp] || (pts[0] || {}).t || Date.now());
+        return { id, book: m.books[exp], pts: [{ t: st, v: 100000 }].concat(pts) };
+      }).filter(Boolean);
+      const ranked = ser.map((x) => ({ ...x, last: x.pts[x.pts.length - 1].v })).sort((a, b) => b.last - a.last);
+      const rows = mk('ul', 'h2h-rows');
+      ranked.forEach((x, i) => {
+        const li = mk('li', 'h2h-row'); li.style.setProperty('--ai', AIS[x.id].color);
+        const nm = mk('span', 'h2h-name'); nm.appendChild(mk('span', '', AIS[x.id].label));
+        if (x.book.busted) { const t = mk('span', 'h2h-lead', 'BUSTED'); t.style.color = '#ff5a4e'; nm.appendChild(t); }
+        else if (i === 0 && ranked.length > 1 && x.last !== ranked[1].last) nm.appendChild(mk('span', 'h2h-lead', 'Leading'));
+        li.appendChild(nm);
+        const g = Math.max(0, x.last) - 100000;
+        const pc = mk('span', 'h2h-pct', (g >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(g))); tone(pc, g); li.appendChild(pc);
+        li.appendChild(mk('span', 'h2h-sub', 'Now C$' + d3.format(',.0f')(Math.max(0, x.last)) + ' · ' + stFmt.pct(x.last / 100000 - 1)));
+        const hold = [];
+        Object.entries(x.book.positions || {}).forEach(([k, p]) => { const v = Number(p.qty) * Number(p.last != null ? p.last : p.entry) * (p.pcur === 'USD' ? usdcad : 1); hold.push((p.name || k) + ' C$' + d3.format(',.0f')(v)); });
+        (x.book.bets || []).filter((b) => b.status === 'Open').forEach((b) => hold.push(b.pick_team + ' (' + b.event + ') ' + (b.odds > 0 ? '+' : '') + b.odds + ', C$' + d3.format(',.0f')(b.stake)));
+        if (Number(x.book.cash) > 1 && exp === 'AllInTrading') hold.push('Cash C$' + d3.format(',.0f')(x.book.cash));
+        li.appendChild(mk('span', 'h2h-sub', hold.length ? 'Holding: ' + hold.join(' · ') : 'Holding: all cash, no bets yet'));
+        rows.appendChild(li);
+      });
+      box.appendChild(rows);
+      if (ser.some((x) => x.pts.length > 1)) {
+        const legend = mk('p', 'h2h-legend');
+        ser.forEach((x) => { const sp = mk('span', '', AIS[x.id].label); sp.style.setProperty('--ai', AIS[x.id].color); legend.appendChild(sp); });
+        const ch = mk('div', 'h2h-chart'); box.append(legend, ch);
+        requestAnimationFrame(() => h2hChart(ch, ser));
+      }
+      const tr = TS.filter((t) => t.experiment === exp).slice().sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 10);
+      box.appendChild(mk('h3', '', 'Recent moves'));
+      if (!tr.length) box.appendChild(mk('p', 'st-note', 'No moves yet.'));
+      else {
+        const wrap = mk('div', 'h2h-scroll'); const tb = mk('table', 'h2h-table');
+        const hr = mk('tr'); ['When', 'AI', 'Move', 'Amount', 'Why'].forEach((h) => hr.appendChild(mk('th', '', h))); tb.appendChild(hr);
+        tr.forEach((t) => {
+          const r = mk('tr');
+          const ai = mk('td', '', AIS[t.model] ? AIS[t.model].label : t.model); ai.style.borderLeft = '3px solid ' + (AIS[t.model] || {}).color; ai.style.paddingLeft = '6px';
+          r.append(mk('td', '', stFmt.when(t.at)), ai, mk('td', '', t.action + ' ' + (t.name || t.symbol)), mk('td', '', (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.0f')(Math.abs(t.amount))), mk('td', '', t.reason || ''));
+          tb.appendChild(r);
+        });
+        wrap.appendChild(tb); box.appendChild(wrap);
+      }
+      el.appendChild(box);
+    });
+  });
+
 
   const h2hChart = (el, ser) => {
     el.replaceChildren();
@@ -3057,9 +3127,8 @@
   const modelExps = () => { const v = dash.model !== 'claude' && dash.models()[dash.model]; return v ? v._meta.exps : null; };
   (() => {
     const b = document.getElementById('pt-banner'); if (!b) return;
-    let gone = false; try { gone = localStorage.getItem('pt-banner-restart') === '1'; } catch (e) {}
-    if (!gone && Date.now() < Date.parse('2026-11-04T00:00:00Z')) b.hidden = false;
-    b.querySelector('.pt-banner-x').addEventListener('click', () => { b.hidden = true; try { localStorage.setItem('pt-banner-restart', '1'); } catch (e) {} });
+    if (Date.now() < Date.parse('2026-10-29T13:00:00Z')) b.hidden = false;   // shows on every visit until 9 a.m. ET Oct 29
+    b.querySelector('.pt-banner-x').addEventListener('click', () => { b.hidden = true; });
     const l = b.querySelector('[data-goto-rules]'); if (l) l.addEventListener('click', (ev) => { ev.preventDefault(); const t = document.querySelector('[data-tab="rules"]'); if (t) { t.click(); t.scrollIntoView({ block: 'start' }); } });
   })();
   const applyModel = (id) => {

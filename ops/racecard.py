@@ -34,7 +34,7 @@ def standings(usdcad, day_start=None, src='ops/src'):
     for mid in AIS:
         total, made, lost, n = 0.0, 0.0, 0.0, 0
         for (m, e), pts in ser.items():
-            if m != mid:
+            if m != mid or e.startswith('AllIn'):
                 continue
             k = usdcad if e == 'China' else 1
             pre = [v for t, v in pts if t <= FS]
