@@ -45,7 +45,8 @@ for r in H:
 # latest history total per portfolio vs holdings
 latest = {}
 for e in hist:
-    if e['portfolio'] not in latest or e['at'] >= latest[e['portfolio']]['at']:
+    _t = lambda x: datetime.fromisoformat(x['at'].replace('Z', '+00:00'))
+    if e['portfolio'] not in latest or _t(e) >= _t(latest[e['portfolio']]):
         latest[e['portfolio']] = e
 for pf, e in latest.items():
     if pf == 'Sports':
