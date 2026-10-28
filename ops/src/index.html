@@ -794,14 +794,9 @@
       </p>
     </section>
     <section class="st-card" aria-labelledby="h-x-hold">
-      <h2 class="st-h2" id="h-x-hold">Holdings</h2>
-      <p class="st-note">Each currency is priced in US dollars per unit (the yen is 1 ÷ USD/JPY). Values in Canadian dollars; a negative value is a short. The account value is cash plus all positions.</p>
-      <div class="st-wrap">
-        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
-          <thead><tr><th data-field="holding">Currency</th><th data-field="quantity" class="num">Amount</th><th data-field="entry_usd" class="num">Entry (US$)</th><th data-field="price_usd" class="num">Now (US$)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th><th data-field="price_source">Price source</th></tr></thead>
-          <tbody data-draw="holdings-body" data-portfolio="Currencies"></tbody>
-        </table>
-      </div>
+      <h2 class="st-h2" id="h-x-hold">Positions</h2>
+      <p class="st-note">Shown like a forex account: the account value is the C$100,000 deposit plus or minus the profit or loss on open positions. Leverage lets the account hold positions larger than its value. "Long" profits when that currency rises; "short" profits when it falls.</p>
+      <div data-draw="fx-positions" data-source="holdings"></div>
     </section>
     <section class="st-card" aria-labelledby="h-x-chart">
       <h2 class="st-h2" id="h-x-chart">Value over time</h2>
@@ -2250,6 +2245,55 @@
       else selectIt();
     });
   })();
+  // ---------- currencies: broker-style positions
+  dash.draw('fx-positions', (el) => {
+    const d = dash.data('holdings');
+    el.replaceChildren();
+    if (d.status !== 'ok') return;
+    const rows = d.data.filter((r) => r.portfolio === 'Currencies');
+    const pos = rows.filter((r) => r.holding !== 'Cash (CAD)' && Math.abs(Number(r.quantity)) > 1e-9);
+    const equity = d3.sum(rows, (r) => Number(r.value_cad));
+    const pl = (r) => Number(r.value_cad) - Number(r.cost_cad) + Number(r.realized_cad || 0);
+    const open = d3.sum(pos, (r) => Number(r.value_cad) - Number(r.cost_cad));
+    const realized = d3.sum(rows, (r) => Number(r.realized_cad || 0));
+    const size = d3.sum(pos, (r) => Math.abs(Number(r.value_cad)));
+    const bench = mk('div', 'st-bench');
+    const cell = (label, val, cls) => { const dv = mk('div'); dv.append(mk('span', 'st-label', label)); const v = mk('span', 'st-mid ' + (cls || ''), val); dv.append(v); bench.appendChild(dv); };
+    cell('Account value', stFmt.money(equity, 'Currencies'));
+    cell('Deposit', 'C$100,000');
+    cell('Open profit or loss', stFmt.signed(open, 'Currencies'), upDown(open));
+    cell('Closed profit or loss', stFmt.signed(realized, 'Currencies'), upDown(realized));
+    cell('Positions held', stFmt.money(size, 'Currencies') + ' (' + d3.format('.1f')(equity ? size / equity : 0) + '× the account)');
+    el.appendChild(bench);
+    const wrap = mk('div', 'st-wrap');
+    const t = mk('table', 'st-table');
+    t.innerHTML = '<thead><tr><th>Position</th><th class="num">Amount</th><th class="num">Entry rate</th><th class="num">Rate now</th><th class="num">Size (C$)</th><th class="num">Profit or loss (C$)</th><th>Price source</th></tr></thead>';
+    const tb = mk('tbody');
+    const rate = (r, which) => {
+      const q = Math.abs(Number(r.quantity));
+      if (r.holding === 'US dollar') {  // shown as USD/CAD
+        const v = which === 'entry' ? Math.abs(Number(r.cost_cad)) / q : Math.abs(Number(r.value_cad)) / q;
+        return d3.format('.4f')(v) + ' C$ per US$';
+      }
+      const px = Number(which === 'entry' ? r.entry_usd : r.price_usd);
+      if (r.holding === 'Japanese yen') return d3.format('.2f')(1 / px) + ' yen per US$';
+      return '$' + d3.format('.5f')(px);
+    };
+    if (!pos.length) { const tr = mk('tr'); const td = mk('td', '', 'No open positions.'); td.colSpan = 7; tr.appendChild(td); tb.appendChild(tr); }
+    pos.forEach((r) => {
+      const short = Number(r.quantity) < 0;
+      const tr = mk('tr');
+      const unit = r.holding === 'Japanese yen' ? ' yen' : r.holding === 'US dollar' ? ' US$' : '';
+      const cells = [[(short ? 'Short ' : 'Long ') + r.holding, ''], [d3.format(',.0f')(Math.abs(Number(r.quantity))) + unit, 'num'],
+        [rate(r, 'entry'), 'num'], [rate(r, 'now'), 'num'], [d3.format(',.0f')(Math.abs(Number(r.value_cad))), 'num'],
+        [stFmt.signed(pl(r), 'Currencies').replace('C$', ''), 'num ' + upDown(pl(r))],
+        [r.price_source ? r.price_source + (r.price_at ? ', ' + stFmt.when(r.price_at) : '') : '', 'wrap src']];
+      cells.forEach(([v, c]) => tr.appendChild(mk('td', c, v)));
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb); wrap.appendChild(t); el.appendChild(wrap);
+  });
+
   // chips that switch a chart's simulation
   document.querySelectorAll('[data-chips-for]').forEach((g) => {
     g.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
