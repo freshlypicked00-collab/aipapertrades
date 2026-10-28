@@ -240,6 +240,8 @@
   .st-model-note { margin: 0; font-size: 13px; color: var(--color-fg-muted); }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
+  :root { --ai-chatgpt: #f2f2f2; }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --ai-chatgpt: #262626; } }
   .st-live { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); padding: 12px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
   .st-live-text { flex: 1 1 260px; display: flex; flex-direction: column; gap: 2px; }
   .st-live-h { margin: 0; font-size: 14px; font-weight: 600; color: var(--color-fg); display: flex; align-items: center; gap: 8px; }
@@ -274,7 +276,7 @@
         <h2 class="st-live-h" id="h-live"><span class="st-live-dot" aria-hidden="true"></span>Real-time updates</h2>
         <p class="st-live-p">Get every trade, bet, result and the 8 p.m. ET (00:00 UTC) daily close as it happens, with charts, on Telegram.</p>
       </div>
-      <a class="st-live-btn" href="https://t.me/papertradesai" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.8-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2L6.5 13.2l-4.7-1.5c-1-.3-1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg>Join @papertradesai</a>
+      <a class="st-live-btn" href="https://t.me/PaperTradesAI" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.8-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2L6.5 13.2l-4.7-1.5c-1-.3-1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg>Join @PaperTradesAI</a>
     </section>
     <div class="st-notice-row">
   <p class="st-notice" role="note"><span class="st-dot" aria-hidden="true"></span><span><b>This is a simulation, not investment advice.</b> No real money is involved. It is a one-month experiment in which AI models make trading and betting decisions using real-world prices, to see how their judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results for all ten will be posted on Nov 28, win or lose.</span></p>
@@ -1457,7 +1459,7 @@
       <li><b>Betting:</b> sports betting (C$100,000, from Oct 27) and prediction markets (C$100,000, from Oct 28). Betting is Claude only, and was not reset.</li>
     </ul>
     <h3 class="st-h3">How it works</h3>
-    <p>The experiment runs on its own. No person approves or places the individual trades; each AI decides on its own on a fixed schedule, and this page updates each time. Each new trade, bet, result and daily close is also posted automatically to the <a href="https://t.me/papertradesai" target="_blank" rel="noopener">@papertradesai Telegram channel</a>.</p>
+    <p>The experiment runs on its own. No person approves or places the individual trades; each AI decides on its own on a fixed schedule, and this page updates each time. Each new trade, bet, result and daily close is also posted automatically to the <a href="https://t.me/PaperTradesAI" target="_blank" rel="noopener">@PaperTradesAI Telegram channel</a>.</p>
     <ul class="st-how">
       <li><b>Automatic check-ins.</b> All three AIs check in at the same times: every hour around the clock, every 30 minutes while US markets are open, and 5 minutes after the US and Chinese markets open and close. Claude also schedules extra check-ins right after big events, such as central-bank decisions, major earnings and election night, and when important news breaks.</li>
       <li><b>What each check-in does.</b> Each AI looks up current prices, odds and results, searches the latest news itself, decides whether to buy, sell, bet or hold, and explains every decision in its own words. Gemini's and ChatGPT's trades fill at live Yahoo Finance and Polymarket prices at the moment they decide.</li>
@@ -2703,7 +2705,7 @@
   // ---------- top of page: the AI's take and the scoreboard
 
   // ---- Head to head: Claude vs Gemini vs ChatGPT ----
-  const AIS = { claude: { label: 'Claude', color: '#d97757' }, gemini: { label: 'Gemini', color: '#4f8ff7' }, chatgpt: { label: 'ChatGPT', color: '#10a37f' } };
+  const AIS = { claude: { label: 'Claude', color: '#d97757' }, gemini: { label: 'Gemini', color: '#4f8ff7' }, chatgpt: { label: 'ChatGPT', color: 'var(--ai-chatgpt)' } };
   const H2H_EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Predictions'];
   const H2H_PLAN = { gemini: ['Stocks', 'Crypto', 'China', 'Metals', 'Energy'], chatgpt: ['Stocks', 'Crypto', 'China', 'Metals', 'Energy'] };
   const H2H_START = (exp) => 100000;
@@ -2805,7 +2807,7 @@
     svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat((v) => { const r = y.domain()[1] - y.domain()[0]; const f = d3.format(r < 0.05 ? '.1%' : '.0%'); return Math.abs(v) < 1e-9 ? '0%' : (v > 0 ? '+' : '') + f(v); }).tickSize(-(W - m.l - m.r))).call((g) => g.select('.domain').remove()).call((g) => g.selectAll('line').attr('stroke', 'var(--color-border-line)').attr('stroke-opacity', 0.6)).call((g) => g.selectAll('text').attr('fill', 'var(--color-fg-muted)'));
     svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(0)).attr('y2', y(0)).attr('stroke', 'var(--color-fg-muted)').attr('stroke-dasharray', '3 3');
     const line = d3.line().x((p) => x(p.t)).y((p) => y(p.v / 100000 - 1));
-    ser.forEach((s) => svg.append('path').attr('d', line(s.pts)).attr('fill', 'none').attr('stroke', AIS[s.id].color).attr('stroke-width', 2.2).attr('stroke-linejoin', 'round'));
+    ser.forEach((s) => svg.append('path').attr('d', line(s.pts)).attr('fill', 'none').style('stroke', AIS[s.id].color).attr('stroke-width', 2.2).attr('stroke-linejoin', 'round'));
     const rule = svg.append('line').attr('y1', m.t).attr('y2', H - m.b).attr('stroke', 'var(--color-fg-muted)').style('display', 'none');
     const tip = mk('div', 'h2h-tip'); el.appendChild(tip);
     const at = (s, t) => { let best = null; s.pts.forEach((p) => { if (p.t <= t) best = p; }); return best; };

@@ -139,6 +139,7 @@ TERMINAL = """
  --color-ok:#3ddc84; --color-warn:#ffb000; --color-bad:#ff5a4e; --cds-text-secondary:#9b927f; --cds-surface-popover:#1a1916; --cds-border:#3a372f;
  --cds-chart-grid:#1e1d19; --cds-chart-axis:#3a372f; --cds-chart-reference:#6b6555;
  --series-1:#ffb000; --series-2:#4fc3f7; --series-3:#3ddc84; --series-4:#e8d48b; --cds-radius:2px; color-scheme:dark; }
+:root:not(#pt-a):not(#pt-b) { --ai-chatgpt:#f2f2f2; }  /* the live site is always dark: ChatGPT is white */
 body { background:#0b0b0a; }
 .st-title { font-family: var(--font-serif); text-transform: uppercase; letter-spacing: .08em; color: #ffb000; font-size: 26px; }
 .st-title::before { content: "▮ "; color:#ffb000; }

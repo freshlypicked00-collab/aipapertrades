@@ -275,7 +275,7 @@ def _ask_gemini(key, model, prompt, search=True):
 RIVALS = {
     'gemini': {'label': 'Gemini', 'company': 'Google', 'color': '#4f8ff7', 'env': 'GEMINI_API_KEY', 'pick': pick_gemini, 'ask': ask_gemini,
                'exps': ['Stocks', 'Crypto', 'China', 'Metals', 'Energy']},
-    'chatgpt': {'label': 'ChatGPT', 'company': 'OpenAI', 'color': '#10a37f', 'env': 'OPENAI_API_KEY', 'pick': pick_openai, 'ask': ask_openai,
+    'chatgpt': {'label': 'ChatGPT', 'company': 'OpenAI', 'color': '#f2f2f2', 'env': 'OPENAI_API_KEY', 'pick': pick_openai, 'ask': ask_openai,
                 'exps': ['Stocks', 'Crypto', 'China', 'Metals', 'Energy']},
 }
 
@@ -515,7 +515,7 @@ def fmt_price(t):
 def tg_trade(label, t, source=None, photo=None):
     icon = {'Buy': '🟢', 'Sell': '🔴', 'Settled': '🏁'}.get(t['action'], '•')
     what = f"{t['symbol']} {t['outcome']}" if t.get('outcome') else t['symbol']
-    head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '🟢 <b>CHATGPT</b> (OpenAI)'}.get(label, f'<b>{label.upper()}</b>')
+    head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(label, f'<b>{label.upper()}</b>')
     msg = (f"{head}\n{icon} <b>{EXP_LABEL[t['experiment']]}: {t['action']} {esc(what)}</b>\n{esc(t['name'])}\n"
            f"{fmt_price(t)}, {money(t['amount'], t['cur'])}\n<i>{esc(t['reason'])}</i>")
     if source:
@@ -633,7 +633,7 @@ def main():
         m['last_run'] = {'at': iso(), 'status': status, 'notes': notes[-12:], 'sources': sources[:8], 'orders': len(made)}
         for rr, cl, rc in day_posts:
             n = (datetime.fromisoformat(cl[0]) - datetime(2026, 10, 28)).days + 1
-            head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '🟢 <b>CHATGPT</b> (OpenAI)'}.get(rr['label'], rr['label'])
+            head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(rr['label'], rr['label'])
             lines = [head, f"📒 <b>Day {n} closed: {datetime.fromisoformat(cl[0]).strftime('%a %b %-d')}</b> (00:00 UTC)"]
             for e, res in cl[1].items():
                 g = rc.get(e) if isinstance(rc.get(e), dict) else {}
