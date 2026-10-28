@@ -322,6 +322,10 @@
   .st-fact b { font-weight: 700; letter-spacing: .04em; text-transform: uppercase; font-size: 11.5px; margin-right: 6px; }
   .st-fact .fc-ok { color: var(--color-ok); } .st-fact .fc-bad { color: var(--color-bad); } .st-fact .fc-mid { color: var(--color-warn); }
   .st-fact a { color: inherit; }
+  .st-plans-fold { margin-top: 10px; }
+  .st-plans-fold > summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--accent); letter-spacing: .02em; padding: 6px 0; min-height: 32px; }
+  .st-plans-fold > .st-plans { margin-top: 6px; }
+  [data-draw="plans"] { display: block; }
   .st-plans { margin-top: 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
   .st-plan { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 10px 12px; font-size: 13.5px; line-height: 1.5; }
   .st-plan h4 { margin: 0 0 4px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
@@ -385,6 +389,14 @@
   body { top: 0 !important; }
   .goog-text-highlight { background: none !important; box-shadow: none !important; }
   #google_translate_element { display: none; }
+  .pt-banner-short { display: none; }
+  .hook-more { display: none; }
+  @media (max-width: 700px) {
+    .pt-banner { padding: 9px 40px 9px 12px; font-size: 13.5px; }
+    .pt-banner-short { display: inline; } .pt-banner-long { display: none; }
+    .st-hook-sub.is-folded { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .hook-more { display: inline-block; font: inherit; font-size: 13px; color: var(--accent); background: none; border: 0; padding: 2px 0; cursor: pointer; min-height: 32px; }
+  }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
@@ -551,7 +563,8 @@ body { background:var(--color-bg); }
 <div class="st">
   <header class="st-head">
     <div class="pt-banner" id="pt-banner" role="status" hidden>
-      <b>Update, Oct 28:</b> we restarted every experiment for all three AIs at 1:45 p.m. ET to make the race more accurate. The AIs now invest as if it were real money and must follow new limits: at most 50% in one holding, 25% on one bet, and 4× currency leverage. New betting rules: at least C$3,000 per bet, parlays allowed, and at least C$25,000 wagered every week (C$100,000 by Nov 28). This morning's tuning run is in the Ledger and doesn't count. <a href="#" data-goto-rules>See How it works</a>.
+      <span class="pt-banner-short"><b>Update:</b> the race restarted at 1:45 p.m. ET with new limits and betting rules. <a href="#" data-goto-rules>Details</a></span><span class="pt-banner-long"><b>Update, Oct 28:</b> we restarted every experiment for all three AIs at 1:45 p.m. ET to make the race more accurate. The AIs now invest as if it were real money and must follow new limits: at most 50% in one holding, 25% on one bet, and 4× currency leverage. New betting rules: at least C$3,000 per bet, parlays allowed, and at least C$25,000 wagered every week (C$100,000 by Nov 28). This morning's tuning run is in the Ledger and doesn't count. <a href="#" data-goto-rules>See How it works</a>.
+      </span>
       <button type="button" class="pt-banner-x" aria-label="Close this notice">×</button>
     </div>
     <h1 class="st-title"><svg class="st-logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#17201c"/><path d="M7 22l6-6 4 4 8-9" stroke="#4cc283" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Paper Trades</span></h1>
@@ -567,10 +580,10 @@ body { background:var(--color-bg); }
     <p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>
     <div class="st-hook">
       <p class="st-hook-q">Which AI makes the most money in real markets?</p>
-      <p class="st-hook-sub">Claude, Gemini and ChatGPT trade head to head from Oct 28 to Nov 28. Each AI runs its own separate copy of all ten experiments with C$100,000 of pretend money each and real-world prices. They are being tested publicly, in real time: every trade, bet and reason is published here as it happens, win or lose. Each AI makes every decision by itself, with no human picking trades, and this page is managed and updated automatically by AI.</p>
+      <p class="st-hook-sub" id="hook-sub">Claude, Gemini and ChatGPT trade head to head from Oct 28 to Nov 28. Each AI runs its own separate copy of all ten experiments with C$100,000 of pretend money each and real-world prices. They are being tested publicly, in real time: every trade, bet and reason is published here as it happens, win or lose. Each AI makes every decision by itself, with no human picking trades, and this page is managed and updated automatically by AI.</p>
       <p class="st-take"><span class="st-take-l">Claude's current take</span><span data-draw="take" data-source="take">—</span></p>
       <p class="st-fact" data-draw="factcheck" data-source="take factcheck"></p>
-      <div class="st-plans" data-draw="plans" data-source="plans"></div>
+      <div class="st-plans-box" data-draw="plans" data-source="plans"></div>
     </div>
     <section class="st-score" aria-labelledby="h-score">
       <h2 class="st-score-h" id="h-score">Scoreboard <span>Return since each experiment started, best first. Tap one to open it.</span></h2>
@@ -3426,7 +3439,7 @@ body { background:var(--color-bg); }
   // (trade reasons, notes, fact checks, plan cards, updates). Added automatically wherever text is drawn.
   (() => {
     if (!('speechSynthesis' in window)) return;
-    const SKIP = 'nav, button, select, label, header .st-meta, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
+    const SKIP = 'nav, button, select, label, header .st-meta, .st-sub, .st-dates, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
     const words = (t) => (t.trim().match(/\S+/g) || []).length;
     const NESTED = 'p, li, .st-plan, table, ul, ol';
     const textOf = (el, own) => {
@@ -3446,7 +3459,7 @@ body { background:var(--color-bg); }
     };
     const scan = () => {
       document.querySelectorAll('#dash-root p, #dash-root li, #dash-root td, #dash-root .st-plan, #dash-root blockquote').forEach((el) => {
-        if (el.dataset.say || el.closest(SKIP) || el.offsetParent === null) return;
+        if (el.dataset.say || el.closest(SKIP) || el.offsetParent === null || el.querySelector('#theme-btn, #lang-pick, .st-count')) return;
         const own = !!el.querySelector(NESTED);   // inner paragraphs carry their own buttons; this one reads only its own text
         const n = words(textOf(el, own));
         const isP = el.tagName === 'P';
@@ -3638,11 +3651,18 @@ body { background:var(--color-bg); }
   // ---- Model menu: Claude, Gemini, ChatGPT (a model is selectable once it has data) ----
   const MODEL_LABEL = { claude: 'Claude', gemini: 'Gemini', chatgpt: 'ChatGPT' };
   const modelExps = () => { const v = dash.model !== 'claude' && dash.models()[dash.model]; return v ? v._meta.exps : null; };
+  (() => {   // phones: fold the intro to three lines with a "Read more"
+    const p = document.getElementById('hook-sub'); if (!p) return;
+    p.classList.add('is-folded');
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'hook-more'; b.textContent = 'Read more';
+    b.addEventListener('click', () => { const f = p.classList.toggle('is-folded'); b.textContent = f ? 'Read more' : 'Show less'; });
+    p.insertAdjacentElement('afterend', b);
+  })();
   (() => {
     const b = document.getElementById('pt-banner'); if (!b) return;
     if (Date.now() < Date.parse('2026-10-29T13:00:00Z')) b.hidden = false;   // shows on every visit until 9 a.m. ET Oct 29
     b.querySelector('.pt-banner-x').addEventListener('click', () => { b.hidden = true; });
-    const l = b.querySelector('[data-goto-rules]'); if (l) l.addEventListener('click', (ev) => { ev.preventDefault(); const t = document.querySelector('[data-tab="rules"]'); if (t) { t.click(); t.scrollIntoView({ block: 'start' }); } });
+    b.querySelectorAll('[data-goto-rules]').forEach((l) => l.addEventListener('click', (ev) => { ev.preventDefault(); const t = document.querySelector('[data-tab="rules"]'); if (t) { t.click(); t.scrollIntoView({ block: 'start' }); } }));
   })();
   // ---------- cha-ching: a sound when an AI makes C$100 or more since the last update (sound is opt-in)
   (() => {
@@ -3950,8 +3970,16 @@ body { background:var(--color-bg); }
     el.replaceChildren();
     const d = dash.data('plans');
     const nm = AIS[dash.model] ? AIS[dash.model].label : 'This AI';
-    if (d.status !== 'ok' || !d.data.length) { const c = mk('div', 'st-plan'); c.append(mk('h4', '', nm + '’s plans and opinions'), document.createTextNode(nm + ' writes its 24-hour, 7-day and month plans, how it feels, and its opinion of the others at its next check-in.')); el.appendChild(c); return; }
-    planCards(d.data, el);
+    if (d.status !== 'ok' || !d.data.length) { el.appendChild(mk('p', 'st-note', nm + ' writes its 24-hour, 7-day and month plans, how it feels, and its opinion of the others at its next check-in.')); return; }
+    // on phones this folds away so the scoreboard is near the top; on wider screens it starts open
+    const det = document.createElement('details'); det.className = 'st-plans-fold';
+    const wide = window.matchMedia && window.matchMedia('(min-width: 701px)').matches;
+    if (el._open === undefined) el._open = wide;
+    det.open = el._open; det.addEventListener('toggle', () => { el._open = det.open; });
+    const nm2 = AIS[dash.model] ? AIS[dash.model].label : 'This AI';
+    det.appendChild(mk('summary', '', nm2 + '’s goals, feelings and opinions'));
+    const g = mk('div', 'st-plans'); planCards(d.data, g); det.appendChild(g);
+    el.appendChild(det);
   });
   dash.draw('take', (el) => {
     const d = dash.data('take');
