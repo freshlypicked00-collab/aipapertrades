@@ -819,6 +819,13 @@ def main():
             print(s_, yahoo(s_))
         j = get_json('https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=1&order=volume24hr&ascending=false', timeout=20)
         print('polymarket', j[0]['slug'], poly(j[0]['slug']))
+        print('JPY', quote('Currencies', 'JPY'))
+        c = get_json('https://cdn.cboe.com/api/global/delayed_quotes/options/NVDA.json', timeout=30)['data']['options']
+        print('cboe NVDA options', len(c), c[0]['option'])
+        assert c
+        g = espn_games()
+        print('espn games', len(g), sum(1 for x in g.values() if x['home_ml']), 'with moneylines')
+        assert g
         return
     state = load_state()
     fx = get_fx()
