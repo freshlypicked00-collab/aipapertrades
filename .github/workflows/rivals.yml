@@ -18,7 +18,7 @@ on:
         description: 'run = a normal hourly run; prices = only test the price feeds'
         default: run
         type: choice
-        options: [run, prices]
+        options: [run, prices, ask]
 permissions:
   contents: write
   pages: write
@@ -34,10 +34,19 @@ jobs:
       - name: Test price feeds
         if: ${{ inputs.mode == 'prices' }}
         run: python3 ops/rivals.py --prices
+      - name: Ask Gemini and ChatGPT for feedback (no trading)
+        if: ${{ inputs.mode == 'ask' }}
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+        run: python3 ops/ask_rivals.py
       - run: pip install -q matplotlib
-        if: ${{ inputs.mode != 'prices' }}
+        if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' }}
       - name: Let each rival model decide and trade
-        if: ${{ inputs.mode != 'prices' }}
+        if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' }}
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -49,7 +58,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python3 ops/rivals.py
       - name: Publish
-        if: ${{ inputs.mode != 'prices' }}
+        if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
