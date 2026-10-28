@@ -12,6 +12,8 @@ on:
     - cron: '50 13 28 10 *'
     - cron: '5 18 28 10 *'
     - cron: '25 20 28 10 *'
+    # Event watcher: every 15 minutes; checks in only if one of Claude's extra-run events (events.json) passed with no check-in since
+    - cron: '7,22,37,52 * * * *'
     # Final scoring, Sat Nov 28 at 4:01 p.m. ET: freezes Gemini's and ChatGPT's final values (later runs only settle bets)
     - cron: '1 21 28 11 *'
   workflow_dispatch:
@@ -85,6 +87,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           EVENT: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
           MODE: ${{ inputs.mode }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}

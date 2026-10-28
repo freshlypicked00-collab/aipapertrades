@@ -20,6 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import tgcharts  # noqa: E402
 
 STATE = 'ops/src/rivals.json'
+WATCH_CRON = '7,22,37,52 * * * *'   # the event watcher's schedule in rivals.yml (must match it exactly)
 ALL_EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
 ALLIN = ['AllInTrading', 'AllInSports']   # High risk, high reward: no caps, separate, never counted in the race
 RACE_EXPS = ALL_EXPS
@@ -1395,6 +1396,20 @@ def main():
         assert g
         return
     state = load_state()
+    if os.environ.get('SCHEDULE') == WATCH_CRON:
+        # the event watcher: runs every 15 minutes, but checks in only when an extra-run event (events.json, "extra_run": true)
+        # happened 5 to 45 minutes ago and nobody has checked in since it. So a failed extra run of Claude's is still covered.
+        try:
+            evs = [datetime.fromisoformat(str(e['at']).replace('Z', '+00:00')) for e in json.load(open('ops/src/events.json')) if e.get('extra_run')]
+        except Exception:
+            evs = []
+        lasts = [datetime.fromisoformat(m['last_run']['at'].replace('Z', '+00:00')) for m in state.get('models', {}).values() if m.get('last_run')]
+        due = [t for t in evs if timedelta(minutes=5) <= NOW - t <= timedelta(minutes=45) and (not lasts or max(lasts) < t + timedelta(minutes=4))]
+        if not due:
+            print('event watcher: no extra-run event waiting for a check-in')
+            return
+        print('event watcher: checking in after the event at', due[-1].isoformat())
+        os.environ['MODE'] = 'force'
     if NOW >= RACE_END and state.get('final') and all(mid in state['final'] for mid in list(state.get('models', {})) + ['claude']):
         books = [b for m in state.get('models', {}).values() for b in m.get('books', {}).values()] + list(state.get('claude_allin', {}).get('books', {}).values())
         if not any(x['status'] == 'Open' for b in books for x in b.get('bets', [])):

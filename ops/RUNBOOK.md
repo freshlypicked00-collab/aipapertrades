@@ -148,7 +148,7 @@ same day, the day's high/low is fine) and pass them as `"high"` and `"low"` with
 
 ## Extra runs around big events
 
-Events in `events.json` with `"extra_run": true` get a one-time extra run 5 minutes after them.
+Events in `events.json` with `"extra_run": true` get a one-time extra run 5 minutes after them. Always mark such events `"extra_run": true` with the exact `at` time: the rivals workflow's event watcher (every 15 minutes) uses them to check Gemini and ChatGPT in at the same moment even if your extra run fails to start.
 At the end of every run, list the scheduled tasks (`list_triggers`), and for each such event in
 the next 3 hours without one, create a one-time scheduled task (`create_trigger` with
 `run_once_at` = event time + 5 minutes, `initiation` = `human_schedule`, name

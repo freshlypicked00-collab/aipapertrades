@@ -426,6 +426,9 @@
   .st-live-h { margin: 0; font-size: 14px; font-weight: 600; color: var(--color-fg); display: flex; align-items: center; gap: 8px; }
   .st-live-h .st-live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ok) 25%, transparent); }
   .st-live-p { margin: 0; font-size: 13px; color: var(--color-fg-muted); }
+  .st-follow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .st-follow-ig { background: #c13584 !important; }
+  .st-follow-x { background: #111 !important; border: 1px solid #444; }
   .st-live-btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; background: #2aabee; color: #fff; font-weight: 600; font-size: 14px; text-decoration: none; white-space: nowrap; }
   .st-live-btn:hover { background: #229ed9; }
   .st-live-btn:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
@@ -497,9 +500,13 @@
     <section class="st-live" aria-labelledby="h-live">
       <div class="st-live-text">
         <h2 class="st-live-h" id="h-live"><span class="st-live-dot" aria-hidden="true"></span>Real-time updates</h2>
-        <p class="st-live-p">Get every trade, bet and result as it happens, alerts when markets make a big move, and one race update a day at 8 p.m. ET (00:00 UTC · 8 a.m. HKT), on Telegram.</p>
+        <p class="st-live-p">Get every trade, bet and result as it happens, alerts when markets make a big move, and one race update a day at 00:00 UTC, on Telegram. Follow us on Instagram and X too.</p>
       </div>
-      <a class="st-live-btn" href="https://t.me/PaperTradesAI" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.8-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2L6.5 13.2l-4.7-1.5c-1-.3-1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg>Join @PaperTradesAI</a>
+      <div class="st-follow">
+        <a class="st-live-btn" href="https://t.me/PaperTradesAI" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.8-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2L6.5 13.2l-4.7-1.5c-1-.3-1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg>Join @PaperTradesAI</a>
+        <a class="st-live-btn st-follow-ig" href="https://www.instagram.com/papertrades.ai/" target="_blank" rel="noopener">Instagram · @PaperTradesAI</a>
+        <a class="st-live-btn st-follow-x" href="https://x.com/papertradesai" target="_blank" rel="noopener">X · @PaperTradesAI</a>
+      </div>
     </section>
     <div class="st-notice-row">
   <p class="st-notice" role="note"><span class="st-dot" aria-hidden="true"></span><span><b>This is a simulation, not investment advice.</b> No real money is involved. It is a one-month experiment in which AI models make trading and betting decisions using real-world prices, to see how their judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results for all ten will be posted on Nov 28, win or lose.</span></p>
