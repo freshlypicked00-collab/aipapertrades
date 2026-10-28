@@ -19,8 +19,9 @@ from datetime import datetime, timedelta, timezone
 
 SRC, INP = sys.argv[1], sys.argv[2]
 START = 100000.0
-ORDER = ['Stocks', 'Crypto', 'China', 'Metals', 'Sports']
-CURRENCY = {'Stocks': 'CAD', 'Crypto': 'CAD', 'Metals': 'CAD', 'Sports': 'CAD', 'China': 'USD'}
+ORDER = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Predictions', 'Safe', 'Sports']
+CURRENCY = {p: ('USD' if p == 'China' else 'CAD') for p in ORDER}
+BENCH_NAMES = {'sp500': 'S&P 500', 'csi300': 'CSI 300', 'uso': 'Oil (USO fund)'}
 BJ = timezone(timedelta(hours=8))
 
 
@@ -175,7 +176,11 @@ for t in inp.get('trades', []):
     fund = row(pf, fund_name)
     r = row(pf, h)
     if action == 'Buy':
-        qty = cad / fx / price
+        if 'qty' in t:  # exact number of shares / contracts x 100 / prediction shares
+            qty = float(t['qty'])
+            cad = qty * price * fx
+        else:
+            qty = cad / fx / price
         if fund is None:
             raise SystemExit(f'No funding holding {fund_name} in {pf}')
         if fund_name == 'USDC':
@@ -198,7 +203,7 @@ for t in inp.get('trades', []):
         if r is None:
             raise SystemExit(f'Cannot sell {h}: not held in {pf}')
         q0 = r['quantity']
-        qty = q0 * float(t['fraction']) if 'fraction' in t else cad / fx / price
+        qty = q0 * float(t['fraction']) if 'fraction' in t else float(t['qty']) if 'qty' in t else cad / fx / price
         qty = min(qty, q0)
         cad = qty * price * fx
         cost_out = r.get('cost_cad', 0) * qty / q0
@@ -282,7 +287,9 @@ if inp.get('bets_new') or inp.get('bets_closing') or inp.get('bets_settle'):
 
 # ---- totals and history
 tot = {}
-for pf in ('Stocks', 'Crypto', 'Metals'):
+for pf in ORDER:
+    if pf in ('Sports', 'China') or not any(r['portfolio'] == pf for r in holdings):
+        continue
     tot[pf] = round(sum(r['value_cad'] for r in holdings if r['portfolio'] == pf), 2)
 tot['Sports'] = round(START + sum(b['result_cad'] or 0 for b in bets if b['status'] != 'Open'), 2)
 if any(r['portfolio'] == 'China' for r in holdings):
@@ -304,21 +311,24 @@ if 'Bitcoin' in P:
         r['as_of'] = AT
     save('benchmark', benchmark)
 ix = inp.get('indexes', {})
-SERIES = {'sp500': 'S&P 500', 'csi300': 'CSI 300'}
-for key, name in SERIES.items():
+for key, name in BENCH_NAMES.items():
     if key in ix:
-        f = fx if key == 'sp500' else 1 / cny  # bench_history fx turns the level into the portfolio's currency
+        f = 1 / cny if key == 'csi300' else fx  # bench_history fx turns the level into the portfolio's currency
         bench.append({'series': name, 'at': ix[key].get('at') or AT, 'level': float(ix[key]['level']), 'fx': f, 'source': ix[key].get('source', '')})
+started = {t['portfolio'] for t in trades}
 for r in indexes:
-    if r['id'] in ix:
-        q = ix[r['id']]
-        if r['currency'] == 'USD':
-            f = fx
-        elif r['currency'] == 'CNY':
-            f = 1 / cny
-        else:
-            f = 1
+    if r.get('kind') == 'rate':  # savings-account benchmark: starts with the portfolio's first trade
+        if r.get('start_at') is None and r['portfolio'] in started:
+            r['start_at'] = min(t['at'] for t in trades if t['portfolio'] == r['portfolio'])
+            changed.add('indexes')
+        continue
+    feed = r.get('feed', r['id'])
+    if feed in ix:
+        q = ix[feed]
+        f = fx if r['currency'] == 'USD' else (1 / cny if r['currency'] == 'CNY' else 1)
         if r.get('start_level') is None:
+            if r['portfolio'] not in started:
+                continue  # the comparison starts when the portfolio makes its first trade
             r['start_level'] = float(q['level'])
             r['fx_start'] = f
             r['start_at'] = q.get('at') or AT
