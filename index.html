@@ -456,7 +456,7 @@ body { background:#0b0b0a; }
           <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Safe">—</b></span>
           <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Safe">—</b></span>
           <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Safe">—</b></span>
-          <span>Vs. Savings account at 2.25%: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=savings">—</b></span>
+          <span>Vs. a savings account: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=savings">—</b></span>
         </span>
       </button>
     </div>
@@ -519,7 +519,7 @@ body { background:#0b0b0a; }
 
     <section class="st-card" aria-labelledby="h-trig-all">
       <h2 class="st-h2" id="h-trig-all">Distance to the next trade</h2>
-      <p class="st-note">Every rule tied to a price, closest first. When a price reaches its level, the AI makes that trade at the next update.</p>
+      <p class="st-note">Every rule tied to a price, closest first. These work like stop and limit orders: if a price touches its level, even between check-ins, the trade is filled at that level at the next update.</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-limit="6"></div>
     </section>
 
@@ -544,7 +544,7 @@ body { background:#0b0b0a; }
   <!-- Stocks -->
   <section class="st-page" id="stocks" data-page="stocks" hidden>
     <section class="st-card" aria-labelledby="h-s-bench">
-      <h2 class="st-h2" id="h-s-bench">Stocks portfolio</h2>
+      <h2 class="st-h2" id="h-s-bench">Stocks and anything</h2>
       <p class="st-note">SOXL, TQQQ and Bitcoin, plus cash. Started at the Oct 26 close.</p>
       <div class="st-bench">
         <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Stocks">—</span></div>
@@ -553,7 +553,7 @@ body { background:#0b0b0a; }
         <div><span class="st-label">Worst drop from peak</span><span class="st-mid" data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Stocks">—</span></div>
       </div>
       <p class="st-meta">
-        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Stocks">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Stocks">—</span></span>
+        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Stocks">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Stocks">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Stocks">—</b></span>
       </p>
     </section>
@@ -642,7 +642,7 @@ body { background:#0b0b0a; }
         <div><span class="st-label">Worst drop from peak</span><span class="st-mid" data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Crypto">—</span></div>
       </div>
       <p class="st-meta">
-        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Crypto">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Crypto">—</span></span>
+        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Crypto">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Crypto">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Crypto">—</b></span>
       </p>
     </section>
@@ -720,7 +720,7 @@ body { background:#0b0b0a; }
         <div><span class="st-label">Worst drop from peak</span><span class="st-mid" data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Metals">—</span></div>
       </div>
       <p class="st-meta">
-        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Metals">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Metals">—</span></span>
+        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Metals">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Metals">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Metals">—</b></span>
       </p>
     </section>
@@ -799,7 +799,7 @@ body { background:#0b0b0a; }
         <div><span class="st-label">Ahead by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=uso_energy">—</span></div>
       </div>
       <p class="st-meta">
-        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Energy">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Energy">—</span></span>
+        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Energy">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Energy">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Energy">—</b></span>
       </p>
     </section>
@@ -877,7 +877,7 @@ body { background:#0b0b0a; }
         <div><span class="st-label">Ahead by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=sp500_options">—</span></div>
       </div>
       <p class="st-meta">
-        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Options">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Options">—</span></span>
+        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Options">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Options">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Options">—</b></span>
       </p>
     </section>
@@ -955,7 +955,7 @@ body { background:#0b0b0a; }
         <div><span class="st-label">Ahead by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=savings_fx">—</span></div>
       </div>
       <p class="st-meta">
-        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Currencies">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Currencies">—</span></span>
+        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Currencies">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Currencies">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Currencies">—</b></span>
       </p>
     </section>
@@ -1026,7 +1026,7 @@ body { background:#0b0b0a; }
         <div><span class="st-label">Worst drop from peak</span><span class="st-mid" data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Predictions">—</span></div>
       </div>
       <p class="st-meta">
-        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Predictions">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Predictions">—</span></span>
+        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Predictions">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Predictions">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Predictions">—</b></span>
       </p>
     </section>
@@ -1104,7 +1104,7 @@ body { background:#0b0b0a; }
         <div><span class="st-label">Ahead by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=savings">—</span></div>
       </div>
       <p class="st-meta">
-        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Safe">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Safe">—</span></span>
+        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Safe">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Safe">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Safe">—</b></span>
       </p>
     </section>
@@ -1180,7 +1180,7 @@ body { background:#0b0b0a; }
         <div><span class="st-label">Worst drop from peak</span><span class="st-mid" data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Sports">—</span></div>
       </div>
       <p class="st-meta">
-        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Sports">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Sports">—</span></span>
+        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Sports">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Sports">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Sports">—</b></span>
       </p>
     </section>
@@ -1256,7 +1256,7 @@ body { background:#0b0b0a; }
   <!-- China -->
   <section class="st-page" id="china" data-page="china" hidden>
     <section class="st-card" aria-labelledby="h-z-bench">
-      <h2 class="st-h2" id="h-z-bench">Chinese stocks portfolio</h2>
+      <h2 class="st-h2" id="h-z-bench">China stocks</h2>
       <p class="st-note">Shares and funds listed in Shanghai and Shenzhen, bought in yuan and counted in US dollars. Started Oct 28, 11:20 a.m. Beijing time (Oct 27, 11:20 p.m. ET) with US$100,000.</p>
       <div class="st-bench">
         <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=China">—</span></div>
@@ -1267,7 +1267,7 @@ body { background:#0b0b0a; }
         <div><span class="st-label">Ahead of the CSI 300 by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=csi300">—</span></div>
       </div>
       <p class="st-meta">
-        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=China">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=China">—</span></span>
+        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=China">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=China">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=China">—</b></span>
         <span>Market hours: 9:30–11:30 a.m. and 1:00–3:00 p.m. Beijing time, which is 9:30–11:30 p.m. and 1:00–3:00 a.m. ET (an hour earlier from Nov 2). The CSI 300 comparison starts from the first index level recorded after the portfolio opened.</span>
       </p>
@@ -1336,7 +1336,7 @@ body { background:#0b0b0a; }
   <section class="st-page" id="ledger" data-page="ledger" hidden>
     <section class="st-card" aria-labelledby="h-l-sum">
       <h2 class="st-h2" id="h-l-sum">Ledger</h2>
-      <p class="st-note">The full record of how the AI is doing in each experiment: total profit or loss since the start for each one, plus every day's result and write-up. Each day closes at midnight UTC (8 p.m. Eastern until Nov 1, then 7 p.m.). For every day: what each simulation made or lost, and the AI's own write-up of how it did. Each simulation is its own experiment with its own C$100,000 (US$100,000 for China), so nothing here is added together.</p>
+      <p class="st-note">The full record of how the AI is doing in each experiment: total profit or loss since the start for each one, plus every day's result and write-up. Each day closes at midnight UTC (8 p.m. Eastern until Nov 1, then 7 p.m.). Each simulation is its own experiment with its own C$100,000 (US$100,000 for China), so nothing here is added together.</p>
       <h3 class="st-h3">How I think I'm doing in each experiment</h3>
       <div class="lg-review" data-draw="lg-review" data-source="review"></div>
       <h3 class="st-h3">Total since the start</h3>
@@ -1796,11 +1796,11 @@ body { background:#0b0b0a; }
   });
   dash.draw('last-trade', (el) => {
     const r = rowFor('lasts', stFmt.whereOf(el));
-    el.textContent = r && r.last_trade_at ? stFmt.when(r.last_trade_at) : '—';
+    el.textContent = r && r.last_trade_at ? stFmt.when(r.last_trade_at) : 'none yet';
   });
   dash.draw('last-trade-detail', (el) => {
     const r = rowFor('lasts', stFmt.whereOf(el));
-    el.textContent = r && r.last_trade_detail ? r.last_trade_detail : '—';
+    el.textContent = r && r.last_trade_detail ? r.last_trade_detail : 'First trades at the next market open.';
   });
   dash.draw('last-update', (el) => {
     const r = rowFor('lasts', stFmt.whereOf(el));
@@ -1823,7 +1823,12 @@ body { background:#0b0b0a; }
       const sp = document.createElement('span'); sp.textContent = (p ? '' : r.portfolio + ' · ') + 'now ' + fmtP(r.price, r.currency, r.portfolio);
       nm.append(b, sp);
       const px = document.createElement('div'); px.className = 'px';
-      px.textContent = (r.direction === 'above' ? 'If it rises to ' : 'If it falls to ') + fmtP(r.level, r.currency, r.portfolio) + ':';
+      if (r.asset === 'Japanese yen') {  // show as USD/JPY: the yen rising means USD/JPY falling
+        sp.textContent = (p ? '' : r.portfolio + ' · ') + 'USD/JPY now ' + d3.format('.2f')(1 / r.price);
+        px.textContent = 'If USD/JPY ' + (r.direction === 'above' ? 'falls to ' : 'rises to ') + d3.format('.2f')(1 / r.level) + ':';
+      } else {
+        px.textContent = (r.direction === 'above' ? 'If it rises to ' : 'If it falls to ') + fmtP(r.level, r.currency, r.portfolio) + ':';
+      }
       const what = document.createElement('span'); what.textContent = r.label; px.appendChild(what);
       const tr = document.createElement('div'); tr.className = 'st-track';
       tr.title = 'The fuller the bar, the closer the price is to the trigger';
@@ -1831,7 +1836,7 @@ body { background:#0b0b0a; }
       fill.style.width = (r.hit ? 100 : Math.max(3, (1 - Math.min(r.away / 0.25, 1)) * 100)) + '%';
       tr.appendChild(fill);
       const aw = document.createElement('div'); aw.className = 'aw' + (r.hit ? ' hit' : near ? ' near' : '');
-      aw.textContent = r.hit ? 'Triggered' : d3.format('.1%')(r.away) + (r.direction === 'above' ? ' to go up' : ' to go down');
+      aw.textContent = r.hit ? 'Triggered' : d3.format('.1%')(r.away) + (r.asset === 'Japanese yen' ? ' away' : r.direction === 'above' ? ' to go up' : ' to go down');
       row.append(nm, px, tr, aw);
       el.appendChild(row);
     });
@@ -2011,7 +2016,9 @@ body { background:#0b0b0a; }
       const y = d3.scaleLinear([lo - pad, hi + pad], [H - M.b, M.t]).nice(4);
       const ticks = y.ticks(4);
       const measure = (t) => { const n = svg.append('text').attr('font-size', 13).text(t); const w = n.node().getComputedTextLength(); n.remove(); return w; };
-      M.l = Math.ceil(d3.max(ticks, (v) => measure(cfg.axis(v)))) + 12;
+      const step = ticks.length > 1 ? Math.abs(ticks[1] - ticks[0]) : 1;
+      const axisF = (v) => cfg.axis(v, step);
+      M.l = Math.ceil(d3.max(ticks, (v) => measure(axisF(v)))) + 12;
       let t0 = pts[0].t, t1 = last.t;
       if (+t0 === +t1) { t0 = new Date(+t0 - 3600e3); t1 = new Date(+t1 + 3600e3); }
       const x = d3.scaleTime([t0, t1], [M.l, W - M.r]);
@@ -2021,7 +2028,7 @@ body { background:#0b0b0a; }
         .style('stroke', 'var(--cds-chart-grid)');
       svg.append('g').selectAll('text').data(ticks).join('text')
         .attr('x', M.l - 10).attr('y', (v) => y(v)).attr('dy', '0.32em').attr('text-anchor', 'end').attr('font-size', 13)
-        .style('fill', 'var(--color-fg-muted)').text(cfg.axis);
+        .style('fill', 'var(--color-fg-muted)').text(axisF);
       // x labels
       const spanMs = t1 - t0;
       const xt = x.ticks(Math.max(2, Math.min(6, Math.floor((W - M.l) / 120))));
@@ -2127,7 +2134,7 @@ body { background:#0b0b0a; }
       gChart(el, {
         points: pts, name: p === 'Sports' ? 'Bankroll' : (LABEL[p] || p), bench, empty: 'Not started yet. The first trades happen at the next market open.',
         fmt: (v) => sym + d3.format(',.0f')(v), fmtTip: (v) => sym + d3.format(',.2f')(v),
-        axis: (v) => sym + d3.format(',.1f')(v / 1000) + 'k',
+        axis: (v, step) => (step < 100 ? sym + d3.format(',.0f')(v) : sym + d3.format(',.1f')(v / 1000) + 'k'),
         base: START, baseLabel: 'Started with ' + sym + '100,000'
       });
     };
