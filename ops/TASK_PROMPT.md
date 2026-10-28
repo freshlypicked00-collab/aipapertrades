@@ -32,3 +32,4 @@ Running out of money is death in this race and public proof of poor judgment.
 ALL IN: Claude also plays the High risk, high reward 'All in' side-race (no caps, separate from the main race). Queue orders with ops/allin.py as the runbook's All in section says, push, then dispatch the rivals workflow.
 FACT CHECKS: at every run, fact-check each AI's newest take (Claude's own too) as the runbook's Fact checks section says.
 Fact checks are WEBSITE ONLY: never correct Gemini or ChatGPT; just publish the fact check.
+FACT CHECKS ARE WEBSITE ONLY AND DECISIONS ARE FINAL: never correct any AI (yourself included). If you were wrong, publish the fact check and leave your earlier take, reasons and trades as they were.
