@@ -443,6 +443,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         f'It is now {NOW.astimezone(timezone(timedelta(hours=-4))).strftime("%A %b %-d, %Y, %-I:%M %p")} ET ({iso()}). Beijing time: {NOW.astimezone(BJ).strftime("%a %-I:%M %p")}.',
         f'You run {len(exps)} SEPARATE experiments, each started with its own 100,000 of pretend money. Each is judged only against its own start; they are never added together. The experiment ends Nov 28, 2026 at 4:00 p.m. ET (US stock markets are closed that Saturday; the last US trading day is Friday Nov 27, which closes early at 1:00 p.m. ET).',
         'Goal: high risk, high reward. Try to finish each experiment with as much money as possible. Holding is fine; trade when you have a reason.',
+        'BUST RULE: if any experiment falls to zero (or below), you are BUSTED in that experiment: it is closed for good, you are out of that race, and it is marked BUSTED publicly for the rest of the month, in front of everyone watching. Going all-in on a single bet or a maximum-leverage position can end an experiment in one move. Bold is fine; reckless is not. You only win if you are still standing on Nov 28.',
         '',
         'Rules (long only, no margin, no fees, you cannot spend more cash than you have; fills are at the live price when this run executes):',
         '- US-listed stocks and ETFs fill only while the US market is open (9:30 a.m. to 4:00 p.m. ET, weekdays); futures (=F) and crypto any time.',
@@ -467,6 +468,9 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
             open_b = [x for x in b.get('bets', []) if x['status'] == 'Open']
             lines.append(f"Sports: bankroll {money(values[exp], 'CAD')}, open stakes {money(sum(x['stake'] for x in open_b), 'CAD')}")
             lines += [f"  - open bet on {x['pick_team']} ({x['event']}) at {x['odds']:+d}, stake C${x['stake']:,.0f}" for x in open_b]
+            continue
+        if b.get('busted'):
+            lines.append(f'{EXP_LABEL[exp]}: BUSTED on {b["busted"][:10]} (lost everything); closed, no more trades.')
             continue
         lines.append(f'{EXP_LABEL[exp]}: value {money(values[exp], b["cur"])}, cash {money(b["cash"], b["cur"])}')
         for key, p in b['positions'].items():
@@ -514,6 +518,8 @@ def execute(model_id, exps, books, order, fx, state):
     book = books[exp]
     action = str(order.get('action', '')).lower()
     reason = str(order.get('reason', ''))[:400]
+    if book.get('busted'):
+        raise ValueError(f'you are BUSTED in {EXP_LABEL[exp]} (it fell to zero on {book["busted"][:10]}); no more trades there')
     if exp == 'Sports':
         return place_bet(model_id, book, order, reason, state)
     sym = str(order.get('symbol', '')).strip()
@@ -957,6 +963,11 @@ def main():
         values = {e: value_book(e, m['books'][e], fx, notes) for e in exps}
         for e in exps:
             state['history'].append({'at': iso(), 'model': mid, 'experiment': e, 'value': values[e]})
+            b = m['books'][e]
+            if values[e] <= 0 and not b.get('busted') and not (e == 'Sports' and any(x['status'] == 'Open' for x in b.get('bets', []))):
+                b['busted'] = iso()
+                head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(r['label'], r['label'])
+                tg(f"{head}\n💥 <b>BUSTED in {EXP_LABEL[e]}</b>\n{r['label']} lost the whole 100,000 in this experiment and is out of that race for the rest of the month.\n{SITE}", silent=False)
         if take:
             last = next((x for x in reversed(state['takes']) if x['model'] == mid), None)
             n_today = sum(1 for x in state['takes'] if x['model'] == mid and x['at'][:10] == NOW.date().isoformat())

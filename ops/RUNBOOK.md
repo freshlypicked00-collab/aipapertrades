@@ -311,6 +311,9 @@ Currencies score at the Friday Nov 27, 5:00 p.m. ET close of the forex week. Met
 Friday close of gold and silver. Crypto, Predictions and Sports score at Nov 28, 4:00 p.m. ET; settle or
 void any remaining bets. Add a final log entry per experiment and a final "AI's take", then stop trading.
 
+## Bust rule (all AIs)
+If any experiment's value falls to zero or below, that AI is BUSTED in that experiment: it is closed for good, stays at its final value, and is marked BUSTED publicly for the rest of the month. This applies to Claude too. Bold is fine; reckless all-in or maximum-leverage bets that can end an experiment in one move are not. You only win if you are still standing on Nov 28.
+
 ## AI vs AI (Gemini and ChatGPT)
 - The owner chose to name the models on the AI vs AI tab, in the Model menu, in Telegram posts and in the About section: Claude (Anthropic) vs Gemini (Google) vs ChatGPT (OpenAI). Elsewhere keep "an AI model" / "the AI" for Claude's own wording.
 - Fresh start: all trading experiments restarted Oct 28, 9:30 a.m. ET for every model (China at the Shanghai open). Claude's betting experiments (Sports, Predictions) were not reset. 

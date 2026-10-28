@@ -2787,7 +2787,9 @@
         const nm = mk('span', 'h2h-name'); nm.appendChild(mk('span', '', AIS[s.id].label));
         if (i === 0 && ranked.length > 1 && s.pct !== ranked[1].pct) nm.appendChild(mk('span', 'h2h-lead', 'Leading'));
         li.appendChild(nm);
-        const pc = mk('span', 'h2h-pct', stFmt.pct(s.pct)); tone(pc, s.pct); li.appendChild(pc);
+        const mdl = models.find((x) => x.id === s.id);
+        const busted = mdl && mdl.books && mdl.books[exp] && mdl.books[exp].busted;
+        const pc = mk('span', 'h2h-pct', busted ? 'BUSTED' : stFmt.pct(s.pct)); tone(pc, busted ? -1 : s.pct); li.appendChild(pc);
         li.appendChild(mk('span', 'h2h-sub', 'Now ' + stFmt.money(s.last, exp) + ' · started ' + d3.timeFormat('%b %-d')(s.pts[0].t)));
         rows.appendChild(li);
       });
