@@ -2095,13 +2095,13 @@
    "id": "gemini",
    "label": "Gemini",
    "company": "Google",
-   "model": "gemini-flash-lite-latest",
+   "model": "gemini-3.8-flash",
    "started": {
-    "Stocks": "2026-10-28T08:59:52Z",
-    "Crypto": "2026-10-28T08:59:52Z",
-    "China": "2026-10-28T08:59:52Z",
-    "Metals": "2026-10-28T08:59:52Z",
-    "Energy": "2026-10-28T08:59:52Z"
+    "Stocks": "2026-10-28T09:05:34Z",
+    "Crypto": "2026-10-28T09:05:34Z",
+    "China": "2026-10-28T09:05:34Z",
+    "Metals": "2026-10-28T09:05:34Z",
+    "Energy": "2026-10-28T09:05:34Z"
    },
    "exps": [
     "Stocks",
@@ -2111,12 +2111,10 @@
     "Energy"
    ],
    "last_run": {
-    "at": "2026-10-28T08:59:52Z",
-    "status": "ok",
+    "at": "2026-10-28T09:05:34Z",
+    "status": "error: no JSON in reply",
     "notes": [
      "gemini-3.1-pro-preview: HTTP 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https:/",
-     "gemini-3.8-flash: HTTP 503 This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
-     "gemini-flash-latest: HTTP 503 This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
      "web search quota unavailable this run; decided from the prices and portfolio given"
     ],
     "sources": [],
@@ -2154,43 +2152,37 @@
  "rivals_trades": [],
  "rivals_history": [
   {
-   "at": "2026-10-28T08:59:52Z",
+   "at": "2026-10-28T09:05:34Z",
    "model": "gemini",
    "experiment": "Stocks",
    "value": 100000.0
   },
   {
-   "at": "2026-10-28T08:59:52Z",
+   "at": "2026-10-28T09:05:34Z",
    "model": "gemini",
    "experiment": "Crypto",
    "value": 100000.0
   },
   {
-   "at": "2026-10-28T08:59:52Z",
+   "at": "2026-10-28T09:05:34Z",
    "model": "gemini",
    "experiment": "China",
    "value": 100000.0
   },
   {
-   "at": "2026-10-28T08:59:52Z",
+   "at": "2026-10-28T09:05:34Z",
    "model": "gemini",
    "experiment": "Metals",
    "value": 100000.0
   },
   {
-   "at": "2026-10-28T08:59:52Z",
+   "at": "2026-10-28T09:05:34Z",
    "model": "gemini",
    "experiment": "Energy",
    "value": 100000.0
   }
  ],
- "rivals_takes": [
-  {
-   "at": "2026-10-28T08:59:52Z",
-   "model": "gemini",
-   "text": "Starting the high-risk paper-trading experiment with a clean slate across all five asset classes, looking for aggressive growth opportunities."
-  }
- ],
+ "rivals_takes": [],
  "models": {
   "gemini": {
    "holdings": [
@@ -2199,7 +2191,7 @@
      "holding": "Cash (CAD)",
      "quantity": 100000.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T08:59:52Z",
+     "as_of": "2026-10-28T09:05:34Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
@@ -2212,7 +2204,7 @@
      "holding": "Cash (CAD)",
      "quantity": 100000.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T08:59:52Z",
+     "as_of": "2026-10-28T09:05:34Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
@@ -2225,14 +2217,14 @@
      "holding": "Cash (US$)",
      "quantity": 100000.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T08:59:52Z",
+     "as_of": "2026-10-28T09:05:34Z",
      "price_at": null,
      "price_source": "",
      "currency": "USD",
      "entry_local": null,
      "price_local": null,
      "value_usd": 100000.0,
-     "value_cad": 140580.0,
+     "value_cad": 140540.0,
      "cost_usd": 100000.0
     },
     {
@@ -2240,7 +2232,7 @@
      "holding": "Cash (CAD)",
      "quantity": 100000.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T08:59:52Z",
+     "as_of": "2026-10-28T09:05:34Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
@@ -2253,7 +2245,7 @@
      "holding": "Cash (CAD)",
      "quantity": 100000.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T08:59:52Z",
+     "as_of": "2026-10-28T09:05:34Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
@@ -2264,61 +2256,61 @@
    ],
    "history": [
     {
-     "at": "2026-10-28T08:59:52+00:00",
+     "at": "2026-10-28T09:05:34+00:00",
      "portfolio": "Stocks",
      "value": 100000.0,
      "close": false
     },
     {
-     "at": "2026-10-28T08:59:52+00:00",
+     "at": "2026-10-28T09:05:34+00:00",
      "portfolio": "Crypto",
      "value": 100000.0,
      "close": false
     },
     {
-     "at": "2026-10-28T08:59:52+00:00",
+     "at": "2026-10-28T09:05:34+00:00",
      "portfolio": "China",
      "value": 100000.0,
      "close": false
     },
     {
-     "at": "2026-10-28T08:59:52+00:00",
+     "at": "2026-10-28T09:05:34+00:00",
      "portfolio": "Metals",
      "value": 100000.0,
      "close": false
     },
     {
-     "at": "2026-10-28T08:59:52+00:00",
+     "at": "2026-10-28T09:05:34+00:00",
      "portfolio": "Energy",
      "value": 100000.0,
      "close": false
     },
     {
-     "at": "2026-10-28T08:59:52Z",
+     "at": "2026-10-28T09:05:34Z",
      "portfolio": "Stocks",
      "value": 100000.0,
      "close": false
     },
     {
-     "at": "2026-10-28T08:59:52Z",
+     "at": "2026-10-28T09:05:34Z",
      "portfolio": "Crypto",
      "value": 100000.0,
      "close": false
     },
     {
-     "at": "2026-10-28T08:59:52Z",
+     "at": "2026-10-28T09:05:34Z",
      "portfolio": "China",
      "value": 100000.0,
      "close": false
     },
     {
-     "at": "2026-10-28T08:59:52Z",
+     "at": "2026-10-28T09:05:34Z",
      "portfolio": "Metals",
      "value": 100000.0,
      "close": false
     },
     {
-     "at": "2026-10-28T08:59:52Z",
+     "at": "2026-10-28T09:05:34Z",
      "portfolio": "Energy",
      "value": 100000.0,
      "close": false
@@ -2327,78 +2319,43 @@
    "trades": [],
    "log": [
     {
-     "at": "2026-10-28T08:59:52+00:00",
+     "at": "2026-10-28T09:05:34+00:00",
      "portfolio": "Stocks",
      "action": "Start",
      "detail": "Started with C$100,000."
     },
     {
-     "at": "2026-10-28T08:59:52+00:00",
+     "at": "2026-10-28T09:05:34+00:00",
      "portfolio": "Crypto",
      "action": "Start",
      "detail": "Started with C$100,000."
     },
     {
-     "at": "2026-10-28T08:59:52+00:00",
+     "at": "2026-10-28T09:05:34+00:00",
      "portfolio": "China",
      "action": "Start",
      "detail": "Started with US$100,000."
     },
     {
-     "at": "2026-10-28T08:59:52+00:00",
+     "at": "2026-10-28T09:05:34+00:00",
      "portfolio": "Metals",
      "action": "Start",
      "detail": "Started with C$100,000."
     },
     {
-     "at": "2026-10-28T08:59:52+00:00",
+     "at": "2026-10-28T09:05:34+00:00",
      "portfolio": "Energy",
      "action": "Start",
      "detail": "Started with C$100,000."
     },
     {
-     "at": "2026-10-28T08:59:52Z",
-     "portfolio": "Stocks",
-     "action": "Note",
-     "detail": "Deploying capital into high-beta growth momentum to maximize upside."
-    },
-    {
-     "at": "2026-10-28T08:59:52Z",
-     "portfolio": "Crypto",
-     "action": "Note",
-     "detail": "Ready to capture high-momentum moves in major digital assets."
-    },
-    {
-     "at": "2026-10-28T08:59:52Z",
-     "portfolio": "China",
-     "action": "Note",
-     "detail": "Positioning for potential stimulus-driven rallies in A-shares."
-    },
-    {
-     "at": "2026-10-28T08:59:52Z",
-     "portfolio": "Metals",
-     "action": "Note",
-     "detail": "Looking at leveraged gold and silver plays for a strong macro hedge."
-    },
-    {
-     "at": "2026-10-28T08:59:52Z",
-     "portfolio": "Energy",
-     "action": "Note",
-     "detail": "Targeting high-beta oil and gas exposure for explosive returns."
-    },
-    {
-     "at": "2026-10-28T08:59:52Z",
+     "at": "2026-10-28T09:05:34Z",
      "portfolio": "All",
      "action": "Check-in",
-     "detail": "Check-in (gemini-flash-lite-latest)."
+     "detail": "Check-in (gemini-3.8-flash)."
     }
    ],
-   "take": [
-    {
-     "at": "2026-10-28T08:59:52Z",
-     "text": "Starting the high-risk paper-trading experiment with a clean slate across all five asset classes, looking for aggressive growth opportunities."
-    }
-   ],
+   "take": [],
    "ledger": [],
    "prices": [],
    "review": [],
@@ -2423,7 +2380,7 @@
      "portfolio": "Stocks",
      "index": "S&P/TSX Composite",
      "currency": "CAD",
-     "start_at": "2026-10-28T08:59:52+00:00",
+     "start_at": "2026-10-28T09:05:34+00:00",
      "start_level": 36171.49,
      "fx_start": 1,
      "now_level": 36171.49,
@@ -2472,27 +2429,27 @@
    "benchmark": [
     {
      "portfolio": "Stocks",
-     "start_at": "2026-10-28T08:59:52+00:00",
+     "start_at": "2026-10-28T09:05:34+00:00",
      "btc_start_usd": 80844.0,
-     "fx_start": 1.4058,
+     "fx_start": 1.4054,
      "btc_now_usd": 80844.0,
      "fx_now": 1.4063,
      "as_of": "2026-10-28T03:25:00-04:00"
     },
     {
      "portfolio": "Crypto",
-     "start_at": "2026-10-28T08:59:52+00:00",
+     "start_at": "2026-10-28T09:05:34+00:00",
      "btc_start_usd": 80844.0,
-     "fx_start": 1.4058,
+     "fx_start": 1.4054,
      "btc_now_usd": 80844.0,
      "fx_now": 1.4063,
      "as_of": "2026-10-28T03:25:00-04:00"
     },
     {
      "portfolio": "Metals",
-     "start_at": "2026-10-28T08:59:52+00:00",
+     "start_at": "2026-10-28T09:05:34+00:00",
      "btc_start_usd": 80844.0,
-     "fx_start": 1.4058,
+     "fx_start": 1.4054,
      "btc_now_usd": 80844.0,
      "fx_now": 1.4063,
      "as_of": "2026-10-28T03:25:00-04:00"
@@ -2634,7 +2591,7 @@
     "id": "gemini",
     "label": "Gemini",
     "company": "Google",
-    "model": "gemini-flash-lite-latest",
+    "model": "gemini-3.8-flash",
     "exps": [
      "Stocks",
      "Crypto",
@@ -2643,12 +2600,10 @@
      "Energy"
     ],
     "last_run": {
-     "at": "2026-10-28T08:59:52Z",
-     "status": "ok",
+     "at": "2026-10-28T09:05:34Z",
+     "status": "error: no JSON in reply",
      "notes": [
       "gemini-3.1-pro-preview: HTTP 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https:/",
-      "gemini-3.8-flash: HTTP 503 This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
-      "gemini-flash-latest: HTTP 503 This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
       "web search quota unavailable this run; decided from the prices and portfolio given"
      ],
      "sources": [],
