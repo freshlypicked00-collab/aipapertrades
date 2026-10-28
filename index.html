@@ -500,7 +500,7 @@ body { background:var(--color-bg); }
           <option value="gemini">Gemini (Google)</option>
           <option value="chatgpt" disabled>ChatGPT (OpenAI)</option>
         </select>
-        <p class="st-model-note" data-model-note>Showing Claude's ten experiments.</p>
+        <p class="st-model-note" data-model-note>Showing Claude’s ten experiments (model: Claude Opus 5.5).</p>
         <label class="st-model-l" for="cur-pick">Show money in</label>
         <select id="cur-pick" class="cur-pick">
           <option value="">Each experiment's own (C$, or US$ for China)</option>
@@ -514,7 +514,7 @@ body { background:var(--color-bg); }
         <button type="button" class="st-model-cmp" data-goto="h2h">Compare all models in AI vs AI →</button>
       </div>
     </div>
-    <p class="st-viewing" aria-live="polite"><span class="st-viewing-dot" aria-hidden="true"></span>Now viewing: <b id="viewing-name">Claude (Anthropic)</b></p>
+    <p class="st-viewing" aria-live="polite"><span class="st-viewing-dot" aria-hidden="true"></span>Now viewing: <b id="viewing-name">Claude Opus 5.5 (Anthropic)</b></p>
     <p class="st-lede">Each experiment is scored on its own against its own starting money; overall, the AI with the most total profit wins. Last updated <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=All">—</b>.</p>
   </header>
 
@@ -1688,7 +1688,7 @@ body { background:var(--color-bg); }
         <option value="gemini">Gemini (Google)</option>
         <option value="chatgpt" disabled>ChatGPT (OpenAI)</option>
       </select>
-      <p class="st-model-note" data-model-note>Showing Claude's ten experiments.</p>
+      <p class="st-model-note" data-model-note>Showing Claude’s ten experiments (model: Claude Opus 5.5).</p>
     </div>
     <section class="st-card" aria-labelledby="h-l-sum">
       <h2 class="st-h2" id="h-l-sum">Ledger</h2>
@@ -3247,7 +3247,7 @@ body { background:var(--color-bg); }
   const MODEL_LABEL = { claude: 'Claude', gemini: 'Gemini', chatgpt: 'ChatGPT' };
   const modelExps = () => { const v = dash.model !== 'claude' && dash.models()[dash.model]; return v ? v._meta.exps : null; };
   const applyModel = (id) => {
-    { const v = document.getElementById('viewing-name'); if (v) v.textContent = ({ claude: 'Claude (Anthropic)', gemini: 'Gemini (Google)', chatgpt: 'ChatGPT (OpenAI)' })[id] || id; }
+    { const v = document.getElementById('viewing-name'); if (v) v.textContent = ({ claude: 'Claude Opus 5.5 (Anthropic)', gemini: 'Gemini (Google)', chatgpt: 'ChatGPT (OpenAI)' })[id] || id; }
     const views = dash.models();
     document.querySelectorAll('.model-pick').forEach((sel) => {
       sel.value = id;
@@ -3278,7 +3278,7 @@ body { background:var(--color-bg); }
       el.textContent = meta.label + '’s own copy of this experiment' + (st ? ', started ' + stFmt.when(st) : '') + ' with ' + (el.dataset.modelText === 'China' ? 'US$100,000' : 'C$100,000') + '. Holdings, trades and decisions below are ' + meta.label + '’s; it checks in at the same times as Claude and searches the news itself.';
     });
     document.querySelectorAll('[data-model-note]').forEach((n) => {
-      n.textContent = meta ? 'Showing ' + meta.label + '’s own separate copies of ' + exps.length + ' experiments' + (meta.model ? ' (model: ' + meta.model + ')' : '') + '. Each started with its own 100,000 at the Oct 28 fresh start.' : 'Showing Claude’s ten experiments.';
+      n.textContent = meta ? 'Showing ' + meta.label + '’s own separate copies of ' + exps.length + ' experiments' + (meta.model ? ' (model: ' + meta.model + ')' : '') + '. Each started with its own 100,000 at the Oct 28 1:45 p.m. ET restart.' : 'Showing Claude’s ten experiments (model: Claude Opus 5.5).';
     });
     const take = document.querySelector('.st-take-l'); if (take) take.textContent = (meta ? meta.label : 'Claude') + '’s current take';
     Object.entries(TABOF).forEach(([pf, tab]) => {
