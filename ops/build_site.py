@@ -547,6 +547,8 @@ for _e in _EXPS:
                         'busted': bool(bk.get('busted')), 'eliminated': bool(_m.get('eliminated'))})
     _es[_e].sort(key=lambda x: -x['value'])
 data['exp_standings'] = _es
+data['penalties'] = [dict(x, model='claude') for x in r.get('claude_penalties', [])] + \
+    [dict(x, model=_mid) for _mid, _m in (r.get('models') or {}).items() for x in ((_m.get('books') or {}).get('Sports') or {}).get('penalties', [])]
 data['leader'] = LEADER   # the AI leading the race on total profit; the page opens on it unless the viewer picked one
 data['rivals_thoughts'] = [x for x in r.get('thoughts', []) if x['at'].replace('Z', '+00:00') >= _cut]
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))

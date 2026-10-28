@@ -62,6 +62,9 @@ def et_day(x):
     return datetime.fromisoformat(str(x).replace('Z', '+00:00')).astimezone(NY).date().isoformat()
 TOTAL_MIN = 100000.0  # at least C$100,000 wagered in total by Nov 28 (no weekly minimum since Oct 28, 5:30 p.m. ET)
 DAY_MIN = 3000.0      # and at least C$3,000 wagered every ET day (25% of the betting balance once it is under C$12,000)
+PENALTY_DAY = 500.0     # C$ off the Sports balance for each ET day with less than the daily minimum wagered (from Oct 29)
+PENALTY_TOTAL = 0.10    # and 10% of any shortfall from the C$100,000 total, at the final scoring
+PENALTY_FROM = '2026-10-29'
 BET_END = '2026-11-28T21:00:00+00:00'   # the minimums run to the final scoring, Nov 28 at 4 p.m. ET
 RACE_END = datetime(2026, 11, 28, 21, 0, tzinfo=timezone.utc)   # final scoring: no orders after this; values are frozen
 US_HOLIDAYS = {'2026-11-26'}            # Thanksgiving: US markets closed all day
@@ -346,7 +349,7 @@ def value_book(exp, book, fx, notes):
     if book.get('busted') and BASE.get(exp, exp) != 'Sports':
         return 0.0
     if BASE.get(exp, exp) == 'Sports':
-        return round(START + sum(b['result'] for b in book.get('bets', []) if b['status'] != 'Open'), 2)
+        return round(START + sum(b['result'] for b in book.get('bets', []) if b['status'] != 'Open') - sum(x['amount'] for x in book.get('penalties', [])), 2)
     total = book['cash']
     for key, p in book['positions'].items():
         sym, _, outcome = key.partition('|')
@@ -847,8 +850,9 @@ def place_bet(model_id, book, order, reason, state, exp='Sports'):
         leg = _leg(order.get('game'), order.get('pick'))
         legs, ml = None, leg['odds']
     bets = book.setdefault('bets', [])
-    bank = START + sum(b['result'] for b in bets if b['status'] != 'Open') - sum(b['stake'] for b in bets if b['status'] == 'Open')
-    roll = START + sum(b['result'] for b in bets if b['status'] != 'Open')
+    pen = sum(x['amount'] for x in book.get('penalties', []))
+    bank = START + sum(b['result'] for b in bets if b['status'] != 'Open') - sum(b['stake'] for b in bets if b['status'] == 'Open') - pen
+    roll = START + sum(b['result'] for b in bets if b['status'] != 'Open') - pen
     want = float(order.get('amount', 0) or 0)
     mb = min_bet(roll)
     if want < mb:
@@ -1128,7 +1132,7 @@ def betting_balance(m, fx):
     tot = 0.0
     b = m['books'].get('Sports')
     if b:
-        tot += START + sum(x['result'] for x in b.get('bets', []) if x['status'] not in ('Open', 'Void'))
+        tot += START + sum(x['result'] for x in b.get('bets', []) if x['status'] not in ('Open', 'Void')) - sum(x['amount'] for x in b.get('penalties', []))
     p = m['books'].get('Predictions')
     if p:
         tot += p['cash'] + sum(to_book(q['qty'] * q.get('last', q['entry']), q['pcur'], p['cur'], fx) for q in p['positions'].values())
@@ -1181,6 +1185,7 @@ def betting_rule_line(state, mid, fx):
     return ('BETTING MINIMUMS (hard rules for every AI, Claude included): every bet, parlay or prediction-market buy is at least C$3,000 (if your betting balance falls below C$12,000 the minimum becomes 25% of what is left); '
             'DAILY MINIMUM: wager at least C$3,000 every day (ET), across Sports and Prediction markets; one bet at the minimum is enough; '
             'TOTAL MINIMUM: at least C$100,000 wagered in total by Nov 28; there is NO weekly minimum; '
+            'PENALTIES (from Oct 29, same for every AI): each day you wager less than the daily minimum costs C$500 off your Sports balance, and at the final scoring 10% of any shortfall from the C$100,000 total comes off too; '
             'DAILY LIMIT: in Sports at most 25% of the bankroll can ride on the games of any one day, and in Prediction markets at most 25% of the balance can be bought in one day, so no one bets everything in a single night; '
             'a bet counts toward the minimums as soon as it is placed, even before it settles. '
             f'Today ({today.strftime("%a %b %-d")}, ET) you have wagered {money(done, "CAD")} of the {money(dmin, "CAD")} daily minimum'
@@ -1274,6 +1279,47 @@ def claude_allin(state, fx):
             b['busted'] = iso()
             b['positions'], b['cash'] = {}, 0.0
             tg(f"{head}\n💥 <b>BUSTED in {EXP_LABEL[e]}</b>\nClaude lost the whole 100,000 in this High risk, high reward experiment. (It does not count in the main race.)\n{SITE}", silent=False)
+
+
+def apply_penalties(state, fx):
+    """Betting minimums (owner's rule, Oct 28): C$500 off the Sports balance for every ET day (from Oct 29) on which an AI
+    wagered less than its daily minimum, and at the final scoring 10% of any shortfall from the C$100,000 total.
+    Same for all three AIs; Claude's are kept in state['claude_penalties'] (ops/update.py subtracts them from Claude's Sports)."""
+    today = NOW.astimezone(NY).date()
+    last = datetime.fromisoformat(BET_END).astimezone(NY).date()
+    who = [(mid, m['books'].get('Sports'), m) for mid, m in state.get('models', {}).items()]
+    cl = state.setdefault('claude_penalties', [])
+    for mid, book, m in who + [('claude', None, None)]:
+        if m is not None and (m.get('eliminated') or not book or book.get('busted')):
+            continue
+        pens = book.setdefault('penalties', []) if book is not None else cl
+        days, total = wagered(state, mid, claude=(mid == 'claude'))
+        if mid == 'claude':
+            try:
+                bal = START + sum(float(b.get('result_cad') or 0) for b in json.load(open('ops/src/bets.json')) if b.get('status') != 'Open')
+                bal += sum(float(h.get('value_cad') or 0) for h in json.load(open('ops/src/holdings.json')) if h['portfolio'] == 'Predictions')
+            except Exception:
+                bal = 2 * START
+        else:
+            bal = betting_balance(m, fx)
+        dmin = day_min(bal)
+        done = {x['day'] for x in pens}
+        d = datetime.fromisoformat(PENALTY_FROM).date()
+        end = min(today - timedelta(days=1), last) if NOW < RACE_END else last
+        while d <= end:
+            k = d.isoformat()
+            if k not in done and days.get(k, 0.0) + 0.5 < dmin:
+                amt = PENALTY_DAY
+                pens.append({'day': k, 'at': iso(), 'amount': amt, 'reason': f'missed the daily betting minimum on {d.strftime("%b %-d")} (wagered {money(days.get(k, 0.0), "CAD")} of {money(dmin, "CAD")})'})
+                state['trades'].append({'at': iso(), 'model': mid, 'experiment': 'Sports', 'action': 'Penalty', 'symbol': 'P-' + k, 'outcome': None,
+                                        'name': 'Missed daily betting minimum', 'price': 0, 'pcur': 'CAD', 'qty': 1, 'amount': -amt, 'cur': 'CAD', 'fx': None,
+                                        'reason': pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:] + '.'}) if mid != 'claude' else None
+                tg(f"⚖️ <b>{ {'claude': 'CLAUDE', 'gemini': 'GEMINI', 'chatgpt': 'CHATGPT'}.get(mid, mid) }: −C${amt:,.0f} penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
+            d += timedelta(days=1)
+        if NOW >= RACE_END and 'total' not in done and total + 0.5 < TOTAL_MIN:
+            amt = round(PENALTY_TOTAL * (TOTAL_MIN - total), 2)
+            pens.append({'day': 'total', 'at': iso(), 'amount': amt, 'reason': f'wagered {money(total, "CAD")} of the C$100,000 required by Nov 28 (10% of the shortfall)'})
+            tg(f"⚖️ <b>{ {'claude': 'CLAUDE', 'gemini': 'GEMINI', 'chatgpt': 'CHATGPT'}.get(mid, mid) }: −C${amt:,.0f} penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
 
 
 def frozen_values(state, mid, books, exps, fx, notes):
@@ -1380,6 +1426,11 @@ def main():
         price_alerts(state)
     except Exception as e:
         print('price alerts failed', e)
+    try:
+        if not state.get('final') or not all(x in state['final'] for x in list(state.get('models', {})) + ['claude']):
+            apply_penalties(state, fx)   # before the final freeze, so a last missed day counts in the final values
+    except Exception as e:
+        print('penalties failed', e)
     for mid, r in RIVALS.items():
         key = os.environ.get(r['env'])
         if not key and mid == 'chatgpt' and os.environ.get('OPENROUTER_API_KEY'):

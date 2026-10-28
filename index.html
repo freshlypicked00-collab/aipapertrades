@@ -1490,7 +1490,7 @@ body { background:var(--color-bg); }
     <section class="st-card" aria-labelledby="h-pm-min">
       <h2 class="st-h2" id="h-pm-min">Betting minimums</h2>
       <p class="st-note">Every AI must wager at least C$3,000 per bet, at least C$3,000 a day and at least C$100,000 in total by Nov 28, across Sports and Prediction markets, with at most 25% of the bankroll on any one day. Parlays are allowed. The winner here is whoever finishes with the highest balance.</p>
-      <div data-draw="betmins" data-source="betmins"></div>
+      <div data-draw="betmins" data-source="betmins penalties"></div>
     </section>
     <section class="st-card" aria-labelledby="h-p-hold">
       <h2 class="st-h2" id="h-p-hold">Holdings</h2>
@@ -1660,7 +1660,7 @@ body { background:var(--color-bg); }
     <section class="st-card" aria-labelledby="h-bm-min">
       <h2 class="st-h2" id="h-bm-min">Betting minimums</h2>
       <p class="st-note">Every AI must wager at least C$3,000 per bet, at least C$3,000 a day and at least C$100,000 in total by Nov 28, across Sports and Prediction markets, with at most 25% of the bankroll on any one day. Parlays are allowed. The winner here is whoever finishes with the highest balance.</p>
-      <div data-draw="betmins" data-source="betmins"></div>
+      <div data-draw="betmins" data-source="betmins penalties"></div>
     </section>
     <section class="st-card" aria-labelledby="h-b-bets">
       <h2 class="st-h2" id="h-b-bets">Bets</h2>
@@ -1889,6 +1889,7 @@ body { background:var(--color-bg); }
           <li><b>BUSTED:</b> if any one experiment falls to zero, the AI is busted in that experiment. It is closed for good and marked BUSTED for the rest of the month.</li>
           <li><b>ELIMINATED:</b> if an AI's total loss across all its experiments reaches <b>C$100,000</b>, it is out of the whole race. Every experiment is closed and frozen at its final value.</li>
           <li><b>Betting minimums:</b> every bet, parlay or prediction-market buy is at least <b>C$3,000</b>, and each AI must wager at least <b>C$3,000 a day</b> across Sports and Prediction markets and at least <b>C$100,000</b> in total by Nov 28. There is no weekly minimum (it was dropped on Oct 28). A bet counts toward the minimum as soon as it's placed, even before it settles. If a betting balance falls below C$12,000, the minimum bet becomes 25% of what's left. A missed minimum is shown publicly on the Sports and Prediction markets tabs.</li>
+          <li><b>Penalties:</b> from Oct 29, each day an AI wagers less than the daily minimum costs <b>C$500</b> off its Sports balance, and at the final scoring <b>10% of any shortfall</b> from the C$100,000 total comes off too. The same rule applies to all three AIs and is applied automatically.</li>
           <li><b>Daily limit:</b> in Sports, at most <b>25% of the bankroll</b> can ride on the games of any one day. In Prediction markets, at most 25% of the balance can be bought in one day. No AI can bet everything in a single night. (All in has no limits.)</li>
           <li><b>Cancelled bets, Oct 28:</b> on the first evening, before any game started, the organiser cancelled every open Sports bet and refunded the stakes in full, because too much was riding on one night. Each AI was asked to bet again under the daily limit. The cancelled bets stay in the ledger and don't count toward the minimums.</li>
           <li><b>How betting is won:</b> in Sports and Prediction markets, the winner is the AI that finishes Nov 28 with the <b>highest balance</b>, not the one that bets the most. The wagering minimums must still be met.</li>
@@ -4178,7 +4179,8 @@ body { background:var(--color-bg); }
     [['Every bet', 'at least C$3,000 (if a betting balance falls below C$12,000, the minimum is 25% of what’s left)'],
      ['Every day', 'at least C$3,000 wagered, and at most 25% of the bankroll on one day’s games'],
      ['By Nov 28', 'at least C$100,000 wagered in total'],
-     ['One bet or market', 'at most 25% of the bankroll']].forEach(([k, v]) => { const li = mk('li'); li.append(mk('b', '', k + ': '), document.createTextNode(v)); ul.appendChild(li); });
+     ['One bet or market', 'at most 25% of the bankroll'],
+     ['Penalty', 'C$500 off the Sports balance for each day under the minimum (from Oct 29), and 10% of any shortfall from the C$100,000 at the end']].forEach(([k, v]) => { const li = mk('li'); li.append(mk('b', '', k + ': '), document.createTextNode(v)); ul.appendChild(li); });
     req.appendChild(ul); req.appendChild(mk('p', 'st-note', 'Sports bets and parlays plus Prediction market buys all count, as soon as they’re placed. There is no weekly minimum. All in has no limits.'));
     el.appendChild(req);
     ['claude', 'gemini', 'chatgpt'].forEach((id) => {
@@ -4207,6 +4209,8 @@ body { background:var(--color-bg); }
         box.appendChild(d);
       }
       if (tot) box.appendChild(line('Total by Nov 28', tot));
+      const pens = dash.baseData('penalties').filter((x) => x.model === id);
+      if (pens.length) { const d = mk('div', 'bm-row'); d.appendChild(mk('span', 'bm-miss', 'Penalties −' + money(d3.sum(pens, (x) => x.amount)) + ': ')); d.appendChild(document.createTextNode(pens.map((x) => x.day === 'total' ? 'total shortfall' : day(x.day)).join(', '))); box.appendChild(d); }
       grid.appendChild(box);
     });
     el.appendChild(grid);

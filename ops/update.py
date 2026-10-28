@@ -318,7 +318,11 @@ for pf in ORDER:
     if pf in ('Sports', 'China') or not any(r['portfolio'] == pf for r in holdings):
         continue
     tot[pf] = round(sum(r['value_cad'] for r in holdings if r['portfolio'] == pf), 2)
-tot['Sports'] = round(START + sum(b['result_cad'] or 0 for b in bets if b['status'] != 'Open'), 2)
+try:   # betting-minimum penalties (kept by ops/rivals.py, same rule for every AI)
+    _pen = sum(float(x['amount']) for x in json.load(open(os.path.join(SRC, 'rivals.json'))).get('claude_penalties', []))
+except Exception:
+    _pen = 0.0
+tot['Sports'] = round(START + sum(b['result_cad'] or 0 for b in bets if b['status'] != 'Open') - _pen, 2)
 if any(r['portfolio'] == 'China' for r in holdings):
     tot['China'] = round(sum(r['value_usd'] for r in holdings if r['portfolio'] == 'China'), 2)
 is_close = at_dt.weekday() < 5 and at_dt.hour == 16
