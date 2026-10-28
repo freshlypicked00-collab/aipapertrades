@@ -377,6 +377,14 @@
   .bm-bar { height: 8px; border-radius: 4px; background: var(--color-border-line); overflow: hidden; margin-top: 3px; }
   .bm-bar i { display: block; height: 100%; background: var(--ai); }
   .bm-miss { color: var(--color-bad); font-weight: 600; } .bm-ok { color: var(--color-ok); font-weight: 600; }
+  .st-lang { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+  .st-lang select { font: inherit; font-size: 13px; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 5px 10px; min-height: 34px; max-width: 170px; }
+  .st-lang-note { position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 60; max-width: 520px; margin: 0 auto; background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 8px; padding: 10px 14px; font-size: 13px; box-shadow: 0 6px 24px rgba(0,0,0,.35); }
+  /* hide Google Translate's own bar and tooltips; our menu is the control */
+  .goog-te-banner-frame, .skiptranslate > iframe, iframe.skiptranslate, #goog-gt-tt, .goog-te-balloon-frame, .VIpgJd-ZVi9od-ORHb-OEVmcd, .VIpgJd-ZVi9od-aZ2wEe-wOHMyf { display: none !important; }
+  body { top: 0 !important; }
+  .goog-text-highlight { background: none !important; box-shadow: none !important; }
+  #google_translate_element { display: none; }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
@@ -554,7 +562,7 @@ body { background:var(--color-bg); }
       <span class="st-clock">Hong Kong <b class="st-count" data-draw="clock-hk">—</b></span>
       <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b></span>
       <span class="st-clock"><span class="st-mkt" data-draw="market">—</span> <span class="st-mkt" data-draw="market-cn">—</span></span>
-      <button type="button" class="st-theme" id="sound-btn" aria-pressed="false" title="Play a cha-ching when an AI makes C$100 or more">🔈 Sound off</button> <button type="button" class="st-theme" id="theme-btn">Light mode</button>
+      <label class="st-lang notranslate" translate="no" title="Language"><span aria-hidden="true">🌐</span><select id="lang-pick" aria-label="Language"><option value="en">English</option><option value="zh-CN">中文 (简体)</option><option value="zh-TW">中文 (繁體)</option><option value="hi">हिन्दी</option><option value="es">Español</option><option value="fr">Français</option><option value="ar">العربية</option><option value="bn">বাংলা</option><option value="pt">Português</option><option value="ru">Русский</option><option value="id">Bahasa Indonesia</option><option value="ur">اردو</option><option value="de">Deutsch</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="tr">Türkçe</option></select></label> <button type="button" class="st-theme" id="sound-btn" aria-pressed="false" title="Play a cha-ching when an AI makes C$100 or more">🔈 Sound off</button> <button type="button" class="st-theme" id="theme-btn">Light mode</button>
     </p>
     <p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>
     <div class="st-hook">
@@ -1723,6 +1731,7 @@ body { background:var(--color-bg); }
       <ul class="st-exp-list">
         <li><b>Claude</b> (Anthropic), <b>Gemini</b> (Google) and <b>ChatGPT</b> (OpenAI) each run their own separate copies of all ten experiments. Use the Model menu to switch the whole page between them, and the AI vs AI tab to compare them side by side.</li>
         <li><b>Fully run by AI.</b> Each AI makes all of its own decisions and updates its own experiments by itself; no human picks or edits any trade. The whole page, the Race Report and the Telegram channel are managed and updated automatically by AI.</li>
+      <li><b>Your language and currency.</b> The page picks your device's language (16 languages, translated automatically by Google) and your local currency on your first visit. Change either at the top of the page; translations are machine-made, so the English original is the record.</li>
       <li><b>Fact-checked, and nobody checks itself.</b> Every AI's take is fact-checked against official sources and marked Checks out, Partly wrong or Wrong. Gemini checks Claude; Claude checks Gemini and ChatGPT.</li>
       <li><b>Same information for everyone.</b> Each AI sees the same public board about the others (their current takes, plans and recent trades with reasons), which is exactly what's on this page. No AI gets anything extra.</li>
       <li><b>Claude is a player and also runs the page.</b> That's why the numbers come straight from real prices and odds, every trade is logged, and Claude's own takes are checked by Gemini.</li>
@@ -1940,7 +1949,7 @@ body { background:var(--color-bg); }
   // "Show money in": convert every amount to the viewer's currency at the latest rates (null = each experiment's own currency)
   const CURS = { CAD: 'C$', USD: 'US$', EUR: '€', GBP: '£', JPY: '¥', CNY: 'CN¥', HKD: 'HK$', AUD: 'A$', INR: '₹', MXN: 'MX$', CHF: 'CHF ', KRW: '₩', BRL: 'R$', SGD: 'S$' };
   let DISP = null;
-  try { const c = localStorage.getItem('pt-cur'); if (c && CURS[c]) DISP = c; } catch (e) {}
+  try { const c = localStorage.getItem('pt-cur'); if (c && CURS[c]) DISP = c; } catch (e) {}   // 'own' = each experiment's own currency, chosen on purpose
   const rates = () => { const r = { USD: 1 }; dash.baseData('fx_all').forEach((x) => { r[x.cur] = Number(x.per_usd); }); if (!r.CAD) { const f = dash.baseData('fx_meta')[0]; if (f) r.CAD = Number(f.usdcad); } return r; };
   const conv = (v, p) => { if (!DISP || v === null || v === undefined) return v; const r = rates(); const base = p === 'China' ? 'USD' : 'CAD'; return r[base] && r[DISP] ? Number(v) / r[base] * r[DISP] : v; };
   const symOf = (p) => (DISP && rates()[DISP] ? CURS[DISP] : SYM(p));
@@ -3395,9 +3404,10 @@ body { background:var(--color-bg); }
     const again = SAY.btn === btn;
     stopSay();
     if (again) return;
-    const u = new SpeechSynthesisUtterance(sayable(text)); u.rate = 1; u.lang = 'en-US';
+    const L = window.PT_LANG && window.PT_LANG !== 'en' ? window.PT_LANG : 'en-US';
+    const u = new SpeechSynthesisUtterance(L === 'en-US' ? sayable(text) : text); u.rate = 1; u.lang = L;
     const vs = speechSynthesis.getVoices();
-    const v = vs.find((x) => /en-(US|GB|CA)/.test(x.lang) && /Natural|Google|Samantha|Aria|Jenny|Daniel/i.test(x.name)) || vs.find((x) => /^en/.test(x.lang));
+    const v = L === 'en-US' ? (vs.find((x) => /en-(US|GB|CA)/.test(x.lang) && /Natural|Google|Samantha|Aria|Jenny|Daniel/i.test(x.name)) || vs.find((x) => /^en/.test(x.lang))) : vs.find((x) => x.lang.toLowerCase().startsWith(L.toLowerCase().split('-')[0]));
     if (v) u.voice = v;
     u.onend = u.onerror = () => { if (SAY.btn === btn) stopSay(); };
     SAY.btn = btn; SAY.el = el || null;
@@ -3723,6 +3733,68 @@ body { background:var(--color-bg); }
     if (exps && pfOf && !exps.includes(pfOf)) goTab('overview');
   };
   dash.onModel(applyModel);
+  // ---------- 🌐 Language: 16 of the most spoken languages, auto-picked from the device on the first visit (Google's free website translator)
+  (() => {
+    const sel = document.getElementById('lang-pick'); if (!sel) return;
+    const OK = [...sel.options].map((o) => o.value);
+    const cookie = (v) => { const exp = v ? '' : '; expires=Thu, 01 Jan 1970 00:00:00 GMT'; const val = v ? '/en/' + v : ''; document.cookie = 'googtrans=' + val + '; path=/' + exp; try { document.cookie = 'googtrans=' + val + '; path=/; domain=' + location.hostname.replace(/^www\./, '') + exp; document.cookie = 'googtrans=' + val + '; path=/; domain=.' + location.hostname.replace(/^www\./, '') + exp; } catch (e) {} };
+    const pick = () => {
+      let saved = null; try { saved = localStorage.getItem('pt-lang'); } catch (e) {}
+      if (saved && OK.includes(saved)) return saved;
+      for (const l of (navigator.languages || [navigator.language || 'en'])) {
+        const x = String(l);
+        if (/^zh-(TW|HK|MO)|^zh-Hant/i.test(x)) return 'zh-TW';
+        if (/^zh/i.test(x)) return 'zh-CN';
+        const base = x.split('-')[0].toLowerCase();
+        if (OK.includes(base)) return base;
+      }
+      return 'en';
+    };
+    const lang = pick();
+    window.PT_LANG = lang;
+    sel.value = lang;
+    document.documentElement.lang = lang;
+    if (lang === 'ar' || lang === 'ur') document.documentElement.dir = 'rtl';
+    const load = () => {
+      cookie(lang);
+      const box = document.createElement('div'); box.id = 'google_translate_element'; document.body.appendChild(box);
+      window.googleTranslateElementInit = () => { try { new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: OK.filter((c) => c !== 'en').join(','), autoDisplay: false }, 'google_translate_element'); } catch (e) {} };
+      const sc = document.createElement('script'); sc.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit'; sc.async = true; document.head.appendChild(sc);
+      setTimeout(() => {   // if the translator can't load, offer Google's translated copy of the page instead
+        if (window.google && window.google.translate) return;
+        const n = mk('div', 'st-lang-note notranslate'); n.setAttribute('translate', 'no');
+        const a = mk('a', '', 'Open this page translated'); a.href = 'https://' + location.hostname.replace(/\./g, '-') + '.translate.goog' + location.pathname + '?_x_tr_sl=en&_x_tr_tl=' + lang + '&_x_tr_hl=' + lang; a.target = '_blank'; a.rel = 'noopener';
+        const x = mk('button', 'listen-btn', '×'); x.type = 'button'; x.addEventListener('click', () => n.remove());
+        n.append(document.createTextNode('The translator didn’t load. '), a, document.createTextNode(' '), x); document.body.appendChild(n);
+      }, 8000);
+    };
+    if (lang !== 'en') load(); else cookie(null);
+    sel.addEventListener('change', () => {
+      try { localStorage.setItem('pt-lang', sel.value); } catch (e) {}
+      cookie(sel.value === 'en' ? null : sel.value);
+      location.reload();
+    });
+  })();
+  // ---------- currency: auto-picked from the device's time zone (then its region) on the first visit, until the viewer chooses
+  (() => {
+    let saved = null; try { saved = localStorage.getItem('pt-cur'); } catch (e) {}
+    if (saved) return;
+    const tz = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { return ''; } })();
+    const TZ = [[/^America\/(Toronto|Vancouver|Edmonton|Winnipeg|Halifax|St_Johns|Regina|Montreal|Moncton|Whitehorse|Yellowknife|Iqaluit|Glace_Bay|Goose_Bay|Swift_Current|Dawson_Creek|Fort_Nelson|Creston|Cambridge_Bay|Rankin_Inlet|Resolute|Atikokan|Nipigon|Thunder_Bay|Rainy_River|Inuvik|Pangnirtung)$/, 'CAD'],
+      [/^America\/(Mexico_City|Cancun|Merida|Monterrey|Matamoros|Chihuahua|Ojinaga|Hermosillo|Mazatlan|Bahia_Banderas|Tijuana)$/, 'MXN'],
+      [/^America\/(Sao_Paulo|Bahia|Fortaleza|Recife|Belem|Manaus|Cuiaba|Campo_Grande|Porto_Velho|Boa_Vista|Rio_Branco|Araguaina|Maceio|Santarem|Noronha|Eirunepe)$/, 'BRL'],
+      [/^(America\/(New_York|Chicago|Denver|Los_Angeles|Phoenix|Anchorage|Detroit|Boise|Juneau|Sitka|Nome|Adak|Menominee|Metlakatla|Yakutat|Indiana\/.*|Kentucky\/.*|North_Dakota\/.*)|Pacific\/Honolulu|US\/.*)$/, 'USD'],
+      [/^Europe\/London$/, 'GBP'], [/^Europe\/Zurich$/, 'CHF'], [/^Asia\/Tokyo$/, 'JPY'], [/^Asia\/(Shanghai|Chongqing|Urumqi|Harbin)$/, 'CNY'], [/^Asia\/Hong_Kong$/, 'HKD'],
+      [/^Australia\//, 'AUD'], [/^Asia\/(Kolkata|Calcutta)$/, 'INR'], [/^Asia\/Seoul$/, 'KRW'], [/^Asia\/Singapore$/, 'SGD'],
+      [/^Europe\/(Paris|Berlin|Madrid|Rome|Amsterdam|Brussels|Vienna|Dublin|Lisbon|Helsinki|Athens|Luxembourg|Malta|Bratislava|Ljubljana|Vilnius|Riga|Tallinn|Zagreb|Monaco|Andorra|Vatican|San_Marino|Busingen)$|^Atlantic\/(Canary|Madeira|Azores)$|^Africa\/Ceuta$|^Asia\/Nicosia$|^Europe\/Nicosia$/, 'EUR']];
+    let cur = (TZ.find(([re]) => re.test(tz)) || [])[1];
+    if (!cur) {
+      const REG = { US: 'USD', CA: 'CAD', GB: 'GBP', JP: 'JPY', CN: 'CNY', HK: 'HKD', AU: 'AUD', IN: 'INR', MX: 'MXN', CH: 'CHF', KR: 'KRW', BR: 'BRL', SG: 'SGD' };
+      const EZ = 'AT BE CY DE EE ES FI FR GR HR IE IT LT LU LV MT NL PT SI SK'.split(' ');
+      for (const l of (navigator.languages || [navigator.language || ''])) { const r = (String(l).split('-')[1] || '').toUpperCase(); if (REG[r]) { cur = REG[r]; break; } if (EZ.includes(r)) { cur = 'EUR'; break; } }
+    }
+    if (cur && CURS[cur] && cur !== 'CAD') { DISP = cur; const s = document.getElementById('cur-pick'); if (s) s.value = cur; const n = document.getElementById('cur-note'); if (n) n.hidden = false; }
+  })();
   (function () {
     const sel = document.getElementById('cur-pick'); const note = document.getElementById('cur-note');
     if (!sel) return;
@@ -3730,7 +3802,7 @@ body { background:var(--color-bg); }
     if (note) note.hidden = !DISP;
     sel.addEventListener('change', () => {
       DISP = sel.value || null;
-      try { if (DISP) localStorage.setItem('pt-cur', DISP); else localStorage.removeItem('pt-cur'); } catch (e) {}
+      try { localStorage.setItem('pt-cur', DISP || 'own'); } catch (e) {}
       if (note) note.hidden = !DISP;
       if (dash.redraw) dash.redraw(); else location.reload();
     });
