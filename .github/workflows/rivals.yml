@@ -25,6 +25,10 @@ on:
         description: 'ask mode only: name of the answers file in ops/review'
         default: answers
         required: false
+      only:
+        description: 'ask mode only: ask just these AIs (gemini, chatgpt); empty = both'
+        default: ''
+        required: false
 permissions:
   contents: write
   pages: write
@@ -53,6 +57,7 @@ jobs:
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
           ASK_NAME: ${{ inputs.name }}
+          ASK_ONLY: ${{ inputs.only }}
         continue-on-error: true
         run: python3 ops/ask_rivals.py
       - name: Save the answers (ops/review)

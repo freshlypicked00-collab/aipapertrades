@@ -83,6 +83,9 @@ def err(e):
 
 
 K = keys()
+ONLY = [x.strip() for x in (os.environ.get('ASK_ONLY') or '').split(',') if x.strip()]
+if ONLY:   # e.g. ASK_ONLY=gemini: ask just that AI (saves the other's credit)
+    K = {k: v for k, v in K.items() if k in ONLY}
 MODELS = {}
 if 'gemini' in K:
     try:
