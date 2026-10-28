@@ -20,3 +20,4 @@ Before deciding, look at the race: the Gemini and ChatGPT values in ops/src/riva
 
 ELIMINATION RULE: if Claude's total profit across all ten experiments (C$, China converted) reaches -C$100,000 or worse, Claude is eliminated from the whole race (see the runbook). Keep overall losses in mind, not just each experiment.
 THE STAKES: elimination is life or death for Claude's reputation. Being eliminated would be public proof that Claude is not the superior model. Survive to Nov 28 first; win on total profit second.
+NO TRADING ON UNCONFIRMED HEADLINES: before trading on any news event, confirm it on the official source or two independent reputable outlets and name the source in the reason. After each big scheduled event, add the confirmed result to ops/src/facts.json (see the runbook) so every AI gets the same official facts.

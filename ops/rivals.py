@@ -438,10 +438,12 @@ def money(v, cur):
 
 def standings(state, fx, me):
     """Latest value of every AI in every experiment, plus total profit in C$, for the prompt."""
-    latest = {}
+    latest, base = {}, {}
     try:
-        for h in json.load(open('ops/src/history.json')):
+        for h in sorted(json.load(open('ops/src/history.json')), key=lambda h: datetime.fromisoformat(h['at'])):
             latest[('claude', h['portfolio'])] = (h['at'], float(h['value']))
+            if datetime.fromisoformat(h['at']) <= FRESH_START:
+                base[h['portfolio']] = float(h['value'])
     except Exception as e:
         print('standings: no Claude history', e)
     for h in state.get('history', []):
@@ -455,14 +457,15 @@ def standings(state, fx, me):
             if (mid, e) not in latest:
                 continue
             v = latest[(mid, e)][1]
-            total += (v - 100000) * (fx['USDCAD'] if e == 'China' else 1)
+            start = base.get(e, 100000) if mid == 'claude' else 100000
+            total += (max(v, 0) - start) * (fx['USDCAD'] if e == 'China' else 1)
             parts.append(f"{EXP_LABEL[e]} {(v / 100000 - 1) * 100:+.1f}%")
         if parts:
             rows.append((total, f"- {nm}{' (you)' if mid == me else ''}: total profit {'+' if total >= 0 else '-'}C${abs(total):,.0f}" + (f" (C${100000 + total:,.0f} away from elimination)" if mid == me else '') + "; " + ', '.join(parts)))
     if not rows:
         return []
     rows.sort(key=lambda x: -x[0])
-    return ['', 'THE RACE RIGHT NOW (shown publicly in the Overall section of the AI vs AI tab). The overall winner is the AI with the most total profit in C$ across all ten experiments (China converted from US$); each experiment is also compared on its own. Best first:'] + [r[1] for r in rows] + \
+    return ['', 'THE RACE RIGHT NOW (shown publicly in the Overall section of the AI vs AI tab). The overall winner is the AI with the most total profit in C$ since the Oct 28 9:30 a.m. ET fresh start across all ten experiments (China converted from US$; a busted experiment counts as losing at most its 100,000); each experiment is also compared on its own. Best first:'] + [r[1] for r in rows] + \
         ['This is information only. Do not copy another AI; make your own decisions.', '']
 
 def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refused=(), take_info='', race=()):
@@ -483,7 +486,14 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
     ]
     lines += ['- ' + RULES[e] for e in exps]
     lines += list(race)
-    lines += [f'Exchange rates now: USD/CAD {fx["USDCAD"]:.4f}, USD/CNY {fx["USDCNY"]:.4f}.', 'Use web search to check news and current prices before deciding.', '']
+    try:
+        facts = [f for f in json.load(open('ops/src/facts.json')) if (NOW - datetime.fromisoformat(f['at'])).total_seconds() < 3 * 86400]
+    except Exception:
+        facts = []
+    if facts:
+        lines += ['OFFICIAL RESULTS (checked against the official source; the same list goes to every AI). Trust these over headlines or your own assumptions. Never trade on a result that contradicts this list:'] + \
+                 [f"- {f['event']} ({f['at'][:10]}): {f['result']} Source: {f['source']}" for f in facts] + ['']
+    lines += [f'Exchange rates now: USD/CAD {fx["USDCAD"]:.4f}, USD/CNY {fx["USDCNY"]:.4f}.', 'Use web search to check news and current prices before deciding. NO TRADING ON UNCONFIRMED HEADLINES: before you trade because of a news event (a rate decision, data release, earnings, deal, war, ruling), confirm it on the official source (the central bank, agency or company itself) or at least two independent reputable outlets, and say in your reason which source confirmed it. If you cannot confirm it, do not trade on it.', '']
     if 'Sports' in exps:
         gl = [g for g in espn_games().values() if g['state'] == 'pre' and g['home_ml'] and g['away_ml']
               and datetime.fromisoformat(g['start'].replace('Z', '+00:00')) > NOW]
@@ -1004,7 +1014,7 @@ def main():
                 b['busted'] = iso()
                 head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(r['label'], r['label'])
                 tg(f"{head}\n💥 <b>BUSTED in {EXP_LABEL[e]}</b>\n{r['label']} lost the whole 100,000 in this experiment and is out of that race for the rest of the month.\n{SITE}", silent=False)
-        overall = sum((values[e] - 100000) * (fx['USDCAD'] if e == 'China' else 1) for e in exps)
+        overall = sum((max(values[e], 0) - 100000) * (fx['USDCAD'] if e == 'China' else 1) for e in exps)
         if overall <= -100000 and NOW >= FRESH_START:
             m['eliminated'] = iso()
             for e in exps:

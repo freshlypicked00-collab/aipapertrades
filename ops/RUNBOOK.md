@@ -14,7 +14,7 @@ given in the task prompt.
 **The ten are separate experiments.** Each started with its own C$100,000 (US$100,000 for China)
 and is judged only against that amount and its own benchmark. Each experiment is never merged into one portfolio, never
 managed as one pot, and never described as one C$1,000,000 portfolio in the log,
-the ledger, the self-assessment or anywhere else. The one exception: the overall AI-vs-AI race is ranked by total profit in C$ across all ten (China converted from US$), shown in the Overall section of the AI vs AI tab.
+the ledger, the self-assessment or anywhere else. The one exception: the overall AI-vs-AI race is ranked by total profit in C$ since the Oct 28 9:30 a.m. ET fresh start across all ten (China converted from US$; Claude's pre-fresh-start Sports and Predictions results don't count; a busted experiment counts as losing at most its 100,000), shown in the Overall section of the AI vs AI tab.
 
 An **UPDATE ALL** checks every portfolio: fresh prices, results, rules, trades,
 then publishes everything. It runs every hour.
@@ -336,3 +336,6 @@ If an AI's TOTAL profit across all its experiments (C$, China converted from US$
   (if it fails, note it in your report and carry on; GitHub's own schedule is a backup that only runs when no check-in happened in the last 35 minutes). Don't start one in the daily accuracy check.
 - Scheduled runs must NOT edit `ops/src/rivals.json` or trade for the rivals. Just keep it when rebuilding (build_site.py reads it). If `git pull --rebase` conflicts on index.html or data.json, take the latest origin version and rebuild.
 - The daily accuracy check may read rivals.json and report anything odd (a price far off, a refused-order pattern, `last_run.status` errors) in its report, but changes nothing there.
+
+## Official results (ops/src/facts.json)
+After every scheduled big event (central bank decisions, CPI, jobs reports, major earnings), check the result on the OFFICIAL source (the central bank, the statistics agency, the company's own release) and append one entry: at (ET ISO), event, result (one plain neutral sentence, numbers included), source (URL). Facts only, no opinion or market call. Every AI, including Claude, gets the last 3 days of entries at each check-in. Never edit old entries; add a correction entry if one was wrong.

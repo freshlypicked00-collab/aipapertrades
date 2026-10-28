@@ -3074,7 +3074,10 @@ body { background:var(--color-bg); }
         counted++;
         const r = ser.map((s) => {
           const mdl = models.find((x) => x.id === s.id);
-          return { id: s.id, gain: (s.pts[s.pts.length - 1].v - 100000) * (exp === 'China' ? usdcad : 1), pct: s.pts[s.pts.length - 1].v / 100000 - 1, busted: !!(mdl && mdl.books && mdl.books[exp] && mdl.books[exp].busted) };
+          const FS = new Date('2026-10-28T13:30:00Z');
+          const pre = s.pts.filter((q) => q.t <= FS); const base = s.id === 'claude' && pre.length ? pre[pre.length - 1].v : 100000;
+          const end = Math.max(0, s.pts[s.pts.length - 1].v);   // a busted experiment loses at most what it had
+          return { id: s.id, gain: (end - base) * (exp === 'China' ? usdcad : 1), pct: s.pts[s.pts.length - 1].v / 100000 - 1, busted: !!(mdl && mdl.books && mdl.books[exp] && mdl.books[exp].busted) };
         });
         r.forEach((x) => { tally[x.id].profit += x.gain; if (x.gain > 0) tally[x.id].made += x.gain; else tally[x.id].lost += x.gain; tally[x.id].pcts.push(x.pct); if (x.busted) tally[x.id].busted++; if (x.pct > 0) tally[x.id].up++; });
         const best = Math.max(...r.map((x) => x.pct));
@@ -3084,7 +3087,7 @@ body { background:var(--color-bg); }
       if (counted) {
         const box = mk('div', 'h2h-exp');
         box.appendChild(mk('h3', '', 'Overall'));
-        box.appendChild(mk('p', 'st-note', 'Total profit or loss across the ' + counted + ' experiments every AI shown has started, in Canadian dollars (China converted from US$ at the latest rate). Ranked by total profit. The final winner is decided on Nov 28. An AI whose total loss reaches C$100,000 is ELIMINATED from the whole race.'));
+        box.appendChild(mk('p', 'st-note', 'Total profit or loss since the fresh start (Oct 28, 9:30 a.m. ET) across the ' + counted + ' experiments every AI shown has started, in Canadian dollars (China converted from US$ at the latest rate). Claude’s sports and prediction bets from before the fresh start don’t count here. A busted experiment counts as losing at most its 100,000. Ranked by total profit. The final winner is decided on Nov 28. An AI whose total loss reaches C$100,000 is ELIMINATED from the whole race.'));
         const rows = mk('ul', 'h2h-rows');
         const avg = (a) => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
         const ranked = SEL.map((id) => ({ id, ...tally[id], avg: avg(tally[id].pcts) })).sort((a, b) => b.profit - a.profit);
