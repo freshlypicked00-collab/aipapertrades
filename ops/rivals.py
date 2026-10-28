@@ -587,7 +587,13 @@ def main():
                     notes.append(f'{model}: ' + (f'HTTP {e.code}{detail}' if isinstance(e, urllib.error.HTTPError) else str(e)[:120]))
                     if i == len(picks) - 1:
                         raise
-            reply = parse_reply(text)
+            try:
+                reply = parse_reply(text)
+            except ValueError:
+                notes.append(f'{m.get("model")}: reply was not JSON; asked again')
+                text, src2 = r['ask'](key, m['model'], prompt + '\n\nIMPORTANT: reply with ONLY the JSON object, starting with { and ending with }. No other text.')
+                sources = sources or src2
+                reply = parse_reply(text)
             take = str(reply.get('take', ''))[:300] or None
             for e, txt in (reply.get('thoughts') or {}).items():
                 if e in exps and str(txt).strip():
