@@ -191,17 +191,36 @@ GEMINI_NO_SEARCH = False
 
 
 def ask_gemini(key, model, prompt):
+    import time
+    last = None
+    for attempt in range(3):
+        try:
+            return _ask_gemini(key, model, prompt, search=attempt < 2)
+        except urllib.error.HTTPError as e:
+            last = e
+            if e.code not in (429, 500, 503):
+                raise
+        except Exception as e:
+            last = e
+        time.sleep(15 * (attempt + 1))
+    raise last
+
+
+def _ask_gemini(key, model, prompt, search=True):
     url = f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}'
-    body = {'contents': [{'role': 'user', 'parts': [{'text': prompt}]}], 'tools': [{'google_search': {}}]}
+    body = {'contents': [{'role': 'user', 'parts': [{'text': prompt}]}]}
+    if search:
+        body['tools'] = [{'google_search': {}}]
+    else:
+        global GEMINI_NO_SEARCH
+        GEMINI_NO_SEARCH = True
     try:
         j = get_json(url, {'Content-Type': 'application/json'}, json.dumps(body).encode(), timeout=600)
     except urllib.error.HTTPError as e:
-        if e.code not in (400, 429):
+        if e.code != 400 or 'tools' not in body:
             raise
-        body.pop('tools')  # search grounding can have its own quota; try again without it
+        body.pop('tools')
         j = get_json(url, {'Content-Type': 'application/json'}, json.dumps(body).encode(), timeout=600)
-        global GEMINI_NO_SEARCH
-        GEMINI_NO_SEARCH = True
     cand = j['candidates'][0]
     text = ''.join(p.get('text', '') for p in cand.get('content', {}).get('parts', []))
     sources = [{'title': c['web'].get('title') or c['web']['uri'], 'url': c['web']['uri']}
