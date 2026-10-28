@@ -288,7 +288,7 @@
   .h2h-takes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
   .h2h-takes li { border-left: 3px solid var(--ai); padding-left: 10px; font-size: 14px; }
   .h2h-takes b { display: block; font-size: 12px; color: var(--color-fg-muted); font-weight: 600; }
-  .h2h-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .h2h-table { width: 100%; min-width: 720px; border-collapse: collapse; font-size: 13px; }
   .h2h-table th, .h2h-table td { text-align: left; padding: 6px 8px 6px 0; border-bottom: 1px solid var(--color-border-line); vertical-align: top; }
   .h2h-table th { color: var(--color-fg-muted); font-weight: 500; }
   .h2h-scroll { overflow-x: auto; }
@@ -1482,7 +1482,7 @@ body { background:#0b0b0a; }
   <section class="st-page" id="h2h" data-page="h2h" hidden>
     <section class="st-card" aria-labelledby="h-h2h">
       <h2 class="st-h2" id="h-h2h">Claude vs Gemini vs ChatGPT</h2>
-      <p class="st-note">Three AI models run their own separate copies of the same three experiments: stocks and anything, crypto, and prediction markets. Each copy starts with its own C$100,000, follows the same rules with real-world prices and no fees, and is scored only against its own start. Claude runs every experiment on this site; Gemini (Google) and ChatGPT (OpenAI) check in every hour, search the news themselves and make their own trades. Returns are measured from the day each model joined.</p>
+      <p class="st-note">Claude runs all ten experiments on this site. Gemini (Google) runs its own separate copies of five of them: stocks and anything, crypto, China stocks, metals, and oil and energy. ChatGPT (OpenAI) runs its own copies of stocks and anything, crypto, and prediction markets. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored only against its own start; nothing is ever added together. Gemini and ChatGPT check in every hour, search the news themselves and make their own trades. Returns are measured from the day each model joined.</p>
       <div data-draw="h2h" data-source="rivals_models rivals_history rivals_trades rivals_takes history totals take"></div>
     </section>
   </section>
@@ -2822,7 +2822,9 @@ body { background:#0b0b0a; }
 
   // ---- Head to head: Claude vs Gemini vs ChatGPT ----
   const AIS = { claude: { label: 'Claude', color: '#d97757' }, gemini: { label: 'Gemini', color: '#4f8ff7' }, chatgpt: { label: 'ChatGPT', color: '#10a37f' } };
-  const H2H_EXPS = ['Stocks', 'Crypto', 'Predictions'];
+  const H2H_EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Predictions'];
+  const H2H_PLAN = { gemini: ['Stocks', 'Crypto', 'China', 'Metals', 'Energy'], chatgpt: ['Stocks', 'Crypto', 'Predictions'] };
+  const H2H_START = (exp) => 100000;
   dash.draw('h2h', (el) => {
     const M = dash.data('rivals_models'), RH = dash.data('rivals_history'), RT = dash.data('rivals_trades'), RK = dash.data('rivals_takes');
     const CH = dash.data('history'), TK = dash.data('take');
@@ -2836,7 +2838,7 @@ body { background:#0b0b0a; }
       if (c.length) out.push({ id: 'claude', pts: c });
       models.forEach((m) => {
         const p = rh.filter((r) => r.model === m.id && r.experiment === exp).map((r) => ({ t: new Date(r.at), v: Number(r.value) })).sort((a, b) => a.t - b.t);
-        if (p.length) out.push({ id: m.id, pts: [{ t: new Date(m.started_at), v: 100000 }].concat(p), model: m.model });
+        if (p.length) out.push({ id: m.id, pts: [{ t: new Date((m.started || {})[exp] || p[0].at), v: 100000 }].concat(p), model: m.model });
       });
       return out;
     };
@@ -2853,13 +2855,13 @@ body { background:#0b0b0a; }
         if (i === 0 && ranked.length > 1 && s.pct !== ranked[1].pct) nm.appendChild(mk('span', 'h2h-lead', 'Leading'));
         li.appendChild(nm);
         const pc = mk('span', 'h2h-pct', stFmt.pct(s.pct)); tone(pc, s.pct); li.appendChild(pc);
-        li.appendChild(mk('span', 'h2h-sub', 'Now ' + stFmt.cad(s.last) + ' · started ' + d3.timeFormat('%b %-d')(s.pts[0].t)));
+        li.appendChild(mk('span', 'h2h-sub', 'Now ' + stFmt.money(s.last, exp) + ' · started ' + d3.timeFormat('%b %-d')(s.pts[0].t)));
         rows.appendChild(li);
       });
-      ['gemini', 'chatgpt'].filter((id) => !ser.some((s) => s.id === id)).forEach((id) => {
+      ['gemini', 'chatgpt'].filter((id) => H2H_PLAN[id].includes(exp) && !ser.some((s) => s.id === id)).forEach((id) => {
         const li = mk('li', 'h2h-row h2h-wait'); li.style.setProperty('--ai', AIS[id].color);
         li.appendChild(mk('span', 'h2h-name', AIS[id].label));
-        li.appendChild(mk('span', 'h2h-sub', 'Not started yet'));
+        li.appendChild(mk('span', 'h2h-sub', 'Starts at its first hourly check-in'));
         rows.appendChild(li);
       });
       box.appendChild(rows);
@@ -2893,8 +2895,10 @@ body { background:#0b0b0a; }
       trades.forEach((t) => {
         const tr = mk('tr');
         const what = t.action + ' ' + (t.name && t.name !== t.symbol ? t.name + ' (' + t.symbol + ')' : t.symbol) + (t.outcome ? ': ' + t.outcome : '');
-        const px = t.experiment === 'Predictions' ? (t.price_usd * 100).toFixed(1) + '¢ a share' : 'US$' + d3.format(t.price_usd >= 100 ? ',.2f' : ',.4~f')(t.price_usd) + (t.experiment === 'Crypto' ? ' per coin' : ' per share');
-        [stFmt.when(t.at), (AIS[t.model] || { label: t.model }).label, LABEL[t.experiment] || t.experiment, what, px, stFmt.cad(t.cad), t.reason].forEach((v) => tr.appendChild(mk('td', '', v)));
+        const cs = { USD: 'US$', CNY: '¥', CAD: 'C$' }[t.pcur] || 'US$';
+        const unit = t.experiment === 'Crypto' ? ' per coin' : (t.experiment === 'Stocks' || t.experiment === 'China') ? ' per share' : '';
+        const px = t.experiment === 'Predictions' ? (t.price * 100).toFixed(1) + '¢ a share' : cs + d3.format(t.price >= 100 ? ',.2f' : ',.4~f')(t.price) + unit;
+        [stFmt.when(t.at), (AIS[t.model] || { label: t.model }).label, LABEL[t.experiment] || t.experiment, what, px, stFmt.money(t.amount, t.experiment), t.reason].forEach((v) => tr.appendChild(mk('td', '', v)));
         tb.appendChild(tr);
       });
       wrap.appendChild(tb); rbox.appendChild(wrap);
