@@ -424,10 +424,11 @@ data['checkins'] = ([{'id': 'claude', 'at': _cl.isoformat() if _cl else None, 's
 data['geo'] = [json.load(open(os.path.join(SRC, 'geo.json')))] if os.path.exists(os.path.join(SRC, 'geo.json')) else []
 data['profiles'] = data['profile'] + r.get('profiles', [])
 data['rivals_plans'] = r.get('plans', [])
-# Betting minimums: C$ wagered per betting week (Sports bets and parlays plus Prediction-market buys) for every AI
-_W = [('Week 1', '2026-10-28T17:45:00+00:00', '2026-11-04T05:00:00+00:00'), ('Week 2', '2026-11-04T05:00:00+00:00', '2026-11-11T05:00:00+00:00'),
-      ('Week 3', '2026-11-11T05:00:00+00:00', '2026-11-18T05:00:00+00:00'), ('Week 4', '2026-11-18T05:00:00+00:00', '2026-11-25T05:00:00+00:00'),
-      ('Final days', '2026-11-25T05:00:00+00:00', '2026-11-28T21:00:00+00:00')]
+# Betting minimums (no weekly minimum since Oct 28, 5:30 p.m. ET): C$3,000 a day and C$100,000 in total by Nov 28 for every AI.
+# The daily minimum becomes 25% of the betting balance (Sports bankroll + Predictions value) once that is under C$12,000.
+from zoneinfo import ZoneInfo as _ZI
+_ny = _ZI('America/New_York')
+_BFS, _BEND = '2026-10-28T17:45:00+00:00', '2026-11-28T21:00:00+00:00'
 def _when(x):
     return datetime.fromisoformat(str(x).replace('Z', '+00:00'))
 _rows = {'claude': [(b.get('placed_at'), float(b.get('stake_cad') or 0)) for b in data['bets'] if b.get('placed_at')] +
@@ -435,19 +436,37 @@ _rows = {'claude': [(b.get('placed_at'), float(b.get('stake_cad') or 0)) for b i
 for _t in r.get('trades', []):
     if _t.get('experiment') in ('Sports', 'Predictions') and _t.get('action') in ('Bet', 'Buy') and _t.get('model') in ('gemini', 'chatgpt') and not _t.get('void'):
         _rows.setdefault(_t['model'], []).append((_t['at'], float(_t.get('amount') or 0)))
+def _betbal(mid):
+    if mid == 'claude':
+        sp = 100000.0 + sum(float(b.get('result_cad') or 0) for b in data['bets'] if b.get('status') not in ('Open', None))
+        return sp + sum(float(h.get('value_cad') or 0) for h in data['holdings'] if h['portfolio'] == 'Predictions')
+    m = (r.get('models') or {}).get(mid) or {}
+    bk, fxr = m.get('books') or {}, r.get('fx') or {}
+    tot = 0.0
+    if 'Sports' in bk:
+        tot += 100000.0 + sum(x['result'] for x in bk['Sports'].get('bets', []) if x['status'] not in ('Open', 'Void'))
+    if 'Predictions' in bk:
+        pb = bk['Predictions']
+        def _cad(q):
+            amt = q['qty'] * q.get('last', q['entry'])
+            usd = amt if q['pcur'] == 'USD' else amt / fxr.get('USDCNY', 7) if q['pcur'] == 'CNY' else amt / fxr.get('USDCAD', 1.4)
+            return usd if pb['cur'] == 'USD' else usd * fxr.get('USDCAD', 1.4)
+        tot += pb['cash'] + sum(_cad(q) for q in pb['positions'].values())
+    return tot or 200000.0
 data['betmins'] = []
+_today = datetime.now(_ny).date()
 for _m in ('claude', 'gemini', 'chatgpt'):
-    _rs = [(a, v) for a, v in _rows.get(_m, []) if _when(a) >= _when(_W[0][1])]
-    for _n, _a, _b in _W:
-        data['betmins'].append({'model': _m, 'week': _n, 'start': _a, 'end': _b, 'min': 25000 if _n.startswith('Week') else 0,
-                                'wagered': round(sum(v for a, v in _rs if _when(_a) <= _when(a) < _when(_b)), 2)})
-    data['betmins'].append({'model': _m, 'week': 'Total', 'start': _W[0][1], 'end': _W[-1][2], 'min': 100000, 'wagered': round(sum(v for a, v in _rs), 2)})
-    # today (ET): at least C$3,000 a day, at most 25% of the bankroll on one day's games
-    from zoneinfo import ZoneInfo as _ZI
-    _ny = _ZI('America/New_York'); _d0 = datetime.now(_ny).replace(hour=0, minute=0, second=0, microsecond=0); _d1 = _d0 + timedelta(days=1)
-    if _d0 < _when(_W[-1][2]):
-        data['betmins'].append({'model': _m, 'week': 'Today', 'start': max(_d0, _when(_W[0][1])).isoformat(), 'end': _d1.isoformat(), 'min': 3000,
-                                'wagered': round(sum(v for a, v in _rs if _d0 <= _when(a) < _d1), 2)})
+    _rs = [(a, v) for a, v in _rows.get(_m, []) if _when(a) >= _when(_BFS)]
+    _bal = _betbal(_m)
+    _dmin = 3000.0 if _bal >= 12000 else max(1.0, round(_bal * 0.25, 2))
+    _d, _dlast = _when(_BFS).astimezone(_ny).date(), _when(_BEND).astimezone(_ny).date()
+    while _d <= min(_today, _dlast):
+        _a = datetime(_d.year, _d.month, _d.day, tzinfo=_ny); _b = datetime.combine(_d + timedelta(days=1), datetime.min.time(), tzinfo=_ny)
+        _a, _b = max(_a, _when(_BFS)), min(_b, _when(_BEND))
+        data['betmins'].append({'model': _m, 'week': 'Day', 'day': _d.isoformat(), 'start': _a.isoformat(), 'end': _b.isoformat(), 'min': _dmin,
+                                'wagered': round(sum(v for a, v in _rs if _a <= _when(a) < _b), 2)})
+        _d += timedelta(days=1)
+    data['betmins'].append({'model': _m, 'week': 'Total', 'start': _BFS, 'end': _BEND, 'min': 100000, 'wagered': round(sum(v for a, v in _rs), 2), 'day_min': _dmin})
 # which experiments each AI leads right now (highest value of the three; ties lead nothing)
 _LBL = {'Stocks': 'Stocks', 'Crypto': 'Crypto', 'China': 'China stocks', 'Metals': 'Metals', 'Energy': 'Oil and energy', 'Options': 'Options',
         'Currencies': 'Currencies', 'Safe': 'Play it safe', 'Sports': 'Sports', 'Predictions': 'Prediction markets'}

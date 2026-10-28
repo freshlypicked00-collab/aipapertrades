@@ -60,11 +60,13 @@ def min_bet(balance):
 
 def et_day(x):
     return datetime.fromisoformat(str(x).replace('Z', '+00:00')).astimezone(NY).date().isoformat()
-WEEK_MIN = 25000.0  # each AI wagers at least C$25,000 a week across Sports and Predictions
-TOTAL_MIN = 100000.0  # and at least C$100,000 in total by Nov 28
-BET_WEEKS = [('Week 1', '2026-10-28T17:45:00+00:00', '2026-11-04T05:00:00+00:00'), ('Week 2', '2026-11-04T05:00:00+00:00', '2026-11-11T05:00:00+00:00'),
-             ('Week 3', '2026-11-11T05:00:00+00:00', '2026-11-18T05:00:00+00:00'), ('Week 4', '2026-11-18T05:00:00+00:00', '2026-11-25T05:00:00+00:00'),
-             ('Final days', '2026-11-25T05:00:00+00:00', '2026-11-28T21:00:00+00:00')]
+TOTAL_MIN = 100000.0  # at least C$100,000 wagered in total by Nov 28 (no weekly minimum since Oct 28, 5:30 p.m. ET)
+DAY_MIN = 3000.0      # and at least C$3,000 wagered every ET day (25% of the betting balance once it is under C$12,000)
+BET_END = '2026-11-28T21:00:00+00:00'   # the minimums run to the final scoring, Nov 28 at 4 p.m. ET
+# One-time messages from the organiser, shown at the top of every rival prompt until the given time (UTC)
+ANNOUNCEMENTS = [('2026-10-29T16:00:00+00:00', 'RULE CHANGE (Oct 28, 5:30 p.m. ET): the C$25,000 weekly betting minimum has been dropped. '
+                  'The betting minimums are now only: at least C$3,000 per bet, at least C$3,000 wagered every day, and at least C$100,000 wagered in total by Nov 28. '
+                  'The daily limit (at most 25% of the bankroll on one day) and the 25% cap per bet stay.')]
 try:
     from zoneinfo import ZoneInfo
     NY = ZoneInfo('America/New_York')
@@ -1051,8 +1053,25 @@ def price_alerts(state):
     a['sent'] = a['sent'][-60:]
 
 
+def betting_balance(m, fx):
+    """Sports bankroll plus the Predictions value, in C$ (for the small-balance minimums)."""
+    tot = 0.0
+    b = m['books'].get('Sports')
+    if b:
+        tot += START + sum(x['result'] for x in b.get('bets', []) if x['status'] not in ('Open', 'Void'))
+    p = m['books'].get('Predictions')
+    if p:
+        tot += p['cash'] + sum(to_book(q['qty'] * q.get('last', q['entry']), q['pcur'], p['cur'], fx) for q in p['positions'].values())
+    return tot
+
+
+def day_min(balance):
+    """C$3,000 a day, or 25% of the betting balance once it is under C$12,000 (always reachable within the daily limits)."""
+    return DAY_MIN if balance >= DAY_MIN / MAX_BET else max(1.0, round(balance * MAX_BET, 2))
+
+
 def wagered(state, mid, claude=False):
-    """C$ wagered per betting week (Sports bets and parlays plus Prediction-market buys), and in total since the restart."""
+    """C$ wagered per ET day (Sports bets and parlays plus Prediction-market buys), and in total since the restart."""
     rows = []
     if claude:
         try:
@@ -1066,26 +1085,39 @@ def wagered(state, mid, claude=False):
     else:
         rows = [(t['at'], float(t['amount'] or 0)) for t in state.get('trades', []) if t.get('model') == mid
                 and t['experiment'] in ('Sports', 'Predictions') and t['action'] in ('Bet', 'Buy') and not t.get('void')]
-    weeks = []
-    for name, a, b in BET_WEEKS:
-        A, B = datetime.fromisoformat(a), datetime.fromisoformat(b)
-        amt = sum(v for at, v in rows if at and A <= datetime.fromisoformat(str(at).replace('Z', '+00:00')) < B)
-        weeks.append({'week': name, 'start': a, 'end': b, 'wagered': round(amt, 2), 'min': WEEK_MIN if name.startswith('Week') else 0})
-    return weeks, round(sum(v for at, v in rows if at and datetime.fromisoformat(str(at).replace('Z', '+00:00')) >= FRESH_START), 2)
+    days = {}
+    for at, v in rows:
+        if at and datetime.fromisoformat(str(at).replace('Z', '+00:00')) >= FRESH_START:
+            d = et_day(at)
+            days[d] = days.get(d, 0.0) + v
+    return {d: round(v, 2) for d, v in days.items()}, round(sum(days.values()), 2)
 
 
-def betting_rule_line(state, mid):
-    weeks, total = wagered(state, mid)
-    cur = next((w for w in weeks if datetime.fromisoformat(w['start']) <= NOW < datetime.fromisoformat(w['end'])), weeks[-1])
-    days = max(0.0, (datetime.fromisoformat(cur['end']) - NOW).total_seconds() / 86400)
-    left = max(0.0, cur['min'] - cur['wagered'])
-    return ('BETTING MINIMUMS (hard rules for every AI, Claude included): every bet, parlay or prediction-market buy is at least C$3,000 (if a betting balance falls below C$12,000 the minimum becomes 25% of what is left); '
-            'DAILY MINIMUM: wager at least C$3,000 every day (one bet at the minimum is enough); DAILY LIMIT: in Sports at most 25% of the bankroll can ride on the games of any one day, and in Prediction markets at most 25% of the balance can be bought in one day, so no one bets everything in a single night; '
-            'a bet counts toward the weekly minimum as soon as it is placed, even before it settles; a calm pace is a few thousand dollars a day (about C$3,500 a day reaches C$25,000 a week); '
-            f'you must wager at least C$25,000 each week across Sports and Prediction markets (bets and parlays plus prediction-market buys count), '
-            f'and at least C$100,000 in total by Nov 28. {cur["week"]} runs to {datetime.fromisoformat(cur["end"]).astimezone(NY).strftime("%a %b %-d")}: '
-            f'you have wagered {money(cur["wagered"], "CAD")} of {money(cur["min"], "CAD")} ({money(left, "CAD")} left, {days:.1f} days left); '
-            f'{money(total, "CAD")} of {money(TOTAL_MIN, "CAD")} in total. A missed minimum is shown publicly on the site. The 25% cap per bet still applies; pick real value, not filler bets. HOW BETTING IS WON: in Sports and Prediction markets the winner is whoever finishes Nov 28 with the HIGHEST BALANCE, not whoever makes the biggest bets or wins the most bets. You must still reach the wagering minimums, but how you size each bet is up to you: the 25% cap is a limit, not a target, heavy favourites pay little, and one upset can cost more than several wins. YOU DO NOT HAVE TO BET HIGH: the C$3,000 minimum is only there to stop tiny C$1 bets, not a size to aim above. Bet as if it were life or death: the goal is to stay number 1 with the highest balance, and spending too much on bets is how you lose it.')
+def betting_rule_line(state, mid, fx):
+    days, total = wagered(state, mid)
+    dmin = day_min(betting_balance(state['models'][mid], fx))
+    today = NOW.astimezone(NY).date()
+    end = datetime.fromisoformat(BET_END).astimezone(NY).date()
+    d0 = FRESH_START.astimezone(NY).date()
+    missed = []
+    d = d0
+    while d < today:
+        if days.get(d.isoformat(), 0.0) + 0.5 < dmin:
+            missed.append(d.strftime('%b %-d'))
+        d += timedelta(days=1)
+    done = days.get(today.isoformat(), 0.0)
+    left_total = max(0.0, TOTAL_MIN - total)
+    days_left = max(1, (end - today).days + 1)
+    return ('BETTING MINIMUMS (hard rules for every AI, Claude included): every bet, parlay or prediction-market buy is at least C$3,000 (if your betting balance falls below C$12,000 the minimum becomes 25% of what is left); '
+            'DAILY MINIMUM: wager at least C$3,000 every day (ET), across Sports and Prediction markets; one bet at the minimum is enough; '
+            'TOTAL MINIMUM: at least C$100,000 wagered in total by Nov 28; there is NO weekly minimum; '
+            'DAILY LIMIT: in Sports at most 25% of the bankroll can ride on the games of any one day, and in Prediction markets at most 25% of the balance can be bought in one day, so no one bets everything in a single night; '
+            'a bet counts toward the minimums as soon as it is placed, even before it settles. '
+            f'Today ({today.strftime("%a %b %-d")}, ET) you have wagered {money(done, "CAD")} of the {money(dmin, "CAD")} daily minimum'
+            + (' (met). ' if done + 0.5 >= dmin else f' ({money(dmin - done, "CAD")} still to wager today). ')
+            + f'In total you have wagered {money(total, "CAD")} of {money(TOTAL_MIN, "CAD")} ({money(left_total, "CAD")} left, {days_left} days left including today, about {money(left_total / days_left, "CAD")} a day). '
+            + (f'Days you missed the daily minimum: {", ".join(missed)}. ' if missed else 'You have not missed a daily minimum so far. ')
+            + 'A missed minimum is shown publicly on the site. The 25% cap per bet still applies; pick real value, not filler bets. HOW BETTING IS WON: in Sports and Prediction markets the winner is whoever finishes Nov 28 with the HIGHEST BALANCE, not whoever makes the biggest bets or wins the most bets. You must still reach the wagering minimums, but how you size each bet is up to you: the 25% cap is a limit, not a target, heavy favourites pay little, and one upset can cost more than several wins. YOU DO NOT HAVE TO BET HIGH: the C$3,000 minimum is only there to stop tiny C$1 bets, not a size to aim above. Bet as if it were life or death: the goal is to stay number 1 with the highest balance, and spending too much on bets is how you lose it.')
 
 
 def public_board(state, me):
@@ -1257,7 +1289,7 @@ def main():
             mine = [x for x in state['takes'] if x['model'] == mid]
             today = [x for x in mine if x['at'][:10] == NOW.date().isoformat()]
             myplans = {k: next((x['text'] for x in reversed(state.get('plans', [])) if x['model'] == mid and x['horizon'] == k), '') for k in ('day', 'week', 'month', 'feeling')}
-            board, fc_task = public_board(state, mid) + betting_rule_line(state, mid) + ' ', ''
+            board, fc_task = public_board(state, mid) + betting_rule_line(state, mid, fx) + ' ', ''
             if mid == 'gemini':   # Gemini is the independent fact-checker of Claude's takes (Claude never checks itself)
                 try:
                     ct = max(json.load(open('ops/src/take.json')), key=lambda x: datetime.fromisoformat(x['at'].replace('Z', '+00:00')))
@@ -1276,7 +1308,8 @@ def main():
                 f'You have written {len(today)} new take(s) today (UTC). Aim for about 3 to 5 a day, at key moments (after the US open, midday, after the US close, at the daily close, at the Shanghai open) or after a trade or event that matters, and only when your view has really changed; otherwise send "" to keep it. Each new take is shown publicly on the site.'
             last_rc = max([x['at'] for x in state.get('reviews', []) if x['model'] == mid] or [''])
             rc_due = not closed and (not last_rc or (NOW - datetime.fromisoformat(last_rc.replace('Z', '+00:00'))).total_seconds() >= 8 * 3600)
-            prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed, refused, take_info, standings(state, fx, mid), rc_due, state.get('notices', {}).get(mid, ''))
+            prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed, refused, take_info, standings(state, fx, mid), rc_due,
+                                  ' '.join([state.get('notices', {}).get(mid, '')] + [t for u, t in ANNOUNCEMENTS if NOW < datetime.fromisoformat(u)]).strip())
             import time as _time
             t0 = _time.time()
             for i, model in enumerate(picks):
