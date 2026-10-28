@@ -296,6 +296,7 @@ for x in load(S + 'take.json'):
 oldd = {r['day'] for r in load(S + 'ledger.json', BEFORE if not TEST else None)}
 ledger = load(S + 'ledger.json')
 review = load(S + 'review.json')
+race_days = []
 for day in sorted({r['day'] for r in ledger} - oldd):
     rows = [r for r in ledger if r['day'] == day and r['portfolio'] != 'All']
     n = (datetime.fromisoformat(day) - datetime(2026, 10, 28)).days + 1
@@ -313,6 +314,7 @@ for day in sorted({r['day'] for r in ledger} - oldd):
         vals = [h['value'] for h in HIST if h['portfolio'] == r['portfolio']]
         srows.append({'pf': r['portfolio'], 'day': r['pct'] or 0, 'total': (vals[-1] / 100000 - 1) if vals else 0})
     msgs.append(('\n'.join(lines), ('close', srows, f"Day {n} close")))
+    race_days.append((day, n))
 
 # Bundle every trade, bet and settlement from this update into ONE post (with one chart), so the channel isn't flooded.
 activity = [(m, p) for m, p in msgs if (isinstance(p, tuple) and p[0] == 'trade') or isinstance(p, str)]
@@ -335,4 +337,25 @@ for i, (m, pic) in enumerate(msgs):
     m = '🟠 <b>CLAUDE</b> (Anthropic)\n' + m
     loud = isinstance(pic, tuple) and pic[0] == 'close'   # only the daily close makes a sound; trades and takes arrive silently
     send(m + ('' if SITE in m else f'\n{SITE}'), photo, silent=not loud)
+# the race card: one shareable picture of the overall standings after each daily close
+for day, n in race_days[-1:]:
+    try:
+        import racecard
+        fxr = load(S + 'fx.json') or {}
+        usdcad = float(fxr.get('usdcad') or 1.38) if isinstance(fxr, dict) else 1.38
+        start = datetime.fromisoformat(day).replace(tzinfo=timezone.utc)
+        rows, big = racecard.standings(usdcad, start)
+        if rows:
+            pic = racecard.race_card(rows, big, f"After Day {n} · {datetime.fromisoformat(day).strftime('%a %b %-d')}")
+            medal = ['🥇', '🥈', '🥉']
+            txt = [f"🏁 <b>THE RACE after Day {n}</b>", 'Total profit since the Oct 28 start, all ten experiments:']
+            for i, r in enumerate(rows):
+                txt.append(f"{medal[i] if i < 3 else '•'} {racecard.AIS[r['id']][0]}: {'+' if r['total'] >= 0 else '−'}C${abs(r['total']):,.0f}")
+            if big:
+                _, mid, e, d, pct = big
+                txt.append(f"\nBiggest move today: {racecard.AIS[mid][0]} in {racecard.LABEL.get(e, e)}, {'+' if d >= 0 else '−'}C${abs(d):,.0f} ({pct * 100:+.1f}%)")
+            txt.append(f"\nShare it 👉 {SITE}")
+            send('\n'.join(txt), pic, silent=False)
+    except Exception as e:
+        print('race card failed', e)
 print(f'{len(msgs)} message(s)')
