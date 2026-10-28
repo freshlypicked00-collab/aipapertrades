@@ -222,6 +222,10 @@
   .h2h-row .h2h-lead { font-size: 11px; font-weight: 600; color: var(--color-ok); text-transform: uppercase; letter-spacing: .05em; }
   .h2h-row .h2h-pct { font-family: var(--font-anthropic-serif); font-size: 24px; font-variant-numeric: tabular-nums; }
   .h2h-row .h2h-sub { font-size: 12.5px; color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+  .h2h-holds { margin-top: 6px; font-size: 12.5px; color: var(--color-fg-muted); overflow-wrap: anywhere; }
+  .h2h-holds > b { display: block; color: var(--color-fg); font-size: 12px; margin-bottom: 2px; }
+  .h2h-holds ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+  .h2h-holds li b { color: var(--color-fg); font-weight: 600; }
   .h2h-wait { opacity: .7; }
   .h2h-chart { position: relative; }
   .h2h-chart svg { display: block; width: 100%; height: auto; overflow: visible; }
@@ -1587,7 +1591,7 @@
     <section class="st-card" aria-labelledby="h-h2h">
       <h2 class="st-h2" id="h-h2h">Claude vs Gemini vs ChatGPT</h2>
       <p class="st-note">Claude (Anthropic), Gemini (Google) and ChatGPT (OpenAI) each run their own separate copies of all ten experiments. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored against its own start; overall, the AI with the most total profit wins (see How it works). All three check in at the same times, search the news themselves and make their own trades. Every experiment restarted level on Oct 28 at 1:45 p.m. ET after a morning tuning run, which is kept in the Ledger and doesn’t count.</p>
-      <div data-draw="h2h" data-source="rivals_models rivals_history rivals_trades rivals_takes history totals take trades log factcheck"></div>
+      <div data-draw="h2h" data-source="exp_standings rivals_models rivals_history rivals_trades rivals_takes history totals take trades log factcheck"></div>
     </section>
   </section>
   <section class="st-page" id="rules" data-page="rules" hidden>
@@ -3157,6 +3161,7 @@
           ml.append(mm, document.createTextNode(' · '), ll); if (!EXP_SEL) li.appendChild(ml);
           const av = mk('span', 'h2h-sub', (EXP_SEL ? 'Return ' : 'Average return ') + stFmt.pct(s.avg)); tone(av, s.avg); li.appendChild(av);
           if (!EXP_SEL) li.appendChild(mk('span', 'h2h-sub', s.up + ' up · ' + (s.pcts.length - s.up) + ' flat or down' + (s.busted ? ' · ' + s.busted + ' BUSTED' : '')));
+          { const hn = holdingsNode(s.id, EXP_SEL); if (hn) li.appendChild(hn); }
           rows.appendChild(li);
         });
         box.appendChild(rows);
@@ -3178,6 +3183,7 @@
         const busted = mdl && mdl.books && mdl.books[exp] && mdl.books[exp].busted;
         const pc = mk('span', 'h2h-pct', busted ? 'BUSTED' : stFmt.pct(s.pct)); tone(pc, busted ? -1 : s.pct); li.appendChild(pc);
         li.appendChild(mk('span', 'h2h-sub', 'Now ' + stFmt.money(s.last, exp) + ' · started ' + d3.timeFormat('%b %-d')(s.pts[0].t)));
+        { const hn = holdingsNode(s.id, exp); if (hn) li.appendChild(hn); }
         rows.appendChild(li);
       });
       ['gemini', 'chatgpt'].filter((id) => SEL.includes(id) && H2H_PLAN[id].includes(exp) && !ser.some((s) => s.id === id)).forEach((id) => {
@@ -3315,7 +3321,7 @@
   // (trade reasons, notes, fact checks, plan cards, updates). Added automatically wherever text is drawn.
   (() => {
     if (!('speechSynthesis' in window)) return;
-    const SKIP = 'nav, button, select, label, header .st-meta, .st-sub, .st-dates, .st-podium, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
+    const SKIP = '.h2h-holds, .pd-detail, nav, button, select, label, header .st-meta, .st-sub, .st-dates, .st-podium, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
     const words = (t) => (t.trim().match(/\S+/g) || []).length;
     const NESTED = 'p, li, .st-plan, table, ul, ol';
     const textOf = (el, own) => {
@@ -3594,6 +3600,17 @@
       if (on) chaching();
     };
   })();
+  // every holding an AI has right now, from the per-race standings (one race, or all ten grouped by race)
+  const holdingsNode = (id, exp) => {
+    const all = dash.baseData('exp_standings'); const ES = Array.isArray(all) ? all[0] : all; if (!ES) return null;
+    const list = (e) => ((ES[e] || []).find((r) => r.id === id) || {}).holds || [];
+    const wrap = mk('div', 'h2h-holds');
+    if (exp) { const h = list(exp); wrap.appendChild(mk('span', 'h2h-sub', h.length ? 'Holding: ' + h.join(' · ') : 'Holding: all cash')); return wrap; }
+    wrap.appendChild(mk('b', '', 'Holding now'));
+    const ul = mk('ul');
+    Object.keys(ES).forEach((e) => { const h = list(e); const li = mk('li'); li.append(mk('b', '', (LABEL[e] || e) + ': '), document.createTextNode(h.length ? h.join(' · ') : 'all cash')); ul.appendChild(li); });
+    wrap.appendChild(ul); return wrap;
+  };
   const MODEL_COL = { claude: ['var(--accent)', 'var(--accent-bg)'], gemini: ['#4f8ff7', 'rgba(79,143,247,.09)'], chatgpt: ['var(--ai-chatgpt)', 'rgba(160,160,160,.08)'] };
   const applyModel = (id) => {
     { const c = MODEL_COL[id] || MODEL_COL.claude; document.documentElement.style.setProperty('--model', c[0]); document.documentElement.style.setProperty('--model-bg', c[1]); document.documentElement.dataset.model = id || 'claude'; }
