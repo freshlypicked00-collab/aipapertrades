@@ -357,6 +357,13 @@
   .st-geo-up li.claim { border-left-color: var(--color-warn); }
   .st-geo-tag { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; margin-right: 6px; }
   .st-geo-tag.ok { color: var(--color-ok); } .st-geo-tag.claim { color: var(--color-warn); }
+  .say-btn { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; margin-left: 4px; vertical-align: middle; border-radius: 50%; border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg-muted); font-size: 11px; line-height: 1; cursor: pointer; padding: 0; flex: none; }
+  .say-btn:hover { color: var(--color-fg); border-color: var(--color-fg-muted); }
+  .say-btn:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .say-btn[aria-pressed="true"] { color: var(--color-ok); border-color: var(--color-ok); }
+  .is-reading { background: var(--accent-bg, rgba(255,176,0,.06)); border-radius: 4px; box-shadow: 0 0 0 4px var(--accent-bg, rgba(255,176,0,.06)); }
+  @media (pointer: coarse) { .say-btn { width: 32px; height: 32px; font-size: 12px; } }
+  .st-sources, .st-sources li, .st-sources a, .st-geo-src a, .st-fact a, td a { overflow-wrap: anywhere; word-break: break-word; }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
@@ -3341,23 +3348,78 @@ body { background:var(--color-bg); }
   };
   dash.draw('h2h', h2hDraw);
   // ---------- 🔊 Listen: read long text aloud with the browser's built-in voice
+  // ---------- 🔊 reading aloud: one shared speaker for the whole page (browser's built-in voice, no files)
+  const SAY = { btn: null, el: null };
+  const sayable = (t) => String(t || '')
+    .replace(/\s*\([^()]*\bUTC\b[^()]*\)/g, '')   // skip the UTC and Hong Kong time conversions when reading aloud
+    .replace(/\b(C|US|HK|A|S|MX)\$\s?([\d][\d,.]*)(?:\s?([kKmM])\b)?/g, (m, c, n, k) => n + (k ? (/[kK]/.test(k) ? ' thousand' : ' million') : '') + ' ' + ({ C: 'Canadian', US: 'US', HK: 'Hong Kong', A: 'Australian', S: 'Singapore', MX: 'Mexican' })[c] + ' dollars')
+    .replace(/[−–]\s?(?=\d)/g, 'minus ').replace(/\bET\b/g, 'Eastern').replace(/\bHKT\b/g, 'Hong Kong time').replace(/\bUTC\b/g, 'U T C')
+    .replace(/¥\s?([\d][\d,.]*)/g, '$1 yuan').replace(/\s*·\s*/g, ', ').replace(/[▶⏹🔊]/g, '');
+  const stopSay = () => {
+    try { speechSynthesis.cancel(); } catch (e) {}
+    if (SAY.btn) { SAY.btn.setAttribute('aria-pressed', 'false'); SAY.btn.textContent = SAY.btn._idle; SAY.btn.setAttribute('aria-label', SAY.btn._label); }
+    if (SAY.el) SAY.el.classList.remove('is-reading');
+    SAY.btn = SAY.el = null;
+  };
+  const say = (text, btn, el) => {
+    const again = SAY.btn === btn;
+    stopSay();
+    if (again) return;
+    const u = new SpeechSynthesisUtterance(sayable(text)); u.rate = 1; u.lang = 'en-US';
+    const vs = speechSynthesis.getVoices();
+    const v = vs.find((x) => /en-(US|GB|CA)/.test(x.lang) && /Natural|Google|Samantha|Aria|Jenny|Daniel/i.test(x.name)) || vs.find((x) => /^en/.test(x.lang));
+    if (v) u.voice = v;
+    u.onend = u.onerror = () => { if (SAY.btn === btn) stopSay(); };
+    SAY.btn = btn; SAY.el = el || null;
+    btn.setAttribute('aria-pressed', 'true'); btn.textContent = btn._stop; btn.setAttribute('aria-label', 'Stop reading');
+    if (el) el.classList.add('is-reading');
+    speechSynthesis.speak(u);
+  };
   const listenBtn = (getText, label) => {
     const b = mk('button', 'listen-btn', '🔊 ' + (label || 'Listen')); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
+    b._idle = '🔊 ' + (label || 'Listen'); b._stop = '⏹ Stop'; b._label = label || 'Listen';
     if (!('speechSynthesis' in window)) { b.disabled = true; b.title = 'Your browser cannot read text aloud'; return b; }
-    b.addEventListener('click', () => {
-      const on = b.getAttribute('aria-pressed') === 'true';
-      speechSynthesis.cancel();
-      document.querySelectorAll('.listen-btn[aria-pressed="true"]').forEach((x) => { x.setAttribute('aria-pressed', 'false'); x.textContent = x.textContent.replace('⏹ Stop', '🔊 ' + (label || 'Listen')); });
-      if (on) return;
-      const u = new SpeechSynthesisUtterance(getText()); u.rate = 1; u.lang = 'en-US';
-      const v = speechSynthesis.getVoices().find((x) => /en-(US|GB|CA)/.test(x.lang) && /Natural|Google|Samantha|Aria|Jenny/i.test(x.name)) || speechSynthesis.getVoices().find((x) => /^en/.test(x.lang));
-      if (v) u.voice = v;
-      u.onend = u.onerror = () => { b.setAttribute('aria-pressed', 'false'); b.textContent = '🔊 ' + (label || 'Listen'); };
-      b.setAttribute('aria-pressed', 'true'); b.textContent = '⏹ Stop';
-      speechSynthesis.speak(u);
-    });
+    b.addEventListener('click', () => say(getText(), b, null));
     return b;
   };
+  // Every paragraph gets its own ▶ button, and so does any other block of text longer than 50 words
+  // (trade reasons, notes, fact checks, plan cards, updates). Added automatically wherever text is drawn.
+  (() => {
+    if (!('speechSynthesis' in window)) return;
+    const SKIP = 'nav, button, select, label, header .st-meta, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
+    const words = (t) => (t.trim().match(/\S+/g) || []).length;
+    const NESTED = 'p, li, .st-plan, table, ul, ol';
+    const textOf = (el, own) => {
+      const c = el.cloneNode(true); c.querySelectorAll('.say-btn, .listen-btn, button, select, svg' + (own ? ', ' + NESTED : '')).forEach((x) => x.remove());
+      const parts = []; const w = document.createTreeWalker(c, NodeFilter.SHOW_TEXT); let n; while ((n = w.nextNode())) parts.push(n.nodeValue);
+      return parts.join(' ').replace(/\s+/g, ' ').replace(/\s+([,.;:!?)])/g, '$1').replace(/\(\s+/g, '(').trim();
+    };
+    const addTo = (el, kind) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'say-btn';
+      b._idle = '▶'; b._stop = '⏹'; b._label = kind === 'p' ? 'Listen to this paragraph' : 'Listen to this';
+      b.textContent = '▶'; b.setAttribute('aria-label', b._label); b.setAttribute('aria-pressed', 'false'); b.title = b._label;
+      const own = !!el.querySelector(NESTED);
+      b.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); say(textOf(el, own), b, el); });
+      const firstNested = own ? el.querySelector(':scope > p, :scope > ul, :scope > ol, :scope > table, :scope > .st-plan') : null;
+      if (firstNested) el.insertBefore(b, firstNested); else { el.appendChild(document.createTextNode(' ')); el.appendChild(b); }
+      el.dataset.say = '1';
+    };
+    const scan = () => {
+      document.querySelectorAll('#dash-root p, #dash-root li, #dash-root td, #dash-root .st-plan, #dash-root blockquote').forEach((el) => {
+        if (el.dataset.say || el.closest(SKIP) || el.offsetParent === null) return;
+        const own = !!el.querySelector(NESTED);   // inner paragraphs carry their own buttons; this one reads only its own text
+        const n = words(textOf(el, own));
+        const isP = el.tagName === 'P';
+        const paraLike = isP || el.tagName === 'LI' || el.classList.contains('st-plan');
+        if ((isP && n >= 12) || (paraLike && n >= 20) || n > 50) addTo(el, paraLike ? 'p' : 'block');
+      });
+    };
+    let q = null;
+    const later = () => { if (q) return; q = setTimeout(() => { q = null; try { scan(); } catch (e) {} }, 250); };
+    const start = () => { const root = document.getElementById('dash-root') || document.body; new MutationObserver(later).observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden'] }); later(); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+    window.addEventListener('pagehide', stopSay);
+  })();
   // ---------- one page per AI: its own words, goals, notes, numbers and every trade
   const AI_CO = { claude: 'Anthropic', gemini: 'Google', chatgpt: 'OpenAI' };
   const PROF = [['about', 'About this experiment'], ['looking_forward', 'What I’m looking forward to'], ['not_looking_forward', 'What I’m not looking forward to'], ['strategy', 'My strategy'], ['plan', 'My plan to Nov 28']];
