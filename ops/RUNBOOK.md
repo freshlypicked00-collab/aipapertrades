@@ -244,9 +244,11 @@ the reason.
 
 ## The AI's take (top of the site)
 
-The site opens with one sentence from the AI about how things are going. Write a new one (pass
-`"take": "..."` in the input file) whenever the story changes: at every daily ledger close, after
-a trade or settled bet that matters, and after big events. One sentence, about 20 to 35 words,
+The site opens with "Claude's current take": one sentence about how things are going. Aim to write a
+new one (pass `"take": "..."` in the input file) about 3 to 5 times a day, for example after the US open,
+midday, after the US close, at the daily ledger close and at the Shanghai open, and after a trade,
+settled bet or big event that matters. Skip it when nothing has really changed; never repeat yourself
+just to fill a slot. Each new take is posted to Telegram automatically. One sentence, about 20 to 35 words,
 plain and honest, starting with the day number ("Day 4: ..."). Name the best and worst
 experiment by name, never a combined or overall total, no hype, no promises.
 

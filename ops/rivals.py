@@ -955,6 +955,14 @@ def main():
             last = next((x for x in reversed(state['takes']) if x['model'] == mid), None)
             if not last or last['text'] != take:
                 state['takes'].append({'at': iso(), 'model': mid, 'text': take})
+            # Telegram: at most once per slot (after the US open, midday, after the US close, at the daily close)
+            et = NOW.astimezone(NY)
+            slot = next((n for n, h in (('close', 20), ('pm', 16), ('mid', 12), ('open', 9.5)) if et.hour + et.minute / 60 >= h), None)
+            key = f"{et.date()}-{slot}"
+            if slot and m.get('take_posted') != key and NOW >= FRESH_START:
+                m['take_posted'] = key
+                head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(r['label'], r['label'])
+                tg(f"{head}\n💬 <b>{r['label']}'s current take</b>\n“{esc(take)}”\n{SITE}")
         if mid == 'gemini' and GEMINI_NO_SEARCH:
             notes.append('web search quota unavailable this run; decided from the prices and portfolio given')
         m['last_run'] = {'at': iso(), 'status': status, 'notes': notes[-12:], 'sources': sources[:8], 'orders': len(made), 'search': SEARCH_LOG[-2:]}

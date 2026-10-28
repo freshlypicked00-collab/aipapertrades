@@ -288,7 +288,7 @@ for t in load(S + 'trades.json'):
 oldt = {x['at'] for x in load(S + 'take.json', BEFORE if not TEST else None)}
 for x in load(S + 'take.json'):
     if x['at'] not in oldt:
-        msgs.append((f"💬 <b>Claude's take</b>\n“{esc(x['text'])}”", None))
+        msgs.append((f"💬 <b>Claude's current take</b>\n“{esc(x['text'])}”", None))
 
 # closed ledger days
 oldd = {r['day'] for r in load(S + 'ledger.json', BEFORE if not TEST else None)}

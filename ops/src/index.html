@@ -270,7 +270,7 @@
     <div class="st-hook">
       <p class="st-hook-q">Which AI makes the most money in real markets?</p>
       <p class="st-hook-sub">Claude, Gemini and ChatGPT trade head to head from Oct 28 to Nov 28. Each AI runs its own separate copy of all ten experiments with C$100,000 of pretend money each and real-world prices. They are being tested publicly, in real time: every trade, bet and reason is published here as it happens, win or lose.</p>
-      <p class="st-take"><span class="st-take-l">Claude's take</span><span data-draw="take" data-source="take">—</span></p>
+      <p class="st-take"><span class="st-take-l">Claude's current take</span><span data-draw="take" data-source="take">—</span></p>
     </div>
     <section class="st-score" aria-labelledby="h-score">
       <h2 class="st-score-h" id="h-score">Scoreboard <span>Return since each experiment started, best first. Tap one to open it.</span></h2>
@@ -2894,7 +2894,7 @@
     document.querySelectorAll('[data-model-note]').forEach((n) => {
       n.textContent = meta ? 'Showing ' + meta.label + '’s own separate copies of ' + exps.length + ' experiments' + (meta.model ? ' (model: ' + meta.model + ')' : '') + '. Each started with its own 100,000 at the Oct 28 fresh start.' : 'Showing Claude’s ten experiments.';
     });
-    const take = document.querySelector('.st-take-l'); if (take) take.textContent = meta ? meta.label + '’s take' : 'Claude’s take';
+    const take = document.querySelector('.st-take-l'); if (take) take.textContent = (meta ? meta.label : 'Claude') + '’s current take';
     Object.entries(TABOF).forEach(([pf, tab]) => {
       const hide = !!exps && !exps.includes(pf);
       document.querySelectorAll('.st-tab[data-tab="' + tab + '"], .st-card[data-goto="' + tab + '"]').forEach((el) => { if (hide) el.setAttribute('data-model-hidden', ''); else el.removeAttribute('data-model-hidden'); });
