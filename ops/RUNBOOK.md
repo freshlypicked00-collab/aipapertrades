@@ -4,11 +4,14 @@ Paper Trades is a 30-day paper-trading experiment (Oct 26 to Nov 26, 2026). An A
 manages four pretend C$100,000 portfolios using real-world prices: **Stocks**
 (anything), **Crypto**, **Metals** (precious metals) and **Sports** (betting), plus a fifth,
 **China** (Shanghai and Shenzhen stocks), started Oct 28 with US$100,000 and counted in US dollars.
+Four more started Oct 28, each with C$100,000: **Predictions** (prediction markets), **Energy**
+(oil and energy), **Options** (stock options) and **Safe** (a low-risk control). Predictions, Energy
+and Options are run high risk, high reward; Safe is deliberately cautious, as the control.
 No real money moves. The public site is https://papertrades.ai (this repo,
 served by GitHub Pages). A private tracker mirrors the same data; its link is
 given in the task prompt.
 
-**The five are separate experiments.** Each started with its own C$100,000 (US$100,000 for China)
+**The nine are separate experiments.** Each started with its own C$100,000 (US$100,000 for China)
 and is judged only against that amount and its own benchmark. Never add them together, never
 quote a combined or overall total, and never describe them as one C$500,000 portfolio, in the log,
 the ledger, the self-assessment or anywhere else.
@@ -117,6 +120,49 @@ then publishes everything. It runs every hour.
   in `rules.json`. Watch the Fifth Plenum communique (Oct 29) and the plenum rule.
 - **Events:** add China events with `"affects": "China"` only.
 
+## Opening orders, Wed Oct 28 (do these at the first run after 9:30 a.m. ET)
+
+Do each once; skip if `trades.json` already has trades for that portfolio. Use live quotes, put
+the reasons in the log, then add price rules (with `asset`, `level`, `direction`, `label`)
+computed from the actual fill prices.
+
+- **Energy** (high risk; oil near $100 on Strait of Hormuz attacks, a US blockade of Iran and low
+  diesel stocks; the risk is a Hormuz deal): buy C$40,000 UCO (2x crude oil), C$20,000 FRO
+  (Frontline, oil tankers; freight rates are soaring), C$20,000 VLO (Valero, refiner; diesel
+  margins), keep C$20,000 cash. Rules: sell half UCO at the next run after any announced deal to
+  reopen Hormuz; sell half UCO if it falls 15% below entry; sell a third of UCO at 25% above entry;
+  if WTI falls below $92 without a deal, add C$10,000 UCO.
+- **Options** (high risk, high reward; earnings week): buy calls, about 5% out of the money, using
+  the ask price and whole contracts (`qty` = contracts x 100): MSFT expiring Oct 30, about
+  C$12,000; GOOGL expiring Oct 30, about C$12,000; AMZN expiring Oct 30 (earnings Oct 29), about
+  C$12,000; NVDA expiring Nov 20, about 10% out of the money, about C$20,000. Keep the rest in cash
+  for later plays (AMD Nov 3, post-midterm moves, Nvidia earnings). Rules: sell the MSFT and GOOGL
+  calls at the first market-hours run on Oct 29, win or lose (don't hold through time decay); sell
+  the AMZN calls at the first run on Oct 30; sell half of any option that doubles. Name holdings
+  like `MSFT Oct 30 $560 call`; price = premium per share. If you can't find a live option quote
+  from a chain page (search "<ticker> option chain <expiry date>"; Barchart, Nasdaq, Yahoo, MarketChameleon), skip that trade and log why.
+- **Safe** (the control; low risk): buy C$40,000 SGOV (US Treasury bills), C$25,000 SCHD
+  (dividend stocks), C$15,000 BND (US bonds), C$10,000 GLD (gold), keep C$10,000 cash. Rules: no
+  leverage, no single stocks, no options; rebalance only if a holding drifts more than 5 points
+  from its target; gold never more than 10%. Its benchmark is a savings account at 2.25% a year
+  (the Bank of Canada rate), calculated by the page from its first trade.
+
+## Predictions (prediction markets)
+
+- Prices are Polymarket (or Kalshi) share prices in US dollars, 0 to 1. Holding names say the
+  outcome bought, e.g. `Republicans win the Senate (Yes)`. Get prices from the Polymarket event
+  pages or FrenzyCap pages in `sources.json`; use the buy (ask) price when buying.
+- Trades any time. Settle a resolved market as a `Sell` with `fraction` 1 at price 1.0 (won) or
+  0.0 (lost), and log it. The Fed bet resolves at 2:00 p.m. ET Oct 28; the midterm bets once
+  results are called (from Nov 4).
+- Only bet where data or a forecast model clearly disagrees with the market price; record the
+  model number in the log. Any size is allowed; it is a high-risk experiment.
+
+## Benchmarks for the new experiments
+
+Supply `indexes.uso` (the USO fund's price, for Energy) and `indexes.sp500` every market-hours
+run. The Energy and Options comparisons start from the first level after each one's first trade.
+
 ## Events
 
 Each portfolio's tab shows only events whose `affects` lists it, so tag events precisely
@@ -169,7 +215,9 @@ updates. Write plainly, in past tense, without naming the AI model or company.
 ```
 
 Asset names must match `holdings.json` (`SOXL`, `TQQQ`, `Bitcoin`, `Ethereum`, `Solana`,
-`XRP`, `Gold`, `Silver`, `STAR 50 ETF`, `Semiconductor ETF`). Prices are US dollars except
+`XRP`, `Gold`, `Silver`, `STAR 50 ETF`, `Semiconductor ETF`, plus the Predictions, Energy,
+Options and Safe holdings). Buys may give `qty` (exact shares) instead of `cad`. Asset names are
+global keys for prices, so if two portfolios hold the same ticker, give each the same price. Prices are US dollars except
 China, which is in yuan. `cad` amounts are Canadian dollars.
 
 China extras for the input file:
@@ -185,7 +233,9 @@ Use `fraction` for sells as a share of the position. Log actions: `Buy`, `Sell`,
 
 ## Final scoring (after Nov 26, 4:00 p.m. ET)
 
-Stocks score at the Nov 25 close (US markets are closed Nov 26). China scores at the
+Stocks, Energy, Options and Safe score at the Nov 25 close (US markets are closed Nov 26;
+options still open then are valued at that close). Predictions scores at Nov 26, 4:00 p.m. ET
+with open markets at their last price. China scores at the
 Nov 26 Shanghai close (3:00 p.m. Beijing, 2:00 a.m. ET Nov 26). Crypto, Metals and
 Sports score at Nov 26, 4:00 p.m. ET; settle or void any remaining bets. Add a
 "Final result" log entry per portfolio with the result, versus its benchmark, and the
