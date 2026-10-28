@@ -235,6 +235,8 @@ body { background:#0b0b0a; }
   .st-clock { display: inline-flex; align-items: baseline; gap: 8px; }
   .st-mkt { font-family: var(--font-serif); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--color-fg-muted); }
   .st-mkt.is-open { color: var(--color-ok); }
+  .st-mkt.is-lunch { color: var(--color-warn); }
+  .st-mkt + .st-mkt { margin-left: 10px; }
   .st-progress .st-count { font-variant-numeric: tabular-nums; }
   .st-sources a { color: var(--color-fg-muted); }
 
@@ -312,7 +314,7 @@ body { background:#0b0b0a; }
       <span>Day <b data-draw="day-num">—</b> of <b data-draw="day-total">—</b></span>
       <span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 26</span>
       <span class="st-clock">New York <b class="st-count" data-draw="clock">—</b></span>
-      <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b> <span class="st-mkt" data-draw="market">—</span></span>
+      <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b> <span class="st-mkt" data-draw="market">—</span> <span class="st-mkt" data-draw="market-cn">—</span></span>
     </p>
     <p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>
     <p class="st-notice" role="note"><span class="st-dot" aria-hidden="true"></span><span><b>This is a simulation, not investment advice.</b> No real money is involved. It is a 30-day experiment in which an AI model makes trading and betting decisions using real-world prices, to see how its judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results for all five will be posted on Nov 26, win or lose.</span></p>
@@ -1865,6 +1867,26 @@ body { background:#0b0b0a; }
       const tick = () => { el.textContent = f.format(new Date()); };
       tick();
       return setInterval(tick, 1000);
+    },
+    update: () => {},
+    unmount: (el, id) => clearInterval(id)
+  });
+  dash.draw('market-cn', {
+    mount: (el) => {
+      const f = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Shanghai', weekday: 'short', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' });
+      const tick = () => {
+        const parts = Object.fromEntries(f.formatToParts(new Date()).map((x) => [x.type, x.value]));
+        const mins = (Number(parts.hour) % 24) * 60 + Number(parts.minute);
+        const weekday = !['Sat', 'Sun'].includes(parts.weekday);
+        const open = weekday && ((mins >= 570 && mins < 690) || (mins >= 780 && mins < 900));
+        const lunch = weekday && mins >= 690 && mins < 780;
+        el.textContent = open ? '● China market open' : lunch ? '◐ China lunch break' : '○ China market closed';
+        el.title = lunch ? 'Shanghai and Shenzhen pause 11:30 a.m. to 1:00 p.m. Beijing time' : 'Shanghai and Shenzhen trade 9:30–11:30 a.m. and 1:00–3:00 p.m. Beijing time, weekdays';
+        el.classList.toggle('is-open', open);
+        el.classList.toggle('is-lunch', lunch);
+      };
+      tick();
+      return setInterval(tick, 30 * 1000);
     },
     update: () => {},
     unmount: (el, id) => clearInterval(id)

@@ -67,7 +67,7 @@ script += """
 
 # --- live New York clock, market status, and a per-second countdown
 markup = sub(markup, '<span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 26</span>',
-  '<span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 26</span>\n      <span class="st-clock">New York <b class="st-count" data-draw="clock">—</b></span>\n      <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b> <span class="st-mkt" data-draw="market">—</span></span>', 1)
+  '<span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 26</span>\n      <span class="st-clock">New York <b class="st-count" data-draw="clock">—</b></span>\n      <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b> <span class="st-mkt" data-draw="market">—</span> <span class="st-mkt" data-draw="market-cn">—</span></span>', 1)
 script = sub(script, """el.textContent = d + (d === 1 ? ' day, ' : ' days, ') + h + (h === 1 ? ' hour' : ' hours');
       };
       tick();
@@ -95,6 +95,26 @@ script += """
       const tick = () => { el.textContent = f.format(new Date()); };
       tick();
       return setInterval(tick, 1000);
+    },
+    update: () => {},
+    unmount: (el, id) => clearInterval(id)
+  });
+  dash.draw('market-cn', {
+    mount: (el) => {
+      const f = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Shanghai', weekday: 'short', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' });
+      const tick = () => {
+        const parts = Object.fromEntries(f.formatToParts(new Date()).map((x) => [x.type, x.value]));
+        const mins = (Number(parts.hour) % 24) * 60 + Number(parts.minute);
+        const weekday = !['Sat', 'Sun'].includes(parts.weekday);
+        const open = weekday && ((mins >= 570 && mins < 690) || (mins >= 780 && mins < 900));
+        const lunch = weekday && mins >= 690 && mins < 780;
+        el.textContent = open ? '● China market open' : lunch ? '◐ China lunch break' : '○ China market closed';
+        el.title = lunch ? 'Shanghai and Shenzhen pause 11:30 a.m. to 1:00 p.m. Beijing time' : 'Shanghai and Shenzhen trade 9:30–11:30 a.m. and 1:00–3:00 p.m. Beijing time, weekdays';
+        el.classList.toggle('is-open', open);
+        el.classList.toggle('is-lunch', lunch);
+      };
+      tick();
+      return setInterval(tick, 30 * 1000);
     },
     update: () => {},
     unmount: (el, id) => clearInterval(id)
@@ -143,6 +163,8 @@ body { background:#0b0b0a; }
   .st-clock { display: inline-flex; align-items: baseline; gap: 8px; }
   .st-mkt { font-family: var(--font-serif); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--color-fg-muted); }
   .st-mkt.is-open { color: var(--color-ok); }
+  .st-mkt.is-lunch { color: var(--color-warn); }
+  .st-mkt + .st-mkt { margin-left: 10px; }
   .st-progress .st-count { font-variant-numeric: tabular-nums; }
   .st-sources a { color: var(--color-fg-muted); }
 """
