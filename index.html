@@ -9,12 +9,11 @@
 <meta property="og:description" content="A 30-day experiment: can an AI model trade with real-world prices? Pretend money, every decision logged. Not investment advice.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://papertrades.ai/">
-<meta name="theme-color" content="#f6f7f5" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#101412" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0b0b0a">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2317201c'/%3E%3Cpath d='M7 22l6-6 4 4 8-9' stroke='%234cc283' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600&display=swap">
 <style>
   :root {
     --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -109,6 +108,32 @@
   [data-dash-source-state=empty] { color: transparent; }
   [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
 
+
+:root, :root { --font-sans: "IBM Plex Sans Condensed", system-ui, sans-serif; --font-serif: "IBM Plex Mono", ui-monospace, monospace;
+ --color-bg:#0b0b0a; --color-panel:#121210; --color-fg:#f2e9d8; --color-fg-muted:#9b927f; --color-border-line:#2b2923;
+ --color-ok:#3ddc84; --color-warn:#ffb000; --color-bad:#ff5a4e; --cds-text-secondary:#9b927f; --cds-surface-popover:#1a1916; --cds-border:#3a372f;
+ --cds-chart-grid:#1e1d19; --cds-chart-axis:#3a372f; --cds-chart-reference:#6b6555;
+ --series-1:#ffb000; --series-2:#4fc3f7; --series-3:#3ddc84; --series-4:#e8d48b; --cds-radius:2px; color-scheme:dark; }
+body { background:#0b0b0a; }
+.st-title { font-family: var(--font-serif); text-transform: uppercase; letter-spacing: .08em; color: #ffb000; font-size: 26px; }
+.st-title::before { content: "▮ "; color:#ffb000; }
+.st-card { border-color:#2b2923; box-shadow: inset 0 1px 0 #1d1c18; }
+.st-big { font-family: var(--font-serif); font-weight:500; letter-spacing:-.02em; color:#f2e9d8; }
+.st-label, .st-table th, .st-h2 { font-family: var(--font-serif); text-transform: uppercase; letter-spacing:.06em; }
+.st-label { color:#ffb000; }
+.st-h2 { font-size: 14px; color:#ffb000; }
+.st-tab { font-family: var(--font-serif); text-transform: uppercase; letter-spacing:.06em; font-size:13px; }
+.st-tab[aria-selected="true"] { color:#ffb000; border-bottom-color:#ffb000; }
+.st-notice { border-color:#ffb000; background: rgba(255,176,0,.06); }
+.st-table td { font-family: var(--font-serif); font-size: 13px; }
+.st-progress .st-count { font-family: var(--font-serif); color:#ffb000; }
+
+  .st-clock { display: inline-flex; align-items: baseline; gap: 8px; }
+  .st-mkt { font-family: var(--font-serif); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--color-fg-muted); }
+  .st-mkt.is-open { color: var(--color-ok); }
+  .st-progress .st-count { font-variant-numeric: tabular-nums; }
+  .st-sources a { color: var(--color-fg-muted); }
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <script>
@@ -182,6 +207,7 @@
     <p class="st-progress" data-phase="live">
       <span>Day <b data-draw="day-num">—</b> of <b data-draw="day-total">—</b></span>
       <span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 26</span>
+      <span class="st-clock">New York <b class="st-count" data-draw="clock">—</b> <span class="st-mkt" data-draw="market">—</span></span>
     </p>
     <p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>
     <p class="st-notice" role="note"><b>This is a simulation, not investment advice.</b> No real money is involved. It is a 30-day experiment in which an AI model makes trading and betting decisions using real-world prices, to see how its judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results will be posted on Nov 26, win or lose.</p>
@@ -767,10 +793,13 @@
         const ms = Math.max(0, EXP_END - Date.now());
         const d = Math.floor(ms / DAY_MS);
         const h = Math.floor((ms % DAY_MS) / (60 * 60 * 1000));
-        el.textContent = d + (d === 1 ? ' day, ' : ' days, ') + h + (h === 1 ? ' hour' : ' hours');
+        const m = Math.floor((ms % (60 * 60 * 1000)) / 60000);
+        const s = Math.floor((ms % 60000) / 1000);
+        const p2 = (n) => String(n).padStart(2, '0');
+        el.textContent = d + 'd ' + p2(h) + 'h ' + p2(m) + 'm ' + p2(s) + 's';
       };
       tick();
-      return setInterval(tick, 60 * 1000);
+      return setInterval(tick, 1000);
     },
     update: () => {},
     unmount: (el, id) => clearInterval(id)
@@ -1030,6 +1059,33 @@
       li.appendChild(a);
       el.appendChild(li);
     });
+  });
+
+  dash.draw('clock', {
+    mount: (el) => {
+      const f = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit', second: '2-digit' });
+      const tick = () => { el.textContent = f.format(new Date()); };
+      tick();
+      return setInterval(tick, 1000);
+    },
+    update: () => {},
+    unmount: (el, id) => clearInterval(id)
+  });
+  dash.draw('market', {
+    mount: (el) => {
+      const f = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' });
+      const tick = () => {
+        const parts = Object.fromEntries(f.formatToParts(new Date()).map((x) => [x.type, x.value]));
+        const mins = Number(parts.hour) * 60 + Number(parts.minute);
+        const open = !['Sat', 'Sun'].includes(parts.weekday) && mins >= 570 && mins < 960;
+        el.textContent = open ? '● US market open' : '○ US market closed';
+        el.classList.toggle('is-open', open);
+      };
+      tick();
+      return setInterval(tick, 30 * 1000);
+    },
+    update: () => {},
+    unmount: (el, id) => clearInterval(id)
   });
 
 </script>
