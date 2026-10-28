@@ -19,6 +19,10 @@ on:
         default: run
         type: choice
         options: [run, prices, ask]
+      name:
+        description: 'ask mode only: name of the answers file in ops/review'
+        default: answers
+        required: false
 permissions:
   contents: write
   pages: write
@@ -44,7 +48,25 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+          ASK_NAME: ${{ inputs.name }}
+        continue-on-error: true
         run: python3 ops/ask_rivals.py
+      - name: Save the answers (ops/review)
+        if: ${{ inputs.mode == 'ask' }}
+        run: |
+          [ -d ops/review ] || exit 0
+          mkdir -p /tmp/review && cp ops/review/*.json /tmp/review/ 2>/dev/null || exit 0
+          git config user.name "paper-trades-bot"
+          git config user.email "paper-trades-bot@users.noreply.github.com"
+          for i in 1 2 3 4 5; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            mkdir -p ops/review && cp /tmp/review/*.json ops/review/
+            git add ops/review
+            git diff --cached --quiet && exit 0
+            git commit -qm "Ask Gemini and ChatGPT: answers saved in ops/review (no trading)"
+            git push -q origin HEAD:main && break
+            sleep $((i * 7))
+          done
       - run: pip install -q matplotlib
         if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' }}
       - name: Let each rival model decide and trade
