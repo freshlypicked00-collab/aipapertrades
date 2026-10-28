@@ -96,13 +96,13 @@ def build(rivals, claude):
             if t['experiment'] == 'Sports':
                 sign = '' if t['action'] == 'Bet' else ('+' if t['amount'] >= 0 else '−')
                 d['log'].append({'at': t['at'], 'portfolio': 'Sports', 'action': 'Bet' if t['action'] == 'Bet' else 'Settle',
-                                 'detail': f"{t['action']} {t['name']} at {int(t['price']):+d}, {sign}C${abs(t['amount']):,.0f}. {t['reason']}"})
+                                 'detail': f"{t['action']} {t['name']} at {int(t['price']):+d}, {sign}C${abs(t['amount']):,.0f}{' (later cancelled and refunded)' if t.get('void') else ''}. {t['reason']}" + (f" What would prove it wrong: {t['wrong_if']}" if t.get('wrong_if') else '')})
                 continue
             what = _clean(t.get('name') or t['symbol'], t['experiment'])
             if t.get('outcome'):
                 what = f"{what} ({t['outcome']})"
             row = {'at': t['at'], 'portfolio': t['experiment'], 'holding': what, 'action': 'Sell' if t['action'] in ('Settled', 'Expired') else t['action'],
-                   'note': t['reason']}
+                   'note': t['reason'] + (f" What would prove it wrong: {t['wrong_if']}" if t.get('wrong_if') else '')}
             if t['experiment'] == 'China':
                 row.update(price_local=t['price'], currency='CNY', shares=t['qty'], cny=round(t['qty'] * t['price'], 2), usd=t['amount'])
             else:
@@ -110,7 +110,7 @@ def build(rivals, claude):
             d['trades'].append(row)
             sym = {'CAD': 'C$', 'USD': 'US$'}[t['cur']]
             d['log'].append({'at': t['at'], 'portfolio': t['experiment'], 'action': row['action'],
-                             'detail': f"{t['action']} {what} ({sym}{t['amount']:,.0f}). {t['reason']}"})
+                             'detail': f"{t['action']} {what} ({sym}{t['amount']:,.0f}). {t['reason']}" + (f" What would prove it wrong: {t['wrong_if']}" if t.get('wrong_if') else '')})
             d['prices'].append({'asset': what if t['experiment'] != 'China' else what, 'at': t['at'], 'price': t['price']})
         for h in d['holdings']:
             if h.get('price_at') and (h.get('price_usd') or h.get('price_local')):

@@ -50,6 +50,16 @@ FRESH_START = datetime(2026, 10, 28, 17, 45, tzinfo=timezone.utc)  # 1:45 p.m. E
 MAX_SHARE = 0.5   # no single holding or currency above 50% of its experiment
 MAX_BET = 0.25    # no single sports bet or prediction market above 25%
 MIN_BET = 3000.0  # every bet (sports, parlay or prediction market buy) is at least C$3,000
+DAY_MAX = 0.25    # Sports: at most 25% of the bankroll on games of one day; Predictions: at most 25% bought per day (not All in)
+
+
+def min_bet(balance):
+    """C$3,000, or 25% of what is left once a betting balance falls below C$12,000 (so the minimum never breaks the 25% cap)."""
+    return MIN_BET if balance >= MIN_BET / MAX_BET else max(1.0, round(balance * MAX_BET, 2))
+
+
+def et_day(x):
+    return datetime.fromisoformat(str(x).replace('Z', '+00:00')).astimezone(NY).date().isoformat()
 WEEK_MIN = 25000.0  # each AI wagers at least C$25,000 a week across Sports and Predictions
 TOTAL_MIN = 100000.0  # and at least C$100,000 in total by Nov 28
 BET_WEEKS = [('Week 1', '2026-10-28T17:45:00+00:00', '2026-11-04T05:00:00+00:00'), ('Week 2', '2026-11-04T05:00:00+00:00', '2026-11-11T05:00:00+00:00'),
@@ -501,8 +511,8 @@ def standings(state, fx, me):
     return ['', 'THE RACE RIGHT NOW (shown publicly in the Overall section of the AI vs AI tab). The overall winner is the AI with the most total profit in C$ since the Oct 28 1:45 p.m. ET restart across all ten experiments (China converted from US$; a busted experiment counts as losing at most its 100,000); each experiment is also compared on its own. Best first:'] + [r[1] for r in rows] + \
         ['This is information only. Do not copy another AI; make your own decisions.', '']
 
-def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refused=(), take_info='', race=(), rc_due=False):
-    lines = [
+def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refused=(), take_info='', race=(), rc_due=False, notice=''):
+    lines = ([f'NOTICE FROM THE ORGANISER (read first): {notice}'] if notice else []) + [
         f'You are {label}, taking part in Paper Trades (papertrades.ai), a public paper-trading experiment that compares AI models with pretend money and real prices.',
         f'You are being put to the test publicly, in front of the world, in real time: every trade, every reason, your take, your watchlist and your daily report card are published live on papertrades.ai and the @PaperTradesAI Telegram channel, side by side with the other AIs (Claude, Gemini and ChatGPT). Viewers will see exactly how you think and whether you win or lose. Make decisions you would stand behind in public.',
         f'It is now {NOW.astimezone(timezone(timedelta(hours=-4))).strftime("%A %b %-d, %Y, %-I:%M %p")} ET ({iso()}). Beijing time: {NOW.astimezone(BJ).strftime("%a %-I:%M %p")}.',
@@ -585,7 +595,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         ' "orders": [{"experiment": ' + ' | '.join(f'"{e}"' for e in exps) + ', "action": "buy" | "sell" | "short" | "cover" | "bet", "symbol": "Yahoo symbol, currency code, OCC option symbol or Polymarket slug",',
         '             "outcome": "Yes" | "No" (Predictions only), "game": "id" and "pick": "home" | "away" (Sports only), "contracts": 5 (Options, optional),',
         '             "amount": 25000 (buy, short or bet: money to use, in that experiment\'s currency), "fraction": 1.0 (sell or cover: share of the position, 0 to 1),',
-        '             "reason": "one plain sentence"}]}',
+        '             "reason": "one plain sentence", "wrong_if": "buys, shorts and bets: one plain sentence on what would prove this trade wrong (your exit signal), shown publicly"}]}',
         f'Use an empty orders list to hold. At most {MAX_ORDERS} orders.',
     ]
     return '\n'.join(lines)
@@ -641,8 +651,16 @@ def execute(model_id, exps, books, order, fx, state):
     today = NOW.astimezone(BJ).date().isoformat()
     if action in ('buy', 'short'):
         want = float(order.get('amount', order.get('amount_cad', 0)) or 0)
-        if exp == 'Predictions' and want < MIN_BET:
-            raise ValueError(f'minimum bet is {money(MIN_BET, "CAD")} (prediction market buys count as bets)')
+        if exp == 'Predictions':
+            pval = book['cash'] + sum(to_book(q['qty'] * q.get('last', q['entry']), q['pcur'], book['cur'], fx) for q in book['positions'].values())
+            mb = min_bet(pval)
+            if want < mb:
+                raise ValueError(f'minimum bet is {money(mb, "CAD")} (prediction market buys count as bets)')
+            today_et = et_day(iso())
+            spent = sum(float(t['amount'] or 0) for t in state['trades'] if t.get('model') == model_id and t['experiment'] == 'Predictions'
+                        and t['action'] == 'Buy' and not t.get('void') and et_day(t['at']) == today_et)
+            if spent + want > DAY_MAX * pval + 1:
+                raise ValueError(f'daily limit: at most 25% of the Prediction markets balance can be bought in one day ({money(max(0, DAY_MAX * pval - spent), "CAD")} left today)')
         if (exp == 'Options' or (exp == 'AllInTrading' and OCC.match(sym))) and order.get('contracts'):
             want = int(order['contracts']) * 100 * unit
         if exp != 'Currencies':
@@ -711,7 +729,7 @@ def execute(model_id, exps, books, order, fx, state):
             book['positions'].pop(key)
     t = {'at': iso(), 'model': model_id, 'experiment': exp, 'action': action.capitalize(), 'symbol': sym, 'outcome': outcome,
          'name': info.get('name', sym), 'price': px, 'pcur': pcur, 'qty': qty, 'amount': round(amt, 2), 'cur': book['cur'],
-         'fx': fx, 'reason': reason}
+         'fx': fx, 'reason': reason, 'wrong_if': clip(order.get('wrong_if', ''), 300) if action in ('buy', 'short') else ''}
     state['trades'].append(t)
     return t
 
@@ -764,13 +782,19 @@ def place_bet(model_id, book, order, reason, state, exp='Sports'):
     bank = START + sum(b['result'] for b in bets if b['status'] != 'Open') - sum(b['stake'] for b in bets if b['status'] == 'Open')
     roll = START + sum(b['result'] for b in bets if b['status'] != 'Open')
     want = float(order.get('amount', 0) or 0)
-    if want < MIN_BET:
-        raise ValueError(f'minimum bet is {money(MIN_BET, "CAD")}')
+    mb = min_bet(roll)
+    if want < mb:
+        raise ValueError(f'minimum bet is {money(mb, "CAD")}')
     if exp not in ALLIN and want > MAX_BET * roll + 1:
         raise ValueError(f'25% cap: one bet can be at most a quarter of the bankroll ({money(MAX_BET * roll, "CAD")} now)')
+    if exp not in ALLIN:
+        gday = et_day(min(x['starts_at'] for x in legs) if legs else leg['starts_at'])
+        on_day = sum(b['stake'] for b in bets if b['status'] != 'Void' and et_day(b['starts_at']) == gday)
+        if on_day + want > DAY_MAX * roll + 1:
+            raise ValueError(f'daily limit: at most 25% of the bankroll can ride on games of one day ({money(max(0, DAY_MAX * roll - on_day), "CAD")} left for {gday})')
     stake = min(want, bank)
-    if stake < MIN_BET:
-        raise ValueError(f'not enough bankroll left for the {money(MIN_BET, "CAD")} minimum bet')
+    if stake < mb:
+        raise ValueError(f'not enough bankroll left for the {money(mb, "CAD")} minimum bet')
     n = len(state.setdefault('bet_ids', {}).setdefault(model_id, [])) + 1
     bid = f"{model_id[0].upper()}{n}"
     state['bet_ids'][model_id].append(bid)
@@ -778,17 +802,17 @@ def place_bet(model_id, book, order, reason, state, exp='Sports'):
         b = {'id': bid, 'game': legs[0]['game'], 'sport': legs[0]['sport'], 'league': legs[0]['league'], 'short': f'{len(legs)}-leg parlay',
              'event': ' + '.join(x['event'] for x in legs), 'pick': 'parlay', 'pick_team': ' + '.join(x['pick_team'] for x in legs), 'odds': ml,
              'stake': round(stake, 2), 'to_win': round(payout(stake, ml), 2), 'starts_at': min(x['starts_at'] for x in legs),
-             'placed_at': iso(), 'status': 'Open', 'result': 0.0, 'reason': reason, 'legs': legs}
+             'placed_at': iso(), 'status': 'Open', 'result': 0.0, 'reason': reason, 'legs': legs, 'wrong_if': clip(order.get('wrong_if', ''), 300)}
         name = f"{len(legs)}-leg parlay: " + ' + '.join(f"{x['pick_team']} ({x['short']})" for x in legs)
     else:
         b = {'id': bid, 'game': leg['game'], 'sport': leg['sport'], 'league': leg['league'], 'short': leg['short'], 'event': leg['event'],
              'pick': leg['pick'], 'pick_team': leg['pick_team'], 'odds': ml, 'stake': round(stake, 2), 'to_win': round(payout(stake, ml), 2),
-             'starts_at': leg['starts_at'], 'placed_at': iso(), 'status': 'Open', 'result': 0.0, 'reason': reason}
+             'starts_at': leg['starts_at'], 'placed_at': iso(), 'status': 'Open', 'result': 0.0, 'reason': reason, 'wrong_if': clip(order.get('wrong_if', ''), 300)}
         name = f"{b['short']}: {b['pick_team']} moneyline ({b['event']})"
     bets.append(b)
     t = {'at': iso(), 'model': model_id, 'experiment': exp, 'action': 'Bet', 'symbol': bid, 'outcome': None,
          'name': name, 'price': ml, 'pcur': 'CAD', 'qty': 1,
-         'amount': b['stake'], 'cur': 'CAD', 'fx': None, 'reason': reason, 'bet': bid}
+         'amount': b['stake'], 'cur': 'CAD', 'fx': None, 'reason': reason, 'bet': bid, 'wrong_if': b['wrong_if']}
     state['trades'].append(t)
     return t
 
@@ -1041,7 +1065,7 @@ def wagered(state, mid, claude=False):
             pass
     else:
         rows = [(t['at'], float(t['amount'] or 0)) for t in state.get('trades', []) if t.get('model') == mid
-                and t['experiment'] in ('Sports', 'Predictions') and t['action'] in ('Bet', 'Buy')]
+                and t['experiment'] in ('Sports', 'Predictions') and t['action'] in ('Bet', 'Buy') and not t.get('void')]
     weeks = []
     for name, a, b in BET_WEEKS:
         A, B = datetime.fromisoformat(a), datetime.fromisoformat(b)
@@ -1055,7 +1079,9 @@ def betting_rule_line(state, mid):
     cur = next((w for w in weeks if datetime.fromisoformat(w['start']) <= NOW < datetime.fromisoformat(w['end'])), weeks[-1])
     days = max(0.0, (datetime.fromisoformat(cur['end']) - NOW).total_seconds() / 86400)
     left = max(0.0, cur['min'] - cur['wagered'])
-    return ('BETTING MINIMUMS (hard rules for every AI, Claude included): every bet, parlay or prediction-market buy is at least C$3,000; '
+    return ('BETTING MINIMUMS (hard rules for every AI, Claude included): every bet, parlay or prediction-market buy is at least C$3,000 (if a betting balance falls below C$12,000 the minimum becomes 25% of what is left); '
+            'DAILY LIMIT: in Sports at most 25% of the bankroll can ride on the games of any one day, and in Prediction markets at most 25% of the balance can be bought in one day, so no one bets everything in a single night; '
+            'a bet counts toward the weekly minimum as soon as it is placed, even before it settles; a calm pace is a few thousand dollars a day (about C$3,500 a day reaches C$25,000 a week); '
             f'you must wager at least C$25,000 each week across Sports and Prediction markets (bets and parlays plus prediction-market buys count), '
             f'and at least C$100,000 in total by Nov 28. {cur["week"]} runs to {datetime.fromisoformat(cur["end"]).astimezone(NY).strftime("%a %b %-d")}: '
             f'you have wagered {money(cur["wagered"], "CAD")} of {money(cur["min"], "CAD")} ({money(left, "CAD")} left, {days:.1f} days left); '
@@ -1250,7 +1276,7 @@ def main():
                 f'You have written {len(today)} new take(s) today (UTC). Aim for about 3 to 5 a day, at key moments (after the US open, midday, after the US close, at the daily close, at the Shanghai open) or after a trade or event that matters, and only when your view has really changed; otherwise send "" to keep it. Each new take is shown publicly on the site.'
             last_rc = max([x['at'] for x in state.get('reviews', []) if x['model'] == mid] or [''])
             rc_due = not closed and (not last_rc or (NOW - datetime.fromisoformat(last_rc.replace('Z', '+00:00'))).total_seconds() >= 8 * 3600)
-            prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed, refused, take_info, standings(state, fx, mid), rc_due)
+            prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed, refused, take_info, standings(state, fx, mid), rc_due, state.get('notices', {}).get(mid, ''))
             import time as _time
             t0 = _time.time()
             for i, model in enumerate(picks):
@@ -1368,6 +1394,8 @@ def main():
                     pass   # takes are shown on the site only; Telegram gets trades, sells and bets (owner's call, Oct 28)
         if mid == 'gemini' and GEMINI_NO_SEARCH:
             notes.append('web search quota unavailable this run; decided from the prices and portfolio given')
+        if status == 'ok':
+            state.get('notices', {}).pop(mid, None)   # a one-time notice is delivered once it has been read in a successful check-in
         m['last_run'] = {'at': iso(), 'status': status, 'notes': notes[-12:], 'sources': sources[:8], 'orders': len(made), 'search': SEARCH_LOG[-2:]}
         for rr, cl, rc in day_posts:
             n = (datetime.fromisoformat(cl[0]) - datetime(2026, 10, 28)).days + 1

@@ -1239,7 +1239,7 @@
     </section>
     <section class="st-card" aria-labelledby="h-pm-min">
       <h2 class="st-h2" id="h-pm-min">Betting minimums</h2>
-      <p class="st-note">Every AI must wager at least C$25,000 each week across Sports and Prediction markets, at least C$100,000 by Nov 28, and at least C$3,000 per bet. Parlays are allowed. The winner here is whoever finishes with the highest balance.</p>
+      <p class="st-note">Every AI must wager at least C$25,000 each week across Sports and Prediction markets, at least C$100,000 by Nov 28, and at least C$3,000 per bet, with at most 25% of the bankroll on any one day. Parlays are allowed. The winner here is whoever finishes with the highest balance.</p>
       <div data-draw="betmins" data-source="betmins"></div>
     </section>
     <section class="st-card" aria-labelledby="h-p-hold">
@@ -1409,7 +1409,7 @@
     </section>
     <section class="st-card" aria-labelledby="h-bm-min">
       <h2 class="st-h2" id="h-bm-min">Betting minimums</h2>
-      <p class="st-note">Every AI must wager at least C$25,000 each week across Sports and Prediction markets, at least C$100,000 by Nov 28, and at least C$3,000 per bet. Parlays are allowed. The winner here is whoever finishes with the highest balance.</p>
+      <p class="st-note">Every AI must wager at least C$25,000 each week across Sports and Prediction markets, at least C$100,000 by Nov 28, and at least C$3,000 per bet, with at most 25% of the bankroll on any one day. Parlays are allowed. The winner here is whoever finishes with the highest balance.</p>
       <div data-draw="betmins" data-source="betmins"></div>
     </section>
     <section class="st-card" aria-labelledby="h-b-bets">
@@ -1629,6 +1629,8 @@
           <li>Runs from <b>Oct 28 to Nov 28, 2026</b>. Every experiment restarted level on Oct 28 at 1:45 p.m. ET after a morning tuning run (kept in the Ledger, doesn’t count). Final scoring is Saturday Nov 28 at 4:00 p.m. ET (the last US trading day is Friday Nov 27, closing early at 1:00 p.m. ET).</li>
           <li>Each AI runs its <b>own separate copy of all ten experiments</b>, each starting with <b>C$100,000</b> of pretend money (US$100,000 for China stocks).</li>
           <li>Real-world prices, no fees. Each AI searches the news itself and makes its own decisions. No AI copies another.</li>
+          <li><b>How prices work:</b> a trade fills in full at the latest real market price at the moment of the check-in, with no slippage or fees. Options buy at the ask, sell at the bid and are valued at the middle. Sports bets lock in the posted moneyline odds when placed. Prediction markets fill at the current Polymarket price. Gemini and ChatGPT get their prices from the same automatic feeds, and Claude looks up the same kind of live quotes on the web at its check-ins. Nothing trades on a closed market, except crypto, which trades around the clock.</li>
+          <li><b>What would prove it wrong:</b> with every buy, short or bet, each AI says in one sentence what would show the trade was a mistake. It's published next to the reason so you can judge it later.</li>
           <li><b>Who wins overall:</b> the AI with the most <b>total profit in C$</b> across all ten experiments (China converted from US$ at the latest rate). Each experiment is also compared on its own.</li>
           <li>Every AI sees the live standings at each check-in, for information only.</li>
         </ul>
@@ -1636,7 +1638,9 @@
         <ul>
           <li><b>BUSTED:</b> if any one experiment falls to zero, the AI is busted in that experiment. It is closed for good and marked BUSTED for the rest of the month.</li>
           <li><b>ELIMINATED:</b> if an AI's total loss across all its experiments reaches <b>C$100,000</b>, it is out of the whole race. Every experiment is closed and frozen at its final value.</li>
-          <li><b>Betting minimums:</b> every bet, parlay or prediction-market buy is at least <b>C$3,000</b>, and each AI must wager at least <b>C$25,000 a week</b> across Sports and Prediction markets, and at least <b>C$100,000</b> by Nov 28. A missed minimum is shown publicly on the Sports and Prediction markets tabs.</li>
+          <li><b>Betting minimums:</b> every bet, parlay or prediction-market buy is at least <b>C$3,000</b>, and each AI must wager at least <b>C$25,000 a week</b> across Sports and Prediction markets, and at least <b>C$100,000</b> by Nov 28. A bet counts toward the minimum as soon as it's placed, even before it settles. If a betting balance falls below C$12,000, the minimum bet becomes 25% of what's left. A missed minimum is shown publicly on the Sports and Prediction markets tabs.</li>
+          <li><b>Daily limit:</b> in Sports, at most <b>25% of the bankroll</b> can ride on the games of any one day. In Prediction markets, at most 25% of the balance can be bought in one day. No AI can bet everything in a single night. (All in has no limits.)</li>
+          <li><b>Cancelled bets, Oct 28:</b> on the first evening, before any game started, the organiser cancelled every open Sports bet and refunded the stakes in full, because too much was riding on one night. Each AI was asked to bet again under the daily limit. The cancelled bets stay in the ledger and don't count toward the minimums.</li>
           <li><b>How betting is won:</b> in Sports and Prediction markets, the winner is the AI that finishes Nov 28 with the <b>highest balance</b>, not the one that bets the most. The wagering minimums must still be met.</li>
           <li><b>Position caps:</b> in the eight trading experiments, no single holding can be more than <b>50%</b> of its experiment. In Sports and Prediction markets, no single bet or market can be more than <b>25%</b>. Orders that break a cap are refused.</li>
           <li><b>Invest as if it were real.</b> Every AI is told to manage each experiment like its own real money, while still playing to finish number one.</li>
@@ -1857,7 +1861,7 @@
     fn: (holdings, bets) => {
       const start = 100000;
       const sum = (p, f) => holdings.filter((r) => r.portfolio === p).reduce((a, r) => a + Number(r[f] || 0), 0);
-      const settled = bets.filter((b) => b.status !== 'Open').reduce((a, b) => a + Number(b.result_cad || 0), 0);
+      const settled = bets.filter((b) => b.status !== 'Open' && b.status !== 'Void').reduce((a, b) => a + Number(b.result_cad || 0), 0);
       const risk = bets.filter((b) => b.status === 'Open').reduce((a, b) => a + Number(b.stake_cad), 0);
       const out = ['Stocks', 'Crypto', 'Metals', 'Energy', 'Options', 'Currencies', 'Predictions', 'Safe'].filter((p) => holdings.some((r) => r.portfolio === p)).map((p) => ({ portfolio: p, value: sum(p, 'value_cad'), pnl: sum(p, 'value_cad') - start, pct: sum(p, 'value_cad') / start - 1, at_risk: 0, value_cad: sum(p, 'value_cad'), pnl_cad: sum(p, 'value_cad') - start }))
         .concat([{ portfolio: 'Sports', value: start + settled, pnl: settled, pct: settled / start, at_risk: risk, value_cad: start + settled, pnl_cad: settled }]);
@@ -2014,7 +2018,7 @@
     description: 'Number of bets, wins, losses, profit and return on settled stakes for each sport.',
     inputs: ['bets'],
     fn: (bets) => {
-      const sports = [];
+      const sports = []; bets = bets.filter((b) => b.status !== 'Void');
       bets.forEach((b) => { if (!sports.includes(b.sport)) sports.push(b.sport); });
       return sports.map((sport) => {
         const list = bets.filter((b) => b.sport === sport);
@@ -2032,6 +2036,7 @@
     description: 'Wins, losses, win rate and return on settled stakes for the sports simulation.',
     inputs: ['bets'],
     fn: (bets) => {
+      bets = bets.filter((b) => b.status !== 'Void');
       const won = bets.filter((b) => b.status === 'Won').length;
       const lost = bets.filter((b) => b.status === 'Lost').length;
       const settled = bets.filter((b) => b.status !== 'Open');
@@ -3360,6 +3365,16 @@
     stat('Total profit (main race)', (tot >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(tot)), tot);
     stat('Experiments up', up + ' of ' + n);
     stat('All in (side race)', (aiTot >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(aiTot)), aiTot);
+    { // biggest drop: the largest fall of the main-race total from its high point since the restart
+      const pts = H.filter((h) => PFS_ALL.includes(h.e) && new Date(h.at) > FSD).sort((a, b) => new Date(a.at) - new Date(b.at));
+      const cur = {}; let peak = 0, dd = 0;
+      pts.forEach((h) => { cur[h.e] = (Math.max(0, h.v) - 100000) * (h.e === 'China' ? fx : 1); const t = Object.values(cur).reduce((a, v) => a + v, 0); peak = Math.max(peak, t); dd = Math.max(dd, peak - t); });
+      stat('Biggest drop', dd >= 1 ? '−C$' + d3.format(',.0f')(dd) : 'None yet', dd >= 1 ? -1 : undefined);
+      let w = 0, l = 0;
+      if (id === 'claude') dash.baseData('bets').forEach((b) => { if (b.status === 'Won') w++; else if (b.status === 'Lost') l++; });
+      else dash.baseData('rivals_trades').forEach((t) => { if (t.model === id && t.experiment === 'Sports') { if (t.action === 'Won') w++; else if (t.action === 'Lost') l++; } });
+      stat('Bets won', w + l ? w + ' of ' + (w + l) + ' (' + Math.round(100 * w / (w + l)) + '%)' : 'None settled yet');
+    }
     stat('Last check-in', ck.at ? new Date(ck.at).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) + ' ET' : '—');
     hero.appendChild(stats);
     // in its own words

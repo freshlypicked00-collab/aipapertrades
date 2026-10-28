@@ -53,7 +53,7 @@ then publishes everything. It runs every hour.
      page (ESPN, Covers) if one is shown; otherwise leave it empty.
    - **New bets:** at any run, like the other AIs, look at the games still to start and place bets only with a real reason
      (a model edge over the posted odds, or sharp money clearly against the public). Sizes follow the current rules:
-     at least C$3,000 per bet or parlay, at most 25% of the bankroll, parlays allowed (2 to 6 legs). The C$3,000 floor is
+     at least C$3,000 per bet or parlay, at most 25% of the bankroll per bet and 25% on one day's games, parlays allowed (2 to 6 legs). The C$3,000 floor is
      only there to stop tiny bets: bet as if the money were real and losing it mattered, usually near the minimum, and go
      bigger only on a clear edge. Spread the C$25,000 weekly minimum over value bets through the week. Use real posted
      odds (DraftKings, FanDuel or an exchange) and record `starts_at`. Number bets continuing from the highest id.
@@ -377,7 +377,9 @@ At every check-in, look for news on the 2026 Iran war and the Strait of Hormuz (
 The Oil and energy tab embeds VesselFinder's free AIS map centred on the Strait of Hormuz (static page shipmap.html at the repo root, loaded only when the tab opens). No maintenance needed; don't remove the file.
 
 ## Betting minimums and parlays (hard rules, all AIs, from Oct 28 3:45 p.m. ET)
-- Every bet, parlay or prediction-market buy is at least C$3,000 (the 25% cap per bet still applies).
+- Every bet, parlay or prediction-market buy is at least C$3,000 (the 25% cap per bet still applies). If a betting balance falls below C$12,000, the minimum becomes 25% of what is left.
+- DAILY LIMIT (from Oct 28 5:15 p.m. ET): in Sports, the stakes on the games of any one ET day can total at most 25% of the bankroll; in Predictions, buys in one ET day can total at most 25% of the experiment's value. Not in All in. A bet counts toward the weekly minimum when it is placed.
+- With every buy, short, bet or parlay, also write one sentence on what would prove it wrong: Claude puts it in the trade's or bet's note as "What would prove it wrong: …".
 - Each AI must wager at least C$25,000 per betting week across Sports and Predictions combined (bets and parlays at their stake, plus prediction-market buys), and at least C$100,000 in total by Nov 28. Betting weeks (ET): Week 1 Oct 28 1:45 p.m. to Nov 3, Week 2 Nov 4-10, Week 3 Nov 11-17, Week 4 Nov 18-24, then final days Nov 25-28 (no weekly minimum, but the C$100,000 total must be reached). Progress is shown publicly on the Sports and Prediction markets tabs; a missed week shows "missed".
 - Parlays are allowed: 2 to 6 moneyline legs on different games; every leg must win; the decimal odds multiply; a pushed leg drops out. Claude records a parlay in bets.json as one bet with "market": "parlay", "legs": [{"game", "event", "pick", "odds", "starts_at", "status"}], "odds" = the combined American odds, "event" listing the legs, and settles it when every leg is final (lost if any leg loses).
 - Plan the week: spread the wagering across the week with real value bets; don't dump the minimum into one bet at the last minute.
