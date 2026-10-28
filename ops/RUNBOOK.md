@@ -180,6 +180,13 @@ Each portfolio's tab shows only events whose `affects` lists it, so tag events p
   so in the source text.
 - **USD/CAD**: a quote under 3 hours old.
 
+## Every trade is tracked
+
+Every buy, sell, bet and settlement must go through `ops/update.py` (never edit the data files by
+hand), so it lands in `trades.json` / `bets.json` with its time, price and amount and appears in the
+Ledger tab's "Every trade" table and in that day's entry. Each trade also needs a log entry with
+the reason.
+
 ## Logging
 
 Add log entries only when something happens: a trade, a bet placed or settled, a rule
