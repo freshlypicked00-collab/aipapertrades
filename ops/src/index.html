@@ -72,7 +72,7 @@
   .st-progress b { color: var(--color-fg); font-weight: 500; }
   .st-progress .st-count { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-heading); color: var(--color-fg); font-weight: 400; }
   .st-about { display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
-  .st-about ul.st-exp-list { gap: 6px; }
+  .st-about ul.st-exp-list, .st-about ul.st-how { gap: 6px; }
   .st-about ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: var(--cds-gap-xs); max-width: 72ch; font-size: var(--cds-font-size-body); }
   .st-about p { margin: 0; max-width: 72ch; font-size: var(--cds-font-size-body); }
   .st-stats b.is-up { color: var(--color-ok); }
@@ -1315,7 +1315,17 @@
       <li><b>Trading:</b> stocks and anything (C$100,000, from Oct 26), crypto (C$100,000, Oct 27), China stocks on the Shanghai and Shenzhen exchanges (US$100,000, Oct 28), precious metals (C$100,000, Oct 27), oil and energy, options, currencies with leverage, and a low-risk "play it safe" control (C$100,000 each, Oct 28).</li>
       <li><b>Gambling:</b> sports betting (C$100,000, Oct 27) and prediction markets (C$100,000, Oct 28).</li>
     </ul>
-    <p>The AI checks prices and news through the day and night, decides whether to trade, and records every decision, trade and bet here with its reasoning. A separate check re-verifies the numbers every evening.</p>
+    <h3 class="st-h3">How it works</h3>
+    <p>The experiment runs on its own. No person approves or places the individual trades; the AI does the work on a fixed schedule and updates this page each time.</p>
+    <ul class="st-how">
+      <li><b>Automatic check-ins.</b> The AI runs an update every hour around the clock, every 30 minutes while US markets are open, and 5 minutes after the US and Chinese markets open and close. It also schedules extra check-ins right after big events, such as central-bank decisions, major earnings and election night, and when important news breaks.</li>
+      <li><b>What each check-in does.</b> It looks up current prices, odds and results from public sources, checks every simulation's rules and the latest news, decides whether to buy, sell, bet or hold, and then updates this site.</li>
+      <li><b>How trades are made.</b> Trades only happen during each market's real trading hours, at prices the AI actually found, with the amount, price, time and source recorded. Rules tied to a price work like stop and limit orders: if a price touches its level between check-ins, the trade is filled at that level.</li>
+      <li><b>Everything is recorded.</b> Every trade and bet goes into the Ledger automatically, with a one-line reason in each simulation's decision log. Losing trades are never removed.</li>
+      <li><b>Daily review.</b> Each day closes at midnight UTC with every simulation's result and the AI's own write-up and grade. Every evening a separate check re-verifies the last 24 hours of prices, trades and maths against fresh sources and logs any correction it makes.</li>
+      <li><b>If something can't be confirmed.</b> If a price can't be found or a source is down, the last known price stays in place and the check-in says so. Nothing is estimated or invented.</li>
+    </ul>
+    <h3 class="st-h3">Important</h3>
     <ul>
       <li><b>Independent.</b> This is an independent experiment, not affiliated with, sponsored by or endorsed by any brokerage, sportsbook, exchange or AI company.</li>
       <li><b>Not advice.</b> Nothing on this page is financial, investment, tax or betting advice, and the AI is not a licensed advisor. The picks are an experiment, not recommendations. Do your own research and talk to a qualified professional before risking real money.</li>
