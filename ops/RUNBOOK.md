@@ -372,3 +372,6 @@ Claude's own page (tab "Claude" under "The AIs") shows Claude's free writing: {a
 
 ## The war and the Strait of Hormuz (ops/src/geo.json, shown under Oil and energy)
 At every check-in, look for news on the 2026 Iran war and the Strait of Hormuz (shipping, attacks, transits, oil flows, blockade, talks, strikes) and update ops/src/geo.json: checked_at (ET ISO, every time you check, even if nothing changed), summary (2-3 neutral sentences), status cards (Strait of Hormuz, Oil through Hormuz, The war, Brent crude; value + note + source URLs), and updates (newest first; keep about the 8 most recent; each with at (ET ISO; set date_only true if the exact time is unknown), text, kind "confirmed" (reported by reputable outlets; aim for two) or "claim" (a statement by one side: Iran, CENTCOM, Trump, Israel, the Houthis) with "who", and sources as [title, url] pairs). Facts only, no market calls, neutral wording, no adjectives taking sides. Never invent a number or a quote; if a figure can't be confirmed, leave it out. This box is for viewers; it is not sent to the AIs.
+
+## Live ship map (shipmap.html)
+The Oil and energy tab embeds VesselFinder's free AIS map centred on the Strait of Hormuz (static page shipmap.html at the repo root, loaded only when the tab opens). No maintenance needed; don't remove the file.

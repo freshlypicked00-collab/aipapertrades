@@ -364,6 +364,12 @@
   .is-reading { background: var(--accent-bg, rgba(255,176,0,.06)); border-radius: 4px; box-shadow: 0 0 0 4px var(--accent-bg, rgba(255,176,0,.06)); }
   @media (pointer: coarse) { .say-btn { width: 32px; height: 32px; font-size: 12px; } }
   .st-sources, .st-sources li, .st-sources a, .st-geo-src a, .st-fact a, td a { overflow-wrap: anywhere; word-break: break-word; }
+  .st-shipmap { position: relative; width: 100%; height: 460px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); overflow: hidden; background: var(--card-inset, #1d1c18); }
+  .st-shipmap iframe { display: block; width: 100%; height: 100%; border: 0; }
+  .st-shipmap .shipmap-cover { position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center; padding: 14px; background: linear-gradient(transparent 60%, rgba(0,0,0,.45)); border: 0; width: 100%; cursor: pointer; color: #fff; font: inherit; font-size: 13px; }
+  .st-shipmap .shipmap-cover span { background: rgba(0,0,0,.65); border-radius: 999px; padding: 7px 14px; }
+  .st-shipmap .shipmap-wait { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--color-fg-muted); font-size: 13px; }
+  @media (max-width: 600px) { .st-shipmap { height: 380px; } }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
@@ -1108,6 +1114,12 @@ body { background:var(--color-bg); }
     <section class="st-card st-geo" aria-labelledby="h-e-geo">
       <h2 class="st-h2" id="h-e-geo">The war and the Strait of Hormuz</h2>
       <div data-draw="geo" data-source="geo"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-e-map">
+      <h2 class="st-h2" id="h-e-map">Live ship map: Strait of Hormuz</h2>
+      <p class="st-note">Live positions of ships around the strait, from their own AIS trackers, shown by VesselFinder. Drag and zoom to explore, and tap a ship to see what it is. Ships can switch their trackers off, so some vessels may be missing, and positions can lag by a few minutes. The map is for context only; the AIs don't use it.</p>
+      <div class="st-shipmap" data-draw="shipmap" data-source="geo"></div>
+      <p class="st-note">Open a bigger map: <a href="https://www.marinetraffic.com/en/ais/home/centerx:56.4/centery:26.4/zoom:8" target="_blank" rel="noopener">MarineTraffic</a> · <a href="https://www.vesselfinder.com/" target="_blank" rel="noopener">VesselFinder</a></p>
     </section>
     <section class="st-card" aria-labelledby="h-e-hold">
       <h2 class="st-h2" id="h-e-hold">Holdings</h2>
@@ -3755,6 +3767,23 @@ body { background:var(--color-bg); }
       sp.appendChild(document.createTextNode(' ' + new Date(r.at).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) + ' ET'));
       el.appendChild(sp);
     });
+  });
+  // Live AIS ship map of the Strait of Hormuz (VesselFinder's free map widget), loaded only when the Oil and energy tab is opened
+  dash.draw('shipmap', (el) => {
+    if (el._loaded) return;
+    if (!el.offsetParent) { if (!el.firstChild) el.appendChild(mk('div', 'shipmap-wait', 'The live map loads when this tab is open.')); return; }
+    el._loaded = true;
+    el.replaceChildren(mk('div', 'shipmap-wait', 'Loading live ship positions…'));
+    const f = document.createElement('iframe');
+    f.title = 'Live ship positions around the Strait of Hormuz (VesselFinder)';
+    f.loading = 'lazy';
+    f.src = 'shipmap.html';
+    f.style.pointerEvents = 'none';
+    const cover = mk('button', 'shipmap-cover'); cover.type = 'button'; cover.setAttribute('aria-label', 'Use the live map');
+    cover.appendChild(mk('span', '', 'Tap or click to move the map'));
+    cover.addEventListener('click', () => { f.style.pointerEvents = 'auto'; cover.remove(); });
+    f.addEventListener('load', () => { const w = el.querySelector('.shipmap-wait'); if (w) w.remove(); });
+    el.append(f, cover);
   });
   dash.draw('geo', (el) => {
     el.replaceChildren();
