@@ -67,7 +67,7 @@ script += """
 
 # --- live New York clock, market status, and a per-second countdown
 markup = sub(markup, '<span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 26</span>',
-  '<span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 26</span>\n      <span class="st-clock">New York <b class="st-count" data-draw="clock">—</b></span>\n      <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b> <span class="st-mkt" data-draw="market">—</span> <span class="st-mkt" data-draw="market-cn">—</span></span>', 1)
+  '<span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 26</span>\n      <span class="st-clock">New York <b class="st-count" data-draw="clock">—</b></span>\n      <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b></span>\n      <span class="st-clock">Hong Kong <b class="st-count" data-draw="clock-hk">—</b></span>\n      <span class="st-clock"><span class="st-mkt" data-draw="market">—</span> <span class="st-mkt" data-draw="market-cn">—</span></span>', 1)
 script = sub(script, """el.textContent = d + (d === 1 ? ' day, ' : ' days, ') + h + (h === 1 ? ' hour' : ' hours');
       };
       tick();
@@ -82,6 +82,16 @@ script += """
   dash.draw('clock', {
     mount: (el) => {
       const f = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit', second: '2-digit' });
+      const tick = () => { el.textContent = f.format(new Date()); };
+      tick();
+      return setInterval(tick, 1000);
+    },
+    update: () => {},
+    unmount: (el, id) => clearInterval(id)
+  });
+  dash.draw('clock-hk', {
+    mount: (el) => {
+      const f = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Hong_Kong', hour: 'numeric', minute: '2-digit', second: '2-digit' });
       const tick = () => { el.textContent = f.format(new Date()); };
       tick();
       return setInterval(tick, 1000);
