@@ -153,12 +153,21 @@ def esc(s):
 
 S = 'ops/src/'
 msgs = []
-if os.environ.get('TEST'):
-    send('✅ Test: the Paper Trades bot is live. Every trade, bet and daily close will be posted here.\n' + SITE)
-    sys.exit(0)
+TEST = bool(os.environ.get('TEST'))
+SOURCES = load(S + 'sources.json')
+
+
+def source_for(pf, holding):
+    tagged = [x for x in SOURCES if pf in x.get('portfolios', [])]
+    words = [w.lower() for w in holding.split() if len(w) > 2]
+    best = next((x for x in tagged if any(w in x['title'].lower() for w in words)), tagged[0] if tagged else None)
+    return f"\nSource: <a href=\"{esc(best['url'])}\">{esc(best['title'])}</a>" if best else ''
+
 
 # trades
 old = {json.dumps(t, sort_keys=True) for t in load(S + 'trades.json', BEFORE)}
+if TEST:
+    old = {json.dumps(t, sort_keys=True) for t in load(S + 'trades.json')[:-1]}
 log = load(S + 'log.json')
 for t in load(S + 'trades.json'):
     if json.dumps(t, sort_keys=True) in old:
@@ -172,11 +181,13 @@ for t in load(S + 'trades.json'):
         price = f"USD/JPY {1 / t['price_usd']:.2f}, C${t['cad']:,.0f}"
     else:
         price = f"US${t['price_usd']:,.2f}, C${t['cad']:,.0f}"
-    why = next((e['detail'] for e in reversed(log) if e['portfolio'] == pf and e['at'][:16] == t['at'][:16]), '')
-    msgs.append((f"{ICON.get(a, '•')} <b>{esc(LABEL.get(pf, pf))}: {a} {esc(h)}</b>\n{price}\n{when(t['at'])}" + (f"\n<i>{esc(why[:400])}</i>" if why else ''), pf))
+    why = next((e['detail'] for e in reversed(log) if e['portfolio'] == pf and e['at'][:16] == t['at'][:16]), '') or t.get('note', '')
+    msgs.append((f"{ICON.get(a, '•')} <b>{esc(LABEL.get(pf, pf))}: {a} {esc(h)}</b>\n{price}\n{when(t['at'])}" + (f"\n<i>{esc(why[:400])}</i>" if why else '') + source_for(pf, h), pf))
+if TEST:
+    msgs = [('🧪 <b>TEST POST</b> (a replay of the latest trade, not a new one)\n\n' + m, p) for m, p in msgs[-1:]]
 
 # bets placed and settled
-oldb = {b['bet']: b for b in load(S + 'bets.json', BEFORE)}
+oldb = {b['bet']: b for b in load(S + 'bets.json', BEFORE if not TEST else None)}
 for b in load(S + 'bets.json'):
     o = oldb.get(b['bet'])
     odds = ('+' if float(b['odds']) > 0 else '') + str(b['odds'])
@@ -188,17 +199,17 @@ for b in load(S + 'bets.json'):
 
 # prediction markets settled (a sale at 1.00 or 0.00)
 for t in load(S + 'trades.json'):
-    if t['portfolio'] == 'Predictions' and t['action'] == 'Sell' and t['price_usd'] in (0, 1) and json.dumps(t, sort_keys=True) not in old:
+    if not TEST and t['portfolio'] == 'Predictions' and t['action'] == 'Sell' and t['price_usd'] in (0, 1) and json.dumps(t, sort_keys=True) not in old:
         msgs.append((f"🏁 <b>Prediction market settled: {esc(t['holding'])}</b>\n{'Won, paid US$1 a share' if t['price_usd'] == 1 else 'Lost, shares expired worthless'}", 'Predictions'))
 
 # the AI's take
-oldt = {x['at'] for x in load(S + 'take.json', BEFORE)}
+oldt = {x['at'] for x in load(S + 'take.json', BEFORE if not TEST else None)}
 for x in load(S + 'take.json'):
     if x['at'] not in oldt:
         msgs.append((f"💬 <b>The AI's take</b>\n“{esc(x['text'])}”", None))
 
 # closed ledger days
-oldd = {r['day'] for r in load(S + 'ledger.json', BEFORE)}
+oldd = {r['day'] for r in load(S + 'ledger.json', BEFORE if not TEST else None)}
 ledger = load(S + 'ledger.json')
 review = load(S + 'review.json')
 for day in sorted({r['day'] for r in ledger} - oldd):
