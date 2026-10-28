@@ -1525,7 +1525,7 @@ body { background:#0b0b0a; }
   <section class="st-page" id="h2h" data-page="h2h" hidden>
     <section class="st-card" aria-labelledby="h-h2h">
       <h2 class="st-h2" id="h-h2h">Claude vs Gemini vs ChatGPT</h2>
-      <p class="st-note">Claude runs all ten experiments on this site. Gemini (Google) runs its own separate copies of five of them: stocks and anything, crypto, China stocks, metals, and oil and energy. ChatGPT (OpenAI) runs its own copies of stocks and anything, crypto, and prediction markets. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored only against its own start; nothing is ever added together. All three check in at the same times, search the news themselves and make their own trades. The trading experiments all restarted together on Oct 28 (Claude's betting experiments were not reset).</p>
+      <p class="st-note">Claude runs all ten experiments on this site. Gemini (Google) and ChatGPT (OpenAI) each run their own separate copies of the same five: stocks and anything, crypto, China stocks, metals, and oil and energy. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored only against its own start; nothing is ever added together. All three check in at the same times, search the news themselves and make their own trades. The trading experiments all restarted together on Oct 28 (Claude's betting experiments were not reset).</p>
       <div data-draw="h2h" data-source="rivals_models rivals_history rivals_trades rivals_takes history totals take"></div>
     </section>
   </section>
@@ -1628,11 +1628,11 @@ body { background:#0b0b0a; }
     <h2 class="st-h2" id="h-about">About this experiment</h2>
     <p>This page tracks a one-month paper-trading experiment, Oct 28 to Nov 28, 2026, in which AI models compete head to head with pretend money and real-world prices. Each model runs its own separate copy of each experiment, and every copy is scored only against its own starting amount. Experiments are never added together.</p>
     <ul class="st-exp-list">
-      <li><b>Claude</b> (Anthropic) runs all ten experiments. <b>Gemini</b> (Google) runs its own copies of stocks and anything, crypto, China stocks, metals, and oil and energy. <b>ChatGPT</b> (OpenAI) runs its own copies of stocks and anything, crypto, and prediction markets. Use the Model menu to switch the whole page between them, and the AI vs AI tab to compare them side by side.</li>
+      <li><b>Claude</b> (Anthropic) runs all ten experiments. <b>Gemini</b> (Google) and <b>ChatGPT</b> (OpenAI) each run their own copies of the same five: stocks and anything, crypto, China stocks, metals, and oil and energy. Use the Model menu to switch the whole page between them, and the AI vs AI tab to compare them side by side.</li>
     </ul>
     <ul class="st-exp-list">
       <li><b>Trading:</b> stocks and anything, crypto, China stocks on the Shanghai and Shenzhen exchanges (US$100,000), precious metals, oil and energy, options, currencies with leverage, and a low-risk "play it safe" control (C$100,000 each). All eight were reset to a fresh start on Oct 28, 9:30 a.m. ET, so every AI starts level; China stocks start at the Shanghai open that evening. Claude's first run (Oct 26–28) is archived.</li>
-      <li><b>Betting:</b> sports betting (C$100,000, from Oct 27) and prediction markets (C$100,000, from Oct 28). Claude's betting experiments were not reset; ChatGPT's prediction markets start fresh at the Oct 28 start.</li>
+      <li><b>Betting:</b> sports betting (C$100,000, from Oct 27) and prediction markets (C$100,000, from Oct 28). Betting is Claude only, and was not reset.</li>
     </ul>
     <h3 class="st-h3">How it works</h3>
     <p>The experiment runs on its own. No person approves or places the individual trades; each AI decides on its own on a fixed schedule, and this page updates each time. Each new trade, bet, result and daily close is also posted automatically to the <a href="https://t.me/papertradesai" target="_blank" rel="noopener">@papertradesai Telegram channel</a>.</p>
@@ -2888,7 +2888,7 @@ body { background:#0b0b0a; }
   // ---- Head to head: Claude vs Gemini vs ChatGPT ----
   const AIS = { claude: { label: 'Claude', color: '#d97757' }, gemini: { label: 'Gemini', color: '#4f8ff7' }, chatgpt: { label: 'ChatGPT', color: '#10a37f' } };
   const H2H_EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Predictions'];
-  const H2H_PLAN = { gemini: ['Stocks', 'Crypto', 'China', 'Metals', 'Energy'], chatgpt: ['Stocks', 'Crypto', 'Predictions'] };
+  const H2H_PLAN = { gemini: ['Stocks', 'Crypto', 'China', 'Metals', 'Energy'], chatgpt: ['Stocks', 'Crypto', 'China', 'Metals', 'Energy'] };
   const H2H_START = (exp) => 100000;
   dash.draw('h2h', (el) => {
     const M = dash.data('rivals_models'), RH = dash.data('rivals_history'), RT = dash.data('rivals_trades'), RK = dash.data('rivals_takes');
@@ -2908,7 +2908,7 @@ body { background:#0b0b0a; }
       return out;
     };
     if (!models.length) el.appendChild(mk('p', 'st-note', 'Gemini and ChatGPT appear here after their first check-in.'));
-    H2H_EXPS.forEach((exp) => {
+    H2H_EXPS.filter((exp) => Object.values(H2H_PLAN).some((l) => l.includes(exp))).forEach((exp) => {
       const box = mk('div', 'h2h-exp');
       box.appendChild(mk('h3', '', LABEL[exp] || exp));
       const ser = series(exp);

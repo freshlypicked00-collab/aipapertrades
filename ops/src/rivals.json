@@ -73,7 +73,17 @@
      "cash": 100000.0,
      "positions": {}
     },
-    "Predictions": {
+    "China": {
+     "cur": "USD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Metals": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Energy": {
      "cur": "CAD",
      "cash": 100000.0,
      "positions": {}
@@ -82,12 +92,16 @@
    "started": {
     "Stocks": "2026-10-28T09:11:05Z",
     "Crypto": "2026-10-28T09:11:05Z",
-    "Predictions": "2026-10-28T09:11:05Z"
+    "China": "2026-10-28T09:34:24Z",
+    "Metals": "2026-10-28T09:34:24Z",
+    "Energy": "2026-10-28T09:34:24Z"
    },
    "exps": [
     "Stocks",
     "Crypto",
-    "Predictions"
+    "China",
+    "Metals",
+    "Energy"
    ],
    "model": "openai/gpt-5.5",
    "last_run": {
@@ -178,12 +192,6 @@
    "value": 100000.0
   },
   {
-   "at": "2026-10-28T09:11:05Z",
-   "model": "chatgpt",
-   "experiment": "Predictions",
-   "value": 100000.0
-  },
-  {
    "at": "2026-10-28T09:31:42Z",
    "model": "gemini",
    "experiment": "Stocks",
@@ -226,9 +234,21 @@
    "value": 100000.0
   },
   {
-   "at": "2026-10-28T09:31:42Z",
+   "at": "2026-10-28T09:34:24Z",
    "model": "chatgpt",
-   "experiment": "Predictions",
+   "experiment": "China",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T09:34:24Z",
+   "model": "chatgpt",
+   "experiment": "Metals",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T09:34:24Z",
+   "model": "chatgpt",
+   "experiment": "Energy",
    "value": 100000.0
   }
  ],
@@ -333,12 +353,6 @@
    "text": "Crypto is bouncing and Solana offers higher beta than Bitcoin or Ethereum, which fits the high-risk mandate."
   },
   {
-   "at": "2026-10-28T09:11:05Z",
-   "model": "chatgpt",
-   "experiment": "Predictions",
-   "text": "The midterm balance-of-power market offers a near-term political catalyst with a large payout if the Democratic sweep favorite resolves correctly."
-  },
-  {
    "at": "2026-10-28T09:31:42Z",
    "model": "gemini",
    "experiment": "Stocks",
@@ -379,12 +393,6 @@
    "model": "chatgpt",
    "experiment": "Crypto",
    "text": "Crypto is bouncing with SOL showing the strongest beta, so I prefer an all-in high-volatility position over safer BTC exposure."
-  },
-  {
-   "at": "2026-10-28T09:31:42Z",
-   "model": "chatgpt",
-   "experiment": "Predictions",
-   "text": "The Fed pause is heavily priced, but the small-priced hike tail offers the biggest near-term asymmetric payoff."
   }
  ],
  "reviews": [],

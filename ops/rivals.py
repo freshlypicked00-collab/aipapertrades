@@ -276,7 +276,7 @@ RIVALS = {
     'gemini': {'label': 'Gemini', 'company': 'Google', 'color': '#4f8ff7', 'env': 'GEMINI_API_KEY', 'pick': pick_gemini, 'ask': ask_gemini,
                'exps': ['Stocks', 'Crypto', 'China', 'Metals', 'Energy']},
     'chatgpt': {'label': 'ChatGPT', 'company': 'OpenAI', 'color': '#10a37f', 'env': 'OPENAI_API_KEY', 'pick': pick_openai, 'ask': ask_openai,
-                'exps': ['Stocks', 'Crypto', 'Predictions']},
+                'exps': ['Stocks', 'Crypto', 'China', 'Metals', 'Energy']},
 }
 
 RULES = {

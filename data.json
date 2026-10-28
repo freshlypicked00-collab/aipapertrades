@@ -2241,12 +2241,16 @@
    "started": {
     "Stocks": "2026-10-28T09:11:05Z",
     "Crypto": "2026-10-28T09:11:05Z",
-    "Predictions": "2026-10-28T09:11:05Z"
+    "China": "2026-10-28T09:34:24Z",
+    "Metals": "2026-10-28T09:34:24Z",
+    "Energy": "2026-10-28T09:34:24Z"
    },
    "exps": [
     "Stocks",
     "Crypto",
-    "Predictions"
+    "China",
+    "Metals",
+    "Energy"
    ],
    "last_run": {
     "at": "2026-10-28T09:31:42Z",
@@ -2270,7 +2274,17 @@
      "cash": 100000.0,
      "positions": {}
     },
-    "Predictions": {
+    "China": {
+     "cur": "USD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Metals": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Energy": {
      "cur": "CAD",
      "cash": 100000.0,
      "positions": {}
@@ -2353,12 +2367,6 @@
    "value": 100000.0
   },
   {
-   "at": "2026-10-28T09:11:05Z",
-   "model": "chatgpt",
-   "experiment": "Predictions",
-   "value": 100000.0
-  },
-  {
    "at": "2026-10-28T09:31:42Z",
    "model": "gemini",
    "experiment": "Stocks",
@@ -2401,9 +2409,21 @@
    "value": 100000.0
   },
   {
-   "at": "2026-10-28T09:31:42Z",
+   "at": "2026-10-28T09:34:24Z",
    "model": "chatgpt",
-   "experiment": "Predictions",
+   "experiment": "China",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T09:34:24Z",
+   "model": "chatgpt",
+   "experiment": "Metals",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T09:34:24Z",
+   "model": "chatgpt",
+   "experiment": "Energy",
    "value": 100000.0
   }
  ],
@@ -3065,7 +3085,7 @@
      "holding": "Cash (CAD)",
      "quantity": 100000.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T09:31:42Z",
+     "as_of": "2026-10-28T09:34:24Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
@@ -3078,7 +3098,7 @@
      "holding": "Cash (CAD)",
      "quantity": 100000.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T09:31:42Z",
+     "as_of": "2026-10-28T09:34:24Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
@@ -3087,11 +3107,39 @@
      "cost_cad": 100000.0
     },
     {
-     "portfolio": "Predictions",
+     "portfolio": "China",
+     "holding": "Cash (US$)",
+     "quantity": 100000.0,
+     "change_pct": 0,
+     "as_of": "2026-10-28T09:34:24Z",
+     "price_at": null,
+     "price_source": "",
+     "currency": "USD",
+     "entry_local": null,
+     "price_local": null,
+     "value_usd": 100000.0,
+     "value_cad": 140510.0,
+     "cost_usd": 100000.0
+    },
+    {
+     "portfolio": "Metals",
      "holding": "Cash (CAD)",
      "quantity": 100000.0,
      "change_pct": 0,
-     "as_of": "2026-10-28T09:31:42Z",
+     "as_of": "2026-10-28T09:34:24Z",
+     "price_at": null,
+     "price_source": "",
+     "entry_usd": null,
+     "price_usd": null,
+     "value_cad": 100000.0,
+     "cost_cad": 100000.0
+    },
+    {
+     "portfolio": "Energy",
+     "holding": "Cash (CAD)",
+     "quantity": 100000.0,
+     "change_pct": 0,
+     "as_of": "2026-10-28T09:34:24Z",
      "price_at": null,
      "price_source": "",
      "entry_usd": null,
@@ -3114,8 +3162,20 @@
      "close": false
     },
     {
-     "at": "2026-10-28T09:11:05+00:00",
-     "portfolio": "Predictions",
+     "at": "2026-10-28T09:34:24+00:00",
+     "portfolio": "China",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T09:34:24+00:00",
+     "portfolio": "Metals",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T09:34:24+00:00",
+     "portfolio": "Energy",
      "value": 100000.0,
      "close": false
     },
@@ -3132,12 +3192,6 @@
      "close": false
     },
     {
-     "at": "2026-10-28T09:11:05Z",
-     "portfolio": "Predictions",
-     "value": 100000.0,
-     "close": false
-    },
-    {
      "at": "2026-10-28T09:31:42Z",
      "portfolio": "Stocks",
      "value": 100000.0,
@@ -3150,8 +3204,20 @@
      "close": false
     },
     {
-     "at": "2026-10-28T09:31:42Z",
-     "portfolio": "Predictions",
+     "at": "2026-10-28T09:34:24Z",
+     "portfolio": "China",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T09:34:24Z",
+     "portfolio": "Metals",
+     "value": 100000.0,
+     "close": false
+    },
+    {
+     "at": "2026-10-28T09:34:24Z",
+     "portfolio": "Energy",
      "value": 100000.0,
      "close": false
     }
@@ -3171,12 +3237,6 @@
      "detail": "Started with C$100,000."
     },
     {
-     "at": "2026-10-28T09:11:05+00:00",
-     "portfolio": "Predictions",
-     "action": "Start",
-     "detail": "Started with C$100,000."
-    },
-    {
      "at": "2026-10-28T09:11:05Z",
      "portfolio": "Stocks",
      "action": "Note",
@@ -3187,12 +3247,6 @@
      "portfolio": "Crypto",
      "action": "Note",
      "detail": "Crypto is bouncing and Solana offers higher beta than Bitcoin or Ethereum, which fits the high-risk mandate."
-    },
-    {
-     "at": "2026-10-28T09:11:05Z",
-     "portfolio": "Predictions",
-     "action": "Note",
-     "detail": "The midterm balance-of-power market offers a near-term political catalyst with a large payout if the Democratic sweep favorite resolves correctly."
     },
     {
      "at": "2026-10-28T09:31:42Z",
@@ -3208,12 +3262,6 @@
     },
     {
      "at": "2026-10-28T09:31:42Z",
-     "portfolio": "Predictions",
-     "action": "Note",
-     "detail": "The Fed pause is heavily priced, but the small-priced hike tail offers the biggest near-term asymmetric payoff."
-    },
-    {
-     "at": "2026-10-28T09:31:42Z",
      "portfolio": "Stocks",
      "action": "Not filled",
      "detail": "Order not filled (Stocks buy SOXL): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
@@ -3226,7 +3274,7 @@
     },
     {
      "at": "2026-10-28T09:31:42Z",
-     "portfolio": "Predictions",
+     "portfolio": "Stocks",
      "action": "Not filled",
      "detail": "Order not filled (Predictions buy will-the-fed-increase-interest-rates-by-25-bps-after-the-october-2026-meeting-20260617190324032): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then."
     },
@@ -3235,6 +3283,24 @@
      "portfolio": "All",
      "action": "Check-in",
      "detail": "Check-in (openai/gpt-5.5)."
+    },
+    {
+     "at": "2026-10-28T09:34:24+00:00",
+     "portfolio": "China",
+     "action": "Start",
+     "detail": "Started with US$100,000."
+    },
+    {
+     "at": "2026-10-28T09:34:24+00:00",
+     "portfolio": "Metals",
+     "action": "Start",
+     "detail": "Started with C$100,000."
+    },
+    {
+     "at": "2026-10-28T09:34:24+00:00",
+     "portfolio": "Energy",
+     "action": "Start",
+     "detail": "Started with C$100,000."
     }
    ],
    "take": [
@@ -3277,6 +3343,44 @@
      "now_level": 36171.49,
      "fx_now": 1,
      "as_of": "2026-10-27T16:00:00-04:00"
+    },
+    {
+     "id": "csi300",
+     "portfolio": "China",
+     "index": "CSI 300",
+     "currency": "CNY",
+     "start_at": "2026-10-28T03:00:00-04:00",
+     "start_level": 4083.87,
+     "fx_start": 0.15001275108384213,
+     "now_level": 4083.87,
+     "fx_now": 0.15001275108384213,
+     "as_of": "2026-10-28T03:00:00-04:00"
+    },
+    {
+     "id": "uso_energy",
+     "feed": "uso",
+     "portfolio": "Energy",
+     "index": "Oil (USO fund)",
+     "currency": "USD",
+     "start_at": null,
+     "start_level": null,
+     "fx_start": null,
+     "now_level": null,
+     "fx_now": null,
+     "as_of": null
+    },
+    {
+     "id": "gold_metals",
+     "feed": "gold",
+     "portfolio": "Metals",
+     "index": "Gold",
+     "currency": "USD",
+     "start_at": "2026-10-28T03:10:00-04:00",
+     "start_level": 4033.5,
+     "fx_start": 1.40626,
+     "now_level": 4033.5,
+     "fx_now": 1.40626,
+     "as_of": "2026-10-28T03:10:00-04:00"
     }
    ],
    "benchmark": [
@@ -3292,6 +3396,15 @@
     {
      "portfolio": "Crypto",
      "start_at": "2026-10-28T09:11:05+00:00",
+     "btc_start_usd": 80844.0,
+     "fx_start": 1.4051,
+     "btc_now_usd": 80844.0,
+     "fx_now": 1.4063,
+     "as_of": "2026-10-28T03:25:00-04:00"
+    },
+    {
+     "portfolio": "Metals",
+     "start_at": "2026-10-28T09:34:24+00:00",
      "btc_start_usd": 80844.0,
      "fx_start": 1.4051,
      "btc_now_usd": 80844.0,
@@ -3316,11 +3429,26 @@
      "extra_run": true
     },
     {
+     "at": "2026-10-28T10:30:00-04:00",
+     "when": "Wed Oct 28, 10:30 a.m.",
+     "event": "US weekly oil inventories (EIA)",
+     "affects": "Energy",
+     "why": "A bigger-than-expected drop in crude or diesel stocks would back up high prices."
+    },
+    {
      "at": "2026-10-28T14:00:00-04:00",
      "when": "Wed Oct 28, 2:00 p.m.",
      "event": "Fed rate decision (press conference 2:30 p.m.)",
      "affects": "Stocks, Crypto, Metals, Predictions, Safe, Options, Energy, Currencies",
      "why": "A hold is expected. Any hint of a December hike would hit tech, crypto and gold.",
+     "extra_run": true
+    },
+    {
+     "at": "2026-10-29T06:00:00-04:00",
+     "when": "Thu Oct 29 (Beijing evening)",
+     "event": "China's Fifth Plenum ends; communique expected",
+     "affects": "China",
+     "why": "Any stronger language on growth, consumption or local-government debt could lift Chinese stocks; a bland statement could extend the tech sell-off.",
      "extra_run": true
     },
     {
@@ -3330,6 +3458,13 @@
      "affects": "Stocks, Crypto, Metals, Safe, Currencies",
      "why": "Hot inflation raises December hike odds, which is bad for gold and tech.",
      "extra_run": true
+    },
+    {
+     "at": "2026-10-29T10:30:00-04:00",
+     "when": "Ongoing",
+     "event": "Strait of Hormuz talks (Oman outline, Saudi-Turkey-Pakistan channel)",
+     "affects": "Energy",
+     "why": "A deal to reopen shipping would knock oil down sharply; a breakdown or new attacks would push it higher."
     },
     {
      "at": "2026-10-29T16:05:00-04:00",
@@ -3347,19 +3482,20 @@
      "why": "A large expiry; the price where most options expire worthless is near $78,000."
     },
     {
+     "at": "2026-10-30T21:30:00-04:00",
+     "when": "Fri Oct 30, 9:30 p.m.",
+     "event": "China official October factory PMI",
+     "affects": "China",
+     "why": "The first read on October activity; a weak number raises the odds of more stimulus.",
+     "extra_run": true
+    },
+    {
      "at": "2026-11-03T12:00:00-05:00",
      "when": "Tue Nov 3",
      "event": "US midterm elections",
      "affects": "Stocks, Crypto, Metals, Predictions, Energy",
      "why": "Policy uncertainty for crypto, AI and energy.",
      "extra_run": true
-    },
-    {
-     "at": "2026-11-04T06:00:00-05:00",
-     "when": "Wed Nov 4 onward",
-     "event": "Midterm results and market settlement",
-     "affects": "Predictions",
-     "why": "The House, Senate and balance-of-power bets settle once results are called."
     },
     {
      "at": "2026-11-06T08:30:00-05:00",
@@ -3376,6 +3512,13 @@
      "affects": "Stocks, Crypto, Metals, Safe, Predictions, Currencies",
      "why": "The biggest inflation report before the December Fed meeting.",
      "extra_run": true
+    },
+    {
+     "at": "2026-11-11T00:00:00-05:00",
+     "when": "Wed Nov 11",
+     "event": "Singles' Day shopping festival",
+     "affects": "China",
+     "why": "A test of Chinese consumer demand, which policy makers are trying to lift."
     },
     {
      "at": "2026-11-17T16:05:00-05:00",
@@ -3409,7 +3552,9 @@
     "exps": [
      "Stocks",
      "Crypto",
-     "Predictions"
+     "China",
+     "Metals",
+     "Energy"
     ],
     "last_run": {
      "at": "2026-10-28T09:31:42Z",
