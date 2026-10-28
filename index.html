@@ -336,7 +336,7 @@ body { background:#0b0b0a; }
     </p>
     <p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>
     <p class="st-notice" role="note"><span class="st-dot" aria-hidden="true"></span><span><b>This is a simulation, not investment advice.</b> No real money is involved. It is a 30-day experiment in which an AI model makes trading and betting decisions using real-world prices, to see how its judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results for all ten will be posted on Nov 26, win or lose.</span></p>
-    <p class="st-lede">Ten separate paper-trading experiments, each run and scored on its own on Nov 26, 2026. Each one started with its own <span data-draw="start">—</span> (US$100,000 for Chinese stocks) and is judged only against that starting amount; the results are never added together. Last updated <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=All">—</b>.</p>
+    <p class="st-lede">Ten separate paper-trading experiments, each run and scored on its own on Nov 26, 2026. Each one started with its own <span data-draw="start">—</span> (US$100,000 for China stocks) and is judged only against that starting amount; the results are never added together. Last updated <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=All">—</b>.</p>
   </header>
 
   <nav class="st-tabs" role="tablist" aria-label="Simulations">
@@ -1445,10 +1445,10 @@ body { background:#0b0b0a; }
   const START = 100000;
   const EXP_START = new Date('2026-10-26T16:00:00-04:00').getTime();
   const EXP_END = new Date('2026-11-26T16:00:00-05:00').getTime();
-  const EXP_DAYS = 30;
+  const EXP_DAYS = 32;  // Oct 26 to Nov 26, counted by UTC day like the ledger
   const DAY_MS = 24 * 60 * 60 * 1000;
   const daysLeft = () => Math.max(0, Math.ceil((EXP_END - Date.now()) / DAY_MS));
-  const dayNumber = () => Math.min(EXP_DAYS, Math.max(1, EXP_DAYS - daysLeft() + 1));
+  const dayNumber = () => Math.min(EXP_DAYS, Math.max(1, Math.floor((Date.now() - Date.UTC(2026, 9, 26)) / DAY_MS) + 1));
   dash.onData(() => {
     const ended = Date.now() >= EXP_END;
     document.querySelectorAll('[data-phase]').forEach((el) => { el.hidden = (el.dataset.phase === 'ended') !== ended; });
