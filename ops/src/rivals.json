@@ -82,36 +82,36 @@
    ],
    "model": "gemini-3.1-pro-preview",
    "last_run": {
-    "at": "2026-10-28T11:18:56Z",
+    "at": "2026-10-28T12:32:45Z",
     "status": "ok",
     "notes": [
      "order refused (Crypto buy BTC-USD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Crypto buy ETH-USD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
      "order refused (Crypto buy SOL-USD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Currencies short JPY): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Currencies short EUR): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Sports bet game 401909888 away): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Sports bet game 401909889 away): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Sports bet game 401909890 away): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Sports bet game 401892599 away): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Energy buy CL=F): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then"
+     "order refused (Metals buy GC=F): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
+     "order refused (Metals buy SI=F): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
+     "order refused (Energy buy CL=F): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
+     "order refused (Energy buy NG=F): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
+     "order refused (Currencies buy EUR): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
+     "order refused (Currencies buy JPY): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
+     "order refused (Sports bet game 401909882 home): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
+     "order refused (Sports bet game 401909886 away): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then"
     ],
     "sources": [
      {
-      "title": "coinmarketcap.com/",
-      "url": "https://coinmarketcap.com/"
+      "title": "finance.yahoo.com/quote/BTC-USD",
+      "url": "https://finance.yahoo.com/quote/BTC-USD"
+     },
+     {
+      "title": "finance.yahoo.com/quote/GC=F",
+      "url": "https://finance.yahoo.com/quote/GC=F"
+     },
+     {
+      "title": "finance.yahoo.com/quote/CL=F",
+      "url": "https://finance.yahoo.com/quote/CL=F"
      },
      {
       "title": "espn.com/nba/lines",
       "url": "https://www.espn.com/nba/lines"
-     },
-     {
-      "title": "xe.com/currencyconverter/",
-      "url": "https://www.xe.com/currencyconverter/"
-     },
-     {
-      "title": "finance.yahoo.com/",
-      "url": "https://finance.yahoo.com/"
      }
     ],
     "orders": 0,
@@ -123,28 +123,35 @@
     ]
    },
    "watchlist": {
-    "at": "2026-10-28T11:18:56Z",
+    "at": "2026-10-28T12:32:45Z",
     "items": [
      {
       "at": "2026-10-28T09:30:00-04:00",
       "when": "Wed 9:30 a.m. ET",
-      "event": "US Market Open",
-      "affects": "Stocks, Options, Safe, Metals, Energy",
-      "why": "The US market open will allow us to start allocating our US-listed equity and ETF positions."
-     },
-     {
-      "at": "2026-10-28T20:00:00-04:00",
-      "when": "Wed 8:00 p.m. ET",
-      "event": "NBA Evening Slate Tip-off",
-      "affects": "Sports",
-      "why": "Several key NBA games begin that represent a significant portion of our sports betting bankroll."
+      "event": "US Stock Market Open",
+      "affects": "Stocks, Options, Safe",
+      "why": "Capital deployment into US equities and options requires the market to be open."
      },
      {
       "at": "2026-10-28T21:30:00-04:00",
       "when": "Wed 9:30 p.m. ET",
-      "event": "China Market Open",
+      "event": "Shanghai Market Open",
       "affects": "China",
-      "why": "Chinese equities markets will open for their Thursday trading session, allowing us to deploy yuan."
+      "why": "Will allow entry into Chinese A-shares for the China experiment."
+     },
+     {
+      "at": "2026-10-28T19:00:00-04:00",
+      "when": "Wed 7:00 p.m. ET",
+      "event": "NBA: Wizards @ Cavaliers",
+      "affects": "Sports",
+      "why": "Monitoring the outcome of my heavy-favorite bet on Cleveland."
+     },
+     {
+      "at": "2026-10-28T20:00:00-04:00",
+      "when": "Wed 8:00 p.m. ET",
+      "event": "NBA: Knicks @ Bulls",
+      "affects": "Sports",
+      "why": "Watching the Knicks game to secure another high-probability win for the sports bankroll."
      }
     ]
    }
@@ -231,36 +238,40 @@
    ],
    "model": "openai/gpt-5.5",
    "last_run": {
-    "at": "2026-10-28T11:18:56Z",
+    "at": "2026-10-28T12:32:45Z",
     "status": "ok",
     "notes": [
+     "order refused (Stocks buy SOXL): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
      "order refused (Crypto buy SOL-USD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Metals buy SI=F): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Energy buy CL=F): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
+     "order refused (China buy 159995.SZ): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
+     "order refused (Metals buy AGQ): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
+     "order refused (Energy buy GUSH): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
+     "order refused (Options buy NVDA261120C00240000): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
      "order refused (Currencies short USD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Sports bet game 401908046 away): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
-     "order refused (Predictions buy bank-of-canada-rate-hike-in-2026): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then"
+     "order refused (Safe buy SGOV): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
+     "order refused (Safe buy GLD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
+     "order refused (Sports bet game 401909887 away): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then"
     ],
     "sources": [
-     {
-      "title": "finance.yahoo.com/markets/live/stock-market-today-wednesday-october-28-dow-sp",
-      "url": "https://finance.yahoo.com/markets/live/stock-market-today-wednesday-october-28-dow-sp-500-nasdaq-fed-meeting-decision-080642111.html"
-     },
      {
       "title": "apnews.com/article/b07c5abe1fbaacc7618aeb610eaa91e0",
       "url": "https://apnews.com/article/b07c5abe1fbaacc7618aeb610eaa91e0"
      },
      {
-      "title": "mtfxgroup.com/fx-daily/",
-      "url": "https://www.mtfxgroup.com/fx-daily/"
+      "title": "apnews.com/article/c06793b0c50641444701d5d098ccc2c8",
+      "url": "https://apnews.com/article/c06793b0c50641444701d5d098ccc2c8"
      },
      {
-      "title": "polymarket.com/event/bank-of-canada-rate-hike-in-2026",
-      "url": "https://polymarket.com/event/bank-of-canada-rate-hike-in-2026"
+      "title": "investing.com/news/economy-news/fed-likely-to-go-into-waitandsee-mode-on-",
+      "url": "https://www.investing.com/news/economy-news/fed-likely-to-go-into-waitandsee-mode-on-rates-4978243"
      },
      {
-      "title": "axios.com/2026/10/26/oil-stocks-risks-brent",
-      "url": "https://www.axios.com/2026/10/26/oil-stocks-risks-brent"
+      "title": "brecorder.com/news/40446302",
+      "url": "https://www.brecorder.com/news/40446302"
+     },
+     {
+      "title": "investing.com/news/commodities-news/oil-prices-rise-after-attack-on-saudi",
+      "url": "https://www.investing.com/news/commodities-news/oil-prices-rise-after-attack-on-saudi-arabian-refinery-reignites-supply-concerns-4977369"
      }
     ],
     "orders": 0,
@@ -277,63 +288,63 @@
     ]
    },
    "watchlist": {
-    "at": "2026-10-28T11:18:56Z",
+    "at": "2026-10-28T12:32:45Z",
     "items": [
      {
       "at": "2026-10-28T09:30:00-04:00",
       "when": "Wed Oct 28, 9:30 a.m. ET",
-      "event": "U.S. cash equity and options open",
-      "affects": "Stocks, Options, Safe, Metals, Energy",
-      "why": "This is when SOXL, NVDA options, SGOV and other U.S.-listed ETFs can actually fill."
+      "event": "U.S. cash market open",
+      "affects": "Stocks, Metals, Energy, Options, Safe",
+      "why": "My queued U.S.-listed equity, ETF and option trades can begin filling and the opening auction will show whether premarket AI strength holds."
      },
      {
       "at": "2026-10-28T09:45:00-04:00",
       "when": "Wed Oct 28, 9:45 a.m. ET",
-      "event": "Bank of Canada rate decision",
-      "affects": "Currencies, Predictions, Energy",
-      "why": "A hike or hawkish guidance is the key near-term trigger for the short-USD/CAD and BoC prediction trades."
+      "event": "Bank of Canada policy decision window",
+      "affects": "Currencies",
+      "why": "A BoC hike or hawkish hold is the main catalyst for the leveraged short-USD/CAD view."
      },
      {
       "at": "2026-10-28T14:00:00-04:00",
       "when": "Wed Oct 28, 2:00 p.m. ET",
-      "event": "Federal Reserve policy decision",
-      "affects": "Stocks, Options, Crypto, Metals, Currencies, Safe",
-      "why": "A pause is expected, but the statement can reprice rates, growth beta, the dollar and metals quickly."
+      "event": "FOMC rate decision",
+      "affects": "Stocks, Crypto, Metals, Energy, Options, Currencies, Safe",
+      "why": "A hawkish surprise or statement language shift could reverse today\u2019s risk-on setup quickly."
      },
      {
       "at": "2026-10-28T14:30:00-04:00",
       "when": "Wed Oct 28, 2:30 p.m. ET",
-      "event": "Fed Chair Kevin Warsh press conference",
-      "affects": "Stocks, Options, Crypto, Metals, Currencies",
-      "why": "The tone on December hikes matters more than the expected October hold."
+      "event": "Fed Chair Warsh press conference",
+      "affects": "Stocks, Crypto, Metals, Options, Currencies",
+      "why": "The tone on December hike risk matters more than the expected hold for AI, crypto and FX beta."
      },
      {
-      "at": "2026-10-28T16:05:00-04:00",
-      "when": "Wed Oct 28, after the close",
-      "event": "Microsoft and Alphabet earnings / AI capex read-through",
-      "affects": "Stocks, Options, Crypto",
-      "why": "Big Tech AI spending and guidance can validate or puncture the AI-beta trade."
-     },
-     {
-      "at": "2026-10-28T20:00:00-04:00",
-      "when": "Wed Oct 28, 8:00 p.m. ET",
-      "event": "Milwaukee Brewers at Tampa Bay Rays",
+      "at": "2026-10-28T19:00:00-04:00",
+      "when": "Wed Oct 28, 7:00 p.m. ET",
+      "event": "NBA slate begins",
       "affects": "Sports",
-      "why": "The all-in sports stake settles on this game outcome."
+      "why": "Sports bankroll volatility starts tonight and late injury/news changes could affect favorite risk before tipoff."
      },
      {
-      "at": "2026-10-28T21:30:00-04:00",
-      "when": "Wed Oct 28, 9:30 p.m. ET / Thu 9:30 a.m. Beijing",
-      "event": "China A-share market open",
+      "at": "2026-10-29T09:30:00+08:00",
+      "when": "Thu Oct 29, 9:30 a.m. Beijing time",
+      "event": "China A-share open",
       "affects": "China",
-      "why": "This is the next chance to buy the China semiconductor/tech rebound after the recent selloff."
+      "why": "The China semiconductor ETF order can fill only once the mainland market reopens."
      },
      {
-      "at": "2026-10-29T08:30:00-04:00",
-      "when": "Thu Oct 29, 8:30 a.m. ET",
-      "event": "U.S. GDP and inflation data",
-      "affects": "Stocks, Options, Crypto, Metals, Currencies, Safe",
-      "why": "The data lands less than a day after the Fed and can either reinforce or reverse the rates move."
+      "at": "2026-10-30T08:30:00-04:00",
+      "when": "Fri Oct 30, 8:30 a.m. ET",
+      "event": "U.S. September PCE inflation report",
+      "affects": "Stocks, Crypto, Metals, Options, Currencies, Safe",
+      "why": "The Fed\u2019s preferred inflation gauge could reset December hike odds and hit the highest-beta positions."
+     },
+     {
+      "at": "2026-11-01T00:00:00-04:00",
+      "when": "Sun Nov 1",
+      "event": "OPEC+ December output target expectations",
+      "affects": "Energy, Metals, Currencies",
+      "why": "Any change to output discipline or geopolitical oil risk premium can move the energy book sharply."
      }
     ]
    }
@@ -949,6 +960,126 @@
   },
   {
    "at": "2026-10-28T11:18:56Z",
+   "model": "chatgpt",
+   "experiment": "Predictions",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "Stocks",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "Crypto",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "China",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "Metals",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "Energy",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "Options",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "Currencies",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "Safe",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "Sports",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "Predictions",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "chatgpt",
+   "experiment": "Stocks",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "chatgpt",
+   "experiment": "Crypto",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "chatgpt",
+   "experiment": "China",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "chatgpt",
+   "experiment": "Metals",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "chatgpt",
+   "experiment": "Energy",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "chatgpt",
+   "experiment": "Options",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "chatgpt",
+   "experiment": "Currencies",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "chatgpt",
+   "experiment": "Safe",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "chatgpt",
+   "experiment": "Sports",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
    "model": "chatgpt",
    "experiment": "Predictions",
    "value": 100000.0
@@ -1600,32 +1731,152 @@
    "model": "chatgpt",
    "experiment": "Predictions",
    "text": "The prediction-market book is pointed at the near-term central-bank catalyst where a BoC hike can settle quickly if the forecast is right."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "Stocks",
+   "text": "Holding cash until the US market opens at 9:30 a.m. ET to allocate into high-beta tech equities."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "Crypto",
+   "text": "Bitcoin is consolidating above the $80,000 level, providing a solid entry point for upside momentum."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "China",
+   "text": "Awaiting the next trading session in Shanghai to deploy capital into A-shares."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "Metals",
+   "text": "Gold futures remain supported by strong central bank demand and geopolitical uncertainty, making them a key allocation."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "Energy",
+   "text": "Crude oil is displaying volatility; entering a long position on CL=F to capture potential geopolitical risk premiums."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "Options",
+   "text": "Waiting for the US market open to initiate leveraged options plays on major indices or tech stocks."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "Currencies",
+   "text": "Taking long positions in EUR and JPY to capitalize on potential dollar weakness and global macro shifts."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "Safe",
+   "text": "Standing by for regular market hours to build a diversified, low-volatility portfolio of ETFs."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "Sports",
+   "text": "Backing heavy favorites tonight with the Knicks and Cavaliers to build the bankroll with high-probability NBA matchups."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "gemini",
+   "experiment": "Predictions",
+   "text": "Monitoring Polymarket for high-conviction events before allocating capital."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "chatgpt",
+   "experiment": "Stocks",
+   "text": "I want concentrated AI/semiconductor beta at the open because the premarket tape is still rewarding chip leadership despite Fed headline risk."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "chatgpt",
+   "experiment": "Crypto",
+   "text": "SOL is my preferred high-beta crypto expression while BTC is firm and risk appetite is positive into the U.S. session."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "chatgpt",
+   "experiment": "China",
+   "text": "Mainland tech rebounded today, so I am willing to chase China semis at the next Shanghai/Shenzhen open despite T+1 lockup risk."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "chatgpt",
+   "experiment": "Metals",
+   "text": "Silver remains my metals momentum trade, and I prefer leveraged exposure because the experiment rewards upside over capital preservation."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "chatgpt",
+   "experiment": "Energy",
+   "text": "Energy is volatile around Middle East supply headlines, but the dip in oil-beta ETFs looks like a high-conviction asymmetric entry."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "chatgpt",
+   "experiment": "Options",
+   "text": "The options book should be pure convexity, so I am using short-dated NVDA upside calls rather than stock-like exposure."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "chatgpt",
+   "experiment": "Currencies",
+   "text": "The biggest macro dislocation I see is the BoC/Fed divergence setup, so I want a leveraged short USD position versus CAD."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "chatgpt",
+   "experiment": "Safe",
+   "text": "For the control book I will keep most capital in T-bills and only use the permitted 10% gold sleeve for shock protection."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "chatgpt",
+   "experiment": "Sports",
+   "text": "Houston\u2019s 4-0 start versus Milwaukee\u2019s 1-3 start makes the Rockets my best all-in favorite despite the low payout."
+  },
+  {
+   "at": "2026-10-28T12:32:45Z",
+   "model": "chatgpt",
+   "experiment": "Predictions",
+   "text": "I am staying out of Polymarket for now because I do not have a clean, liquid market edge from this check-in."
   }
  ],
  "reviews": [],
  "fx": {
-  "USDCAD": 1.4047,
-  "USDCNY": 6.6553
+  "USDCAD": 1.4032,
+  "USDCNY": 6.6547
  },
  "feeds": {
-  "at": "2026-10-28T11:18:56Z",
+  "at": "2026-10-28T12:32:45Z",
   "espn_games": 53,
   "open_with_moneylines": 25
  },
  "fx_all": {
   "USD": 1.0,
-  "CAD": 1.4047,
-  "EUR": 0.8987,
-  "GBP": 0.753,
-  "JPY": 157.91,
-  "CNY": 6.6553,
-  "HKD": 7.8447,
-  "AUD": 1.4217,
+  "CAD": 1.4032,
+  "EUR": 0.8979,
+  "GBP": 0.7524,
+  "JPY": 157.93,
+  "CNY": 6.6547,
+  "HKD": 7.8448,
+  "AUD": 1.4208,
   "INR": 95.22,
-  "MXN": 18.651,
-  "CHF": 0.8301,
-  "KRW": 1339.59,
-  "BRL": 5.3489,
-  "SGD": 1.2822
+  "MXN": 18.6157,
+  "CHF": 0.8298,
+  "KRW": 1340.88,
+  "BRL": 5.3497,
+  "SGD": 1.282
  }
 }
