@@ -3019,7 +3019,7 @@ body { background:var(--color-bg); }
     if (!models.length) el.appendChild(mk('p', 'st-note', 'Gemini and ChatGPT appear here after their first check-in.'));
     // Overall: who leads the most experiments (money is never added across experiments)
     if (!EXP_SEL) {
-      const tally = {}; SEL.forEach((id) => { tally[id] = { wins: 0, pcts: [], busted: 0, up: 0, profit: 0 }; });
+      const tally = {}; SEL.forEach((id) => { tally[id] = { wins: 0, pcts: [], busted: 0, up: 0, profit: 0, made: 0, lost: 0 }; });
       const usdcad = rates().CAD || 1.38;
       let counted = 0;
       H2H_EXPS.forEach((exp) => {
@@ -3030,7 +3030,7 @@ body { background:var(--color-bg); }
           const mdl = models.find((x) => x.id === s.id);
           return { id: s.id, gain: (s.pts[s.pts.length - 1].v - 100000) * (exp === 'China' ? usdcad : 1), pct: s.pts[s.pts.length - 1].v / 100000 - 1, busted: !!(mdl && mdl.books && mdl.books[exp] && mdl.books[exp].busted) };
         });
-        r.forEach((x) => { tally[x.id].profit += x.gain; tally[x.id].pcts.push(x.pct); if (x.busted) tally[x.id].busted++; if (x.pct > 0) tally[x.id].up++; });
+        r.forEach((x) => { tally[x.id].profit += x.gain; if (x.gain > 0) tally[x.id].made += x.gain; else tally[x.id].lost += x.gain; tally[x.id].pcts.push(x.pct); if (x.busted) tally[x.id].busted++; if (x.pct > 0) tally[x.id].up++; });
         const best = Math.max(...r.map((x) => x.pct));
         const top = r.filter((x) => x.pct === best);
         if (top.length === 1) tally[top[0].id].wins++;
@@ -3049,6 +3049,8 @@ body { background:var(--color-bg); }
           li.appendChild(nm);
           const pf = mk('span', 'h2h-pct', (s.profit >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(s.profit))); tone(pf, s.profit); li.appendChild(pf);
           li.appendChild(mk('span', 'h2h-sub', 'total profit · leads ' + s.wins + ' of ' + counted + ' experiments'));
+          const ml = mk('span', 'h2h-sub'); const mm = mk('span', 'is-up', 'Made +C$' + d3.format(',.0f')(s.made)); const ll = mk('span', 'is-down', 'Lost −C$' + d3.format(',.0f')(-s.lost));
+          ml.append(mm, document.createTextNode(' · '), ll); li.appendChild(ml);
           const av = mk('span', 'h2h-sub', 'Average return ' + stFmt.pct(s.avg)); tone(av, s.avg); li.appendChild(av);
           li.appendChild(mk('span', 'h2h-sub', s.up + ' up · ' + (s.pcts.length - s.up) + ' flat or down' + (s.busted ? ' · ' + s.busted + ' BUSTED' : '')));
           rows.appendChild(li);
