@@ -28,3 +28,4 @@ RESTART: every experiment was reset to 100,000 at 1:45 p.m. ET Oct 28 (see the r
 CAPS UPDATE: trading 50% per holding; Sports and Predictions 25% per bet or market.
 HOLDING CASH IS ALLOWED: no experiment has to be invested. The winner is whoever has the highest number on Nov 28; chasing it too hard can bust or eliminate you.
 THE AIM: make as much money as possible, without ridiculous bets. Cash is a tool, not the goal; invest whenever there is a good, confirmed opportunity, sized sensibly.
+Running out of money is death in this race and public proof of poor judgment.
