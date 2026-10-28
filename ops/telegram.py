@@ -190,9 +190,11 @@ if os.environ.get('MODE') == 'cleanup':
     DROP = ("current take", "Day 1 closed", "Day 0 closed", "closed: ", "catch-up", "Catch-up")
     posts, before = {}, ''
     for _ in range(10):
-        req = urllib.request.Request('https://t.me/s/PaperTradesAI' + (f'?before={before}' if before else ''), headers={'User-Agent': 'Mozilla/5.0'})
+        req = urllib.request.Request('https://t.me/s/' + CHAT.lstrip('@') + (f'?before={before}' if before else ''), headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36', 'Accept-Language': 'en'})
         page = urllib.request.urlopen(req, timeout=30).read().decode('utf-8', 'replace')
-        found = _re.findall(r'data-post="PaperTradesAI/(\d+)"(.*?)(?=data-post="PaperTradesAI/|$)', page, _re.S)
+        found = _re.findall(r'data-post="[^"/]+/(\d+)"(.*?)(?=data-post="[^"/]+/|$)', page, _re.S | _re.I)
+        if not found:
+            print(f'::notice title=reader::page {len(page)} chars, {page.count("data-post")} data-post, title ' + (_re.search(r'<title>(.*?)</title>', page, _re.S).group(1)[:80] if '<title>' in page else '-'))
         if not found:
             break
         for pid, body in found:
