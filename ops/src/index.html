@@ -1393,7 +1393,7 @@
     <section class="st-card" aria-labelledby="h-h2h">
       <h2 class="st-h2" id="h-h2h">Claude vs Gemini vs ChatGPT</h2>
       <p class="st-note">Claude (Anthropic), Gemini (Google) and ChatGPT (OpenAI) each run their own separate copies of all ten experiments. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored only against its own start; nothing is ever added together. All three check in at the same times, search the news themselves and make their own trades. The trading experiments all started together on Oct 28 at 9:30 a.m. ET. Claude's sports and prediction-market experiments began a little earlier and were not reset.</p>
-      <div data-draw="h2h" data-source="rivals_models rivals_history rivals_trades rivals_takes history totals take"></div>
+      <div data-draw="h2h" data-source="rivals_models rivals_history rivals_trades rivals_takes history totals take trades log"></div>
     </section>
   </section>
   <section class="st-page" id="ledger" data-page="ledger" hidden>
@@ -2907,15 +2907,33 @@
     ['gemini', 'chatgpt'].forEach((id) => { if (!latest[id]) addTake(id, 'Starts at the 9:30 a.m. ET fresh start.'); });
     tbox.appendChild(ul);
     el.appendChild(tbox);
-    // each rival's trades, separately
-    ['gemini', 'chatgpt'].filter((id) => SEL.includes(id)).forEach((id) => {
-      const trades = (RT.status === 'ok' ? RT.data : []).filter((t) => t.model === id && (!EXP_SEL || t.experiment === EXP_SEL)).slice().reverse().slice(0, 40);
+    // recent trades for each AI shown, 10 each, with an experiment menu
+    const tbx = mk('div', 'h2h-exp');
+    tbx.appendChild(mk('h3', '', 'Recent trades'));
+    if (el._tx === undefined) { try { el._tx = localStorage.getItem('pt-h2h-tx') || ''; } catch (e) { el._tx = ''; } }
+    const tx = EXP_SEL || el._tx;
+    if (!EXP_SEL) {
+      const bar = mk('div', 'lg-pick'); const lab = mk('label', '', 'Show: '); const sel = mk('select');
+      [['', 'All experiments']].concat(H2H_EXPS.map((e) => [e, LABEL[e] || e])).forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; sel.appendChild(o); });
+      sel.value = tx;
+      sel.addEventListener('change', () => { el._tx = sel.value; try { localStorage.setItem('pt-h2h-tx', sel.value); } catch (e) {} h2hDraw(el); });
+      lab.appendChild(sel); bar.appendChild(lab); tbx.appendChild(bar);
+    }
+    tbx.appendChild(mk('p', 'st-note', 'The 10 newest trades for each AI' + (tx ? ' in ' + (LABEL[tx] || tx) : '') + ', newest first. Every trade is kept in the Ledger.'));
+    el.appendChild(tbx);
+    const logRows = dash.baseData('log') || [];
+    const claudeTrades = (dash.baseData('trades') || []).map((t) => {
+      const lg = logRows.find((l) => l.at === t.at && l.portfolio === t.portfolio);
+      return { at: t.at, experiment: t.portfolio, action: t.action, name: t.holding, symbol: t.holding, price: t.price_local != null ? Number(t.price_local) : Number(t.price_usd), pcur: t.portfolio === 'China' ? 'CNY' : t.portfolio === 'Predictions' ? 'P' : 'USD', amount: Number(t.cad != null ? t.cad : t.usd), reason: lg ? lg.detail : '' };
+    });
+    SEL.forEach((id) => {
+      const src = id === 'claude' ? claudeTrades : (RT.status === 'ok' ? RT.data : []).filter((t) => t.model === id);
+      const trades = src.filter((t) => !tx || t.experiment === tx).slice().sort((p, q) => new Date(q.at) - new Date(p.at)).slice(0, 10);
       const rbox = mk('div', 'h2h-exp');
-      const h = mk('h3', '', AIS[id].label + ' trades' + (EXP_SEL ? ': ' + (LABEL[EXP_SEL] || EXP_SEL) : '')); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px';
+      const h = mk('h3', '', AIS[id].label); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px';
       rbox.appendChild(h);
-      const connected = models.some((m) => m.id === id);
-      if (!connected) rbox.appendChild(mk('p', 'st-note', 'Starts at the 9:30 a.m. ET fresh start.'));
-      else if (!trades.length) rbox.appendChild(mk('p', 'st-note', 'No trades yet.'));
+      if (id !== 'claude' && !models.some((m) => m.id === id)) rbox.appendChild(mk('p', 'st-note', 'Starts at the 9:30 a.m. ET fresh start.'));
+      else if (!trades.length) rbox.appendChild(mk('p', 'st-note', 'No trades yet' + (tx ? ' in this experiment.' : '.')));
       else {
         const wrap = mk('div', 'h2h-scroll'); const tb = mk('table', 'h2h-table');
         const hr = mk('tr'); ['When', 'Experiment', 'Trade', 'Price', 'Amount', 'Why'].forEach((x) => hr.appendChild(mk('th', '', x))); tb.appendChild(hr);
@@ -2924,8 +2942,9 @@
           const what = t.action + ' ' + (t.name && t.name !== t.symbol ? t.name + ' (' + t.symbol + ')' : t.symbol) + (t.outcome ? ': ' + t.outcome : '');
           const cs = { USD: 'US$', CNY: '¥', CAD: 'C$' }[t.pcur] || 'US$';
           const unit = t.experiment === 'Crypto' ? ' per coin' : (t.experiment === 'Stocks' || t.experiment === 'China') ? ' per share' : '';
-          const px = t.experiment === 'Predictions' ? (t.price * 100).toFixed(1) + '¢ a share' : cs + d3.format(t.price >= 100 ? ',.2f' : ',.4~f')(t.price) + unit;
-          [stFmt.when(t.at), LABEL[t.experiment] || t.experiment, what, px, stFmt.money(t.amount, t.experiment), t.reason].forEach((v) => tr.appendChild(mk('td', '', v)));
+          const ok = Number.isFinite(t.price);
+          const px = !ok ? '' : t.experiment === 'Predictions' ? (t.price * 100).toFixed(1) + '¢ a share' : t.experiment === 'Sports' ? String(t.price) : cs + d3.format(t.price >= 100 ? ',.2f' : ',.4~f')(t.price) + unit;
+          [stFmt.when(t.at), LABEL[t.experiment] || t.experiment, what, px, Number.isFinite(t.amount) ? stFmt.money(t.amount, t.experiment) : '', t.reason || ''].forEach((v) => tr.appendChild(mk('td', '', v)));
           tb.appendChild(tr);
         });
         wrap.appendChild(tb); rbox.appendChild(wrap);
