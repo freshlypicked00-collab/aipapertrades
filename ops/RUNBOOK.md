@@ -1,12 +1,12 @@
 # Paper Trades: UPDATE ALL runbook
 
 Paper Trades is a 30-day paper-trading experiment (Oct 26 to Nov 26, 2026). An AI
-manages four pretend C$100,000 portfolios using real-world prices: **Stocks**
-(anything), **Crypto**, **Metals** (precious metals) and **Sports** (betting), plus a fifth,
-**China** (Shanghai and Shenzhen stocks), started Oct 28 with US$100,000 and counted in US dollars.
-Five more started Oct 28, each with C$100,000: **Predictions** (prediction markets), **Energy**
-(oil and energy), **Options** (stock options), **Currencies** (forex with leverage) and **Safe**
-(a low-risk control). All but Safe are run high risk, high reward; Safe is deliberately cautious.
+runs ten separate simulations with real-world prices, each with its own starting money:
+- Trading: **Stocks** (anything, C$100,000), **Crypto** (C$100,000), **China** (Shanghai and
+  Shenzhen stocks, US$100,000, counted in US dollars), **Metals** (C$100,000), **Energy**,
+  **Options**, **Currencies** (forex with leverage) and **Safe** (a low-risk control), C$100,000 each.
+- Gambling: **Sports** (betting) and **Predictions** (prediction markets), C$100,000 each.
+All but Safe are run high risk, high reward; Safe is deliberately cautious.
 No real money moves. The public site is https://papertrades.ai (this repo,
 served by GitHub Pages). A private tracker mirrors the same data; its link is
 given in the task prompt.
@@ -96,7 +96,7 @@ then publishes everything. It runs every hour.
    `source: {kind: "file", url: <the new /_blob/... url>, name: "<name>.json"}` and
    `updated: {at: <now ISO>, by: "AI"}`. Read the `datasets` collection first for the
    versions and write all updates in one batch. Do not change the tracker page itself.
-9. **Report** in a few lines: the four totals, any trades or bets with reasons, settled
+9. **Report** in a few lines: each experiment's value on its own line, any trades or bets with reasons, settled
    bets, and anything you couldn't confirm.
 
 ## China (Shanghai and Shenzhen)
@@ -160,7 +160,7 @@ At the end of every run, list the scheduled tasks (`list_triggers`), and for eac
 the next 3 hours without one, create a one-time scheduled task (`create_trigger` with
 `run_once_at` = event time + 5 minutes, `initiation` = `human_schedule`, name
 `Paper Trades: extra run after <event>`, not requiring a local device) whose prompt is the
-contents of `ops/TASK_PROMPT.md`. Never create duplicates.
+contents of `ops/TASK_PROMPT.md`. Never create duplicates. Market opens and closes already have their own recurring runs (US 9:35 a.m. and 4:05 p.m. ET; China 9:35 a.m. and 3:05 p.m. Beijing), plus every hour at :13 and every 30 minutes in US market hours (:43), and a daily accuracy check at 9:27 p.m. ET; don't schedule extras that land within 10 minutes of those.
 **Breaking news:** if something important is developing that could move a position (a Hormuz deal
 or attack, a surprise central-bank statement, an earnings shock, a game-changing injury before a
 bet starts), you may also schedule one extra run 20 to 30 minutes later, the same way. Use

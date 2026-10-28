@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Paper Trades – AI Trading Test</title>
-<meta name="description" content="Can an AI trade? Five 30-day experiments with pretend money and real prices: stocks, Chinese stocks, crypto, precious metals and sports bets. Every decision is logged. Not investment advice.">
+<meta name="description" content="Can an AI trade? Ten separate 30-day experiments with pretend money and real prices: stocks, crypto, China stocks, metals, energy, options, currencies, a safe control, sports bets and prediction markets. Every decision logged. Not investment advice.">
 <meta property="og:title" content="Paper Trades – AI Trading Test">
 <meta property="og:site_name" content="Paper Trades">
-<meta property="og:description" content="Can an AI trade? Five 30-day experiments with pretend money and real prices: stocks, Chinese stocks, crypto, metals and sports bets. Every decision logged. Not investment advice.">
+<meta property="og:description" content="Can an AI trade? Ten separate 30-day experiments with pretend money and real prices: stocks, crypto, China stocks, metals, energy, options, currencies, a safe control, sports bets and prediction markets. Every decision logged. Not investment advice.">
 <meta property="og:image" content="https://papertrades.ai/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -135,6 +135,7 @@
   .st-progress b { color: var(--color-fg); font-weight: 500; }
   .st-progress .st-count { font-family: var(--font-serif); font-size: var(--cds-font-size-heading); color: var(--color-fg); font-weight: 400; }
   .st-about { display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
+  .st-about ul.st-exp-list { gap: 6px; }
   .st-about ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: var(--cds-gap-xs); max-width: 72ch; font-size: var(--cds-font-size-body); }
   .st-about p { margin: 0; max-width: 72ch; font-size: var(--cds-font-size-body); }
   .st-stats b.is-up { color: var(--color-ok); }
@@ -482,7 +483,7 @@ body { background:#0b0b0a; }
         </span>
       </button>
     </div>
-    <p class="st-note">The big figure is total net profit since the start. "Last 24 hours" compares with the check-in closest to 24 hours earlier, or the start if a simulation is newer. "Worst drop" is the biggest fall from a high point, measured at check-ins. Stocks are compared with putting the same <span data-draw="start">—</span> into the S&amp;P 500, crypto and metals with putting it into Bitcoin, and Chinese stocks with the CSI 300 index. Positive means the portfolio is ahead. The Chinese stocks simulation is counted in US dollars.</p>
+    <p class="st-note">The big figure is total net profit since the start. "Last 24 hours" compares with the check-in closest to 24 hours earlier, or the start if a simulation is newer. "Worst drop" is the biggest fall from a high point, measured at check-ins. Each "Vs." line compares a simulation with putting the same money into a simple benchmark: the S&amp;P 500 for stocks and options, Bitcoin for crypto and metals, the CSI 300 for China stocks, the USO oil fund for energy, and a 2.25% savings account for currencies and "play it safe". Positive means the simulation is ahead. China stocks are counted in US dollars.</p>
 
     <section class="st-card" aria-labelledby="h-events-all">
       <h2 class="st-h2" id="h-events-all">Coming up</h2>
@@ -527,7 +528,7 @@ body { background:#0b0b0a; }
 
     <section class="st-card" aria-labelledby="h-log-all">
       <h2 class="st-h2" id="h-log-all">Recent decisions</h2>
-      <p class="st-note">Every trade, bet and hold decision across all four, newest first. Times are Eastern.</p>
+      <p class="st-note">Every trade, bet and hold decision across all ten simulations, newest first. Times are Eastern.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="log" data-row-key="at,portfolio">
           <thead><tr><th data-field="at">When</th><th data-field="portfolio">Portfolio</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
@@ -1412,17 +1413,22 @@ body { background:#0b0b0a; }
   </section>
   <section class="st-card st-about" aria-labelledby="h-about" id="about">
     <h2 class="st-h2" id="h-about">About this experiment</h2>
-    <p>This page tracks a 30-day paper-trading experiment, Oct 26 to Nov 26, 2026. An AI model was given <span data-draw="start">—</span> of pretend money in each of four simulations, plus US$100,000 for a fifth in Chinese stocks and C$100,000 each for five more (oil and energy, options, currencies, prediction markets and a low-risk control) added on Oct 28, and asked to manage each one as it saw fit. Each is a separate experiment, scored on its own. The page owner checks in through the month, and the AI looks up current prices and news, decides whether to trade, and records each decision and its reasoning here.</p>
+    <p>This page tracks a 30-day paper-trading experiment, Oct 26 to Nov 26, 2026. An AI model runs ten separate simulations with pretend money and real-world prices, and each one is scored only against its own starting amount. They are never added together.</p>
+    <ul class="st-exp-list">
+      <li><b>Trading:</b> stocks and anything (C$100,000, from Oct 26), crypto (C$100,000, Oct 27), China stocks on the Shanghai and Shenzhen exchanges (US$100,000, Oct 28), precious metals (C$100,000, Oct 27), oil and energy, options, currencies with leverage, and a low-risk "play it safe" control (C$100,000 each, Oct 28).</li>
+      <li><b>Gambling:</b> sports betting (C$100,000, Oct 27) and prediction markets (C$100,000, Oct 28).</li>
+    </ul>
+    <p>The AI checks prices and news through the day and night, decides whether to trade, and records every decision, trade and bet here with its reasoning. A separate check re-verifies the numbers every evening.</p>
     <ul>
       <li><b>Independent.</b> This is an independent experiment, not affiliated with, sponsored by or endorsed by any brokerage, sportsbook, exchange or AI company.</li>
       <li><b>Not advice.</b> Nothing on this page is financial, investment, tax or betting advice, and the AI is not a licensed advisor. The picks are an experiment, not recommendations. Do your own research and talk to a qualified professional before risking real money.</li>
       <li><b>No real money.</b> No trades or bets were actually placed. Every position and result is hypothetical.</li>
-      <li><b>Real prices, simplified.</b> Prices come from public sources (exchange quotes, market news sites and sportsbook odds) at the time of each check-in. They may be delayed or differ from prices you could actually get. Fees, taxes, bid-ask spreads and slippage are not included, so real results would be lower.</li>
-      <li><b>High risk on purpose.</b> The stocks portfolio holds 3x leveraged funds, and crypto, metals and sports bets can swing sharply. These choices were made to test aggressive decision-making, not because they suit most people. Leveraged funds can lose a large share of their value in a single day.</li>
+      <li><b>Real prices, simplified.</b> Prices come from public sources (exchange quotes, market news sites, sportsbook odds and prediction-market prices) at the time of each check-in. They may be delayed or differ from prices you could actually get. Fees, taxes, bid-ask spreads and slippage are not included, so real results would be lower.</li>
+      <li><b>High risk on purpose.</b> Every simulation except "play it safe" is run for big returns, not safety. The stocks simulation holds 3x leveraged funds, the currencies simulation borrows to hold positions several times its value, options can expire worthless, and crypto, energy, sports and prediction-market bets can swing sharply. These choices test aggressive decision-making; they do not suit most people.</li>
       <li><b>Short window, lots of luck.</b> Thirty days is too short to prove skill. A good or bad result here says little about future performance.</li>
-      <li><b>Sports betting is for adults only.</b> Odds are shown for the experiment, not as an endorsement of any sportsbook. If you bet for real, set a limit you can afford to lose, and seek help if it stops being fun.</li>
+      <li><b>Betting is for adults only.</b> Sports odds and prediction-market prices are shown for the experiment, not as an endorsement of any sportsbook or market. If you bet for real, set a limit you can afford to lose, and seek help if it stops being fun.</li>
       <li><b>Results, win or lose.</b> The final results for all ten simulations will be posted here on Nov 26, whether they are good or bad. Losing trades and bets stay in the log.</li>
-      <li><b>How it's scored.</b> Values are in Canadian dollars at the latest exchange rate, except the Chinese stocks simulation, which is counted in US dollars. Each simulation is compared with a simple benchmark (the S&amp;P 500 and TSX for stocks, holding Bitcoin for crypto and metals, the closing line for sports, the CSI 300 for Chinese stocks). US markets are closed on Nov 26 for Thanksgiving, so the stocks score uses the Nov 25 close.</li>
+      <li><b>How it's scored.</b> Values are in Canadian dollars at the latest exchange rate, except China stocks, which are counted in US dollars. Each simulation is compared with a simple benchmark: the S&amp;P 500 and TSX for stocks, holding Bitcoin for crypto and metals, the CSI 300 for China stocks, the USO oil fund for energy, the S&amp;P 500 for options, a 2.25% savings account for currencies and "play it safe", and the closing line for sports. US markets are closed on Nov 26 for Thanksgiving, so the US-traded simulations score at the Nov 25 close.</li>
     </ul>
     <p class="st-note">Data last refreshed <b data-draw="refreshed">—</b>. The sources used for prices, odds and news are listed below.</p>
     <h3 class="st-h3" id="h-sources">Sources</h3>
