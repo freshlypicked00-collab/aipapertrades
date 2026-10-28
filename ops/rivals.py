@@ -181,6 +181,33 @@ def pick_gemini(key):
     return out or ['gemini-2.5-flash']
 
 
+def pick_openrouter(key):
+    want = os.environ.get('OPENAI_MODEL')
+    if want:
+        return [want if '/' in want else 'openai/' + want]
+    ms = get_json('https://openrouter.ai/api/v1/models', {'Authorization': f'Bearer {key}'})['data']
+    ids = [m['id'] for m in ms if re.fullmatch(r'openai/gpt-\d+(\.\d+)?', m['id'])]
+    ids.sort(key=lambda i: [float(x) for x in i.split('-', 1)[1].split('.')], reverse=True)
+    return ids[:2] or ['openai/gpt-5']
+
+
+def ask_openrouter(key, model, prompt):
+    hdr = {'Authorization': f'Bearer {key}', 'Content-Type': 'application/json',
+           'HTTP-Referer': SITE, 'X-Title': 'Paper Trades'}
+    body = {'model': model, 'messages': [{'role': 'user', 'content': prompt}], 'plugins': [{'id': 'web', 'max_results': 6}]}
+    try:
+        j = get_json('https://openrouter.ai/api/v1/chat/completions', hdr, json.dumps(body).encode(), timeout=600)
+    except urllib.error.HTTPError as e:
+        if e.code not in (400, 402, 404):
+            raise
+        body.pop('plugins')
+        j = get_json('https://openrouter.ai/api/v1/chat/completions', hdr, json.dumps(body).encode(), timeout=600)
+    msg = j['choices'][0]['message']
+    sources = [{'title': a['url_citation'].get('title') or a['url_citation']['url'], 'url': a['url_citation']['url']}
+               for a in msg.get('annotations') or [] if a.get('type') == 'url_citation']
+    return msg.get('content') or '', sources
+
+
 def ask_openai(key, model, prompt):
     body = {'model': model, 'input': prompt, 'tools': [{'type': 'web_search'}]}
     hdr = {'Authorization': f'Bearer {key}', 'Content-Type': 'application/json'}
@@ -508,6 +535,9 @@ def main():
     ran = []
     for mid, r in RIVALS.items():
         key = os.environ.get(r['env'])
+        if not key and mid == 'chatgpt' and os.environ.get('OPENROUTER_API_KEY'):
+            key = os.environ['OPENROUTER_API_KEY']
+            r = {**r, 'pick': pick_openrouter, 'ask': ask_openrouter}
         if not key:
             continue
         exps = r['exps']
