@@ -350,6 +350,12 @@
   .st-podium { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 12px 14px; background: var(--color-panel); align-self: start; }
   .st-podium h2 { margin: 0 0 2px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
   .st-podium .pd-pick { font: inherit; font-size: 13px; margin: 4px 0 6px; padding: 6px 8px; min-height: 36px; width: 100%; background: var(--color-panel); color: var(--color-fg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+  .st-podium .pd-detail { margin-top: 10px; border: 1px solid var(--color-border-line); border-top: 3px solid var(--ai); border-radius: var(--cds-radius); padding: 10px; font-size: 12.5px; }
+  .st-podium .pd-pie { display: flex; gap: 10px; align-items: center; margin-top: 6px; }
+  .st-podium .pd-pie ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .st-podium .pd-pie li { display: flex; gap: 6px; align-items: center; overflow-wrap: anywhere; }
+  .st-podium .pd-pie i { width: 9px; height: 9px; border-radius: 2px; flex: 0 0 auto; }
+  .st-podium .pd-last { margin: 8px 0 0; color: var(--color-fg-muted); }
   .st-podium p.pd-note { margin: 0 0 8px; font-size: 12px; color: var(--color-fg-muted); }
   .st-podium ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
   .st-podium li button { width: 100%; display: grid; grid-template-columns: 64px 1fr auto; align-items: center; gap: 8px; font: inherit; color: var(--color-fg); background: transparent; border: 1px solid var(--color-border-line); border-left: 4px solid var(--ai); border-radius: var(--cds-radius); padding: 8px 10px; cursor: pointer; text-align: left; min-height: 44px; }
@@ -3826,6 +3832,24 @@
       li.appendChild(bt); ol.appendChild(li);
     });
     el.appendChild(ol);
+    // the selected AI in this race: what it holds (pie) and its last trade
+    const me = rows.find((r) => r.id === dash.model) || rows[0];
+    const box = mk('div', 'pd-detail'); box.style.setProperty('--ai', AIS[me.id].color);
+    box.appendChild(mk('b', '', AIS[me.id].label + ' in ' + (LABEL[el._exp] || el._exp)));
+    const pie = (me.pie || []).filter((x) => x.value > 0);
+    if (pie.length) {
+      const W = 120, R = 56, tot = d3.sum(pie, (x) => x.value);
+      const col = d3.scaleOrdinal(['#d97757', '#4f8ff7', '#3ddc84', '#ffc93c', '#b07cff', '#ff7aa8', '#4fd1c5', '#9b927f', '#f2f2f2']);
+      const svg = d3.create('svg').attr('viewBox', `0 0 ${W} ${W}`).attr('width', W).attr('height', W).attr('role', 'img').attr('aria-label', 'Holdings');
+      svg.append('g').attr('transform', `translate(${W / 2},${W / 2})`).selectAll('path').data(d3.pie().sort(null).value((x) => x.value)(pie)).join('path')
+        .attr('d', d3.arc().innerRadius(R * 0.55).outerRadius(R)).attr('fill', (x, i) => /^Cash|^Not bet/.test(x.data.name) ? '#3a3833' : col(i)).append('title').text((x) => x.data.name);
+      const wrap = mk('div', 'pd-pie'); wrap.appendChild(svg.node());
+      const ul = mk('ul');
+      pie.forEach((x, i) => { const li = mk('li'); const sw = mk('i'); sw.style.background = /^Cash|^Not bet/.test(x.name) ? '#3a3833' : col(i); li.append(sw, document.createTextNode(x.name + ' ' + Math.round(100 * x.value / tot) + '%')); ul.appendChild(li); });
+      wrap.appendChild(ul); box.appendChild(wrap);
+    }
+    box.appendChild(mk('p', 'pd-last', me.last ? 'Last trade: ' + me.last.text + ' · ' + stFmt.when(me.last.at) : 'No trades yet in this race.'));
+    el.appendChild(box);
   });
   dash.draw('betmins', (el) => {
     el.replaceChildren();

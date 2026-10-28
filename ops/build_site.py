@@ -505,6 +505,8 @@ data['standings'] = STANDINGS
 _FS = datetime(2026, 10, 28, 17, 45, tzinfo=timezone.utc)
 _EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
 _es = {e: [] for e in _EXPS}
+def b2c(x, cur='CAD'):
+    return ('US$' if cur == 'USD' else 'C$') + f'{float(x):,.0f}'
 def _lastv(rows):
     rows = sorted(rows, key=lambda x: _when(x[0]))
     pre = [v for a, v in rows if _when(a) <= _FS]
@@ -512,17 +514,36 @@ def _lastv(rows):
 for _e in _EXPS:
     v, b0 = _lastv([(h['at'], float(h['value'])) for h in data['history'] if h['portfolio'] == _e])
     if v is not None:
-        held = [h['holding'] for h in data['holdings'] if h['portfolio'] == _e and float(h.get('value_cad') or 0) > 0.5 and not str(h['holding']).startswith('Cash')]
-        held += [f"{b['pick']} ({b['event']})" for b in data['bets'] if _e == 'Sports' and b.get('status') == 'Open']
-        _es[_e].append({'id': 'claude', 'value': round(v, 2), 'profit': round(max(v, 0) - b0, 2), 'holds': held[:20]})
+        hv = [(h['holding'], float(h.get('value_cad') or h.get('value_usd') or 0)) for h in data['holdings'] if h['portfolio'] == _e and float(h.get('value_cad') or h.get('value_usd') or 0) > 0.5]
+        hv += [(f"{b['pick']} ({b['event']})", float(b['stake_cad'])) for b in data['bets'] if _e == 'Sports' and b.get('status') == 'Open']
+        held = [n for n, _ in hv if not str(n).startswith('Cash')]
+        lt = [t for t in data['trades'] if t['portfolio'] == _e and not str(t.get('holding', '')).startswith('[')]
+        lt = max(lt, key=lambda t: _when(t['at']), default=None)
+        lb = max([b for b in data['bets'] if _e == 'Sports' and b.get('placed_at')], key=lambda b: _when(b['placed_at']), default=None)
+        last = ({'at': lb['placed_at'], 'text': f"Bet {b2c(lb['stake_cad'])} on {lb['pick']}"} if lb else
+                {'at': lt['at'], 'text': f"{lt['action']} {lt['holding']}" + (f" ({b2c(lt['cad'])})" if lt.get('cad') else '')} if lt else None)
+        _es[_e].append({'id': 'claude', 'value': round(v, 2), 'profit': round(max(v, 0) - b0, 2), 'holds': held[:20],
+                        'pie': [{'name': n, 'value': round(x, 2)} for n, x in hv], 'last': last})
     for _mid, _m in (r.get('models') or {}).items():
         v, _ = _lastv([(h['at'], float(h['value'])) for h in r.get('history', []) if h['model'] == _mid and h['experiment'] == _e])
         bk = (_m.get('books') or {}).get(_e)
         if v is None or not bk:
             continue
-        held = [q.get('name') or k for k, q in bk.get('positions', {}).items() if abs(q.get('qty', 0)) > 1e-9]
-        held += [f"{b['pick_team']} ({b['event']})" for b in bk.get('bets', []) if b['status'] == 'Open']
+        _fx = r.get('fx') or {'USDCAD': 1.4, 'USDCNY': 7.1}
+        def _val(q, cur=bk.get('cur', 'CAD')):
+            amt = abs(q['qty'] * q.get('last', q['entry']))
+            usd = amt if q['pcur'] == 'USD' else amt / _fx['USDCNY'] if q['pcur'] == 'CNY' else amt / _fx['USDCAD']
+            return usd if cur == 'USD' else usd * _fx['USDCAD']
+        pos = [(q.get('name') or k, _val(q)) for k, q in bk.get('positions', {}).items() if abs(q.get('qty', 0)) > 1e-9]
+        ob = [(f"{b['pick_team']} ({b['event']})", b['stake']) for b in bk.get('bets', []) if b['status'] == 'Open']
+        held = [n for n, _ in pos + ob]
+        pie = pos + ob + ([('Cash', bk['cash'])] if _e != 'Sports' and bk.get('cash', 0) > 0.5 else [])
+        if _e == 'Sports':
+            pie.append(('Not bet', max(0.0, v - sum(x for _, x in ob))))
+        lt = max([t for t in r.get('trades', []) if t.get('model') == _mid and t['experiment'] == _e and t['action'] not in ('Void',)], key=lambda t: _when(t['at']), default=None)
+        last = {'at': lt['at'], 'text': f"{lt['action']} {lt.get('name') or lt['symbol']} ({b2c(abs(lt['amount']), lt['cur'])})"} if lt else None
         _es[_e].append({'id': _mid, 'value': round(v, 2), 'profit': round(max(v, 0) - 100000.0, 2), 'holds': held[:20],
+                        'pie': [{'name': n, 'value': round(x, 2)} for n, x in pie if x > 0.5], 'last': last,
                         'busted': bool(bk.get('busted')), 'eliminated': bool(_m.get('eliminated'))})
     _es[_e].sort(key=lambda x: -x['value'])
 data['exp_standings'] = _es
