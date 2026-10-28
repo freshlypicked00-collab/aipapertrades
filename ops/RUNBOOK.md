@@ -72,6 +72,8 @@ then publishes everything. It runs every hour.
 6. **Write the input file** (format below) to a temp path and run
    `python3 ops/update.py ops/src <input.json>`. Read the warnings. Fix and re-run from a
    fresh `git checkout ops/src` if something is wrong.
+6b. **Check the arithmetic:** run `python3 ops/check.py ops/src`. If it reports problems, fix them
+   before publishing.
 7. **Build and publish the site:** `python3 ops/build_site.py ops/src .`, then commit
    (`UPDATE ALL <Mon D, h:mm a.m./p.m. ET>`), `git pull --rebase`, and push to `main`.
 7b. **Daily ledger.** If `update.py` printed `LEDGER DAY CLOSED <day>` (the first run after
@@ -119,6 +121,22 @@ then publishes everything. It runs every hour.
   July peak) supported by state-backed ETF buying and strong chip earnings. Follow the price rules
   in `rules.json`. Watch the Fifth Plenum communique (Oct 29) and the plenum rule.
 - **Events:** add China events with `"affects": "China"` only.
+
+## Daily accuracy check
+
+A separate scheduled task runs every evening (9:27 p.m. ET) with `ops/AUDIT_PROMPT.md`. It makes
+no trades; it re-checks the last 24 hours against fresh sources and fixes mistakes. Correction rules:
+- **Wrong current price:** run `update.py` with the correct price (normal update; it revalues).
+- **Wrong trade price or amount** (the price wasn't real at that time, or the maths is off): edit
+  that entry in `trades.json`, adjust the holding's `quantity`, `entry_usd`/`entry_local` and
+  `cost_cad`/`cost_usd` (and the funding cash) to what they would have been, then run `update.py`
+  with current prices so values and history update. Never delete a trade to hide a loss.
+- **Wrong bet result:** fix `status` and `result_cad` in `bets.json`, then run `update.py`.
+- **Missed stop or limit:** make the trade now at the rule's level with `fill_at` set to when it
+  was crossed, as in the stop-order section.
+- **Ledger mistakes:** fix the numbers or notes in `ledger.json` for that day.
+- Every correction gets a `Check` log entry in that experiment saying what was wrong and what
+  changed. Then run `ops/check.py`, rebuild, push and sync.
 
 ## Stop and limit orders between runs
 
