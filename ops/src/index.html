@@ -155,8 +155,8 @@
       <span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 26</span>
     </p>
     <p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>
-    <p class="st-notice" role="note"><span class="st-dot" aria-hidden="true"></span><span><b>This is a simulation, not investment advice.</b> No real money is involved. It is a 30-day experiment in which an AI model makes trading and betting decisions using real-world prices, to see how its judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results for all five will be posted on Nov 26, win or lose.</span></p>
-    <p class="st-lede">Five separate paper-trading experiments, each run and scored on its own on Nov 26, 2026. Each one started with its own <span data-draw="start">—</span> (US$100,000 for Chinese stocks) and is judged only against that starting amount; the results are never added together. Last updated <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=All">—</b>.</p>
+    <p class="st-notice" role="note"><span class="st-dot" aria-hidden="true"></span><span><b>This is a simulation, not investment advice.</b> No real money is involved. It is a 30-day experiment in which an AI model makes trading and betting decisions using real-world prices, to see how its judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results for all nine will be posted on Nov 26, win or lose.</span></p>
+    <p class="st-lede">Nine separate paper-trading experiments, each run and scored on its own on Nov 26, 2026. Each one started with its own <span data-draw="start">—</span> (US$100,000 for Chinese stocks) and is judged only against that starting amount; the results are never added together. Last updated <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=All">—</b>.</p>
   </header>
 
   <nav class="st-tabs" role="tablist" aria-label="Simulations">
@@ -165,6 +165,10 @@
     <button class="st-tab" role="tab" data-tab="crypto" aria-selected="false">Crypto</button>
     <button class="st-tab" role="tab" data-tab="china" aria-selected="false">China stocks</button>
     <button class="st-tab" role="tab" data-tab="metals" aria-selected="false">Metals</button>
+    <button class="st-tab" role="tab" data-tab="energy" aria-selected="false">Oil and energy</button>
+    <button class="st-tab" role="tab" data-tab="options" aria-selected="false">Options</button>
+    <button class="st-tab" role="tab" data-tab="predictions" aria-selected="false">Prediction markets</button>
+    <button class="st-tab" role="tab" data-tab="safe" aria-selected="false">Play it safe</button>
     <button class="st-tab" role="tab" data-tab="sports" aria-selected="false">Sports</button>
     <button class="st-tab" role="tab" data-tab="ledger" aria-selected="false">Ledger</button>
   </nav>
@@ -220,6 +224,53 @@
           <span>Vs. just holding Bitcoin: <b data-draw="vs-diff" data-source="vsbtc" data-field="diff" data-where="portfolio=Metals">—</b></span>
         </span>
       </button>
+      <button class="st-card" data-goto="energy">
+        <span class="st-label">Oil and energy</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Energy">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Energy">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Energy">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Energy">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Energy">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Energy">—</b></span>
+          <span>Vs. oil (USO fund): <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=uso_energy">—</b></span>
+        </span>
+      </button>
+      <button class="st-card" data-goto="options">
+        <span class="st-label">Options</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Options">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Options">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Options">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Options">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Options">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Options">—</b></span>
+          <span>Vs. the S&amp;P 500: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=sp500_options">—</b></span>
+        </span>
+      </button>
+      <button class="st-card" data-goto="predictions">
+        <span class="st-label">Prediction markets</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Predictions">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Predictions">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Predictions">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Predictions">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Predictions">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Predictions">—</b></span>
+        </span>
+      </button>
+      <button class="st-card" data-goto="safe">
+        <span class="st-label">Play it safe</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Safe">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Safe">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Safe">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Safe">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Safe">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Safe">—</b></span>
+          <span>Vs. Savings account at 2.25%: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=savings">—</b></span>
+        </span>
+      </button>
       <button class="st-card" data-goto="sports">
         <span class="st-label">Sports betting</span>
         <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Sports">—</span>
@@ -254,6 +305,10 @@
         <button type="button" data-v="Crypto" aria-pressed="false">Crypto</button>
         <button type="button" data-v="China" aria-pressed="false">China stocks</button>
         <button type="button" data-v="Metals" aria-pressed="false">Metals</button>
+        <button type="button" data-v="Energy" aria-pressed="false">Oil and energy</button>
+        <button type="button" data-v="Options" aria-pressed="false">Options</button>
+        <button type="button" data-v="Predictions" aria-pressed="false">Prediction markets</button>
+        <button type="button" data-v="Safe" aria-pressed="false">Play it safe</button>
         <button type="button" data-v="Sports" aria-pressed="false">Sports</button>
       </div>
       <div class="gx" id="perf-overview" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Stocks"></div>
@@ -299,6 +354,16 @@
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Stocks">—</b></span>
       </p>
     </section>
+    <section class="st-card" aria-labelledby="h-s-hold">
+      <h2 class="st-h2" id="h-s-hold">Holdings</h2>
+      <p class="st-note">Prices in US dollars; values in Canadian dollars at the latest exchange rate.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
+          <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Quantity</th><th data-field="entry_usd" class="num">Entry (US$)</th><th data-field="price_usd" class="num">Now (US$)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th><th data-field="price_source">Price source</th></tr></thead>
+          <tbody data-draw="holdings-body" data-portfolio="Stocks"></tbody>
+        </table>
+      </div>
+    </section>
     <section class="st-card" aria-labelledby="h-s-market">
       <h2 class="st-h2" id="h-s-market">Stocks vs. the market</h2>
       <p class="st-note">What the same <span data-draw="start">—</span> would be worth if it had gone into each index at the Oct 26 close and stayed there. The S&amp;P 500 is converted to Canadian dollars; the TSX is already in them. Index levels, without dividends.</p>
@@ -340,16 +405,6 @@
         </table>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-s-hold">
-      <h2 class="st-h2" id="h-s-hold">Holdings</h2>
-      <p class="st-note">Prices in US dollars; values in Canadian dollars at the latest exchange rate.</p>
-      <div class="st-wrap">
-        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
-          <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Quantity</th><th data-field="entry_usd" class="num">Entry (US$)</th><th data-field="price_usd" class="num">Now (US$)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th><th data-field="price_source">Price source</th></tr></thead>
-          <tbody data-draw="holdings-body" data-portfolio="Stocks"></tbody>
-        </table>
-      </div>
-    </section>
     <section class="st-card" aria-labelledby="h-s-rules">
       <h2 class="st-h2" id="h-s-rules">Rules in force</h2>
       <div class="st-wrap">
@@ -388,6 +443,16 @@
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Crypto">—</b></span>
       </p>
     </section>
+    <section class="st-card" aria-labelledby="h-c-hold">
+      <h2 class="st-h2" id="h-c-hold">Holdings</h2>
+      <p class="st-note">Prices in US dollars; values in Canadian dollars at the latest exchange rate.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
+          <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Quantity</th><th data-field="entry_usd" class="num">Entry (US$)</th><th data-field="price_usd" class="num">Now (US$)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th><th data-field="price_source">Price source</th></tr></thead>
+          <tbody data-draw="holdings-body" data-portfolio="Crypto"></tbody>
+        </table>
+      </div>
+    </section>
     <section class="st-card" aria-labelledby="h-c-chart">
       <h2 class="st-h2" id="h-c-chart">Value over time</h2>
       <p class="st-note">The grey dashed line is the same C$100,000 left in Bitcoin. Hover or drag along the chart for exact values.</p>
@@ -415,16 +480,6 @@
         <table class="st-table" data-source="events" data-row-key="at,event">
           <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
           <tbody data-draw="events-body" data-portfolio="Crypto" data-limit="6"></tbody>
-        </table>
-      </div>
-    </section>
-    <section class="st-card" aria-labelledby="h-c-hold">
-      <h2 class="st-h2" id="h-c-hold">Holdings</h2>
-      <p class="st-note">Prices in US dollars; values in Canadian dollars at the latest exchange rate.</p>
-      <div class="st-wrap">
-        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
-          <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Quantity</th><th data-field="entry_usd" class="num">Entry (US$)</th><th data-field="price_usd" class="num">Now (US$)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th><th data-field="price_source">Price source</th></tr></thead>
-          <tbody data-draw="holdings-body" data-portfolio="Crypto"></tbody>
         </table>
       </div>
     </section>
@@ -466,6 +521,16 @@
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Metals">—</b></span>
       </p>
     </section>
+    <section class="st-card" aria-labelledby="h-m-hold">
+      <h2 class="st-h2" id="h-m-hold">Holdings</h2>
+      <p class="st-note">Prices in US dollars per troy ounce; values in Canadian dollars at the latest exchange rate.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
+          <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Ounces</th><th data-field="entry_usd" class="num">Entry (US$)</th><th data-field="price_usd" class="num">Now (US$)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th><th data-field="price_source">Price source</th></tr></thead>
+          <tbody data-draw="holdings-body" data-portfolio="Metals"></tbody>
+        </table>
+      </div>
+    </section>
     <section class="st-card" aria-labelledby="h-m-chart">
       <h2 class="st-h2" id="h-m-chart">Value over time</h2>
       <p class="st-note">The grey dashed line is the same C$100,000 left in Bitcoin. Hover or drag along the chart for exact values.</p>
@@ -496,16 +561,6 @@
         </table>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-m-hold">
-      <h2 class="st-h2" id="h-m-hold">Holdings</h2>
-      <p class="st-note">Prices in US dollars per troy ounce; values in Canadian dollars at the latest exchange rate.</p>
-      <div class="st-wrap">
-        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
-          <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Ounces</th><th data-field="entry_usd" class="num">Entry (US$)</th><th data-field="price_usd" class="num">Now (US$)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th><th data-field="price_source">Price source</th></tr></thead>
-          <tbody data-draw="holdings-body" data-portfolio="Metals"></tbody>
-        </table>
-      </div>
-    </section>
     <section class="st-card" aria-labelledby="h-m-rules">
       <h2 class="st-h2" id="h-m-rules">Rules in force</h2>
       <div class="st-wrap">
@@ -526,6 +581,317 @@
     </section>
   </section>
 
+
+  <!-- Oil and energy -->
+  <section class="st-page" id="energy" data-page="energy" hidden>
+    <section class="st-card" aria-labelledby="h-e-bench">
+      <h2 class="st-h2" id="h-e-bench">Oil and energy</h2>
+      <p class="st-note">Oil, tanker and refiner positions bought with US-listed funds and shares; high risk, high reward. Opens at the US market open on Oct 28 (9:30 a.m. ET).</p>
+      <div class="st-bench">
+        <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Energy">—</span></div>
+        <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Energy">—</span></div>
+        <div><span class="st-label">Total net profit</span><span class="st-mid" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Energy">—</span></div>
+        <div><span class="st-label">Worst drop from peak</span><span class="st-mid" data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Energy">—</span></div>
+        <div><span class="st-label">All in oil (USO fund)</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=uso_energy">—</span></div>
+        <div><span class="st-label">Ahead by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=uso_energy">—</span></div>
+      </div>
+      <p class="st-meta">
+        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Energy">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Energy">—</span></span>
+        <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Energy">—</b></span>
+      </p>
+    </section>
+    <section class="st-card" aria-labelledby="h-e-hold">
+      <h2 class="st-h2" id="h-e-hold">Holdings</h2>
+      <p class="st-note">Prices in US dollars; values in Canadian dollars at the latest exchange rate.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
+          <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Shares</th><th data-field="entry_usd" class="num">Entry (US$)</th><th data-field="price_usd" class="num">Now (US$)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th><th data-field="price_source">Price source</th></tr></thead>
+          <tbody data-draw="holdings-body" data-portfolio="Energy"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-e-chart">
+      <h2 class="st-h2" id="h-e-chart">Value over time</h2>
+      <p class="st-note">The grey dashed line is the same C$100,000 put into the USO oil fund. Hover or drag along the chart for exact values.</p>
+      <div class="gx" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Energy"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-e-trig">
+      <h2 class="st-h2" id="h-e-trig">Distance to the next trade</h2>
+      <p class="st-note">This experiment's price rules, closest first.</p>
+      <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Energy"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-e-px">
+      <h2 class="st-h2" id="h-e-px">Prices</h2>
+      <p class="st-note">Pick a holding to see its price at each check-in since it was bought. The dotted line is the price paid; dashed lines are the prices that would trigger a trade.</p>
+      <div class="gx" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Energy"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-e-contrib">
+      <h2 class="st-h2" id="h-e-contrib">What made or lost money</h2>
+      <p class="st-note">Profit or loss on each position since it was bought, in Canadian dollars.</p>
+      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="Energy"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-e-events">
+      <h2 class="st-h2" id="h-e-events">Coming up</h2>
+      <p class="st-note">Events ahead that could move this experiment. Times are Eastern.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="events" data-row-key="at,event">
+          <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
+          <tbody data-draw="events-body" data-portfolio="Energy" data-limit="6"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-e-rules">
+      <h2 class="st-h2" id="h-e-rules">Rules in force</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="rules" data-row-key="rule">
+          <thead><tr><th data-field="rule">Rule</th></tr></thead>
+          <tbody data-draw="rules-body" data-portfolio="Energy"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-e-log">
+      <h2 class="st-h2" id="h-e-log">Decision log</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="log" data-row-key="at,portfolio">
+          <thead><tr><th data-field="at">When</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
+          <tbody data-draw="log-body" data-portfolio="Energy"></tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+
+  <!-- Options -->
+  <section class="st-page" id="options" data-page="options" hidden>
+    <section class="st-card" aria-labelledby="h-o-bench">
+      <h2 class="st-h2" id="h-o-bench">Options</h2>
+      <p class="st-note">Stock options (calls and puts) on US companies; the highest-risk experiment. One contract covers 100 shares, and options can expire worthless. Opens at the US market open on Oct 28 (9:30 a.m. ET).</p>
+      <div class="st-bench">
+        <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Options">—</span></div>
+        <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Options">—</span></div>
+        <div><span class="st-label">Total net profit</span><span class="st-mid" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Options">—</span></div>
+        <div><span class="st-label">Worst drop from peak</span><span class="st-mid" data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Options">—</span></div>
+        <div><span class="st-label">All in the S&amp;P 500</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=sp500_options">—</span></div>
+        <div><span class="st-label">Ahead by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=sp500_options">—</span></div>
+      </div>
+      <p class="st-meta">
+        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Options">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Options">—</span></span>
+        <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Options">—</b></span>
+      </p>
+    </section>
+    <section class="st-card" aria-labelledby="h-o-hold">
+      <h2 class="st-h2" id="h-o-hold">Holdings</h2>
+      <p class="st-note">Shares = contracts × 100. Premiums in US dollars per share; values in Canadian dollars.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
+          <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Shares</th><th data-field="entry_usd" class="num">Entry (US$)</th><th data-field="price_usd" class="num">Now (US$)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th><th data-field="price_source">Price source</th></tr></thead>
+          <tbody data-draw="holdings-body" data-portfolio="Options"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-o-chart">
+      <h2 class="st-h2" id="h-o-chart">Value over time</h2>
+      <p class="st-note">The grey dashed line is the same C$100,000 put into the S&amp;P 500. Hover or drag along the chart for exact values.</p>
+      <div class="gx" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Options"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-o-trig">
+      <h2 class="st-h2" id="h-o-trig">Distance to the next trade</h2>
+      <p class="st-note">This experiment's price rules, closest first.</p>
+      <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Options"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-o-px">
+      <h2 class="st-h2" id="h-o-px">Prices</h2>
+      <p class="st-note">Pick a holding to see its price at each check-in since it was bought. The dotted line is the price paid; dashed lines are the prices that would trigger a trade.</p>
+      <div class="gx" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Options"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-o-contrib">
+      <h2 class="st-h2" id="h-o-contrib">What made or lost money</h2>
+      <p class="st-note">Profit or loss on each position since it was bought, in Canadian dollars.</p>
+      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="Options"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-o-events">
+      <h2 class="st-h2" id="h-o-events">Coming up</h2>
+      <p class="st-note">Events ahead that could move this experiment. Times are Eastern.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="events" data-row-key="at,event">
+          <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
+          <tbody data-draw="events-body" data-portfolio="Options" data-limit="6"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-o-rules">
+      <h2 class="st-h2" id="h-o-rules">Rules in force</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="rules" data-row-key="rule">
+          <thead><tr><th data-field="rule">Rule</th></tr></thead>
+          <tbody data-draw="rules-body" data-portfolio="Options"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-o-log">
+      <h2 class="st-h2" id="h-o-log">Decision log</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="log" data-row-key="at,portfolio">
+          <thead><tr><th data-field="at">When</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
+          <tbody data-draw="log-body" data-portfolio="Options"></tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+
+  <!-- Prediction markets -->
+  <section class="st-page" id="predictions" data-page="predictions" hidden>
+    <section class="st-card" aria-labelledby="h-p-bench">
+      <h2 class="st-h2" id="h-p-bench">Prediction markets</h2>
+      <p class="st-note">Bets on real-world events at Polymarket and Kalshi prices. A share costs 0 to 100 cents and pays US$1 if the outcome happens, nothing if it doesn’t, so the price is the market’s probability. Started Oct 28 at 12:10 a.m. ET.</p>
+      <div class="st-bench">
+        <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Predictions">—</span></div>
+        <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Predictions">—</span></div>
+        <div><span class="st-label">Total net profit</span><span class="st-mid" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Predictions">—</span></div>
+        <div><span class="st-label">Worst drop from peak</span><span class="st-mid" data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Predictions">—</span></div>
+      </div>
+      <p class="st-meta">
+        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Predictions">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Predictions">—</span></span>
+        <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Predictions">—</b></span>
+      </p>
+    </section>
+    <section class="st-card" aria-labelledby="h-p-hold">
+      <h2 class="st-h2" id="h-p-hold">Holdings</h2>
+      <p class="st-note">Share prices in US cents (the market’s probability); values in Canadian dollars.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
+          <thead><tr><th data-field="holding">Market</th><th data-field="quantity" class="num">Shares</th><th data-field="entry_usd" class="num">Paid (¢)</th><th data-field="price_usd" class="num">Now (¢)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th><th data-field="price_source">Price source</th></tr></thead>
+          <tbody data-draw="holdings-body" data-portfolio="Predictions"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-p-chart">
+      <h2 class="st-h2" id="h-p-chart">Value over time</h2>
+      <p class="st-note">The dotted line is the C$100,000 start. Hover or drag along the chart for exact values.</p>
+      <div class="gx" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Predictions"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-p-trig">
+      <h2 class="st-h2" id="h-p-trig">Distance to the next trade</h2>
+      <p class="st-note">This experiment's price rules, closest first.</p>
+      <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Predictions"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-p-px">
+      <h2 class="st-h2" id="h-p-px">Prices</h2>
+      <p class="st-note">Pick a holding to see its price at each check-in since it was bought. The dotted line is the price paid; dashed lines are the prices that would trigger a trade.</p>
+      <div class="gx" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Predictions"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-p-contrib">
+      <h2 class="st-h2" id="h-p-contrib">What made or lost money</h2>
+      <p class="st-note">Profit or loss on each position since it was bought, in Canadian dollars.</p>
+      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="Predictions"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-p-events">
+      <h2 class="st-h2" id="h-p-events">Coming up</h2>
+      <p class="st-note">Events ahead that could move this experiment. Times are Eastern.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="events" data-row-key="at,event">
+          <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
+          <tbody data-draw="events-body" data-portfolio="Predictions" data-limit="6"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-p-rules">
+      <h2 class="st-h2" id="h-p-rules">Rules in force</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="rules" data-row-key="rule">
+          <thead><tr><th data-field="rule">Rule</th></tr></thead>
+          <tbody data-draw="rules-body" data-portfolio="Predictions"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-p-log">
+      <h2 class="st-h2" id="h-p-log">Decision log</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="log" data-row-key="at,portfolio">
+          <thead><tr><th data-field="at">When</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
+          <tbody data-draw="log-body" data-portfolio="Predictions"></tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+
+  <!-- Play it safe -->
+  <section class="st-page" id="safe" data-page="safe" hidden>
+    <section class="st-card" aria-labelledby="h-f-bench">
+      <h2 class="st-h2" id="h-f-bench">Play it safe</h2>
+      <p class="st-note">The control experiment: low-risk Treasury bills, bonds, dividend stocks and a little gold, to compare with the aggressive ones. Opens at the US market open on Oct 28 (9:30 a.m. ET).</p>
+      <div class="st-bench">
+        <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Safe">—</span></div>
+        <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Safe">—</span></div>
+        <div><span class="st-label">Total net profit</span><span class="st-mid" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Safe">—</span></div>
+        <div><span class="st-label">Worst drop from peak</span><span class="st-mid" data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Safe">—</span></div>
+        <div><span class="st-label">Savings account at 2.25%</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=savings">—</span></div>
+        <div><span class="st-label">Ahead by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=savings">—</span></div>
+      </div>
+      <p class="st-meta">
+        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Safe">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Safe">—</span></span>
+        <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Safe">—</b></span>
+      </p>
+    </section>
+    <section class="st-card" aria-labelledby="h-f-hold">
+      <h2 class="st-h2" id="h-f-hold">Holdings</h2>
+      <p class="st-note">Prices in US dollars; values in Canadian dollars at the latest exchange rate.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
+          <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Shares</th><th data-field="entry_usd" class="num">Entry (US$)</th><th data-field="price_usd" class="num">Now (US$)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th><th data-field="price_source">Price source</th></tr></thead>
+          <tbody data-draw="holdings-body" data-portfolio="Safe"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-f-chart">
+      <h2 class="st-h2" id="h-f-chart">Value over time</h2>
+      <p class="st-note">The grey dashed line is the same C$100,000 in a savings account paying 2.25% a year. Hover or drag along the chart for exact values.</p>
+      <div class="gx" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Safe"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-f-trig">
+      <h2 class="st-h2" id="h-f-trig">Distance to the next trade</h2>
+      <p class="st-note">This experiment's price rules, closest first.</p>
+      <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Safe"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-f-px">
+      <h2 class="st-h2" id="h-f-px">Prices</h2>
+      <p class="st-note">Pick a holding to see its price at each check-in since it was bought. The dotted line is the price paid; dashed lines are the prices that would trigger a trade.</p>
+      <div class="gx" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Safe"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-f-contrib">
+      <h2 class="st-h2" id="h-f-contrib">What made or lost money</h2>
+      <p class="st-note">Profit or loss on each position since it was bought, in Canadian dollars.</p>
+      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="Safe"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-f-events">
+      <h2 class="st-h2" id="h-f-events">Coming up</h2>
+      <p class="st-note">Events ahead that could move this experiment. Times are Eastern.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="events" data-row-key="at,event">
+          <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
+          <tbody data-draw="events-body" data-portfolio="Safe" data-limit="6"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-f-rules">
+      <h2 class="st-h2" id="h-f-rules">Rules in force</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="rules" data-row-key="rule">
+          <thead><tr><th data-field="rule">Rule</th></tr></thead>
+          <tbody data-draw="rules-body" data-portfolio="Safe"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-f-log">
+      <h2 class="st-h2" id="h-f-log">Decision log</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="log" data-row-key="at,portfolio">
+          <thead><tr><th data-field="at">When</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
+          <tbody data-draw="log-body" data-portfolio="Safe"></tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+
   <!-- Sports -->
   <section class="st-page" id="sports" data-page="sports" hidden>
     <section class="st-card" aria-labelledby="h-b-bench">
@@ -541,6 +907,16 @@
         <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Sports">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Sports">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Sports">—</b></span>
       </p>
+    </section>
+    <section class="st-card" aria-labelledby="h-b-bets">
+      <h2 class="st-h2" id="h-b-bets">Bets</h2>
+      <p class="st-note">American odds. Stakes and results in Canadian dollars. Closing odds are the last price before the game started; getting a better price than the close is the quickest sign of real skill, long before wins and losses settle it.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="bets" data-row-key="bet">
+          <thead><tr><th data-field="bet">Bet</th><th data-field="placed">Placed</th><th data-field="event">Game</th><th data-field="pick">Pick</th><th data-field="odds" class="num">Odds</th><th data-field="stake_cad" class="num">Stake (C$)</th><th data-field="to_win_cad" class="num">To win (C$)</th><th data-field="status">Status</th><th data-field="result_cad" class="num">Result (C$)</th><th data-field="closing_odds" class="num">Closing odds</th><th data-source="clv" data-field="verdict">Beat the close?</th></tr></thead>
+          <tbody data-draw="bets-body"></tbody>
+        </table>
+      </div>
     </section>
     <section class="st-card" aria-labelledby="h-b-chart">
       <h2 class="st-h2" id="h-b-chart">Bankroll over time</h2>
@@ -578,16 +954,6 @@
         <table class="st-table" data-source="bysport" data-row-key="sport">
           <thead><tr><th data-field="sport">Sport</th><th data-field="bets" class="num">Bets</th><th data-field="won" class="num">Won</th><th data-field="lost" class="num">Lost</th><th data-field="open" class="num">Open</th><th data-field="pnl" class="num">Profit (C$)</th><th data-field="roi" class="num">Return on stakes</th></tr></thead>
           <tbody data-draw="bysport-body"></tbody>
-        </table>
-      </div>
-    </section>
-    <section class="st-card" aria-labelledby="h-b-bets">
-      <h2 class="st-h2" id="h-b-bets">Bets</h2>
-      <p class="st-note">American odds. Stakes and results in Canadian dollars. Closing odds are the last price before the game started; getting a better price than the close is the quickest sign of real skill, long before wins and losses settle it.</p>
-      <div class="st-wrap">
-        <table class="st-table" data-source="bets" data-row-key="bet">
-          <thead><tr><th data-field="bet">Bet</th><th data-field="placed">Placed</th><th data-field="event">Game</th><th data-field="pick">Pick</th><th data-field="odds" class="num">Odds</th><th data-field="stake_cad" class="num">Stake (C$)</th><th data-field="to_win_cad" class="num">To win (C$)</th><th data-field="status">Status</th><th data-field="result_cad" class="num">Result (C$)</th><th data-field="closing_odds" class="num">Closing odds</th><th data-source="clv" data-field="verdict">Beat the close?</th></tr></thead>
-          <tbody data-draw="bets-body"></tbody>
         </table>
       </div>
     </section>
@@ -630,6 +996,16 @@
         <span>Market hours: 9:30–11:30 a.m. and 1:00–3:00 p.m. Beijing time, which is 9:30–11:30 p.m. and 1:00–3:00 a.m. ET (an hour earlier from Nov 2). The CSI 300 comparison starts from the first index level recorded after the portfolio opened.</span>
       </p>
     </section>
+    <section class="st-card" aria-labelledby="h-z-hold">
+      <h2 class="st-h2" id="h-z-hold">Holdings</h2>
+      <p class="st-note">Prices in yuan (¥); values in US dollars at the latest exchange rate.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
+          <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Shares</th><th data-field="entry_local" class="num">Entry (¥)</th><th data-field="price_local" class="num">Now (¥)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_usd" class="num">Value (US$)</th><th data-field="price_source">Price source</th></tr></thead>
+          <tbody data-draw="holdings-body" data-portfolio="China"></tbody>
+        </table>
+      </div>
+    </section>
     <section class="st-card" aria-labelledby="h-z-chart">
       <h2 class="st-h2" id="h-z-chart">Value over time</h2>
       <p class="st-note">In US dollars. The grey dashed line is the same US$100,000 put into the CSI 300 index (China's 300 largest companies). Hover or drag along the chart for exact values.</p>
@@ -657,16 +1033,6 @@
         <table class="st-table" data-source="events" data-row-key="at,event">
           <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
           <tbody data-draw="events-body" data-portfolio="China" data-limit="6"></tbody>
-        </table>
-      </div>
-    </section>
-    <section class="st-card" aria-labelledby="h-z-hold">
-      <h2 class="st-h2" id="h-z-hold">Holdings</h2>
-      <p class="st-note">Prices in yuan (¥); values in US dollars at the latest exchange rate.</p>
-      <div class="st-wrap">
-        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
-          <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Shares</th><th data-field="entry_local" class="num">Entry (¥)</th><th data-field="price_local" class="num">Now (¥)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_usd" class="num">Value (US$)</th><th data-field="price_source">Price source</th></tr></thead>
-          <tbody data-draw="holdings-body" data-portfolio="China"></tbody>
         </table>
       </div>
     </section>
@@ -703,6 +1069,10 @@
         <div class="lg-sim"><span class="lg-sim-name">Crypto</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Crypto">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Crypto">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Crypto">—</span></div>
         <div class="lg-sim"><span class="lg-sim-name">China stocks (US$)</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=China">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=China">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=China">—</span></div>
         <div class="lg-sim"><span class="lg-sim-name">Metals</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Metals">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Metals">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Metals">—</span></div>
+        <div class="lg-sim"><span class="lg-sim-name">Oil and energy</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Energy">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Energy">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Energy">—</span></div>
+        <div class="lg-sim"><span class="lg-sim-name">Options</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Options">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Options">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Options">—</span></div>
+        <div class="lg-sim"><span class="lg-sim-name">Prediction markets</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Predictions">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Predictions">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Predictions">—</span></div>
+        <div class="lg-sim"><span class="lg-sim-name">Play it safe</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Safe">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Safe">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Safe">—</span></div>
         <div class="lg-sim"><span class="lg-sim-name">Sports</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Sports">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Sports">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Sports">—</span></div>
       </div>
       <p class="st-meta lg-today"><span>Today so far, each experiment on its own (the day closes at midnight UTC): <b data-draw="lg-today" data-source="history">—</b></span></p>
@@ -719,19 +1089,40 @@
         <button type="button" data-v="Crypto" aria-pressed="false">Crypto</button>
         <button type="button" data-v="China" aria-pressed="false">China stocks</button>
         <button type="button" data-v="Metals" aria-pressed="false">Metals</button>
+        <button type="button" data-v="Energy" aria-pressed="false">Oil and energy</button>
+        <button type="button" data-v="Options" aria-pressed="false">Options</button>
+        <button type="button" data-v="Predictions" aria-pressed="false">Prediction markets</button>
+        <button type="button" data-v="Safe" aria-pressed="false">Play it safe</button>
         <button type="button" data-v="Sports" aria-pressed="false">Sports</button>
       </div>
       <div class="gx" id="lg-bars" data-draw="lg-bars" data-source="ledger" data-portfolio="Stocks"></div>
     </section>
+    <section class="st-card" aria-labelledby="h-l-trades">
+      <h2 class="st-h2" id="h-l-trades">Every trade</h2>
+      <p class="st-note">Every buy, sell, bet and bet result across all nine experiments, newest first, recorded automatically at each update. Times are Eastern. Pick an experiment to see only its trades.</p>
+      <div class="st-chips" role="group" aria-label="Experiment" data-chips-for="lg-trades">
+        <button type="button" data-v="" aria-pressed="true">All experiments</button>
+        <button type="button" data-v="Stocks" aria-pressed="false">Stocks and anything</button>
+        <button type="button" data-v="Crypto" aria-pressed="false">Crypto</button>
+        <button type="button" data-v="China" aria-pressed="false">China stocks</button>
+        <button type="button" data-v="Metals" aria-pressed="false">Metals</button>
+        <button type="button" data-v="Energy" aria-pressed="false">Oil and energy</button>
+        <button type="button" data-v="Options" aria-pressed="false">Options</button>
+        <button type="button" data-v="Predictions" aria-pressed="false">Prediction markets</button>
+        <button type="button" data-v="Safe" aria-pressed="false">Play it safe</button>
+        <button type="button" data-v="Sports" aria-pressed="false">Sports</button>
+      </div>
+      <div class="st-wrap" id="lg-trades" data-draw="lg-trades" data-source="trades bets" data-portfolio=""></div>
+    </section>
     <section class="st-card" aria-labelledby="h-l-days">
       <h2 class="st-h2" id="h-l-days">Day by day</h2>
       <p class="st-note">Newest first. Each experiment gets its own result, its total since the start and a write-up for the day, with general notes on the day underneath. Open "Decisions this day" for every trade, bet and note logged that day.</p>
-      <div class="lg-days" data-draw="lg-days" data-source="ledger log"></div>
+      <div class="lg-days" data-draw="lg-days" data-source="ledger log trades bets"></div>
     </section>
   </section>
   <section class="st-card st-about" aria-labelledby="h-about" id="about">
     <h2 class="st-h2" id="h-about">About this experiment</h2>
-    <p>This page tracks a 30-day paper-trading experiment, Oct 26 to Nov 26, 2026. An AI model was given <span data-draw="start">—</span> of pretend money in each of four simulations, plus US$100,000 for a fifth in Chinese stocks added on Oct 28, and asked to manage it as it saw fit. The page owner checks in through the month, and the AI looks up current prices and news, decides whether to trade, and records each decision and its reasoning here.</p>
+    <p>This page tracks a 30-day paper-trading experiment, Oct 26 to Nov 26, 2026. An AI model was given <span data-draw="start">—</span> of pretend money in each of four simulations, plus US$100,000 for a fifth in Chinese stocks and C$100,000 each for four more (oil and energy, options, prediction markets and a low-risk control) added on Oct 28, and asked to manage each one as it saw fit. Each is a separate experiment, scored on its own. The page owner checks in through the month, and the AI looks up current prices and news, decides whether to trade, and records each decision and its reasoning here.</p>
     <ul>
       <li><b>Independent.</b> This is an independent experiment, not affiliated with, sponsored by or endorsed by any brokerage, sportsbook, exchange or AI company.</li>
       <li><b>Not advice.</b> Nothing on this page is financial, investment, tax or betting advice, and the AI is not a licensed advisor. The picks are an experiment, not recommendations. Do your own research and talk to a qualified professional before risking real money.</li>
@@ -740,7 +1131,7 @@
       <li><b>High risk on purpose.</b> The stocks portfolio holds 3x leveraged funds, and crypto, metals and sports bets can swing sharply. These choices were made to test aggressive decision-making, not because they suit most people. Leveraged funds can lose a large share of their value in a single day.</li>
       <li><b>Short window, lots of luck.</b> Thirty days is too short to prove skill. A good or bad result here says little about future performance.</li>
       <li><b>Sports betting is for adults only.</b> Odds are shown for the experiment, not as an endorsement of any sportsbook. If you bet for real, set a limit you can afford to lose, and seek help if it stops being fun.</li>
-      <li><b>Results, win or lose.</b> The final results for all five simulations will be posted here on Nov 26, whether they are good or bad. Losing trades and bets stay in the log.</li>
+      <li><b>Results, win or lose.</b> The final results for all nine simulations will be posted here on Nov 26, whether they are good or bad. Losing trades and bets stay in the log.</li>
       <li><b>How it's scored.</b> Values are in Canadian dollars at the latest exchange rate, except the Chinese stocks simulation, which is counted in US dollars. Each simulation is compared with a simple benchmark (the S&amp;P 500 and TSX for stocks, holding Bitcoin for crypto and metals, the closing line for sports, the CSI 300 for Chinese stocks). US markets are closed on Nov 26 for Thanksgiving, so the stocks score uses the Nov 25 close.</li>
     </ul>
     <p class="st-note">Every number on this page links to the data behind it; open Sources to see where each figure came from and when it was last updated.</p>
@@ -760,6 +1151,8 @@
     document.querySelectorAll('[data-phase]').forEach((el) => { el.hidden = (el.dataset.phase === 'ended') !== ended; });
   });
   const SYM = (p) => (p === 'China' ? 'US$' : 'C$');
+  const PFS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Predictions', 'Safe', 'Sports'];
+  const LABEL = { Stocks: 'Stocks and anything', China: 'China stocks (US$)', Energy: 'Oil and energy', Predictions: 'Prediction markets', Safe: 'Play it safe' };
   window.stFmt = {
     money: (v, p) => SYM(p) + d3.format(',.0f')(v),
     signed: (v, p) => (v >= 0 ? '+' : '−') + SYM(p) + d3.format(',.0f')(Math.abs(v)),
@@ -771,7 +1164,7 @@
   };
 
   // Tabs
-  const TABS = ['overview', 'stocks', 'crypto', 'metals', 'sports', 'china', 'ledger'];
+  const TABS = ['overview', 'stocks', 'crypto', 'metals', 'sports', 'china', 'energy', 'options', 'predictions', 'safe', 'ledger'];
   const showTab = (name) => {
     if (!TABS.includes(name)) name = 'overview';
     document.querySelectorAll('[data-page]').forEach((s) => { s.hidden = s.dataset.page !== name; });
@@ -791,7 +1184,7 @@
       const sum = (p, f) => holdings.filter((r) => r.portfolio === p).reduce((a, r) => a + Number(r[f] || 0), 0);
       const settled = bets.filter((b) => b.status !== 'Open').reduce((a, b) => a + Number(b.result_cad || 0), 0);
       const risk = bets.filter((b) => b.status === 'Open').reduce((a, b) => a + Number(b.stake_cad), 0);
-      const out = ['Stocks', 'Crypto', 'Metals'].map((p) => ({ portfolio: p, value: sum(p, 'value_cad'), pnl: sum(p, 'value_cad') - start, pct: sum(p, 'value_cad') / start - 1, at_risk: 0, value_cad: sum(p, 'value_cad'), pnl_cad: sum(p, 'value_cad') - start }))
+      const out = ['Stocks', 'Crypto', 'Metals', 'Energy', 'Options', 'Predictions', 'Safe'].filter((p) => holdings.some((r) => r.portfolio === p)).map((p) => ({ portfolio: p, value: sum(p, 'value_cad'), pnl: sum(p, 'value_cad') - start, pct: sum(p, 'value_cad') / start - 1, at_risk: 0, value_cad: sum(p, 'value_cad'), pnl_cad: sum(p, 'value_cad') - start }))
         .concat([{ portfolio: 'Sports', value: start + settled, pnl: settled, pct: settled / start, at_risk: risk, value_cad: start + settled, pnl_cad: settled }]);
       if (holdings.some((r) => r.portfolio === 'China')) {
         const usd = sum('China', 'value_usd'), cad = sum('China', 'value_cad');
@@ -817,7 +1210,7 @@
     title: '24-hour net profit',
     description: 'Each portfolio\u2019s latest value minus its value at the last check-in at least 24 hours earlier, or its start if it is newer than 24 hours.',
     inputs: ['history'],
-    fn: (history) => ['Stocks', 'Crypto', 'Metals', 'Sports', 'China'].map((p) => {
+    fn: (history) => PFS.map((p) => {
       const s = history.filter((r) => r.portfolio === p).map((r) => ({ t: new Date(r.at).getTime(), v: Number(r.value) })).sort((a, b) => a.t - b.t);
       if (!s.length) return { portfolio: p, day: null };
       const last = s[s.length - 1];
@@ -834,8 +1227,10 @@
     fn: (totals, indexes) => {
       return indexes.map((i) => {
         const t = totals.find((r) => r.portfolio === (i.portfolio || 'Stocks'));
-        const ready = i.start_level && i.now_level;
-        const index_value = ready ? 100000 / Number(i.fx_start) / Number(i.start_level) * Number(i.now_level) * Number(i.fx_now) : null;
+        const rate = i.kind === 'rate';
+        const ready = rate ? !!i.start_at : i.start_level && i.now_level;
+        const index_value = !ready ? null : rate ? 100000 * (1 + Number(i.rate) * Math.max(0, Date.now() - new Date(i.start_at)) / (365 * 864e5))
+          : 100000 / Number(i.fx_start) / Number(i.start_level) * Number(i.now_level) * Number(i.fx_now);
         return { id: i.id, portfolio: i.portfolio || 'Stocks', index: i.index, value: t ? t.value : null, index_value, diff: t && ready ? t.value - index_value : null };
       });
     }
@@ -845,7 +1240,7 @@
     title: 'Worst drop from peak',
     description: 'For each portfolio, the biggest fall from its highest check-in value to any later check-in value.',
     inputs: ['history'],
-    fn: (history) => ['Stocks', 'Crypto', 'Metals', 'Sports', 'China'].map((p) => {
+    fn: (history) => PFS.map((p) => {
       const s = history.filter((r) => r.portfolio === p).map((r) => ({ t: new Date(r.at).getTime(), v: Number(r.value) })).sort((a, b) => a.t - b.t);
       let peak = -Infinity, worst_pct = 0, worst_cad = 0;
       for (const r of s) {
@@ -894,7 +1289,7 @@
       const TRADES = ['Buy', 'Sell', 'Bet', 'Trim', 'Add'];
       const t = (r) => new Date(r.at).getTime();
       const latest = (rows) => rows.reduce((a, r) => (!a || t(r) > t(a) ? r : a), null);
-      return ['Stocks', 'Crypto', 'Metals', 'Sports', 'China', 'All'].map((p) => {
+      return PFS.concat(['All']).map((p) => {
         const mine = (r) => p === 'All' || r.portfolio === p;
         const trade = latest(log.filter((r) => mine(r) && TRADES.includes(r.action)));
         const upd = latest(log.filter(mine).concat(history.filter(mine)));
@@ -1110,7 +1505,7 @@
     el.replaceChildren();
     if (d.status !== 'ok') return;
     const p = el.dataset.portfolio, limit = Number(el.dataset.limit) || 99;
-    const fmtP = (v, c) => (c === 'CNY' ? '¥' + d3.format(',.3f')(v) : v >= 1000 ? '$' + d3.format(',.0f')(v) : '$' + d3.format(',.2f')(v));
+    const fmtP = (v, c, pf) => (pf === 'Predictions' ? d3.format('.1f')(v * 100) + '¢' : c === 'CNY' ? '¥' + d3.format(',.3f')(v) : v >= 1000 ? '$' + d3.format(',.0f')(v) : '$' + d3.format(',.2f')(v));
     const rows = d.data.filter((r) => !p || r.portfolio === p).filter((r) => r.price !== null)
       .sort((a, b) => (a.hit === b.hit ? a.away - b.away : a.hit ? -1 : 1)).slice(0, limit);
     if (!rows.length) { const n = document.createElement('p'); n.className = 'st-note'; n.textContent = 'No price rules right now.'; el.appendChild(n); return; }
@@ -1119,10 +1514,10 @@
       const near = !r.hit && r.away < 0.05;
       const nm = document.createElement('div'); nm.className = 'nm';
       const b = document.createElement('b'); b.textContent = r.asset;
-      const sp = document.createElement('span'); sp.textContent = (p ? '' : r.portfolio + ' · ') + 'now ' + fmtP(r.price, r.currency);
+      const sp = document.createElement('span'); sp.textContent = (p ? '' : r.portfolio + ' · ') + 'now ' + fmtP(r.price, r.currency, r.portfolio);
       nm.append(b, sp);
       const px = document.createElement('div'); px.className = 'px';
-      px.textContent = (r.direction === 'above' ? 'If it rises to ' : 'If it falls to ') + fmtP(r.level, r.currency) + ':';
+      px.textContent = (r.direction === 'above' ? 'If it rises to ' : 'If it falls to ') + fmtP(r.level, r.currency, r.portfolio) + ':';
       const what = document.createElement('span'); what.textContent = r.label; px.appendChild(what);
       const tr = document.createElement('div'); tr.className = 'st-track';
       tr.title = 'The fuller the bar, the closer the price is to the trigger';
@@ -1208,8 +1603,8 @@
   ] : [
     [r.holding],
     [num(r.quantity, (v) => v >= 100 ? d3.format(',.2f')(v) : d3.format(',.4f')(v)), 'num'],
-    [num(r.entry_usd, usd), 'num'],
-    [num(r.price_usd, usd), 'num'],
+    [num(r.entry_usd, r.portfolio === 'Predictions' ? (v) => d3.format('.1f')(v * 100) + '¢' : usd), 'num'],
+    [num(r.price_usd, r.portfolio === 'Predictions' ? (v) => d3.format('.1f')(v * 100) + '¢' : usd), 'num'],
     [r.price_usd === null ? '' : stFmt.pct(Number(r.change_pct)), 'num ' + upDown(Number(r.change_pct))],
     [num(r.value_cad, (v) => d3.format(',.0f')(v)), 'num'],
     [r.price_source ? r.price_source + (r.price_at ? ', ' + stFmt.when(r.price_at) : '') : '', 'wrap src']
@@ -1403,16 +1798,20 @@
   };
 
   // ---------- value over time, per simulation
-  const BENCH = { Stocks: 'S&P 500', Crypto: 'Bitcoin', Metals: 'Bitcoin', China: 'CSI 300' };
+  const BENCH = { Stocks: 'S&P 500', Crypto: 'Bitcoin', Metals: 'Bitcoin', China: 'CSI 300', Energy: 'Oil (USO fund)', Options: 'S&P 500' };
   dash.draw('perf-chart', (el) => {
     const run = () => {
       const h = dash.data('history'), b = dash.data('bench_history');
       if (h.status !== 'ok') { el.replaceChildren(); return; }
       const p = el.dataset.portfolio;
-      const pts = h.data.filter((r) => r.portfolio === p).map((r) => ({ t: new Date(r.at), v: Number(r.value) })).sort((a, c) => a.t - c.t);
+      let pts = h.data.filter((r) => r.portfolio === p).map((r) => ({ t: new Date(r.at), v: Number(r.value) })).sort((a, c) => a.t - c.t);
+      const T = dash.data('trades');
+      const first = T.status === 'ok' ? T.data.filter((t) => t.portfolio === p).map((t) => new Date(t.at)).sort((a, c) => a - c)[0] : null;
+      if (first && p !== 'Sports') pts = pts.filter((q) => +q.t >= +first - 60e3);
       let bench = null;
+      if (p === 'Safe' && first && pts.length) bench = { name: 'Savings account at 2.25%', points: pts.map((q) => ({ t: q.t, v: START * (1 + 0.0225 * Math.max(0, q.t - first) / (365 * 864e5)) })) };
       const bn = BENCH[p];
-      if (bn && b.status === 'ok' && pts.length) {
+      if (bn && b.status === 'ok' && pts.length && (first || p === 'Stocks' || p === 'Crypto' || p === 'Metals' || p === 'China')) {
         const t0 = pts[0].t;
         const rows = b.data.filter((r) => r.series === bn).map((r) => ({ t: new Date(r.at), v: Number(r.level) * Number(r.fx) })).sort((a, c) => a.t - c.t);
         const ref = rows.filter((r) => r.t <= t0).pop() || rows[0];
@@ -1420,7 +1819,7 @@
       }
       const sym = SYM(p);
       gChart(el, {
-        points: pts, name: p === 'Sports' ? 'Bankroll' : p + ' portfolio', bench,
+        points: pts, name: p === 'Sports' ? 'Bankroll' : (LABEL[p] || p), bench, empty: 'Not started yet. The first trades happen at the next market open.',
         fmt: (v) => sym + d3.format(',.0f')(v), fmtTip: (v) => sym + d3.format(',.2f')(v),
         axis: (v) => sym + d3.format(',.1f')(v / 1000) + 'k',
         base: START, baseLabel: 'Started with ' + sym + '100,000'
@@ -1450,11 +1849,14 @@
       el.append(chips, box, note);
       const h = hs.find((x) => x.holding === pick);
       const cny = h.currency === 'CNY';
-      const f = (v) => (cny ? '¥' + d3.format(',.3f')(v) : v >= 1000 ? '$' + d3.format(',.0f')(v) : '$' + d3.format(',.2f')(v));
-      const fa = (v) => (cny ? '¥' + d3.format(',.2f')(v) : v >= 1000 ? '$' + d3.format(',.0f')(v) : '$' + d3.format(',.' + (v < 10 ? 2 : 0) + 'f')(v));
+      const cents = pf === 'Predictions';
+      const f = (v) => (cents ? d3.format('.1f')(v * 100) + '¢' : cny ? '¥' + d3.format(',.3f')(v) : v >= 1000 ? '$' + d3.format(',.0f')(v) : '$' + d3.format(',.2f')(v));
+      const fa = (v) => (cents ? d3.format('.0f')(v * 100) + '¢' : cny ? '¥' + d3.format(',.2f')(v) : v >= 1000 ? '$' + d3.format(',.0f')(v) : '$' + d3.format(',.' + (v < 10 ? 2 : 0) + 'f')(v));
       const firstBuy = T.data.find((t) => t.portfolio === pf && t.holding === h.holding);
       const since = firstBuy ? +new Date(firstBuy.at) - 5 * 60e3 : 0;
-      const pts = P.data.filter((r) => r.asset === h.holding).map((r) => ({ t: new Date(r.at), v: Number(r.price) })).filter((p) => +p.t >= since).sort((a, b) => a.t - b.t);
+      const allPts = P.data.filter((r) => r.asset === h.holding).map((r) => ({ t: new Date(r.at), v: Number(r.price) })).sort((a, b) => a.t - b.t);
+      const before = allPts.filter((p) => +p.t < since);
+      const pts = (before.length ? [before[before.length - 1]] : []).concat(allPts.filter((p) => +p.t >= since));
       const entry = Number(h.entry_local ?? h.entry_usd);
       const cur = Number(h.price_local ?? h.price_usd);
       const rules = R.data.filter((r) => r.portfolio === pf && r.asset === h.holding && r.level !== null && r.level !== undefined);
@@ -1489,10 +1891,10 @@
     const rows = d.data.filter((r) => +new Date(r.at) === latestAt);
     const all = rows.find((r) => r.portfolio === 'All');
     const ul = mk('ul');
-    rows.filter((r) => r.portfolio !== 'All').sort((a, b) => ['Stocks', 'Crypto', 'China', 'Metals', 'Sports'].indexOf(a.portfolio) - ['Stocks', 'Crypto', 'China', 'Metals', 'Sports'].indexOf(b.portfolio)).forEach((r) => {
+    rows.filter((r) => r.portfolio !== 'All').sort((a, b) => PFS.indexOf(a.portfolio) - PFS.indexOf(b.portfolio)).forEach((r) => {
       const li = mk('li');
       if (r.grade) li.appendChild(mk('span', 'lg-grade', r.grade));
-      li.append(mk('b', '', ({ Stocks: 'Stocks and anything', China: 'China stocks (US$)' }[r.portfolio] || r.portfolio) + ': '), document.createTextNode(r.text));
+      li.append(mk('b', '', (LABEL[r.portfolio] || r.portfolio) + ': '), document.createTextNode(r.text));
       ul.appendChild(li);
     });
     el.appendChild(ul);
@@ -1523,14 +1925,14 @@
     if (hd.status === 'ok') { const c = hd.data.filter((r) => r.portfolio === 'China'); const u = d3.sum(c, (r) => Number(r.value_usd)); if (u) fx = d3.sum(c, (r) => Number(r.value_cad)) / u; }
     const parts = [];
     let total = 0;
-    ['Stocks', 'Crypto', 'China', 'Metals', 'Sports'].forEach((p) => {
+    PFS.forEach((p) => {
       const s = h.data.filter((r) => r.portfolio === p).map((r) => ({ t: +new Date(r.at), v: Number(r.value) })).sort((a, b) => a.t - b.t);
       if (!s.length) return;
       const near = s.filter((r) => Math.abs(r.t - start) <= 3600e3);
       const before = s.filter((r) => r.t <= start);
       const o = near.length ? d3.least(near, (r) => Math.abs(r.t - start) - (r.t >= start ? 0.5 : 0)).v : before.length ? before[before.length - 1].v : START;
       const v = s[s.length - 1].v - o;
-      parts.push(p + ' ' + stFmt.signed(v, p));
+      parts.push((LABEL[p] || p) + ' ' + stFmt.signed(v, p));
     });
     el.textContent = parts.join(' · ');
   });
@@ -1598,8 +2000,8 @@
     const L = dash.data('log');
     if (!days) return;
     if (!days.length) { el.appendChild(mk('p', 'st-note', 'The first day closes at midnight UTC.')); return; }
-    const NAMES = { Stocks: 'Stocks and anything', China: 'China stocks (US$)', Crypto: 'Crypto', Metals: 'Metals', Sports: 'Sports' };
-    const ORD = ['Stocks', 'Crypto', 'China', 'Metals', 'Sports'];
+    const NAMES = LABEL;
+    const ORD = PFS;
     days.slice().reverse().forEach((x) => {
       const card = mk('article', 'lg-day');
       const head = mk('div', 'lg-head');
@@ -1627,6 +2029,18 @@
       ov.appendChild(mk('p', 'lg-overall-h', 'Notes on the day'));
       ov.appendChild(x.all && x.all.note ? mk('p', 'lg-note', x.all.note) : mk('p', 'lg-note lg-pending', 'Notes are added at the next check-in.'));
       card.appendChild(ov);
+      const TR = tradeRows();
+      if (TR) {
+        const a0 = +new Date(x.start_at), b0 = +new Date(x.end_at);
+        const tday = TR.filter((r) => +new Date(r.at) >= a0 && +new Date(r.at) < b0).reverse();
+        const det = mk('details');
+        det.appendChild(mk('summary', '', 'Trades this day (' + tday.length + ')'));
+        const ul = mk('ul');
+        if (!tday.length) ul.appendChild(mk('li', '', 'No trades.'));
+        tday.forEach((r) => { const li = mk('li'); li.append(mk('b', '', stFmt.when(r.at) + ' ET · ' + (LABEL[r.portfolio] || r.portfolio) + ' · ' + r.action + ': '), document.createTextNode(r.item + ', ' + r.detail + (r.amount ? ', ' + r.amount : '') + (r.result !== null ? ', ' + stFmt.signed(r.result, 'Sports') : ''))); ul.appendChild(li); });
+        det.appendChild(ul);
+        card.appendChild(det);
+      }
       if (L.status === 'ok') {
         const a = +new Date(x.start_at), b = +new Date(x.end_at);
         const ev = L.data.filter((r) => +new Date(r.at) >= a && +new Date(r.at) < b).sort((p, q) => new Date(p.at) - new Date(q.at));
@@ -1640,6 +2054,56 @@
       }
       el.appendChild(card);
     });
+  });
+
+
+  // ---------- every trade, from trades.json and bets.json
+  const tradeRows = () => {
+    const T = dash.data('trades'), B = dash.data('bets');
+    if (T.status !== 'ok' || B.status !== 'ok') return null;
+    const px = (t) => {
+      if (t.portfolio === 'China') return '¥' + d3.format(',.3f')(t.price_local);
+      if (t.portfolio === 'Predictions') return d3.format('.1f')(t.price_usd * 100) + '¢';
+      return t.price_usd >= 1000 ? '$' + d3.format(',.0f')(t.price_usd) : '$' + d3.format(',.2f')(t.price_usd);
+    };
+    const rows = T.data.map((t) => ({
+      at: t.at, portfolio: t.portfolio, action: t.action, item: t.holding,
+      detail: (t.shares ? d3.format(',')(t.shares) + ' shares at ' : 'at ') + px(t),
+      amount: t.portfolio === 'China' ? '¥' + d3.format(',.0f')(t.cny) + ' (US$' + d3.format(',.0f')(t.usd) + ')' : 'C$' + d3.format(',.0f')(t.cad),
+      result: null
+    }));
+    B.data.forEach((b) => {
+      const odds = (Number(b.odds) > 0 ? '+' : '') + b.odds;
+      rows.push({ at: b.placed_at || b.placed + 'T12:00:00-04:00', portfolio: 'Sports', action: 'Bet', item: b.bet + ' ' + b.pick, detail: b.event + ' at ' + odds, amount: 'C$' + d3.format(',.0f')(b.stake_cad), result: null });
+      if (b.status !== 'Open') rows.push({ at: b.settled_at || (b.starts_at ? new Date(new Date(b.starts_at).getTime() + 3 * 3600e3).toISOString() : b.placed + 'T23:00:00-04:00'), portfolio: 'Sports', action: b.status, item: b.bet + ' ' + b.pick, detail: b.event, amount: '', result: Number(b.result_cad) });
+    });
+    return rows.sort((a, b) => new Date(b.at) - new Date(a.at));
+  };
+  dash.draw('lg-trades', (el) => {
+    const run = () => {
+      el.replaceChildren();
+      const rows = tradeRows();
+      if (!rows) return;
+      const p = el.dataset.portfolio;
+      const shown = rows.filter((r) => !p || r.portfolio === p);
+      const table = mk('table', 'st-table');
+      table.innerHTML = '<thead><tr><th>When (ET)</th><th>Experiment</th><th>Action</th><th>What</th><th>Details</th><th class="num">Amount</th><th class="num">Result</th></tr></thead>';
+      const tb = mk('tbody');
+      if (!shown.length) { const tr = mk('tr'); const td = mk('td', '', 'No trades yet.'); td.colSpan = 7; tr.appendChild(td); tb.appendChild(tr); }
+      shown.forEach((r) => {
+        const tr = mk('tr');
+        const act = mk('span', 'st-pill' + (r.action === 'Buy' || r.action === 'Won' ? ' is-up' : r.action === 'Sell' || r.action === 'Lost' ? ' is-down' : ''), r.action);
+        const cells = [[stFmt.when(r.at)], [LABEL[r.portfolio] || r.portfolio], [act], [r.item], [r.detail, 'wrap'], [r.amount, 'num'],
+          [r.result === null ? '' : stFmt.signed(r.result, 'Sports'), 'num ' + (r.result === null ? '' : upDown(r.result))]];
+        cells.forEach(([v, c]) => { const td = mk('td', c || ''); if (v instanceof Node) td.appendChild(v); else td.textContent = v; tr.appendChild(td); });
+        tb.appendChild(tr);
+      });
+      table.appendChild(tb);
+      el.appendChild(table);
+      el.appendChild(mk('p', 'st-note', shown.length + (shown.length === 1 ? ' trade' : ' trades') + (p ? ' in ' + (LABEL[p] || p) : ' in total') + '.'));
+    };
+    el._redraw = run;
+    run();
   });
 
   // chips that switch a chart's simulation

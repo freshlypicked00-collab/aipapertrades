@@ -265,7 +265,7 @@ save('holdings', holdings)
 by_id = {b['bet']: b for b in bets}
 for b in inp.get('bets_new', []):
     stake = float(b['stake_cad'])
-    nb = {'bet': b['bet'], 'placed': AT[:10], 'sport': b['sport'], 'event': b['event'], 'pick': b['pick'],
+    nb = {'bet': b['bet'], 'placed': AT[:10], 'placed_at': AT, 'sport': b['sport'], 'event': b['event'], 'pick': b['pick'],
           'odds': b['odds'], 'stake_cad': stake, 'to_win_cad': to_win(stake, b['odds']), 'status': 'Open',
           'result_cad': None, 'market': b.get('market', 'moneyline'), 'line': b.get('line'),
           'closing_odds': None, 'closing_line': None, 'starts_at': b.get('starts_at')}
