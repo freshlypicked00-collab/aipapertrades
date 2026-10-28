@@ -917,6 +917,81 @@ def tg_trade(label, t, source=None, photo=None):
     tg_photo(msg + f'\n⚔️ AI vs AI: Claude vs Gemini vs ChatGPT · {SITE}', photo)
 
 
+WATCH = [('BTC-USD', 'Bitcoin', 3.0), ('ETH-USD', 'Ethereum', 4.0), ('SOL-USD', 'Solana', 6.0), ('^GSPC', 'S&P 500', 1.5), ('^IXIC', 'Nasdaq', 2.0),
+         ('GC=F', 'Gold', 2.0), ('SI=F', 'Silver', 3.0), ('CL=F', 'Oil (WTI)', 3.0), ('CAD=X', 'US dollar vs Canadian dollar', 1.0)]
+
+
+def price_alerts(state):
+    """Post a market alert when something big moves: each move is measured from the last alert (or first sighting) of that market."""
+    a = state.setdefault('price_alerts', {'base': {}, 'sent': []})
+    today = NOW.date().isoformat()
+    sent_today = [x for x in a['sent'] if x[:10] == today]
+    for sym, name, pct in WATCH:
+        try:
+            px = yahoo(sym)[0]
+        except Exception:
+            continue
+        b = a['base'].get(sym)
+        if not b:
+            a['base'][sym] = {'px': px, 'at': iso()}
+            continue
+        ch = px / b['px'] - 1
+        if abs(ch) * 100 >= pct and len(sent_today) < 8:
+            up = ch > 0
+            unit = '' if sym in ('^GSPC', '^IXIC') else 'US$'
+            fmt = (lambda v: f'{v:,.4f}') if sym == 'CAD=X' else (lambda v: f'{v:,.2f}' if v < 1000 else f'{v:,.0f}')
+            since = datetime.fromisoformat(b['at'].replace('Z', '+00:00')).astimezone(NY).strftime('%a %-I:%M %p ET')
+            tg(f"{'🚀' if up else '📉'} <b>Market alert: {name} {'up' if up else 'down'} {abs(ch) * 100:.1f}%</b>\n"
+               f"Now {unit}{fmt(px)}, {'+' if up else '−'}{unit}{fmt(abs(px - b['px']))} since {since} ({unit}{fmt(b['px'])}).\n"
+               f"Watch how Claude, Gemini and ChatGPT react: {SITE}")
+            a['sent'].append(iso())
+            sent_today.append(iso())
+            a['base'][sym] = {'px': px, 'at': iso()}
+    a['sent'] = a['sent'][-60:]
+
+
+def claude_allin(state, fx):
+    """Fill Claude's queued All in orders (ops/src/allin_orders.json), then value and settle Claude's All in books."""
+    c = state.setdefault('claude_allin', {'books': {}, 'started': {}, 'done': [], 'results': []})
+    c.setdefault('done', []); c.setdefault('results', [])
+    for e in ALLIN:
+        if e not in c['books']:
+            c['books'][e] = new_book(e)
+            c['started'][e] = iso()
+    try:
+        queue = json.load(open('ops/src/allin_orders.json'))
+    except Exception:
+        queue = []
+    head = '🟠 <b>CLAUDE</b> (Anthropic)'
+    for o in queue:
+        if o.get('id') in c['done']:
+            continue
+        c['done'].append(o.get('id'))
+        try:
+            t = execute('claude', ALLIN, c['books'], o, fx, state)
+            c['results'].append(f"{o['id']}: filled {t['action']} {t['name']} {money(t['amount'], 'CAD')}")
+            try:
+                tg_trade('Claude', t)
+            except Exception as e:
+                print('claude all-in post failed', e)
+        except Exception as e:
+            c['results'].append(f"{o.get('id')}: refused ({e})")
+    c['results'] = c['results'][-40:]
+    notes = []
+    for t in settle_bets('claude', c['books']['AllInSports'], state, 'AllInSports') + settle_options('claude', c['books']['AllInTrading'], fx, state, 'AllInTrading'):
+        try:
+            tg_trade('Claude', t)
+        except Exception:
+            pass
+    for e in ALLIN:
+        v = value_book(e, c['books'][e], fx, notes)
+        state['history'].append({'at': iso(), 'model': 'claude', 'experiment': e, 'value': v})
+        b = c['books'][e]
+        if v <= 0 and not b.get('busted') and not any(x['status'] == 'Open' for x in b.get('bets', [])):
+            b['busted'] = iso()
+            tg(f"{head}\n💥 <b>BUSTED in {EXP_LABEL[e]}</b>\nClaude lost the whole 100,000 in this High risk, high reward experiment. (It does not count in the main race.)\n{SITE}", silent=False)
+
+
 # ---------------- main ----------------
 def main():
     if '--prices' in sys.argv:
@@ -942,7 +1017,10 @@ def main():
             return
     fx = get_fx()
     ran = []
-    claude_allin(state, fx)
+    try:
+        claude_allin(state, fx)
+    except Exception as e:
+        print('claude all-in failed', e)
     try:
         price_alerts(state)
     except Exception as e:
