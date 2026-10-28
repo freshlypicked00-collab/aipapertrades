@@ -140,7 +140,7 @@ def chart_scoreboard(rows, title, single=None):
             for sp in ax.spines.values():
                 sp.set_visible(False)
         fig.suptitle('PAPER TRADES · ' + title, color=AMBER, fontsize=14, x=.01, ha='left', fontweight='bold')
-        fig.text(.99, .01, ('Archived first run · ' if single else 'Ten separate experiments, never added together · ') + 'Simulation only · papertrades.ai', color=MUTED, ha='right', fontsize=9)
+        fig.text(.99, .01, ('Archived first run · ' if single else 'Ten separate experiments · ') + 'Simulation only · papertrades.ai', color=MUTED, ha='right', fontsize=9)
         fig.tight_layout(rect=(0, .03, 1, .93))
         path = '/tmp/pt_close.png'
         fig.savefig(path, dpi=110, facecolor=BG)
