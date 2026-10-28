@@ -966,6 +966,11 @@ def main():
         print('no rival API keys set; nothing to do')
         return
     state['fx'] = fx
+    try:
+        g = espn_games()
+        state['feeds'] = {'at': iso(), 'espn_games': len(g), 'open_with_moneylines': sum(1 for x in g.values() if x['state'] == 'pre' and x['home_ml'] and x['away_ml'])}
+    except Exception as e:
+        state['feeds'] = {'at': iso(), 'error': str(e)[:200]}
     json.dump(state, open(STATE, 'w'), indent=1)
     print('\n'.join(ran))
 
