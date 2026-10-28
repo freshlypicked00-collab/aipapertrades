@@ -229,7 +229,7 @@ run. The Energy and Options comparisons start from the first level after each on
 
 ## Events
 
-Each portfolio's tab shows only events whose `affects` lists it, so tag events precisely
+Write `when` in Eastern time (e.g. "Wed Oct 28, 9:45 a.m."); the page adds the UTC time from `at`. Each portfolio's tab shows only events whose `affects` lists it, so tag events precisely
 (`"Stocks"`, `"Crypto, Metals"`, ...). Never use `"All"`; list the portfolios instead.
 
 ## Price standard

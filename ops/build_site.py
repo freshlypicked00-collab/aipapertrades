@@ -47,7 +47,7 @@ markup = sub(markup, '  </section>\n</div>\n', '''  </section>
 script += """
   dash.draw('refreshed', (el) => {
     const d = dash.data('meta');
-    el.textContent = d.status === 'ok' && d.data[0] ? stFmt.when(d.data[0].refreshed_at) + ' ET' : '—';
+    el.textContent = d.status === 'ok' && d.data[0] ? stFmt.when(d.data[0].refreshed_at) : '—';
   });
 """
 
