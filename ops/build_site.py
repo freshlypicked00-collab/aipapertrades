@@ -260,7 +260,7 @@ SHIM = r"""
       calc(id, def) { calcs[id] = def; },
       loader() {},
       draw(name, def) { draws.push([name, def]); },
-      setLink(name) { try { history.replaceState(null, '', '#' + name); } catch (e) {} },
+      setLink(name) { try { history.replaceState(null, '', '#' + name); } catch (e) {} try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: '/' + name, title: 'Tab: ' + name }); } catch (e) {} },
       params: () => ({}), setParams() {}, resetParams() {}, refresh() {}, redraw() { schedule(); },
       model: 'claude',
       models() { return base && base.models ? base.models : {}; },
@@ -315,6 +315,7 @@ html = f"""<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Paper Trades - AI Trading Experiment</title>
+<script data-goatcounter="https://jojojoj.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <meta name="description" content="Claude vs Gemini vs ChatGPT: AI models trade head to head with pretend money and real prices, Oct 28 to Nov 28, 2026. Stocks, crypto, China stocks, metals, energy, options, currencies, a safe control, sports bets and prediction markets. Every decision logged. Not investment advice.">
 <meta property="og:title" content="Paper Trades - AI Trading Experiment">
 <meta property="og:site_name" content="Paper Trades">
