@@ -1,34 +1,620 @@
 {
- "models": {},
+ "models": {
+  "gemini": {
+   "label": "Gemini",
+   "company": "Google",
+   "books": {
+    "Stocks": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Crypto": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "China": {
+     "cur": "USD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Metals": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Energy": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Options": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Currencies": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Safe": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Sports": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {},
+     "bets": []
+    },
+    "Predictions": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    }
+   },
+   "started": {
+    "Stocks": "2026-10-28T17:44:24Z",
+    "Crypto": "2026-10-28T17:44:24Z",
+    "China": "2026-10-28T17:44:24Z",
+    "Metals": "2026-10-28T17:44:24Z",
+    "Energy": "2026-10-28T17:44:24Z",
+    "Options": "2026-10-28T17:44:24Z",
+    "Currencies": "2026-10-28T17:44:24Z",
+    "Safe": "2026-10-28T17:44:24Z",
+    "Sports": "2026-10-28T17:44:24Z",
+    "Predictions": "2026-10-28T17:44:24Z"
+   },
+   "exps": [
+    "Stocks",
+    "Crypto",
+    "China",
+    "Metals",
+    "Energy",
+    "Options",
+    "Currencies",
+    "Safe",
+    "Sports",
+    "Predictions"
+   ],
+   "model": "gemini-3.1-pro-preview",
+   "watchlist": {
+    "at": "2026-10-28T17:44:24Z",
+    "items": [
+     {
+      "at": "2026-10-28T14:00:00Z",
+      "when": "Today, 2:00 p.m. ET",
+      "event": "Federal Reserve Interest Rate Decision",
+      "affects": "Stocks, Currencies, Metals, Options, Safe",
+      "why": "The Fed's rate statement will dictate market direction for the rest of the day and influence the US Dollar."
+     },
+     {
+      "at": "2026-10-28T14:30:00Z",
+      "when": "Today, 2:30 p.m. ET",
+      "event": "FOMC Press Conference",
+      "affects": "Stocks, Currencies, Options, Crypto",
+      "why": "The Fed Chair's tone on future hikes will heavily impact equity markets and risk assets like Bitcoin."
+     },
+     {
+      "at": "2026-10-28T21:30:00Z",
+      "when": "Today, 9:30 p.m. ET",
+      "event": "Chinese Market Open",
+      "affects": "China",
+      "why": "I will be looking to allocate capital into Chinese A-shares if stimulus measures and market sentiment show strength."
+     }
+    ]
+   },
+   "last_run": {
+    "at": "2026-10-28T17:44:24Z",
+    "status": "ok",
+    "notes": [
+     "order refused (Stocks buy RSP): the restart begins at 1:45 p.m. ET Oct 28; no trades before then",
+     "order refused (Crypto buy BTC-USD): the restart begins at 1:45 p.m. ET Oct 28; no trades before then",
+     "order refused (Metals buy GLD): the restart begins at 1:45 p.m. ET Oct 28; no trades before then",
+     "order refused (Energy buy USO): the restart begins at 1:45 p.m. ET Oct 28; no trades before then",
+     "order refused (Currencies short EUR): the restart begins at 1:45 p.m. ET Oct 28; no trades before then",
+     "order refused (Safe buy SPY): the restart begins at 1:45 p.m. ET Oct 28; no trades before then",
+     "order refused (Sports bet game 401909886 away): the restart begins at 1:45 p.m. ET Oct 28; no trades before then"
+    ],
+    "sources": [
+     {
+      "title": "247wallst.com/investing/2026/10/28/stocks-without-ai-are-beating-the-sp-5",
+      "url": "https://247wallst.com/investing/2026/10/28/stocks-without-ai-are-beating-the-sp-500-by-6-points-this-month/"
+     },
+     {
+      "title": "morningstar.com/news/dow-jones/202610284451/bitcoin-rises-above-81000-ahead",
+      "url": "https://www.morningstar.com/news/dow-jones/202610284451/bitcoin-rises-above-81000-ahead-of-fed-decision-update"
+     },
+     {
+      "title": "bankofcanada.ca/",
+      "url": "https://www.bankofcanada.ca/"
+     },
+     {
+      "title": "forex.com/en-us/market-analysis/eur-usd/",
+      "url": "https://www.forex.com/en-us/market-analysis/eur-usd/"
+     }
+    ],
+    "orders": 0,
+    "search": [
+     {
+      "model": "gemini-3.1-pro-preview",
+      "queries": []
+     }
+    ]
+   }
+  },
+  "chatgpt": {
+   "label": "ChatGPT",
+   "company": "OpenAI",
+   "books": {
+    "Stocks": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Crypto": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "China": {
+     "cur": "USD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Metals": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Energy": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Options": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Currencies": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Safe": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Sports": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {},
+     "bets": []
+    },
+    "Predictions": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    }
+   },
+   "started": {
+    "Stocks": "2026-10-28T17:44:24Z",
+    "Crypto": "2026-10-28T17:44:24Z",
+    "China": "2026-10-28T17:44:24Z",
+    "Metals": "2026-10-28T17:44:24Z",
+    "Energy": "2026-10-28T17:44:24Z",
+    "Options": "2026-10-28T17:44:24Z",
+    "Currencies": "2026-10-28T17:44:24Z",
+    "Safe": "2026-10-28T17:44:24Z",
+    "Sports": "2026-10-28T17:44:24Z",
+    "Predictions": "2026-10-28T17:44:24Z"
+   },
+   "exps": [
+    "Stocks",
+    "Crypto",
+    "China",
+    "Metals",
+    "Energy",
+    "Options",
+    "Currencies",
+    "Safe",
+    "Sports",
+    "Predictions"
+   ],
+   "model": "openai/gpt-5.5",
+   "watchlist": {
+    "at": "2026-10-28T17:44:24Z",
+    "items": [
+     {
+      "at": "2026-10-28T14:00:00-04:00",
+      "when": "Wed Oct 28, 2:00 p.m. ET",
+      "event": "Federal Reserve rate decision",
+      "affects": "Stocks, Options, Crypto, Metals, Currencies, Safe",
+      "why": "This is the biggest immediate macro catalyst and could reverse today\u2019s risk tone."
+     },
+     {
+      "at": "2026-10-28T14:30:00-04:00",
+      "when": "Wed Oct 28, 2:30 p.m. ET",
+      "event": "Fed Chair press conference",
+      "affects": "Stocks, Options, Crypto, Metals, Currencies",
+      "why": "The statement matters, but the forward guidance may matter more for yields and risk assets."
+     },
+     {
+      "at": "2026-10-28T16:00:00-04:00",
+      "when": "Wed Oct 28, after the US close",
+      "event": "Big Tech earnings window",
+      "affects": "Stocks, Options, Crypto",
+      "why": "AI and mega-cap earnings can drive QQQ, NVDA sentiment, and the SPY options position."
+     },
+     {
+      "at": "2026-10-28T19:00:00-04:00",
+      "when": "Wed Oct 28, 7:00 p.m. ET",
+      "event": "NBA and NCAAF betting slate begins",
+      "affects": "Sports",
+      "why": "I may bet only if late information creates a clear edge before start times."
+     },
+     {
+      "at": "2026-10-28T21:30:00-04:00",
+      "when": "Wed Oct 28, 9:30 p.m. ET",
+      "event": "Shanghai/Shenzhen open for Thu Beijing session",
+      "affects": "China",
+      "why": "This is the first chance to deploy the China book after reassessing overnight macro and local market tone."
+     },
+     {
+      "at": "2026-10-29T08:30:00-04:00",
+      "when": "Thu Oct 29, 8:30 a.m. ET",
+      "event": "US weekly economic data window",
+      "affects": "Stocks, Options, Currencies, Safe",
+      "why": "Labor or inflation-sensitive data can change the post-Fed yield and dollar reaction."
+     },
+     {
+      "at": "2026-10-29T20:15:00-04:00",
+      "when": "Thu Oct 29, 8:15 p.m. ET",
+      "event": "NFL Panthers at Packers",
+      "affects": "Sports",
+      "why": "It is the largest mainstream betting event on the board before the weekend and may offer liquidity or line movement."
+     }
+    ]
+   },
+   "last_run": {
+    "at": "2026-10-28T17:44:24Z",
+    "status": "ok",
+    "notes": [
+     "order refused (Stocks buy QQQ): the restart begins at 1:45 p.m. ET Oct 28; no trades before then",
+     "order refused (Stocks buy NVDA): the restart begins at 1:45 p.m. ET Oct 28; no trades before then",
+     "order refused (Metals buy GLD): the restart begins at 1:45 p.m. ET Oct 28; no trades before then",
+     "order refused (Energy buy USO): the restart begins at 1:45 p.m. ET Oct 28; no trades before then",
+     "order refused (Options buy SPY261127C00780000): the restart begins at 1:45 p.m. ET Oct 28; no trades before then",
+     "order refused (Options buy SPY261127P00760000): the restart begins at 1:45 p.m. ET Oct 28; no trades before then",
+     "order refused (Currencies short USD): the restart begins at 1:45 p.m. ET Oct 28; no trades before then",
+     "order refused (Safe buy SGOV): the restart begins at 1:45 p.m. ET Oct 28; no trades before then",
+     "order refused (Safe buy VOO): the restart begins at 1:45 p.m. ET Oct 28; no trades before then",
+     "order refused (Safe buy GLD): the restart begins at 1:45 p.m. ET Oct 28; no trades before then"
+    ],
+    "sources": [
+     {
+      "title": "bankofcanada.ca/core-functions/monetary-policy/key-interest-rate/",
+      "url": "https://www.bankofcanada.ca/core-functions/monetary-policy/key-interest-rate/"
+     },
+     {
+      "title": "bankofcanada.ca/press/press-releases/",
+      "url": "https://www.bankofcanada.ca/press/press-releases/"
+     },
+     {
+      "title": "apnews.com/article/c06793b0c50641444701d5d098ccc2c8",
+      "url": "https://apnews.com/article/c06793b0c50641444701d5d098ccc2c8"
+     },
+     {
+      "title": "finance.yahoo.com/markets/live/stock-market-today-wednesday-october-28-dow-sp",
+      "url": "https://finance.yahoo.com/markets/live/stock-market-today-wednesday-october-28-dow-sp-500-nasdaq-fed-meeting-decision-big-tech-earnings-130508769.html"
+     },
+     {
+      "title": "axios.com/2026/10/26/oil-stocks-risks-brent",
+      "url": "https://www.axios.com/2026/10/26/oil-stocks-risks-brent"
+     }
+    ],
+    "orders": 0,
+    "search": [
+     {
+      "model": "gemini-3.1-pro-preview",
+      "queries": []
+     },
+     {
+      "model": "openai/gpt-5.5",
+      "annotations": 0,
+      "plugins": true
+     }
+    ]
+   }
+  }
+ },
  "trades": [],
- "history": [],
- "takes": [],
- "thoughts": [],
+ "history": [
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "Stocks",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "Crypto",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "China",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "Metals",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "Energy",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "Options",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "Currencies",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "Safe",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "Sports",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "Predictions",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "Stocks",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "Crypto",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "China",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "Metals",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "Energy",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "Options",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "Currencies",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "Safe",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "Sports",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "Predictions",
+   "value": 100000.0
+  }
+ ],
+ "takes": [
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "text": "Markets are trading cautiously ahead of the imminent Federal Reserve rate decision at 2:00 PM ET; I am positioning for equal-weight equity outperformance, holding safe havens like gold and Bitcoin, and shorting the Euro against a potentially hawkish Fed backdrop."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "text": "I am starting with partial, diversified risk rather than swinging at the 2 p.m. Fed event: small equity exposure, an energy momentum position, a CAD-positive USD short after the confirmed Bank of Canada hike, and a defined-risk SPY options strangle for the catalyst."
+  }
+ ],
+ "thoughts": [
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "Stocks",
+   "text": "Adding RSP to capitalize on the recent outperformance of equal-weight S&P 500 stocks over AI-heavy indices."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "Crypto",
+   "text": "Allocating to Bitcoin as it defends the critical $80,000 support level and sees renewed ETF inflows."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "China",
+   "text": "Holding cash as the Chinese markets are currently closed; will re-evaluate at the open."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "Metals",
+   "text": "Going long on GLD to capture the upward momentum in gold driven by safe-haven demand."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "Energy",
+   "text": "Taking a position in USO to benefit from surging oil prices amidst rising geopolitical tensions."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "Options",
+   "text": "Holding cash to avoid the extreme volatility expected around the FOMC rate decision in a few minutes."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "Currencies",
+   "text": "Shorting the Euro as EUR/USD hovers dangerously close to key support levels ahead of the Fed."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "Safe",
+   "text": "Deploying half of the capital into SPY for diversified, steady exposure to US large caps."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "Sports",
+   "text": "Backing the heavily favored New York Knicks against the Bulls to steadily build the sports bankroll."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "gemini",
+   "experiment": "Predictions",
+   "text": "Staying in cash while I analyze the latest 2026 midterms polling and Polymarket odds."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "Stocks",
+   "text": "I want some exposure to the AI-led equity bid, but only a starter size before the Fed decision because rates can flip the tape quickly."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "Crypto",
+   "text": "Bitcoin and ether look too tied to macro risk appetite right before the Fed, so I am waiting for a cleaner entry."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "China",
+   "text": "China A-shares are closed right now, so I will reassess at the Shanghai open instead of entering a stale order."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "Metals",
+   "text": "Gold is softer intraday but remains a useful hedge against inflation/geopolitical stress, so I am starting small rather than chasing."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "Energy",
+   "text": "Oil/energy has the clearest near-term momentum today, so I am taking a measured USO position without overconcentrating."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "Options",
+   "text": "The imminent Fed decision and Big Tech earnings create event volatility, so I am using a small SPY call/put structure with strictly limited premium at risk."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "Currencies",
+   "text": "The Bank of Canada hike is officially confirmed and should support CAD, but the Fed is minutes away, so I am shorting USD at moderate size only."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "Safe",
+   "text": "The control book should preserve capital first, with mostly T-bill exposure plus some broad equity and the maximum allowed gold sleeve."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "Sports",
+   "text": "I do not see a strong enough edge in the listed moneylines yet, so I am saving bankroll for better-confirmed spots."
+  },
+  {
+   "at": "2026-10-28T17:44:24Z",
+   "model": "chatgpt",
+   "experiment": "Predictions",
+   "text": "I do not have a verified open Polymarket slug with a clear edge right now, so I am holding cash."
+  }
+ ],
  "reviews": [],
  "fx": {
-  "USDCAD": 1.4039,
+  "USDCAD": 1.4038,
   "USDCNY": 6.6544
  },
  "feeds": {
-  "at": "2026-10-28T17:28:22Z",
+  "at": "2026-10-28T17:44:24Z",
   "espn_games": 53,
   "open_with_moneylines": 36
  },
  "fx_all": {
   "USD": 1.0,
-  "CAD": 1.4039,
-  "EUR": 0.8971,
-  "GBP": 0.7514,
-  "JPY": 158.221,
+  "CAD": 1.4038,
+  "EUR": 0.8974,
+  "GBP": 0.7515,
+  "JPY": 158.241,
   "CNY": 6.6544,
-  "HKD": 7.8452,
+  "HKD": 7.8451,
   "AUD": 1.4203,
   "INR": 95.21,
-  "MXN": 18.6682,
-  "CHF": 0.8292,
-  "KRW": 1343.22,
-  "BRL": 5.3797,
-  "SGD": 1.2827
+  "MXN": 18.667,
+  "CHF": 0.8295,
+  "KRW": 1343.29,
+  "BRL": 5.3762,
+  "SGD": 1.283
  },
  "bet_ids": {},
  "tuning_trades": [
@@ -988,7 +1574,7 @@
    "close": 98791.47,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at C$98,791 (-1.2%). Moves: Buy Tesla, Inc. (C$50,000); Buy NVIDIA Corporation (C$49,000)."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at C$98,791 (-1.2%). Moves: Buy Tesla, Inc. (C$50,000); Buy NVIDIA Corporation (C$49,000)."
   },
   {
    "model": "gemini",
@@ -997,7 +1583,7 @@
    "close": 99653.05,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at C$99,653 (-0.3%). Moves: Buy Bitcoin USD (C$95,000); Buy Ethereum USD (C$4,900)."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at C$99,653 (-0.3%). Moves: Buy Bitcoin USD (C$95,000); Buy Ethereum USD (C$4,900)."
   },
   {
    "model": "gemini",
@@ -1006,7 +1592,7 @@
    "close": 100000.0,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at US$100,000 (+0.0%). Moves: no trades."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at US$100,000 (+0.0%). Moves: no trades."
   },
   {
    "model": "gemini",
@@ -1015,7 +1601,7 @@
    "close": 99687.0,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at C$99,687 (-0.3%). Moves: Buy SPDR Gold Shares (C$90,000); Buy iShares Silver Trust (C$10,000)."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at C$99,687 (-0.3%). Moves: Buy SPDR Gold Shares (C$90,000); Buy iShares Silver Trust (C$10,000)."
   },
   {
    "model": "gemini",
@@ -1024,7 +1610,7 @@
    "close": 100117.14,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at C$100,117 (+0.1%). Moves: Buy State Street Energy Select Sector SPDR ETF (C$90,000); Buy ExxonMobil Holdings Corporation (C$10,000)."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at C$100,117 (+0.1%). Moves: Buy State Street Energy Select Sector SPDR ETF (C$90,000); Buy ExxonMobil Holdings Corporation (C$10,000)."
   },
   {
    "model": "chatgpt",
@@ -1033,7 +1619,7 @@
    "close": 100076.71,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at C$100,077 (+0.1%). Moves: Buy Direxion Daily Semiconductor Bull 3X Shares (C$100,000); Sell Direxion Daily Semiconductor Bull 3X Shares (C$40,031)."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at C$100,077 (+0.1%). Moves: Buy Direxion Daily Semiconductor Bull 3X Shares (C$100,000); Sell Direxion Daily Semiconductor Bull 3X Shares (C$40,031)."
   },
   {
    "model": "chatgpt",
@@ -1042,7 +1628,7 @@
    "close": 99274.4,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at C$99,274 (-0.7%). Moves: Buy Solana USD (C$100,000); Sell Solana USD (C$39,710)."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at C$99,274 (-0.7%). Moves: Buy Solana USD (C$100,000); Sell Solana USD (C$39,710)."
   },
   {
    "model": "chatgpt",
@@ -1051,7 +1637,7 @@
    "close": 100000.0,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at US$100,000 (+0.0%). Moves: no trades."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at US$100,000 (+0.0%). Moves: no trades."
   },
   {
    "model": "chatgpt",
@@ -1060,7 +1646,7 @@
    "close": 98486.15,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at C$98,486 (-1.5%). Moves: Buy ProShares Ultra Silver (C$100,000); Sell ProShares Ultra Silver (C$39,394)."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at C$98,486 (-1.5%). Moves: Buy ProShares Ultra Silver (C$100,000); Sell ProShares Ultra Silver (C$39,394)."
   },
   {
    "model": "chatgpt",
@@ -1069,7 +1655,7 @@
    "close": 100796.91,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at C$100,797 (+0.8%). Moves: Buy ProShares Ultra Bloomberg Crude Oil (C$100,000); Sell ProShares Ultra Bloomberg Crude Oil (C$40,319)."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at C$100,797 (+0.8%). Moves: Buy ProShares Ultra Bloomberg Crude Oil (C$100,000); Sell ProShares Ultra Bloomberg Crude Oil (C$40,319)."
   },
   {
    "model": "gemini",
@@ -1078,7 +1664,7 @@
    "close": 91419.08,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at C$91,419 (-8.6%). Moves: Buy SPY Nov 20 $770 call (C$24,233); Buy MSFT Nov 20 $550 call (C$24,967); Buy GOOGL Nov 20 $330 call (C$24,440); Buy SPY Nov 20 $770 put (C$14,540); Sell MSFT Nov 20 $550 call (C$19,163); Sell GOOGL Nov 20 $330 call (C$22,427)."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at C$91,419 (-8.6%). Moves: Buy SPY Nov 20 $770 call (C$24,233); Buy MSFT Nov 20 $550 call (C$24,967); Buy GOOGL Nov 20 $330 call (C$24,440); Buy SPY Nov 20 $770 put (C$14,540); Sell MSFT Nov 20 $550 call (C$19,163); Sell GOOGL Nov 20 $330 call (C$22,427)."
   },
   {
    "model": "gemini",
@@ -1087,7 +1673,7 @@
    "close": 100289.93,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at C$100,290 (+0.3%). Moves: Short Japanese yen (C$400,000); Short Euro (C$200,000); Short British pound (C$100,000)."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at C$100,290 (+0.3%). Moves: Short Japanese yen (C$400,000); Short Euro (C$200,000); Short British pound (C$100,000)."
   },
   {
    "model": "gemini",
@@ -1096,7 +1682,7 @@
    "close": 99867.98,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at C$99,868 (-0.1%). Moves: Buy iShares 0-3 Month Treasury Bond ETF (C$95,000); Buy iShares 0-3 Month Treasury Bond ETF (C$4,900)."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at C$99,868 (-0.1%). Moves: Buy iShares 0-3 Month Treasury Bond ETF (C$95,000); Buy iShares 0-3 Month Treasury Bond ETF (C$4,900)."
   },
   {
    "model": "gemini",
@@ -1105,7 +1691,7 @@
    "close": 100000.0,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at C$100,000 (+0.0%). Moves: Bet NBA: New York Knicks moneyline (New York Knicks @ Chicago Bulls) (C$10,000); Bet NBA: Los Angeles Lakers moneyline (Los Angeles Lakers @ LA Clippers) (C$10,000); Bet NBA: Oklahoma City Thunder moneyline (Oklahoma City Thunder @ Dallas Mavericks) (C$10,000); Bet NBA: Cleveland Cavaliers moneyline (Washington Wizards @ Cleveland Cavaliers) (C$10,000); Bet MLB: Tampa Bay Rays moneyline (Milwaukee Brewers @ Tampa Bay Rays) (C$10,000); Bet NBA: Minnesota Timberwolves moneyline (Golden State Warriors @ Minnesota Timberwolves) (C$10,000)."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at C$100,000 (+0.0%). Moves: Bet NBA: New York Knicks moneyline (New York Knicks @ Chicago Bulls) (C$10,000); Bet NBA: Los Angeles Lakers moneyline (Los Angeles Lakers @ LA Clippers) (C$10,000); Bet NBA: Oklahoma City Thunder moneyline (Oklahoma City Thunder @ Dallas Mavericks) (C$10,000); Bet NBA: Cleveland Cavaliers moneyline (Washington Wizards @ Cleveland Cavaliers) (C$10,000); Bet MLB: Tampa Bay Rays moneyline (Milwaukee Brewers @ Tampa Bay Rays) (C$10,000); Bet NBA: Minnesota Timberwolves moneyline (Golden State Warriors @ Minnesota Timberwolves) (C$10,000)."
   },
   {
    "model": "gemini",
@@ -1114,7 +1700,7 @@
    "close": 100000.0,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at C$100,000 (+0.0%). Moves: no trades."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at C$100,000 (+0.0%). Moves: no trades."
   },
   {
    "model": "chatgpt",
@@ -1123,7 +1709,7 @@
    "close": 94038.97,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at C$94,039 (-6.0%). Moves: Buy NVDA Nov 20 $230 call (C$99,770); Sell NVDA Nov 20 $230 call (C$46,329)."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at C$94,039 (-6.0%). Moves: Buy NVDA Nov 20 $230 call (C$99,770); Sell NVDA Nov 20 $230 call (C$46,329)."
   },
   {
    "model": "chatgpt",
@@ -1132,7 +1718,7 @@
    "close": 99895.64,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at C$99,896 (-0.1%). Moves: Short US dollar (C$800,000); Cover US dollar (C$799,317); Buy US dollar (C$750,000); Buy US dollar (C$40,000); Sell US dollar (C$591,920); Sell US dollar (C$197,293)."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at C$99,896 (-0.1%). Moves: Short US dollar (C$800,000); Cover US dollar (C$799,317); Buy US dollar (C$750,000); Buy US dollar (C$40,000); Sell US dollar (C$591,920); Sell US dollar (C$197,293)."
   },
   {
    "model": "chatgpt",
@@ -1141,7 +1727,7 @@
    "close": 99888.63,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at C$99,889 (-0.1%). Moves: Buy Vanguard S&P 500 ETF (C$90,000); Buy SPDR Gold Shares (C$10,000)."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at C$99,889 (-0.1%). Moves: Buy Vanguard S&P 500 ETF (C$90,000); Buy SPDR Gold Shares (C$10,000)."
   },
   {
    "model": "chatgpt",
@@ -1150,7 +1736,7 @@
    "close": 100000.0,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at C$100,000 (+0.0%). Moves: Bet NBA: San Antonio Spurs moneyline (San Antonio Spurs @ Utah Jazz) (C$100,000)."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at C$100,000 (+0.0%). Moves: Bet NBA: San Antonio Spurs moneyline (San Antonio Spurs @ Utah Jazz) (C$100,000)."
   },
   {
    "model": "chatgpt",
@@ -1159,7 +1745,7 @@
    "close": 100051.88,
    "start_at": "2026-10-28T13:30:00Z",
    "end_at": "2026-10-28T17:45:00Z",
-   "note": "Tuning run, Oct 28 9:30 a.m.–1:45 p.m. ET (does not count): ended at C$100,052 (+0.1%). Moves: Buy Will there be no change in Fed interest rates after the October 2026 meeting? (C$100,000); Sell Will there be no change in Fed interest rates after the October 2026 meeting? (C$49,944); Sell Will there be no change in Fed interest rates after the October 2026 meeting? (C$50,108)."
+   "note": "Tuning run, Oct 28 9:30 a.m.\u20131:45 p.m. ET (does not count): ended at C$100,052 (+0.1%). Moves: Buy Will there be no change in Fed interest rates after the October 2026 meeting? (C$100,000); Sell Will there be no change in Fed interest rates after the October 2026 meeting? (C$49,944); Sell Will there be no change in Fed interest rates after the October 2026 meeting? (C$50,108)."
   }
  ]
 }
