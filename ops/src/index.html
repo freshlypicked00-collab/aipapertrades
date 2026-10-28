@@ -3013,7 +3013,7 @@
       const all = { claude: dash.baseData('plans') };
       Object.entries(dash.models() || {}).forEach(([id, v]) => { if (id !== 'claude' && v && v.plans) all[id] = v.plans.data || v.plans; });
       let any = false;
-      SEL.forEach((id) => { const rows = (all[id] || []).filter((x) => !x.model || x.model === id); if (!rows.length) return; any = true; const h = mk('h4', '', AIS[id].label); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px'; h.style.margin = '10px 0 6px'; const g = mk('div', 'st-plans'); planCards(rows, g); pb.append(h, g); });
+      SEL.forEach((id) => { const rows = (all[id] || []).filter((x) => !x.model || x.model === id); any = true; if (!rows.length) { const h = mk('h4', '', AIS[id].label); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px'; h.style.margin = '10px 0 6px'; pb.append(h, mk('p', 'st-note', AIS[id].label + ' writes its plans, feelings and opinions at its next check-in.')); return; } const h = mk('h4', '', AIS[id].label); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px'; h.style.margin = '10px 0 6px'; const g = mk('div', 'st-plans'); planCards(rows, g); pb.append(h, g); });
       if (any) el.appendChild(pb); }
     const fcs = dash.baseData('factcheck').filter((x) => SEL.includes(x.model)).slice().sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 6);
     if (fcs.length) {
@@ -3279,7 +3279,8 @@
   dash.draw('plans', (el) => {
     el.replaceChildren();
     const d = dash.data('plans');
-    if (d.status !== 'ok' || !d.data.length) return;
+    const nm = AIS[dash.model] ? AIS[dash.model].label : 'This AI';
+    if (d.status !== 'ok' || !d.data.length) { const c = mk('div', 'st-plan'); c.append(mk('h4', '', nm + '’s plans and opinions'), document.createTextNode(nm + ' writes its 24-hour, 7-day and month plans, how it feels, and its opinion of the others at its next check-in.')); el.appendChild(c); return; }
     planCards(d.data, el);
   });
   dash.draw('take', (el) => {
