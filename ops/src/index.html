@@ -510,11 +510,24 @@
 
     <section class="st-card" aria-labelledby="h-log-all">
       <h2 class="st-h2" id="h-log-all">Recent decisions</h2>
-      <p class="st-note">The 10 newest trade, bet and hold decisions across all ten simulations, newest first, for the model picked in the Model menu. Every decision is kept in the Ledger. Times are Eastern (ET), with UTC in brackets.</p>
+      <p class="st-note">The 10 newest trade, bet and hold decisions, newest first, for the model picked in the Model menu. Pick one experiment to see only its decisions. Every decision is kept in the Ledger. Times are Eastern (ET), with UTC in brackets.</p>
+      <div class="lg-pick"><label>Show: <select class="pf-filter" data-target="log-all-body"></select></label></div>
       <div class="st-wrap">
         <table class="st-table" data-source="log" data-row-key="at,portfolio">
           <thead><tr><th data-field="at">When</th><th data-field="portfolio">Portfolio</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
-          <tbody data-draw="log-body"></tbody>
+          <tbody data-draw="log-body" id="log-all-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="st-card" aria-labelledby="h-hold-all">
+      <h2 class="st-h2" id="h-hold-all">Holdings</h2>
+      <p class="st-note">What the model picked in the Model menu owns right now. Pick one experiment to see only its holdings. Prices in each market's currency; values in Canadian dollars (China in US$).</p>
+      <div class="lg-pick"><label>Show: <select class="pf-filter" data-target="hold-all-body"></select></label></div>
+      <div class="st-wrap">
+        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
+          <thead><tr><th>Experiment</th><th data-field="holding">Holding</th><th data-field="quantity" class="num">Quantity</th><th class="num">Entry</th><th class="num">Now</th><th data-field="change_pct" class="num">Change</th><th class="num">Value</th><th data-field="price_source">Price source</th></tr></thead>
+          <tbody data-draw="holdings-body" id="hold-all-body" data-all="1"></tbody>
         </table>
       </div>
     </section>
@@ -1983,7 +1996,7 @@
   const upDown = (v) => (v > 0 ? 'is-up' : v < 0 ? 'is-down' : '');
 
   const yuan = (v) => '¥' + d3.format(',.3f')(v);
-  dash.draw('holdings-body', (el) => fillBody(el, 'holdings', byPortfolio(el), (r) => encodeURIComponent(r.portfolio) + ',' + encodeURIComponent(r.holding), (r) => r.currency === 'CNY' ? [
+  dash.draw('holdings-body', (el) => fillBody(el, 'holdings', byPortfolio(el), (r) => encodeURIComponent(r.portfolio) + ',' + encodeURIComponent(r.holding), (r) => (el.dataset.all ? [[LABEL[r.portfolio] || r.portfolio]] : []).concat(r.currency === 'CNY' ? [
     [r.holding + (r.code ? ' (' + r.code + ')' : '')],
     [num(r.quantity, (v) => d3.format(',.0f')(v)) + (r.holding === 'Cash (CNY)' ? ' yuan' : ''), 'num'],
     [num(r.entry_local, yuan), 'num'],
@@ -1999,7 +2012,18 @@
     [r.price_usd === null ? '' : stFmt.pct(Number(r.change_pct)), 'num ' + upDown(Number(r.change_pct))],
     [num(r.value_cad, (v) => d3.format(',.0f')(v)), 'num'],
     [r.price_source ? r.price_source + (r.price_at ? ', ' + stFmt.when(r.price_at) : '') : '', 'wrap src']
-  ]));
+  ])));
+  // "Show:" experiment menus on the overview tables
+  const fillPf = () => document.querySelectorAll('select.pf-filter').forEach((sel) => {
+    const t = document.getElementById(sel.dataset.target); let keep = '';
+    try { keep = localStorage.getItem('pt-f-' + sel.dataset.target) || ''; } catch (e) {}
+    if (!PFS.includes(keep)) keep = '';
+    sel.replaceChildren(); const a = document.createElement('option'); a.value = ''; a.textContent = 'All experiments'; sel.appendChild(a);
+    PFS.forEach((p) => { const o = document.createElement('option'); o.value = p; o.textContent = LABEL[p] || p; sel.appendChild(o); });
+    sel.value = keep; if (keep) t.dataset.portfolio = keep; else delete t.dataset.portfolio;
+    if (!sel._on) { sel._on = 1; sel.addEventListener('change', () => { try { localStorage.setItem('pt-f-' + sel.dataset.target, sel.value); } catch (e) {} if (sel.value) t.dataset.portfolio = sel.value; else delete t.dataset.portfolio; if (dash.redraw) dash.redraw(); }); }
+  });
+  fillPf();
 
   dash.draw('bets-body', (el) => fillBody(el, 'bets', () => true, null, (r) => {
     const c = dash.data('clv');
@@ -2024,7 +2048,7 @@
   dash.draw('log-body', (el) => {
     const d = dash.data('log');
     if (d.status === 'ok') d.data.sort((a, b) => new Date(b.at) - new Date(a.at));
-    const all = !el.dataset.portfolio;
+    const all = !el.dataset.portfolio || el.id === 'log-all-body';
     fillBody(el, 'log', byPortfolio(el), (r) => encodeURIComponent(r.at) + ',' + encodeURIComponent(r.portfolio), (r) => all
       ? [[stFmt.when(r.at)], [r.portfolio], [r.action], [r.detail, 'wrap']]
       : [[stFmt.when(r.at)], [r.action], [r.detail, 'wrap']], 10);
@@ -2906,6 +2930,7 @@
     const exps = modelExps();
     const meta = exps ? views[id]._meta : null;
     PFS.splice(0, PFS.length, ...(exps ? PFS_ALL.filter((p) => exps.includes(p)) : PFS_ALL));
+    if (typeof fillPf === 'function') fillPf();
     document.querySelectorAll('button[data-v]').forEach((b) => { if (!PFS_ALL.includes(b.dataset.v)) return; if (exps && !exps.includes(b.dataset.v)) b.setAttribute('data-model-hidden', ''); else b.removeAttribute('data-model-hidden'); });
     document.querySelectorAll('[data-claude-only]').forEach((el) => { el.hidden = !!meta; });
     document.querySelectorAll('[data-model-text-plain]').forEach((el) => { el.hidden = !meta; });
