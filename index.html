@@ -429,6 +429,12 @@
   .st-viewing { color: var(--model) !important; }
   .st-by { font-size: .85em; font-weight: 600; color: var(--model, var(--color-fg-muted)); white-space: nowrap; }
   .st-plan .st-by { display: inline; }
+  /* titles follow the AI being viewed: Claude keeps the gold, Gemini blue, ChatGPT white (near-black in light modes) */
+  :root[data-model="gemini"]:not(#pt-a):not(#pt-b) { --accent: #4f8ff7; --accent-bg: rgba(79,143,247,.08); }
+  :root[data-model="chatgpt"]:not(#pt-a):not(#pt-b) { --accent: #f2f2f2; --accent-bg: rgba(242,242,242,.06); }
+  :root[data-theme="light"][data-model="gemini"]:not(#pt-a):not(#pt-b), :root[data-theme="reader"][data-model="gemini"]:not(#pt-a):not(#pt-b) { --accent: #1f5fc4; --accent-bg: rgba(31,95,196,.07); }
+  :root[data-theme="light"][data-model="chatgpt"]:not(#pt-a):not(#pt-b), :root[data-theme="reader"][data-model="chatgpt"]:not(#pt-a):not(#pt-b) { --accent: #2a2a2a; --accent-bg: rgba(0,0,0,.05); }
+  :root[data-model] .st-score-h, :root[data-model] .st-tabgroup-l { color: var(--accent); }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
@@ -3741,9 +3747,9 @@ body { background:var(--color-bg); }
       if (on) chaching();
     };
   })();
-  const MODEL_COL = { claude: ['#d97757', 'rgba(217,119,87,.08)'], gemini: ['#4f8ff7', 'rgba(79,143,247,.09)'], chatgpt: ['var(--ai-chatgpt)', 'rgba(160,160,160,.08)'] };
+  const MODEL_COL = { claude: ['var(--accent)', 'var(--accent-bg)'], gemini: ['#4f8ff7', 'rgba(79,143,247,.09)'], chatgpt: ['var(--ai-chatgpt)', 'rgba(160,160,160,.08)'] };
   const applyModel = (id) => {
-    { const c = MODEL_COL[id] || MODEL_COL.claude; document.documentElement.style.setProperty('--model', c[0]); document.documentElement.style.setProperty('--model-bg', c[1]); }
+    { const c = MODEL_COL[id] || MODEL_COL.claude; document.documentElement.style.setProperty('--model', c[0]); document.documentElement.style.setProperty('--model-bg', c[1]); document.documentElement.dataset.model = id || 'claude'; }
     { const v = document.getElementById('viewing-name'); if (v) { v.textContent = ({ claude: 'Claude Opus 5.5 (Anthropic)', gemini: 'Gemini (Google)', chatgpt: 'ChatGPT (OpenAI)' })[id] || id; const L = dash.baseData('leader'); if (L === id) v.appendChild(mk('span', 'st-crown', '👑 leading the race')); } }
     const views = dash.models();
     document.querySelectorAll('.model-pick').forEach((sel) => {
