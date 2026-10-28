@@ -225,6 +225,14 @@
   .st-sources { margin: 0; padding-left: 1.2em; columns: 2 18rem; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
   .st-sources li { break-inside: avoid; margin-bottom: 2px; }
   .st-sources a { color: var(--color-fg-muted); }
+  .lg-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+  .lg-pick label { font-size: var(--cds-font-size-body); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .lg-pick select { font: inherit; font-size: 14px; padding: 6px 8px; background: var(--color-bg); color: var(--color-fg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); max-width: 100%; }
+  .lg-pick select:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .lg-review-box { display: flex; flex-direction: column; gap: 10px; }
+  .lg-rc summary { cursor: pointer; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); }
+  .lg-rc .lg-review-box { margin-top: 10px; }
+  .lg-rc ul, .lg-review-box ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; max-width: 80ch; font-size: var(--cds-font-size-body); line-height: 1.55; }
   [data-dash-source-state=empty] { color: transparent; }
   [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
 
@@ -1390,7 +1398,7 @@ body { background:#0b0b0a; }
     <section class="st-card" aria-labelledby="h-l-sum">
       <h2 class="st-h2" id="h-l-sum">Ledger</h2>
       <p class="st-note">The full record of how the AI is doing in each experiment: total profit or loss since the start for each one, plus every day's result and write-up. Each day closes at midnight UTC (8 p.m. Eastern until Nov 1, then 7 p.m.). Each simulation is its own experiment with its own C$100,000 (US$100,000 for China), so nothing here is added together.</p>
-      <h3 class="st-h3">How I think I'm doing in each experiment</h3>
+      <h3 class="st-h3">Report card: how I think I'm doing in each experiment</h3>
       <div class="lg-review" data-draw="lg-review" data-source="review"></div>
       <h3 class="st-h3">Total since the start</h3>
       <div class="lg-sims">
@@ -1449,7 +1457,7 @@ body { background:#0b0b0a; }
     <section class="st-card" aria-labelledby="h-l-days">
       <h2 class="st-h2" id="h-l-days">Day by day</h2>
       <p class="st-note">Newest first. Each experiment gets its own result, its total since the start and a write-up for the day, with general notes on the day underneath. Open "Decisions this day" for every trade, bet and note logged that day.</p>
-      <div class="lg-days" data-draw="lg-days" data-source="ledger log trades bets"></div>
+      <div class="lg-days" data-draw="lg-days" data-source="ledger log trades bets review"></div>
     </section>
     <section class="st-card" aria-labelledby="h-src-ledger">
       <h2 class="st-h2" id="h-src-ledger">All sources</h2>
@@ -2262,27 +2270,56 @@ body { background:#0b0b0a; }
   const dayTitle = (x) => 'Day ' + x.n + ' · ' + new Date(x.day + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' });
   const dayShort = (x) => new Date(x.day + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' });
 
-  dash.draw('lg-review', (el) => {
+  // report cards: every saved version, grouped by the ledger day it covers
+  const reviewVersions = () => {
     const d = dash.data('review');
-    el.replaceChildren();
-    if (d.status !== 'ok' || !d.data.length) { el.appendChild(mk('p', 'st-note', 'The first self-assessment is written at the end of the first full day.')); return; }
-    const latestAt = d3.max(d.data, (r) => +new Date(r.at));
-    const rows = d.data.filter((r) => +new Date(r.at) === latestAt);
-    const all = rows.find((r) => r.portfolio === 'All');
+    if (d.status !== 'ok') return null;
+    const groups = d3.groups(d.data, (r) => r.at).map(([at, rows]) => {
+      const t = new Date(at);
+      // written in the first 3 hours after midnight UTC = the report for the day that just closed
+      const ref = new Date(+t - 6 * 3600e3);  // written within 6 hours after midnight UTC = report for the day that just closed
+      const day = ref.toISOString().slice(0, 10);
+      return { at, t, day, n: Math.floor((Date.UTC(+day.slice(0, 4), +day.slice(5, 7) - 1, +day.slice(8, 10)) - Date.UTC(2026, 9, 26)) / 864e5) + 1, rows };
+    });
+    return groups.sort((a, b) => b.t - a.t);
+  };
+  const dayName = (day) => new Date(day + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' });
+  const renderReport = (box, v) => {
+    const all = v.rows.find((r) => r.portfolio === 'All');
     const ul = mk('ul');
-    rows.filter((r) => r.portfolio !== 'All').sort((a, b) => PFS.indexOf(a.portfolio) - PFS.indexOf(b.portfolio)).forEach((r) => {
+    v.rows.filter((r) => r.portfolio !== 'All').sort((a, b) => PFS.indexOf(a.portfolio) - PFS.indexOf(b.portfolio)).forEach((r) => {
       const li = mk('li');
       if (r.grade) li.appendChild(mk('span', 'lg-grade', r.grade));
       li.append(mk('b', '', (LABEL[r.portfolio] || r.portfolio) + ': '), document.createTextNode(r.text));
       ul.appendChild(li);
     });
-    el.appendChild(ul);
+    box.appendChild(ul);
     if (all) {
       const p = mk('p', 'lg-note');
       p.append(mk('b', '', 'General notes: '), document.createTextNode(all.text));
-      el.appendChild(p);
+      box.appendChild(p);
     }
-    el.appendChild(mk('p', 'st-note', 'Written by the AI on ' + stFmt.when(new Date(latestAt)) + ' ET and rewritten at the end of each day. Older versions stay in the data.'));
+    box.appendChild(mk('p', 'st-note', 'Written by the AI on ' + stFmt.when(v.t) + ' ET.'));
+  };
+  dash.draw('lg-review', (el) => {
+    el.replaceChildren();
+    const vs = reviewVersions();
+    if (!vs || !vs.length) { el.appendChild(mk('p', 'st-note', 'The first report card is written at the end of the first full day.')); return; }
+    const bar = mk('div', 'lg-pick');
+    const lab = mk('label', '', 'Show report card: ');
+    const sel = mk('select'); sel.id = 'lg-review-pick';
+    vs.forEach((v, i) => {
+      const o = mk('option', '', 'Day ' + v.n + ' · ' + dayName(v.day) + ' (written ' + stFmt.when(v.t) + ' ET)' + (i === 0 ? ', latest' : ''));
+      o.value = v.at; sel.appendChild(o);
+    });
+    if (el._pick && vs.some((v) => v.at === el._pick)) sel.value = el._pick;
+    lab.appendChild(sel); bar.appendChild(lab);
+    bar.appendChild(mk('span', 'st-note', vs.length + (vs.length === 1 ? ' report card saved' : ' report cards saved') + '. Every version is kept; new ones are added at the end of each day.'));
+    el.appendChild(bar);
+    const box = mk('div', 'lg-review-box'); el.appendChild(box);
+    const show = () => { box.replaceChildren(); renderReport(box, vs.find((v) => v.at === sel.value) || vs[0]); };
+    sel.addEventListener('change', () => { el._pick = sel.value; show(); });
+    show();
   });
   dash.draw('lg-simstats', (el) => {
     const days = ledgerDays();
@@ -2374,6 +2411,11 @@ body { background:#0b0b0a; }
   });
 
   dash.draw('lg-days', (el) => {
+    el._redraw = () => { const f = el._drawFn; if (f) f(); };
+    el._drawFn = () => drawDays(el);
+    drawDays(el);
+  });
+  const drawDays = (el) => {
     el.replaceChildren();
     const days = ledgerDays();
     const L = dash.data('log');
@@ -2381,7 +2423,18 @@ body { background:#0b0b0a; }
     if (!days.length) { el.appendChild(mk('p', 'st-note', 'The first day closes at midnight UTC.')); return; }
     const NAMES = LABEL;
     const ORD = PFS;
-    days.slice().reverse().forEach((x) => {
+    const bar = mk('div', 'lg-pick');
+    const lab = mk('label', '', 'Show: ');
+    const sel = mk('select'); sel.id = 'lg-day-pick';
+    const oAll = mk('option', '', 'All days, newest first (' + days.length + ')'); oAll.value = ''; sel.appendChild(oAll);
+    days.slice().reverse().forEach((x) => { const o = mk('option', '', dayTitle(x)); o.value = x.day; sel.appendChild(o); });
+    sel.value = el._day && days.some((x) => x.day === el._day) ? el._day : '';
+    sel.addEventListener('change', () => { el._day = sel.value; el._redraw && el._redraw(); });
+    lab.appendChild(sel); bar.appendChild(lab);
+    bar.appendChild(mk('span', 'st-note', 'Every closed day stays here for good, with its results, write-ups, report card, trades and decisions.'));
+    el.appendChild(bar);
+    const RV = reviewVersions() || [];
+    days.slice().reverse().filter((x) => !sel.value || x.day === sel.value).forEach((x) => {
       const card = mk('article', 'lg-day');
       const head = mk('div', 'lg-head');
       const h3 = mk('h3', '', dayTitle(x));
@@ -2408,6 +2461,13 @@ body { background:#0b0b0a; }
       ov.appendChild(mk('p', 'lg-overall-h', 'Notes on the day'));
       ov.appendChild(x.all && x.all.note ? mk('p', 'lg-note', x.all.note) : mk('p', 'lg-note lg-pending', 'Notes are added at the next check-in.'));
       card.appendChild(ov);
+      const rv = RV.find((v) => v.day === x.day);
+      if (rv) {
+        const det = mk('details', 'lg-rc'); det.open = !!sel.value;
+        det.appendChild(mk('summary', '', 'Report card for this day (grades and how the AI thinks it did)'));
+        const box = mk('div', 'lg-review-box'); renderReport(box, rv); det.appendChild(box);
+        card.appendChild(det);
+      }
       const TR = tradeRows();
       if (TR) {
         const a0 = +new Date(x.start_at), b0 = +new Date(x.end_at);
@@ -2433,7 +2493,7 @@ body { background:#0b0b0a; }
       }
       el.appendChild(card);
     });
-  });
+  };
 
 
   // ---------- every trade, from trades.json and bets.json
