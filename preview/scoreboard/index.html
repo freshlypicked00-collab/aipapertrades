@@ -1,0 +1,1061 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Paper Trades</title>
+<meta name="description" content="A 30-day paper-trading experiment: an AI model manages pretend money in stocks, crypto, precious metals and sports bets using real-world prices. Not investment advice.">
+<meta property="og:title" content="Paper Trades">
+<meta property="og:description" content="A 30-day experiment: can an AI model trade with real-world prices? Pretend money, every decision logged. Not investment advice.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://papertrades.ai/">
+<meta name="theme-color" content="#f6f7f5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101412" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2317201c'/%3E%3Cpath d='M7 22l6-6 4 4 8-9' stroke='%234cc283' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+  :root {
+    --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --color-bg: #f6f7f5; --color-panel: #ffffff; --color-fg: #17201c; --color-fg-muted: #5b6660;
+    --color-border-line: #dfe3df; --color-ok: #17804a; --color-warn: #b7791f; --color-bad: #c0392b;
+    --cds-text-secondary: #5b6660; --cds-surface-popover: #ffffff; --cds-border: #d3d8d4;
+    --cds-shadow-popover: 0 6px 24px rgba(20, 30, 25, .12);
+    --cds-chart-grid: #e8ebe8; --cds-chart-axis: #b9c0bb; --cds-chart-reference: #8a948e;
+    --series-1: #2563a8; --series-2: #c2610c; --series-3: #2f8a57; --series-4: #a3842a;
+    --cds-gap-xs: 4px; --cds-gap-sm: 8px; --cds-gap-md: 14px; --cds-gap-lg: 20px; --cds-gap-xl: 28px;
+    --cds-pad-xs: 4px; --cds-pad-sm: 8px; --cds-pad-md: 12px; --cds-pad-lg: 18px;
+    --cds-radius: 10px;
+    --cds-font-size-caption: 12.5px; --cds-font-size-body: 14.5px; --cds-font-size-heading: 18px; --cds-font-size-title: 30px;
+    --cds-font-weight-medium: 500; --cds-dur-slow: 300ms;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-bg: #101412; --color-panel: #171c19; --color-fg: #e6ebe7; --color-fg-muted: #9aa59f;
+      --color-border-line: #2a312d; --color-ok: #4cc283; --color-warn: #e0a53d; --color-bad: #ef6b5b;
+      --cds-text-secondary: #9aa59f; --cds-surface-popover: #1d2420; --cds-border: #323a35;
+      --cds-shadow-popover: 0 6px 24px rgba(0, 0, 0, .45);
+      --cds-chart-grid: #232a26; --cds-chart-axis: #3d4641; --cds-chart-reference: #6f7a74;
+      --series-1: #6aa5e8; --series-2: #f0954a; --series-3: #5fc48a; --series-4: #d8b75a;
+      color-scheme: dark;
+    }
+  }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-family: var(--font-sans); font-size: var(--cds-font-size-body); line-height: 1.5; }
+  #dash-root { max-width: 1180px; margin-inline: auto; padding-block: 28px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  a { color: inherit; text-underline-offset: 2px; }
+  .st-h3 { font-size: var(--cds-font-size-body); font-weight: 600; margin: var(--cds-gap-sm) 0 0; }
+  .st-sources { margin: 0; padding-left: 1.2em; columns: 2 18rem; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .st-sources li { break-inside: avoid; margin-bottom: 2px; }
+  .st-foot { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); text-align: center; padding-block: var(--cds-pad-md); }
+
+
+  .st { display: flex; flex-direction: column; gap: var(--cds-gap-xl); font-family: var(--font-sans); font-variant-numeric: tabular-nums; }
+  .st-page { display: flex; flex-direction: column; gap: var(--cds-gap-xl); }
+  .st-head { display: flex; flex-direction: column; gap: var(--cds-gap-xs); }
+  .st-title { font-family: var(--font-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+  .st-lede { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-body); max-width: 65ch; }
+  .st-lede b { color: var(--color-fg); font-weight: 500; }
+  .st-tabs { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); border-bottom: 1px solid var(--color-border-line); }
+  .st-tab { font: inherit; font-size: var(--cds-font-size-body); background: none; border: 0; border-bottom: 2px solid transparent; color: var(--color-fg-muted); padding: var(--cds-pad-sm) var(--cds-pad-md); cursor: pointer; margin-bottom: -1px; }
+  .st-tab:hover { color: var(--color-fg); }
+  .st-tab[aria-selected="true"] { color: var(--color-fg); border-bottom-color: var(--color-fg); }
+  .st-tab:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .st-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: var(--cds-gap-md); }
+  .st-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-sm); min-width: 0; }
+  button.st-card { font: inherit; color: inherit; text-align: left; cursor: pointer; }
+  button.st-card:hover { border-color: var(--color-fg-muted); }
+  button.st-card:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .st-label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; }
+  .st-big { font-family: var(--font-serif); font-weight: 400; font-size: var(--cds-font-size-title); line-height: 1.1; }
+  .st-delta { font-size: var(--cds-font-size-body); }
+  .is-up { color: var(--color-ok); }
+  .is-down { color: var(--color-bad); }
+  .st-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; }
+  .st-vs { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; border-top: 1px solid var(--color-border-line); padding-top: var(--cds-pad-sm); }
+  .st-vs b { font-weight: 500; }
+  .st-stats { display: flex; flex-direction: column; gap: var(--cds-gap-xs); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); border-top: 1px solid var(--color-border-line); padding-top: var(--cds-pad-sm); }
+  .st-stats b { font-weight: 500; color: var(--color-fg); }
+  .st-meta { display: flex; flex-direction: column; gap: var(--cds-gap-xs); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); border-top: 1px solid var(--color-border-line); padding-top: var(--cds-pad-sm); margin: 0; }
+  .st-meta b { font-weight: 500; color: var(--color-fg); }
+  .st-notice { border: 1px solid var(--color-warn); border-radius: var(--cds-radius); padding: var(--cds-pad-sm) var(--cds-pad-md); font-size: var(--cds-font-size-body); max-width: 72ch; margin: var(--cds-gap-sm) 0 0; }
+  .st-notice b { font-weight: 600; }
+  .st-progress { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--cds-gap-xs) var(--cds-gap-md); margin: var(--cds-gap-xs) 0 0; font-size: var(--cds-font-size-body); color: var(--color-fg-muted); }
+  .st-progress b { color: var(--color-fg); font-weight: 500; }
+  .st-progress .st-count { font-family: var(--font-serif); font-size: var(--cds-font-size-heading); color: var(--color-fg); font-weight: 400; }
+  .st-about { display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
+  .st-about ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: var(--cds-gap-xs); max-width: 72ch; font-size: var(--cds-font-size-body); }
+  .st-about p { margin: 0; max-width: 72ch; font-size: var(--cds-font-size-body); }
+  .st-stats b.is-up { color: var(--color-ok); }
+  .st-stats b.is-down { color: var(--color-bad); }
+  .st-h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+  .st-bench { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); gap: var(--cds-gap-md); }
+  .st-bench div { display: flex; flex-direction: column; gap: var(--cds-gap-xs); }
+  .st-mid { font-family: var(--font-serif); font-weight: 400; font-size: var(--cds-font-size-heading); }
+  .st-chart { min-height: 260px; position: relative; }
+  .st-tip { position: absolute; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); pointer-events: none; white-space: nowrap; }
+  .st-tip-when { color: var(--cds-text-secondary); }
+  .st-wrap { overflow-x: auto; }
+  .st-table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-body); }
+  .st-table th { text-align: left; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+  .st-table td { padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); vertical-align: top; }
+  .st-table .num { text-align: right; white-space: nowrap; }
+  .st-table td.wrap { min-width: 14rem; }
+  .st-pill { display: inline-block; padding: 0 var(--cds-pad-sm); border-radius: 999px; font-size: var(--cds-font-size-caption); border: 1px solid var(--color-border-line); }
+  [data-dash-source-state=empty] { color: transparent; }
+  [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+  // Minimal data layer: loads data.json, runs calculations and draws the page.
+  window.dash = (() => {
+    const raw = {}; let status = 'loading';
+    const calcs = {}; const cache = {};
+    const listeners = []; const draws = [];
+    const mounted = new WeakMap();
+    const cssColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    const rowsOf = (id) => {
+      if (id in raw) return raw[id];
+      if (id in calcs) {
+        if (!(id in cache)) cache[id] = calcs[id].fn(...calcs[id].inputs.map(rowsOf));
+        return cache[id];
+      }
+      return [];
+    };
+    const api = {
+      get colors() { return ['--series-1', '--series-2', '--series-3', '--series-4', '--series-1', '--series-2', '--series-3', '--series-4'].map(cssColor); },
+      data(id) {
+        if (status !== 'ok') return { status, data: [], columns: [], meta: [], refreshing: false };
+        if (!(id in raw) && !(id in calcs)) return { status: 'missing', data: [], columns: [], meta: [], refreshing: false };
+        let data;
+        try { data = rowsOf(id); } catch (e) { console.error('calc failed', id, e); return { status: 'error', data: [], columns: [], meta: [], message: String(e) }; }
+        return { status: 'ok', data, columns: data[0] ? Object.keys(data[0]) : [], meta: [], refreshing: false };
+      },
+      onData(fn) { listeners.push(fn); try { fn(); } catch (e) { console.error(e); } },
+      calc(id, def) { calcs[id] = def; },
+      loader() {},
+      draw(name, def) { draws.push([name, def]); },
+      setLink(name) { try { history.replaceState(null, '', '#' + name); } catch (e) {} },
+      params: () => ({}), setParams() {}, resetParams() {}, refresh() {}
+    };
+    const visible = (el) => !el.closest('[hidden]');
+    const runAll = () => {
+      listeners.forEach((fn) => { try { fn(); } catch (e) { console.error(e); } });
+      draws.forEach(([name, def]) => {
+        document.querySelectorAll('[data-draw="' + name + '"]').forEach((el) => {
+          if (!visible(el)) return;
+          try {
+            if (typeof def === 'function') { def(el); return; }
+            if (!mounted.has(el)) { el.replaceChildren(); mounted.set(el, def.mount ? def.mount(el) : undefined); }
+            if (def.update) def.update(el, mounted.get(el));
+          } catch (e) { console.error('draw failed', name, e); }
+        });
+      });
+    };
+    let queued = false;
+    const schedule = () => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; runAll(); }); };
+    window.addEventListener('DOMContentLoaded', () => {
+      runAll();
+      new MutationObserver(schedule).observe(document.getElementById('dash-root'), { attributes: true, attributeFilter: ['hidden'], subtree: true });
+      let w = window.innerWidth;
+      window.addEventListener('resize', () => { if (window.innerWidth !== w) { w = window.innerWidth; schedule(); } });
+      if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', schedule);
+      fetch('data.json?v=' + Date.now(), { cache: 'no-store' })
+        .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then((json) => { Object.assign(raw, json); status = 'ok'; runAll(); })
+        .catch((e) => { console.error('data.json failed to load', e); status = 'error'; runAll(); });
+    });
+    return api;
+  })();
+</script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800&family=Archivo+Narrow:wght@500;700&display=swap">
+<style>
+:root, :root { --font-sans: "Archivo", system-ui, sans-serif; --font-serif: "Archivo", system-ui, sans-serif;
+ --color-bg:#ffffff; --color-panel:#f4f5f7; --color-fg:#0e1116; --color-fg-muted:#5b6270; --color-border-line:#e3e6ea;
+ --color-ok:#0a8f4f; --color-warn:#c2410c; --color-bad:#d92d20; --cds-text-secondary:#5b6270; --cds-surface-popover:#fff; --cds-border:#e3e6ea;
+ --cds-chart-grid:#eceef1; --cds-chart-axis:#c4c9d1; --cds-chart-reference:#8b93a1;
+ --series-1:#2f5bea; --series-2:#f26b1d; --series-3:#0aa36b; --series-4:#c99a06; --cds-radius:16px; color-scheme:light; }
+@media (prefers-color-scheme: dark) { :root { --color-bg:#0c0e12; --color-panel:#161a21; --color-fg:#f3f5f8; --color-fg-muted:#9aa3b2; --color-border-line:#262c36; --cds-chart-grid:#1f242d; --cds-chart-axis:#363e4b; --cds-surface-popover:#161a21; --cds-border:#262c36; --series-1:#6f8dff; --series-2:#ff8a47; --series-3:#2fd18e; --series-4:#f0c53c; color-scheme:dark; } }
+.st-title { font-weight: 800; font-size: 56px; letter-spacing: -.04em; line-height: 1; }
+.st-big { font-weight: 800; font-size: 40px; letter-spacing: -.035em; }
+.st-mid { font-weight: 700; }
+.st-label { font-family:"Archivo Narrow", sans-serif; text-transform: uppercase; letter-spacing:.08em; font-weight:700; }
+.st-tiles .st-card { border: 0; border-top: 6px solid var(--series-1); }
+.st-tiles .st-card:nth-child(2) { border-top-color: var(--series-2); }
+.st-tiles .st-card:nth-child(3) { border-top-color: var(--series-4); }
+.st-tiles .st-card:nth-child(4) { border-top-color: var(--series-3); }
+.st-card { border: 0; }
+.st-tabs { border: 0; gap: 6px; }
+.st-tab { border: 0; border-radius: 999px; background: var(--color-panel); font-weight:600; margin:0; }
+.st-tab[aria-selected="true"] { background: var(--color-fg); color: var(--color-bg); }
+.st-h2 { font-weight: 800; font-size: 22px; letter-spacing:-.02em; }
+.st-notice { border:0; background: var(--color-panel); border-left: 6px solid var(--color-warn); border-radius: 12px; }
+.st-progress .st-count { font-weight:800; }
+</style>
+</head>
+<body>
+<div id="dash-root">
+<div class="st">
+  <header class="st-head">
+    <h1 class="st-title">Paper Trades</h1>
+    <p class="st-progress" data-phase="live">
+      <span>Day <b data-draw="day-num">—</b> of <b data-draw="day-total">—</b></span>
+      <span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 26</span>
+    </p>
+    <p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>
+    <p class="st-notice" role="note"><b>This is a simulation, not investment advice.</b> No real money is involved. It is a 30-day experiment in which an AI model makes trading and betting decisions using real-world prices, to see how its judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results will be posted on Nov 26, win or lose.</p>
+    <p class="st-lede">Four paper simulations, each starting with <span data-draw="start">—</span>, scored on Nov 26, 2026. Together they are worth <b data-draw="combined" data-source="combined" data-field="total">—</b>, a change of <b data-draw="combined-pnl" data-source="combined" data-field="pnl">—</b>. Last updated <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=All">—</b>.</p>
+  </header>
+
+  <nav class="st-tabs" role="tablist" aria-label="Simulations">
+    <button class="st-tab" role="tab" data-tab="overview" aria-selected="true">Overview</button>
+    <button class="st-tab" role="tab" data-tab="stocks" aria-selected="false">Stocks</button>
+    <button class="st-tab" role="tab" data-tab="crypto" aria-selected="false">Crypto</button>
+    <button class="st-tab" role="tab" data-tab="metals" aria-selected="false">Metals</button>
+    <button class="st-tab" role="tab" data-tab="sports" aria-selected="false">Sports</button>
+  </nav>
+
+  <!-- Overview -->
+  <section class="st-page" id="overview" data-page="overview">
+    <div class="st-tiles" aria-label="Portfolio values">
+      <button class="st-card" data-goto="stocks">
+        <span class="st-label">Stocks and anything</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Stocks">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Stocks">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Stocks">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Stocks">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Stocks">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Stocks">—</b></span>
+          <span>Vs. S&amp;P 500: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=sp500">—</b></span>
+        </span>
+      </button>
+      <button class="st-card" data-goto="crypto">
+        <span class="st-label">Crypto only</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Crypto">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Crypto">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Crypto">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Crypto">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Crypto">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Crypto">—</b></span>
+          <span>Vs. just holding Bitcoin: <b data-draw="vs-diff" data-source="vsbtc" data-field="diff" data-where="portfolio=Crypto">—</b></span>
+        </span>
+      </button>
+      <button class="st-card" data-goto="metals">
+        <span class="st-label">Precious metals</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Metals">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Metals">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Metals">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Metals">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Metals">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Metals">—</b></span>
+          <span>Vs. just holding Bitcoin: <b data-draw="vs-diff" data-source="vsbtc" data-field="diff" data-where="portfolio=Metals">—</b></span>
+        </span>
+      </button>
+      <button class="st-card" data-goto="sports">
+        <span class="st-label">Sports betting</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Sports">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Sports">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Sports">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Sports">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Sports">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Sports">—</b></span>
+          <span>Beat the closing line: <b data-draw="clv-sum" data-source="clvsum" data-field="beat" data-row="0">—</b></span>
+        </span>
+      </button>
+    </div>
+    <p class="st-note">The big figure is total net profit since the start. "Last 24 hours" compares with the check-in closest to 24 hours earlier, or the start if a simulation is newer. "Worst drop" is the biggest fall from a high point, measured at check-ins. Stocks are compared with putting the same <span data-draw="start">—</span> into the S&amp;P 500; crypto and metals with putting it into Bitcoin. Positive means the portfolio is ahead.</p>
+
+    <section class="st-card" aria-labelledby="h-events-all">
+      <h2 class="st-h2" id="h-events-all">Coming up</h2>
+      <p class="st-note">The next events that could move these simulations. Times are Eastern.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="events" data-row-key="at,event">
+          <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="affects">Affects</th><th data-field="why">Why it matters</th></tr></thead>
+          <tbody data-draw="events-body" data-limit="8"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="st-card" aria-labelledby="h-chart">
+      <h2 class="st-h2" id="h-chart">Value over time</h2>
+      <p class="st-note">Each portfolio's value in Canadian dollars at every check-in. The dashed line is the <span data-draw="start">—</span> start.</p>
+      <div class="st-chart" data-draw="chart" data-source="history"></div>
+    </section>
+
+    <section class="st-card" aria-labelledby="h-log-all">
+      <h2 class="st-h2" id="h-log-all">Recent decisions</h2>
+      <p class="st-note">Every trade, bet and hold decision across all four, newest first. Times are Eastern.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="log" data-row-key="at,portfolio">
+          <thead><tr><th data-field="at">When</th><th data-field="portfolio">Portfolio</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
+          <tbody data-draw="log-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+
+  <!-- Stocks -->
+  <section class="st-page" id="stocks" data-page="stocks" hidden>
+    <section class="st-card" aria-labelledby="h-s-bench">
+      <h2 class="st-h2" id="h-s-bench">Stocks portfolio</h2>
+      <p class="st-note">SOXL, TQQQ and Bitcoin, plus cash. Started at the Oct 26 close.</p>
+      <div class="st-bench">
+        <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Stocks">—</span></div>
+        <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Stocks">—</span></div>
+        <div><span class="st-label">Total net profit</span><span class="st-mid" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Stocks">—</span></div>
+        <div><span class="st-label">Worst drop from peak</span><span class="st-mid" data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Stocks">—</span></div>
+      </div>
+      <p class="st-meta">
+        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Stocks">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Stocks">—</span></span>
+        <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Stocks">—</b></span>
+      </p>
+    </section>
+    <section class="st-card" aria-labelledby="h-s-market">
+      <h2 class="st-h2" id="h-s-market">Stocks vs. the market</h2>
+      <p class="st-note">What the same <span data-draw="start">—</span> would be worth if it had gone into each index at the Oct 26 close and stayed there. The S&amp;P 500 is converted to Canadian dollars; the TSX is already in them. Index levels, without dividends.</p>
+      <div class="st-bench">
+        <div><span class="st-label">This portfolio</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Stocks">—</span></div>
+        <div><span class="st-label">All in the S&amp;P 500</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=sp500">—</span></div>
+        <div><span class="st-label">Ahead of the S&amp;P 500 by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=sp500">—</span></div>
+        <div><span class="st-label">All in the TSX</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=tsx">—</span></div>
+        <div><span class="st-label">Ahead of the TSX by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=tsx">—</span></div>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-s-events">
+      <h2 class="st-h2" id="h-s-events">Coming up</h2>
+      <p class="st-note">Events ahead that could move this simulation. Times are Eastern.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="events" data-row-key="at,event">
+          <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
+          <tbody data-draw="events-body" data-portfolio="Stocks" data-limit="6"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-s-chart">
+      <h2 class="st-h2" id="h-s-chart">Value over time</h2>
+      <p class="st-note">The dashed line is the <span data-draw="start">—</span> start.</p>
+      <div class="st-chart" data-draw="chart" data-source="history" data-portfolio="Stocks"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-s-hold">
+      <h2 class="st-h2" id="h-s-hold">Holdings</h2>
+      <p class="st-note">Prices in US dollars; values in Canadian dollars at the latest exchange rate.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
+          <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Quantity</th><th data-field="entry_usd" class="num">Entry (US$)</th><th data-field="price_usd" class="num">Now (US$)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th></tr></thead>
+          <tbody data-draw="holdings-body" data-portfolio="Stocks"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-s-rules">
+      <h2 class="st-h2" id="h-s-rules">Rules in force</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="rules" data-row-key="rule">
+          <thead><tr><th data-field="rule">Rule</th></tr></thead>
+          <tbody data-draw="rules-body" data-portfolio="Stocks"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-s-log">
+      <h2 class="st-h2" id="h-s-log">Decision log</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="log" data-row-key="at,portfolio">
+          <thead><tr><th data-field="at">When</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
+          <tbody data-draw="log-body" data-portfolio="Stocks"></tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+
+  <!-- Crypto -->
+  <section class="st-page" id="crypto" data-page="crypto" hidden>
+    <section class="st-card" aria-labelledby="h-c-bench">
+      <h2 class="st-h2" id="h-c-bench">Crypto vs. just holding Bitcoin</h2>
+      <p class="st-note">Bitcoin, Ethereum, Solana, XRP and a USDC reserve. Started Oct 27 at 2 a.m.</p>
+      <div class="st-bench">
+        <div><span class="st-label">This portfolio</span><span class="st-mid" data-draw="vs-value" data-source="vsbtc" data-field="value" data-where="portfolio=Crypto">—</span></div>
+        <div><span class="st-label">All in Bitcoin</span><span class="st-mid" data-draw="vs-btc" data-source="vsbtc" data-field="btc_value" data-where="portfolio=Crypto">—</span></div>
+        <div><span class="st-label">Ahead of Bitcoin by</span><span class="st-mid" data-draw="vs-diff" data-source="vsbtc" data-field="diff" data-where="portfolio=Crypto">—</span></div>
+        <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Crypto">—</span></div>
+        <div><span class="st-label">Total net profit</span><span class="st-mid" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Crypto">—</span></div>
+        <div><span class="st-label">Worst drop from peak</span><span class="st-mid" data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Crypto">—</span></div>
+      </div>
+      <p class="st-meta">
+        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Crypto">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Crypto">—</span></span>
+        <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Crypto">—</b></span>
+      </p>
+    </section>
+    <section class="st-card" aria-labelledby="h-c-events">
+      <h2 class="st-h2" id="h-c-events">Coming up</h2>
+      <p class="st-note">Events ahead that could move this simulation. Times are Eastern.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="events" data-row-key="at,event">
+          <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
+          <tbody data-draw="events-body" data-portfolio="Crypto" data-limit="6"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-c-chart">
+      <h2 class="st-h2" id="h-c-chart">Value over time</h2>
+      <p class="st-note">The dashed line is the <span data-draw="start">—</span> start.</p>
+      <div class="st-chart" data-draw="chart" data-source="history" data-portfolio="Crypto"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-c-hold">
+      <h2 class="st-h2" id="h-c-hold">Holdings</h2>
+      <p class="st-note">Prices in US dollars; values in Canadian dollars at the latest exchange rate.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
+          <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Quantity</th><th data-field="entry_usd" class="num">Entry (US$)</th><th data-field="price_usd" class="num">Now (US$)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th></tr></thead>
+          <tbody data-draw="holdings-body" data-portfolio="Crypto"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-c-rules">
+      <h2 class="st-h2" id="h-c-rules">Rules in force</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="rules" data-row-key="rule">
+          <thead><tr><th data-field="rule">Rule</th></tr></thead>
+          <tbody data-draw="rules-body" data-portfolio="Crypto"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-c-log">
+      <h2 class="st-h2" id="h-c-log">Decision log</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="log" data-row-key="at,portfolio">
+          <thead><tr><th data-field="at">When</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
+          <tbody data-draw="log-body" data-portfolio="Crypto"></tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+
+  <!-- Metals -->
+  <section class="st-page" id="metals" data-page="metals" hidden>
+    <section class="st-card" aria-labelledby="h-m-bench">
+      <h2 class="st-h2" id="h-m-bench">Metals vs. just holding Bitcoin</h2>
+      <p class="st-note">Gold and silver at spot prices, plus cash. Started Oct 27 at 7:30 p.m.</p>
+      <div class="st-bench">
+        <div><span class="st-label">This portfolio</span><span class="st-mid" data-draw="vs-value" data-source="vsbtc" data-field="value" data-where="portfolio=Metals">—</span></div>
+        <div><span class="st-label">All in Bitcoin</span><span class="st-mid" data-draw="vs-btc" data-source="vsbtc" data-field="btc_value" data-where="portfolio=Metals">—</span></div>
+        <div><span class="st-label">Ahead of Bitcoin by</span><span class="st-mid" data-draw="vs-diff" data-source="vsbtc" data-field="diff" data-where="portfolio=Metals">—</span></div>
+        <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Metals">—</span></div>
+        <div><span class="st-label">Total net profit</span><span class="st-mid" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Metals">—</span></div>
+        <div><span class="st-label">Worst drop from peak</span><span class="st-mid" data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Metals">—</span></div>
+      </div>
+      <p class="st-meta">
+        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Metals">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Metals">—</span></span>
+        <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Metals">—</b></span>
+      </p>
+    </section>
+    <section class="st-card" aria-labelledby="h-m-events">
+      <h2 class="st-h2" id="h-m-events">Coming up</h2>
+      <p class="st-note">Events ahead that could move this simulation. Times are Eastern.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="events" data-row-key="at,event">
+          <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
+          <tbody data-draw="events-body" data-portfolio="Metals" data-limit="6"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-m-chart">
+      <h2 class="st-h2" id="h-m-chart">Value over time</h2>
+      <p class="st-note">The dashed line is the <span data-draw="start">—</span> start.</p>
+      <div class="st-chart" data-draw="chart" data-source="history" data-portfolio="Metals"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-m-hold">
+      <h2 class="st-h2" id="h-m-hold">Holdings</h2>
+      <p class="st-note">Prices in US dollars per troy ounce; values in Canadian dollars at the latest exchange rate.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
+          <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Ounces</th><th data-field="entry_usd" class="num">Entry (US$)</th><th data-field="price_usd" class="num">Now (US$)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th></tr></thead>
+          <tbody data-draw="holdings-body" data-portfolio="Metals"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-m-rules">
+      <h2 class="st-h2" id="h-m-rules">Rules in force</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="rules" data-row-key="rule">
+          <thead><tr><th data-field="rule">Rule</th></tr></thead>
+          <tbody data-draw="rules-body" data-portfolio="Metals"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-m-log">
+      <h2 class="st-h2" id="h-m-log">Decision log</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="log" data-row-key="at,portfolio">
+          <thead><tr><th data-field="at">When</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
+          <tbody data-draw="log-body" data-portfolio="Metals"></tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+
+  <!-- Sports -->
+  <section class="st-page" id="sports" data-page="sports" hidden>
+    <section class="st-card" aria-labelledby="h-b-bench">
+      <h2 class="st-h2" id="h-b-bench">Sports bankroll</h2>
+      <p class="st-note">Bankroll counts settled bets only. Started Oct 27 at 4:54 p.m. On open bets: <span data-draw="at-risk" data-source="totals" data-field="at_risk" data-where="portfolio=Sports">—</span>.</p>
+      <div class="st-bench">
+        <div><span class="st-label">Bankroll</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Sports">—</span></div>
+        <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Sports">—</span></div>
+        <div><span class="st-label">Total net profit</span><span class="st-mid" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Sports">—</span></div>
+        <div><span class="st-label">Worst drop from peak</span><span class="st-mid" data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Sports">—</span></div>
+      </div>
+      <p class="st-meta">
+        <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Sports">—</b>. <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Sports">—</span></span>
+        <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Sports">—</b></span>
+      </p>
+    </section>
+    <section class="st-card" aria-labelledby="h-b-events">
+      <h2 class="st-h2" id="h-b-events">Coming up</h2>
+      <p class="st-note">Events ahead that could move this simulation. Times are Eastern.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="events" data-row-key="at,event">
+          <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
+          <tbody data-draw="events-body" data-portfolio="Sports" data-limit="6"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-b-record">
+      <h2 class="st-h2" id="h-b-record">Record</h2>
+      <div class="st-bench">
+        <div><span class="st-label">Won–lost</span><span class="st-mid" data-draw="record" data-source="betstats" data-field="record" data-row="0">—</span></div>
+        <div><span class="st-label">Win rate</span><span class="st-mid" data-draw="winrate" data-source="betstats" data-field="win_rate" data-row="0">—</span></div>
+        <div><span class="st-label">Return on settled stakes</span><span class="st-mid" data-draw="roi" data-source="betstats" data-field="roi" data-row="0">—</span></div>
+        <div><span class="st-label">Open bets</span><span class="st-mid" data-draw="open" data-source="betstats" data-field="open" data-row="0">—</span></div>
+        <div><span class="st-label">Beat the closing line</span><span class="st-mid" data-draw="clv-sum" data-source="clvsum" data-field="beat" data-row="0">—</span></div>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-b-bets">
+      <h2 class="st-h2" id="h-b-bets">Bets</h2>
+      <p class="st-note">American odds. Stakes and results in Canadian dollars. Closing odds are the last price before the game started; getting a better price than the close is the quickest sign of real skill, long before wins and losses settle it.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="bets" data-row-key="bet">
+          <thead><tr><th data-field="bet">Bet</th><th data-field="placed">Placed</th><th data-field="event">Game</th><th data-field="pick">Pick</th><th data-field="odds" class="num">Odds</th><th data-field="stake_cad" class="num">Stake (C$)</th><th data-field="to_win_cad" class="num">To win (C$)</th><th data-field="status">Status</th><th data-field="result_cad" class="num">Result (C$)</th><th data-field="closing_odds" class="num">Closing odds</th><th data-source="clv" data-field="verdict">Beat the close?</th></tr></thead>
+          <tbody data-draw="bets-body"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-b-rules">
+      <h2 class="st-h2" id="h-b-rules">Rules in force</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="rules" data-row-key="rule">
+          <thead><tr><th data-field="rule">Rule</th></tr></thead>
+          <tbody data-draw="rules-body" data-portfolio="Sports"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-b-log">
+      <h2 class="st-h2" id="h-b-log">Decision log</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="log" data-row-key="at,portfolio">
+          <thead><tr><th data-field="at">When</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
+          <tbody data-draw="log-body" data-portfolio="Sports"></tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+  <section class="st-card st-about" aria-labelledby="h-about" id="about">
+    <h2 class="st-h2" id="h-about">About this experiment</h2>
+    <p>This page tracks a 30-day paper-trading experiment, Oct 26 to Nov 26, 2026. An AI model was given <span data-draw="start">—</span> of pretend money in each of four simulations and asked to manage it as it saw fit. The page owner checks in through the month, and the AI looks up current prices and news, decides whether to trade, and records each decision and its reasoning here.</p>
+    <ul>
+      <li><b>Independent.</b> This is an independent experiment, not affiliated with, sponsored by or endorsed by any brokerage, sportsbook, exchange or AI company.</li>
+      <li><b>Not advice.</b> Nothing on this page is financial, investment, tax or betting advice, and the AI is not a licensed advisor. The picks are an experiment, not recommendations. Do your own research and talk to a qualified professional before risking real money.</li>
+      <li><b>No real money.</b> No trades or bets were actually placed. Every position and result is hypothetical.</li>
+      <li><b>Real prices, simplified.</b> Prices come from public sources (exchange quotes, market news sites and sportsbook odds) at the time of each check-in. They may be delayed or differ from prices you could actually get. Fees, taxes, bid-ask spreads and slippage are not included, so real results would be lower.</li>
+      <li><b>High risk on purpose.</b> The stocks portfolio holds 3x leveraged funds, and crypto, metals and sports bets can swing sharply. These choices were made to test aggressive decision-making, not because they suit most people. Leveraged funds can lose a large share of their value in a single day.</li>
+      <li><b>Short window, lots of luck.</b> Thirty days is too short to prove skill. A good or bad result here says little about future performance.</li>
+      <li><b>Sports betting is for adults only.</b> Odds are shown for the experiment, not as an endorsement of any sportsbook. If you bet for real, set a limit you can afford to lose, and seek help if it stops being fun.</li>
+      <li><b>Results, win or lose.</b> The final results for all four simulations will be posted here on Nov 26, whether they are good or bad. Losing trades and bets stay in the log.</li>
+      <li><b>How it's scored.</b> Values are in Canadian dollars at the latest exchange rate. Each simulation is compared with a simple benchmark (the S&amp;P 500 and TSX for stocks, holding Bitcoin for crypto and metals, the closing line for sports). US markets are closed on Nov 26 for Thanksgiving, so the stocks score uses the Nov 25 close.</li>
+    </ul>
+    <p class="st-note">Data last refreshed <b data-draw="refreshed">—</b>. The sources used for prices, odds and news are listed below.</p>
+    <h3 class="st-h3" id="h-sources">Sources</h3>
+    <ul class="st-sources" data-draw="sources-list"></ul>
+  </section>
+  <footer class="st-foot">Paper Trades is an independent 30-day experiment. No real money. Not investment or betting advice.</footer>
+</div>
+</div>
+<script>
+
+  const START = 100000;
+  const EXP_START = new Date('2026-10-26T16:00:00-04:00').getTime();
+  const EXP_END = new Date('2026-11-26T16:00:00-05:00').getTime();
+  const EXP_DAYS = 30;
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const daysLeft = () => Math.max(0, Math.ceil((EXP_END - Date.now()) / DAY_MS));
+  const dayNumber = () => Math.min(EXP_DAYS, Math.max(1, EXP_DAYS - daysLeft() + 1));
+  dash.onData(() => {
+    const ended = Date.now() >= EXP_END;
+    document.querySelectorAll('[data-phase]').forEach((el) => { el.hidden = (el.dataset.phase === 'ended') !== ended; });
+  });
+  window.stFmt = {
+    cad: (v) => 'C$' + d3.format(',.0f')(v),
+    signedCad: (v) => (v >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(v)),
+    pct: (v) => (v >= 0 ? '+' : '−') + d3.format('.1%')(Math.abs(v)),
+    when: (s) => d3.timeFormat('%b %-d, %-I:%M %p')(new Date(s)).replace('AM', 'a.m.').replace('PM', 'p.m.'),
+    whereOf: (el) => new URLSearchParams(el.dataset.where || '').get('portfolio')
+  };
+
+  // Tabs
+  const TABS = ['overview', 'stocks', 'crypto', 'metals', 'sports'];
+  const showTab = (name) => {
+    if (!TABS.includes(name)) name = 'overview';
+    document.querySelectorAll('[data-page]').forEach((s) => { s.hidden = s.dataset.page !== name; });
+    document.querySelectorAll('.st-tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
+  };
+  const goTab = (name) => { showTab(name); dash.setLink(name); };
+  document.querySelectorAll('.st-tab').forEach((b) => b.addEventListener('click', () => goTab(b.dataset.tab)));
+  document.querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', () => goTab(b.dataset.goto)));
+  showTab(location.hash.slice(1));
+
+  dash.calc('totals', {
+    title: 'Portfolio totals',
+    description: 'Each portfolio’s value: holdings summed for Stocks, Crypto and Metals; C$100,000 plus settled results for Sports.',
+    inputs: ['holdings', 'bets'],
+    fn: (holdings, bets) => {
+      const start = 100000;
+      const sum = (p) => holdings.filter((r) => r.portfolio === p).reduce((a, r) => a + Number(r.value_cad), 0);
+      const settled = bets.filter((b) => b.status !== 'Open').reduce((a, b) => a + Number(b.result_cad || 0), 0);
+      const risk = bets.filter((b) => b.status === 'Open').reduce((a, b) => a + Number(b.stake_cad), 0);
+      return ['Stocks', 'Crypto', 'Metals'].map((p) => ({ portfolio: p, value: sum(p), pnl: sum(p) - start, pct: sum(p) / start - 1, at_risk: 0 }))
+        .concat([{ portfolio: 'Sports', value: start + settled, pnl: settled, pct: settled / start, at_risk: risk }]);
+    }
+  });
+
+  dash.calc('vsbtc', {
+    title: 'Vs. just holding Bitcoin',
+    description: 'What C$100,000 put into Bitcoin at each simulation’s start would be worth now, converted at the start and current exchange rates, and the difference from the simulation.',
+    inputs: ['totals', 'benchmark'],
+    fn: (totals, benchmark) => totals.map((t) => {
+      const b = benchmark.find((r) => r.portfolio === t.portfolio);
+      const btc_value = b ? 100000 / Number(b.fx_start) / Number(b.btc_start_usd) * Number(b.btc_now_usd) * Number(b.fx_now) : null;
+      return { portfolio: t.portfolio, value: t.value, btc_value, diff: btc_value === null ? null : t.value - btc_value };
+    })
+  });
+
+  dash.calc('pnl24', {
+    title: '24-hour net profit',
+    description: 'Each portfolio\u2019s latest value minus its value at the last check-in at least 24 hours earlier, or its start if it is newer than 24 hours.',
+    inputs: ['history'],
+    fn: (history) => ['Stocks', 'Crypto', 'Metals', 'Sports'].map((p) => {
+      const s = history.filter((r) => r.portfolio === p).map((r) => ({ t: new Date(r.at).getTime(), v: Number(r.value) })).sort((a, b) => a.t - b.t);
+      if (!s.length) return { portfolio: p, day: null };
+      const last = s[s.length - 1];
+      const prior = s.filter((r) => r.t <= last.t - 86400000);
+      const base = prior.length ? prior[prior.length - 1] : s[0];
+      return { portfolio: p, day: last.v - base.v };
+    })
+  });
+
+  dash.calc('vsindex', {
+    title: 'Vs. the stock market',
+    description: 'What C$100,000 put into each index at the stocks simulation\u2019s start would be worth now (S&P 500 converted at the start and current exchange rates; index levels without dividends), and how far the stocks portfolio is ahead.',
+    inputs: ['totals', 'indexes'],
+    fn: (totals, indexes) => {
+      const t = totals.find((r) => r.portfolio === 'Stocks');
+      return indexes.map((i) => {
+        const index_value = 100000 / Number(i.fx_start) / Number(i.start_level) * Number(i.now_level) * Number(i.fx_now);
+        return { id: i.id, index: i.index, value: t ? t.value : null, index_value, diff: t ? t.value - index_value : null };
+      });
+    }
+  });
+
+  dash.calc('drawdown', {
+    title: 'Worst drop from peak',
+    description: 'For each portfolio, the biggest fall from its highest check-in value to any later check-in value.',
+    inputs: ['history'],
+    fn: (history) => ['Stocks', 'Crypto', 'Metals', 'Sports'].map((p) => {
+      const s = history.filter((r) => r.portfolio === p).map((r) => ({ t: new Date(r.at).getTime(), v: Number(r.value) })).sort((a, b) => a.t - b.t);
+      let peak = -Infinity, worst_pct = 0, worst_cad = 0;
+      for (const r of s) {
+        if (r.v > peak) peak = r.v;
+        if (r.v / peak - 1 < worst_pct) { worst_pct = r.v / peak - 1; worst_cad = r.v - peak; }
+      }
+      return { portfolio: p, peak: s.length ? peak : null, worst_pct, worst_cad };
+    })
+  });
+
+  dash.calc('clv', {
+    title: 'Closing line check',
+    description: 'Whether each bet got a better price than the closing odds. Moneylines compare implied win chances; spreads compare points first, then odds.',
+    inputs: ['bets'],
+    fn: (bets) => {
+      const p = (o) => { o = Number(o); return o < 0 ? -o / (-o + 100) : 100 / (o + 100); };
+      return bets.map((b) => {
+        if (b.closing_odds === null || b.closing_odds === undefined || b.closing_odds === '') return { bet: b.bet, verdict: null, edge: null };
+        let edge;
+        if (b.market === 'spread') {
+          const pts = Number(b.line) - Number(b.closing_line);
+          edge = pts !== 0 ? pts : p(b.closing_odds) - p(b.odds);
+        } else {
+          edge = p(b.closing_odds) - p(b.odds);
+        }
+        return { bet: b.bet, verdict: edge > 0.0005 ? 'Beat' : edge < -0.0005 ? 'Missed' : 'Even', edge };
+      });
+    }
+  });
+
+  dash.calc('clvsum', {
+    title: 'Closing line record',
+    description: 'How many bets with a known closing price got a better price than the close.',
+    inputs: ['clv'],
+    fn: (clv) => {
+      const graded = clv.filter((r) => r.verdict !== null);
+      return [{ graded: graded.length, beat: graded.filter((r) => r.verdict === 'Beat').length }];
+    }
+  });
+
+  dash.calc('lasts', {
+    title: 'Last trade and last update',
+    description: 'For each portfolio, the most recent buy, sell or bet in the decision log, and the most recent check-in in the log or value history.',
+    inputs: ['log', 'history'],
+    fn: (log, history) => {
+      const TRADES = ['Buy', 'Sell', 'Bet', 'Trim', 'Add'];
+      const t = (r) => new Date(r.at).getTime();
+      const latest = (rows) => rows.reduce((a, r) => (!a || t(r) > t(a) ? r : a), null);
+      return ['Stocks', 'Crypto', 'Metals', 'Sports', 'All'].map((p) => {
+        const mine = (r) => p === 'All' || r.portfolio === p;
+        const trade = latest(log.filter((r) => mine(r) && TRADES.includes(r.action)));
+        const upd = latest(log.filter(mine).concat(history.filter(mine)));
+        return {
+          portfolio: p,
+          last_trade_at: trade ? trade.at : null,
+          last_trade_action: trade ? trade.action : null,
+          last_trade_detail: trade ? trade.detail : null,
+          last_update_at: upd ? upd.at : null
+        };
+      });
+    }
+  });
+
+  dash.calc('combined', {
+    title: 'All three combined',
+    description: 'The three portfolio values added together, and the change from the C$100,000 each one started with.',
+    inputs: ['totals'],
+    fn: (totals) => {
+      const total = totals.reduce((a, r) => a + r.value, 0);
+      return [{ total, pnl: total - 100000 * totals.length }];
+    }
+  });
+
+  dash.calc('betstats', {
+    title: 'Betting record',
+    description: 'Wins, losses, win rate and return on settled stakes for the sports simulation.',
+    inputs: ['bets'],
+    fn: (bets) => {
+      const won = bets.filter((b) => b.status === 'Won').length;
+      const lost = bets.filter((b) => b.status === 'Lost').length;
+      const settled = bets.filter((b) => b.status !== 'Open');
+      const staked = settled.reduce((a, b) => a + Number(b.stake_cad), 0);
+      const result = settled.reduce((a, b) => a + Number(b.result_cad || 0), 0);
+      return [{ record: won + '–' + lost, win_rate: won + lost ? won / (won + lost) : null, roi: staked ? result / staked : null, open: bets.length - settled.length }];
+    }
+  });
+
+  const rowFor = (id, p) => {
+    const d = dash.data(id);
+    return d.status === 'ok' ? d.data.find((r) => r.portfolio === p) : null;
+  };
+  const statOf = (field) => {
+    const d = dash.data('betstats');
+    return d.status === 'ok' && d.data[0] ? d.data[0][field] : undefined;
+  };
+  const tone = (el, v) => { el.classList.toggle('is-up', v > 0.5); el.classList.toggle('is-down', v < -0.5); };
+
+  dash.draw('start', (el) => { el.textContent = stFmt.cad(START); });
+  dash.draw('day-total', (el) => { el.textContent = String(EXP_DAYS); });
+  dash.draw('day-num', {
+    mount: (el) => {
+      const tick = () => { el.textContent = String(dayNumber()); };
+      tick();
+      return setInterval(tick, 60 * 1000);
+    },
+    update: () => {},
+    unmount: (el, id) => clearInterval(id)
+  });
+  dash.draw('countdown', {
+    mount: (el) => {
+      const tick = () => {
+        const ms = Math.max(0, EXP_END - Date.now());
+        const d = Math.floor(ms / DAY_MS);
+        const h = Math.floor((ms % DAY_MS) / (60 * 60 * 1000));
+        el.textContent = d + (d === 1 ? ' day, ' : ' days, ') + h + (h === 1 ? ' hour' : ' hours');
+      };
+      tick();
+      return setInterval(tick, 60 * 1000);
+    },
+    update: () => {},
+    unmount: (el, id) => clearInterval(id)
+  });
+  dash.draw('combined', (el) => {
+    const d = dash.data('combined');
+    el.textContent = d.status === 'ok' && d.data[0] ? stFmt.cad(d.data[0].total) : '—';
+  });
+  dash.draw('combined-pnl', (el) => {
+    const d = dash.data('combined');
+    el.textContent = d.status === 'ok' && d.data[0] ? stFmt.signedCad(d.data[0].pnl) : '—';
+  });
+  dash.draw('asof', (el) => {
+    const d = dash.data('holdings');
+    el.textContent = d.status === 'ok' && d.data[0] ? stFmt.when(d.data[0].as_of) + ' ET' : '—';
+  });
+  dash.draw('tile-value', (el) => {
+    const r = rowFor('totals', stFmt.whereOf(el));
+    el.textContent = r ? stFmt.cad(r.value) : '—';
+  });
+  dash.draw('tile-pnl', (el) => {
+    const r = rowFor('totals', stFmt.whereOf(el));
+    tone(el, r ? r.pnl : 0);
+    el.textContent = r ? stFmt.signedCad(r.pnl) + ' (' + stFmt.pct(r.pct) + ')' : '—';
+  });
+  dash.draw('at-risk', (el) => {
+    const r = rowFor('totals', stFmt.whereOf(el));
+    el.textContent = r ? stFmt.cad(r.at_risk) : '—';
+  });
+  dash.draw('vs-value', (el) => {
+    const r = rowFor('vsbtc', stFmt.whereOf(el));
+    el.textContent = r ? stFmt.cad(r.value) : '—';
+  });
+  dash.draw('vs-btc', (el) => {
+    const r = rowFor('vsbtc', stFmt.whereOf(el));
+    el.textContent = r && r.btc_value !== null ? stFmt.cad(r.btc_value) : '—';
+  });
+  dash.draw('vs-diff', (el) => {
+    const r = rowFor('vsbtc', stFmt.whereOf(el));
+    const ok = r && r.diff !== null;
+    tone(el, ok ? r.diff : 0);
+    el.textContent = ok ? stFmt.signedCad(r.diff) : '—';
+  });
+  dash.draw('day-pnl', (el) => {
+    const r = rowFor('pnl24', stFmt.whereOf(el));
+    const ok = r && r.day !== null;
+    tone(el, ok ? r.day : 0);
+    el.textContent = ok ? stFmt.signedCad(r.day) : '—';
+  });
+  dash.draw('idx-value', (el) => {
+    const d = dash.data('vsindex');
+    const id = new URLSearchParams(el.dataset.where || '').get('id');
+    const r = d.status === 'ok' ? d.data.find((x) => x.id === id) : null;
+    el.textContent = r ? stFmt.cad(r.index_value) : '—';
+  });
+  dash.draw('idx-diff', (el) => {
+    const d = dash.data('vsindex');
+    const id = new URLSearchParams(el.dataset.where || '').get('id');
+    const r = d.status === 'ok' ? d.data.find((x) => x.id === id) : null;
+    const ok = r && r.diff !== null;
+    tone(el, ok ? r.diff : 0);
+    el.textContent = ok ? stFmt.signedCad(r.diff) : '—';
+  });
+  dash.draw('dd', (el) => {
+    const r = rowFor('drawdown', stFmt.whereOf(el));
+    const ok = r && r.peak !== null;
+    tone(el, ok && r.worst_cad < -0.5 ? -1 : 0);
+    el.textContent = ok ? (r.worst_pct < 0 ? '−' : '') + d3.format('.2%')(Math.abs(r.worst_pct)) + ' (' + stFmt.cad(Math.abs(r.worst_cad)) + ')' : '—';
+  });
+  dash.draw('clv-sum', (el) => {
+    const d = dash.data('clvsum');
+    const r = d.status === 'ok' ? d.data[0] : null;
+    el.textContent = r && r.graded ? r.beat + ' of ' + r.graded : '—';
+  });
+  dash.draw('events-body', (el) => {
+    const d = dash.data('events');
+    el.replaceChildren();
+    if (d.status !== 'ok') return;
+    const p = el.dataset.portfolio;
+    const limit = Number(el.dataset.limit) || 8;
+    const now = Date.now() - 30 * 60 * 1000;
+    d.data
+      .filter((r) => new Date(r.at).getTime() >= now)
+      .filter((r) => !p || r.affects === 'All' || r.affects.split(', ').includes(p))
+      .sort((a, b) => new Date(a.at) - new Date(b.at))
+      .slice(0, limit)
+      .forEach((r) => {
+        const tr = document.createElement('tr');
+        tr.dataset.key = encodeURIComponent(r.at) + ',' + encodeURIComponent(r.event);
+        const cells = p ? [r.when, r.event, r.why] : [r.when, r.event, r.affects, r.why];
+        cells.forEach((text, i) => {
+          const td = document.createElement('td');
+          if (i === cells.length - 1) td.className = 'wrap';
+          td.textContent = text;
+          tr.appendChild(td);
+        });
+        el.appendChild(tr);
+      });
+  });
+  dash.draw('last-trade', (el) => {
+    const r = rowFor('lasts', stFmt.whereOf(el));
+    el.textContent = r && r.last_trade_at ? stFmt.when(r.last_trade_at) : '—';
+  });
+  dash.draw('last-trade-detail', (el) => {
+    const r = rowFor('lasts', stFmt.whereOf(el));
+    el.textContent = r && r.last_trade_detail ? r.last_trade_detail : '—';
+  });
+  dash.draw('last-update', (el) => {
+    const r = rowFor('lasts', stFmt.whereOf(el));
+    el.textContent = r && r.last_update_at ? stFmt.when(r.last_update_at) + ' ET' : '—';
+  });
+  dash.draw('record', (el) => { const v = statOf('record'); el.textContent = v === undefined ? '—' : v; });
+  dash.draw('winrate', (el) => { const v = statOf('win_rate'); el.textContent = v === undefined || v === null ? '—' : d3.format('.0%')(v); });
+  dash.draw('roi', (el) => { const v = statOf('roi'); tone(el, v ? v * 1000 : 0); el.textContent = v === undefined || v === null ? '—' : stFmt.pct(v); });
+  dash.draw('open', (el) => { const v = statOf('open'); el.textContent = v === undefined ? '—' : String(v); });
+
+  const fillBody = (el, id, filter, keyOf, cells) => {
+    const d = dash.data(id);
+    el.replaceChildren();
+    if (d.status !== 'ok') return;
+    d.data.filter(filter).forEach((r) => {
+      const tr = document.createElement('tr');
+      if (keyOf) tr.dataset.key = keyOf(r);
+      cells(r).forEach(([text, cls]) => {
+        const td = document.createElement('td');
+        if (cls) td.className = cls;
+        if (text instanceof Node) td.appendChild(text); else td.textContent = text;
+        tr.appendChild(td);
+      });
+      el.appendChild(tr);
+    });
+  };
+  const byPortfolio = (el, alsoBoth) => (r) => !el.dataset.portfolio || r.portfolio === el.dataset.portfolio || (alsoBoth && r.portfolio === 'Both');
+  const num = (v, f) => (v === null || v === undefined || v === '') ? '' : f(Number(v));
+  const usd = (v) => v >= 1000 ? '$' + d3.format(',.0f')(v) : '$' + d3.format(',.2f')(v);
+  const upDown = (v) => (v > 0 ? 'is-up' : v < 0 ? 'is-down' : '');
+
+  dash.draw('holdings-body', (el) => fillBody(el, 'holdings', byPortfolio(el), (r) => encodeURIComponent(r.portfolio) + ',' + encodeURIComponent(r.holding), (r) => [
+    [r.holding],
+    [num(r.quantity, (v) => v >= 100 ? d3.format(',.2f')(v) : d3.format(',.4f')(v)), 'num'],
+    [num(r.entry_usd, usd), 'num'],
+    [num(r.price_usd, usd), 'num'],
+    [r.price_usd === null ? '' : stFmt.pct(Number(r.change_pct)), 'num ' + upDown(Number(r.change_pct))],
+    [num(r.value_cad, (v) => d3.format(',.0f')(v)), 'num']
+  ]));
+
+  dash.draw('bets-body', (el) => fillBody(el, 'bets', () => true, null, (r) => {
+    const c = dash.data('clv');
+    const v = c.status === 'ok' ? c.data.find((x) => x.bet === r.bet) : null;
+    const odd = (o) => (Number(o) > 0 ? '+' : '') + o;
+    const close = r.closing_odds === null || r.closing_odds === undefined ? '' :
+      (r.market === 'spread' ? (Number(r.closing_line) > 0 ? '+' : '') + r.closing_line + ' (' + odd(r.closing_odds) + ')' : odd(r.closing_odds));
+    const verdict = v && v.verdict ? v.verdict : '';
+    const pill = document.createElement('span');
+    pill.className = 'st-pill' + (r.status === 'Won' ? ' is-up' : r.status === 'Lost' ? ' is-down' : '');
+    pill.textContent = r.status;
+    const res = r.result_cad === null || r.result_cad === undefined ? '' : stFmt.signedCad(Number(r.result_cad)).replace('C$', '');
+    return [[r.bet], [d3.timeFormat('%b %-d')(new Date(r.placed + 'T12:00:00'))], [r.event, 'wrap'], [r.pick],
+      [(Number(r.odds) > 0 ? '+' : '') + r.odds, 'num'],
+      [d3.format(',.0f')(Number(r.stake_cad)), 'num'], [d3.format(',.0f')(Number(r.to_win_cad)), 'num'],
+      [pill], [res, 'num ' + upDown(Number(r.result_cad))], [close, 'num'],
+      [verdict, verdict === 'Beat' ? 'is-up' : verdict === 'Missed' ? 'is-down' : '']];
+  }));
+
+  dash.draw('rules-body', (el) => fillBody(el, 'rules', byPortfolio(el), null, (r) => [[r.rule, 'wrap']]));
+
+  dash.draw('log-body', (el) => {
+    const d = dash.data('log');
+    if (d.status === 'ok') d.data.sort((a, b) => new Date(b.at) - new Date(a.at));
+    const all = !el.dataset.portfolio;
+    fillBody(el, 'log', byPortfolio(el), (r) => encodeURIComponent(r.at) + ',' + encodeURIComponent(r.portfolio), (r) => all
+      ? [[stFmt.when(r.at)], [r.portfolio], [r.action], [r.detail, 'wrap']]
+      : [[stFmt.when(r.at)], [r.action], [r.detail, 'wrap']]);
+  });
+
+  dash.draw('chart', (el) => {
+    const h = dash.data('history');
+    el.replaceChildren();
+    if (h.status !== 'ok' || !h.data.length) { el.textContent = '—'; return; }
+    const only = el.dataset.portfolio;
+    const rows = h.data.map((r) => ({ p: r.portfolio, t: new Date(r.at), v: Number(r.value) })).filter((r) => !only || r.p === only);
+    if (!rows.length) { el.textContent = '—'; return; }
+    const ORDER = ['Stocks', 'Crypto', 'Sports', 'Metals'];
+    const names = ORDER.filter((n) => rows.some((r) => r.p === n));
+    const color = (n) => dash.colors[ORDER.indexOf(n)];
+    const W = Math.max(280, el.clientWidth), H = 260;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('font-family', 'var(--font-sans)');
+    const lo = Math.min(START, d3.min(rows, (d) => d.v)), hi = Math.max(START, d3.max(rows, (d) => d.v));
+    const pad = Math.max(500, (hi - lo) * 0.12);
+    const y = d3.scaleLinear([lo - pad, hi + pad], [H - 28, 12]).nice();
+    const fmtY = (v) => 'C$' + d3.format(',.1f')(v / 1000) + 'k';
+    const last = names.map((n) => { const s = rows.filter((r) => r.p === n).sort((a, b) => a.t - b.t); return { n, d: s[s.length - 1] }; });
+    const measure = (txt) => { const t = svg.append('text').attr('font-size', 12).text(txt); const w = t.node().getComputedTextLength(); t.remove(); return w; };
+    const left = Math.ceil(d3.max(y.ticks(5), (v) => measure(fmtY(v)))) + 10;
+    const right = Math.ceil(d3.max(last, (l) => measure(l.n + ' ' + fmtY(l.d.v)))) + 14;
+    let [t0, t1] = d3.extent(rows, (d) => d.t);
+    if (+t0 === +t1) { t0 = new Date(+t0 - 3600e3); t1 = new Date(+t1 + 3600e3); }
+    const x = d3.scaleTime([t0, t1], [left, W - right]);
+    svg.append('g').selectAll('line').data(y.ticks(5)).join('line')
+      .attr('x1', left).attr('x2', W - right).attr('y1', (v) => y(v)).attr('y2', (v) => y(v))
+      .style('stroke', 'var(--cds-chart-grid)').attr('stroke-width', 1);
+    svg.append('g').selectAll('text').data(y.ticks(5)).join('text')
+      .attr('x', left - 8).attr('y', (v) => y(v)).attr('dy', '0.32em').attr('text-anchor', 'end')
+      .attr('font-size', 12).style('fill', 'var(--color-fg-muted)').text(fmtY);
+    const xa = svg.append('g').attr('transform', `translate(0,${H - 28})`)
+      .call(d3.axisBottom(x).ticks(Math.max(2, Math.floor((W - left - right) / 120))).tickFormat(d3.timeFormat('%b %-d, %-I %p')).tickSizeOuter(0));
+    xa.attr('font-size', null).attr('font-family', null);
+    xa.selectAll('text').attr('font-size', 12).style('fill', 'var(--color-fg-muted)');
+    xa.selectAll('line, path').style('stroke', 'var(--cds-chart-axis)');
+    svg.append('line').attr('x1', left).attr('x2', W - right).attr('y1', y(START)).attr('y2', y(START))
+      .style('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '4 4');
+    const line = d3.line().x((d) => x(d.t)).y((d) => y(d.v));
+    names.forEach((n) => {
+      const s = rows.filter((r) => r.p === n).sort((a, b) => a.t - b.t);
+      svg.append('path').datum(s).attr('d', line).attr('fill', 'none').attr('stroke', color(n))
+        .attr('stroke-width', 2).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round');
+      svg.append('g').selectAll('circle').data(s).join('circle').attr('cx', (d) => x(d.t)).attr('cy', (d) => y(d.v))
+        .attr('r', 3).attr('fill', color(n));
+    });
+    const labels = last.map((l) => ({ ...l, y: y(l.d.v) })).sort((a, b) => a.y - b.y);
+    for (let i = 1; i < labels.length; i++) if (labels[i].y - labels[i - 1].y < 15) labels[i].y = labels[i - 1].y + 15;
+    svg.append('g').selectAll('text').data(labels).join('text')
+      .attr('x', (l) => x(l.d.t) + 8).attr('y', (l) => l.y).attr('dy', '0.32em').attr('font-size', 12)
+      .style('fill', 'var(--color-fg)').text((l) => l.n + ' ' + fmtY(l.d.v));
+    const tip = document.createElement('div'); tip.className = 'st-tip'; tip.hidden = true; el.appendChild(tip);
+    const dot = svg.append('circle').attr('r', 5).attr('fill', 'none').attr('stroke-width', 2).attr('visibility', 'hidden');
+    svg.on('pointermove', (ev) => {
+      const [mx, my] = d3.pointer(ev);
+      const near = d3.least(rows, (d) => Math.hypot(x(d.t) - mx, y(d.v) - my));
+      if (!near) return;
+      dot.attr('cx', x(near.t)).attr('cy', y(near.v)).attr('stroke', color(near.p)).attr('visibility', 'visible');
+      tip.replaceChildren();
+      const a = document.createElement('div'); a.className = 'st-tip-when'; a.textContent = stFmt.when(near.t) + ' ET';
+      const b = document.createElement('div'); b.textContent = near.p + ': ' + stFmt.cad(near.v);
+      tip.append(a, b); tip.hidden = false;
+      const scale = el.clientWidth / W;
+      const tw = tip.offsetWidth;
+      tip.style.left = Math.min(Math.max(0, x(near.t) * scale - tw / 2), el.clientWidth - tw) + 'px';
+      tip.style.top = Math.max(0, y(near.v) * scale - tip.offsetHeight - 10) + 'px';
+    });
+    svg.on('pointerleave', () => { tip.hidden = true; dot.attr('visibility', 'hidden'); });
+  });
+
+  dash.draw('refreshed', (el) => {
+    const d = dash.data('meta');
+    el.textContent = d.status === 'ok' && d.data[0] ? stFmt.when(d.data[0].refreshed_at) + ' ET' : '—';
+  });
+  dash.draw('sources-list', (el) => {
+    const d = dash.data('sources');
+    el.replaceChildren();
+    if (d.status !== 'ok') return;
+    d.data.forEach((r) => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = r.url; a.textContent = r.title; a.rel = 'noopener'; a.target = '_blank';
+      li.appendChild(a);
+      el.appendChild(li);
+    });
+  });
+
+</script>
+</body>
+</html>
