@@ -357,7 +357,7 @@ open(os.path.join(OUT, 'index.html'), 'w').write(html)
 
 # ---- data.json ----
 data = {}
-for name in ('holdings', 'history', 'bets', 'log', 'rules', 'benchmark', 'indexes', 'events', 'prices', 'trades', 'bench_history', 'ledger', 'review', 'take'):
+for name in ('holdings', 'history', 'bets', 'log', 'rules', 'benchmark', 'indexes', 'events', 'prices', 'trades', 'bench_history', 'ledger', 'review', 'take', 'report'):
     data[name] = json.load(open(os.path.join(SRC, name + '.json')))
 data['sources'] = json.load(open(os.path.join(SRC, 'sources.json')))
 rv = os.path.join(SRC, 'rivals.json')
@@ -374,7 +374,7 @@ import model_views
 data['models'] = model_views.build(r, {k: data[k] for k in ('indexes', 'bench_history', 'benchmark', 'prices', 'events')} | {'fx': json.load(open(os.path.join(SRC, 'fx.json')))})
 times = [r['at'] for r in data['log'] + data['history']]
 data['meta'] = [{'refreshed_at': max(times, key=lambda t: datetime.fromisoformat(t))}]
-json.dump(data, open(os.path.join(OUT, 'data.json'), 'w'), indent=1)
+json.dump(data, open(os.path.join(OUT, 'data.json'), 'w'), separators=(',', ':'))  # compact: smaller and faster to load
 
 open(os.path.join(OUT, 'CNAME'), 'w').write('papertrades.ai\n')
 open(os.path.join(OUT, '.nojekyll'), 'w').write('')

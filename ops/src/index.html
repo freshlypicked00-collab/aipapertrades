@@ -247,6 +247,9 @@
   [data-model-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
   @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --ai-chatgpt: #262626; } }
+  .st-report-t { margin: 4px 0 0; font-size: 16px; }
+  .st-report-when { margin: 0; font-size: 12.5px; color: var(--color-fg-muted); }
+  .st-report-p { margin: 8px 0 0; max-width: 75ch; line-height: 1.55; }
   .st-live { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); padding: 12px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
   .st-live-text { flex: 1 1 260px; display: flex; flex-direction: column; gap: 2px; }
   .st-live-h { margin: 0; font-size: 14px; font-weight: 600; color: var(--color-fg); display: flex; align-items: center; gap: 8px; }
@@ -275,6 +278,11 @@
     <section class="st-score" aria-labelledby="h-score">
       <h2 class="st-score-h" id="h-score">Scoreboard <span>Return since each experiment started, best first. Tap one to open it.</span></h2>
       <ol class="st-score-list" data-draw="scoreboard" data-source="totals trades bets"></ol>
+    </section>
+    <section class="st-card st-report" aria-labelledby="h-report">
+      <h2 class="st-h2" id="h-report">Race Report</h2>
+      <p class="st-note">What has happened so far, written by Claude a few times a day. Claude is also a competitor, so the numbers on this page are the record; this is the story.</p>
+      <div data-draw="report" data-source="report"></div>
     </section>
     <section class="st-live" aria-labelledby="h-live">
       <div class="st-live-text">
@@ -2944,6 +2952,21 @@
     try { localStorage.setItem('pt-model', sel.value); } catch (e) {}
     dash.useModel(sel.value);
   }));
+
+  dash.draw('report', (el) => {
+    el.replaceChildren();
+    const rows = dash.baseData('report').slice().sort((a, b) => new Date(b.at) - new Date(a.at));
+    if (!rows.length) { el.appendChild(mk('p', 'st-note', 'The first Race Report comes after the opening trades.')); return; }
+    const show = (r, box) => { box.replaceChildren(mk('h3', 'st-report-t', r.title), mk('p', 'st-report-when', stFmt.when(r.at))); (r.body || []).forEach((t) => box.appendChild(mk('p', 'st-report-p', t))); };
+    const box = mk('div', 'st-report-body'); show(rows[0], box);
+    if (rows.length > 1) {
+      const bar = mk('div', 'lg-pick'); const lab = mk('label', '', 'Earlier reports: '); const sel = mk('select');
+      rows.forEach((r, i) => { const o = mk('option', '', r.title + (i === 0 ? ' (latest)' : '')); o.value = String(i); sel.appendChild(o); });
+      sel.addEventListener('change', () => show(rows[Number(sel.value)], box));
+      lab.appendChild(sel); bar.appendChild(lab); el.appendChild(bar);
+    }
+    el.appendChild(box);
+  });
   dash.draw('take', (el) => {
     const d = dash.data('take');
     el.replaceChildren();
