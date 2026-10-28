@@ -991,7 +991,15 @@ def main():
                     lines.append(f"<i>{esc(str(g['text'])[:500])}</i>")
             lines.append(f"\nIn {rr['label']}'s own words. Each experiment is separate. Simulation only. {SITE}")
             tg('\n'.join(lines)[:4000], silent=False)
-        # one post per AI per check-in: every trade listed, with one chart (the biggest trade's price)
+        # Telegram: hold this AI's moves and post them together, so back-to-back check-ins become ONE post.
+        # Flush when the oldest held move is 25+ minutes old, or when this check-in added nothing new.
+        q = m.setdefault('tg_queue', [])
+        q += made
+        oldest = min((datetime.fromisoformat(t['at'].replace('Z', '+00:00')) for t in q), default=NOW)
+        if q and (not made or NOW - oldest >= timedelta(minutes=25)):
+            made, m['tg_queue'] = list(q), []
+        else:
+            made = []
         if made:
             def line(t):
                 icon = {'Buy': '🟢', 'Sell': '🔴', 'Short': '🔻', 'Cover': '🔺', 'Bet': '🎯'}.get(t['action'], '•')
@@ -999,7 +1007,9 @@ def main():
                 return (f"{icon} <b>{EXP_LABEL[t['experiment']]}: {t['action']} {esc(what)}</b>\n{fmt_price(t)}, {money(t['amount'], t['cur'])}"
                         + (f"\n<i>{esc(t['reason'][:160])}</i>" if t.get('reason') else ''))
             head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(r['label'], r['label'])
-            body = f"{head}\n🧾 <b>{len(made)} move{'s' if len(made) > 1 else ''} this check-in</b>\n\n" + '\n\n'.join(line(t) for t in made)
+            span = sorted({t['at'] for t in made})
+            when_txt = 'this check-in' if len(span) == 1 else f'over the last {len(span)} check-ins'
+            body = f"{head}\n🧾 <b>{len(made)} move{'s' if len(made) > 1 else ''} {when_txt}</b>\n\n" + '\n\n'.join(line(t) for t in made)
             if sources:
                 body += f"\n\nSource: <a href=\"{esc(sources[0]['url'])}\">{esc(sources[0]['title'][:70])}</a>"
             if len(body) > 3700:
