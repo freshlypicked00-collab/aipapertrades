@@ -14,7 +14,7 @@ Do this:
 4. Work unattended: do not ask questions. If something blocks a step (no repo access, a tool refused, a quote not found), finish what you can, and report exactly what failed.
 5. Finish with a short report: each experiment's value on its own line, any trades or bets with one-line reasons, settled bets and markets, extra runs scheduled, and anything you couldn't confirm.
 
-After Nov 28, 4:00 p.m. ET, do the final scoring run described at the end of the runbook once; on later runs only confirm the final state and make no changes.
+After Nov 28, 4:00 p.m. ET, do the final scoring run described at the end of the runbook once (the first run after 4:00 p.m. ET). Once that is done (the log has the final entries), every later run stops at once after `git pull`: don't start a rival check-in, don't sync the tracker, don't change or push anything; just reply "The race is over; the final results are on papertrades.ai."
 
 Before deciding, look at the race using only what is public on papertrades.ai: the standings in the AI vs AI tab (total profit in C$, best first) and the other AIs' public board (current takes, plans, recent trades with reasons), the same board Gemini and ChatGPT get about you. Information only: make your own decisions, never copy.
 
