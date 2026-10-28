@@ -48,13 +48,12 @@ def send(text, photo=None):
         parts.append(f'--{b}\r\nContent-Disposition: form-data; name="photo"; filename="c.png"\r\nContent-Type: image/png\r\n\r\n'.encode() + open(photo, 'rb').read() + f'\r\n--{b}--\r\n'.encode())
         req = urllib.request.Request(f'https://api.telegram.org/bot{TOKEN}/sendPhoto', b''.join(parts), {'Content-Type': f'multipart/form-data; boundary={b}'})
         with urllib.request.urlopen(req, timeout=30) as r:
-            r.read()
-        return
+            return json.loads(r.read())['result']['message_id']
     if photo:
-        send('📊', photo)
+        send(f'<b>PAPER TRADES</b> · {SITE}', photo)
     data = urllib.parse.urlencode({'chat_id': CHAT, 'text': text, 'parse_mode': 'HTML', 'disable_web_page_preview': 'true'}).encode()
     with urllib.request.urlopen(f'https://api.telegram.org/bot{TOKEN}/sendMessage', data, timeout=20) as r:
-        r.read()
+        return json.loads(r.read())['result']['message_id']
 
 
 HIST = load('ops/src/history.json')
@@ -153,7 +152,8 @@ def esc(s):
 
 S = 'ops/src/'
 msgs = []
-TEST = bool(os.environ.get('TEST'))
+TEST = os.environ.get('TEST') == '1'
+WELCOME = os.environ.get('MODE') == 'welcome'
 SOURCES = load(S + 'sources.json')
 
 
@@ -163,6 +163,50 @@ def source_for(pf, holding):
     best = next((x for x in tagged if any(w in x['title'].lower() for w in words)), tagged[0] if tagged else None)
     return f"\nSource: <a href=\"{esc(best['url'])}\">{esc(best['title'])}</a>" if best else ''
 
+
+if WELCOME:
+    last = {}
+    for h in HIST:
+        last[h['portfolio']] = h['value']
+    order = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
+    board = sorted(((pf, last.get(pf, 100000)) for pf in order), key=lambda x: -x[1])
+    day = (datetime.now(timezone.utc) - datetime(2026, 10, 26, tzinfo=timezone.utc)).days + 1
+    intro = ("👋 <b>Welcome to Paper Trades</b>\n\n"
+             "An AI model is running <b>ten separate paper-trading and betting experiments</b> for 30 days (Oct 26 – Nov 26, 2026), "
+             "using real-world prices. Each starts with its own C$100,000 (China stocks: US$100,000) and is judged only against that. "
+             "They are never added together.\n\n"
+             "<b>Trading:</b> Stocks and anything · Crypto · China stocks · Metals · Oil and energy · Options · Currencies · Play it safe\n"
+             "<b>Betting:</b> Sports · Prediction markets\n\n"
+             "<b>How it works</b>\n"
+             "• The AI checks markets and news every hour, every half hour while US markets are open, and at the US and China opens and closes\n"
+             "• It decides and records every trade and bet itself, with its reasons and sources\n"
+             "• A daily accuracy check reviews prices and fixes mistakes\n\n"
+             "<b>What you'll see here</b>\n"
+             "🟢🔴 every trade · 🎯 every bet and result · 💬 the AI's take · 📒 the daily close at 8 p.m. ET (00:00 UTC) with results and report-card grades\n\n"
+             "🔴 Simulation only. No real money. Not investment or betting advice.\n\n"
+             f"Full tracker, ledger and charts: {SITE}")
+    mid = send(intro, 'og.png' if os.path.exists('og.png') else None)
+    lines = [f"🏁 <b>Where things stand: day {day} of 32</b>\n"]
+    for i, (pf, v) in enumerate(board, 1):
+        sym = 'US$' if pf == 'China' else 'C$'
+        ch = v - 100000
+        lines.append(f"{i}. {'🟩' if ch > 0.5 else '🟥' if ch < -0.5 else '⬜'} {esc(LABEL[pf])}: {sym}{v:,.0f} ({'+' if ch >= 0 else '−'}{abs(ch) / 1000:.1f}%)")
+    lines.append(f"\nEach started at 100,000. {SITE}")
+    now = datetime.now(timezone.utc)
+    def ago(pf):
+        pts = [h for h in HIST if h['portfolio'] == pf and datetime.fromisoformat(h['at']) <= now - timedelta(hours=24)]
+        return pts[-1]['value'] if pts else 100000
+    rows = [{'pf': pf, 'day': v / ago(pf) - 1, 'total': v / 100000 - 1} for pf, v in board]
+    send('\n'.join(lines), chart_scoreboard(rows, f'Day {day} standings'))
+    tk = load(S + 'take.json')
+    if tk:
+        send(f"💬 <b>The AI's take</b>\n“{esc(tk[-1]['text'])}”\n{SITE}")
+    if TOKEN and CHAT and mid:
+        try:
+            urllib.request.urlopen(f'https://api.telegram.org/bot{TOKEN}/pinChatMessage', urllib.parse.urlencode({'chat_id': CHAT, 'message_id': mid, 'disable_notification': 'true'}).encode(), timeout=20).read()
+        except Exception as e:
+            print('pin failed (give the bot "Pin messages" permission):', e)
+    sys.exit(0)
 
 # trades
 old = {json.dumps(t, sort_keys=True) for t in load(S + 'trades.json', BEFORE)}
