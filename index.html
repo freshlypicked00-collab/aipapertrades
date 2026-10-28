@@ -210,7 +210,8 @@ body { background:#0b0b0a; }
     <p class="st-progress" data-phase="live">
       <span>Day <b data-draw="day-num">—</b> of <b data-draw="day-total">—</b></span>
       <span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 26</span>
-      <span class="st-clock">New York <b class="st-count" data-draw="clock">—</b> <span class="st-mkt" data-draw="market">—</span></span>
+      <span class="st-clock">New York <b class="st-count" data-draw="clock">—</b></span>
+      <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b> <span class="st-mkt" data-draw="market">—</span></span>
     </p>
     <p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>
     <p class="st-notice" role="note"><b>This is a simulation, not investment advice.</b> No real money is involved. It is a 30-day experiment in which an AI model makes trading and betting decisions using real-world prices, to see how its judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results will be posted on Nov 26, win or lose.</p>
@@ -1067,6 +1068,16 @@ body { background:#0b0b0a; }
   dash.draw('clock', {
     mount: (el) => {
       const f = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit', second: '2-digit' });
+      const tick = () => { el.textContent = f.format(new Date()); };
+      tick();
+      return setInterval(tick, 1000);
+    },
+    update: () => {},
+    unmount: (el, id) => clearInterval(id)
+  });
+  dash.draw('clock-utc', {
+    mount: (el) => {
+      const f = new Intl.DateTimeFormat('en-GB', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
       const tick = () => { el.textContent = f.format(new Date()); };
       tick();
       return setInterval(tick, 1000);
