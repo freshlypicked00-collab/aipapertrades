@@ -329,6 +329,24 @@ SHIM = r"""
   })();
 """
 
+# Live preview picture for shared links: the race card with the current standings (falls back to the logo picture).
+OG_V = ''
+try:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import racecard, hashlib
+    _fx = json.load(open(os.path.join(SRC, 'fx.json')))
+    _rows, _big = racecard.standings(float(_fx.get('usdcad') or 1.38), None, SRC)
+    _sig = hashlib.sha1(json.dumps([[r['id'], round(r['total'] / 50)] for r in _rows]).encode()).hexdigest()[:10]
+    _ogj = os.path.join(SRC, 'og.json')
+    _old = json.load(open(_ogj)).get('sig') if os.path.exists(_ogj) else None
+    if _rows and (_sig != _old or not os.path.exists(os.path.join(OUT, 'og.png'))):
+        _now = datetime.now(timezone.utc).astimezone(__import__('zoneinfo').ZoneInfo('America/New_York'))
+        racecard.race_card(_rows, None, 'Live standings · ' + _now.strftime('%a %b %-d, %-I:%M %p ET'), os.path.join(OUT, 'og.png'), height=6.3)
+        json.dump({'sig': _sig, 'at': _now.isoformat()}, open(_ogj, 'w'))
+    OG_V = _sig
+except Exception as _e:
+    print('preview picture not updated:', _e)
+
 html = f"""<!doctype html>
 <html lang="en">
 <head>
@@ -341,13 +359,13 @@ html = f"""<!doctype html>
 <meta property="og:title" content="Paper Trades - AI Trading Experiment">
 <meta property="og:site_name" content="Paper Trades">
 <meta property="og:description" content="Claude vs Gemini vs ChatGPT: AI models trade head to head with pretend money and real prices, Oct 28 to Nov 28, 2026. Stocks, crypto, China stocks, metals, energy, options, currencies, a safe control, sports bets and prediction markets. Every decision logged. Not investment advice.">
-<meta property="og:image" content="https://papertrades.ai/og.png">
+<meta property="og:image" content="https://papertrades.ai/og.png?v={OG_V}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Paper Trades logo: a chart line going up">
+<meta property="og:image:alt" content="Paper Trades live standings: Claude vs Gemini vs ChatGPT, total profit since the Oct 28 restart">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Paper Trades - AI Trading Experiment">
-<meta name="twitter:image" content="https://papertrades.ai/og.png">
+<meta name="twitter:image" content="https://papertrades.ai/og.png?v={OG_V}">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
 <meta property="og:type" content="website">
@@ -395,6 +413,10 @@ data['allin_trades'] = [t for t in r['trades'] if str(t.get('experiment', '')).s
 data['allin_history'] = [h for h in r['history'] if str(h.get('experiment', '')).startswith('AllIn')]
 data['rivals_trades'] = [t for t in r['trades'] if not str(t.get('experiment', '')).startswith('AllIn') and t.get('model') != 'claude']
 data['rivals_history'] = [h for h in r['history'] if not str(h.get('experiment', '')).startswith('AllIn') and h.get('model') != 'claude']
+data['factcheck'] = [dict(x, checker=x.get('checker', 'claude')) for x in data['factcheck']] + [x for x in r.get('factchecks', [])]   # from now on Gemini checks Claude; Claude's one earlier self-check stays visible
+_cl = max((datetime.fromisoformat(h['at'].replace('Z', '+00:00')) for h in data['history']), default=None)
+data['checkins'] = ([{'id': 'claude', 'at': _cl.isoformat() if _cl else None, 'status': 'ok'}] +
+                    [{'id': k, 'at': (v.get('last_run') or {}).get('at'), 'status': (v.get('last_run') or {}).get('status', '')} for k, v in r['models'].items()])
 data['rivals_thoughts'] = [x for x in r.get('thoughts', []) if x['at'].replace('Z', '+00:00') >= _cut]
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import model_views

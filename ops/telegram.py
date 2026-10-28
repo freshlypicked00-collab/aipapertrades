@@ -171,6 +171,18 @@ def source_for(pf, holding):
     return f"\nSource: <a href=\"{esc(best['url'])}\">{esc(best['title'])}</a>" if best else ''
 
 
+if os.environ.get('MODE') == 'poll':
+    # A native, anonymous Telegram poll pinned at the top: who wins on Nov 28? The welcome stays pinned underneath.
+    api = lambda method, **kw: json.loads(urllib.request.urlopen(f'https://api.telegram.org/bot{TOKEN}/{method}', urllib.parse.urlencode(kw).encode(), timeout=20).read())['result']
+    chat = api('getChat', chat_id=CHAT)
+    welcome = (chat.get('pinned_message') or {}).get('message_id')
+    print(f'::notice title=welcome::{welcome}')
+    poll = api('sendPoll', chat_id=CHAT, question='🏁 Who wins Paper Trades on Nov 28?',
+               options=json.dumps(['🟠 Claude (Anthropic)', '🔵 Gemini (Google)', '⚪ ChatGPT (OpenAI)']), is_anonymous='true', disable_notification='true')
+    api('pinChatMessage', chat_id=CHAT, message_id=poll['message_id'], disable_notification='true')
+    print(f"::notice title=poll::{poll['message_id']}")
+    sys.exit(0)
+
 if os.environ.get('MODE') == 'cleanup':
     # Remove chatter from the channel (takes, per-AI daily closes, catch-ups). Trades, sells, bets, results,
     # the pinned welcome and rule notices stay. Reads the public web view of the channel; bots can delete posts under 48 hours old.
@@ -191,6 +203,7 @@ if os.environ.get('MODE') == 'cleanup':
             break
         before = str(lo)
     gone = 0
+    kept_ids = []
     for pid in sorted(posts):
         t = posts[pid]
         if any(k in t for k in DROP) and 'NEW RULE' not in t and 'RESET' not in t.upper()[:40]:
@@ -202,7 +215,11 @@ if os.environ.get('MODE') == 'cleanup':
                 print('could not delete', pid, e)
         else:
             print('kept', pid, t[:90])
+            kept_ids.append(f'{pid}: {t[:60]}')
     print(gone, 'deleted of', len(posts))
+    print(f'::notice title=cleanup::{gone} deleted of {len(posts)} posts read')
+    for k in range(0, len(kept_ids), 12):
+        print('::notice title=kept::' + ' | '.join(kept_ids[k:k + 12]).replace('%', '%25'))
     sys.exit(0)
 
 if NOTE:
@@ -250,6 +267,10 @@ if WELCOME:
         try:
             chat = json.loads(urllib.request.urlopen(f'https://api.telegram.org/bot{TOKEN}/getChat?chat_id={urllib.parse.quote(CHAT)}', timeout=20).read())['result']
             pin = chat.get('pinned_message') or {}
+            try:   # the welcome's id is saved once a poll is pinned above it
+                pin = {'message_id': json.load(open('ops/tg_ids.json'))['welcome']}
+            except Exception:
+                pass
             data = urllib.parse.urlencode({'chat_id': CHAT, 'message_id': pin['message_id'], 'text': intro, 'parse_mode': 'HTML', 'disable_web_page_preview': 'true'}).encode()
             urllib.request.urlopen(f'https://api.telegram.org/bot{TOKEN}/editMessageText', data, timeout=20).read()
             print('edited pinned message', pin['message_id'])

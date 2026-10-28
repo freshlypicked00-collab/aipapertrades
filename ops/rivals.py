@@ -950,6 +950,46 @@ def price_alerts(state):
     a['sent'] = a['sent'][-60:]
 
 
+def public_board(state, me):
+    """What everyone can see on papertrades.ai about the OTHER AIs: their current take, plans and recent trades with reasons.
+    Every AI gets the same board, so no one has an information edge."""
+    names = {'claude': 'Claude', 'gemini': 'Gemini', 'chatgpt': 'ChatGPT'}
+    takes, plans, trades = {}, {}, {}
+    for x in state.get('takes', []):
+        takes[x['model']] = x
+    for x in state.get('plans', []):
+        plans.setdefault(x['model'], {})[x['horizon']] = x['text']
+    for t in state.get('trades', []):
+        if not str(t.get('experiment', '')).startswith('AllIn'):
+            trades.setdefault(t['model'], []).append(t)
+    try:
+        ct = json.load(open('ops/src/take.json'))
+        if ct:
+            takes['claude'] = max(ct, key=lambda x: datetime.fromisoformat(x['at'].replace('Z', '+00:00')))
+        for x in json.load(open('ops/src/plans.json')):
+            plans.setdefault('claude', {})[x['horizon']] = x['text']
+        log = json.load(open('ops/src/log.json'))
+        for t in json.load(open('ops/src/trades.json')):
+            if str(t['holding']).startswith('['):
+                continue
+            why = next((l['detail'] for l in log if l['at'] == t['at'] and l['portfolio'] == t['portfolio']), '')
+            trades.setdefault('claude', []).append({'experiment': t['portfolio'], 'action': t['action'], 'name': t['holding'], 'amount': t.get('cad') or 0, 'reason': why})
+    except Exception as e:
+        print('public board: Claude data unavailable', e)
+    out = ['THE PUBLIC BOARD (exactly what anyone can read on papertrades.ai about the other AIs; every AI gets the same board):']
+    for o in names:
+        if o == me:
+            continue
+        tk = takes.get(o)
+        pl = plans.get(o, {})
+        out.append(f"- {names[o]}'s current take: " + (f'"{clip(tk["text"], 300)}"' if tk else '(none yet)') +
+                   '. Plans: ' + ('; '.join(f'{h}: "{clip(pl[h], 200)}"' for h in ('day', 'week', 'month') if pl.get(h)) or '(none yet)') + '.')
+        rec = trades.get(o, [])[-6:]
+        if rec:
+            out.append(f"  {names[o]}'s recent trades: " + '; '.join(f"{EXP_LABEL.get(t['experiment'], t['experiment'])} {t['action']} {t['name']} {money(abs(t.get('amount') or 0), 'CAD')}" + (f" (why: {clip(t.get('reason', ''), 140)})" if t.get('reason') else '') for t in rec) + '.')
+    return ' '.join(out) + ' '
+
+
 def claude_allin(state, fx):
     """Fill Claude's queued All in orders (ops/src/allin_orders.json), then value and settle Claude's All in books."""
     c = state.setdefault('claude_allin', {'books': {}, 'started': {}, 'done': [], 'results': []})
@@ -1079,13 +1119,20 @@ def main():
             mine = [x for x in state['takes'] if x['model'] == mid]
             today = [x for x in mine if x['at'][:10] == NOW.date().isoformat()]
             myplans = {k: next((x['text'] for x in reversed(state.get('plans', [])) if x['model'] == mid and x['horizon'] == k), '') for k in ('day', 'week', 'month', 'feeling')}
-            others = [t for t in state['trades'] if t['model'] != mid][-8:]
-            try:
-                others += [{'model': 'claude', 'experiment': t['portfolio'], 'action': t['action'], 'name': t['holding'], 'amount': t.get('cad') or 0, 'reason': ''} for t in json.load(open('ops/src/trades.json')) if not str(t['holding']).startswith('[')][-8:]
-            except Exception:
-                pass
-            plan_info = 'Your published plans and feeling: ' + '; '.join(f"{k}: \"{v}\"" if v else f'{k}: (none yet)' for k, v in myplans.items()) + '. ' + \
-                ('Recent trades by the other AIs (for your opinions): ' + '; '.join(f"{t['model']} {EXP_LABEL.get(t['experiment'], t['experiment'])} {t['action']} {t['name']} {money(abs(t.get('amount') or 0), 'CAD')}" for t in others) + '. ' if others else '')
+            board, fc_task = public_board(state, mid), ''
+            if mid == 'gemini':   # Gemini is the independent fact-checker of Claude's takes (Claude never checks itself)
+                try:
+                    ct = max(json.load(open('ops/src/take.json')), key=lambda x: datetime.fromisoformat(x['at'].replace('Z', '+00:00')))
+                except Exception:
+                    ct = None
+                done = {x['take_at'] for x in state.get('factchecks', []) if x.get('model') == 'claude'}
+                if ct and ct['at'] not in done:
+                    fc_task = ('INDEPENDENT FACT-CHECK TASK: you are the public fact-checker for Claude\'s takes. Claude\'s newest take (written ' + ct['at'] + '): "' + ct['text'] + '". '
+                               'Use web search to check every factual claim in it (prices, rate decisions, events, what Claude says it holds is not checkable, skip that). Be fair and strict. '
+                               'Add a top-level field to your JSON reply: "fact_check_claude": {"verdict": "ok" | "partly" | "wrong" | "unverified", "text": "1-2 neutral sentences: what is right or wrong, with the correct fact", "source": "one URL you checked"}. '
+                               'This is shown on the website only; it is not sent to Claude. ')
+                    fc_take = ct
+            plan_info = 'Your published plans and feeling: ' + '; '.join(f"{k}: \"{v}\"" if v else f'{k}: (none yet)' for k, v in myplans.items()) + '. ' + board + fc_task
             take_info = plan_info + ('Your current take (shown at the top of the site): "' + mine[-1]['text'] + '" written ' + mine[-1]['at'] + '. ' if mine else 'You have no current take yet. ') + \
                 f'You have written {len(today)} new take(s) today (UTC). Aim for about 3 to 5 a day, at key moments (after the US open, midday, after the US close, at the daily close, at the Shanghai open) or after a trade or event that matters, and only when your view has really changed; otherwise send "" to keep it. Each new take is shown publicly on the site.'
             prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed, refused, take_info, standings(state, fx, mid))
@@ -1117,6 +1164,14 @@ def main():
                 sources = sources or src2
                 reply = parse_reply(text)
             take = clip(reply.get('take', ''), 600) or None
+            fcr = reply.get('fact_check_claude')
+            if fc_task and isinstance(fcr, dict) and fcr.get('text'):
+                v = str(fcr.get('verdict', 'unverified')).lower().strip()
+                src = str(fcr.get('source', '')).strip()
+                if v not in ('ok', 'partly', 'wrong', 'unverified') or not src.startswith('http'):
+                    v = 'unverified' if not src.startswith('http') else v
+                state.setdefault('factchecks', []).append({'at': iso(), 'model': 'claude', 'checker': 'gemini', 'take_at': fc_take['at'], 'take': clip(fc_take['text'], 300),
+                                                           'verdict': v if v in ('ok', 'partly', 'wrong', 'unverified') else 'unverified', 'text': clip(fcr['text'], 500), 'source': src if src.startswith('http') else ''})
             pl = reply.get('plans') if isinstance(reply.get('plans'), dict) else {}
             pl = dict(pl, feeling=reply.get('feeling', ''))
             for o, v in (reply.get('on_rivals') or {}).items() if isinstance(reply.get('on_rivals'), dict) else []:

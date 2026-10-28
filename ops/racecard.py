@@ -53,13 +53,13 @@ def standings(usdcad, day_start=None, src='ops/src'):
     return rows, big
 
 
-def race_card(rows, big, title, path='/tmp/pt_race.png'):
+def race_card(rows, big, title, path='/tmp/pt_race.png', height=6.75):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     plt.rcParams.update({'text.parse_math': False})
     BG, FG, MUTED, UP, DOWN = '#0b0b0a', '#f2e9d8', '#9b927f', '#3ddc84', '#ff5a4e'
-    fig = plt.figure(figsize=(12, 6.75), facecolor=BG)
+    fig = plt.figure(figsize=(12, height), facecolor=BG)
     ax = fig.add_axes([0, 0, 1, 1]); ax.set_xlim(0, 1200); ax.set_ylim(675, 0); ax.axis('off')
     ax.text(60, 70, 'PAPER TRADES', color='#ffb000', fontsize=22, fontweight='bold', family='monospace')
     ax.text(60, 112, title, color=FG, fontsize=17)

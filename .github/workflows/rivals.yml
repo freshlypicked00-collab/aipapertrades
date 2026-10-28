@@ -61,7 +61,7 @@ jobs:
             git fetch -q origin main && git reset -q --hard origin/main
             cp /tmp/rivals.json ops/src/rivals.json
             python3 ops/build_site.py ops/src .
-            git add ops/src/rivals.json index.html data.json
+            git add ops/src/rivals.json index.html data.json og.png ops/src/og.json
             git diff --cached --quiet && exit 0
             git commit -qm "Head to head: hourly Gemini and ChatGPT run"
             git push -q origin HEAD:main && break
