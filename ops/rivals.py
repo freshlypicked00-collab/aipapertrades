@@ -13,7 +13,7 @@ only handles the rivals. Every rival starts with C$100,000 per experiment and no
 Usage: python3 ops/rivals.py            (live)
        python3 ops/rivals.py --prices   (only test the price feeds, change nothing)
 """
-import json, os, re, sys, urllib.parse, urllib.request
+import json, os, re, sys, urllib.error, urllib.parse, urllib.request
 from datetime import datetime, timezone, timedelta
 
 STATE = 'ops/src/rivals.json'
@@ -149,16 +149,18 @@ def pick_openai(key):
 
 
 def pick_gemini(key):
+    """Best models first: newest Pro, then newest Flash (Google's free tier often has no Pro quota)."""
     want = os.environ.get('GEMINI_MODEL')
-    if want:
-        return want
     ms = get_json(f'https://generativelanguage.googleapis.com/v1beta/models?key={key}&pageSize=200')['models']
     names = [m['name'].split('/')[-1] for m in ms if 'generateContent' in m.get('supportedGenerationMethods', [])]
-    pro = [n for n in names if re.fullmatch(r'gemini-\d+(\.\d+)?-pro(-preview(-[\d-]+)?)?', n)]
     def rank(n):
         v = float(re.match(r'gemini-(\d+(?:\.\d+)?)', n).group(1))
         return (v, 'preview' not in n)
-    return max(pro, key=rank) if pro else 'gemini-2.5-pro'
+    out = [want] if want else []
+    for tier in ('pro', 'flash'):
+        c = [n for n in names if re.fullmatch(r'gemini-\d+(\.\d+)?-' + tier + r'(-preview(-[\d-]+)?)?', n)]
+        out += sorted(c, key=rank, reverse=True)[:2]
+    return out or ['gemini-2.5-flash']
 
 
 def ask_openai(key, model, prompt):
@@ -410,10 +412,19 @@ def main():
         values = {e: value_book(e, m['books'][e], fx, notes) for e in exps}
         status, take, sources, made = 'ok', None, [], []
         try:
-            model = r['pick'](key)
-            m['model'] = model
+            picks = r['pick'](key)
+            picks = picks if isinstance(picks, list) else [picks]
             recent = [t for t in state['trades'] if t['model'] == mid]
-            text, sources = r['ask'](key, model, build_prompt(r['label'], exps, m['books'], values, fx, recent))
+            prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent)
+            for i, model in enumerate(picks):
+                try:
+                    text, sources = r['ask'](key, model, prompt)
+                    m['model'] = model
+                    break
+                except urllib.error.HTTPError as e:
+                    notes.append(f'{model}: HTTP {e.code}')
+                    if e.code not in (429, 403, 404, 503) or i == len(picks) - 1:
+                        raise
             reply = parse_reply(text)
             take = str(reply.get('take', ''))[:300] or None
             for o in (reply.get('orders') or [])[:MAX_ORDERS]:
