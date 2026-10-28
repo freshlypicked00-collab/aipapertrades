@@ -436,12 +436,41 @@ def money(v, cur):
     return CUR_SYM[cur] + f'{v:,.0f}'
 
 
-def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refused=(), take_info=''):
+def standings(state, fx, me):
+    """Latest value of every AI in every experiment, plus total profit in C$, for the prompt."""
+    latest = {}
+    try:
+        for h in json.load(open('ops/src/history.json')):
+            latest[('claude', h['portfolio'])] = (h['at'], float(h['value']))
+    except Exception as e:
+        print('standings: no Claude history', e)
+    for h in state.get('history', []):
+        k = (h['model'], h['experiment'])
+        latest[k] = (h['at'], float(h['value']))
+    names = {'claude': 'Claude (Anthropic)', 'gemini': 'Gemini (Google)', 'chatgpt': 'ChatGPT (OpenAI)'}
+    rows = []
+    for mid, nm in names.items():
+        parts, total = [], 0.0
+        for e in ALL_EXPS:
+            if (mid, e) not in latest:
+                continue
+            v = latest[(mid, e)][1]
+            total += (v - 100000) * (fx['USDCAD'] if e == 'China' else 1)
+            parts.append(f"{EXP_LABEL[e]} {(v / 100000 - 1) * 100:+.1f}%")
+        if parts:
+            rows.append((total, f"- {nm}{' (you)' if mid == me else ''}: total profit {'+' if total >= 0 else '-'}C${abs(total):,.0f}; " + ', '.join(parts)))
+    if not rows:
+        return []
+    rows.sort(key=lambda x: -x[0])
+    return ['', 'THE RACE RIGHT NOW (shown publicly in the Overall section of the AI vs AI tab). The overall winner is the AI with the most total profit in C$ across all ten experiments (China converted from US$); each experiment is also compared on its own. Best first:'] + [r[1] for r in rows] + \
+        ['This is information only. Do not copy another AI; make your own decisions.', '']
+
+def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refused=(), take_info='', race=()):
     lines = [
         f'You are {label}, taking part in Paper Trades (papertrades.ai), a public paper-trading experiment that compares AI models with pretend money and real prices.',
         f'You are being put to the test publicly, in front of the world, in real time: every trade, every reason, your take, your watchlist and your daily report card are published live on papertrades.ai and the @PaperTradesAI Telegram channel, side by side with the other AIs (Claude, Gemini and ChatGPT). Viewers will see exactly how you think and whether you win or lose. Make decisions you would stand behind in public.',
         f'It is now {NOW.astimezone(timezone(timedelta(hours=-4))).strftime("%A %b %-d, %Y, %-I:%M %p")} ET ({iso()}). Beijing time: {NOW.astimezone(BJ).strftime("%a %-I:%M %p")}.',
-        f'You run {len(exps)} SEPARATE experiments, each started with its own 100,000 of pretend money. Each is judged only against its own start; they are never added together. The experiment ends Nov 28, 2026 at 4:00 p.m. ET (US stock markets are closed that Saturday; the last US trading day is Friday Nov 27, which closes early at 1:00 p.m. ET).',
+        f'You run {len(exps)} SEPARATE experiments, each started with its own 100,000 of pretend money. Each is judged against its own start, and the overall race between the AIs is decided by total profit in C$ across all of them. The experiment ends Nov 28, 2026 at 4:00 p.m. ET (US stock markets are closed that Saturday; the last US trading day is Friday Nov 27, which closes early at 1:00 p.m. ET).',
         'Goal: high risk, high reward. Try to finish each experiment with as much money as possible. Holding is fine; trade when you have a reason.',
         'BUST RULE: if any experiment falls to zero (or below), you are BUSTED in that experiment: it is closed for good, you are out of that race, and it is marked BUSTED publicly for the rest of the month, in front of everyone watching. Going all-in on a single bet or a maximum-leverage position can end an experiment in one move. Bold is fine; reckless is not. You only win if you are still standing on Nov 28.',
         'A suggestion you are free to take or ignore (it is your call): smarter decisions usually win. Before a trade you could ask what happens to that experiment if you are wrong, whether the reward is worth the risk, and whether one bad outcome could bust you. Viewers judge the quality of your decisions, not just the result.',
@@ -451,6 +480,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         '- US-listed stocks and ETFs fill only while the US market is open (9:30 a.m. to 4:00 p.m. ET, weekdays); futures (=F) and crypto any time.',
     ]
     lines += ['- ' + RULES[e] for e in exps]
+    lines += list(race)
     lines += [f'Exchange rates now: USD/CAD {fx["USDCAD"]:.4f}, USD/CNY {fx["USDCNY"]:.4f}.', 'Use web search to check news and current prices before deciding.', '']
     if 'Sports' in exps:
         gl = [g for g in espn_games().values() if g['state'] == 'pre' and g['home_ml'] and g['away_ml']
@@ -900,7 +930,7 @@ def main():
             today = [x for x in mine if x['at'][:10] == NOW.date().isoformat()]
             take_info = ('Your current take (shown at the top of the site): "' + mine[-1]['text'] + '" written ' + mine[-1]['at'] + '. ' if mine else 'You have no current take yet. ') + \
                 f'You have written {len(today)} new take(s) today (UTC). Aim for about 3 to 5 a day, at key moments (after the US open, midday, after the US close, at the daily close, at the Shanghai open) or after a trade or event that matters, and only when your view has really changed; otherwise send "" to keep it. Each new take is posted publicly.'
-            prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed, refused, take_info)
+            prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed, refused, take_info, standings(state, fx, mid))
             import time as _time
             t0 = _time.time()
             for i, model in enumerate(picks):

@@ -15,3 +15,5 @@ Do this:
 5. Finish with a short report: each experiment's value on its own line, any trades or bets with one-line reasons, settled bets and markets, extra runs scheduled, and anything you couldn't confirm.
 
 After Nov 28, 4:00 p.m. ET, do the final scoring run described at the end of the runbook once; on later runs only confirm the final state and make no changes.
+
+Before deciding, look at the race: the Gemini and ChatGPT values in ops/src/rivals.json (models.*.books and history) and the Overall section of the AI vs AI tab (total profit in C$, best first). Information only: make your own decisions, never copy.
