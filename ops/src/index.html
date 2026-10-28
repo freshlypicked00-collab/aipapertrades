@@ -350,6 +350,19 @@
   :root[data-theme="light"] .ai-badge .ab-g, :root[data-theme="reader"] .ai-badge .ab-g { stroke: var(--color-fg); }
   .pd-who { display: flex; align-items: center; }
   .ai-hero h2 { display: flex; align-items: center; }
+  .m-menu-btn, .m-menu { display: none; }
+  @media (max-width: 700px) {
+    .m-menu-btn { display: block; position: fixed; left: 12px; bottom: 14px; z-index: 60; font: inherit; font-size: 14px; font-weight: 600; padding: 10px 14px; min-height: 44px; border-radius: 999px; border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); box-shadow: 0 4px 16px rgba(0,0,0,.35); }
+    .m-menu:not([hidden]) { display: block; position: fixed; left: 8px; right: 8px; bottom: 68px; max-height: 72vh; overflow-y: auto; z-index: 61; background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 12px; padding: 10px 12px 12px; box-shadow: 0 8px 30px rgba(0,0,0,.45); }
+    .m-menu-head { display: flex; justify-content: space-between; align-items: center; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+    .m-menu-x { font: inherit; font-size: 16px; background: none; border: 0; color: var(--color-fg); min-width: 44px; min-height: 36px; cursor: pointer; }
+    .m-menu-group { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 8px; }
+    .m-menu-l { width: 100%; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); }
+    .m-menu-group button { font: inherit; font-size: 14px; padding: 8px 12px; min-height: 40px; border-radius: 999px; border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg); cursor: pointer; }
+    .m-menu-group button[aria-current="true"] { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+    .m-menu-group .m-menu-model { border-color: var(--mc); }
+    .m-menu-group .m-menu-model[aria-current="true"] { background: var(--mc); color: #111; border-color: var(--mc); }
+  }
   .st-podium:empty { display: none; }
   .st-podium { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 12px 14px; background: var(--color-panel); align-self: start; }
   .st-podium h2 { margin: 0 0 2px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
@@ -1867,6 +1880,53 @@
   document.querySelectorAll('.st-tab').forEach((b) => b.addEventListener('click', () => goTab(b.dataset.tab)));
   document.querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', () => goTab(b.dataset.goto)));
   showTab(location.hash.slice(1));
+  // phones: a floating Menu button that opens every section, so nobody has to scroll down to the tabs
+  (() => {
+    const nav = document.querySelector('.st-tabs'); if (!nav) return;
+    const AIS = { claude: { label: 'Claude', color: '#d97757' }, gemini: { label: 'Gemini', color: '#4f8ff7' }, chatgpt: { label: 'ChatGPT', color: 'var(--ai-chatgpt)' } };
+    const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'm-menu-btn'; btn.textContent = '☰ Menu';
+    btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-controls', 'm-menu');
+    const sheet = document.createElement('div'); sheet.className = 'm-menu'; sheet.id = 'm-menu'; sheet.hidden = true; sheet.setAttribute('role', 'dialog'); sheet.setAttribute('aria-label', 'Sections');
+    const build = () => {
+      sheet.replaceChildren();
+      const head = document.createElement('div'); head.className = 'm-menu-head'; head.textContent = 'Go to';
+      const x = document.createElement('button'); x.type = 'button'; x.className = 'm-menu-x'; x.textContent = '✕'; x.setAttribute('aria-label', 'Close'); x.addEventListener('click', () => toggle(false));
+      head.appendChild(x); sheet.appendChild(head);
+      const mg = document.createElement('div'); mg.className = 'm-menu-group';
+      const ml = document.createElement('span'); ml.className = 'm-menu-l'; ml.textContent = 'Model you are viewing'; mg.appendChild(ml);
+      ['claude', 'gemini', 'chatgpt'].forEach((id) => {
+        const b = document.createElement('button'); b.type = 'button'; b.textContent = AIS[id].label; b.style.setProperty('--mc', AIS[id].color);
+        b.className = 'm-menu-model'; if (dash.model === id) b.setAttribute('aria-current', 'true');
+        b.addEventListener('click', () => { const sel = document.getElementById('model-pick'); if (sel) { sel.value = id; sel.dispatchEvent(new Event('change')); } toggle(false); label(); });
+        mg.appendChild(b);
+      });
+      sheet.appendChild(mg);
+      const addBtn = (t, box) => {
+        const b = document.createElement('button'); b.type = 'button'; b.textContent = t.textContent.trim();
+        if (t.getAttribute('aria-selected') === 'true') b.setAttribute('aria-current', 'true');
+        b.addEventListener('click', () => { toggle(false); goTab(t.dataset.tab, false); requestAnimationFrame(() => { const pg = document.querySelector('.st-page:not([hidden])'); if (pg) window.scrollTo({ top: pg.getBoundingClientRect().top + window.scrollY - 8, behavior: 'smooth' }); }); });
+        box.appendChild(b);
+      };
+      const top = document.createElement('div'); top.className = 'm-menu-group';
+      [...nav.children].forEach((c) => {
+        if (c.classList.contains('st-tab')) addBtn(c, top);
+        else if (c.classList.contains('st-tabgroup')) {
+          const g = document.createElement('div'); g.className = 'm-menu-group';
+          const l = c.querySelector('.st-tabgroup-l'); if (l) { const h = document.createElement('span'); h.className = 'm-menu-l'; h.textContent = l.textContent; g.appendChild(h); }
+          c.querySelectorAll('.st-tab').forEach((t) => addBtn(t, g));
+          sheet.appendChild(g);
+        }
+      });
+      sheet.insertBefore(top, sheet.children[1] || null);
+    };
+    const label = () => { const id = dash.model || 'claude'; btn.replaceChildren(document.createTextNode('☰ Menu · ')); const n = document.createElement('span'); n.textContent = AIS[id].label; n.style.color = AIS[id].color; btn.appendChild(n); };
+    const toggle = (open) => { if (open) build(); sheet.hidden = !open; btn.setAttribute('aria-expanded', String(open)); };
+    label(); setInterval(label, 2000);
+    { const sel = document.getElementById('model-pick'); if (sel) sel.addEventListener('change', () => setTimeout(label, 50)); }
+    btn.addEventListener('click', () => toggle(sheet.hidden));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !sheet.hidden) toggle(false); });
+    document.body.append(btn, sheet);
+  })();
 
   dash.calc('totals', {
     title: 'Portfolio totals',
