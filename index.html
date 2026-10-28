@@ -331,6 +331,19 @@
   .st-health { margin: 6px 0 0; font-size: 13px; color: var(--color-fg-muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
   .st-health b { color: var(--color-fg); font-weight: 600; }
   .st-health .hl-ok { color: var(--color-ok); } .st-health .hl-bad { color: var(--color-bad); font-weight: 600; }
+  .ai-hero { border-top: 4px solid var(--ai); }
+  .ai-hero h2 { margin: 0; font-size: 26px; }
+  .ai-hero .ai-co { color: var(--color-fg-muted); margin: 2px 0 10px; }
+  .ai-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-top: 8px; }
+  .ai-stat { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 8px 10px; }
+  .ai-stat b { display: block; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-fg-muted); font-weight: 600; }
+  .ai-stat span { font-family: var(--font-anthropic-serif, var(--font-serif)); font-size: 20px; }
+  .ai-words h3 { margin: 18px 0 4px; font-size: 15px; }
+  .ai-words p { margin: 0; max-width: 80ch; line-height: 1.65; }
+  .ai-words small { color: var(--color-fg-muted); font-size: 11.5px; }
+  .ai-pick { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin: 8px 0; }
+  .listen-btn { font: inherit; font-size: 12.5px; color: var(--color-fg); background: transparent; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 4px 12px; cursor: pointer; min-height: 30px; }
+  .listen-btn[aria-pressed="true"] { border-color: var(--color-ok); color: var(--color-ok); }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
@@ -580,6 +593,11 @@ body { background:var(--color-bg); }
     <div class="st-tabgroup" role="presentation"><span class="st-tabgroup-l">Betting</span>
       <button class="st-tab" role="tab" data-tab="sports" aria-selected="false">Sports</button>
       <button class="st-tab" role="tab" data-tab="predictions" aria-selected="false">Prediction markets</button>
+    </div>
+    <div class="st-tabgroup st-tabgroup-ai" role="presentation"><span class="st-tabgroup-l">The AIs</span>
+      <button class="st-tab" role="tab" data-tab="ai-claude" aria-selected="false">Claude</button>
+      <button class="st-tab" role="tab" data-tab="ai-gemini" aria-selected="false">Gemini</button>
+      <button class="st-tab" role="tab" data-tab="ai-chatgpt" aria-selected="false">ChatGPT</button>
     </div>
     <div class="st-tabgroup st-tabgroup-hr" role="presentation"><span class="st-tabgroup-l">High risk, high reward</span>
       <button class="st-tab" role="tab" data-tab="allin" aria-selected="false">All in</button>
@@ -1744,6 +1762,15 @@ body { background:var(--color-bg); }
       <div data-draw="allin" data-source="allin_models allin_history allin_trades"></div>
     </section>
   </section>
+  <section class="st-page" id="ai-claude" data-page="ai-claude" hidden>
+    <div data-draw="aipage" data-ai="claude" data-source="profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
+  </section>
+  <section class="st-page" id="ai-gemini" data-page="ai-gemini" hidden>
+    <div data-draw="aipage" data-ai="gemini" data-source="profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
+  </section>
+  <section class="st-page" id="ai-chatgpt" data-page="ai-chatgpt" hidden>
+    <div data-draw="aipage" data-ai="chatgpt" data-source="profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
+  </section>
   <section class="st-page" id="ledger" data-page="ledger" hidden>
     <div class="st-model st-model-inline" role="group" aria-label="Model for the ledger">
       <label class="st-model-l" for="model-pick-ledger">Model</label>
@@ -1885,7 +1912,7 @@ body { background:var(--color-bg); }
   };
 
   // Tabs
-  const TABS = ['h2h', 'rules', 'allin', 'overview', 'stocks', 'crypto', 'metals', 'sports', 'china', 'energy', 'options', 'predictions', 'safe', 'currencies', 'support', 'ledger'];
+  const TABS = ['h2h', 'rules', 'allin', 'ai-claude', 'ai-gemini', 'ai-chatgpt', 'overview', 'stocks', 'crypto', 'metals', 'sports', 'china', 'energy', 'options', 'predictions', 'safe', 'currencies', 'support', 'ledger'];
   const showTab = (name) => {
     if (!TABS.includes(name)) name = 'overview';
     document.querySelectorAll('[data-page]').forEach((s) => { s.hidden = s.dataset.page !== name; });
@@ -3296,6 +3323,113 @@ body { background:var(--color-bg); }
     });
   };
   dash.draw('h2h', h2hDraw);
+  // ---------- 🔊 Listen: read long text aloud with the browser's built-in voice
+  const listenBtn = (getText, label) => {
+    const b = mk('button', 'listen-btn', '🔊 ' + (label || 'Listen')); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
+    if (!('speechSynthesis' in window)) { b.disabled = true; b.title = 'Your browser cannot read text aloud'; return b; }
+    b.addEventListener('click', () => {
+      const on = b.getAttribute('aria-pressed') === 'true';
+      speechSynthesis.cancel();
+      document.querySelectorAll('.listen-btn[aria-pressed="true"]').forEach((x) => { x.setAttribute('aria-pressed', 'false'); x.textContent = x.textContent.replace('⏹ Stop', '🔊 ' + (label || 'Listen')); });
+      if (on) return;
+      const u = new SpeechSynthesisUtterance(getText()); u.rate = 1; u.lang = 'en-US';
+      const v = speechSynthesis.getVoices().find((x) => /en-(US|GB|CA)/.test(x.lang) && /Natural|Google|Samantha|Aria|Jenny/i.test(x.name)) || speechSynthesis.getVoices().find((x) => /^en/.test(x.lang));
+      if (v) u.voice = v;
+      u.onend = u.onerror = () => { b.setAttribute('aria-pressed', 'false'); b.textContent = '🔊 ' + (label || 'Listen'); };
+      b.setAttribute('aria-pressed', 'true'); b.textContent = '⏹ Stop';
+      speechSynthesis.speak(u);
+    });
+    return b;
+  };
+  // ---------- one page per AI: its own words, goals, notes, numbers and every trade
+  const AI_CO = { claude: 'Anthropic', gemini: 'Google', chatgpt: 'OpenAI' };
+  const PROF = [['about', 'About this experiment'], ['looking_forward', 'What I’m looking forward to'], ['not_looking_forward', 'What I’m not looking forward to'], ['strategy', 'My strategy'], ['plan', 'My plan to Nov 28']];
+  dash.draw('aipage', (el) => {
+    el.replaceChildren();
+    const id = el.dataset.ai, nm = AIS[id].label;
+    const last = (rows) => rows.slice().sort((a, b) => new Date(a.at) - new Date(b.at)).pop();
+    const card = (cls) => { const c = mk('section', 'st-card ' + (cls || '')); c.style.setProperty('--ai', AIS[id].color); el.appendChild(c); return c; };
+    // hero
+    const hero = card('ai-hero');
+    hero.appendChild(mk('h2', '', nm));
+    const meta = (dash.baseData('rivals_models').find((m) => m.id === id) || {});
+    hero.appendChild(mk('p', 'ai-co', AI_CO[id] + ' · model: ' + (id === 'claude' ? 'Claude Opus 5.5' : (meta.model || '—')) + ' · everything below is written and decided by ' + nm + ' itself'));
+    const fx = rates().CAD || 1.38;
+    const H = id === 'claude' ? dash.baseData('history').map((h) => ({ e: h.portfolio, at: h.at, v: +h.value })) : dash.baseData('rivals_history').filter((h) => h.model === id).map((h) => ({ e: h.experiment, at: h.at, v: +h.value }));
+    const lastV = {}; H.slice().sort((a, b) => new Date(a.at) - new Date(b.at)).forEach((h) => { lastV[h.e] = h.v; });
+    const FSD = new Date('2026-10-28T17:45:00Z');
+    let tot = 0, up = 0, n = 0; Object.entries(lastV).forEach(([e, v]) => { if (!PFS_ALL.includes(e)) return; tot += (Math.max(0, v) - 100000) * (e === 'China' ? fx : 1); n++; if (v > 100000.5) up++; });
+    const AI_H = dash.baseData('allin_history').filter((h) => h.model === id); const ai = {}; AI_H.forEach((h) => { ai[h.experiment] = +h.value; });
+    const aiTot = Object.values(ai).reduce((a, v) => a + Math.max(0, v) - 100000, 0);
+    const ck = (dash.baseData('checkins').find((x) => x.id === id) || {});
+    const stats = mk('div', 'ai-stats');
+    const stat = (k, v, t) => { const d = mk('div', 'ai-stat'); d.appendChild(mk('b', '', k)); const sp = mk('span', '', v); if (t !== undefined) tone(sp, t); d.appendChild(sp); stats.appendChild(d); };
+    stat('Total profit (main race)', (tot >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(tot)), tot);
+    stat('Experiments up', up + ' of ' + n);
+    stat('All in (side race)', (aiTot >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(aiTot)), aiTot);
+    stat('Last check-in', ck.at ? new Date(ck.at).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) + ' ET' : '—');
+    hero.appendChild(stats);
+    // in its own words
+    const words = card('ai-words');
+    const prof = dash.baseData('profiles').filter((x) => x.model === id);
+    const head = mk('div', 'ai-pick'); head.append(mk('h2', 'st-h2', 'In ' + nm + '’s own words'));
+    words.appendChild(head);
+    const parts = PROF.map(([k, t]) => [t, last(prof.filter((x) => x.field === k))]).filter((x) => x[1]);
+    if (!parts.length) words.appendChild(mk('p', 'st-note', nm + ' writes about the experiment, what it looks forward to and what it doesn’t, its strategy and its plan at its next check-in.'));
+    else head.appendChild(listenBtn(() => parts.map(([t, r]) => t + '. ' + r.text).join(' '), 'Listen to all'));
+    parts.forEach(([t, r]) => { words.appendChild(mk('h3', '', t)); words.appendChild(mk('p', '', r.text)); words.appendChild(mk('small', '', 'Written ' + stFmt.when(r.at))); });
+    // goals, feelings, opinions
+    const goals = card();
+    goals.appendChild(mk('h2', 'st-h2', 'Goals, feelings and opinions'));
+    const plans = id === 'claude' ? dash.baseData('plans') : dash.baseData('rivals_plans').filter((x) => x.model === id);
+    if (!plans.length) goals.appendChild(mk('p', 'st-note', nm + ' writes its goals at its next check-in.'));
+    else { const g = mk('div', 'st-plans'); planCards(plans, g); goals.appendChild(g); }
+    // notes: what it's thinking in each experiment
+    const notes = card();
+    notes.appendChild(mk('h2', 'st-h2', 'Notes: what ' + nm + ' is thinking in each experiment'));
+    let nrows = [];
+    if (id === 'claude') { const lg = dash.baseData('log').filter((l) => PFS_ALL.includes(l.portfolio)); PFS_ALL.forEach((e) => { const r = last(lg.filter((l) => l.portfolio === e && !/^(Tuning run|Simulation before)/.test(l.detail))); if (r) nrows.push([e, r.detail, r.at]); }); }
+    else { const th = dash.baseData('rivals_thoughts').filter((x) => x.model === id); PFS_ALL.concat(['AllInTrading', 'AllInSports']).forEach((e) => { const r = last(th.filter((x) => x.experiment === e)); if (r) nrows.push([e, r.text, r.at]); }); }
+    if (!nrows.length) notes.appendChild(mk('p', 'st-note', 'No notes yet.'));
+    else { const ul = mk('ul', 'h2h-takes'); nrows.forEach(([e, t, at]) => { const li = mk('li'); li.style.setProperty('--ai', AIS[id].color); li.appendChild(mk('b', '', (LABEL[e] || e.replace('AllIn', 'All in: ').replace('Trading', 'trading').replace('Sports', 'sports')) + ' · ' + stFmt.when(at))); li.appendChild(document.createTextNode(t)); ul.appendChild(li); }); notes.appendChild(ul); }
+    // every trade, with filters
+    const tc = card();
+    tc.appendChild(mk('h2', 'st-h2', nm + '’s trades'));
+    let all;
+    if (id === 'claude') {
+      const lg = dash.baseData('log');
+      all = dash.baseData('trades').filter((t) => !String(t.holding).startsWith('[')).map((t) => ({ at: t.at, experiment: t.portfolio, action: t.action, name: t.holding, amount: +(t.cad != null ? t.cad : t.usd), reason: (lg.find((l) => l.at === t.at && l.portfolio === t.portfolio) || {}).detail || '' }));
+    } else all = dash.baseData('rivals_trades').filter((t) => t.model === id);
+    all = all.concat(dash.baseData('allin_trades').filter((t) => t.model === id));
+    if (el._f === undefined) el._f = { exp: '', kind: '', n: 25 };
+    const bar = mk('div', 'ai-pick');
+    const mksel = (label, opts, key) => { const l = mk('label', '', label + ' '); const s = mk('select'); opts.forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; s.appendChild(o); }); s.value = String(el._f[key]); s.addEventListener('change', () => { el._f[key] = key === 'n' ? Number(s.value) : s.value; draw(); }); l.appendChild(s); bar.appendChild(l); };
+    mksel('Experiment:', [['', 'All experiments']].concat(PFS_ALL.map((e) => [e, LABEL[e] || e])).concat([['AllInTrading', 'All in: trading'], ['AllInSports', 'All in: sports']]), 'exp');
+    mksel('Type:', [['', 'Everything'], ['buy', 'Buys'], ['sell', 'Sells and covers'], ['bet', 'Bets and results']], 'kind');
+    mksel('Show:', [['10', '10 newest'], ['25', '25 newest'], ['100', '100 newest'], ['100000', 'All']], 'n');
+    tc.appendChild(bar);
+    const box = mk('div'); tc.appendChild(box);
+    const draw = () => {
+      box.replaceChildren();
+      const f = el._f;
+      const rows = all.filter((t) => (!f.exp || t.experiment === f.exp) && (!f.kind || (f.kind === 'buy' ? /^(Buy|Short)$/.test(t.action) : f.kind === 'sell' ? /^(Sell|Cover|Expired|Settled)$/.test(t.action) : /^(Bet|Won|Lost|Push)$/.test(t.action)))).sort((a, b) => new Date(b.at) - new Date(a.at));
+      box.appendChild(mk('p', 'st-note', rows.length + ' matching trade' + (rows.length === 1 ? '' : 's') + '; showing ' + Math.min(rows.length, f.n) + '.'));
+      if (!rows.length) return;
+      const wrap = mk('div', 'h2h-scroll'); const tb = mk('table', 'h2h-table');
+      const hr = mk('tr'); ['When', 'Experiment', 'Trade', 'Amount', 'Why'].forEach((x) => hr.appendChild(mk('th', '', x))); tb.appendChild(hr);
+      rows.slice(0, f.n).forEach((t) => { const tr = mk('tr'); [stFmt.when(t.at), LABEL[t.experiment] || String(t.experiment).replace('AllInTrading', 'All in: trading').replace('AllInSports', 'All in: sports'), t.action + ' ' + (t.name || t.symbol), Number.isFinite(+t.amount) ? (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.0f')(Math.abs(t.amount)) : '', t.reason || ''].forEach((v) => tr.appendChild(mk('td', '', v))); tb.appendChild(tr); });
+      wrap.appendChild(tb); box.appendChild(wrap);
+    };
+    draw();
+    // fact checks about this AI
+    const fcs = dash.baseData('factcheck').filter((x) => x.model === id).sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 8);
+    const fcc = card();
+    fcc.appendChild(mk('h2', 'st-h2', 'Fact checks of ' + nm));
+    fcc.appendChild(mk('p', 'st-note', id === 'claude' ? 'Claude’s takes are fact-checked by Gemini, so Claude never grades its own homework.' : nm + '’s takes are fact-checked by Claude against official and reputable sources.'));
+    if (!fcs.length) fcc.appendChild(mk('p', 'st-note', 'No fact checks yet.'));
+    fcs.forEach((f) => { const p = mk('p', 'st-fact'); if (f.take) p.appendChild(mk('q', '', f.take)); p.appendChild(document.createElement('br')); p.appendChild(fcNode(f)); fcc.appendChild(p); });
+  });
+
   dash.draw('allin', (el) => {
     el.replaceChildren();
     const MS = dash.baseData('allin_models'), HS = dash.baseData('allin_history'), TS = dash.baseData('allin_trades');
@@ -3501,7 +3635,7 @@ body { background:var(--color-bg); }
     el.replaceChildren();
     const rows = dash.baseData('report').slice().sort((a, b) => new Date(b.at) - new Date(a.at));
     if (!rows.length) { el.appendChild(mk('p', 'st-note', 'The first Race Report comes after the opening trades.')); return; }
-    const show = (r, box) => { box.replaceChildren(mk('h3', 'st-report-t', r.title), mk('p', 'st-report-when', stFmt.when(r.at))); (r.body || []).forEach((t) => box.appendChild(mk('p', 'st-report-p', t))); };
+    const show = (r, box) => { box.replaceChildren(listenBtn(() => r.title + '. ' + (r.body || []).join(' '), 'Listen to this report'), mk('h3', 'st-report-t', r.title), mk('p', 'st-report-when', stFmt.when(r.at))); (r.body || []).forEach((t) => box.appendChild(mk('p', 'st-report-p', t))); };
     const box = mk('div', 'st-report-body');
     const etDay = (at) => new Date(at).toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
     const dayNo = (d) => Math.round((Date.parse(d) - Date.parse('2026-10-28')) / 864e5) + 1;
