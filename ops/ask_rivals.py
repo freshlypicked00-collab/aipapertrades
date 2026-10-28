@@ -103,7 +103,8 @@ if 'chatgpt' in K:
 DQ = ('Use a web search now. What is the latest Brent crude oil price and the time of that quote, and what is one top business headline '
       'from today? Reply in 2 short lines and give the URL of each page you used.')
 diag = {'at': R.iso(), 'models': MODELS}
-if 'gemini' in K:
+TEST_SEARCH = bool(os.environ.get('ASK_DIAG'))   # the live search test costs credit; the credit balance check is free
+if 'gemini' in K and TEST_SEARCH:
     try:
         t, meta = gemini(K['gemini'][1], MODELS['gemini'], DQ, True)
         diag['gemini_search'] = {'reply': t[:500], **meta}
@@ -112,7 +113,7 @@ if 'gemini' in K:
 if 'chatgpt' in K:
     kind, key = K['chatgpt']
     if kind == 'openrouter':
-        for v in ('plugin', 'options', 'online'):
+        for v in (('plugin', 'options', 'online') if TEST_SEARCH else ()):
             try:
                 t, meta = openrouter(key, MODELS['chatgpt'], DQ, v)
                 diag['chatgpt_search_' + v] = {'reply': t[:500], **meta}
@@ -123,7 +124,7 @@ if 'chatgpt' in K:
                 diag['openrouter_' + path] = R.get_json(f'https://openrouter.ai/api/v1/{path}', {'Authorization': f'Bearer {key}'})
             except Exception as e:
                 diag['openrouter_' + path] = {'error': err(e)}
-    else:
+    elif TEST_SEARCH:
         try:
             t, meta = openai(key, MODELS['chatgpt'], DQ)
             diag['chatgpt_search_openai'] = {'reply': t[:500], **meta}
