@@ -31,11 +31,11 @@
     }
    },
    "started": {
-    "Stocks": "2026-10-28T09:05:34Z",
-    "Crypto": "2026-10-28T09:05:34Z",
-    "China": "2026-10-28T09:05:34Z",
-    "Metals": "2026-10-28T09:05:34Z",
-    "Energy": "2026-10-28T09:05:34Z"
+    "Stocks": "2026-10-28T08:59:52Z",
+    "Crypto": "2026-10-28T08:59:52Z",
+    "China": "2026-10-28T08:59:52Z",
+    "Metals": "2026-10-28T08:59:52Z",
+    "Energy": "2026-10-28T08:59:52Z"
    },
    "exps": [
     "Stocks",
@@ -44,13 +44,63 @@
     "Metals",
     "Energy"
    ],
-   "model": "gemini-3.8-flash",
+   "model": "gemini-flash-lite-latest",
    "last_run": {
-    "at": "2026-10-28T09:05:34Z",
-    "status": "error: no JSON in reply",
+    "at": "2026-10-28T09:11:05Z",
+    "status": "ok",
     "notes": [
      "gemini-3.1-pro-preview: HTTP 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https:/",
+     "gemini-3.8-flash: The read operation timed out",
+     "gemini-flash-latest: HTTP 503 This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+     "order refused (Stocks buy NVDA): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
+     "order refused (Crypto buy BTC-USD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
+     "order refused (China buy 588000.SS): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
+     "order refused (Metals buy NUGT): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
+     "order refused (Energy buy GUSH): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
      "web search quota unavailable this run; decided from the prices and portfolio given"
+    ],
+    "sources": [],
+    "orders": 0
+   }
+  },
+  "chatgpt": {
+   "label": "ChatGPT",
+   "company": "OpenAI",
+   "books": {
+    "Stocks": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Crypto": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    },
+    "Predictions": {
+     "cur": "CAD",
+     "cash": 100000.0,
+     "positions": {}
+    }
+   },
+   "started": {
+    "Stocks": "2026-10-28T09:11:05Z",
+    "Crypto": "2026-10-28T09:11:05Z",
+    "Predictions": "2026-10-28T09:11:05Z"
+   },
+   "exps": [
+    "Stocks",
+    "Crypto",
+    "Predictions"
+   ],
+   "model": "openai/gpt-5.5",
+   "last_run": {
+    "at": "2026-10-28T09:11:05Z",
+    "status": "ok",
+    "notes": [
+     "order refused (Stocks buy SOXL): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
+     "order refused (Crypto buy SOL-USD): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then",
+     "order refused (Predictions buy 2026-balance-of-power-d-senate-d-house-949): the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then"
     ],
     "sources": [],
     "orders": 0
@@ -60,41 +110,184 @@
  "trades": [],
  "history": [
   {
-   "at": "2026-10-28T09:05:34Z",
+   "at": "2026-10-28T08:59:52Z",
    "model": "gemini",
    "experiment": "Stocks",
    "value": 100000.0
   },
   {
-   "at": "2026-10-28T09:05:34Z",
+   "at": "2026-10-28T08:59:52Z",
    "model": "gemini",
    "experiment": "Crypto",
    "value": 100000.0
   },
   {
-   "at": "2026-10-28T09:05:34Z",
+   "at": "2026-10-28T08:59:52Z",
    "model": "gemini",
    "experiment": "China",
    "value": 100000.0
   },
   {
-   "at": "2026-10-28T09:05:34Z",
+   "at": "2026-10-28T08:59:52Z",
    "model": "gemini",
    "experiment": "Metals",
    "value": 100000.0
   },
   {
-   "at": "2026-10-28T09:05:34Z",
+   "at": "2026-10-28T08:59:52Z",
    "model": "gemini",
    "experiment": "Energy",
    "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T09:11:05Z",
+   "model": "gemini",
+   "experiment": "Stocks",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T09:11:05Z",
+   "model": "gemini",
+   "experiment": "Crypto",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T09:11:05Z",
+   "model": "gemini",
+   "experiment": "China",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T09:11:05Z",
+   "model": "gemini",
+   "experiment": "Metals",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T09:11:05Z",
+   "model": "gemini",
+   "experiment": "Energy",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T09:11:05Z",
+   "model": "chatgpt",
+   "experiment": "Stocks",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T09:11:05Z",
+   "model": "chatgpt",
+   "experiment": "Crypto",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T09:11:05Z",
+   "model": "chatgpt",
+   "experiment": "Predictions",
+   "value": 100000.0
   }
  ],
- "takes": [],
- "thoughts": [],
+ "takes": [
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "text": "Starting the high-risk paper-trading experiment with a clean slate across all five asset classes, looking for aggressive growth opportunities."
+  },
+  {
+   "at": "2026-10-28T09:11:05Z",
+   "model": "gemini",
+   "text": "Starting fresh across all five experimental portfolios with a high-risk, high-reward strategy targeting momentum and macro catalysts."
+  },
+  {
+   "at": "2026-10-28T09:11:05Z",
+   "model": "chatgpt",
+   "text": "I am starting flat and choosing concentrated, high-beta positions because the contest is short and the objective rewards upside more than caution."
+  }
+ ],
+ "thoughts": [
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "Stocks",
+   "text": "Deploying capital into high-beta growth momentum to maximize upside."
+  },
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "Crypto",
+   "text": "Ready to capture high-momentum moves in major digital assets."
+  },
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "China",
+   "text": "Positioning for potential stimulus-driven rallies in A-shares."
+  },
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "Metals",
+   "text": "Looking at leveraged gold and silver plays for a strong macro hedge."
+  },
+  {
+   "at": "2026-10-28T08:59:52Z",
+   "model": "gemini",
+   "experiment": "Energy",
+   "text": "Targeting high-beta oil and gas exposure for explosive returns."
+  },
+  {
+   "at": "2026-10-28T09:11:05Z",
+   "model": "gemini",
+   "experiment": "Stocks",
+   "text": "Deploying capital into high-beta large-cap growth momentum names to capture aggressive early gains."
+  },
+  {
+   "at": "2026-10-28T09:11:05Z",
+   "model": "gemini",
+   "experiment": "Crypto",
+   "text": "Entering major liquid cryptocurrencies to ride immediate bullish trend continuation."
+  },
+  {
+   "at": "2026-10-28T09:11:05Z",
+   "model": "gemini",
+   "experiment": "China",
+   "text": "Looking to initiate positions in domestic A-share technology and clean energy ETFs during local trading hours."
+  },
+  {
+   "at": "2026-10-28T09:11:05Z",
+   "model": "gemini",
+   "experiment": "Metals",
+   "text": "Taking tactical exposure in leveraged precious metals miners to capitalize on recent volatility."
+  },
+  {
+   "at": "2026-10-28T09:11:05Z",
+   "model": "gemini",
+   "experiment": "Energy",
+   "text": "Allocating to high-beta energy exploration and production equities ahead of supply updates."
+  },
+  {
+   "at": "2026-10-28T09:11:05Z",
+   "model": "chatgpt",
+   "experiment": "Stocks",
+   "text": "I want maximum exposure to the renewed AI semiconductor rally, so I am using the 3x semiconductor ETF rather than a diversified index."
+  },
+  {
+   "at": "2026-10-28T09:11:05Z",
+   "model": "chatgpt",
+   "experiment": "Crypto",
+   "text": "Crypto is bouncing and Solana offers higher beta than Bitcoin or Ethereum, which fits the high-risk mandate."
+  },
+  {
+   "at": "2026-10-28T09:11:05Z",
+   "model": "chatgpt",
+   "experiment": "Predictions",
+   "text": "The midterm balance-of-power market offers a near-term political catalyst with a large payout if the Democratic sweep favorite resolves correctly."
+  }
+ ],
  "reviews": [],
  "fx": {
-  "USDCAD": 1.4054,
+  "USDCAD": 1.4053,
   "USDCNY": 6.6652
  }
 }
