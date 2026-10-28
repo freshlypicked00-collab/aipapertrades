@@ -2936,12 +2936,16 @@ body { background:var(--color-bg); }
         const b = mk('b', '', stFmt.signed(val - START, r.portfolio) + ' (' + stFmt.pct(val / START - 1) + ')'); tone(b, val - START); tot.appendChild(b);
         li.appendChild(tot);
       }
+      { const say = (LABEL[r.portfolio] || r.portfolio) + '. ' + (r.grade && r.grade !== '—' ? 'Grade ' + r.grade + '. ' : '') + r.text;
+        li.appendChild(document.createTextNode(' ')); li.appendChild(playBtn(() => say, li)); li.dataset.say = '1'; li._say = say; }
       ul.appendChild(li);
     });
+    { const top = mk('div', 'lg-rc-listen'); top.appendChild(listenBtn(() => [...ul.children].map((x) => x._say).filter(Boolean).join(' ') + (all ? ' General notes. ' + all.text : ''), 'Listen to the whole report card')); box.appendChild(top); }
     box.appendChild(ul);
     if (all) {
       const p = mk('p', 'lg-note');
-      p.append(mk('b', '', 'General notes: '), document.createTextNode(all.text));
+      p.append(mk('b', '', 'General notes: '), document.createTextNode(all.text + ' '));
+      p.appendChild(playBtn(() => 'General notes. ' + all.text, p)); p.dataset.say = '1';
       box.appendChild(p);
     }
     box.appendChild(mk('p', 'st-note', 'Written by the AI on ' + stFmt.when(v.t) + '.'));
@@ -3607,6 +3611,12 @@ body { background:var(--color-bg); }
     btn.setAttribute('aria-pressed', 'true'); btn.textContent = btn._stop; btn.setAttribute('aria-label', 'Stop reading');
     if (el) el.classList.add('is-reading');
     speechSynthesis.speak(u);
+  };
+  const playBtn = (getText, el) => {   // the small ▶ used on every paragraph
+    const b = mk('button', 'say-btn', '▶'); b.type = 'button'; b._idle = '▶'; b._stop = '⏹'; b._label = 'Listen to this';
+    b.setAttribute('aria-label', 'Listen to this'); b.setAttribute('aria-pressed', 'false'); b.title = 'Listen to this';
+    b.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); say(getText(), b, el); });
+    return b;
   };
   const listenBtn = (getText, label) => {
     const b = mk('button', 'listen-btn', '🔊 ' + (label || 'Listen')); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
