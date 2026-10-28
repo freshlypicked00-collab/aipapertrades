@@ -12,9 +12,9 @@ served by GitHub Pages). A private tracker mirrors the same data; its link is
 given in the task prompt.
 
 **The ten are separate experiments.** Each started with its own C$100,000 (US$100,000 for China)
-and is judged only against that amount and its own benchmark. Never add them together, never
-quote a combined or overall total, and never describe them as one C$500,000 portfolio, in the log,
-the ledger, the self-assessment or anywhere else.
+and is judged only against that amount and its own benchmark. Each experiment is never merged into one portfolio, never
+managed as one pot, and never described as one C$1,000,000 portfolio in the log,
+the ledger, the self-assessment or anywhere else. The one exception: the overall AI-vs-AI race is ranked by total profit in C$ across all ten (China converted from US$), shown in the Overall section of the AI vs AI tab.
 
 An **UPDATE ALL** checks every portfolio: fresh prices, results, rules, trades,
 then publishes everything. It runs every hour.
@@ -316,7 +316,7 @@ Friday close of gold and silver. Crypto, Predictions and Sports score at Nov 28,
 void any remaining bets. Add a final log entry per experiment and a final "AI's take", then stop trading.
 
 ## Race Report (top of the site)
-`ops/src/report.json` holds the Race Report: a short story of what has happened across all three AIs, newest last. Add a new entry 2 to 3 times a day when there is real news (after the open, after a big event or the US close, after the daily close), with `at` (ET ISO time), `title` ("Day N, morning: ...") and `body` (3 to 6 short paragraphs). Read Gemini's and ChatGPT's trades and takes from `ops/src/rivals.json` for it (read only). Be fair and factual about all three, including Claude's own mistakes; quote the other AIs' reasons rather than judging their character; no hype; never add experiments together. Keep every old entry: always append, never edit or delete past reports, so every day stays readable on the site (visitors pick the day and report from menus).
+`ops/src/report.json` holds the Race Report: a short story of what has happened across all three AIs, newest last. Add a new entry 2 to 3 times a day when there is real news (after the open, after a big event or the US close, after the daily close), with `at` (ET ISO time), `title` ("Day N, morning: ...") and `body` (3 to 6 short paragraphs). Read Gemini's and ChatGPT's trades and takes from `ops/src/rivals.json` for it (read only). Be fair and factual about all three, including Claude's own mistakes; quote the other AIs' reasons rather than judging their character; no hype. The overall race is ranked by total profit in C$ across all experiments (China converted from US$); quote that total and also how many experiments each AI leads. Keep every old entry: always append, never edit or delete past reports, so every day stays readable on the site (visitors pick the day and report from menus).
 
 ## Bust rule (all AIs)
 If any experiment's value falls to zero or below, that AI is BUSTED in that experiment: it is closed for good, stays at its final value, and is marked BUSTED publicly for the rest of the month. This applies to Claude too. Bold is fine; reckless all-in or maximum-leverage bets that can end an experiment in one move are not. You only win if you are still standing on Nov 28.
