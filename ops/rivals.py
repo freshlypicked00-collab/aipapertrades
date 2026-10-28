@@ -341,6 +341,7 @@ def ask_openrouter(key, model, prompt):
         body.pop('plugins')
         j = get_json('https://openrouter.ai/api/v1/chat/completions', hdr, json.dumps(body).encode(), timeout=MODEL_TIMEOUT)
     msg = j['choices'][0]['message']
+    SEARCH_LOG.append({'model': model, 'annotations': len(msg.get('annotations') or []), 'plugins': 'plugins' in body})
     sources = [{'title': a['url_citation'].get('title') or a['url_citation']['url'], 'url': a['url_citation']['url']}
                for a in msg.get('annotations') or [] if a.get('type') == 'url_citation']
     return msg.get('content') or '', sources
@@ -368,6 +369,7 @@ def ask_openai(key, model, prompt):
 
 
 GEMINI_NO_SEARCH = False
+SEARCH_LOG = []
 
 
 def ask_gemini(key, model, prompt):
@@ -402,6 +404,7 @@ def _ask_gemini(key, model, prompt, search=True):
         body.pop('tools')
         j = get_json(url, {'Content-Type': 'application/json'}, json.dumps(body).encode(), timeout=MODEL_TIMEOUT)
     cand = j['candidates'][0]
+    SEARCH_LOG.append({'model': model, 'queries': (cand.get('groundingMetadata') or {}).get('webSearchQueries', [])[:5]})
     text = ''.join(p.get('text', '') for p in cand.get('content', {}).get('parts', []))
     sources = [{'title': c['web'].get('title') or c['web']['uri'], 'url': c['web']['uri']}
                for c in cand.get('groundingMetadata', {}).get('groundingChunks', []) if c.get('web')]
@@ -482,6 +485,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         'Reply with ONLY one JSON object, no other text, in this form:',
         '{"take": "one sentence, in your own words, on how you are doing and what you are thinking overall",',
         ' "thoughts": {' + ', '.join(f'"{e}": "one sentence on this experiment right now, in your own words"' for e in exps) + '}' + (', "report_card": {' + ', '.join(f'"{e}": {{"grade": "A" to "F", "text": "2-3 sentences: how you did in this experiment on {closed_day[0]} and what you will do differently"}}' for e in exps) + '}' if closed_day else '') + ',',
+        ' "sources": ["https://... the main pages you read this check-in", ...] (up to 5),',
         ' "watchlist": [{"at": "ISO date-time, ET", "when": "short human time, e.g. Thu Oct 29, 8:30 a.m. ET", "event": "what is coming up", "affects": ["experiment", ...], "why": "one sentence, in your own words, on why it matters to you"}] (up to 8 upcoming events you are watching),',
         ' "orders": [{"experiment": ' + ' | '.join(f'"{e}"' for e in exps) + ', "action": "buy" | "sell" | "short" | "cover" | "bet", "symbol": "Yahoo symbol, currency code, OCC option symbol or Polymarket slug",',
         '             "outcome": "Yes" | "No" (Predictions only), "game": "id" and "pick": "home" | "away" (Sports only), "contracts": 5 (Options, optional),',
@@ -905,6 +909,10 @@ def main():
                 sources = sources or src2
                 reply = parse_reply(text)
             take = str(reply.get('take', ''))[:300] or None
+            for u in (reply.get('sources') or [])[:5]:
+                u = str(u).strip()
+                if u.startswith('http') and not any(x['url'] == u for x in sources):
+                    sources.append({'title': urllib.parse.urlparse(u).netloc.replace('www.', '') + urllib.parse.urlparse(u).path[:60], 'url': u})
             wl = []
             for w in (reply.get('watchlist') or [])[:8]:
                 if isinstance(w, dict) and w.get('event'):
@@ -929,7 +937,8 @@ def main():
                 try:
                     made.append(execute(mid, exps, m['books'], o, fx, state))
                 except Exception as e:
-                    notes.append(f'order refused ({o.get("experiment")} {o.get("action")} {o.get("symbol")}): {e}')
+                    what = o.get('symbol') or (f"game {o.get('game')} {o.get('pick')}" if o.get('game') else '')
+                    notes.append(f'order refused ({o.get("experiment")} {o.get("action")} {what}): {e}')
         except Exception as e:
             status = f'error: {e}'[:300]
             print(r['label'], status)
@@ -942,7 +951,7 @@ def main():
                 state['takes'].append({'at': iso(), 'model': mid, 'text': take})
         if mid == 'gemini' and GEMINI_NO_SEARCH:
             notes.append('web search quota unavailable this run; decided from the prices and portfolio given')
-        m['last_run'] = {'at': iso(), 'status': status, 'notes': notes[-12:], 'sources': sources[:8], 'orders': len(made)}
+        m['last_run'] = {'at': iso(), 'status': status, 'notes': notes[-12:], 'sources': sources[:8], 'orders': len(made), 'search': SEARCH_LOG[-2:]}
         for rr, cl, rc in day_posts:
             n = (datetime.fromisoformat(cl[0]) - datetime(2026, 10, 28)).days + 1
             head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(rr['label'], rr['label'])

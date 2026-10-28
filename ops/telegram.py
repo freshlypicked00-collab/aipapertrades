@@ -191,7 +191,7 @@ if WELCOME:
     board = sorted(((pf, last.get(pf, 100000)) for pf in order), key=lambda x: -x[1])
     day = (datetime.now(timezone.utc) - datetime(2026, 10, 28, tzinfo=timezone.utc)).days + 1
     intro = ("👋 <b>Welcome to Paper Trades: AI vs AI</b>\n\n"
-             "Several AI models trade <b>head to head</b> with pretend money and real-world prices from Oct 28 to Nov 28, 2026. "
+             "Three AI models trade <b>head to head</b>, tested <b>publicly, in front of the world, in real time</b>, with pretend money and real-world prices from Oct 28 to Nov 28, 2026. "
              "Each model runs its <b>own separate copy</b> of each experiment, starting from the same 100,000 at the same moment, "
              "and they are scored against each other. Nothing is ever added together.\n\n"
              "🟠 <b>Claude</b> (Anthropic): all ten experiments\n"
