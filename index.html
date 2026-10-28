@@ -747,6 +747,7 @@ body { background:var(--color-bg); }
     </section>
     <section class="st-card" aria-labelledby="h-s-hold">
       <h2 class="st-h2" id="h-s-hold">Holdings</h2>
+      <div class="st-alloc" data-draw="alloc" data-source="holdings" data-portfolio="Stocks"></div>
       <p class="st-note">Prices in US dollars; values in Canadian dollars at the latest exchange rate.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
@@ -927,6 +928,7 @@ body { background:var(--color-bg); }
     </section>
     <section class="st-card" aria-labelledby="h-m-hold">
       <h2 class="st-h2" id="h-m-hold">Holdings</h2>
+      <div class="st-alloc" data-draw="alloc" data-source="holdings" data-portfolio="Metals"></div>
       <p class="st-note" data-claude-only>Prices in US dollars per troy ounce; values in Canadian dollars at the latest exchange rate.</p>
       <p class="st-note" data-model-text-plain hidden>Prices in US dollars per share or contract; values in Canadian dollars at the latest exchange rate.</p>
       <div class="st-wrap">
@@ -1013,6 +1015,7 @@ body { background:var(--color-bg); }
     </section>
     <section class="st-card" aria-labelledby="h-e-hold">
       <h2 class="st-h2" id="h-e-hold">Holdings</h2>
+      <div class="st-alloc" data-draw="alloc" data-source="holdings" data-portfolio="Energy"></div>
       <p class="st-note">Prices in US dollars; values in Canadian dollars at the latest exchange rate.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
@@ -1096,6 +1099,7 @@ body { background:var(--color-bg); }
     </section>
     <section class="st-card" aria-labelledby="h-o-hold">
       <h2 class="st-h2" id="h-o-hold">Holdings</h2>
+      <div class="st-alloc" data-draw="alloc" data-source="holdings" data-portfolio="Options"></div>
       <p class="st-note">Shares = contracts × 100. Premiums in US dollars per share; values in Canadian dollars.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
@@ -1179,6 +1183,7 @@ body { background:var(--color-bg); }
     </section>
     <section class="st-card" aria-labelledby="h-x-hold">
       <h2 class="st-h2" id="h-x-hold">Positions</h2>
+      <div class="st-alloc" data-draw="alloc" data-source="holdings" data-portfolio="Currencies"></div>
       <p class="st-note">Shown like a forex account: the account value is the C$100,000 deposit plus or minus the profit or loss on open positions. Leverage lets the account hold positions larger than its value. "Long" profits when that currency rises; "short" profits when it falls.</p>
       <div data-draw="fx-positions" data-source="holdings"></div>
     </section>
@@ -1338,6 +1343,7 @@ body { background:var(--color-bg); }
     </section>
     <section class="st-card" aria-labelledby="h-f-hold">
       <h2 class="st-h2" id="h-f-hold">Holdings</h2>
+      <div class="st-alloc" data-draw="alloc" data-source="holdings" data-portfolio="Safe"></div>
       <p class="st-note">Prices in US dollars; values in Canadian dollars at the latest exchange rate.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
@@ -1513,6 +1519,7 @@ body { background:var(--color-bg); }
     </section>
     <section class="st-card" aria-labelledby="h-z-hold">
       <h2 class="st-h2" id="h-z-hold">Holdings</h2>
+      <div class="st-alloc" data-draw="alloc" data-source="holdings" data-portfolio="China"></div>
       <p class="st-note">Prices in yuan (¥); values in US dollars at the latest exchange rate.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
@@ -2927,8 +2934,10 @@ body { background:var(--color-bg); }
     if (!total) return;
     const cash = (r) => r.holding === 'USDC' || r.holding.startsWith('Cash');
     const coins = rows.filter((r) => !cash(r)).map((r) => r.holding);
-    const col = (r) => (cash(r) ? 'var(--color-fg-muted)' : dash.colors[coins.indexOf(r.holding) % 4]);
+    const col = (r) => (cash(r) ? 'var(--color-fg-muted)' : (dash.colors.concat(['#c77dff','#4dd4c6','#ff8fab','#a3c45a','#ffb000','#7aa2ff']))[coins.indexOf(r.holding) % (dash.colors.length + 6)]);
     el.appendChild(mk('h3', 'st-alloc-h', "What I'm holding"));
+    const owed = d.data.filter((r) => r.portfolio === pf && Number(r.value_cad) < 0).reduce((a, r) => a + Number(r.value_cad), 0);
+    if (owed) el.appendChild(mk('p', 'st-note', 'Shows positions only. Bought partly with borrowed money (leverage): C$' + d3.format(',.0f')(-owed) + ' owed, not shown in the chart.'));
     const row = mk('div', 'st-alloc-row'); el.appendChild(row);
     const S = 180, R = S / 2;
     const svg = d3.select(row).append('svg').attr('viewBox', `0 0 ${S} ${S}`).attr('class', 'st-pie').attr('role', 'img')
