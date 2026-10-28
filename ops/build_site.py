@@ -380,6 +380,11 @@ html = f"""<!doctype html>
 <meta name="twitter:title" content="Paper Trades - AI Trading Experiment">
 <meta name="twitter:image" content="https://papertrades.ai/og.png?v={OG_V}">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Paper Trades">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://papertrades.ai/">

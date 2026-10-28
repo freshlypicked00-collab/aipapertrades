@@ -18,6 +18,11 @@
 <meta name="twitter:title" content="Paper Trades - AI Trading Experiment">
 <meta name="twitter:image" content="https://papertrades.ai/og.png?v=b49796b33d">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Paper Trades">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://papertrades.ai/">
@@ -416,8 +421,17 @@
   .pd-who { display: flex; align-items: center; }
   .ai-hero h2 { display: flex; align-items: center; }
   .m-menu-btn, .m-menu { display: none; }
+  .app-btn { font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; min-height: 34px; border-radius: 999px; border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); cursor: pointer; margin-left: 8px; }
+  .app-btn[hidden] { display: none; }
+  .app-tip:not([hidden]) { display: block; position: fixed; left: 50%; transform: translateX(-50%); width: min(420px, calc(100vw - 16px)); top: 12px; z-index: 61; background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 12px; padding: 10px 14px 12px; box-shadow: 0 8px 30px rgba(0,0,0,.45); font-size: 14px; }
+  .app-tip p { margin: 6px 0; }
+  .app-tip .m-menu-head { display: flex; justify-content: space-between; align-items: center; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+  .app-tip .m-menu-x { font: inherit; font-size: 16px; background: none; border: 0; color: var(--color-fg); min-width: 44px; min-height: 36px; cursor: pointer; }
   @media (max-width: 700px) {
     .st-lang { flex-wrap: wrap; max-width: 200px; }
+    .st-lang .app-btn { display: none; }
+    .app-tip:not([hidden]) { left: 8px; right: 8px; width: auto; transform: none; }
+    .m-menu-group .m-menu-app { border-color: var(--accent); color: var(--accent); font-weight: 600; }
     .m-menu-btn { display: block; flex-basis: 100%; max-width: max-content; margin-top: 8px; font: inherit; font-size: 14px; font-weight: 600; padding: 8px 14px; min-height: 40px; border-radius: 999px; border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); cursor: pointer; }
     .m-menu:not([hidden]) { display: block; position: fixed; left: 8px; right: 8px; top: 12px; max-height: 80vh; overflow-y: auto; z-index: 61; background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 12px; padding: 10px 12px 12px; box-shadow: 0 8px 30px rgba(0,0,0,.45); }
     .m-menu-head { display: flex; justify-content: space-between; align-items: center; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
@@ -2125,6 +2139,7 @@ body { background:var(--color-bg); }
       const head = document.createElement('div'); head.className = 'm-menu-head'; head.textContent = 'Go to';
       const x = document.createElement('button'); x.type = 'button'; x.className = 'm-menu-x'; x.textContent = '✕'; x.setAttribute('aria-label', 'Close'); x.addEventListener('click', () => toggle(false));
       head.appendChild(x); sheet.appendChild(head);
+      if (!app.hidden) { const ag = document.createElement('div'); ag.className = 'm-menu-group'; const ab = document.createElement('button'); ab.type = 'button'; ab.className = 'm-menu-app'; ab.textContent = '📲 Get the app (free, opens full screen)'; ab.addEventListener('click', () => { toggle(false); app.click(); }); ag.appendChild(ab); sheet.appendChild(ag); }
       const mg = document.createElement('div'); mg.className = 'm-menu-group';
       const ml = document.createElement('span'); ml.className = 'm-menu-l'; ml.textContent = 'Model you are viewing'; mg.appendChild(ml);
       ['claude', 'gemini', 'chatgpt'].forEach((id) => {
@@ -2158,9 +2173,30 @@ body { background:var(--color-bg); }
     { const sel = document.getElementById('model-pick'); if (sel) sel.addEventListener('change', () => setTimeout(label, 50)); }
     btn.addEventListener('click', () => toggle(sheet.hidden));
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !sheet.hidden) toggle(false); });
+    // "Get the app": installs the site as an app (Android and computers: the browser's install prompt; iPhone: Add to Home Screen)
+    const standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+    let deferred = null;
+    const app = document.createElement('button'); app.type = 'button'; app.className = 'app-btn'; app.textContent = '📲 Get the app'; app.hidden = true;
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (!standalone && ios) app.hidden = false;
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferred = e; if (!standalone) app.hidden = false; });
+    window.addEventListener('appinstalled', () => { app.hidden = true; deferred = null; });
+    const tip = document.createElement('div'); tip.className = 'app-tip'; tip.hidden = true; tip.setAttribute('role', 'dialog'); tip.setAttribute('aria-label', 'Install the app');
+    app.addEventListener('click', () => {
+      if (deferred) { deferred.prompt(); deferred.userChoice.finally(() => { deferred = null; }); return; }
+      tip.replaceChildren();
+      const h = document.createElement('div'); h.className = 'm-menu-head'; h.textContent = 'Install Paper Trades';
+      const x = document.createElement('button'); x.type = 'button'; x.className = 'm-menu-x'; x.textContent = '✕'; x.setAttribute('aria-label', 'Close'); x.addEventListener('click', () => { tip.hidden = true; });
+      h.appendChild(x); tip.appendChild(h);
+      [ios ? '1. Tap the Share button (the square with an arrow) at the bottom of Safari.' : '1. Open your browser menu (⋮ or …).',
+       ios ? '2. Scroll down and tap “Add to Home Screen”.' : '2. Tap “Install app” or “Add to Home screen”.',
+       '3. Paper Trades opens full screen from its own icon, always with the latest race.'].forEach((t) => { const p = document.createElement('p'); p.textContent = t; tip.appendChild(p); });
+      tip.hidden = false;
+    });
+    if ('serviceWorker' in navigator && location.protocol === 'https:') window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); });
     const lang = document.querySelector('.st-lang');   // sits right under the language menu, in the header's empty space
-    if (lang) lang.appendChild(btn); else document.body.append(btn);
-    document.body.append(sheet);
+    if (lang) lang.append(btn, app); else document.body.append(btn, app);
+    document.body.append(sheet, tip);
   })();
 
   dash.calc('totals', {
