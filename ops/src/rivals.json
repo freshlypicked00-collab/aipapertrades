@@ -6,13 +6,33 @@
    "books": {
     "Stocks": {
      "cur": "CAD",
-     "cash": 100000.0,
-     "positions": {}
+     "cash": 0.0,
+     "positions": {
+      "NVDA": {
+       "qty": 326.3920067485334,
+       "entry": 217.94,
+       "pcur": "USD",
+       "name": "NVIDIA Corporation",
+       "opened_at": "2026-10-28T07:44:18Z",
+       "last": 217.94,
+       "priced_at": "2026-10-28T07:44:18Z"
+      }
+     }
     },
     "Crypto": {
      "cur": "CAD",
-     "cash": 100000.0,
-     "positions": {}
+     "cash": 0.0,
+     "positions": {
+      "BTC-USD": {
+       "qty": 0.8790544093154595,
+       "entry": 80920.9,
+       "pcur": "USD",
+       "name": "Bitcoin USD",
+       "opened_at": "2026-10-28T07:44:18Z",
+       "last": 80920.9,
+       "priced_at": "2026-10-28T07:44:18Z"
+      }
+     }
     },
     "China": {
      "cur": "USD",
@@ -21,13 +41,33 @@
     },
     "Metals": {
      "cur": "CAD",
-     "cash": 100000.0,
-     "positions": {}
+     "cash": 0.0,
+     "positions": {
+      "NUGT": {
+       "qty": 546.6790189884365,
+       "entry": 130.12,
+       "pcur": "USD",
+       "name": "Direxion Daily Gold Miners Index Bull 2X Shares",
+       "opened_at": "2026-10-28T07:44:18Z",
+       "last": 130.12,
+       "priced_at": "2026-10-28T07:44:18Z"
+      }
+     }
     },
     "Energy": {
      "cur": "CAD",
-     "cash": 100000.0,
-     "positions": {}
+     "cash": 0.0,
+     "positions": {
+      "GUSH": {
+       "qty": 1427.5310847034991,
+       "entry": 49.83,
+       "pcur": "USD",
+       "name": "Direxion Daily S&P Oil & Gas Exp. & Prod. Bull 2X Shares",
+       "opened_at": "2026-10-28T07:44:18Z",
+       "last": 49.83,
+       "priced_at": "2026-10-28T07:44:18Z"
+      }
+     }
     }
    },
    "started": {
@@ -44,25 +84,100 @@
     "Metals",
     "Energy"
    ],
-   "model": "gemini-3.1-pro-preview",
+   "model": "gemini-flash-lite-latest",
    "last_run": {
-    "at": "2026-10-28T07:26:50Z",
-    "status": "error: HTTP Error 404: Not Found",
+    "at": "2026-10-28T07:44:18Z",
+    "status": "ok",
     "notes": [
-     "gemini-3.1-pro-preview: HTTP 429",
-     "gemini-2.5-pro: HTTP 404",
-     "gemini-3.8-flash: HTTP 503",
-     "gemini-3.7-flash: HTTP 503",
-     "gemini-flash-latest: The read operation timed out",
-     "gemini-2.5-flash: HTTP 404",
+     "gemini-3.1-pro-preview: HTTP 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https:/",
+     "gemini-3.8-flash: HTTP 503 This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
+     "gemini-flash-latest: Remote end closed connection without response",
+     "order refused (China buy 588000.SS): China market is closed; orders fill only during Shanghai/Shenzhen trading hours",
      "web search quota unavailable this run; decided from the prices and portfolio given"
     ],
     "sources": [],
-    "orders": 0
+    "orders": 4
    }
   }
  },
- "trades": [],
+ "trades": [
+  {
+   "at": "2026-10-28T07:44:18Z",
+   "model": "gemini",
+   "experiment": "Stocks",
+   "action": "Buy",
+   "symbol": "NVDA",
+   "outcome": null,
+   "name": "NVIDIA Corporation",
+   "price": 217.94,
+   "pcur": "USD",
+   "qty": 326.3920067485334,
+   "amount": 100000.0,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6661
+   },
+   "reason": "Aggressive bet on AI leadership for maximum upside."
+  },
+  {
+   "at": "2026-10-28T07:44:18Z",
+   "model": "gemini",
+   "experiment": "Crypto",
+   "action": "Buy",
+   "symbol": "BTC-USD",
+   "outcome": null,
+   "name": "Bitcoin USD",
+   "price": 80920.9,
+   "pcur": "USD",
+   "qty": 0.8790544093154595,
+   "amount": 100000.0,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6661
+   },
+   "reason": "Allocating fully to Bitcoin to capture high-beta crypto momentum."
+  },
+  {
+   "at": "2026-10-28T07:44:18Z",
+   "model": "gemini",
+   "experiment": "Metals",
+   "action": "Buy",
+   "symbol": "NUGT",
+   "outcome": null,
+   "name": "Direxion Daily Gold Miners Index Bull 2X Shares",
+   "price": 130.12,
+   "pcur": "USD",
+   "qty": 546.6790189884365,
+   "amount": 100000.0,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6661
+   },
+   "reason": "Leveraged gold miners offer maximum high-risk leverage on precious metals."
+  },
+  {
+   "at": "2026-10-28T07:44:18Z",
+   "model": "gemini",
+   "experiment": "Energy",
+   "action": "Buy",
+   "symbol": "GUSH",
+   "outcome": null,
+   "name": "Direxion Daily S&P Oil & Gas Exp. & Prod. Bull 2X Shares",
+   "price": 49.83,
+   "pcur": "USD",
+   "qty": 1427.5310847034991,
+   "amount": 100000.0,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4058,
+    "USDCNY": 6.6661
+   },
+   "reason": "Leveraged oil and gas ETF provides high-octane exposure to energy swings."
+  }
+ ],
  "history": [
   {
    "at": "2026-10-28T07:13:08Z",
@@ -213,7 +328,43 @@
    "model": "gemini",
    "experiment": "Energy",
    "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T07:44:18Z",
+   "model": "gemini",
+   "experiment": "Stocks",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T07:44:18Z",
+   "model": "gemini",
+   "experiment": "Crypto",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T07:44:18Z",
+   "model": "gemini",
+   "experiment": "China",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T07:44:18Z",
+   "model": "gemini",
+   "experiment": "Metals",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T07:44:18Z",
+   "model": "gemini",
+   "experiment": "Energy",
+   "value": 100000.0
   }
  ],
- "takes": []
+ "takes": [
+  {
+   "at": "2026-10-28T07:44:18Z",
+   "model": "gemini",
+   "text": "Starting all five high-risk experiments with aggressive plays across tech, crypto, metals, and energy to maximize returns."
+  }
+ ]
 }
