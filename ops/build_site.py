@@ -433,7 +433,7 @@ def _when(x):
 _rows = {'claude': [(b.get('placed_at'), float(b.get('stake_cad') or 0)) for b in data['bets'] if b.get('placed_at')] +
                    [(t['at'], float(t.get('cad') or 0)) for t in data['trades'] if t['portfolio'] == 'Predictions' and t['action'] == 'Buy' and not str(t['holding']).startswith('[')]}
 for _t in r.get('trades', []):
-    if _t.get('experiment') in ('Sports', 'Predictions') and _t.get('action') in ('Bet', 'Buy') and _t.get('model') in ('gemini', 'chatgpt'):
+    if _t.get('experiment') in ('Sports', 'Predictions') and _t.get('action') in ('Bet', 'Buy') and _t.get('model') in ('gemini', 'chatgpt') and not _t.get('void'):
         _rows.setdefault(_t['model'], []).append((_t['at'], float(_t.get('amount') or 0)))
 data['betmins'] = []
 for _m in ('claude', 'gemini', 'chatgpt'):
