@@ -51,6 +51,9 @@ def esc(s):
 
 S = 'ops/src/'
 msgs = []
+if os.environ.get('TEST'):
+    send('✅ Test: the Paper Trades bot is live. Every trade, bet and daily close will be posted here.\n' + SITE)
+    sys.exit(0)
 
 # trades
 old = {json.dumps(t, sort_keys=True) for t in load(S + 'trades.json', BEFORE)}
