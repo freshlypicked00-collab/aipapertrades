@@ -362,6 +362,8 @@
   .st-plans-box .st-plan { border-color: color-mix(in srgb, var(--model) 35%, var(--color-border-line)); border-top: 3px solid var(--model); background: var(--model-bg); }
   .st-plans-box .st-plan h4 { color: var(--model); }
   .st-viewing { color: var(--model) !important; }
+  .st-by { font-size: .85em; font-weight: 600; color: var(--model, var(--color-fg-muted)); white-space: nowrap; }
+  .st-plan .st-by { display: inline; }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
@@ -3322,7 +3324,7 @@
     const parts = PROF.map(([k, t]) => [t, last(prof.filter((x) => x.field === k))]).filter((x) => x[1]);
     if (!parts.length) words.appendChild(mk('p', 'st-note', nm + ' writes about the experiment, what it looks forward to and what it doesn’t, its strategy and its plan at its next check-in.'));
     else head.appendChild(listenBtn(() => parts.map(([t, r]) => t + '. ' + r.text).join(' '), 'Listen to all'));
-    parts.forEach(([t, r]) => { words.appendChild(mk('h3', '', t)); words.appendChild(mk('p', '', r.text)); words.appendChild(mk('small', '', 'Written ' + stFmt.when(r.at))); });
+    parts.forEach(([t, r]) => { words.appendChild(mk('h3', '', t)); const pp = mk('p', '', r.text + ' '); const by = mk('span', 'st-by', '— ' + nm); by.style.color = AIS[id].color; pp.appendChild(by); words.appendChild(pp); words.appendChild(mk('small', '', 'Written ' + stFmt.when(r.at))); });
     // goals, feelings, opinions
     const goals = card();
     goals.appendChild(mk('h2', 'st-h2', 'Goals, feelings and opinions'));
@@ -3793,7 +3795,9 @@
     PLAN_H.forEach(([k, title]) => {
       const r = rows.filter((x) => x.horizon === k).sort((a, b) => new Date(a.at) - new Date(b.at)).pop();
       if (!r) return;
-      const c = mk('div', 'st-plan'); c.append(mk('h4', '', title), document.createTextNode(r.text), mk('small', '', 'Updated ' + stFmt.when(r.at)));
+      const wid = AIS[r.model] ? r.model : (AIS[dash.model] ? dash.model : 'claude');
+      const by = mk('span', 'st-by', '— ' + AIS[wid].label); by.style.color = AIS[wid].color;
+      const c = mk('div', 'st-plan'); c.append(mk('h4', '', title), document.createTextNode(r.text + ' '), by, mk('small', '', 'Updated ' + stFmt.when(r.at)));
       el.appendChild(c);
     });
   };
@@ -3817,7 +3821,8 @@
     el.replaceChildren();
     if (d.status !== 'ok' || !d.data.length) { el.textContent = (dash.model === 'claude' ? 'Claude' : (dash.models()[dash.model] || { _meta: { label: 'This AI' } })._meta.label) + '’s first take comes with its opening trades at the 1:45 p.m. ET restart.'; return; }
     const r = d.data.reduce((a, b) => (new Date(b.at) > new Date(a.at) ? b : a));
-    el.append(mk('q', '', r.text), document.createTextNode(' '), mk('span', 'st-take-when', stFmt.when(r.at)));
+    const who = AIS[dash.model] ? AIS[dash.model].label : 'Claude';
+    el.append(mk('q', '', r.text), document.createTextNode(' '), mk('span', 'st-by', '— ' + who), document.createTextNode(' '), mk('span', 'st-take-when', stFmt.when(r.at)));
   });
   const TABOF = { Stocks: 'stocks', Crypto: 'crypto', China: 'china', Metals: 'metals', Energy: 'energy', Options: 'options', Currencies: 'currencies', Safe: 'safe', Sports: 'sports', Predictions: 'predictions' };
   dash.draw('scoreboard', (el) => {
