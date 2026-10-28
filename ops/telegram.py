@@ -117,12 +117,13 @@ def chart_section(pf, n):
         return None
 
 
-def chart_scoreboard(rows, title):
+def chart_scoreboard(rows, title, single=None):
     """Daily close image: each experiment's % since start, and % for the day."""
     try:
         plt = _plt()
-        fig, axes = plt.subplots(1, 2, figsize=(12, 5.2), facecolor=BG)
-        for ax, key, head in ((axes[0], 'day', 'Today'), (axes[1], 'total', 'Since start')):
+        fig, axes = plt.subplots(1, 1 if single else 2, figsize=(9 if single else 12, 5.2), facecolor=BG)
+        panels = [(axes, 'total', single)] if single else [(axes[0], 'day', 'Last 24 hours' if WELCOME else 'Today'), (axes[1], 'total', 'Since start')]
+        for ax, key, head in panels:
             rs = sorted(rows, key=lambda r: r[key])
             ax.set_facecolor(BG)
             vals = [r[key] * 100 for r in rs]
@@ -137,7 +138,7 @@ def chart_scoreboard(rows, title):
             for sp in ax.spines.values():
                 sp.set_visible(False)
         fig.suptitle('PAPER TRADES · ' + title, color=AMBER, fontsize=14, x=.01, ha='left', fontweight='bold')
-        fig.text(.99, .01, 'Ten separate experiments, never added together · Simulation only · papertrades.ai', color=MUTED, ha='right', fontsize=9)
+        fig.text(.99, .01, ('Archived first run · ' if single else 'Ten separate experiments, never added together · ') + 'Simulation only · papertrades.ai', color=MUTED, ha='right', fontsize=9)
         fig.tight_layout(rect=(0, .03, 1, .93))
         path = '/tmp/pt_close.png'
         fig.savefig(path, dpi=110, facecolor=BG)
@@ -156,6 +157,7 @@ S = 'ops/src/'
 msgs = []
 TEST = os.environ.get('TEST') == '1'
 WELCOME = os.environ.get('MODE') == 'welcome'
+ANNOUNCE = os.environ.get('MODE') == 'announce'
 SOURCES = load(S + 'sources.json')
 
 
@@ -165,6 +167,11 @@ def source_for(pf, holding):
     best = next((x for x in tagged if any(w in x['title'].lower() for w in words)), tagged[0] if tagged else None)
     return f"\nSource: <a href=\"{esc(best['url'])}\">{esc(best['title'])}</a>" if best else ''
 
+
+if ANNOUNCE:
+    rows = [{'pf': p, 'day': v, 'total': v} for p, v in (('Stocks', .0641), ('Crypto', .0136), ('China', .0055), ('Currencies', -.0004), ('Metals', -.0051))]
+    send(open('ops/announce.txt').read().strip() + f'\n{SITE}', chart_scoreboard(rows, "Claude's first run, final (Oct 26-28)", single='Return since start'))
+    sys.exit(0)
 
 if WELCOME:
     last = {}
