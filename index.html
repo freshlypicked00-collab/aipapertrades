@@ -411,7 +411,8 @@
   .st-podium .pd-place { font-weight: 700; font-size: 13px; }
   .st-podium li:first-child .pd-place { color: #ffc93c; }
   :root[data-theme="light"] .st-podium li:first-child .pd-place, :root[data-theme="reader"] .st-podium li:first-child .pd-place { color: #9a6a00; }
-  .st-podium .pd-name { font-weight: 600; }
+  .st-podium .pd-name { font-weight: 600; display: flex; flex-direction: column; min-width: 0; }
+  .st-podium .pd-leads { font-weight: 400; font-size: 11.5px; color: var(--color-fg-muted); line-height: 1.35; margin-top: 2px; }
   .st-podium .pd-amt { font-family: var(--font-serif, monospace); font-size: 14px; }
   @media (min-width: 1000px) {
     .st-hook { display: grid; grid-template-columns: minmax(0, 1fr) 300px; column-gap: 28px; }
@@ -3922,12 +3923,12 @@ body { background:var(--color-bg); }
     el.replaceChildren();
     const rows = dash.baseData('standings'); if (!rows || !rows.length) return;
     el.appendChild(mk('h2', '', 'Race standings'));
-    el.appendChild(mk('p', 'pd-note', 'Total profit since the Oct 28 restart, all ten experiments. Tap one to view it.'));
+    el.appendChild(mk('p', 'pd-note', 'Total profit since the Oct 28 restart, all ten experiments, and the experiments each AI is leading. Tap one to view it.'));
     const ol = mk('ol');
     rows.forEach((r, i) => {
       const li = mk('li'); const b = mk('button'); b.type = 'button'; b.style.setProperty('--ai', AIS[r.id].color);
       if (dash.model === r.id) b.setAttribute('aria-current', 'true');
-      b.append(mk('span', 'pd-place', i === 0 ? '👑 1st' : ['1st', '2nd', '3rd'][i] || (i + 1) + 'th'), mk('span', 'pd-name', AIS[r.id].label));
+      b.append(mk('span', 'pd-place', i === 0 ? '👑 1st' : ['1st', '2nd', '3rd'][i] || (i + 1) + 'th'), (() => { const n = mk('span', 'pd-name', AIS[r.id].label); n.appendChild(mk('small', 'pd-leads', (r.leads && r.leads.length) ? 'Leads ' + r.leads.join(', ') : 'Leads no experiment yet')); return n; })());
       const a = mk('span', 'pd-amt', (r.total >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(r.total))); tone(a, r.total); b.appendChild(a);
       b.addEventListener('click', () => { const s = document.getElementById('model-pick'); if (s) { s.value = r.id; s.dispatchEvent(new Event('change')); } });
       li.appendChild(b); ol.appendChild(li);

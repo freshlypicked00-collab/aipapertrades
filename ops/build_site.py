@@ -442,6 +442,27 @@ for _m in ('claude', 'gemini', 'chatgpt'):
         data['betmins'].append({'model': _m, 'week': _n, 'start': _a, 'end': _b, 'min': 25000 if _n.startswith('Week') else 0,
                                 'wagered': round(sum(v for a, v in _rs if _when(_a) <= _when(a) < _when(_b)), 2)})
     data['betmins'].append({'model': _m, 'week': 'Total', 'start': _W[0][1], 'end': _W[-1][2], 'min': 100000, 'wagered': round(sum(v for a, v in _rs), 2)})
+# which experiments each AI leads right now (highest value of the three; ties lead nothing)
+_LBL = {'Stocks': 'Stocks', 'Crypto': 'Crypto', 'China': 'China stocks', 'Metals': 'Metals', 'Energy': 'Oil and energy', 'Options': 'Options',
+        'Currencies': 'Currencies', 'Safe': 'Play it safe', 'Sports': 'Sports', 'Predictions': 'Prediction markets'}
+_last = {}
+for _h in sorted(data['history'], key=lambda h: _when(h['at']) if '_when' in globals() else 0):
+    _last[('claude', _h['portfolio'])] = float(_h['value'])
+for _h in sorted(r.get('history', []), key=lambda h: h['at']):
+    if _h.get('model') in ('gemini', 'chatgpt') and _h['experiment'] in _LBL:
+        _last[(_h['model'], _h['experiment'])] = float(_h['value'])
+for _s in STANDINGS:
+    _s['leads'] = []
+for _e, _lab in _LBL.items():
+    _vals = {m: _last.get((m, _e)) for m in ('claude', 'gemini', 'chatgpt')}
+    if None in _vals.values():
+        continue
+    _top = max(_vals.values())
+    _who = [m for m, v in _vals.items() if abs(v - _top) < 0.5]
+    if len(_who) == 1:
+        for _s in STANDINGS:
+            if _s['id'] == _who[0]:
+                _s['leads'].append(_lab)
 data['standings'] = STANDINGS
 data['leader'] = LEADER   # the AI leading the race on total profit; the page opens on it unless the viewer picked one
 data['rivals_thoughts'] = [x for x in r.get('thoughts', []) if x['at'].replace('Z', '+00:00') >= _cut]
