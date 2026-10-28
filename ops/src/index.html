@@ -1010,7 +1010,7 @@
   <section class="st-page" id="predictions" data-page="predictions" hidden>
     <section class="st-card" aria-labelledby="h-p-bench">
       <h2 class="st-h2" id="h-p-bench">Prediction markets</h2>
-      <p class="st-note">Bets on real-world events at Polymarket and Kalshi prices. A share costs 0 to 100 cents and pays US$1 if the outcome happens, nothing if it doesn’t, so the price is the market’s probability. Started Oct 28 at 12:10 a.m. ET (04:10 UTC).</p>
+      <p class="st-note">Bets on real-world events at Polymarket and Kalshi prices. A share costs 0 to 100 cents and pays US$1 if the outcome happens, nothing if it doesn’t, so the price is the market’s probability. <span data-claude-only>Started Oct 28 at 12:10 a.m. ET (04:10 UTC).</span><span data-model-start="Predictions" hidden></span></p>
       <div class="st-bench">
         <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Predictions">—</span></div>
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Predictions">—</span></div>
@@ -1174,7 +1174,7 @@
   <section class="st-page" id="sports" data-page="sports" hidden>
     <section class="st-card" aria-labelledby="h-b-bench">
       <h2 class="st-h2" id="h-b-bench">Sports bankroll</h2>
-      <p class="st-note">Bankroll counts settled bets only. Started Oct 27 at 4:54 p.m. ET (20:54 UTC). On open bets: <span data-draw="at-risk" data-source="totals" data-field="at_risk" data-where="portfolio=Sports">—</span>.</p>
+      <p class="st-note">Bankroll counts settled bets only. <span data-claude-only>Started Oct 27 at 4:54 p.m. ET (20:54 UTC).</span><span data-model-start="Sports" hidden></span> On open bets: <span data-draw="at-risk" data-source="totals" data-field="at_risk" data-where="portfolio=Sports">—</span>.</p>
       <div class="st-bench">
         <div><span class="st-label">Bankroll</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Sports">—</span></div>
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Sports">—</span></div>
@@ -1349,7 +1349,7 @@
   <section class="st-page" id="h2h" data-page="h2h" hidden>
     <section class="st-card" aria-labelledby="h-h2h">
       <h2 class="st-h2" id="h-h2h">Claude vs Gemini vs ChatGPT</h2>
-      <p class="st-note">Claude runs all ten experiments on this site. Gemini (Google) and ChatGPT (OpenAI) each run their own separate copies of the same five: stocks and anything, crypto, China stocks, metals, and oil and energy. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored only against its own start; nothing is ever added together. All three check in at the same times, search the news themselves and make their own trades. The trading experiments all restarted together on Oct 28 (Claude's betting experiments were not reset).</p>
+      <p class="st-note">Claude (Anthropic), Gemini (Google) and ChatGPT (OpenAI) each run their own separate copies of all ten experiments. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored only against its own start; nothing is ever added together. All three check in at the same times, search the news themselves and make their own trades. The trading experiments all started together on Oct 28 at 9:30 a.m. ET. Claude's sports and prediction-market experiments began a little earlier and were not reset.</p>
       <div data-draw="h2h" data-source="rivals_models rivals_history rivals_trades rivals_takes history totals take"></div>
     </section>
   </section>
@@ -1452,17 +1452,17 @@
     <h2 class="st-h2" id="h-about">About this experiment</h2>
     <p>This page tracks a one-month paper-trading experiment, Oct 28 to Nov 28, 2026, in which AI models compete head to head with pretend money and real-world prices. Each model runs its own separate copy of each experiment, and every copy is scored only against its own starting amount. Experiments are never added together.</p>
     <ul class="st-exp-list">
-      <li><b>Claude</b> (Anthropic) runs all ten experiments. <b>Gemini</b> (Google) and <b>ChatGPT</b> (OpenAI) each run their own copies of the same five: stocks and anything, crypto, China stocks, metals, and oil and energy. Use the Model menu to switch the whole page between them, and the AI vs AI tab to compare them side by side.</li>
+      <li><b>Claude</b> (Anthropic), <b>Gemini</b> (Google) and <b>ChatGPT</b> (OpenAI) each run their own separate copies of all ten experiments. Use the Model menu to switch the whole page between them, and the AI vs AI tab to compare them side by side.</li>
     </ul>
     <ul class="st-exp-list">
       <li><b>Trading:</b> stocks and anything, crypto, China stocks on the Shanghai and Shenzhen exchanges (US$100,000), precious metals, oil and energy, options, currencies with leverage, and a low-risk "play it safe" control (C$100,000 each). All eight were reset to a fresh start on Oct 28, 9:30 a.m. ET, so every AI starts level; China stocks start at the Shanghai open that evening. Claude's first run (Oct 26–28) is archived.</li>
-      <li><b>Betting:</b> sports betting (C$100,000, from Oct 27) and prediction markets (C$100,000, from Oct 28). Betting is Claude only, and was not reset.</li>
+      <li><b>Betting:</b> sports betting (C$100,000, from Oct 27) and prediction markets (C$100,000, from Oct 28). Claude's betting experiments were not reset; Gemini's and ChatGPT's start fresh on Oct 28.</li>
     </ul>
     <h3 class="st-h3">How it works</h3>
     <p>The experiment runs on its own. No person approves or places the individual trades; each AI decides on its own on a fixed schedule, and this page updates each time. Each new trade, bet, result and daily close is also posted automatically to the <a href="https://t.me/PaperTradesAI" target="_blank" rel="noopener">@PaperTradesAI Telegram channel</a>.</p>
     <ul class="st-how">
       <li><b>Automatic check-ins.</b> All three AIs check in at the same times: every hour around the clock, every 30 minutes while US markets are open, and 5 minutes after the US and Chinese markets open and close. Claude also schedules extra check-ins right after big events, such as central-bank decisions, major earnings and election night, and when important news breaks.</li>
-      <li><b>What each check-in does.</b> Each AI looks up current prices, odds and results, searches the latest news itself, decides whether to buy, sell, bet or hold, and explains every decision in its own words. Gemini's and ChatGPT's trades fill at live Yahoo Finance and Polymarket prices at the moment they decide.</li>
+      <li><b>What each check-in does.</b> Each AI looks up current prices, odds and results, searches the latest news itself, decides whether to buy, sell, bet or hold, and explains every decision in its own words. Gemini's and ChatGPT's trades fill at live prices at the moment they decide: Yahoo Finance for stocks, funds, crypto and currencies, Cboe for options, Polymarket for prediction markets and ESPN odds for sports.</li>
       <li><b>How trades are made.</b> Trades only happen during each market's real trading hours, at prices the AI actually found or was filled at, with the amount, price, time and source recorded. Rules tied to a price work like stop and limit orders: if a price touches its level between check-ins, the trade is filled at that level.</li>
       <li><b>Everything is recorded.</b> Every trade and bet goes into the Ledger automatically, with a one-line reason in each simulation's decision log. Losing trades are never removed.</li>
       <li><b>Daily review.</b> Each day closes at midnight UTC. Each AI then writes its own report card and grades itself for every experiment it runs. Every evening a separate check re-verifies the last 24 hours of Claude's prices, trades and maths against fresh sources and logs any correction, and flags anything odd in Gemini's and ChatGPT's records.</li>
@@ -2706,8 +2706,8 @@
 
   // ---- Head to head: Claude vs Gemini vs ChatGPT ----
   const AIS = { claude: { label: 'Claude', color: '#d97757' }, gemini: { label: 'Gemini', color: '#4f8ff7' }, chatgpt: { label: 'ChatGPT', color: 'var(--ai-chatgpt)' } };
-  const H2H_EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Predictions'];
-  const H2H_PLAN = { gemini: ['Stocks', 'Crypto', 'China', 'Metals', 'Energy'], chatgpt: ['Stocks', 'Crypto', 'China', 'Metals', 'Energy'] };
+  const H2H_EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'];
+  const H2H_PLAN = { gemini: H2H_EXPS, chatgpt: H2H_EXPS };
   const H2H_START = (exp) => 100000;
   dash.draw('h2h', (el) => {
     const M = dash.data('rivals_models'), RH = dash.data('rivals_history'), RT = dash.data('rivals_trades'), RK = dash.data('rivals_takes');
@@ -2841,6 +2841,12 @@
     document.querySelectorAll('button[data-v]').forEach((b) => { if (!PFS_ALL.includes(b.dataset.v)) return; if (exps && !exps.includes(b.dataset.v)) b.setAttribute('data-model-hidden', ''); else b.removeAttribute('data-model-hidden'); });
     document.querySelectorAll('[data-claude-only]').forEach((el) => { el.hidden = !!meta; });
     document.querySelectorAll('[data-model-text-plain]').forEach((el) => { el.hidden = !meta; });
+    document.querySelectorAll('[data-model-start]').forEach((el) => {
+      el.hidden = !meta;
+      if (!meta) return;
+      const st = (views[id].history.find((h) => h.portfolio === el.dataset.modelStart) || {}).at;
+      el.textContent = meta.label + '’s own copy started ' + (st ? stFmt.when(st) : 'at the Oct 28 fresh start') + '.';
+    });
     document.querySelectorAll('[data-model-text]').forEach((el) => {
       el.hidden = !meta;
       if (!meta) return;

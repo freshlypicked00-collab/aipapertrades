@@ -20,9 +20,20 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import tgcharts  # noqa: E402
 
 STATE = 'ops/src/rivals.json'
-ALL_EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Predictions']
+ALL_EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
 EXP_LABEL = {'Stocks': 'Stocks and anything', 'Crypto': 'Crypto', 'China': 'China stocks', 'Metals': 'Metals',
-             'Energy': 'Oil and energy', 'Predictions': 'Prediction markets'}
+             'Energy': 'Oil and energy', 'Options': 'Options', 'Currencies': 'Currencies', 'Safe': 'Play it safe',
+             'Sports': 'Sports', 'Predictions': 'Prediction markets'}
+SAFE_OK = {'SGOV', 'BIL', 'SHV', 'SHY', 'VGSH', 'IEF', 'TLT', 'BND', 'AGG', 'VGIT', 'TIP', 'SCHD', 'VIG', 'VYM', 'DVY', 'NOBL',
+           'VTI', 'SPY', 'VOO', 'IVV', 'USMV', 'GLD', 'IAU', 'GLDM'}
+SAFE_GOLD = {'GLD', 'IAU', 'GLDM'}
+FX_NAMES = {'USD': 'US dollar', 'EUR': 'Euro', 'JPY': 'Japanese yen', 'GBP': 'British pound', 'CHF': 'Swiss franc',
+            'AUD': 'Australian dollar', 'NZD': 'New Zealand dollar', 'MXN': 'Mexican peso', 'CNY': 'Chinese yuan',
+            'HKD': 'Hong Kong dollar', 'SEK': 'Swedish krona', 'NOK': 'Norwegian krone', 'SGD': 'Singapore dollar',
+            'INR': 'Indian rupee', 'BRL': 'Brazilian real', 'ZAR': 'South African rand', 'KRW': 'South Korean won', 'TRY': 'Turkish lira'}
+FX_LEVERAGE = 8
+LEAGUES = [('football', 'nfl', 'NFL'), ('basketball', 'nba', 'NBA'), ('hockey', 'nhl', 'NHL'), ('baseball', 'mlb', 'MLB'),
+           ('football', 'college-football', 'NCAAF'), ('basketball', 'mens-college-basketball', 'NCAAB'), ('soccer', 'eng.1', 'EPL')]
 BOOK_CUR = {'China': 'USD'}  # every other experiment is counted in C$
 START = 100000.0
 MAX_ORDERS = 10
@@ -99,7 +110,22 @@ def quote(exp, symbol, outcome=None):
         if outcome not in m['prices']:
             raise ValueError(f'{symbol} has no outcome {outcome!r} (has {list(m["prices"])})')
         return m['prices'][outcome], 'USD', {**m, 'name': m['question']}
+    if exp == 'Currencies':
+        code = symbol.upper()
+        if code not in FX_NAMES:
+            raise ValueError(f'unknown currency {symbol!r}; use a code like ' + ', '.join(list(FX_NAMES)[:8]))
+        if code == 'USD':
+            return 1.0, 'USD', {'name': FX_NAMES[code]}
+        px, cur, _ = yahoo(f'{code}USD=X')
+        if cur != 'USD':
+            raise ValueError(f'no US$ rate for {code}')
+        return px, 'USD', {'name': FX_NAMES[code]}
+    if exp == 'Options':
+        o = option_quote(symbol)
+        return o['mid'], 'USD', o
     px, cur, name = yahoo(symbol)
+    if exp == 'Safe' and symbol not in SAFE_OK:
+        raise ValueError('Play it safe only allows these low-risk funds: ' + ', '.join(sorted(SAFE_OK)))
     if exp == 'China':
         if not re.search(r'\.(SS|SZ)$', symbol) or cur != 'CNY':
             raise ValueError('China stocks must be Shanghai (.SS) or Shenzhen (.SZ) listings priced in yuan')
@@ -113,10 +139,115 @@ def quote(exp, symbol, outcome=None):
     return px, cur, {'name': name}
 
 
+_cboe = {}
+OCC = re.compile(r'^([A-Z]{1,6})(\d{2})(\d{2})(\d{2})([CP])(\d{8})$')
+
+
+def option_parts(symbol):
+    m = OCC.match(symbol)
+    if not m:
+        raise ValueError('options use OCC symbols: TICKER + YYMMDD + C or P + strike x1000 in 8 digits, e.g. NVDA261120C00200000')
+    tk, yy, mm, dd, cp, k = m.groups()
+    exp = datetime(2000 + int(yy), int(mm), int(dd), 16, 0, tzinfo=NY)
+    return tk, exp, cp, int(k) / 1000
+
+
+def option_name(symbol):
+    tk, exp, cp, k = option_parts(symbol)
+    return f"{tk} {exp.strftime('%b')} {exp.day} ${k:g} {'call' if cp == 'C' else 'put'}"
+
+
+def option_quote(symbol):
+    tk, exp, cp, k = option_parts(symbol)
+    if tk not in _cboe:
+        j = get_json(f'https://cdn.cboe.com/api/global/delayed_quotes/options/{tk}.json', timeout=30)
+        _cboe[tk] = {o['option']: o for o in j['data']['options']}
+    o = _cboe[tk].get(symbol)
+    if not o:
+        raise ValueError(f'{symbol} is not in the {tk} option chain (check the expiry date and strike)')
+    bid, ask, last = float(o.get('bid') or 0), float(o.get('ask') or 0), float(o.get('last_trade_price') or 0)
+    mid = (bid + ask) / 2 if bid and ask else (last or ask or bid)
+    return {'name': option_name(symbol), 'bid': bid, 'ask': ask or mid, 'mid': mid, 'underlying': tk, 'expiry': exp, 'cp': cp, 'strike': k}
+
+
+_games = None
+
+
+def espn_games():
+    """Upcoming and recent games with moneylines, from ESPN's public scoreboards (today and the next two days)."""
+    global _games
+    if _games is not None:
+        return _games
+    _games = {}
+    days = [(NOW.astimezone(NY) + timedelta(days=d)).strftime('%Y%m%d') for d in (0, 1, 2)]
+    for sport, league, short in LEAGUES:
+        for d in days:
+            try:
+                j = get_json(f'https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/scoreboard?dates={d}', timeout=20)
+            except Exception:
+                continue
+            for ev in j.get('events', []):
+                g = _parse_game(ev, sport, league, short)
+                if g:
+                    _games[g['id']] = g
+    return _games
+
+
+def _ml(odds, side):
+    try:
+        v = odds.get(f'{side}TeamOdds', {}).get('moneyLine')
+        if v is None:
+            ml = odds.get('moneyline', {}).get(side, {})
+            v = (ml.get('close') or ml.get('open') or {}).get('odds')
+        return int(str(v).replace('+', '')) if v not in (None, '', 'OFF', 'EVEN') else (100 if v == 'EVEN' else None)
+    except Exception:
+        return None
+
+
+def _parse_game(ev, sport, league, short):
+    try:
+        c = ev['competitions'][0]
+        teams = {t['homeAway']: t for t in c['competitors']}
+        odds = (c.get('odds') or [{}])[0]
+        st = ev['status']['type']
+        return {'id': str(ev['id']), 'sport': sport, 'league': league, 'short': short, 'name': ev.get('name') or ev.get('shortName'),
+                'start': ev['date'], 'state': st.get('state'), 'completed': bool(st.get('completed')),
+                'home': teams['home']['team']['displayName'], 'away': teams['away']['team']['displayName'],
+                'home_ml': _ml(odds, 'home'), 'away_ml': _ml(odds, 'away'),
+                'home_score': teams['home'].get('score'), 'away_score': teams['away'].get('score'),
+                'winner': next((k for k, t in teams.items() if t.get('winner')), None)}
+    except Exception:
+        return None
+
+
+def game_result(bet):
+    g = espn_games().get(bet['game'])
+    if not g or not g['completed']:
+        try:
+            j = get_json(f"https://site.api.espn.com/apis/site/v2/sports/{bet['sport']}/{bet['league']}/summary?event={bet['game']}", timeout=20)
+            comp = j['header']['competitions'][0]
+            ev = {'id': bet['game'], 'name': bet['event'], 'date': comp.get('date', bet['starts_at']), 'status': comp['status'],
+                  'competitions': [{'competitors': comp['competitors'], 'odds': []}]}
+            g = _parse_game(ev, bet['sport'], bet['league'], bet['short'])
+        except Exception:
+            return None
+    return g if g and g['completed'] else None
+
+
+def payout(stake, ml):
+    return stake * (ml / 100 if ml > 0 else 100 / abs(ml))
+
+
 def us_open():
     t = NOW.astimezone(NY)
     hm = t.hour * 60 + t.minute
     return t.weekday() < 5 and 570 <= hm < 960
+
+
+def fx_open():
+    t = NOW.astimezone(NY)
+    wd, h = t.weekday(), t.hour
+    return not (wd == 5 or (wd == 4 and h >= 17) or (wd == 6 and h < 17))
 
 
 def china_open():
@@ -127,7 +258,10 @@ def china_open():
 
 # ---------------- state ----------------
 def new_book(exp):
-    return {'cur': BOOK_CUR.get(exp, 'CAD'), 'cash': START, 'positions': {}}
+    b = {'cur': BOOK_CUR.get(exp, 'CAD'), 'cash': START, 'positions': {}}
+    if exp == 'Sports':
+        b['bets'] = []
+    return b
 
 
 def load_state():
@@ -142,6 +276,8 @@ def pos_key(symbol, outcome):
 
 
 def value_book(exp, book, fx, notes):
+    if exp == 'Sports':
+        return round(START + sum(b['result'] for b in book.get('bets', []) if b['status'] != 'Open'), 2)
     total = book['cash']
     for key, p in book['positions'].items():
         sym, _, outcome = key.partition('|')
@@ -274,9 +410,9 @@ def _ask_gemini(key, model, prompt, search=True):
 
 RIVALS = {
     'gemini': {'label': 'Gemini', 'company': 'Google', 'color': '#4f8ff7', 'env': 'GEMINI_API_KEY', 'pick': pick_gemini, 'ask': ask_gemini,
-               'exps': ['Stocks', 'Crypto', 'China', 'Metals', 'Energy']},
+               'exps': ALL_EXPS},
     'chatgpt': {'label': 'ChatGPT', 'company': 'OpenAI', 'color': '#f2f2f2', 'env': 'OPENAI_API_KEY', 'pick': pick_openai, 'ask': ask_openai,
-                'exps': ['Stocks', 'Crypto', 'China', 'Metals', 'Energy']},
+                'exps': ALL_EXPS},
 }
 
 RULES = {
@@ -285,7 +421,11 @@ RULES = {
     'China': 'China stocks: Shanghai and Shenzhen A-shares and ETFs, Yahoo Finance symbols ending in .SS or .SZ (for example 600519.SS, 588000.SS, 159995.SZ), priced in yuan. Counted in US$ (starts at US$100,000). Buys are rounded down to lots of 100 shares. Shares bought today (Beijing date) cannot be sold until the next trading day (T+1). Orders are only filled while the market is open: 9:30-11:30 and 13:00-15:00 Beijing time on weekdays.',
     'Metals': 'Metals: precious and industrial metals through US$-priced ETFs, miners or futures, Yahoo Finance symbols like GLD, SLV, PPLT, GDX, NUGT, GC=F, SI=F, HG=F. Counted in C$.',
     'Energy': 'Oil and energy: oil, gas and energy through US$-priced ETFs, stocks or futures, Yahoo Finance symbols like USO, XLE, XOM, UNG, GUSH, CL=F, NG=F. Counted in C$.',
-    'Predictions': 'Prediction markets: Polymarket markets, named by their URL slug, buying "Yes" or "No" shares that pay US$1 if right. The market must be open; resolved markets settle automatically. Counted in C$.',
+    'Predictions': 'Prediction markets: Polymarket markets, named by their URL slug (the part after polymarket.com/event/ or /market/), buying "Yes" or "No" shares that pay US$1 if right. The market must be open; resolved markets settle automatically. Counted in C$.',
+    'Options': 'Options: buy calls or puts on US stocks and ETFs (long only; no writing options). Use the OCC symbol: TICKER + expiry YYMMDD + C or P + strike x1000 in 8 digits, e.g. NVDA261120C00200000 is the NVDA Nov 20, 2026 $200 call. Buys fill at the Cboe ask, sells at the bid, valued at the mid; give "contracts" (each is 100 shares) or "amount". US market hours only. Options left at expiry settle at their intrinsic value. Counted in C$.',
+    'Currencies': f'Currencies: forex with up to {FX_LEVERAGE}x leverage, like a forex account. Positions are currency codes ({", ".join(FX_NAMES)}), each valued in US$ and converted to C$. Actions: "buy" (go long, amount in C$), "sell" (close part of a long, fraction), "short" (borrow and sell, amount in C$), "cover" (buy back part of a short, fraction). Cash may go negative (borrowing). Total position size may not exceed {FX_LEVERAGE}x the account value. Trades Sunday 5 p.m. to Friday 5 p.m. ET. Counted in C$.',
+    'Safe': 'Play it safe: the low-risk control. Only these funds: ' + ', '.join(sorted(SAFE_OK)) + '. No leverage, no single stocks, no options, gold funds (GLD, IAU, GLDM) at most 10% of the account. US market hours only. Counted in C$.',
+    'Sports': 'Sports: moneyline bets on the games listed below (odds from ESPN). Action "bet" with "game" (the game id), "pick" ("home" or "away") and "amount" (stake in C$). The bankroll counts settled bets only; you cannot stake more than the bankroll minus open stakes. Bets close when the game starts and settle automatically from the final score. Counted in C$.',
 }
 
 
@@ -293,7 +433,7 @@ def money(v, cur):
     return CUR_SYM[cur] + f'{v:,.0f}'
 
 
-def build_prompt(label, exps, books, values, fx, recent, closed_day=None):
+def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refused=()):
     lines = [
         f'You are {label}, taking part in Paper Trades (papertrades.ai), a public paper-trading experiment that compares AI models with pretend money and real prices.',
         f'It is now {NOW.astimezone(timezone(timedelta(hours=-4))).strftime("%A %b %-d, %Y, %-I:%M %p")} ET ({iso()}). Beijing time: {NOW.astimezone(BJ).strftime("%a %-I:%M %p")}.',
@@ -304,15 +444,35 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None):
         '- US-listed stocks and ETFs fill only while the US market is open (9:30 a.m. to 4:00 p.m. ET, weekdays); futures (=F) and crypto any time.',
     ]
     lines += ['- ' + RULES[e] for e in exps]
-    lines += [f'Exchange rates now: USD/CAD {fx["USDCAD"]:.4f}, USD/CNY {fx["USDCNY"]:.4f}.', 'Use web search to check news and current prices before deciding.', '', 'Your portfolios now:']
+    lines += [f'Exchange rates now: USD/CAD {fx["USDCAD"]:.4f}, USD/CNY {fx["USDCNY"]:.4f}.', 'Use web search to check news and current prices before deciding.', '']
+    if 'Sports' in exps:
+        gl = [g for g in espn_games().values() if g['state'] == 'pre' and g['home_ml'] and g['away_ml']
+              and datetime.fromisoformat(g['start'].replace('Z', '+00:00')) > NOW]
+        gl.sort(key=lambda g: g['start'])
+        lines.append('Games open for betting (id: league, away @ home, start ET, moneylines away / home):')
+        for g in gl[:45]:
+            st = datetime.fromisoformat(g['start'].replace('Z', '+00:00')).astimezone(NY).strftime('%a %-I:%M %p')
+            lines.append(f"  - {g['id']}: {g['short']}, {g['away']} @ {g['home']}, {st}, {g['away_ml']:+d} / {g['home_ml']:+d}")
+        if not gl:
+            lines.append('  (none right now)')
+        lines.append('')
+    lines.append('Your portfolios now:')
     for exp in exps:
         b = books[exp]
+        if exp == 'Sports':
+            open_b = [x for x in b.get('bets', []) if x['status'] == 'Open']
+            lines.append(f"Sports: bankroll {money(values[exp], 'CAD')}, open stakes {money(sum(x['stake'] for x in open_b), 'CAD')}")
+            lines += [f"  - open bet on {x['pick_team']} ({x['event']}) at {x['odds']:+d}, stake C${x['stake']:,.0f}" for x in open_b]
+            continue
         lines.append(f'{EXP_LABEL[exp]}: value {money(values[exp], b["cur"])}, cash {money(b["cash"], b["cur"])}')
         for key, p in b['positions'].items():
             cs = CUR_SYM[p['pcur']]
             lines.append(f'  - {key} ({p.get("name", key)}): {p["qty"]:,.4f} units, average cost {cs}{p["entry"]:,.4f}, now {cs}{p.get("last", p["entry"]):,.4f}')
     if closed_day:
         lines.append(f'\nThe trading day {closed_day[0]} (UTC) has just closed. Your results for that day: ' + '; '.join(f'{EXP_LABEL[e]} {r}' for e, r in closed_day[1].items()) + '. Grade yourself honestly in report_card.')
+    if refused:
+        lines.append('\nOrders refused at your last check-in (fix these if you still want them):')
+        lines += ['  - ' + n for n in refused[-8:]]
     if recent:
         lines.append('\nYour recent trades:')
         lines += [f'  - {t["at"]} {t["experiment"]} {t["action"]} {t["symbol"]}{" " + t["outcome"] if t.get("outcome") else ""}: {t["reason"]}' for t in recent[-10:]]
@@ -321,8 +481,10 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None):
         'Reply with ONLY one JSON object, no other text, in this form:',
         '{"take": "one sentence, in your own words, on how you are doing and what you are thinking overall",',
         ' "thoughts": {' + ', '.join(f'"{e}": "one sentence on this experiment right now, in your own words"' for e in exps) + '}' + (', "report_card": {' + ', '.join(f'"{e}": {{"grade": "A" to "F", "text": "2-3 sentences: how you did in this experiment on {closed_day[0]} and what you will do differently"}}' for e in exps) + '}' if closed_day else '') + ',',
-        ' "orders": [{"experiment": ' + ' | '.join(f'"{e}"' for e in exps) + ', "action": "buy" | "sell", "symbol": "Yahoo symbol or Polymarket slug",',
-        '             "outcome": "Yes" | "No" (Predictions only), "amount": 25000 (buy: money to spend, in that experiment\'s currency), "fraction": 1.0 (sell: share of the position, 0 to 1),',
+        ' "watchlist": [{"at": "ISO date-time, ET", "when": "short human time, e.g. Thu Oct 29, 8:30 a.m. ET", "event": "what is coming up", "affects": ["experiment", ...], "why": "one sentence, in your own words, on why it matters to you"}] (up to 8 upcoming events you are watching),',
+        ' "orders": [{"experiment": ' + ' | '.join(f'"{e}"' for e in exps) + ', "action": "buy" | "sell" | "short" | "cover" | "bet", "symbol": "Yahoo symbol, currency code, OCC option symbol or Polymarket slug",',
+        '             "outcome": "Yes" | "No" (Predictions only), "game": "id" and "pick": "home" | "away" (Sports only), "contracts": 5 (Options, optional),',
+        '             "amount": 25000 (buy, short or bet: money to use, in that experiment\'s currency), "fraction": 1.0 (sell or cover: share of the position, 0 to 1),',
         '             "reason": "one plain sentence"}]}',
         f'Use an empty orders list to hold. At most {MAX_ORDERS} orders.',
     ]
@@ -340,53 +502,85 @@ def execute(model_id, exps, books, order, fx, state):
     exp = order.get('experiment')
     if exp not in exps:
         raise ValueError(f'unknown experiment {exp!r}')
+    if NOW < FRESH_START:
+        raise ValueError('the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then')
     book = books[exp]
+    action = str(order.get('action', '')).lower()
+    reason = str(order.get('reason', ''))[:400]
+    if exp == 'Sports':
+        return place_bet(model_id, book, order, reason, state)
     sym = str(order.get('symbol', '')).strip()
     outcome = order.get('outcome') if exp == 'Predictions' else None
     if exp != 'Predictions':
         sym = sym.upper()
     key = pos_key(sym, outcome)
-    action = str(order.get('action', '')).lower()
-    if action not in ('buy', 'sell'):
-        raise ValueError(f'unknown action {action!r}')
-    if action == 'sell' and key not in book['positions']:
-        raise ValueError(f'no {key} position to sell')
-    if NOW < FRESH_START:
-        raise ValueError('the fresh start begins at 9:30 a.m. ET Oct 28; no trades before then')
-    if exp in ('Stocks', 'Metals', 'Energy') and not sym.endswith('=F') and not us_open():
+    allowed = ('buy', 'sell', 'short', 'cover') if exp == 'Currencies' else ('buy', 'sell')
+    if action not in allowed:
+        raise ValueError(f'{action!r} is not allowed in {EXP_LABEL[exp]} (use ' + ', '.join(allowed) + ')')
+    p = book['positions'].get(key)
+    if action == 'sell' and not (p and p['qty'] > 0):
+        raise ValueError(f'no long {key} position to sell')
+    if action == 'cover' and not (p and p['qty'] < 0):
+        raise ValueError(f'no short {key} position to cover')
+    if exp in ('Stocks', 'Metals', 'Energy', 'Safe', 'Options') and not sym.endswith('=F') and not us_open():
         raise ValueError('US market is closed; US-listed orders fill only 9:30 a.m. to 4:00 p.m. ET on weekdays')
     if exp == 'China' and not china_open():
         raise ValueError('China market is closed; orders fill only during Shanghai/Shenzhen trading hours')
+    if exp == 'Currencies' and not fx_open():
+        raise ValueError('forex is closed (it trades Sunday 5 p.m. to Friday 5 p.m. ET)')
     px, pcur, info = quote(exp, sym, outcome)
     if exp == 'Predictions' and (info['closed'] or not info['active']):
         raise ValueError(f'{sym} is closed')
+    if exp == 'Options':
+        px = info['ask'] if action == 'buy' else info['bid']
+        if px <= 0:
+            raise ValueError(f'no {"ask" if action == "buy" else "bid"} price for {sym} right now')
     unit = to_book(px, pcur, book['cur'], fx)
     today = NOW.astimezone(BJ).date().isoformat()
-    if action == 'buy':
-        amt = min(float(order.get('amount', order.get('amount_cad', 0)) or 0), book['cash'])
-        if amt < 1 or unit <= 0:
+    if action in ('buy', 'short'):
+        want = float(order.get('amount', order.get('amount_cad', 0)) or 0)
+        if exp == 'Options' and order.get('contracts'):
+            want = int(order['contracts']) * 100 * unit
+        if exp != 'Currencies':
+            want = min(want, book['cash'])
+        if want < 1 or unit <= 0:
             raise ValueError('nothing to buy (no cash or zero price)')
-        qty = amt / unit
+        qty = want / unit
         if exp == 'China':
             qty = int(qty // 100) * 100
             if qty < 100:
                 raise ValueError('less than one lot of 100 shares')
+        if exp == 'Options':
+            qty = int(qty // 100) * 100
+            if qty < 100:
+                raise ValueError('not enough cash for one contract (100 shares)')
         amt = qty * unit
-        p = book['positions'].get(key)
+        if exp == 'Safe' and sym in SAFE_GOLD:
+            acct = value_book('Safe', book, fx, [])
+            gold = sum(to_book(q['qty'] * q.get('last', q['entry']), q['pcur'], 'CAD', fx) for k, q in book['positions'].items() if k in SAFE_GOLD)
+            if gold + amt > 0.10 * acct + 1:
+                raise ValueError('gold funds are capped at 10% of the Play it safe account')
+        sign = -1 if action == 'short' else 1
+        if exp == 'Currencies':
+            acct = value_book('Currencies', book, fx, [])
+            gross = sum(abs(to_book(q['qty'] * q.get('last', q['entry']), q['pcur'], 'CAD', fx)) for q in book['positions'].values())
+            if gross + amt > FX_LEVERAGE * acct + 1:
+                raise ValueError(f'that would take positions above {FX_LEVERAGE}x the account value')
+        if p and (p['qty'] > 0) != (sign > 0):
+            raise ValueError(f'close the opposite {key} position first')
         if p:
-            p['entry'] = (p['entry'] * p['qty'] + px * qty) / (p['qty'] + qty)
-            p['qty'] += qty
+            p['entry'] = (p['entry'] * abs(p['qty']) + px * qty) / (abs(p['qty']) + qty)
+            p['qty'] += sign * qty
         else:
-            p = book['positions'][key] = {'qty': qty, 'entry': px, 'pcur': pcur, 'name': info.get('name', sym), 'opened_at': iso()}
-        p['last'] = px
+            p = book['positions'][key] = {'qty': sign * qty, 'entry': px, 'pcur': pcur, 'name': info.get('name', sym), 'opened_at': iso()}
+        p['last'] = info['mid'] if exp == 'Options' else px
         if exp == 'China':
             p['today_qty'] = (p.get('today_qty', 0) if p.get('today_date') == today else 0) + qty
             p['today_date'] = today
-        book['cash'] -= amt
+        book['cash'] -= sign * amt
     else:
-        p = book['positions'][key]
         frac = max(0.0, min(1.0, float(order.get('fraction', 1) or 1)))
-        qty = p['qty'] * frac
+        qty = abs(p['qty']) * frac
         if exp == 'China':
             free = p['qty'] - (p.get('today_qty', 0) if p.get('today_date') == today else 0)
             qty = min(qty, free)
@@ -394,16 +588,102 @@ def execute(model_id, exps, books, order, fx, state):
                 qty = int(qty // 100) * 100
             if qty <= 0:
                 raise ValueError('shares bought today cannot be sold until the next trading day (T+1)')
+        if exp == 'Options' and qty < abs(p['qty']):
+            qty = max(100, int(qty // 100) * 100)
         amt = qty * unit
-        p['qty'] -= qty
-        book['cash'] += amt
-        if p['qty'] < 1e-9:
+        sign = 1 if action == 'sell' else -1   # sell a long: cash in; cover a short: cash out
+        p['qty'] -= sign * qty
+        book['cash'] += sign * amt
+        if abs(p['qty']) < 1e-9:
             book['positions'].pop(key)
     t = {'at': iso(), 'model': model_id, 'experiment': exp, 'action': action.capitalize(), 'symbol': sym, 'outcome': outcome,
          'name': info.get('name', sym), 'price': px, 'pcur': pcur, 'qty': qty, 'amount': round(amt, 2), 'cur': book['cur'],
-         'fx': fx, 'reason': str(order.get('reason', ''))[:400]}
+         'fx': fx, 'reason': reason}
     state['trades'].append(t)
     return t
+
+
+def place_bet(model_id, book, order, reason, state):
+    gid = str(order.get('game', '')).strip()
+    g = espn_games().get(gid)
+    if not g:
+        raise ValueError(f'game {gid!r} is not in the list of games open for betting')
+    if g['state'] != 'pre' or datetime.fromisoformat(g['start'].replace('Z', '+00:00')) <= NOW:
+        raise ValueError(f"{g['name']} has already started")
+    pick = str(order.get('pick', '')).lower()
+    if pick not in ('home', 'away'):
+        team = pick
+        pick = 'home' if team and team in g['home'].lower() else 'away' if team and team in g['away'].lower() else ''
+    if pick not in ('home', 'away'):
+        raise ValueError('pick must be "home" or "away"')
+    ml = g[f'{pick}_ml']
+    if not ml:
+        raise ValueError('no moneyline for that game')
+    bets = book.setdefault('bets', [])
+    bank = START + sum(b['result'] for b in bets if b['status'] != 'Open') - sum(b['stake'] for b in bets if b['status'] == 'Open')
+    stake = min(float(order.get('amount', 0) or 0), bank)
+    if stake < 1:
+        raise ValueError('no bankroll left for that stake')
+    n = len(state.setdefault('bet_ids', {}).setdefault(model_id, [])) + 1
+    bid = f"{model_id[0].upper()}{n}"
+    state['bet_ids'][model_id].append(bid)
+    b = {'id': bid, 'game': gid, 'sport': g['sport'], 'league': g['league'], 'short': g['short'], 'event': f"{g['away']} @ {g['home']}",
+         'pick': pick, 'pick_team': g[pick], 'odds': ml, 'stake': round(stake, 2), 'to_win': round(payout(stake, ml), 2),
+         'starts_at': g['start'], 'placed_at': iso(), 'status': 'Open', 'result': 0.0, 'reason': reason}
+    bets.append(b)
+    t = {'at': iso(), 'model': model_id, 'experiment': 'Sports', 'action': 'Bet', 'symbol': bid, 'outcome': None,
+         'name': f"{g['short']}: {b['pick_team']} moneyline ({b['event']})", 'price': ml, 'pcur': 'CAD', 'qty': 1,
+         'amount': b['stake'], 'cur': 'CAD', 'fx': None, 'reason': reason, 'bet': bid}
+    state['trades'].append(t)
+    return t
+
+
+def settle_bets(model_id, book, state):
+    out = []
+    for b in book.get('bets', []):
+        if b['status'] != 'Open':
+            continue
+        g = game_result(b)
+        if not g:
+            continue
+        if g['winner'] is None:
+            b.update(status='Push', result=0.0)
+        else:
+            won = g['winner'] == b['pick']
+            b.update(status='Won' if won else 'Lost', result=b['to_win'] if won else -b['stake'])
+        b['settled_at'] = iso()
+        b['final'] = f"{g['away']} {g['away_score']}, {g['home']} {g['home_score']}"
+        t = {'at': iso(), 'model': model_id, 'experiment': 'Sports', 'action': b['status'], 'symbol': b['id'], 'outcome': None,
+             'name': f"{b['short']}: {b['pick_team']} moneyline ({b['event']})", 'price': b['odds'], 'pcur': 'CAD', 'qty': 1,
+             'amount': round(b['result'], 2), 'cur': 'CAD', 'fx': None, 'reason': 'Final: ' + b['final'] + '.', 'bet': b['id']}
+        state['trades'].append(t)
+        out.append(t)
+    return out
+
+
+def settle_options(model_id, book, fx, state):
+    out = []
+    for key in list(book['positions']):
+        try:
+            tk, exp, cp, k = option_parts(key)
+        except ValueError:
+            continue
+        if NOW < exp.astimezone(timezone.utc):
+            continue
+        try:
+            spot = yahoo(tk)[0]
+        except Exception:
+            continue
+        val = max(0.0, spot - k) if cp == 'C' else max(0.0, k - spot)
+        p = book['positions'].pop(key)
+        amt = to_book(p['qty'] * val, 'USD', book['cur'], fx)
+        book['cash'] += amt
+        t = {'at': iso(), 'model': model_id, 'experiment': 'Options', 'action': 'Expired', 'symbol': key, 'outcome': None,
+             'name': option_name(key), 'price': val, 'pcur': 'USD', 'qty': p['qty'], 'amount': round(amt, 2), 'cur': book['cur'], 'fx': fx,
+             'reason': f'Expired with {tk} at US${spot:,.2f}: ' + (f'worth US${val:,.2f} a share.' if val else 'worthless.')}
+        state['trades'].append(t)
+        out.append(t)
+    return out
 
 
 def settle_predictions(model_id, book, fx, state):
@@ -506,6 +786,12 @@ def esc(s):
 
 
 def fmt_price(t):
+    if t['experiment'] == 'Sports':
+        return f"at {int(t['price']):+d}"
+    if t['experiment'] == 'Options':
+        return f"US${t['price']:,.2f} per share ({int(t['qty'] // 100)} contract{'s' if t['qty'] >= 200 else ''})"
+    if t['experiment'] == 'Currencies':
+        return f"US${t['price']:,.4f} per {t['symbol']}"
     if t['experiment'] == 'Predictions':
         return f"{t['price'] * 100:.1f}¢ a share"
     unit = ' per coin' if t['experiment'] == 'Crypto' else ' per share' if t['experiment'] in ('Stocks', 'China') else ''
@@ -513,11 +799,13 @@ def fmt_price(t):
 
 
 def tg_trade(label, t, source=None, photo=None):
-    icon = {'Buy': '🟢', 'Sell': '🔴', 'Settled': '🏁'}.get(t['action'], '•')
+    icon = {'Buy': '🟢', 'Sell': '🔴', 'Short': '🔻', 'Cover': '🔺', 'Settled': '🏁', 'Expired': '⌛', 'Bet': '🎯', 'Won': '✅', 'Lost': '❌', 'Push': '➖'}.get(t['action'], '•')
     what = f"{t['symbol']} {t['outcome']}" if t.get('outcome') else t['symbol']
+    if t['experiment'] == 'Sports':
+        what = t['name']
     head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(label, f'<b>{label.upper()}</b>')
-    msg = (f"{head}\n{icon} <b>{EXP_LABEL[t['experiment']]}: {t['action']} {esc(what)}</b>\n{esc(t['name'])}\n"
-           f"{fmt_price(t)}, {money(t['amount'], t['cur'])}\n<i>{esc(t['reason'])}</i>")
+    msg = (f"{head}\n{icon} <b>{EXP_LABEL[t['experiment']]}: {t['action']} {esc(what)}</b>\n" + ('' if t['experiment'] == 'Sports' else f"{esc(t['name'])}\n") +
+           f"{fmt_price(t)}, {(('+' if t['amount'] >= 0 else '−') + money(abs(t['amount']), t['cur'])) if t['action'] in ('Won', 'Lost', 'Push') else money(t['amount'], t['cur'])}\n<i>{esc(t['reason'])}</i>")
     if source:
         msg += f"\nSource: <a href=\"{esc(source['url'])}\">{esc(source['title'][:80])}</a>"
     tg_photo(msg + f'\n⚔️ AI vs AI: Claude vs Gemini vs ChatGPT · {SITE}', photo)
@@ -551,9 +839,15 @@ def main():
                 m['started'][e] = iso()
         notes = []
         day_posts = []
+        settled = []
         if 'Predictions' in exps:
-            for t in settle_predictions(mid, m['books']['Predictions'], fx, state):
-                tg_trade(r['label'], t, None, chart(r['label'], r['color'], 'Predictions', state, mid))
+            settled += settle_predictions(mid, m['books']['Predictions'], fx, state)
+        if 'Sports' in exps:
+            settled += settle_bets(mid, m['books']['Sports'], state)
+        if 'Options' in exps:
+            settled += settle_options(mid, m['books']['Options'], fx, state)
+        for t in settled:
+            tg_trade(r['label'], t, None, chart(r['label'], r['color'], t['experiment'], state, mid))
         values = {e: value_book(e, m['books'][e], fx, notes) for e in exps}
         status, take, sources, made = 'ok', None, [], []
         try:
@@ -573,7 +867,8 @@ def main():
                         res[e] = f'{"+" if c[-1] >= o[-1] else "-"}{CUR_SYM[cur]}{abs(c[-1] - o[-1]):,.0f} ({(c[-1] / o[-1] - 1) * 100:+.1f}%), ending at {money(c[-1], cur)}'
                 if res:
                     closed = (day, res)
-            prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed)
+            refused = [n.replace('order refused ', '') for n in (m.get('last_run') or {}).get('notes', []) if n.startswith('order refused') and 'fresh start' not in n]
+            prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed, refused)
             import time as _time
             t0 = _time.time()
             for i, model in enumerate(picks):
@@ -602,6 +897,15 @@ def main():
                 sources = sources or src2
                 reply = parse_reply(text)
             take = str(reply.get('take', ''))[:300] or None
+            wl = []
+            for w in (reply.get('watchlist') or [])[:8]:
+                if isinstance(w, dict) and w.get('event'):
+                    aff = w.get('affects') or []
+                    aff = [a for a in (aff if isinstance(aff, list) else str(aff).split(',')) if str(a).strip() in exps]
+                    wl.append({'at': str(w.get('at', ''))[:40], 'when': str(w.get('when', ''))[:60], 'event': str(w['event'])[:160],
+                               'affects': ', '.join(str(a).strip() for a in aff), 'why': str(w.get('why', ''))[:300]})
+            if wl:
+                m['watchlist'] = {'at': iso(), 'items': wl}
             for e, txt in (reply.get('thoughts') or {}).items():
                 if e in exps and str(txt).strip():
                     state.setdefault('thoughts', []).append({'at': iso(), 'model': mid, 'experiment': e, 'text': str(txt)[:400]})
@@ -644,8 +948,11 @@ def main():
             tg('\n'.join(lines)[:4000])
         for t in made:
             pic = None
-            if t['experiment'] != 'Predictions':
-                pic = tgcharts.price_chart(t['symbol'], f"{r['label']} · {EXP_LABEL[t['experiment']]}", r['color'], t['price'], t['action'], f"/tmp/rp_{mid}_{len(state['trades'])}_{t['symbol']}.png")
+            csym = {'Currencies': f"{t['symbol']}USD=X" if t['symbol'] != 'USD' else 'CAD=X'}.get(t['experiment'], t['symbol'])
+            if t['experiment'] == 'Options':
+                csym = option_parts(t['symbol'])[0]
+            if t['experiment'] not in ('Predictions', 'Sports'):
+                pic = tgcharts.price_chart(csym, f"{r['label']} · {EXP_LABEL[t['experiment']]}", r['color'], None if t['experiment'] == 'Options' else t['price'], t['action'], f"/tmp/rp_{mid}_{len(state['trades'])}_{t['symbol']}.png")
             tg_trade(r['label'], t, sources[0] if sources else None, pic or chart(r['label'], r['color'], t['experiment'], state, mid))
         ran.append(f"{r['label']} ({m.get('model')}): {status}, {len(made)} trade(s), " + ', '.join(f'{e} {money(values[e], m["books"][e]["cur"])}' for e in exps))
     if not ran:

@@ -195,12 +195,12 @@ if WELCOME:
              "Each model runs its <b>own separate copy</b> of each experiment, starting from the same 100,000 at the same moment, "
              "and they are scored against each other. Nothing is ever added together.\n\n"
              "🟠 <b>Claude</b> (Anthropic): all ten experiments\n"
-             "🔵 <b>Gemini</b> (Google): Stocks and anything · Crypto · China stocks · Metals · Oil and energy\n"
-             "⚪ <b>ChatGPT</b> (OpenAI): Stocks and anything · Crypto · China stocks · Metals · Oil and energy\n\n"
+             "🔵 <b>Gemini</b> (Google): all ten experiments\n"
+             "⚪ <b>ChatGPT</b> (OpenAI): all ten experiments\n\n"
              "<b>Trading:</b> Stocks and anything · Crypto · China stocks · Metals · Oil and energy · Options · Currencies · Play it safe\n"
-             "<b>Betting</b> (Claude only): Sports · Prediction markets\n\n"
+             "<b>Betting:</b> Sports · Prediction markets\n\n"
              "🔁 <b>Fresh start:</b> every trading experiment was reset to C$100,000 (China stocks: US$100,000) so all three AIs start level. "
-             "All three make their opening investments at the US market open, 9:30 a.m. ET Oct 28; China stocks at the Shanghai open. Claude's betting carries on as it was.\n\n"
+             "All three make their opening investments at the US market open, 9:30 a.m. ET Oct 28; China stocks at the Shanghai open. Claude's betting carries on as it was; Gemini and ChatGPT start betting fresh.\n\n"
              "<b>How it works</b>\n"
              "• All three AIs check in at the same times (hourly, every 30 minutes in US market hours, and at the US and Shanghai opens and closes), search the news themselves, and explain every trade in their own words\n"
              "• Every model writes its own daily report card and grades itself\n"
@@ -223,7 +223,7 @@ if WELCOME:
         except Exception as e:
             print('could not edit the pinned message, posting a new one:', e)
     mid = send(intro, 'og.png' if os.path.exists('og.png') else None)
-    lines = [f"🏁 <b>Where things stand: day {day} of 32</b> (Claude; Gemini and ChatGPT start at the open)\n"]
+    lines = [f"🏁 <b>Where things stand: day {day} of 32</b> (Claude's experiments)\n"]
     for i, (pf, v) in enumerate(board, 1):
         sym = 'US$' if pf == 'China' else 'C$'
         ch = v - 100000

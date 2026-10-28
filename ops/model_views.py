@@ -43,10 +43,10 @@ def build(rivals, claude):
         for t in trades:
             key = (t['experiment'], f"{t['symbol']}|{t['outcome']}" if t.get('outcome') else t['symbol'])
             c = cost.setdefault(key, {'qty': 0.0, 'cost': 0.0})
-            if t['action'] == 'Buy':
+            if t['action'] in ('Buy', 'Short'):
                 c['qty'] += t['qty']
-                c['cost'] += t['amount']
-            elif c['qty'] > 0:
+                c['cost'] += t['amount'] if t['action'] == 'Buy' else -t['amount']
+            elif t['action'] in ('Sell', 'Cover', 'Settled', 'Expired') and c['qty'] > 0:
                 frac = min(1.0, t['qty'] / c['qty'])
                 c['cost'] *= (1 - frac)
                 c['qty'] -= t['qty']
@@ -55,12 +55,21 @@ def build(rivals, claude):
         for e in exps:
             b = m['books'][e]
             cur = b['cur']
+            if e == 'Sports':
+                for x in b.get('bets', []):
+                    d['bets'].append({'bet': x['id'], 'placed': x['placed_at'][:10], 'sport': x['short'], 'event': x['event'],
+                                      'pick': x['pick_team'] + ' moneyline', 'odds': x['odds'], 'stake_cad': x['stake'], 'to_win_cad': x['to_win'],
+                                      'status': x['status'], 'result_cad': x['result'] if x['status'] != 'Open' else None, 'market': 'moneyline',
+                                      'line': None, 'closing_odds': None, 'closing_line': None, 'starts_at': x['starts_at'],
+                                      'placed_at': x['placed_at'], 'settled_at': x.get('settled_at'), 'note': x.get('reason', '')})
+                d['history'].append({'at': started[e].isoformat(), 'portfolio': e, 'value': 100000.0, 'close': False})
+                continue
             for key, p in b['positions'].items():
                 price = p.get('last', p['entry'])
                 c = cost.get((e, key), {'cost': p['qty'] * p['entry']})
                 row = {'portfolio': e, 'holding': _clean(p.get('name') or key, e), 'code': key.split('|')[0], 'quantity': p['qty'],
                        'change_pct': price / p['entry'] - 1 if p['entry'] else 0, 'as_of': last_at, 'price_at': p.get('priced_at'),
-                       'price_source': 'Yahoo Finance' if e != 'Predictions' else 'Polymarket'}
+                       'price_source': {'Predictions': 'Polymarket', 'Options': 'Cboe (15-min delayed)'}.get(e, 'Yahoo Finance')}
                 if e == 'China':
                     usd = p['qty'] * price / fx_now['USDCNY']
                     row.update(currency='CNY', entry_local=p['entry'], price_local=price, value_usd=round(usd, 2),
@@ -84,10 +93,15 @@ def build(rivals, claude):
             d['history'].append({'at': h['at'], 'portfolio': h['experiment'], 'value': h['value'], 'close': False})
 
         for t in trades:
+            if t['experiment'] == 'Sports':
+                sign = '' if t['action'] == 'Bet' else ('+' if t['amount'] >= 0 else '−')
+                d['log'].append({'at': t['at'], 'portfolio': 'Sports', 'action': 'Bet' if t['action'] == 'Bet' else 'Settle',
+                                 'detail': f"{t['action']} {t['name']} at {int(t['price']):+d}, {sign}C${abs(t['amount']):,.0f}. {t['reason']}"})
+                continue
             what = _clean(t.get('name') or t['symbol'], t['experiment'])
             if t.get('outcome'):
                 what = f"{what} ({t['outcome']})"
-            row = {'at': t['at'], 'portfolio': t['experiment'], 'holding': what, 'action': 'Sell' if t['action'] == 'Settled' else t['action'],
+            row = {'at': t['at'], 'portfolio': t['experiment'], 'holding': what, 'action': 'Sell' if t['action'] in ('Settled', 'Expired') else t['action'],
                    'note': t['reason']}
             if t['experiment'] == 'China':
                 row.update(price_local=t['price'], currency='CNY', shares=t['qty'], cny=round(t['qty'] * t['price'], 2), usd=t['amount'])
@@ -104,8 +118,9 @@ def build(rivals, claude):
         for e in exps:
             d['log'].append({'at': started[e].isoformat(), 'portfolio': e, 'action': 'Start',
                              'detail': 'Started with ' + ('US$' if e == 'China' else 'C$') + '100,000.'})
+        recent_cut = datetime.now(UTC) - timedelta(days=3)  # keep the page light: notes from the last 3 days (all are kept in rivals.json)
         for th in rivals.get('thoughts', []):
-            if th['model'] == mid and th['experiment'] in exps:
+            if th['model'] == mid and th['experiment'] in exps and _t(th['at']) >= recent_cut:
                 d['log'].append({'at': th['at'], 'portfolio': th['experiment'], 'action': 'Note', 'detail': th['text']})
         lr = m.get('last_run') or {}
         for n in lr.get('notes', []):
@@ -148,7 +163,7 @@ def build(rivals, claude):
             if r.get('kind') == 'rate':
                 r['start_at'] = st.isoformat()
             else:
-                series = {'sp500': 'S&P 500', 'csi300': 'CSI 300'}.get(r['id'], r.get('index'))
+                series = {'sp500': 'S&P 500', 'csi300': 'CSI 300', 'uso': 'Oil (USO fund)', 'gold': 'Gold'}.get(r.get('feed', r['id']), r.get('index'))
                 pick = _nearest_level(claude['bench_history'], series, st)
                 if pick:
                     r.update(start_at=pick['at'], start_level=pick['level'], fx_start=pick.get('fx', r.get('fx_start')))
@@ -169,9 +184,9 @@ def build(rivals, claude):
                 r.update(start_at=st.isoformat(), btc_start_usd=p0['price'], fx_start=fx_now['USDCAD'])
             bm.append(r)
         d['benchmark'] = bm
-        skip = ('check-in', 'opening orders', 'rule', 'bet ', 'Bet ')
-        d['events'] = [ev for ev in claude['events'] if any(x.strip() in exps for x in str(ev.get('affects', '')).split(','))
-                       and not any(k in ev['event'] + ' ' + ev.get('why', '') for k in skip)]
+        # "Coming up": the model's own watchlist, in its own words
+        wl = (m.get('watchlist') or {}).get('items', [])
+        d['events'] = [{'at': w.get('at') or '', 'when': w.get('when') or '', 'event': w['event'], 'affects': w.get('affects', ''), 'why': w.get('why', '')} for w in wl]
         d['_meta'] = {'id': mid, 'label': m['label'], 'company': m.get('company'), 'model': m.get('model'), 'exps': exps,
                       'last_run': lr}
         out[mid] = d
