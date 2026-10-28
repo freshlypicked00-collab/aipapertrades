@@ -2958,14 +2958,22 @@
     const rows = dash.baseData('report').slice().sort((a, b) => new Date(b.at) - new Date(a.at));
     if (!rows.length) { el.appendChild(mk('p', 'st-note', 'The first Race Report comes after the opening trades.')); return; }
     const show = (r, box) => { box.replaceChildren(mk('h3', 'st-report-t', r.title), mk('p', 'st-report-when', stFmt.when(r.at))); (r.body || []).forEach((t) => box.appendChild(mk('p', 'st-report-p', t))); };
-    const box = mk('div', 'st-report-body'); show(rows[0], box);
-    if (rows.length > 1) {
-      const bar = mk('div', 'lg-pick'); const lab = mk('label', '', 'Earlier reports: '); const sel = mk('select');
-      rows.forEach((r, i) => { const o = mk('option', '', r.title + (i === 0 ? ' (latest)' : '')); o.value = String(i); sel.appendChild(o); });
-      sel.addEventListener('change', () => show(rows[Number(sel.value)], box));
-      lab.appendChild(sel); bar.appendChild(lab); el.appendChild(bar);
-    }
-    el.appendChild(box);
+    const box = mk('div', 'st-report-body');
+    const etDay = (at) => new Date(at).toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+    const dayNo = (d) => Math.round((Date.parse(d) - Date.parse('2026-10-28')) / 864e5) + 1;
+    const days = [...new Set(rows.map((r) => etDay(r.at)))];
+    const bar = mk('div', 'lg-pick');
+    const dLab = mk('label', '', 'Day: '); const dSel = mk('select');
+    days.forEach((d, i) => { const n = dayNo(d); const o = mk('option', '', (n >= 1 ? 'Day ' + n + ' · ' : '') + new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + (i === 0 ? ' (latest)' : '')); o.value = d; dSel.appendChild(o); });
+    const rLab = mk('label', '', ' Report: '); const rSel = mk('select');
+    const fill = () => {
+      const list = rows.filter((r) => etDay(r.at) === dSel.value);
+      rSel.replaceChildren(); list.forEach((r, i) => { const o = mk('option', '', new Date(r.at).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) + ' ET · ' + r.title); o.value = String(i); rSel.appendChild(o); });
+      rLab.hidden = list.length < 2; show(list[0], box);
+      rSel.onchange = () => show(list[Number(rSel.value)], box);
+    };
+    dSel.addEventListener('change', fill);
+    dLab.appendChild(dSel); rLab.appendChild(rSel); bar.append(dLab, rLab); el.append(bar, box); fill();
   });
   dash.draw('take', (el) => {
     const d = dash.data('take');
