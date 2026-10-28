@@ -209,7 +209,7 @@ SHIM = r"""
   window.dash = (() => {
     const raw = {}; let status = 'loading';
     const calcs = {}; const cache = {};
-    const listeners = []; const draws = [];
+    const listeners = []; const draws = []; const modelListeners = []; let base = null;
     const mounted = new WeakMap();
     const cssColor = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
     const rowsOf = (id) => {
@@ -234,7 +234,21 @@ SHIM = r"""
       loader() {},
       draw(name, def) { draws.push([name, def]); },
       setLink(name) { try { history.replaceState(null, '', '#' + name); } catch (e) {} },
-      params: () => ({}), setParams() {}, resetParams() {}, refresh() {}
+      params: () => ({}), setParams() {}, resetParams() {}, refresh() {},
+      model: 'claude',
+      models() { return base && base.models ? base.models : {}; },
+      baseData(id) { return base && base[id] ? base[id] : []; },
+      useModel(id) {
+        if (!base) return;
+        const view = id !== 'claude' && base.models && base.models[id];
+        Object.keys(raw).forEach((k) => delete raw[k]);
+        Object.assign(raw, base, view || {});
+        Object.keys(cache).forEach((k) => delete cache[k]);
+        api.model = view ? id : 'claude';
+        modelListeners.forEach((fn) => { try { fn(api.model); } catch (e) { console.error(e); } });
+        runAll();
+      },
+      onModel(fn) { modelListeners.push(fn); }
     };
     const visible = (el) => !el.closest('[hidden]');
     const runAll = () => {
@@ -260,7 +274,7 @@ SHIM = r"""
       if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', schedule);
       fetch('data.json?v=' + Date.now(), { cache: 'no-store' })
         .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-        .then((json) => { Object.assign(raw, json); status = 'ok'; runAll(); })
+        .then((json) => { base = json; Object.assign(raw, json); status = 'ok'; let m = 'claude'; try { m = localStorage.getItem('pt-model') || 'claude'; } catch (e) {} if (m !== 'claude' && json.models && json.models[m]) api.useModel(m); else { modelListeners.forEach((fn) => { try { fn('claude'); } catch (e) {} }); runAll(); } })
         .catch((e) => { console.error('data.json failed to load', e); status = 'error'; runAll(); });
     });
     return api;
@@ -322,6 +336,9 @@ r = json.load(open(rv)) if os.path.exists(rv) else {'models': {}, 'trades': [], 
 data['rivals_models'] = [{'id': k, **{x: v.get(x) for x in ('label', 'company', 'model', 'started', 'exps', 'last_run')}, 'books': v['books']} for k, v in r['models'].items()]
 for k in ('trades', 'history', 'takes'):
     data['rivals_' + k] = r[k]
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import model_views
+data['models'] = model_views.build(r, {k: data[k] for k in ('indexes', 'bench_history', 'benchmark', 'prices', 'events')} | {'fx': json.load(open(os.path.join(SRC, 'fx.json')))})
 times = [r['at'] for r in data['log'] + data['history']]
 data['meta'] = [{'refreshed_at': max(times, key=lambda t: datetime.fromisoformat(t))}]
 json.dump(data, open(os.path.join(OUT, 'data.json'), 'w'), indent=1)

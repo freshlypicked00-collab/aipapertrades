@@ -249,7 +249,7 @@ def money(v, cur):
     return CUR_SYM[cur] + f'{v:,.0f}'
 
 
-def build_prompt(label, exps, books, values, fx, recent):
+def build_prompt(label, exps, books, values, fx, recent, closed_day=None):
     lines = [
         f'You are {label}, taking part in Paper Trades (papertrades.ai), a public paper-trading experiment that compares AI models with pretend money and real prices.',
         f'It is now {NOW.astimezone(timezone(timedelta(hours=-4))).strftime("%A %b %-d, %Y, %-I:%M %p")} ET ({iso()}). Beijing time: {NOW.astimezone(BJ).strftime("%a %-I:%M %p")}.',
@@ -266,13 +266,16 @@ def build_prompt(label, exps, books, values, fx, recent):
         for key, p in b['positions'].items():
             cs = CUR_SYM[p['pcur']]
             lines.append(f'  - {key} ({p.get("name", key)}): {p["qty"]:,.4f} units, average cost {cs}{p["entry"]:,.4f}, now {cs}{p.get("last", p["entry"]):,.4f}')
+    if closed_day:
+        lines.append(f'\nThe trading day {closed_day[0]} (UTC) has just closed. Your results for that day: ' + '; '.join(f'{EXP_LABEL[e]} {r}' for e, r in closed_day[1].items()) + '. Grade yourself honestly in report_card.')
     if recent:
         lines.append('\nYour recent trades:')
         lines += [f'  - {t["at"]} {t["experiment"]} {t["action"]} {t["symbol"]}{" " + t["outcome"] if t.get("outcome") else ""}: {t["reason"]}' for t in recent[-10:]]
     lines += [
         '',
         'Reply with ONLY one JSON object, no other text, in this form:',
-        '{"take": "one sentence on how you are doing and what you are thinking",',
+        '{"take": "one sentence, in your own words, on how you are doing and what you are thinking overall",',
+        ' "thoughts": {' + ', '.join(f'"{e}": "one sentence on this experiment right now, in your own words"' for e in exps) + '}' + (', "report_card": {' + ', '.join(f'"{e}": {{"grade": "A" to "F", "text": "2-3 sentences: how you did in this experiment on {closed_day[0]} and what you will do differently"}}' for e in exps) + '}' if closed_day else '') + ',',
         ' "orders": [{"experiment": ' + ' | '.join(f'"{e}"' for e in exps) + ', "action": "buy" | "sell", "symbol": "Yahoo symbol or Polymarket slug",',
         '             "outcome": "Yes" | "No" (Predictions only), "amount": 25000 (buy: money to spend, in that experiment\'s currency), "fraction": 1.0 (sell: share of the position, 0 to 1),',
         '             "reason": "one plain sentence"}]}',
@@ -442,7 +445,20 @@ def main():
             picks = r['pick'](key)
             picks = picks if isinstance(picks, list) else [picks]
             recent = [t for t in state['trades'] if t['model'] == mid]
-            prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent)
+            closed = None
+            day = (NOW - timedelta(days=1)).date().isoformat()
+            if m.get('graded_day') != day:
+                res = {}
+                for e in exps:
+                    pts = [(h['at'], h['value']) for h in state['history'] if h['model'] == mid and h['experiment'] == e]
+                    o = [v for a, v in pts if a <= day + 'T00:00:00Z'] or [START]
+                    c = [v for a, v in pts if a <= NOW.date().isoformat() + 'T00:00:00Z']
+                    if c:
+                        cur = m['books'][e]['cur']
+                        res[e] = f'{"+" if c[-1] >= o[-1] else "-"}{CUR_SYM[cur]}{abs(c[-1] - o[-1]):,.0f} ({(c[-1] / o[-1] - 1) * 100:+.1f}%), ending at {money(c[-1], cur)}'
+                if res:
+                    closed = (day, res)
+            prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed)
             for i, model in enumerate(picks):
                 try:
                     text, sources = r['ask'](key, model, prompt)
@@ -460,6 +476,16 @@ def main():
                         raise
             reply = parse_reply(text)
             take = str(reply.get('take', ''))[:300] or None
+            for e, txt in (reply.get('thoughts') or {}).items():
+                if e in exps and str(txt).strip():
+                    state.setdefault('thoughts', []).append({'at': iso(), 'model': mid, 'experiment': e, 'text': str(txt)[:400]})
+            rc = reply.get('report_card') or {}
+            if closed and rc:
+                for e, g in rc.items():
+                    if e in exps and isinstance(g, dict):
+                        state.setdefault('reviews', []).append({'at': iso(), 'model': mid, 'day': closed[0], 'experiment': e,
+                                                                'grade': str(g.get('grade', ''))[:2].strip() or None, 'text': str(g.get('text', ''))[:700]})
+                m['graded_day'] = closed[0]
             for o in (reply.get('orders') or [])[:MAX_ORDERS]:
                 try:
                     made.append(execute(mid, exps, m['books'], o, fx, state))
@@ -484,6 +510,7 @@ def main():
     if not ran:
         print('no rival API keys set; nothing to do')
         return
+    state['fx'] = fx
     json.dump(state, open(STATE, 'w'), indent=1)
     print('\n'.join(ran))
 

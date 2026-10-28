@@ -229,6 +229,17 @@
   .h2h-table th, .h2h-table td { text-align: left; padding: 6px 8px 6px 0; border-bottom: 1px solid var(--color-border-line); vertical-align: top; }
   .h2h-table th { color: var(--color-fg-muted); font-weight: 500; }
   .h2h-scroll { overflow-x: auto; }
+  .st-notice-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: stretch; }
+  .st-notice-row .st-notice { flex: 1 1 480px; margin: 0; }
+  .st-model { flex: 0 1 300px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .st-model-inline { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 14px; }
+  .st-model-inline .st-model-note { flex: 1 1 220px; }
+  .st-model-l { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--color-fg-muted); }
+  .model-pick { font: inherit; font-size: 15px; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 8px 10px; min-height: 40px; }
+  .model-pick:focus-visible, .st-model-cmp:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .st-model-note { margin: 0; font-size: 13px; color: var(--color-fg-muted); }
+  .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
+  [data-model-hidden] { display: none !important; }
   .st-live { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); padding: 12px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
   .st-live-text { flex: 1 1 260px; display: flex; flex-direction: column; gap: 2px; }
   .st-live-h { margin: 0; font-size: 14px; font-weight: 600; color: var(--color-fg); display: flex; align-items: center; gap: 8px; }
@@ -265,7 +276,19 @@
       </div>
       <a class="st-live-btn" href="https://t.me/papertradesai" target="_blank" rel="noopener"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.8-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2L6.5 13.2l-4.7-1.5c-1-.3-1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg>Join @papertradesai</a>
     </section>
-    <p class="st-notice" role="note"><span class="st-dot" aria-hidden="true"></span><span><b>This is a simulation, not investment advice.</b> No real money is involved. It is a 30-day experiment in which an AI model makes trading and betting decisions using real-world prices, to see how its judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results for all ten will be posted on Nov 26, win or lose.</span></p>
+    <div class="st-notice-row">
+  <p class="st-notice" role="note"><span class="st-dot" aria-hidden="true"></span><span><b>This is a simulation, not investment advice.</b> No real money is involved. It is a 30-day experiment in which an AI model makes trading and betting decisions using real-world prices, to see how its judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results for all ten will be posted on Nov 26, win or lose.</span></p>
+      <div class="st-model" role="group" aria-labelledby="model-l">
+        <label class="st-model-l" id="model-l" for="model-pick">Model</label>
+        <select id="model-pick" class="model-pick">
+          <option value="claude">Claude (Anthropic)</option>
+          <option value="gemini">Gemini (Google)</option>
+          <option value="chatgpt" disabled>ChatGPT (OpenAI): N/A</option>
+        </select>
+        <p class="st-model-note" data-model-note>Showing Claude's ten experiments.</p>
+        <button type="button" class="st-model-cmp" data-goto="h2h">Compare all models in AI vs AI →</button>
+      </div>
+    </div>
     <p class="st-lede">Each experiment is scored on its own against its own starting money; the results are never added together. Last updated <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=All">—</b>.</p>
   </header>
 
@@ -476,7 +499,8 @@
   <section class="st-page" id="stocks" data-page="stocks" hidden>
     <section class="st-card" aria-labelledby="h-s-bench">
       <h2 class="st-h2" id="h-s-bench">Stocks and anything</h2>
-      <p class="st-note">SOXL, TQQQ and Bitcoin, plus cash. Started at the Oct 26 close (4:00 p.m. ET, 20:00 UTC).</p>
+      <p class="st-note" data-claude-only>SOXL, TQQQ and Bitcoin, plus cash. Started at the Oct 26 close (4:00 p.m. ET, 20:00 UTC).</p>
+      <p class="st-note" data-model-text="Stocks" hidden></p>
       <div class="st-bench">
         <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Stocks">—</span></div>
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Stocks">—</span></div>
@@ -500,7 +524,7 @@
     </section>
     <section class="st-card" aria-labelledby="h-s-market">
       <h2 class="st-h2" id="h-s-market">Stocks vs. the market</h2>
-      <p class="st-note">What the same <span data-draw="start">—</span> would be worth if it had gone into each index at the Oct 26 close and stayed there. The S&amp;P 500 is converted to Canadian dollars; the TSX is already in them. Index levels, without dividends.</p>
+      <p class="st-note">What the same <span data-draw="start">—</span> would be worth if it had gone into each index when this experiment started and stayed there. The S&amp;P 500 is converted to Canadian dollars; the TSX is already in them. Index levels, without dividends.</p>
       <div class="st-bench">
         <div><span class="st-label">This portfolio</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Stocks">—</span></div>
         <div><span class="st-label">All in the S&amp;P 500</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=sp500">—</span></div>
@@ -568,7 +592,8 @@
   <section class="st-page" id="crypto" data-page="crypto" hidden>
     <section class="st-card" aria-labelledby="h-c-bench">
       <h2 class="st-h2" id="h-c-bench">Crypto vs. just holding Bitcoin</h2>
-      <p class="st-note">Bitcoin, Ethereum, Solana, XRP and a USDC reserve. Started Oct 27 at 2:10 a.m. ET (06:10 UTC).</p>
+      <p class="st-note" data-claude-only>Bitcoin, Ethereum, Solana, XRP and a USDC reserve. Started Oct 27 at 2:10 a.m. ET (06:10 UTC).</p>
+      <p class="st-note" data-model-text="Crypto" hidden></p>
       <div class="st-bench">
         <div><span class="st-label">This portfolio</span><span class="st-mid" data-draw="vs-value" data-source="vsbtc" data-field="value" data-where="portfolio=Crypto">—</span></div>
         <div><span class="st-label">All in Bitcoin</span><span class="st-mid" data-draw="vs-btc" data-source="vsbtc" data-field="btc_value" data-where="portfolio=Crypto">—</span></div>
@@ -652,7 +677,8 @@
   <section class="st-page" id="metals" data-page="metals" hidden>
     <section class="st-card" aria-labelledby="h-m-bench">
       <h2 class="st-h2" id="h-m-bench">Metals vs. just holding gold</h2>
-      <p class="st-note">Gold and silver at spot prices, plus cash. Started Oct 27 at 7:30 p.m. ET (23:30 UTC).</p>
+      <p class="st-note" data-claude-only>Gold and silver at spot prices, plus cash. Started Oct 27 at 7:30 p.m. ET (23:30 UTC).</p>
+      <p class="st-note" data-model-text="Metals" hidden></p>
       <div class="st-bench">
         <div><span class="st-label">This portfolio</span><span class="st-mid" data-draw="vs-value" data-source="vsbtc" data-field="value" data-where="portfolio=Metals">—</span></div>
         <div><span class="st-label">All in gold</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=gold_metals">—</span></div>
@@ -668,7 +694,8 @@
     </section>
     <section class="st-card" aria-labelledby="h-m-hold">
       <h2 class="st-h2" id="h-m-hold">Holdings</h2>
-      <p class="st-note">Prices in US dollars per troy ounce; values in Canadian dollars at the latest exchange rate.</p>
+      <p class="st-note" data-claude-only>Prices in US dollars per troy ounce; values in Canadian dollars at the latest exchange rate.</p>
+      <p class="st-note" data-model-text-plain hidden>Prices in US dollars per share or contract; values in Canadian dollars at the latest exchange rate.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
           <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Ounces</th><th data-field="entry_usd" class="num">Entry (US$)</th><th data-field="price_usd" class="num">Now (US$)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th><th data-field="price_source">Price source</th></tr></thead>
@@ -736,7 +763,8 @@
   <section class="st-page" id="energy" data-page="energy" hidden>
     <section class="st-card" aria-labelledby="h-e-bench">
       <h2 class="st-h2" id="h-e-bench">Oil and energy</h2>
-      <p class="st-note">Oil, tanker and refiner positions bought with US-listed funds and shares; high risk, high reward. Opens at the US market open on Oct 28 (9:30 a.m. ET, 13:30 UTC).</p>
+      <p class="st-note" data-claude-only>Oil, tanker and refiner positions bought with US-listed funds and shares; high risk, high reward. Opens at the US market open on Oct 28 (9:30 a.m. ET, 13:30 UTC).</p>
+      <p class="st-note" data-model-text="Energy" hidden></p>
       <div class="st-bench">
         <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Energy">—</span></div>
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Energy">—</span></div>
@@ -1234,7 +1262,8 @@
   <section class="st-page" id="china" data-page="china" hidden>
     <section class="st-card" aria-labelledby="h-z-bench">
       <h2 class="st-h2" id="h-z-bench">China stocks</h2>
-      <p class="st-note">Shares and funds listed in Shanghai and Shenzhen, bought in yuan and counted in US dollars. Started Oct 28, 11:20 a.m. Beijing time (Oct 27, 11:20 p.m. ET; Oct 28, 03:20 UTC) with US$100,000.</p>
+      <p class="st-note" data-claude-only>Shares and funds listed in Shanghai and Shenzhen, bought in yuan and counted in US dollars. Started Oct 28, 11:20 a.m. Beijing time (Oct 27, 11:20 p.m. ET; Oct 28, 03:20 UTC) with US$100,000.</p>
+      <p class="st-note" data-model-text="China" hidden></p>
       <div class="st-bench">
         <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=China">—</span></div>
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=China">—</span></div>
@@ -1323,6 +1352,15 @@
     </section>
   </section>
   <section class="st-page" id="ledger" data-page="ledger" hidden>
+    <div class="st-model st-model-inline" role="group" aria-label="Model for the ledger">
+      <label class="st-model-l" for="model-pick-ledger">Model</label>
+      <select id="model-pick-ledger" class="model-pick">
+        <option value="claude">Claude (Anthropic)</option>
+        <option value="gemini">Gemini (Google)</option>
+        <option value="chatgpt" disabled>ChatGPT (OpenAI): N/A</option>
+      </select>
+      <p class="st-model-note" data-model-note>Showing Claude's ten experiments.</p>
+    </div>
     <section class="st-card" aria-labelledby="h-l-sum">
       <h2 class="st-h2" id="h-l-sum">Ledger</h2>
       <p class="st-note">The full record of how the AI is doing in each experiment: total profit or loss since the start for each one, plus every day's result and write-up. Each day closes at 00:00 UTC (8 p.m. Eastern until Nov 1, then 7 p.m.). Each simulation is its own experiment with its own C$100,000 (US$100,000 for China), so nothing here is added together.</p>
@@ -1454,7 +1492,8 @@
     document.querySelectorAll('[data-phase]').forEach((el) => { el.hidden = (el.dataset.phase === 'ended') !== ended; });
   });
   const SYM = (p) => (p === 'China' ? 'US$' : 'C$');
-  const PFS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'];
+  const PFS_ALL = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'];
+  const PFS = PFS_ALL.slice(); // narrowed in place when another model is picked
   const LABEL = { Stocks: 'Stocks and anything', China: 'China stocks (US$)', Energy: 'Oil and energy', Predictions: 'Prediction markets', Safe: 'Play it safe' };
   window.stFmt = {
     money: (v, p) => SYM(p) + d3.format(',.0f')(v),
@@ -2488,7 +2527,7 @@
       if (t.holding === 'US dollar') return 'US dollars, valued in Canadian dollars at the time';
       const v = t.price_usd;
       const num = 'US$' + (v >= 1000 ? d3.format(',.0f')(v) : v >= 0.1 ? d3.format(',.2f')(v) : d3.format('.4~r')(v));
-      const unit = COIN[t.holding] ? ' per ' + COIN[t.holding] : t.portfolio === 'Metals' ? ' per ounce' : t.portfolio === 'Options' ? ' per share (100 shares per contract)' : ' per share';
+      const unit = COIN[t.holding] ? ' per ' + COIN[t.holding] : t.portfolio === 'Crypto' ? ' per coin' : t.portfolio === 'Metals' && dash.model === 'claude' ? ' per ounce' : t.portfolio === 'Metals' ? '' : t.portfolio === 'Options' ? ' per share (100 shares per contract)' : ' per share';
       return num + unit;
     };
     const rows = T.data.map((t) => ({
@@ -2658,9 +2697,9 @@
   const H2H_START = (exp) => 100000;
   dash.draw('h2h', (el) => {
     const M = dash.data('rivals_models'), RH = dash.data('rivals_history'), RT = dash.data('rivals_trades'), RK = dash.data('rivals_takes');
-    const CH = dash.data('history'), TK = dash.data('take');
+    const CH = { status: 'ok', data: dash.baseData('history') }, TK = { status: 'ok', data: dash.baseData('take') };
     el.replaceChildren();
-    if (CH.status !== 'ok') return;
+    if (M.status !== 'ok' && M.status !== 'missing') return;
     const models = M.status === 'ok' ? M.data : [];
     const rh = RH.status === 'ok' ? RH.data : [];
     const series = (exp) => {
@@ -2673,7 +2712,7 @@
       });
       return out;
     };
-    if (!models.length) el.appendChild(mk('p', 'st-note', 'Gemini and ChatGPT join at their first hourly check-in after they are connected. Until then, only Claude’s results show below.'));
+    if (!models.length) el.appendChild(mk('p', 'st-note', 'Gemini joins at its first hourly check-in. ChatGPT: N/A (not connected yet).'));
     H2H_EXPS.forEach((exp) => {
       const box = mk('div', 'h2h-exp');
       box.appendChild(mk('h3', '', LABEL[exp] || exp));
@@ -2692,7 +2731,8 @@
       ['gemini', 'chatgpt'].filter((id) => H2H_PLAN[id].includes(exp) && !ser.some((s) => s.id === id)).forEach((id) => {
         const li = mk('li', 'h2h-row h2h-wait'); li.style.setProperty('--ai', AIS[id].color);
         li.appendChild(mk('span', 'h2h-name', AIS[id].label));
-        li.appendChild(mk('span', 'h2h-sub', 'Starts at its first hourly check-in'));
+        if (id === 'chatgpt') { li.appendChild(mk('span', 'h2h-pct', 'N/A')); li.appendChild(mk('span', 'h2h-sub', 'Not connected yet')); }
+        else li.appendChild(mk('span', 'h2h-sub', 'Starts at its first hourly check-in'));
         rows.appendChild(li);
       });
       box.appendChild(rows);
@@ -2713,28 +2753,34 @@
     if (TK.status === 'ok' && TK.data.length) { const t = TK.data[TK.data.length - 1]; addTake('claude', t.text, t.at); }
     const latest = {}; (RK.status === 'ok' ? RK.data : []).forEach((t) => { latest[t.model] = t; });
     Object.values(latest).forEach((t) => { if (AIS[t.model]) addTake(t.model, t.text, t.at); });
+    if (!latest.chatgpt) addTake('chatgpt', 'N/A (not connected yet).');
     tbox.appendChild(ul);
     el.appendChild(tbox);
-    // rival trades
-    const trades = (RT.status === 'ok' ? RT.data : []).slice().reverse().slice(0, 40);
-    const rbox = mk('div', 'h2h-exp');
-    rbox.appendChild(mk('h3', '', 'Gemini and ChatGPT trades'));
-    if (!trades.length) rbox.appendChild(mk('p', 'st-note', 'No trades yet. Claude’s trades are in each experiment’s tab and the Ledger.'));
-    else {
-      const wrap = mk('div', 'h2h-scroll'); const tb = mk('table', 'h2h-table');
-      const hr = mk('tr'); ['When', 'AI', 'Experiment', 'Trade', 'Price', 'Amount', 'Why'].forEach((h) => hr.appendChild(mk('th', '', h))); tb.appendChild(hr);
-      trades.forEach((t) => {
-        const tr = mk('tr');
-        const what = t.action + ' ' + (t.name && t.name !== t.symbol ? t.name + ' (' + t.symbol + ')' : t.symbol) + (t.outcome ? ': ' + t.outcome : '');
-        const cs = { USD: 'US$', CNY: '¥', CAD: 'C$' }[t.pcur] || 'US$';
-        const unit = t.experiment === 'Crypto' ? ' per coin' : (t.experiment === 'Stocks' || t.experiment === 'China') ? ' per share' : '';
-        const px = t.experiment === 'Predictions' ? (t.price * 100).toFixed(1) + '¢ a share' : cs + d3.format(t.price >= 100 ? ',.2f' : ',.4~f')(t.price) + unit;
-        [stFmt.when(t.at), (AIS[t.model] || { label: t.model }).label, LABEL[t.experiment] || t.experiment, what, px, stFmt.money(t.amount, t.experiment), t.reason].forEach((v) => tr.appendChild(mk('td', '', v)));
-        tb.appendChild(tr);
-      });
-      wrap.appendChild(tb); rbox.appendChild(wrap);
-    }
-    el.appendChild(rbox);
+    // each rival's trades, separately
+    ['gemini', 'chatgpt'].forEach((id) => {
+      const trades = (RT.status === 'ok' ? RT.data : []).filter((t) => t.model === id).slice().reverse().slice(0, 40);
+      const rbox = mk('div', 'h2h-exp');
+      const h = mk('h3', '', AIS[id].label + ' trades'); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px';
+      rbox.appendChild(h);
+      const connected = models.some((m) => m.id === id);
+      if (!connected) rbox.appendChild(mk('p', 'st-note', id === 'chatgpt' ? 'N/A (not connected yet).' : 'Starts at its first hourly check-in.'));
+      else if (!trades.length) rbox.appendChild(mk('p', 'st-note', 'No trades yet.'));
+      else {
+        const wrap = mk('div', 'h2h-scroll'); const tb = mk('table', 'h2h-table');
+        const hr = mk('tr'); ['When', 'Experiment', 'Trade', 'Price', 'Amount', 'Why'].forEach((x) => hr.appendChild(mk('th', '', x))); tb.appendChild(hr);
+        trades.forEach((t) => {
+          const tr = mk('tr');
+          const what = t.action + ' ' + (t.name && t.name !== t.symbol ? t.name + ' (' + t.symbol + ')' : t.symbol) + (t.outcome ? ': ' + t.outcome : '');
+          const cs = { USD: 'US$', CNY: '¥', CAD: 'C$' }[t.pcur] || 'US$';
+          const unit = t.experiment === 'Crypto' ? ' per coin' : (t.experiment === 'Stocks' || t.experiment === 'China') ? ' per share' : '';
+          const px = t.experiment === 'Predictions' ? (t.price * 100).toFixed(1) + '¢ a share' : cs + d3.format(t.price >= 100 ? ',.2f' : ',.4~f')(t.price) + unit;
+          [stFmt.when(t.at), LABEL[t.experiment] || t.experiment, what, px, stFmt.money(t.amount, t.experiment), t.reason].forEach((v) => tr.appendChild(mk('td', '', v)));
+          tb.appendChild(tr);
+        });
+        wrap.appendChild(tb); rbox.appendChild(wrap);
+      }
+      el.appendChild(rbox);
+    });
   });
   const h2hChart = (el, ser) => {
     el.replaceChildren();
@@ -2761,6 +2807,52 @@
       const left = px / W * el.clientWidth; tip.style.left = Math.min(left + 10, el.clientWidth - tip.offsetWidth) + 'px';
     }).on('pointerleave', () => { rule.style('display', 'none'); tip.style.display = 'none'; });
   };
+
+  // ---- Model menu: Claude, Gemini (ChatGPT shows N/A until it is connected) ----
+  const MODEL_LABEL = { claude: 'Claude', gemini: 'Gemini', chatgpt: 'ChatGPT' };
+  const modelExps = () => { const v = dash.model !== 'claude' && dash.models()[dash.model]; return v ? v._meta.exps : null; };
+  const applyModel = (id) => {
+    const views = dash.models();
+    document.querySelectorAll('.model-pick').forEach((sel) => {
+      sel.value = id;
+      [...sel.options].forEach((o) => {
+        if (o.value === 'claude') return;
+        const ok = !!views[o.value];
+        o.disabled = !ok;
+        o.textContent = MODEL_LABEL[o.value] + ' (' + (o.value === 'gemini' ? 'Google' : 'OpenAI') + ')' + (ok ? '' : ': N/A');
+      });
+    });
+    const exps = modelExps();
+    const meta = exps ? views[id]._meta : null;
+    PFS.splice(0, PFS.length, ...(exps ? PFS_ALL.filter((p) => exps.includes(p)) : PFS_ALL));
+    document.querySelectorAll('button[data-v]').forEach((b) => { if (!PFS_ALL.includes(b.dataset.v)) return; if (exps && !exps.includes(b.dataset.v)) b.setAttribute('data-model-hidden', ''); else b.removeAttribute('data-model-hidden'); });
+    document.querySelectorAll('[data-claude-only]').forEach((el) => { el.hidden = !!meta; });
+    document.querySelectorAll('[data-model-text-plain]').forEach((el) => { el.hidden = !meta; });
+    document.querySelectorAll('[data-model-text]').forEach((el) => {
+      el.hidden = !meta;
+      if (!meta) return;
+      const st = (views[id].history.find((h) => h.portfolio === el.dataset.modelText) || {}).at;
+      el.textContent = meta.label + '’s own copy of this experiment' + (st ? ', started ' + stFmt.when(st) : '') + ' with ' + (el.dataset.modelText === 'China' ? 'US$100,000' : 'C$100,000') + '. Holdings, trades and decisions below are ' + meta.label + '’s; ' + meta.label + ' checks in every hour and searches the news itself.';
+    });
+    document.querySelectorAll('[data-model-note]').forEach((n) => {
+      n.textContent = meta ? 'Showing ' + meta.label + '’s own separate copies of ' + exps.length + ' experiments' + (meta.model ? ' (model: ' + meta.model + ')' : '') + '. Each started with its own 100,000 on the day ' + meta.label + ' joined.' : 'Showing Claude’s ten experiments.';
+    });
+    const take = document.querySelector('.st-take-l'); if (take) take.textContent = meta ? meta.label + '’s take' : 'The AI’s take';
+    Object.entries(TABOF).forEach(([pf, tab]) => {
+      const hide = !!exps && !exps.includes(pf);
+      document.querySelectorAll('.st-tab[data-tab="' + tab + '"], .st-card[data-goto="' + tab + '"]').forEach((el) => { if (hide) el.setAttribute('data-model-hidden', ''); else el.removeAttribute('data-model-hidden'); });
+    });
+    document.querySelectorAll('.st-tabgroup').forEach((g) => { const any = [...g.querySelectorAll('.st-tab')].some((b) => !b.hasAttribute('data-model-hidden')); if (any) g.removeAttribute('data-model-hidden'); else g.setAttribute('data-model-hidden', ''); });
+    document.querySelectorAll('.st-group-h').forEach((h) => { const grid = h.nextElementSibling; if (!grid) return; const cards = grid.querySelectorAll('.st-card[data-goto]'); if (!cards.length) return; const any = [...cards].some((c) => !c.hasAttribute('data-model-hidden')); [h, grid].forEach((el) => { if (any) el.removeAttribute('data-model-hidden'); else el.setAttribute('data-model-hidden', ''); }); });
+    const cur = (location.hash || '#overview').slice(1);
+    const pfOf = Object.keys(TABOF).find((k) => TABOF[k] === cur);
+    if (exps && pfOf && !exps.includes(pfOf)) goTab('overview');
+  };
+  dash.onModel(applyModel);
+  document.querySelectorAll('.model-pick').forEach((sel) => sel.addEventListener('change', () => {
+    try { localStorage.setItem('pt-model', sel.value); } catch (e) {}
+    dash.useModel(sel.value);
+  }));
   dash.draw('take', (el) => {
     const d = dash.data('take');
     el.replaceChildren();
@@ -2775,8 +2867,10 @@
     if (d.status !== 'ok') return;
     const started = new Set(T.status === 'ok' ? T.data.map((t) => t.portfolio) : []);
     if (B.status === 'ok' && B.data.length) started.add('Sports');
-    const live = d.data.filter((r) => started.has(r.portfolio)).sort((a, b) => b.pct - a.pct);
-    const wait = d.data.filter((r) => !started.has(r.portfolio));
+    const allowed = modelExps();
+    const rowsAll = d.data.filter((r) => !allowed || allowed.includes(r.portfolio));
+    const live = rowsAll.filter((r) => started.has(r.portfolio)).sort((a, b) => b.pct - a.pct);
+    const wait = rowsAll.filter((r) => !started.has(r.portfolio));
     const item = (r, rank) => {
       const li = mk('li');
       const b = mk('button', rank ? '' : 'st-score-wait'); b.type = 'button';
