@@ -279,6 +279,19 @@
   .ai-pick { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin: 8px 0; }
   .listen-btn { font: inherit; font-size: 12.5px; color: var(--color-fg); background: transparent; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 4px 12px; cursor: pointer; min-height: 30px; }
   .listen-btn[aria-pressed="true"] { border-color: var(--color-ok); color: var(--color-ok); }
+  .st-geo-sum { margin: 0 0 10px; max-width: 85ch; line-height: 1.6; }
+  .st-geo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; }
+  .st-geo-s { border: 1px solid var(--color-border-line); border-left: 4px solid var(--color-warn); border-radius: var(--cds-radius); padding: 9px 11px; font-size: 13px; line-height: 1.45; }
+  .st-geo-s.bad { border-left-color: var(--color-bad); } .st-geo-s.ok { border-left-color: var(--color-ok); }
+  .st-geo-s b { display: block; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-fg-muted); font-weight: 600; }
+  .st-geo-s strong { display: block; font-size: 17px; margin: 2px 0 4px; }
+  .st-geo-src { font-size: 12px; color: var(--color-fg-muted); }
+  .st-geo-src a { color: inherit; margin-right: 8px; }
+  .st-geo-up { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .st-geo-up li { border-left: 3px solid var(--color-border-line); padding-left: 10px; font-size: 13.5px; line-height: 1.5; }
+  .st-geo-up li.claim { border-left-color: var(--color-warn); }
+  .st-geo-tag { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; margin-right: 6px; }
+  .st-geo-tag.ok { color: var(--color-ok); } .st-geo-tag.claim { color: var(--color-warn); }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
@@ -870,6 +883,10 @@
         <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Energy">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Energy">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Energy">—</b></span>
       </p>
+    </section>
+    <section class="st-card st-geo" aria-labelledby="h-e-geo">
+      <h2 class="st-h2" id="h-e-geo">The war and the Strait of Hormuz</h2>
+      <div data-draw="geo" data-source="geo"></div>
     </section>
     <section class="st-card" aria-labelledby="h-e-hold">
       <h2 class="st-h2" id="h-e-hold">Holdings</h2>
@@ -3457,6 +3474,34 @@
       sp.appendChild(document.createTextNode(' ' + new Date(r.at).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) + ' ET'));
       el.appendChild(sp);
     });
+  });
+  dash.draw('geo', (el) => {
+    el.replaceChildren();
+    const g = dash.baseData('geo'); const d = Array.isArray(g) ? g[0] : g;
+    if (!d || !d.summary) { el.appendChild(mk('p', 'st-note', 'No update yet.')); return; }
+    const top = mk('div', 'ai-pick');
+    top.appendChild(mk('p', 'st-note', 'Last checked ' + stFmt.when(d.checked_at) + ' by ' + (AIS[d.checked_by] ? AIS[d.checked_by].label : 'Claude') + '. Shown for context only; it is the same for all three AIs.'));
+    if (typeof listenBtn === 'function') top.appendChild(listenBtn(() => d.summary + ' ' + (d.status || []).map((x) => x.label + ': ' + x.value + '. ' + (x.note || '')).join(' '), 'Listen'));
+    el.appendChild(top);
+    el.appendChild(mk('p', 'st-geo-sum', d.summary));
+    const src = (urls) => { const p = mk('div', 'st-geo-src'); p.appendChild(document.createTextNode('Sources: ')); urls.forEach((u, i) => { const a = mk('a', '', (u.title || (() => { try { return new URL(u.url || u).hostname.replace('www.', ''); } catch (e) { return 'link'; } })())); a.href = u.url || u; a.target = '_blank'; a.rel = 'noopener'; p.appendChild(a); }); return p; };
+    const grid = mk('div', 'st-geo-grid');
+    (d.status || []).forEach((x) => { const c = mk('div', 'st-geo-s ' + (x.tone || '')); c.append(mk('b', '', x.label), mk('strong', '', x.value)); if (x.note) c.appendChild(mk('div', '', x.note)); if (x.sources) c.appendChild(src(x.sources)); grid.appendChild(c); });
+    el.appendChild(grid);
+    el.appendChild(mk('h3', '', 'Latest updates'));
+    const ul = mk('ul', 'st-geo-up');
+    (d.updates || []).slice().sort((a, b) => new Date(b.at) - new Date(a.at)).forEach((u) => {
+      const li = mk('li', u.kind === 'claim' ? 'claim' : '');
+      const two = (u.sources || []).length >= 2;
+      li.appendChild(mk('span', 'st-geo-tag ' + (u.kind === 'claim' ? 'claim' : 'ok'), u.kind === 'claim' ? 'Claim by ' + (u.who || 'one side') : two ? '✓ Confirmed by 2 sources' : '✓ Reported'));
+      li.appendChild(mk('b', '', (u.date_only ? new Date(u.at).toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric' }) : stFmt.when(u.at)) + ': '));
+      li.appendChild(document.createTextNode(u.text + ' '));
+      li.appendChild(src((u.sources || []).map(([t, url]) => ({ title: t, url }))));
+      ul.appendChild(li);
+    });
+    el.appendChild(ul);
+    if (d.background) { el.appendChild(mk('h3', '', 'Background')); el.appendChild(mk('p', 'st-geo-sum', d.background)); if (d.background_sources) el.appendChild(src(d.background_sources.map(([t, url]) => ({ title: t, url })))); }
+    if (d.factcheck) { const p = mk('p', 'st-fact'); p.appendChild(mk('b', 'fc-ok', 'Fact check')); p.appendChild(document.createTextNode(d.factcheck)); el.appendChild(p); }
   });
   dash.draw('factcheck', (el) => {
     el.replaceChildren();

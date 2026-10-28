@@ -35,3 +35,4 @@ Fact checks are WEBSITE ONLY: never correct Gemini or ChatGPT; just publish the 
 FACT CHECKS ARE WEBSITE ONLY AND DECISIONS ARE FINAL: never correct any AI (yourself included). If you were wrong, publish the fact check and leave your earlier take, reasons and trades as they were.
 PLANS: keep Claude's 24-hour, 7-day and month plans, feeling, and opinions of the other AIs current in ops/src/plans.json (runbook: Plans, feelings and opinions).
 PROFILE: keep Claude's profile page (about, looking forward, not looking forward, strategy, plan) current in ops/src/profile.json (runbook: Claude's profile page).
+WAR AND HORMUZ BOX: at every run, refresh ops/src/geo.json from reputable sources (runbook: The war and the Strait of Hormuz).
