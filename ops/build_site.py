@@ -132,12 +132,14 @@ script += """
   });
   dash.draw('market', {
     mount: (el) => {
-      const f = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' });
+      const f = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' });
+      const HOLIDAY = { '2026-11-26': 'Thanksgiving' }, EARLY = { '2026-11-27': 780 };   // US markets: closed / 1:00 p.m. ET close
       const tick = () => {
         const parts = Object.fromEntries(f.formatToParts(new Date()).map((x) => [x.type, x.value]));
         const mins = Number(parts.hour) * 60 + Number(parts.minute);
-        const open = !['Sat', 'Sun'].includes(parts.weekday) && mins >= 570 && mins < 960;
-        el.textContent = open ? '● US market open' : '○ US market closed';
+        const day = parts.year + '-' + parts.month + '-' + parts.day;
+        const open = !['Sat', 'Sun'].includes(parts.weekday) && !HOLIDAY[day] && mins >= 570 && mins < (EARLY[day] || 960);
+        el.textContent = open ? '● US market open' + (EARLY[day] ? ' (closes 1 p.m. ET)' : '') : HOLIDAY[day] ? '○ US market closed (' + HOLIDAY[day] + ')' : '○ US market closed';
         el.classList.toggle('is-open', open);
       };
       tick();
@@ -313,10 +315,17 @@ SHIM = r"""
         .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then((json) => { base = json; Object.assign(raw, json); status = 'ok'; let m = json.leader || 'claude'; try { m = localStorage.getItem('pt-model') || m; } catch (e) {} if (m !== 'claude' && json.models && json.models[m]) api.useModel(m); else { modelListeners.forEach((fn) => { try { fn('claude'); } catch (e) {} }); runAll(); } })
         .catch((e) => { console.error('data.json failed to load', e); status = 'error'; runAll(); });
-      // live refresh: check for new data every minute while the page is open
+      // live refresh: every minute while the page is open, check the tiny data.ver fingerprint; download data.json only when it changed
+      let ver = null;
+      const getVer = () => fetch('data.ver?v=' + Date.now(), { cache: 'no-store' }).then((r) => r.ok ? r.text() : null).then((t) => (t || '').trim() || null).catch(() => null);
       setInterval(() => {
+        if (!ver && base && base.ver) ver = base.ver;
         if (document.hidden) return;
-        fetch('data.json?v=' + Date.now(), { cache: 'no-store' }).then((r) => r.ok ? r.json() : null).then((json) => {
+        getVer().then((v) => {
+          if (v && ver && v === ver) return null;   // nothing new
+          const next = v;
+          return fetch('data.json?v=' + Date.now(), { cache: 'no-store' }).then((r) => r.ok ? r.json() : null).then((json) => { if (json && next) ver = next; return json; });
+        }).then((json) => {
           const sig = (j) => JSON.stringify([j.history, j.rivals_history, j.trades, j.rivals_trades, j.allin_history]).length + ':' + JSON.stringify(j.history).slice(-80) + JSON.stringify(j.rivals_history).slice(-80);
           if (!json || !base || sig(json) === sig(base)) return;
           const old = base; base = json; Object.assign(raw, json);
@@ -496,7 +505,13 @@ import model_views
 data['models'] = model_views.build(r, {k: data[k] for k in ('indexes', 'bench_history', 'benchmark', 'prices', 'events')} | {'fx': json.load(open(os.path.join(SRC, 'fx.json')))})
 times = [r['at'] for r in data['log'] + data['history']]
 data['meta'] = [{'refreshed_at': max(times, key=lambda t: datetime.fromisoformat(t))}]
+# data.ver: a tiny fingerprint of the data (also stored inside data.json as "ver"). Open pages check data.ver every minute
+# and download data.json only when it changed.
+import hashlib as _hl
+data.pop('ver', None)
+data['ver'] = _hl.sha1(json.dumps(data, separators=(',', ':'), sort_keys=True).encode()).hexdigest()[:16]
 json.dump(data, open(os.path.join(OUT, 'data.json'), 'w'), separators=(',', ':'))  # compact: smaller and faster to load
+open(os.path.join(OUT, 'data.ver'), 'w').write(data['ver'])
 
 open(os.path.join(OUT, 'CNAME'), 'w').write('papertrades.ai\n')
 open(os.path.join(OUT, '.nojekyll'), 'w').write('')

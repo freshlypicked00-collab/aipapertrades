@@ -16,7 +16,11 @@ SITE = 'https://papertrades.ai'
 LABEL = {'Stocks': 'Stocks and anything', 'Crypto': 'Crypto', 'China': 'China stocks', 'Metals': 'Metals', 'Energy': 'Oil and energy',
          'Options': 'Options', 'Currencies': 'Currencies', 'Safe': 'Play it safe', 'Sports': 'Sports', 'Predictions': 'Prediction markets'}
 ICON = {'Buy': '🟢', 'Sell': '🔴', 'Short': '🔻', 'Cover': '🔺'}
-ET = timezone(timedelta(hours=-4))  # good enough for labels; UTC is shown too
+try:
+    from zoneinfo import ZoneInfo
+    ET = ZoneInfo('America/New_York')   # EDT until Nov 1, EST after
+except Exception:
+    ET = timezone(timedelta(hours=-5))
 
 
 def load(path, ref=None):
@@ -28,7 +32,7 @@ def load(path, ref=None):
 
 
 def when(s):
-    t = datetime.fromisoformat(s.replace('Z', '+00:00'))
+    t = datetime.fromisoformat(s.replace('Z', '+00:00')).astimezone(ET)   # always shown in New York time, whatever offset it was written with
     u = t.astimezone(timezone.utc)
     hk = t.astimezone(timezone(timedelta(hours=8)))
     return (t.strftime('%b %-d, %-I:%M %p').replace('AM', 'a.m.').replace('PM', 'p.m.') + ' ET (' + u.strftime('%H:%M UTC') + ' · '

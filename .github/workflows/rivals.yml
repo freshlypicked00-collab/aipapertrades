@@ -12,6 +12,8 @@ on:
     - cron: '50 13 28 10 *'
     - cron: '5 18 28 10 *'
     - cron: '25 20 28 10 *'
+    # Final scoring, Sat Nov 28 at 4:01 p.m. ET: freezes Gemini's and ChatGPT's final values (later runs only settle bets)
+    - cron: '1 21 28 11 *'
   workflow_dispatch:
     inputs:
       mode:
@@ -26,6 +28,8 @@ on:
 permissions:
   contents: write
   pages: write
+  issues: write
+  actions: read
 concurrency:
   group: rivals
   cancel-in-progress: false
@@ -87,17 +91,55 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           [ -f ops/src/rivals.json ] || exit 0
+          # nothing to publish when this run skipped or changed nothing: never push an old copy over newer data
+          if git diff --quiet -- ops/src/rivals.json; then echo "rivals.json unchanged; nothing to publish"; exit 0; fi
           cp ops/src/rivals.json /tmp/rivals.json
+          [ -f ops/archive/thoughts.jsonl ] && cp ops/archive/thoughts.jsonl /tmp/thoughts.jsonl
           git config user.name "paper-trades-bot"
           git config user.email "paper-trades-bot@users.noreply.github.com"
           for i in 1 2 3 4 5; do
             git fetch -q origin main && git reset -q --hard origin/main
             cp /tmp/rivals.json ops/src/rivals.json
+            if [ -f /tmp/thoughts.jsonl ]; then mkdir -p ops/archive && cp /tmp/thoughts.jsonl ops/archive/thoughts.jsonl; fi
             python3 ops/build_site.py ops/src .
-            git add ops/src/rivals.json index.html data.json og.png ops/src/og.json
+            git add ops/src/rivals.json index.html data.json data.ver og.png ops/src/og.json
+            [ -f ops/archive/thoughts.jsonl ] && git add ops/archive/thoughts.jsonl
             git diff --cached --quiet && exit 0
             git commit -qm "Head to head: hourly Gemini and ChatGPT run"
-            git push -q origin HEAD:main && break
+            if git push -q origin HEAD:main; then pushed=1; break; fi
             sleep $((i * 7))
           done
+          [ "${pushed:-0}" = 1 ] || { echo "could not push after 5 tries"; exit 1; }
           gh api -X POST repos/${{ github.repository }}/pages/builds >/dev/null || true
+      - name: Health check (opens a GitHub issue, which emails the owner, when something keeps failing)
+        if: ${{ always() && inputs.mode != 'prices' && inputs.mode != 'ask' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          : > /tmp/alert.txt
+          python3 - >> /tmp/alert.txt <<'PY' || true
+          import json
+          from datetime import datetime, timezone, timedelta
+          now = datetime.now(timezone.utc)
+          s = json.load(open('ops/src/rivals.json'))
+          for mid, m in s.get('models', {}).items():
+              if m.get('fail_streak', 0) >= 3:
+                  print(f"- {m.get('label', mid)}: the last {m['fail_streak']} check-ins failed. Last error: {(m.get('last_run') or {}).get('status', '')}")
+          end = datetime(2026, 11, 28, 21, 0, tzinfo=timezone.utc)
+          try:
+              h = json.load(open('ops/src/history.json'))
+              last = max(datetime.fromisoformat(x['at'].replace('Z', '+00:00')) for x in h)
+              if now < end and now - last > timedelta(hours=3):
+                  print(f"- Claude: no update for {int((now - last).total_seconds() // 3600)} hours (last {last.isoformat()}). Its scheduled tasks may be paused or failing.")
+          except Exception as e:
+              print(f'- could not read Claude history: {e}')
+          PY
+          fails=$(gh run list -R "$GITHUB_REPOSITORY" -w rivals.yml -L 6 --json status,conclusion --jq '[.[] | select(.status == "completed")][:3] | map(select(.conclusion == "failure")) | length' 2>/dev/null || echo 0)
+          [ "$fails" = 3 ] && echo "- The Gemini and ChatGPT workflow failed its last 3 runs: https://github.com/$GITHUB_REPOSITORY/actions/workflows/rivals.yml" >> /tmp/alert.txt
+          [ -s /tmp/alert.txt ] || exit 0
+          cat /tmp/alert.txt
+          open=$(gh issue list -R "$GITHUB_REPOSITORY" --state open --label health --json number --jq 'length' 2>/dev/null || echo 0)
+          [ "$open" = "0" ] || { echo "a health issue is already open"; exit 0; }
+          gh label create health -R "$GITHUB_REPOSITORY" --color B60205 --description "Automatic health alerts" >/dev/null 2>&1 || true
+          printf '%s\n\n%s\n' "$(cat /tmp/alert.txt)" "Most likely causes: API credit ran out (OpenRouter for ChatGPT, Google billing for Gemini), a key expired, or Claude's scheduled tasks are paused. Fix it and the next run recovers on its own; close this issue when it is fixed." > /tmp/body.txt
+          gh issue create -R "$GITHUB_REPOSITORY" --label health --title "Paper Trades needs attention" --body-file /tmp/body.txt || true

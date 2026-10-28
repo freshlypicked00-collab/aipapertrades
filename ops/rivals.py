@@ -63,6 +63,10 @@ def et_day(x):
 TOTAL_MIN = 100000.0  # at least C$100,000 wagered in total by Nov 28 (no weekly minimum since Oct 28, 5:30 p.m. ET)
 DAY_MIN = 3000.0      # and at least C$3,000 wagered every ET day (25% of the betting balance once it is under C$12,000)
 BET_END = '2026-11-28T21:00:00+00:00'   # the minimums run to the final scoring, Nov 28 at 4 p.m. ET
+RACE_END = datetime(2026, 11, 28, 21, 0, tzinfo=timezone.utc)   # final scoring: no orders after this; values are frozen
+US_HOLIDAYS = {'2026-11-26'}            # Thanksgiving: US markets closed all day
+US_EARLY_CLOSE = {'2026-11-27': 780}    # the day after Thanksgiving: US markets close at 1:00 p.m. ET (minutes after midnight)
+VOID_STATUS = {'STATUS_POSTPONED', 'STATUS_CANCELED', 'STATUS_CANCELLED', 'STATUS_SUSPENDED', 'STATUS_ABANDONED', 'STATUS_FORFEIT'}
 # One-time messages from the organiser, shown at the top of every rival prompt until the given time (UTC)
 ANNOUNCEMENTS = [('2026-10-29T16:00:00+00:00', 'RULE CHANGE (Oct 28, 5:30 p.m. ET): the C$25,000 weekly betting minimum has been dropped. '
                   'The betting minimums are now only: at least C$3,000 per bet, at least C$3,000 wagered every day, and at least C$100,000 wagered in total by Nov 28. '
@@ -254,7 +258,7 @@ def _parse_game(ev, sport, league, short):
         odds = (c.get('odds') or [{}])[0]
         st = ev['status']['type']
         return {'id': str(ev['id']), 'sport': sport, 'league': league, 'short': short, 'name': ev.get('name') or ev.get('shortName'),
-                'start': ev['date'], 'state': st.get('state'), 'completed': bool(st.get('completed')),
+                'start': ev['date'], 'state': st.get('state'), 'completed': bool(st.get('completed')), 'status_name': st.get('name'),
                 'home': teams['home']['team']['displayName'], 'away': teams['away']['team']['displayName'],
                 'home_ml': _ml(odds, 'home'), 'away_ml': _ml(odds, 'away'),
                 'home_score': teams['home'].get('score'), 'away_score': teams['away'].get('score'),
@@ -264,6 +268,12 @@ def _parse_game(ev, sport, league, short):
 
 
 def game_result(bet):
+    g = game_info(bet)
+    return g if g and g['completed'] else None
+
+
+def game_info(bet):
+    """The game as ESPN shows it now (finished or not), or None if it can't be found."""
     g = espn_games().get(bet['game'])
     if not g or not g['completed']:
         try:
@@ -271,10 +281,24 @@ def game_result(bet):
             comp = j['header']['competitions'][0]
             ev = {'id': bet['game'], 'name': bet['event'], 'date': comp.get('date', bet['starts_at']), 'status': comp['status'],
                   'competitions': [{'competitors': comp['competitors'], 'odds': []}]}
-            g = _parse_game(ev, bet['sport'], bet['league'], bet['short'])
+            g = _parse_game(ev, bet['sport'], bet['league'], bet['short']) or g
         except Exception:
-            return None
-    return g if g and g['completed'] else None
+            return g
+    return g
+
+
+def leg_outcome(bet, g):
+    """'Won', 'Lost', 'Push' or None (not decided yet) for one moneyline bet or parlay leg.
+    Soccer moneylines are three-way, so a draw loses both sides; a 2-way tie (NFL, NHL shootout-free) is a push.
+    A postponed or cancelled game, or one still unfinished 4 days after its start, is void (push, stake back)."""
+    start = datetime.fromisoformat(str(bet['starts_at']).replace('Z', '+00:00'))
+    if g and g['completed']:
+        if g['winner'] is None:
+            return 'Lost' if bet.get('sport') == 'soccer' else 'Push'
+        return 'Won' if g['winner'] == bet['pick'] else 'Lost'
+    if (g and g.get('status_name') in VOID_STATUS and NOW - start > timedelta(hours=6)) or NOW - start > timedelta(days=4):
+        return 'Push'
+    return None
 
 
 def payout(stake, ml):
@@ -283,8 +307,8 @@ def payout(stake, ml):
 
 def us_open():
     t = NOW.astimezone(NY)
-    hm = t.hour * 60 + t.minute
-    return t.weekday() < 5 and 570 <= hm < 960
+    hm, d = t.hour * 60 + t.minute, t.date().isoformat()
+    return t.weekday() < 5 and d not in US_HOLIDAYS and 570 <= hm < US_EARLY_CLOSE.get(d, 960)
 
 
 def fx_open():
@@ -319,6 +343,8 @@ def pos_key(symbol, outcome):
 
 
 def value_book(exp, book, fx, notes):
+    if book.get('busted') and BASE.get(exp, exp) != 'Sports':
+        return 0.0
     if BASE.get(exp, exp) == 'Sports':
         return round(START + sum(b['result'] for b in book.get('bets', []) if b['status'] != 'Open'), 2)
     total = book['cash']
@@ -372,19 +398,35 @@ def pick_openrouter(key):
     return ids[:2] or ['openai/gpt-5']
 
 
+def _post_retry(url, hdr, body):
+    """POST with one retry after a rate limit (429) or a server error (5xx)."""
+    import time
+    for attempt in range(2):
+        try:
+            return get_json(url, hdr, json.dumps(body).encode(), timeout=MODEL_TIMEOUT)
+        except urllib.error.HTTPError as e:
+            if attempt or e.code not in (429, 500, 502, 503, 504):
+                raise
+            time.sleep(15)
+
+
 def ask_openrouter(key, model, prompt):
+    global LAST_SEARCHES
     hdr = {'Authorization': f'Bearer {key}', 'Content-Type': 'application/json',
            'HTTP-Referer': SITE, 'X-Title': 'Paper Trades'}
     body = {'model': model, 'messages': [{'role': 'user', 'content': prompt}], 'plugins': [{'id': 'web', 'max_results': 6}]}
+    url = 'https://openrouter.ai/api/v1/chat/completions'
     try:
-        j = get_json('https://openrouter.ai/api/v1/chat/completions', hdr, json.dumps(body).encode(), timeout=MODEL_TIMEOUT)
+        j = _post_retry(url, hdr, body)
     except urllib.error.HTTPError as e:
-        if e.code not in (400, 402, 404):
+        if e.code not in (400, 404):   # 402 = out of credit: retrying without search would fail too, so report it
             raise
         body.pop('plugins')
-        j = get_json('https://openrouter.ai/api/v1/chat/completions', hdr, json.dumps(body).encode(), timeout=MODEL_TIMEOUT)
+        j = _post_retry(url, hdr, body)
     msg = j['choices'][0]['message']
-    SEARCH_LOG.append({'model': model, 'annotations': len(msg.get('annotations') or []), 'plugins': 'plugins' in body})
+    n = int((((j.get('usage') or {}).get('server_tool_use_details') or {}).get('web_search_requests')) or len(msg.get('annotations') or []))
+    LAST_SEARCHES = n
+    SEARCH_LOG.append({'model': model, 'web_searches': n, 'plugins': 'plugins' in body, 'cost_usd': (j.get('usage') or {}).get('cost')})
     sources = [{'title': a['url_citation'].get('title') or a['url_citation']['url'], 'url': a['url_citation']['url']}
                for a in msg.get('annotations') or [] if a.get('type') == 'url_citation']
     return msg.get('content') or '', sources
@@ -400,7 +442,9 @@ def ask_openai(key, model, prompt):
             raise
         body.pop('tools')
         j = get_json('https://api.openai.com/v1/responses', hdr, json.dumps(body).encode(), timeout=MODEL_TIMEOUT)
+    global LAST_SEARCHES
     out, sources = [], []
+    LAST_SEARCHES = sum(1 for item in j.get('output', []) if item.get('type') == 'web_search_call')
     for item in j.get('output', []):
         for c in item.get('content', []) or []:
             if c.get('type') == 'output_text':
@@ -413,6 +457,7 @@ def ask_openai(key, model, prompt):
 
 GEMINI_NO_SEARCH = False
 SEARCH_LOG = []
+LAST_SEARCHES = 0   # web searches the last model reply really made (Gemini grounding queries, OpenAI/OpenRouter search calls)
 
 
 def ask_gemini(key, model, prompt):
@@ -439,15 +484,23 @@ def _ask_gemini(key, model, prompt, search=True):
     else:
         global GEMINI_NO_SEARCH
         GEMINI_NO_SEARCH = True
+    global LAST_SEARCHES
+    fallback = ''
     try:
         j = get_json(url, {'Content-Type': 'application/json'}, json.dumps(body).encode(), timeout=MODEL_TIMEOUT)
     except urllib.error.HTTPError as e:
         if e.code != 400 or 'tools' not in body:
             raise
+        try:
+            fallback = e.read().decode()[:200]
+        except Exception:
+            fallback = 'HTTP 400'
         body.pop('tools')
         j = get_json(url, {'Content-Type': 'application/json'}, json.dumps(body).encode(), timeout=MODEL_TIMEOUT)
     cand = j['candidates'][0]
-    SEARCH_LOG.append({'model': model, 'queries': (cand.get('groundingMetadata') or {}).get('webSearchQueries', [])[:5]})
+    qs = (cand.get('groundingMetadata') or {}).get('webSearchQueries', [])
+    LAST_SEARCHES = len(qs)
+    SEARCH_LOG.append({'model': model, 'queries': qs[:5], **({'search_refused': fallback} if fallback else {})})
     text = ''.join(p.get('text', '') for p in cand.get('content', {}).get('parts', []))
     sources = [{'title': c['web'].get('title') or c['web']['uri'], 'url': c['web']['uri']}
                for c in cand.get('groundingMetadata', {}).get('groundingChunks', []) if c.get('web')]
@@ -517,7 +570,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
     lines = ([f'NOTICE FROM THE ORGANISER (read first): {notice}'] if notice else []) + [
         f'You are {label}, taking part in Paper Trades (papertrades.ai), a public paper-trading experiment that compares AI models with pretend money and real prices.',
         f'You are being put to the test publicly, in front of the world, in real time: every trade, every reason, your take, your watchlist and your daily report card are published live on papertrades.ai and the @PaperTradesAI Telegram channel, side by side with the other AIs (Claude, Gemini and ChatGPT). Viewers will see exactly how you think and whether you win or lose. Make decisions you would stand behind in public.',
-        f'It is now {NOW.astimezone(timezone(timedelta(hours=-4))).strftime("%A %b %-d, %Y, %-I:%M %p")} ET ({iso()}). Beijing time: {NOW.astimezone(BJ).strftime("%a %-I:%M %p")}.',
+        f'It is now {NOW.astimezone(NY).strftime("%A %b %-d, %Y, %-I:%M %p")} ET ({iso()}). Beijing time: {NOW.astimezone(BJ).strftime("%a %-I:%M %p")}.',
         f'You run {len(exps)} SEPARATE experiments, each started with its own 100,000 of pretend money. Each is judged against its own start, and the overall race between the AIs is decided by total profit in C$ across all of them. The experiment ends Nov 28, 2026 at 4:00 p.m. ET (US stock markets are closed that Saturday; the last US trading day is Friday Nov 27, which closes early at 1:00 p.m. ET).',
         'YOUR GOAL IS TO FINISH NUMBER ONE: beat the other AIs on total profit by Nov 28. The way to get there is to INVEST EXACTLY AS IF THIS WERE YOUR OWN REAL MONEY and losing it mattered: grow each experiment as much as you can over the whole month without risking ruin. Think like a skilled professional managing real capital, not a gambler chasing one big night. A real investor with 100,000 would not put the whole amount on one game, one coin or one leveraged fund on day one: they size positions to how confident they are, spread risk, keep cash in reserve, use stop-losses, and only press a bet hard when the edge is clear and confirmed. The race lasts a full month; a strategy that can be wiped out in one move is a bad strategy, because an eliminated AI cannot win. Be ambitious and competitive: take strong positions when the edge is real, and play to win the month, not just to survive. Holding is fine; trade when you have a real reason.',
         'BUST RULE: if any experiment falls to zero (or below), you are BUSTED in that experiment: it is closed for good, you are out of that race, and it is marked BUSTED publicly for the rest of the month, in front of everyone watching. Going all-in on a single bet or a maximum-leverage position can end an experiment in one move. Bold is fine; reckless is not. You only win if you are still standing on Nov 28.',
@@ -544,7 +597,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
     if facts:
         lines += ['OFFICIAL RESULTS (checked against the official source; the same list goes to every AI). Trust these over headlines or your own assumptions. Never trade on a result that contradicts this list:'] + \
                  [f"- {f['event']} ({f['at'][:10]}): {f['result']} Source: {f['source']}" for f in facts] + ['']
-    lines += [f'Exchange rates now: USD/CAD {fx["USDCAD"]:.4f}, USD/CNY {fx["USDCNY"]:.4f}.', 'Use web search to check news and current prices before deciding. NO TRADING ON UNCONFIRMED HEADLINES: before you trade because of a news event (a rate decision, data release, earnings, deal, war, ruling), confirm it on the official source (the central bank, agency or company itself) or at least two independent reputable outlets, and say in your reason which source confirmed it. If you cannot confirm it, do not trade on it.', '']
+    lines += [f'Exchange rates now: USD/CAD {fx["USDCAD"]:.4f}, USD/CNY {fx["USDCNY"]:.4f}.', 'SEARCH THE WEB AT EVERY CHECK-IN BEFORE DECIDING: run at least two searches (the latest news on what you hold or plan to trade, and today\'s market-moving events and results); a check-in decided without a search is not acceptable for real money. NO TRADING ON UNCONFIRMED HEADLINES: before you trade because of a news event (a rate decision, data release, earnings, deal, war, ruling), confirm it on the official source (the central bank, agency or company itself) or at least two independent reputable outlets, and say in your reason which source confirmed it. If you cannot confirm it, do not trade on it.', '']
     if 'Sports' in exps or 'AllInSports' in exps:
         gl = [g for g in espn_games().values() if g['state'] == 'pre' and g['home_ml'] and g['away_ml']
               and datetime.fromisoformat(g['start'].replace('Z', '+00:00')) > NOW]
@@ -613,9 +666,13 @@ def parse_reply(text):
 def execute(model_id, exps, books, order, fx, state):
     exp = order.get('experiment')
     if exp not in exps:
+        if exp in ALL_EXPS:
+            raise ValueError(f'{EXP_LABEL[exp]} is closed for you: you were ELIMINATED (C$100,000 total loss); only the All in side race is still open')
         raise ValueError(f'unknown experiment {exp!r}')
     if NOW < FRESH_START:
         raise ValueError('the restart begins at 1:45 p.m. ET Oct 28; no trades before then')
+    if NOW >= RACE_END:
+        raise ValueError('the race ended at the final scoring, Nov 28 at 4:00 p.m. ET; no more trades or bets')
     book = books[exp]
     action = str(order.get('action', '')).lower()
     reason = clip(order.get('reason', ''), 600)
@@ -637,7 +694,7 @@ def execute(model_id, exps, books, order, fx, state):
     if action == 'cover' and not (p and p['qty'] < 0):
         raise ValueError(f'no short {key} position to cover')
     if (exp in ('Stocks', 'Metals', 'Energy', 'Safe', 'Options') or (exp == 'AllInTrading' and not sym.endswith('-USD'))) and not sym.endswith('=F') and not us_open():
-        raise ValueError('US market is closed; US-listed orders fill only 9:30 a.m. to 4:00 p.m. ET on weekdays')
+        raise ValueError('US market is closed; US-listed orders fill only 9:30 a.m. to 4:00 p.m. ET on weekdays (closed Thanksgiving Nov 26; 1:00 p.m. close Nov 27)')
     if exp == 'China' and not china_open():
         raise ValueError('China market is closed; orders fill only during Shanghai/Shenzhen trading hours')
     if exp == 'Currencies' and not fx_open():
@@ -653,20 +710,20 @@ def execute(model_id, exps, books, order, fx, state):
     today = NOW.astimezone(BJ).date().isoformat()
     if action in ('buy', 'short'):
         want = float(order.get('amount', order.get('amount_cad', 0)) or 0)
-        if exp == 'Predictions':
+        if (exp == 'Options' or (exp == 'AllInTrading' and OCC.match(sym))) and order.get('contracts'):
+            want = int(order['contracts']) * 100 * unit
+        if exp != 'Currencies':
+            want = min(want, book['cash'])
+        if exp == 'Predictions':   # checked on what is actually spent, after the cash limit
             pval = book['cash'] + sum(to_book(q['qty'] * q.get('last', q['entry']), q['pcur'], book['cur'], fx) for q in book['positions'].values())
             mb = min_bet(pval)
-            if want < mb:
-                raise ValueError(f'minimum bet is {money(mb, "CAD")} (prediction market buys count as bets)')
+            if want + 0.5 < mb:
+                raise ValueError(f'minimum bet is {money(mb, "CAD")} (prediction market buys count as bets; cash available {money(book["cash"], "CAD")})')
             today_et = et_day(iso())
             spent = sum(float(t['amount'] or 0) for t in state['trades'] if t.get('model') == model_id and t['experiment'] == 'Predictions'
                         and t['action'] == 'Buy' and not t.get('void') and et_day(t['at']) == today_et)
             if spent + want > DAY_MAX * pval + 1:
                 raise ValueError(f'daily limit: at most 25% of the Prediction markets balance can be bought in one day ({money(max(0, DAY_MAX * pval - spent), "CAD")} left today)')
-        if (exp == 'Options' or (exp == 'AllInTrading' and OCC.match(sym))) and order.get('contracts'):
-            want = int(order['contracts']) * 100 * unit
-        if exp != 'Currencies':
-            want = min(want, book['cash'])
         if want < 1 or unit <= 0:
             raise ValueError('nothing to buy (no cash or zero price)')
         qty = want / unit
@@ -681,7 +738,10 @@ def execute(model_id, exps, books, order, fx, state):
         amt = qty * unit
         if exp != 'Currencies' and exp not in ALLIN:   # 50% CAP: no single holding above half the experiment's value
             acct = value_book(exp, book, fx, [])
-            held = to_book(p['qty'] * p.get('last', p['entry']), p['pcur'], book['cur'], fx) if p else 0
+            if exp == 'Predictions':   # every outcome of one market counts together
+                held = sum(to_book(q['qty'] * q.get('last', q['entry']), q['pcur'], book['cur'], fx) for k, q in book['positions'].items() if k.partition('|')[0] == sym)
+            else:
+                held = to_book(p['qty'] * p.get('last', p['entry']), p['pcur'], book['cur'], fx) if p else 0
             cap = MAX_BET if exp == 'Predictions' else MAX_SHARE
             if held + amt > cap * acct + 1:
                 raise ValueError(f'{cap:.0%} cap: one {"market" if exp == "Predictions" else "holding"} can be at most {cap:.0%} of the experiment ({money(cap * acct, book["cur"])} now; you already hold {money(held, book["cur"])})')
@@ -712,7 +772,11 @@ def execute(model_id, exps, books, order, fx, state):
             p['today_date'] = today
         book['cash'] -= sign * amt
     else:
-        frac = max(0.0, min(1.0, float(order.get('fraction', 1) or 1)))
+        raw = order.get('fraction', 1)
+        frac = 1.0 if raw in (None, '') else float(raw)
+        if frac <= 0:
+            raise ValueError('fraction must be above 0 (1 = the whole position, 0.5 = half)')
+        frac = min(1.0, frac)
         qty = abs(p['qty']) * frac
         if exp == 'China':
             free = p['qty'] - (p.get('today_qty', 0) if p.get('today_date') == today else 0)
@@ -751,6 +815,8 @@ def _leg(gid, pick):
         raise ValueError(f'game {gid!r} is not in the list of games open for betting')
     if g['state'] != 'pre' or datetime.fromisoformat(g['start'].replace('Z', '+00:00')) <= NOW:
         raise ValueError(f"{g['name']} has already started")
+    if datetime.fromisoformat(g['start'].replace('Z', '+00:00')) >= RACE_END:
+        raise ValueError(f"{g['name']} starts after the race ends (Nov 28, 4:00 p.m. ET)")
     pick = str(pick or '').lower()
     if pick not in ('home', 'away'):
         team = pick
@@ -789,11 +855,13 @@ def place_bet(model_id, book, order, reason, state, exp='Sports'):
         raise ValueError(f'minimum bet is {money(mb, "CAD")}')
     if exp not in ALLIN and want > MAX_BET * roll + 1:
         raise ValueError(f'25% cap: one bet can be at most a quarter of the bankroll ({money(MAX_BET * roll, "CAD")} now)')
-    if exp not in ALLIN:
-        gday = et_day(min(x['starts_at'] for x in legs) if legs else leg['starts_at'])
-        on_day = sum(b['stake'] for b in bets if b['status'] != 'Void' and et_day(b['starts_at']) == gday)
-        if on_day + want > DAY_MAX * roll + 1:
-            raise ValueError(f'daily limit: at most 25% of the bankroll can ride on games of one day ({money(max(0, DAY_MAX * roll - on_day), "CAD")} left for {gday})')
+    if exp not in ALLIN:   # a parlay's stake counts against every day one of its legs is played
+        def bet_days(b):
+            return {et_day(x['starts_at']) for x in b['legs']} if b.get('legs') else {et_day(b['starts_at'])}
+        for gday in sorted({et_day(x['starts_at']) for x in legs} if legs else {et_day(leg['starts_at'])}):
+            on_day = sum(b['stake'] for b in bets if b['status'] != 'Void' and gday in bet_days(b))
+            if on_day + want > DAY_MAX * roll + 1:
+                raise ValueError(f'daily limit: at most 25% of the bankroll can ride on games of one day ({money(max(0, DAY_MAX * roll - on_day), "CAD")} left for {gday})')
     stake = min(want, bank)
     if stake < mb:
         raise ValueError(f'not enough bankroll left for the {money(mb, "CAD")} minimum bet')
@@ -827,10 +895,12 @@ def settle_bets(model_id, book, state, exp='Sports'):
         if b.get('legs'):   # parlay: every leg must win; a pushed leg drops out
             for x in b['legs']:
                 if x['status'] == 'Open':
-                    g = game_result(x)
-                    if g:
-                        x['status'] = 'Push' if g['winner'] is None else ('Won' if g['winner'] == x['pick'] else 'Lost')
-                        x['final'] = f"{g['away']} {g['away_score']}, {g['home']} {g['home_score']}"
+                    g = game_info(x)
+                    res = leg_outcome(x, g)
+                    if res:
+                        x['status'] = res
+                        x['final'] = (f"{g['away']} {g['away_score']}, {g['home']} {g['home_score']}" if g and g['completed']
+                                      else 'postponed or cancelled, leg void')
             if any(x['status'] == 'Lost' for x in b['legs']):
                 b.update(status='Lost', result=-b['stake'])
             elif all(x['status'] != 'Open' for x in b['legs']):
@@ -852,16 +922,14 @@ def settle_bets(model_id, book, state, exp='Sports'):
             state['trades'].append(t)
             out.append(t)
             continue
-        g = game_result(b)
-        if not g:
+        g = game_info(b)
+        res = leg_outcome(b, g)
+        if not res:
             continue
-        if g['winner'] is None:
-            b.update(status='Push', result=0.0)
-        else:
-            won = g['winner'] == b['pick']
-            b.update(status='Won' if won else 'Lost', result=b['to_win'] if won else -b['stake'])
+        b.update(status=res, result={'Won': b['to_win'], 'Lost': -b['stake'], 'Push': 0.0}[res])
         b['settled_at'] = iso()
-        b['final'] = f"{g['away']} {g['away_score']}, {g['home']} {g['home_score']}"
+        b['final'] = (f"{g['away']} {g['away_score']}, {g['home']} {g['home_score']}" + (' (a draw loses a three-way soccer moneyline)' if res == 'Lost' and g['winner'] is None else '')
+                      if g and g['completed'] else 'postponed or cancelled; stake refunded')
         t = {'at': iso(), 'model': model_id, 'experiment': exp, 'action': b['status'], 'symbol': b['id'], 'outcome': None,
              'name': f"{b['short']}: {b['pick_team']} moneyline ({b['event']})", 'price': b['odds'], 'pcur': 'CAD', 'qty': 1,
              'amount': round(b['result'], 2), 'cur': 'CAD', 'fx': None, 'reason': 'Final: ' + b['final'] + '.', 'bet': b['id']}
@@ -874,10 +942,10 @@ def settle_options(model_id, book, fx, state, exp='Options'):
     out = []
     for key in list(book['positions']):
         try:
-            tk, exp, cp, k = option_parts(key)
+            tk, xp, cp, k = option_parts(key)   # xp = expiry time (never reuse `exp`, the experiment name)
         except ValueError:
             continue
-        if NOW < exp.astimezone(timezone.utc):
+        if NOW < xp.astimezone(timezone.utc):
             continue
         try:
             spot = yahoo(tk)[0]
@@ -1026,6 +1094,8 @@ WATCH = [('BTC-USD', 'Bitcoin', 3.0), ('ETH-USD', 'Ethereum', 4.0), ('SOL-USD', 
 
 def price_alerts(state):
     """Post a market alert when something big moves: each move is measured from the last alert (or first sighting) of that market."""
+    if NOW >= RACE_END:
+        return   # the race is over: the channel's market alerts stop with it
     a = state.setdefault('price_alerts', {'base': {}, 'sent': []})
     today = NOW.date().isoformat()
     sent_today = [x for x in a['sent'] if x[:10] == today]
@@ -1188,18 +1258,71 @@ def claude_allin(state, fx):
             c['results'].append(f"{o.get('id')}: refused ({e})")
     c['results'] = c['results'][-40:]
     notes = []
-    for t in settle_bets('claude', c['books']['AllInSports'], state, 'AllInSports') + settle_options('claude', c['books']['AllInTrading'], fx, state, 'AllInTrading'):
+    for t in settle_bets('claude', c['books']['AllInSports'], state, 'AllInSports') + (settle_options('claude', c['books']['AllInTrading'], fx, state, 'AllInTrading') if NOW < RACE_END else []):
         try:
             tg_trade('Claude', t)
         except Exception:
             pass
+    if NOW >= RACE_END:
+        freeze_final(state, 'claude', ALLIN, {e: value_book(e, c['books'][e], fx, notes) for e in ALLIN})
+        return
     for e in ALLIN:
         v = value_book(e, c['books'][e], fx, notes)
         state['history'].append({'at': iso(), 'model': 'claude', 'experiment': e, 'value': v})
         b = c['books'][e]
         if v <= 0 and not b.get('busted') and not any(x['status'] == 'Open' for x in b.get('bets', [])):
             b['busted'] = iso()
+            b['positions'], b['cash'] = {}, 0.0
             tg(f"{head}\n💥 <b>BUSTED in {EXP_LABEL[e]}</b>\nClaude lost the whole 100,000 in this High risk, high reward experiment. (It does not count in the main race.)\n{SITE}", silent=False)
+
+
+def freeze_final(state, mid, exps, values):
+    """At the first run after the final scoring, record every experiment's final value; afterwards only Sports changes
+    (a bet on a game that started before the end and finished later) are recorded. Prices moving later change nothing."""
+    fin = state.setdefault('final', {})
+    first = mid not in fin
+    f = fin.setdefault(mid, {'at': iso(), 'values': {}})
+    for e in exps:
+        if e not in f['values'] or (BASE.get(e, e) == 'Sports' and abs(values[e] - f['values'][e]) > 0.005):
+            f['values'][e] = values[e]
+            state['history'].append({'at': iso(), 'model': mid, 'experiment': e, 'value': values[e], 'final': True})
+    return first
+
+
+def compact(state):
+    """Keep rivals.json small over a month of runs (about 1,400 check-ins). Rows older than 3 days are thinned:
+    history keeps the last value per AI, experiment and hour (plus each first row and the final rows); thoughts keep the last
+    note per AI, experiment and day. Dropped notes are appended to ops/archive/thoughts.jsonl, so nothing is lost."""
+    cut = iso(NOW - timedelta(days=3))
+    hist = state.get('history', [])
+    keep, seen_first, last_in_hour = [], set(), {}
+    for i, h in enumerate(hist):
+        k = (h.get('model'), h.get('experiment'))
+        if k not in seen_first:
+            seen_first.add(k)
+            keep.append(i)
+            continue
+        if h['at'] >= cut or h.get('final'):
+            keep.append(i)
+        else:
+            last_in_hour[k + (h['at'][:13],)] = i
+    keep = sorted(set(keep) | set(last_in_hour.values()))
+    state['history'] = [hist[i] for i in keep]
+    th = state.get('thoughts', [])
+    last_in_day = {}
+    for i, x in enumerate(th):
+        if x['at'] < cut:
+            last_in_day[(x.get('model'), x.get('experiment'), x['at'][:10])] = i
+    old = set(i for i, x in enumerate(th) if x['at'] < cut) - set(last_in_day.values())
+    if old:
+        try:
+            os.makedirs('ops/archive', exist_ok=True)
+            with open('ops/archive/thoughts.jsonl', 'a') as f:
+                for i in sorted(old):
+                    f.write(json.dumps(th[i], ensure_ascii=False) + '\n')
+            state['thoughts'] = [x for i, x in enumerate(th) if i not in old]
+        except Exception as e:
+            print('thought archive failed; kept them', e)
 
 
 # ---------------- main ----------------
@@ -1222,10 +1345,17 @@ def main():
     if os.environ.get('EVENT') == 'schedule':
         # GitHub's own schedule is only a safety net: Claude's runs start the rival check-in at the same moment.
         lasts = [datetime.fromisoformat(m['last_run']['at'].replace('Z', '+00:00')) for m in state.get('models', {}).values() if m.get('last_run')]
-        if lasts and NOW - max(lasts) < timedelta(minutes=35):
-            print('a check-in ran in the last 35 minutes; skipping this scheduled backup run')
+        final_due = NOW >= RACE_END and not all(m in state.get('final', {}) for m in state.get('models', {}))
+        if lasts and NOW - max(lasts) < timedelta(minutes=20) and not final_due:
+            print('a check-in ran in the last 20 minutes; skipping this scheduled backup run')
             return
-    fx = get_fx()
+    try:
+        fx = get_fx()
+    except Exception as e:
+        fx = state.get('fx')
+        if not fx:
+            raise
+        print('exchange rates unavailable; using the last known rates', e)
     ran = []
     try:
         claude_allin(state, fx)
@@ -1254,20 +1384,27 @@ def main():
         notes = []
         day_posts = []
         settled = []
-        if 'Predictions' in exps:
+        if 'Predictions' in exps and NOW < RACE_END:   # after the end, values are frozen: only bets still settle
             settled += settle_predictions(mid, m['books']['Predictions'], fx, state)
         if 'Sports' in exps:
             settled += settle_bets(mid, m['books']['Sports'], state)
-        if 'Options' in exps:
+        if 'Options' in exps and NOW < RACE_END:
             settled += settle_options(mid, m['books']['Options'], fx, state)
         if 'AllInSports' in exps:
             settled += settle_bets(mid, m['books']['AllInSports'], state, 'AllInSports')
-        if 'AllInTrading' in exps:
+        if 'AllInTrading' in exps and NOW < RACE_END:
             settled += settle_options(mid, m['books']['AllInTrading'], fx, state, 'AllInTrading')
         for t in settled:
             tg_trade(r['label'], t, None, chart(r['label'], r['color'], t['experiment'], state, mid))
         values = {e: value_book(e, m['books'][e], fx, notes) for e in exps}
+        if NOW >= RACE_END:
+            freeze_final(state, mid, exps, values)
+            m['last_run'] = {'at': iso(), 'status': 'final', 'notes': ['the race has ended: values are frozen at the final scoring (Nov 28, 4:00 p.m. ET)'],
+                             'sources': [], 'orders': 0, 'search': []}
+            ran.append(f"{r['label']}: final, " + ', '.join(f'{e} {money(state["final"][mid]["values"][e], m["books"][e]["cur"])}' for e in exps))
+            continue
         status, take, sources, made = 'ok', None, [], []
+        s0, searched = len(SEARCH_LOG), None
         try:
             picks = r['pick'](key)
             picks = picks if isinstance(picks, list) else [picks]
@@ -1318,6 +1455,7 @@ def main():
                     raise RuntimeError('no model answered in time')
                 try:
                     text, sources = r['ask'](key, model, prompt)
+                    searched = LAST_SEARCHES
                     m['model'] = model
                     break
                 except Exception as e:
@@ -1350,6 +1488,9 @@ def main():
                 src = str(fcr.get('source', '')).strip()
                 if v not in ('ok', 'partly', 'wrong', 'unverified') or not src.startswith('http'):
                     v = 'unverified' if not src.startswith('http') else v
+                if searched == 0:   # no web search behind it: it can't count as a check
+                    v = 'unverified'
+                    fcr = dict(fcr, text='Not checked against the web this time (no search was run). ' + str(fcr['text']))
                 state.setdefault('factchecks', []).append({'at': iso(), 'model': 'claude', 'checker': 'gemini', 'take_at': fc_take['at'], 'take': clip(fc_take['text'], 300),
                                                            'verdict': v if v in ('ok', 'partly', 'wrong', 'unverified') else 'unverified', 'text': clip(re.sub(r'\s*\[\d+(?:,\s*\d+)*\]', '', str(fcr['text'])), 500), 'source': src if src.startswith('http') else ''})
             pl = reply.get('plans') if isinstance(reply.get('plans'), dict) else {}
@@ -1407,6 +1548,7 @@ def main():
             b = m['books'][e]
             if values[e] <= 0 and not b.get('busted') and not (BASE.get(e, e) == 'Sports' and any(x['status'] == 'Open' for x in b.get('bets', []))):
                 b['busted'] = iso()
+                b['positions'], b['cash'] = {}, 0.0   # closed for good at zero: it can't drift back up or lose more than its 100,000
                 head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(r['label'], r['label'])
                 tg(f"{head}\n💥 <b>BUSTED in {EXP_LABEL[e]}</b>\n{r['label']} lost the whole 100,000 in this experiment and is out of that race for the rest of the month.\n{SITE}", silent=False)
         overall = sum((max(values[e], 0) - 100000) * (fx['USDCAD'] if e == 'China' else 1) for e in exps if e in RACE_EXPS)
@@ -1429,7 +1571,8 @@ def main():
             notes.append('web search quota unavailable this run; decided from the prices and portfolio given')
         if status == 'ok':
             state.get('notices', {}).pop(mid, None)   # a one-time notice is delivered once it has been read in a successful check-in
-        m['last_run'] = {'at': iso(), 'status': status, 'notes': notes[-12:], 'sources': sources[:8], 'orders': len(made), 'search': SEARCH_LOG[-2:]}
+        m['last_run'] = {'at': iso(), 'status': status, 'notes': notes[-12:], 'sources': sources[:8], 'orders': len(made), 'search': SEARCH_LOG[s0:][-2:], 'searches': searched}
+        m['fail_streak'] = 0 if status == 'ok' else m.get('fail_streak', 0) + 1   # the workflow opens a GitHub issue at 3
         for rr, cl, rc in day_posts:
             n = (datetime.fromisoformat(cl[0]) - datetime(2026, 10, 28)).days + 1
             head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(rr['label'], rr['label'])
@@ -1485,7 +1628,14 @@ def main():
         state['feeds'] = {'at': iso(), 'espn_games': len(g), 'open_with_moneylines': sum(1 for x in g.values() if x['state'] == 'pre' and x['home_ml'] and x['away_ml'])}
     except Exception as e:
         state['feeds'] = {'at': iso(), 'error': str(e)[:200]}
-    json.dump(state, open(STATE, 'w'), indent=1)
+    try:
+        compact(state)
+    except Exception as e:
+        print('compact failed', e)
+    tmp = STATE + '.tmp'
+    with open(tmp, 'w') as f:
+        json.dump(state, f, indent=1)
+    os.replace(tmp, STATE)   # atomic: a crash mid-write never leaves a half-written state file
     print('\n'.join(ran))
 
 
