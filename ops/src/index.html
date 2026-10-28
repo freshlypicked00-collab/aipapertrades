@@ -159,6 +159,9 @@
   .st-addr code { font-size: 14px; word-break: break-all; padding: 6px 8px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); user-select: all; }
   .st-addr button { font: inherit; font-size: 14px; padding: 6px 12px; border-radius: var(--cds-radius); border: 1px solid var(--color-fg-muted); background: none; color: var(--color-fg); cursor: pointer; }
   .st-addr button:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .st-sources { margin: 0; padding-left: 1.2em; columns: 2 18rem; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .st-sources li { break-inside: avoid; margin-bottom: 2px; }
+  .st-sources a { color: var(--color-fg-muted); }
   [data-dash-source-state=empty] { color: transparent; }
   [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
 </style>
@@ -462,6 +465,11 @@
         </table>
       </div>
     </section>
+    <section class="st-card" aria-labelledby="h-src-stocks">
+      <h2 class="st-h2" id="h-src-stocks">Sources</h2>
+      <p class="st-note">Where the prices, odds and news for this simulation came from.</p>
+      <ul class="st-sources" data-draw="sources-list" data-source="sources" data-portfolio="Stocks"></ul>
+    </section>
   </section>
 
   <!-- Crypto -->
@@ -540,6 +548,11 @@
         </table>
       </div>
     </section>
+    <section class="st-card" aria-labelledby="h-src-crypto">
+      <h2 class="st-h2" id="h-src-crypto">Sources</h2>
+      <p class="st-note">Where the prices, odds and news for this simulation came from.</p>
+      <ul class="st-sources" data-draw="sources-list" data-source="sources" data-portfolio="Crypto"></ul>
+    </section>
   </section>
 
   <!-- Metals -->
@@ -617,6 +630,11 @@
           <tbody data-draw="log-body" data-portfolio="Metals"></tbody>
         </table>
       </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-src-metals">
+      <h2 class="st-h2" id="h-src-metals">Sources</h2>
+      <p class="st-note">Where the prices, odds and news for this simulation came from.</p>
+      <ul class="st-sources" data-draw="sources-list" data-source="sources" data-portfolio="Metals"></ul>
     </section>
   </section>
 
@@ -697,6 +715,11 @@
         </table>
       </div>
     </section>
+    <section class="st-card" aria-labelledby="h-src-energy">
+      <h2 class="st-h2" id="h-src-energy">Sources</h2>
+      <p class="st-note">Where the prices, odds and news for this simulation came from.</p>
+      <ul class="st-sources" data-draw="sources-list" data-source="sources" data-portfolio="Energy"></ul>
+    </section>
   </section>
 
   <!-- Options -->
@@ -775,6 +798,11 @@
         </table>
       </div>
     </section>
+    <section class="st-card" aria-labelledby="h-src-options">
+      <h2 class="st-h2" id="h-src-options">Sources</h2>
+      <p class="st-note">Where the prices, odds and news for this simulation came from.</p>
+      <ul class="st-sources" data-draw="sources-list" data-source="sources" data-portfolio="Options"></ul>
+    </section>
   </section>
 
   <!-- Currencies -->
@@ -847,6 +875,11 @@
           <tbody data-draw="log-body" data-portfolio="Currencies"></tbody>
         </table>
       </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-src-currencies">
+      <h2 class="st-h2" id="h-src-currencies">Sources</h2>
+      <p class="st-note">Where the prices, odds and news for this simulation came from.</p>
+      <ul class="st-sources" data-draw="sources-list" data-source="sources" data-portfolio="Currencies"></ul>
     </section>
   </section>
 
@@ -923,6 +956,11 @@
           <tbody data-draw="log-body" data-portfolio="Predictions"></tbody>
         </table>
       </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-src-predictions">
+      <h2 class="st-h2" id="h-src-predictions">Sources</h2>
+      <p class="st-note">Where the prices, odds and news for this simulation came from.</p>
+      <ul class="st-sources" data-draw="sources-list" data-source="sources" data-portfolio="Predictions"></ul>
     </section>
   </section>
 
@@ -1001,6 +1039,11 @@
           <tbody data-draw="log-body" data-portfolio="Safe"></tbody>
         </table>
       </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-src-safe">
+      <h2 class="st-h2" id="h-src-safe">Sources</h2>
+      <p class="st-note">Where the prices, odds and news for this simulation came from.</p>
+      <ul class="st-sources" data-draw="sources-list" data-source="sources" data-portfolio="Safe"></ul>
     </section>
   </section>
 
@@ -1087,6 +1130,11 @@
         </table>
       </div>
     </section>
+    <section class="st-card" aria-labelledby="h-src-sports">
+      <h2 class="st-h2" id="h-src-sports">Sources</h2>
+      <p class="st-note">Where the prices, odds and news for this simulation came from.</p>
+      <ul class="st-sources" data-draw="sources-list" data-source="sources" data-portfolio="Sports"></ul>
+    </section>
   </section>
 
   <!-- China -->
@@ -1166,6 +1214,11 @@
         </table>
       </div>
     </section>
+    <section class="st-card" aria-labelledby="h-src-china">
+      <h2 class="st-h2" id="h-src-china">Sources</h2>
+      <p class="st-note">Where the prices, odds and news for this simulation came from.</p>
+      <ul class="st-sources" data-draw="sources-list" data-source="sources" data-portfolio="China"></ul>
+    </section>
   </section>
 
   <!-- Daily ledger -->
@@ -1234,6 +1287,11 @@
       <p class="st-note">Newest first. Each experiment gets its own result, its total since the start and a write-up for the day, with general notes on the day underneath. Open "Decisions this day" for every trade, bet and note logged that day.</p>
       <div class="lg-days" data-draw="lg-days" data-source="ledger log trades bets"></div>
     </section>
+    <section class="st-card" aria-labelledby="h-src-ledger">
+      <h2 class="st-h2" id="h-src-ledger">All sources</h2>
+      <p class="st-note">Every source used across all ten simulations.</p>
+      <ul class="st-sources" data-draw="sources-list" data-source="sources"></ul>
+    </section>
   </section>
   <!-- Support -->
   <section class="st-page" id="support" data-page="support" hidden>
@@ -1269,7 +1327,7 @@
       <li><b>Results, win or lose.</b> The final results for all ten simulations will be posted here on Nov 26, whether they are good or bad. Losing trades and bets stay in the log.</li>
       <li><b>How it's scored.</b> Values are in Canadian dollars at the latest exchange rate, except China stocks, which are counted in US dollars. Each simulation is compared with a simple benchmark: the S&amp;P 500 and TSX for stocks, holding Bitcoin for crypto and metals, the CSI 300 for China stocks, the USO oil fund for energy, the S&amp;P 500 for options, a 2.25% savings account for currencies and "play it safe", and the closing line for sports. US markets are closed on Nov 26 for Thanksgiving, so the US-traded simulations score at the Nov 25 close.</li>
     </ul>
-    <p class="st-note">Every number on this page links to the data behind it; open Sources to see where each figure came from and when it was last updated.</p>
+    <p class="st-note">Each tab lists the sources used for it; the Ledger tab has the full list.</p>
   </section>
 </div>
 
@@ -2306,6 +2364,22 @@
       tb.appendChild(tr);
     });
     t.appendChild(tb); wrap.appendChild(t); el.appendChild(wrap);
+  });
+
+  dash.draw('sources-list', (el) => {
+    const d = dash.data('sources');
+    el.replaceChildren();
+    if (d.status !== 'ok') return;
+    const p = el.dataset.portfolio;
+    const rows = d.data.filter((r) => !p || (r.portfolios || []).includes(p));
+    if (!rows.length) { el.appendChild(mk('li', '', 'Sources appear here once this simulation starts trading.')); return; }
+    rows.forEach((r) => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = r.url; a.textContent = r.title; a.rel = 'noopener'; a.target = '_blank';
+      li.appendChild(a);
+      el.appendChild(li);
+    });
   });
 
   // chips that switch a chart's simulation

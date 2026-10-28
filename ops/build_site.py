@@ -36,12 +36,10 @@ script = re.sub(r"\.attr\('(stroke|fill)', '(var\(--[a-z0-9-]+\))'\)", r".style(
 
 # site name and About wording
 markup = sub(markup, '<h1 class="st-title">Simulation Tracker</h1>', '<h1 class="st-title"><svg class="st-logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#17201c"/><path d="M7 22l6-6 4 4 8-9" stroke="#4cc283" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Paper Trades</span></h1>', 1)
-markup = sub(markup, '<p class="st-note">Every number on this page links to the data behind it; open Sources to see where each figure came from and when it was last updated.</p>',
-             '<p class="st-note">Data last refreshed <b data-draw="refreshed">—</b>. The sources used for prices, odds and news are listed below.</p>', 1)
+markup = sub(markup, '<p class="st-note">Each tab lists the sources used for it; the Ledger tab has the full list.</p>',
+             '<p class="st-note">Data last refreshed <b data-draw="refreshed">—</b>. Each tab lists the sources used for it; the Ledger tab has the full list.</p>', 1)
 # sources list at the very end of the About card
-markup = sub(markup, '  </section>\n</div>\n', '''    <h3 class="st-h3" id="h-sources">Sources</h3>
-    <ul class="st-sources" data-draw="sources-list"></ul>
-  </section>
+markup = sub(markup, '  </section>\n</div>\n', '''  </section>
   <footer class="st-foot">Paper Trades is an independent 30-day experiment. No real money. Not investment or betting advice.</footer>
 </div>
 ''', 1)
@@ -50,18 +48,6 @@ script += """
   dash.draw('refreshed', (el) => {
     const d = dash.data('meta');
     el.textContent = d.status === 'ok' && d.data[0] ? stFmt.when(d.data[0].refreshed_at) + ' ET' : '—';
-  });
-  dash.draw('sources-list', (el) => {
-    const d = dash.data('sources');
-    el.replaceChildren();
-    if (d.status !== 'ok') return;
-    d.data.forEach((r) => {
-      const li = document.createElement('li');
-      const a = document.createElement('a');
-      a.href = r.url; a.textContent = r.title; a.rel = 'noopener'; a.target = '_blank';
-      li.appendChild(a);
-      el.appendChild(li);
-    });
   });
 """
 

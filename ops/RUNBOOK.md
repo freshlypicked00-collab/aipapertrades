@@ -91,7 +91,7 @@ then publishes everything. It runs every hour.
      general lessons only, with no money figures or combined total).
      The page shows the latest set at the top of the Ledger tab. Sync `review` to the tracker too.
 8. **Sync the private tracker** (link in the task prompt). For each data file the script
-   listed as changed (and `ledger` if you ran ledger_note.py), except `sources` and `fx`: upload `ops/src/<name>.json` to the tracker as an
+   listed as changed (and `ledger` if you ran ledger_note.py), except `fx`: upload `ops/src/<name>.json` to the tracker as an
    asset, then update the dataset document `datasets/<name>` with
    `source: {kind: "file", url: <the new /_blob/... url>, name: "<name>.json"}` and
    `updated: {at: <now ISO>, by: "AI"}`. Read the `datasets` collection first for the
@@ -240,6 +240,12 @@ Each portfolio's tab shows only events whose `affects` lists it, so tag events p
   so in the source text.
 - **USD/CAD**: a quote under 3 hours old.
 
+## Sources
+
+Every new source in `sources_add` needs `"portfolios"`: the list of simulations it was used for
+(`Stocks`, `Crypto`, `China`, `Metals`, `Energy`, `Options`, `Currencies`, `Safe`, `Sports`,
+`Predictions`). Each tab shows only its own sources; the Ledger tab shows all of them.
+
 ## Every trade is tracked
 
 Every buy, sell, bet and settlement must go through `ops/update.py` (never edit the data files by
@@ -277,7 +283,7 @@ updates. Write plainly, in past tense, without naming the AI model or company.
   "log": [{"portfolio": "Stocks", "action": "Sell", "detail": "Sold a quarter of SOXL at $108.90; the trim rule triggered before earnings."}],
   "rules_add": [], "rules_remove": [],
   "events_add": [{"at": "...", "when": "Wed Oct 28, 7:30 p.m.", "event": "...", "affects": "Sports", "why": "..."}],
-  "sources_add": [{"title": "Kitco – Gold spot", "url": "https://..."}]
+  "sources_add": [{"title": "Kitco – Gold spot", "url": "https://...", "portfolios": ["Metals"]}]
 }
 ```
 
