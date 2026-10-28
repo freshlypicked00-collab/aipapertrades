@@ -78,6 +78,20 @@ ids = [t.get('at', '') + t['portfolio'] + t['holding'] + t['action'] for t in tr
 if len(ids) != len(set(ids)):
     problems.append('trades.json has duplicate trades (same time, portfolio, holding, action)')
 
+# no entry may be stamped later than now (a future time sorts as the newest and shows a check-in that hasn't happened)
+from datetime import timezone as _tz, timedelta as _td
+_now = datetime.now(_tz.utc) + _td(minutes=2)
+for _n in ('history', 'log', 'holdings', 'trades', 'take', 'plans', 'profile', 'factcheck', 'report'):
+    try:
+        _rows = L(_n)
+    except Exception:
+        continue
+    for _r in _rows if isinstance(_rows, list) else []:
+        _a = _r.get('at') or _r.get('as_of')
+        if _a and datetime.fromisoformat(str(_a).replace('Z', '+00:00')) > _now:
+            problems.append(f'{_n}: entry stamped in the future ({_a}); use the real current time')
+            break
+
 if problems:
     print('PROBLEMS:')
     for p in problems:
