@@ -75,6 +75,11 @@ then publishes everything. It runs every hour.
    - Two or three sentences per portfolio that has a row (each one gets its own box on the page):
      its result, what moved it, any trades or bets, and an honest take on how that simulation did.
    - Plain past tense, no hype, no naming the AI model or company. Write it even on bad days.
+   - Then append a fresh self-assessment to `ops/src/review.json` (keep the old entries): one row
+     per portfolio plus `All`, all with the same `at` (now), fields `portfolio`, `grade` (A to F,
+     or "—" if too early) and `text` (2 to 5 sentences for All, 1 to 3 per portfolio): how you
+     feel you're doing overall since the start, being honest about luck vs. skill and mistakes.
+     The page shows the latest set at the top of the Ledger tab. Sync `review` to the tracker too.
 8. **Sync the private tracker** (link in the task prompt). For each data file the script
    listed as changed (and `ledger` if you ran ledger_note.py), except `sources` and `fx`: upload `ops/src/<name>.json` to the tracker as an
    asset, then update the dataset document `datasets/<name>` with

@@ -286,7 +286,7 @@ open(os.path.join(OUT, 'index.html'), 'w').write(html)
 
 # ---- data.json ----
 data = {}
-for name in ('holdings', 'history', 'bets', 'log', 'rules', 'benchmark', 'indexes', 'events', 'prices', 'trades', 'bench_history', 'ledger'):
+for name in ('holdings', 'history', 'bets', 'log', 'rules', 'benchmark', 'indexes', 'events', 'prices', 'trades', 'bench_history', 'ledger', 'review'):
     data[name] = json.load(open(os.path.join(SRC, name + '.json')))
 data['sources'] = json.load(open(os.path.join(SRC, 'sources.json')))
 times = [r['at'] for r in data['log'] + data['history']]

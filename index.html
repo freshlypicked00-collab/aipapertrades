@@ -181,6 +181,11 @@
   .lg-day details ul { margin: 8px 0 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; font-size: var(--cds-font-size-body); }
   .lg-pending { color: var(--color-fg-muted); font-style: italic; }
   .lg-today { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: baseline; }
+  .lg-review { display: flex; flex-direction: column; gap: 12px; }
+  .lg-review .lg-note { font-size: 16px; }
+  .lg-grade { display: inline-block; min-width: 2.2em; text-align: center; padding: 1px 8px; border: 1px solid var(--color-border-line); border-radius: 999px; font-weight: 600; margin-right: 8px; }
+  .lg-review ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; max-width: 80ch; font-size: var(--cds-font-size-body); line-height: 1.55; }
+  .st-page#ledger .lg-sim .lg-sim-pnl { font-size: 22px; }
   .lg-sims { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 12px; }
   .lg-sim { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
   .lg-sim-name { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--color-fg-muted); }
@@ -311,7 +316,7 @@ body { background:#0b0b0a; }
     <button class="st-tab" role="tab" data-tab="metals" aria-selected="false">Metals</button>
     <button class="st-tab" role="tab" data-tab="sports" aria-selected="false">Sports</button>
     <button class="st-tab" role="tab" data-tab="china" aria-selected="false">China</button>
-    <button class="st-tab" role="tab" data-tab="ledger" aria-selected="false">Daily ledger</button>
+    <button class="st-tab" role="tab" data-tab="ledger" aria-selected="false">Ledger</button>
   </nav>
 
   <!-- Overview -->
@@ -838,8 +843,20 @@ body { background:#0b0b0a; }
   <!-- Daily ledger -->
   <section class="st-page" id="ledger" data-page="ledger" hidden>
     <section class="st-card" aria-labelledby="h-l-sum">
-      <h2 class="st-h2" id="h-l-sum">Daily ledger</h2>
-      <p class="st-note">Each day closes at midnight UTC (8 p.m. Eastern until Nov 1, then 7 p.m.). For every day: what each simulation made or lost, and the AI's own write-up of how it did. Combined figures are in Canadian dollars, with the Chinese stocks result converted from US dollars.</p>
+      <h2 class="st-h2" id="h-l-sum">Ledger</h2>
+      <p class="st-note">The full record of how the AI is doing: total profit or loss since the start for each simulation, plus every day's result and write-up. Each day closes at midnight UTC (8 p.m. Eastern until Nov 1, then 7 p.m.). For every day: what each simulation made or lost, and the AI's own write-up of how it did. Combined figures are in Canadian dollars, with the Chinese stocks result converted from US dollars.</p>
+      <h3 class="st-h3">How I think I'm doing</h3>
+      <div class="lg-review" data-draw="lg-review" data-source="review"></div>
+      <h3 class="st-h3">Total since the start</h3>
+      <div class="lg-sims">
+        <div class="lg-sim"><span class="lg-sim-name">Stocks</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Stocks">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Stocks">—</span></div>
+        <div class="lg-sim"><span class="lg-sim-name">Crypto</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Crypto">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Crypto">—</span></div>
+        <div class="lg-sim"><span class="lg-sim-name">Metals</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Metals">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Metals">—</span></div>
+        <div class="lg-sim"><span class="lg-sim-name">Sports</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Sports">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Sports">—</span></div>
+        <div class="lg-sim"><span class="lg-sim-name">China (US$)</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=China">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=China">—</span></div>
+        <div class="lg-sim"><span class="lg-sim-name">All combined</span><span class="lg-sim-pnl" data-draw="combined-pnl" data-source="combined" data-field="pnl">—</span><span class="lg-sim-range" data-draw="combined" data-source="combined" data-field="total">—</span></div>
+      </div>
+      <h3 class="st-h3">Day by day</h3>
       <div class="st-bench">
         <div><span class="st-label">Days closed</span><span class="st-mid" data-draw="lg-stat" data-source="ledger" data-stat="days">—</span></div>
         <div><span class="st-label">Up days / down days</span><span class="st-mid" data-draw="lg-stat" data-source="ledger" data-stat="updown">—</span></div>
@@ -850,7 +867,11 @@ body { background:#0b0b0a; }
     </section>
     <section class="st-card" aria-labelledby="h-l-chart">
       <h2 class="st-h2" id="h-l-chart">Profit or loss by day</h2>
-      <p class="st-note">Green bars are up days, red bars are down days. Hover or tap a bar for the exact amount.</p>
+      <p class="st-note">"Each day" shows what was made or lost that day; "Running total" shows the total since the start at the end of each day. Green is up, red is down. Hover or tap a bar for the exact amount.</p>
+      <div class="st-chips" role="group" aria-label="View" data-mode-for="lg-bars">
+        <button type="button" data-v="day" aria-pressed="true">Each day</button>
+        <button type="button" data-v="total" aria-pressed="false">Running total</button>
+      </div>
       <div class="st-chips" role="group" aria-label="Simulation" data-chips-for="lg-bars">
         <button type="button" data-v="All" aria-pressed="true">All combined</button>
         <button type="button" data-v="Stocks" aria-pressed="false">Stocks</button>
@@ -863,7 +884,7 @@ body { background:#0b0b0a; }
     </section>
     <section class="st-card" aria-labelledby="h-l-days">
       <h2 class="st-h2" id="h-l-days">Day by day</h2>
-      <p class="st-note">Newest first. Each simulation gets its own result and write-up for the day; the combined total and overall take are underneath. Open "Decisions this day" for every trade, bet and note logged that day.</p>
+      <p class="st-note">Newest first. Each simulation gets its own result, its total since the start and a write-up for the day; the combined total and overall take are underneath. Open "Decisions this day" for every trade, bet and note logged that day.</p>
       <div class="lg-days" data-draw="lg-days" data-source="ledger log"></div>
     </section>
   </section>
@@ -1643,6 +1664,29 @@ body { background:#0b0b0a; }
   const dayTitle = (x) => 'Day ' + x.n + ' · ' + new Date(x.day + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' });
   const dayShort = (x) => new Date(x.day + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' });
 
+  dash.draw('lg-review', (el) => {
+    const d = dash.data('review');
+    el.replaceChildren();
+    if (d.status !== 'ok' || !d.data.length) { el.appendChild(mk('p', 'st-note', 'The first self-assessment is written at the end of the first full day.')); return; }
+    const latestAt = d3.max(d.data, (r) => +new Date(r.at));
+    const rows = d.data.filter((r) => +new Date(r.at) === latestAt);
+    const all = rows.find((r) => r.portfolio === 'All');
+    if (all) {
+      const p = mk('p', 'lg-note');
+      if (all.grade) p.appendChild(mk('span', 'lg-grade', all.grade));
+      p.appendChild(document.createTextNode(all.text));
+      el.appendChild(p);
+    }
+    const ul = mk('ul');
+    rows.filter((r) => r.portfolio !== 'All').forEach((r) => {
+      const li = mk('li');
+      if (r.grade) li.appendChild(mk('span', 'lg-grade', r.grade));
+      li.append(mk('b', '', (r.portfolio === 'China' ? 'China' : r.portfolio) + ': '), document.createTextNode(r.text));
+      ul.appendChild(li);
+    });
+    el.appendChild(ul);
+    el.appendChild(mk('p', 'st-note', 'Written by the AI on ' + stFmt.when(new Date(latestAt)) + ' ET and rewritten at the end of each day. Older versions stay in the data.'));
+  });
   dash.draw('lg-stat', (el) => {
     const days = ledgerDays();
     if (!days) { el.textContent = '—'; return; }
@@ -1688,7 +1732,15 @@ body { background:#0b0b0a; }
       const days = ledgerDays();
       if (!days) return;
       const p = el.dataset.portfolio || 'All';
-      const rows = days.map((x) => ({ x, r: x.rows.find((r) => r.portfolio === p) })).filter((d) => d.r);
+      const cum = el.dataset.mode === 'total';
+      let run = 0;
+      const rows = days.map((x) => ({ x, r: x.rows.find((r) => r.portfolio === p) })).filter((d) => d.r)
+        .map((d) => {
+          if (!cum) return d;
+          run += Number(d.r.pnl);
+          const v = p === 'All' ? run : Number(d.r.close) - START;
+          return { x: d.x, r: { ...d.r, pnl: v, pct: p === 'All' ? null : v / START } };
+        });
       if (!rows.length) { el.appendChild(mk('div', 'gx-empty', 'No closed days for this simulation yet.')); return; }
       const sym = p === 'China' ? 'China' : 'All';
       const plot = mk('div', 'gx-plot'); el.appendChild(plot);
@@ -1720,7 +1772,7 @@ body { background:#0b0b0a; }
         .attr('text-anchor', 'middle').attr('font-size', 12.5).style('fill', 'var(--color-fg)').text((d) => stFmt.signed(d.r.pnl, sym));
       g.append('rect').attr('x', (d) => x(d.x.day)).attr('width', x.bandwidth()).attr('y', M.t).attr('height', H - M.t - M.b).style('fill', 'transparent')
         .on('pointerenter pointerdown', (ev, d) => {
-          tip.replaceChildren(mk('b', '', stFmt.signed(d.r.pnl, sym)), mk('span', '', dayTitle(d.x) + (d.r.pct !== null && d.r.pct !== undefined ? ' · ' + stFmt.pct(d.r.pct) : '')));
+          tip.replaceChildren(mk('b', '', stFmt.signed(d.r.pnl, sym) + (cum ? ' total' : '')), mk('span', '', (cum ? 'End of ' : '') + dayTitle(d.x) + (d.r.pct !== null && d.r.pct !== undefined ? ' · ' + stFmt.pct(d.r.pct) : '')));
           tip.style.display = 'block';
           const sc = plot.clientWidth / W, tw = tip.offsetWidth;
           tip.style.left = Math.min(Math.max(0, (x(d.x.day) + x.bandwidth() / 2) * sc - tw / 2), plot.clientWidth - tw) + 'px';
@@ -1754,6 +1806,9 @@ body { background:#0b0b0a; }
         const pc = mk('span', 'lg-sim-pct', stFmt.pct(r.pct)); tone(pc, r.pnl);
         c.appendChild(pc);
         c.appendChild(mk('span', 'lg-sim-range', stFmt.money(r.open, r.portfolio) + ' → ' + stFmt.money(r.close, r.portfolio)));
+        const so = mk('span', 'lg-sim-range'); so.append(document.createTextNode('Total since start: '));
+        const sb = mk('b', '', stFmt.signed(Number(r.close) - START, r.portfolio)); tone(sb, Number(r.close) - START); so.appendChild(sb);
+        c.appendChild(so);
         c.appendChild(r.note ? mk('p', 'lg-sim-note', r.note) : mk('p', 'lg-sim-note lg-pending', 'Write-up added at the next check-in.'));
         grid.appendChild(c);
       });
@@ -1763,6 +1818,9 @@ body { background:#0b0b0a; }
       ovh.appendChild(document.createTextNode('Overall, all simulations combined: '));
       const t = mk('b', '', x.all ? stFmt.signed(Number(x.all.pnl), 'All') : '—'); if (x.all) tone(t, Number(x.all.pnl));
       ovh.appendChild(t);
+      const cumAll = days.filter((d) => d.day <= x.day && d.all).reduce((a, d) => a + Number(d.all.pnl), 0);
+      ovh.appendChild(document.createTextNode(' that day · total since start: '));
+      const ct = mk('b', '', stFmt.signed(cumAll, 'All')); tone(ct, cumAll); ovh.appendChild(ct);
       ov.appendChild(ovh);
       ov.appendChild(x.all && x.all.note ? mk('p', 'lg-note', x.all.note) : mk('p', 'lg-note lg-pending', 'The overall write-up is added at the next check-in.'));
       card.appendChild(ov);
@@ -1787,6 +1845,14 @@ body { background:#0b0b0a; }
       g.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
       const t = document.getElementById(g.dataset.chipsFor);
       t.dataset.portfolio = b.dataset.v;
+      if (t._redraw) t._redraw();
+    }));
+  });
+  document.querySelectorAll('[data-mode-for]').forEach((g) => {
+    g.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
+      g.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      const t = document.getElementById(g.dataset.modeFor);
+      t.dataset.mode = b.dataset.v;
       if (t._redraw) t._redraw();
     }));
   });
