@@ -715,12 +715,12 @@ def settle_predictions(model_id, book, fx, state):
 
 
 # ---------------- telegram ----------------
-def tg_photo(text, photo):
+def tg_photo(text, photo, silent=True):
     tok, chat = os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID')
     if not (tok and chat and photo):
         return tg(text)
     b = '----pt' + str(os.getpid())
-    parts = [f'--{b}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode() for k, v in (('chat_id', chat), ('caption', text[:1020]), ('parse_mode', 'HTML'))]
+    parts = [f'--{b}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode() for k, v in (('chat_id', chat), ('caption', text[:1020]), ('parse_mode', 'HTML'), ('disable_notification', 'true' if silent else 'false'))]
     parts.append(f'--{b}\r\nContent-Disposition: form-data; name="photo"; filename="c.png"\r\nContent-Type: image/png\r\n\r\n'.encode() + open(photo, 'rb').read() + f'\r\n--{b}--\r\n'.encode())
     try:
         req = urllib.request.Request(f'https://api.telegram.org/bot{tok}/sendPhoto', b''.join(parts), {'Content-Type': f'multipart/form-data; boundary={b}'})
@@ -776,12 +776,12 @@ def chart(label, color, exp, state, mid):
         return None
 
 
-def tg(text):
+def tg(text, silent=True):
     tok, chat = os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID')
     if not (tok and chat):
         print('--- telegram (not sent) ---\n' + text)
         return
-    data = urllib.parse.urlencode({'chat_id': chat, 'text': text, 'parse_mode': 'HTML', 'disable_web_page_preview': 'true'}).encode()
+    data = urllib.parse.urlencode({'chat_id': chat, 'text': text, 'parse_mode': 'HTML', 'disable_web_page_preview': 'true', 'disable_notification': 'true' if silent else 'false'}).encode()
     try:
         urllib.request.urlopen(f'https://api.telegram.org/bot{tok}/sendMessage', data, timeout=20).read()
     except Exception as e:
@@ -978,15 +978,34 @@ def main():
                 if g.get('text'):
                     lines.append(f"<i>{esc(str(g['text'])[:500])}</i>")
             lines.append(f"\nIn {rr['label']}'s own words. Each experiment is separate. Simulation only. {SITE}")
-            tg('\n'.join(lines)[:4000])
-        for t in made:
+            tg('\n'.join(lines)[:4000], silent=False)
+        # one post per AI per check-in: every trade listed, with one chart (the biggest trade's price)
+        if made:
+            def line(t):
+                icon = {'Buy': '🟢', 'Sell': '🔴', 'Short': '🔻', 'Cover': '🔺', 'Bet': '🎯'}.get(t['action'], '•')
+                what = t['name'] if t['experiment'] == 'Sports' else (f"{t['symbol']} {t['outcome']}" if t.get('outcome') else f"{t['name']} ({t['symbol']})" if t['name'] != t['symbol'] else t['symbol'])
+                return (f"{icon} <b>{EXP_LABEL[t['experiment']]}: {t['action']} {esc(what)}</b>\n{fmt_price(t)}, {money(t['amount'], t['cur'])}"
+                        + (f"\n<i>{esc(t['reason'][:160])}</i>" if t.get('reason') else ''))
+            head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(r['label'], r['label'])
+            body = f"{head}\n🧾 <b>{len(made)} move{'s' if len(made) > 1 else ''} this check-in</b>\n\n" + '\n\n'.join(line(t) for t in made)
+            if sources:
+                body += f"\n\nSource: <a href=\"{esc(sources[0]['url'])}\">{esc(sources[0]['title'][:70])}</a>"
+            if len(body) > 3700:
+                body = body[:3650].rsplit('\n\n', 1)[0] + '\n\n…and more on the site'
+            body += f'\n⚔️ AI vs AI: Claude vs Gemini vs ChatGPT · {SITE}'
+            big = max((t for t in made if t['experiment'] not in ('Predictions', 'Sports')), key=lambda t: abs(t['amount']), default=None)
             pic = None
-            csym = {'Currencies': f"{t['symbol']}USD=X" if t['symbol'] != 'USD' else 'CAD=X'}.get(t['experiment'], t['symbol'])
-            if t['experiment'] == 'Options':
-                csym = option_parts(t['symbol'])[0]
-            if t['experiment'] not in ('Predictions', 'Sports'):
-                pic = tgcharts.price_chart(csym, f"{r['label']} · {EXP_LABEL[t['experiment']]}", r['color'], None if t['experiment'] == 'Options' else t['price'], t['action'], f"/tmp/rp_{mid}_{len(state['trades'])}_{t['symbol']}.png")
-            tg_trade(r['label'], t, sources[0] if sources else None, pic or chart(r['label'], r['color'], t['experiment'], state, mid))
+            if big:
+                csym = {'Currencies': f"{big['symbol']}USD=X" if big['symbol'] != 'USD' else 'CAD=X'}.get(big['experiment'], big['symbol'])
+                if big['experiment'] == 'Options':
+                    csym = option_parts(big['symbol'])[0]
+                pic = tgcharts.price_chart(csym, f"{r['label']} · {EXP_LABEL[big['experiment']]}", r['color'], None if big['experiment'] == 'Options' else big['price'], big['action'], f"/tmp/rp_{mid}_{len(state['trades'])}.png")
+            if pic and len(body) <= 1020:
+                tg_photo(body, pic)
+            else:
+                if pic:
+                    tg_photo(f"{head} · {EXP_LABEL[big['experiment']]}: {big['action']} {esc(big['symbol'])}", pic)
+                tg(body)
         ran.append(f"{r['label']} ({m.get('model')}): {status}, {len(made)} trade(s), " + ', '.join(f'{e} {money(values[e], m["books"][e]["cur"])}' for e in exps))
     if not ran:
         print('no rival API keys set; nothing to do')

@@ -38,22 +38,22 @@ def money(v, pf):
     return ('+' if v >= 0 else '−') + sym + f'{abs(v):,.0f}'
 
 
-def send(text, photo=None):
+def send(text, photo=None, silent=False):
     if not (TOKEN and CHAT):
         print('--- (no Telegram secrets; would send' + (f' with {photo}' if photo else '') + ') ---\n' + text)
         return
     if photo and len(text) <= 1000:
         b = '----pt' + str(os.getpid())
         parts = []
-        for k, v in (('chat_id', CHAT), ('caption', text), ('parse_mode', 'HTML')):
+        for k, v in (('chat_id', CHAT), ('caption', text), ('parse_mode', 'HTML'), ('disable_notification', 'true' if silent else 'false')):
             parts.append(f'--{b}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode())
         parts.append(f'--{b}\r\nContent-Disposition: form-data; name="photo"; filename="c.png"\r\nContent-Type: image/png\r\n\r\n'.encode() + open(photo, 'rb').read() + f'\r\n--{b}--\r\n'.encode())
         req = urllib.request.Request(f'https://api.telegram.org/bot{TOKEN}/sendPhoto', b''.join(parts), {'Content-Type': f'multipart/form-data; boundary={b}'})
         with urllib.request.urlopen(req, timeout=30) as r:
             return json.loads(r.read())['result']['message_id']
     if photo:
-        send(f'<b>PAPER TRADES</b> · {SITE}', photo)
-    data = urllib.parse.urlencode({'chat_id': CHAT, 'text': text, 'parse_mode': 'HTML', 'disable_web_page_preview': 'true'}).encode()
+        send(f'<b>PAPER TRADES</b> · {SITE}', photo, silent)
+    data = urllib.parse.urlencode({'chat_id': CHAT, 'text': text, 'parse_mode': 'HTML', 'disable_web_page_preview': 'true', 'disable_notification': 'true' if silent else 'false'}).encode()
     with urllib.request.urlopen(f'https://api.telegram.org/bot{TOKEN}/sendMessage', data, timeout=20) as r:
         return json.loads(r.read())['result']['message_id']
 
@@ -312,6 +312,16 @@ for day in sorted({r['day'] for r in ledger} - oldd):
         srows.append({'pf': r['portfolio'], 'day': r['pct'] or 0, 'total': (vals[-1] / 100000 - 1) if vals else 0})
     msgs.append(('\n'.join(lines), ('close', srows, f"Day {n} close")))
 
+# Bundle every trade, bet and settlement from this update into ONE post (with one chart), so the channel isn't flooded.
+activity = [(m, p) for m, p in msgs if (isinstance(p, tuple) and p[0] == 'trade') or isinstance(p, str)]
+others = [(m, p) for m, p in msgs if not ((isinstance(p, tuple) and p[0] == 'trade') or isinstance(p, str))]
+if len(activity) > 1:
+    first_chart = next((p for m, p in activity if isinstance(p, tuple)), activity[0][1])
+    body = f"🧾 <b>{len(activity)} moves this check-in</b>\n\n" + '\n\n'.join(m for m, p in activity)
+    if len(body) > 3500:
+        body = body[:3450].rsplit('\n\n', 1)[0] + f"\n\n…and more on {SITE}"
+    activity = [(body, first_chart)]
+msgs = activity + others
 for i, (m, pic) in enumerate(msgs):
     if isinstance(pic, tuple) and pic[0] == 'trade':
         _, pf_, sym_, px_, act_ = pic
@@ -321,5 +331,6 @@ for i, (m, pic) in enumerate(msgs):
     else:
         photo = chart_section(pic, i) if pic else None
     m = '🟠 <b>CLAUDE</b> (Anthropic)\n' + m
-    send(m + ('' if SITE in m else f'\n{SITE}'), photo)
+    loud = isinstance(pic, tuple) and pic[0] == 'close'   # only the daily close makes a sound; trades and takes arrive silently
+    send(m + ('' if SITE in m else f'\n{SITE}'), photo, silent=not loud)
 print(f'{len(msgs)} message(s)')
