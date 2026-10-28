@@ -487,7 +487,7 @@
 
     <section class="st-card" aria-labelledby="h-log-all">
       <h2 class="st-h2" id="h-log-all">Recent decisions</h2>
-      <p class="st-note">Every trade, bet and hold decision across all ten simulations, newest first. Times are Eastern (ET), with UTC in brackets.</p>
+      <p class="st-note">The 10 newest trade, bet and hold decisions across all ten simulations, newest first, for the model picked in the Model menu. Every decision is kept in the Ledger. Times are Eastern (ET), with UTC in brackets.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="log" data-row-key="at,portfolio">
           <thead><tr><th data-field="at">When</th><th data-field="portfolio">Portfolio</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
@@ -1931,11 +1931,11 @@
   dash.draw('roi', (el) => { const v = statOf('roi'); tone(el, v ? v * 1000 : 0); el.textContent = v === undefined || v === null ? '—' : stFmt.pct(v); });
   dash.draw('open', (el) => { const v = statOf('open'); el.textContent = v === undefined ? '—' : String(v); });
 
-  const fillBody = (el, id, filter, keyOf, cells) => {
+  const fillBody = (el, id, filter, keyOf, cells, limit) => {
     const d = dash.data(id);
     el.replaceChildren();
     if (d.status !== 'ok') return;
-    d.data.filter(filter).forEach((r) => {
+    d.data.filter(filter).slice(0, limit || Infinity).forEach((r) => {
       const tr = document.createElement('tr');
       if (keyOf) tr.dataset.key = keyOf(r);
       cells(r).forEach(([text, cls]) => {
@@ -1997,7 +1997,7 @@
     const all = !el.dataset.portfolio;
     fillBody(el, 'log', byPortfolio(el), (r) => encodeURIComponent(r.at) + ',' + encodeURIComponent(r.portfolio), (r) => all
       ? [[stFmt.when(r.at)], [r.portfolio], [r.action], [r.detail, 'wrap']]
-      : [[stFmt.when(r.at)], [r.action], [r.detail, 'wrap']]);
+      : [[stFmt.when(r.at)], [r.action], [r.detail, 'wrap']], 10);
   });
 
   // ---------- Eastern-time formatting (labels say ET, so format in ET whatever the viewer's time zone)

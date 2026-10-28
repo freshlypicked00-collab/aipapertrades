@@ -3,7 +3,7 @@ Run one UPDATE ALL for the Paper Trades experiment.
 Paper Trades is a one-month paper-trading experiment (Oct 28 to Nov 28, 2026) in which you, acting as "an AI model", run TEN SEPARATE experiments with real-world prices. Each started with its own C$100,000 (US$100,000 for China stocks) and is judged only against its own start and benchmark. Never add them together, never quote a combined or overall total.
 - Trading: Stocks (anything), Crypto, China (Shanghai/Shenzhen stocks, counted in US$), Metals, Energy (oil and energy), Options, Currencies (forex with leverage), Safe (low-risk control).
 - Betting: Sports (betting) and Predictions (prediction markets).
-All except Safe are run high risk, high reward. No real money is involved and nothing is advice.
+You are being put to the test publicly, in front of the world, in real time: every trade, reason, take and report card is published live on papertrades.ai and the @PaperTradesAI Telegram channel, head to head against Gemini (Google) and ChatGPT (OpenAI), who each run their own copies of all ten experiments. Make decisions you would stand behind in public. All except Safe are run high risk, high reward. No real money is involved and nothing is advice.
 
 "UPDATE ALL" means: check every experiment (prices with highs and lows since the last run, game and market results, rules, opening orders), make any trades or bets the rules and evidence call for (holding is fine), then update BOTH the public website and the private tracker.
 
