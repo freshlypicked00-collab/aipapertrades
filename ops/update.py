@@ -254,7 +254,7 @@ for t in inp.get('trades', []):
             fund['cost_cad'] = round(fund.get('cost_cad', 0) - cad, 2)
     else:
         raise SystemExit(f'Unknown trade action {action}')
-    trades.append({'at': AT, 'portfolio': pf, 'holding': h, 'action': action, 'price_usd': price, 'cad': round(cad, 2)})
+    trades.append({'at': t.get('fill_at') or AT, 'portfolio': pf, 'holding': h, 'action': action, 'price_usd': price, 'cad': round(cad, 2), **({'note': t['note']} if t.get('note') else {})})
     save('trades', trades)
 
 # ---- revalue every holding
@@ -327,8 +327,23 @@ save('history', history)
 
 # ---- price history, benchmarks, indexes
 for asset, q in P.items():
-    prices.append({'asset': asset, 'at': q.get('at') or AT, 'price': float(q['price'])})
+    e = {'asset': asset, 'at': q.get('at') or AT, 'price': float(q['price'])}
+    for k in ('high', 'low', 'range_from'):
+        if q.get(k) is not None:
+            e[k] = q[k]
+    prices.append(e)
 save('prices', prices)
+# stop/limit check: did any price rule's level get crossed since the last run (by the recorded high/low or the new price)?
+crossed = []
+for r in rules:
+    a, lvl, d = r.get('asset'), r.get('level'), r.get('direction')
+    if not a or lvl is None or a not in P:
+        continue
+    q = P[a]
+    hi = float(q.get('high', q['price']))
+    lo = float(q.get('low', q['price']))
+    if (d == 'above' and hi >= float(lvl)) or (d == 'below' and lo <= float(lvl)):
+        crossed.append((r['portfolio'], a, r.get('label'), lvl, d, q['price'], hi, lo))
 if 'Bitcoin' in P:
     bench.append({'series': 'Bitcoin', 'at': P['Bitcoin'].get('at') or AT, 'level': float(P['Bitcoin']['price']), 'fx': fx, 'source': P['Bitcoin'].get('source', '')})
     for r in benchmark:
@@ -437,6 +452,8 @@ if closed_now:
 print('Each experiment on its own (never add them together):')
 for pf, v in tot.items():
     print('   %-7s %s%.0f (%+.0f since start)' % (pf, 'US$' if pf == 'China' else 'C$', v, v - START))
+for pf_, a, lab, lvl, d, px, hi, lo in crossed:
+    print(f'RULE LEVEL CROSSED: {pf_} {a} "{lab}" {d} {lvl} (now {px}, high {hi}, low {lo}). If not already done, make the trade: fill at the level, or at the price after a gap if it opened beyond the level; then remove or update the rule.')
 for key, rows in closed_now:
     print('LEDGER DAY CLOSED', key, '- write notes with ops/ledger_note.py:')
     for r in rows:

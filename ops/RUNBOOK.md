@@ -120,6 +120,32 @@ then publishes everything. It runs every hour.
   in `rules.json`. Watch the Fifth Plenum communique (Oct 29) and the plenum rule.
 - **Events:** add China events with `"affects": "China"` only.
 
+## Stop and limit orders between runs
+
+Treat every price rule (one with `asset`, `level`, `direction`) like a real order sitting at the
+broker. At each run, for each asset with a price rule, find the **high and low since the last
+run** (the day's range from the quote page, or an intraday chart; for prices fetched within the
+same day, the day's high/low is fine) and pass them as `"high"` and `"low"` with the price.
+`update.py` prints `RULE LEVEL CROSSED` for any rule whose level was touched. Then:
+- If the level was crossed and the trade hasn't been made, make it now at **the rule's level**,
+  with `"fill_at"` set to when it was crossed (if known, else the run time) and a `"note"` saying
+  it filled as a stop or limit. If the price **gapped** past the level (opened beyond it), fill at
+  the first real price after the gap instead, which is worse. Never fill at a better price than
+  the level, and never use a price you didn't see recorded.
+- Remove or replace the rule after it executes (`rules_remove` / `rules_add`).
+- If you can't find a reliable high/low for an asset, use the current price only and say so.
+
+## Extra runs around big events
+
+Events in `events.json` with `"extra_run": true` get a one-time extra run 5 minutes after them.
+At the end of every run, list the scheduled tasks (`list_triggers`), and for each such event in
+the next 3 hours without one, create a one-time scheduled task (`create_trigger` with
+`run_once_at` = event time + 5 minutes, `initiation` = `human_schedule`, name
+`Paper Trades: extra run after <event>`, not requiring a local device) whose prompt is the
+contents of `ops/TASK_PROMPT.md`. Never create duplicates. Mark new big events (rate decisions,
+major earnings for held names, key data, election night, market opens with planned orders) with
+`extra_run` when you add them.
+
 ## Opening orders, Wed Oct 28 (do these at the first run after 9:30 a.m. ET)
 
 Do each once; skip if `trades.json` already has trades for that portfolio. Use live quotes, put
