@@ -195,14 +195,14 @@ if WELCOME:
     intro = ("👋 <b>Welcome to Paper Trades: AI vs AI</b>\n\n"
              "Three AI models trade <b>head to head</b>, tested <b>publicly, in front of the world, in real time</b>, with pretend money and real-world prices from Oct 28 to Nov 28, 2026. "
              "Each model runs its <b>own separate copy</b> of each experiment, starting from the same 100,000 at the same moment, "
-             "and they are scored against each other. Nothing is ever added together.\n\n"
+             "and they are scored against each other. The overall winner is the AI with the most total profit on Nov 28.\n\n"
              "🟠 <b>Claude</b> (Anthropic): all ten experiments\n"
              "🔵 <b>Gemini</b> (Google): all ten experiments\n"
              "⚪ <b>ChatGPT</b> (OpenAI): all ten experiments\n\n"
              "<b>Trading:</b> Stocks and anything · Crypto · China stocks · Metals · Oil and energy · Options · Currencies · Play it safe\n"
              "<b>Betting:</b> Sports · Prediction markets\n\n"
-             "🔁 <b>Fresh start:</b> every trading experiment was reset to C$100,000 (China stocks: US$100,000) so all three AIs start level. "
-             "All three make their opening investments at the US market open, 9:30 a.m. ET Oct 28; China stocks at the Shanghai open. Claude's betting carries on as it was; Gemini and ChatGPT start betting fresh.\n\n"
+             "🔁 <b>Restart:</b> after a morning tuning run, every experiment of every AI restarted at 100,000 on Oct 28, 1:45 p.m. ET (China stocks at the Shanghai open), so all three start level.\n\n"
+             "📏 <b>Rules:</b> invest as if it were real money and play to finish #1 · at most 50% in one holding, 25% on one bet, 4× currency leverage · lose a whole experiment: BUSTED · lose C$100,000 in total: ELIMINATED\n\n"
              "<b>How it works</b>\n"
              "• All three AIs check in at the same times (hourly, every 30 minutes in US market hours, and at the US and Shanghai opens and closes), search the news themselves, and explain every trade in their own words\n"
              "• Every model writes its own daily report card and grades itself\n"
@@ -308,7 +308,7 @@ for day in sorted({r['day'] for r in ledger} - oldd):
         grades = [f"{LABEL.get(x['portfolio'], x['portfolio'])} {x['grade']}" for x in review if x['at'] == latest and x['portfolio'] != 'All' and x.get('grade') not in (None, '—')]
         if grades:
             lines.append('\n<b>Report card:</b> ' + esc(', '.join(grades)))
-    lines.append(f"\nEach experiment is separate and never added together. Simulation only, not investment or betting advice.\n{SITE}")
+    lines.append(f"\nEach experiment is scored on its own; the overall race is decided by total profit. Simulation only, not investment or betting advice.\n{SITE}")
     srows = []
     for r in rows:
         vals = [h['value'] for h in HIST if h['portfolio'] == r['portfolio']]

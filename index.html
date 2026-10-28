@@ -313,6 +313,10 @@
   .st-viewing { margin: 4px 0 0; color: var(--color-ok, #3ddc84); font-family: var(--font-mono, monospace); font-size: 14px; letter-spacing: .06em; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
   .st-viewing b { font-weight: 700; }
   .st-viewing-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  .pt-banner { position: relative; margin: 0 0 14px; padding: 12px 44px 12px 16px; border: 1px solid #ff5a4e; background: rgba(255,90,78,.12); border-radius: var(--cds-radius, 6px); color: var(--color-fg); font-size: 14px; line-height: 1.5; }
+  .pt-banner b { color: #ff5a4e; }
+  .pt-banner-x { position: absolute; top: 6px; right: 6px; width: 32px; height: 32px; border: 0; background: none; color: var(--color-fg); font-size: 20px; line-height: 1; cursor: pointer; border-radius: 4px; }
+  .pt-banner-x:focus-visible { outline: 2px solid var(--color-fg); }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
@@ -459,6 +463,10 @@ body { background:var(--color-bg); }
 <div id="dash-root">
 <div class="st">
   <header class="st-head">
+    <div class="pt-banner" id="pt-banner" role="status" hidden>
+      <b>Update, Oct 28:</b> we restarted every experiment for all three AIs at 1:45 p.m. ET to make the race more accurate. The AIs now invest as if it were real money and must follow new limits: at most 50% in one holding, 25% on one bet, and 4× currency leverage. This morning's tuning run is in the Ledger and doesn't count. <a href="#" data-goto-rules>See How it works</a>.
+      <button type="button" class="pt-banner-x" aria-label="Close this notice">×</button>
+    </div>
     <h1 class="st-title"><svg class="st-logo" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#17201c"/><path d="M7 22l6-6 4 4 8-9" stroke="#4cc283" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Paper Trades</span></h1>
     <p class="st-progress" data-phase="live">
       <span>Day <b data-draw="day-num">—</b> of <b data-draw="day-total">—</b></span>
@@ -1334,7 +1342,7 @@ body { background:var(--color-bg); }
   <section class="st-page" id="safe" data-page="safe" hidden>
     <section class="st-card" aria-labelledby="h-f-bench">
       <h2 class="st-h2" id="h-f-bench">Play it safe</h2>
-      <p class="st-note">The control experiment: low-risk Treasury bills, bonds, dividend stocks and a little gold, to compare with the aggressive ones. Restart Oct 28 with C$100,000 at the US market open (9:30 a.m. ET, 13:30 UTC · 9:30 p.m. HKT).</p>
+      <p class="st-note">The control experiment: low-risk Treasury bills, bonds, dividend stocks and a little gold, to compare with the riskier ones. Restart Oct 28 with C$100,000 at 1:45 p.m. ET (17:45 UTC · 1:45 a.m. HKT).</p>
       <div class="st-bench">
         <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Safe">—</span></div>
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Safe">—</span></div>
@@ -1607,7 +1615,7 @@ body { background:var(--color-bg); }
         <li><b>Fully run by AI.</b> Each AI makes all of its own decisions and updates its own experiments by itself; no human picks or edits any trade. The whole page, the Race Report and the Telegram channel are managed and updated automatically by AI.</li>
       </ul>
       <ul class="st-exp-list">
-        <li><b>Trading:</b> stocks and anything, crypto, China stocks on the Shanghai and Shenzhen exchanges (US$100,000), precious metals, oil and energy, options, currencies with leverage, and a low-risk "play it safe" control (C$100,000 each). All eight were reset to a fresh start on Oct 28, 9:30 a.m. ET, so every AI starts level; China stocks start at the Shanghai open that evening. Claude's first run (Oct 26–28) is archived.</li>
+        <li><b>Trading:</b> stocks and anything, crypto, China stocks on the Shanghai and Shenzhen exchanges (US$100,000), precious metals, oil and energy, options, currencies with leverage, and a low-risk "play it safe" control (C$100,000 each). Every experiment of every AI restarted level at 100,000 on Oct 28, 1:45 p.m. ET, after a morning tuning run (kept in the Ledger, doesn’t count); China stocks start at the Shanghai open that evening. Earlier runs are archived.</li>
         <li><b>Betting:</b> sports betting and prediction markets (C$100,000 each). Claude's bets from Oct 27–28 were a simulation before the race started: they are kept in the Ledger, marked as such, and don't count. Claude's betting restarted fresh at C$100,000 on Oct 28, 11:48 a.m. ET.</li>
       </ul>
       <h3 class="st-h3">How it works</h3>
@@ -3246,6 +3254,13 @@ body { background:var(--color-bg); }
   // ---- Model menu: Claude, Gemini, ChatGPT (a model is selectable once it has data) ----
   const MODEL_LABEL = { claude: 'Claude', gemini: 'Gemini', chatgpt: 'ChatGPT' };
   const modelExps = () => { const v = dash.model !== 'claude' && dash.models()[dash.model]; return v ? v._meta.exps : null; };
+  (() => {
+    const b = document.getElementById('pt-banner'); if (!b) return;
+    let gone = false; try { gone = localStorage.getItem('pt-banner-restart') === '1'; } catch (e) {}
+    if (!gone && Date.now() < Date.parse('2026-11-04T00:00:00Z')) b.hidden = false;
+    b.querySelector('.pt-banner-x').addEventListener('click', () => { b.hidden = true; try { localStorage.setItem('pt-banner-restart', '1'); } catch (e) {} });
+    const l = b.querySelector('[data-goto-rules]'); if (l) l.addEventListener('click', (ev) => { ev.preventDefault(); const t = document.querySelector('[data-tab="rules"]'); if (t) { t.click(); t.scrollIntoView({ block: 'start' }); } });
+  })();
   const applyModel = (id) => {
     { const v = document.getElementById('viewing-name'); if (v) v.textContent = ({ claude: 'Claude Opus 5.5 (Anthropic)', gemini: 'Gemini (Google)', chatgpt: 'ChatGPT (OpenAI)' })[id] || id; }
     const views = dash.models();
