@@ -313,7 +313,7 @@ SHIM = r"""
       if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', schedule);
       fetch('data.json?v=' + Date.now(), { cache: 'no-store' })
         .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-        .then((json) => { base = json; Object.assign(raw, json); status = 'ok'; let m = json.leader || 'claude'; try { m = localStorage.getItem('pt-model') || m; } catch (e) {} if (m !== 'claude' && json.models && json.models[m]) api.useModel(m); else { modelListeners.forEach((fn) => { try { fn('claude'); } catch (e) {} }); runAll(); } })
+        .then((json) => { base = json; Object.assign(raw, json); status = 'ok'; let m = (window.ptLeader ? window.ptLeader(json) : json.leader) || 'claude'; if (m !== 'claude' && json.models && json.models[m]) api.useModel(m); else { modelListeners.forEach((fn) => { try { fn('claude'); } catch (e) {} }); runAll(); } })
         .catch((e) => { console.error('data.json failed to load', e); status = 'error'; runAll(); });
       // live refresh: every minute while the page is open, check the tiny data.ver fingerprint; download data.json only when it changed
       let ver = null;

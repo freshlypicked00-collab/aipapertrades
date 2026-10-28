@@ -1556,7 +1556,8 @@ def main():
             daily_note = (('DUE NOW (at least every 8 hours): a fresh ' + ', '.join('"feeling"' if k == 'feeling' else f'"on_rivals.{k[3:]}"' for k in due)
                            + '. Write them in this reply, in your own words. ') if due else '')
             race_due = [e for e in exps if e in ALL_EXPS and not any(x['model'] == mid and x.get('experiment') == e and x['horizon'] == 'day' and x['at'] >= fresh for x in state.get('plans', []))]
-            race_due = race_due[:4]   # a few races per check-in, so every race is refreshed about every 8 hours without long replies
+            if any(x['model'] == mid and x.get('experiment') for x in state.get('plans', [])):
+                race_due = race_due[:4]   # after the first full set, a few races per check-in keep every race fresh (about every 8 hours)
             if race_due:
                 daily_note += 'RACE CARDS DUE NOW (refreshed at least every 8 hours): write "race_plans" for ' + ', '.join(race_due) + ' (all fields for each). '
             plan_info = daily_note + 'Your public profile page now: ' + '; '.join(f'{k}: "{clip(v, 400)}"' if v else f'{k}: (not written yet, please write it)' for k, v in myprof.items()) + '. ' + 'Your published plans and feeling: ' + '; '.join(f"{k}: \"{v}\"" if v else f'{k}: (none yet)' for k, v in myplans.items()) + '. ' + board + fc_task

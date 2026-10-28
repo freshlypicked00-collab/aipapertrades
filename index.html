@@ -642,7 +642,7 @@ body { background:var(--color-bg); }
       if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', schedule);
       fetch('data.json?v=' + Date.now(), { cache: 'no-store' })
         .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-        .then((json) => { base = json; Object.assign(raw, json); status = 'ok'; let m = json.leader || 'claude'; try { m = localStorage.getItem('pt-model') || m; } catch (e) {} if (m !== 'claude' && json.models && json.models[m]) api.useModel(m); else { modelListeners.forEach((fn) => { try { fn('claude'); } catch (e) {} }); runAll(); } })
+        .then((json) => { base = json; Object.assign(raw, json); status = 'ok'; let m = (window.ptLeader ? window.ptLeader(json) : json.leader) || 'claude'; if (m !== 'claude' && json.models && json.models[m]) api.useModel(m); else { modelListeners.forEach((fn) => { try { fn('claude'); } catch (e) {} }); runAll(); } })
         .catch((e) => { console.error('data.json failed to load', e); status = 'error'; runAll(); });
       // live refresh: every minute while the page is open, check the tiny data.ver fingerprint; download data.json only when it changed
       let ver = null;
@@ -3974,6 +3974,18 @@ body { background:var(--color-bg); }
     const h = String(t.holding || '').toLowerCase().split(' (')[0];
     return c.find((l) => l.action === t.action && String(l.detail || '').toLowerCase().includes(h)) || c.find((l) => String(l.detail || '').toLowerCase().includes(h)) || c.find((l) => l.action === t.action) || c[0];
   };
+  // the race shown first follows the markets: China while Shanghai is open, Stocks while New York is open, otherwise Crypto
+  window.ptFirstRace = () => {
+    const part = (tz) => Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }).formatToParts(new Date()).map((x) => [x.type, x.value]));
+    const bj = part('Asia/Shanghai'), ny = part('America/New_York');
+    const mins = (p) => Number(p.hour) * 60 + Number(p.minute), wk = (p) => !['Sat', 'Sun'].includes(p.weekday);
+    const nyDay = ny.year + '-' + ny.month + '-' + ny.day;
+    const chinaOpen = wk(bj) && ((mins(bj) >= 570 && mins(bj) < 690) || (mins(bj) >= 780 && mins(bj) < 900));
+    const usOpen = wk(ny) && nyDay !== '2026-11-26' && mins(ny) >= 570 && mins(ny) < (nyDay === '2026-11-27' ? 780 : 960);
+    return chinaOpen ? 'China' : usOpen ? 'Stocks' : 'Crypto';
+  };
+  // the page always opens on whoever is 1st in that race (Race standings), not on the AI viewed last time
+  window.ptLeader = (json) => { const ES = json.exp_standings || {}; const r = ES[window.ptFirstRace()] || []; return (r[0] && r[0].id) || json.leader; };
   const MODEL_COL = { claude: ['var(--accent)', 'var(--accent-bg)'], gemini: ['#4f8ff7', 'rgba(79,143,247,.09)'], chatgpt: ['var(--ai-chatgpt)', 'rgba(160,160,160,.08)'] };
   const applyModel = (id) => {
     { const c = MODEL_COL[id] || MODEL_COL.claude; document.documentElement.style.setProperty('--model', c[0]); document.documentElement.style.setProperty('--model-bg', c[1]); document.documentElement.dataset.model = id || 'claude'; }
@@ -4190,14 +4202,7 @@ body { background:var(--color-bg); }
     el.replaceChildren();
     const all = dash.baseData('exp_standings'); const ES = Array.isArray(all) ? all[0] : all;
     if (!ES) return;
-    // the race shown first follows the markets: China while Shanghai is open, Stocks while New York is open, otherwise Crypto
-    const part = (tz) => Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }).formatToParts(new Date()).map((x) => [x.type, x.value]));
-    const bj = part('Asia/Shanghai'), ny = part('America/New_York');
-    const mins = (p) => Number(p.hour) * 60 + Number(p.minute), wk = (p) => !['Sat', 'Sun'].includes(p.weekday);
-    const nyDay = ny.year + '-' + ny.month + '-' + ny.day;
-    const chinaOpen = wk(bj) && ((mins(bj) >= 570 && mins(bj) < 690) || (mins(bj) >= 780 && mins(bj) < 900));
-    const usOpen = wk(ny) && nyDay !== '2026-11-26' && mins(ny) >= 570 && mins(ny) < (nyDay === '2026-11-27' ? 780 : 960);
-    const first = chinaOpen ? 'China' : usOpen ? 'Stocks' : 'Crypto';
+    const first = window.ptFirstRace();
     const EXPS = [first].concat(['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'].filter((e) => e !== first));
     if (el._first !== first) { el._first = first; el._exp = null; }   // a market opening or closing moves the page to that race
     if (!el._exp) { try { el._exp = sessionStorage.getItem('pt-pod-exp') || first; } catch (e) { el._exp = first; } }
@@ -4329,9 +4334,8 @@ body { background:var(--color-bg); }
   });
   const PLAN_H = [['day', 'Next 24 hours'], ['week', 'Next 7 days'], ['month', 'Rest of the month'], ['feeling', 'How I’m feeling'], ['on_claude', 'On Claude'], ['on_gemini', 'On Gemini'], ['on_chatgpt', 'On ChatGPT']];
   const planCards = (rows, el, exp) => {
-    const mine = exp ? rows.filter((x) => x.experiment === exp) : rows.filter((x) => !x.experiment);
-    const use = mine.length ? mine : rows.filter((x) => !x.experiment);
-    if (exp && !mine.length && use.length) el.appendChild(mk('p', 'st-note st-plans-wide', 'Its ' + (LABEL[exp] || exp) + ' plans come at its next check-ins; until then, its overall view:'));
+    const use = exp ? rows.filter((x) => x.experiment === exp) : rows.filter((x) => !x.experiment);   // a race shows only that race's cards
+    if (exp && !use.length) { el.appendChild(mk('p', 'st-note st-plans-wide', 'Its ' + (LABEL[exp] || exp) + ' plans, feelings and opinions are written at its next check-in.')); return; }
     PLAN_H.forEach(([k, title]) => {
       const r = use.filter((x) => x.horizon === k).sort((a, b) => new Date(a.at) - new Date(b.at)).pop();
       if (!r) return;
