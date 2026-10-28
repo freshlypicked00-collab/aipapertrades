@@ -19,7 +19,7 @@ from datetime import datetime, timedelta, timezone
 
 SRC, INP = sys.argv[1], sys.argv[2]
 START = 100000.0
-ORDER = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Predictions', 'Safe', 'Sports']
+ORDER = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Safe', 'Sports', 'Predictions']
 CURRENCY = {p: ('USD' if p == 'China' else 'CAD') for p in ORDER}
 BENCH_NAMES = {'sp500': 'S&P 500', 'csi300': 'CSI 300', 'uso': 'Oil (USO fund)'}
 BJ = timezone(timedelta(hours=8))

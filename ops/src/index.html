@@ -143,6 +143,12 @@
   .lg-overall { border-top: 1px solid var(--color-border-line); padding-top: 12px; display: flex; flex-direction: column; gap: 6px; }
   .lg-overall-h { margin: 0; font-size: 15px; color: var(--color-fg-muted); }
   .lg-overall-h b { font-size: 17px; }
+  .st-tabs { align-items: flex-end; row-gap: 6px; }
+  .st-tabgroup { display: flex; flex-wrap: wrap; align-items: flex-end; position: relative; padding-top: 18px; margin: 0 6px; border-left: 1px solid var(--color-border-line); padding-left: 6px; }
+  .st-tabgroup-l { position: absolute; top: 0; left: 18px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-fg-muted); }
+  .st-tiles-4 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); }
+  @media (min-width: 1100px) { .st-tiles-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .st-group-h { margin: 6px 0 -6px; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-fg-muted); font-weight: 500; }
   [data-dash-source-state=empty] { color: transparent; }
   [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
 </style>
@@ -161,21 +167,26 @@
 
   <nav class="st-tabs" role="tablist" aria-label="Simulations">
     <button class="st-tab" role="tab" data-tab="overview" aria-selected="true">Overview</button>
-    <button class="st-tab" role="tab" data-tab="stocks" aria-selected="false">Stocks and anything</button>
-    <button class="st-tab" role="tab" data-tab="crypto" aria-selected="false">Crypto</button>
-    <button class="st-tab" role="tab" data-tab="china" aria-selected="false">China stocks</button>
-    <button class="st-tab" role="tab" data-tab="metals" aria-selected="false">Metals</button>
-    <button class="st-tab" role="tab" data-tab="energy" aria-selected="false">Oil and energy</button>
-    <button class="st-tab" role="tab" data-tab="options" aria-selected="false">Options</button>
-    <button class="st-tab" role="tab" data-tab="predictions" aria-selected="false">Prediction markets</button>
-    <button class="st-tab" role="tab" data-tab="safe" aria-selected="false">Play it safe</button>
-    <button class="st-tab" role="tab" data-tab="sports" aria-selected="false">Sports</button>
+    <div class="st-tabgroup" role="presentation"><span class="st-tabgroup-l">Trading</span>
+      <button class="st-tab" role="tab" data-tab="stocks" aria-selected="false">Stocks and anything</button>
+      <button class="st-tab" role="tab" data-tab="crypto" aria-selected="false">Crypto</button>
+      <button class="st-tab" role="tab" data-tab="china" aria-selected="false">China stocks</button>
+      <button class="st-tab" role="tab" data-tab="metals" aria-selected="false">Metals</button>
+      <button class="st-tab" role="tab" data-tab="energy" aria-selected="false">Oil and energy</button>
+      <button class="st-tab" role="tab" data-tab="options" aria-selected="false">Options</button>
+      <button class="st-tab" role="tab" data-tab="safe" aria-selected="false">Play it safe</button>
+    </div>
+    <div class="st-tabgroup" role="presentation"><span class="st-tabgroup-l">Gambling</span>
+      <button class="st-tab" role="tab" data-tab="sports" aria-selected="false">Sports</button>
+      <button class="st-tab" role="tab" data-tab="predictions" aria-selected="false">Prediction markets</button>
+    </div>
     <button class="st-tab" role="tab" data-tab="ledger" aria-selected="false">Ledger</button>
   </nav>
 
   <!-- Overview -->
   <section class="st-page" id="overview" data-page="overview">
-    <div class="st-tiles" aria-label="Portfolio values">
+    <h2 class="st-group-h">Trading</h2>
+    <div class="st-tiles st-tiles-4" aria-label="Trading experiments">
       <button class="st-card" data-goto="stocks">
         <span class="st-label">Stocks and anything</span>
         <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Stocks">—</span>
@@ -248,17 +259,6 @@
           <span>Vs. the S&amp;P 500: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=sp500_options">—</b></span>
         </span>
       </button>
-      <button class="st-card" data-goto="predictions">
-        <span class="st-label">Prediction markets</span>
-        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Predictions">—</span>
-        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Predictions">—</span>
-        <span class="st-stats">
-          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Predictions">—</b></span>
-          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Predictions">—</b></span>
-          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Predictions">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Predictions">—</b></span>
-        </span>
-      </button>
       <button class="st-card" data-goto="safe">
         <span class="st-label">Play it safe</span>
         <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Safe">—</span>
@@ -271,6 +271,9 @@
           <span>Vs. Savings account at 2.25%: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=savings">—</b></span>
         </span>
       </button>
+    </div>
+    <h2 class="st-group-h">Gambling</h2>
+    <div class="st-tiles" aria-label="Gambling experiments">
       <button class="st-card" data-goto="sports">
         <span class="st-label">Sports betting</span>
         <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Sports">—</span>
@@ -281,6 +284,17 @@
           <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Sports">—</b></span>
           <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Sports">—</b></span>
           <span>Beat the closing line: <b data-draw="clv-sum" data-source="clvsum" data-field="beat" data-row="0">—</b></span>
+        </span>
+      </button>
+      <button class="st-card" data-goto="predictions">
+        <span class="st-label">Prediction markets</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Predictions">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Predictions">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Predictions">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Predictions">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Predictions">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Predictions">—</b></span>
         </span>
       </button>
     </div>
@@ -307,9 +321,9 @@
         <button type="button" data-v="Metals" aria-pressed="false">Metals</button>
         <button type="button" data-v="Energy" aria-pressed="false">Oil and energy</button>
         <button type="button" data-v="Options" aria-pressed="false">Options</button>
-        <button type="button" data-v="Predictions" aria-pressed="false">Prediction markets</button>
         <button type="button" data-v="Safe" aria-pressed="false">Play it safe</button>
         <button type="button" data-v="Sports" aria-pressed="false">Sports</button>
+        <button type="button" data-v="Predictions" aria-pressed="false">Prediction markets</button>
       </div>
       <div class="gx" id="perf-overview" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Stocks"></div>
     </section>
@@ -1071,9 +1085,9 @@
         <div class="lg-sim"><span class="lg-sim-name">Metals</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Metals">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Metals">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Metals">—</span></div>
         <div class="lg-sim"><span class="lg-sim-name">Oil and energy</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Energy">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Energy">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Energy">—</span></div>
         <div class="lg-sim"><span class="lg-sim-name">Options</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Options">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Options">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Options">—</span></div>
-        <div class="lg-sim"><span class="lg-sim-name">Prediction markets</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Predictions">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Predictions">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Predictions">—</span></div>
         <div class="lg-sim"><span class="lg-sim-name">Play it safe</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Safe">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Safe">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Safe">—</span></div>
         <div class="lg-sim"><span class="lg-sim-name">Sports</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Sports">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Sports">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Sports">—</span></div>
+        <div class="lg-sim"><span class="lg-sim-name">Prediction markets</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Predictions">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Predictions">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Predictions">—</span></div>
       </div>
       <p class="st-meta lg-today"><span>Today so far, each experiment on its own (the day closes at midnight UTC): <b data-draw="lg-today" data-source="history">—</b></span></p>
     </section>
@@ -1091,9 +1105,9 @@
         <button type="button" data-v="Metals" aria-pressed="false">Metals</button>
         <button type="button" data-v="Energy" aria-pressed="false">Oil and energy</button>
         <button type="button" data-v="Options" aria-pressed="false">Options</button>
-        <button type="button" data-v="Predictions" aria-pressed="false">Prediction markets</button>
         <button type="button" data-v="Safe" aria-pressed="false">Play it safe</button>
         <button type="button" data-v="Sports" aria-pressed="false">Sports</button>
+        <button type="button" data-v="Predictions" aria-pressed="false">Prediction markets</button>
       </div>
       <div class="gx" id="lg-bars" data-draw="lg-bars" data-source="ledger" data-portfolio="Stocks"></div>
     </section>
@@ -1108,9 +1122,9 @@
         <button type="button" data-v="Metals" aria-pressed="false">Metals</button>
         <button type="button" data-v="Energy" aria-pressed="false">Oil and energy</button>
         <button type="button" data-v="Options" aria-pressed="false">Options</button>
-        <button type="button" data-v="Predictions" aria-pressed="false">Prediction markets</button>
         <button type="button" data-v="Safe" aria-pressed="false">Play it safe</button>
         <button type="button" data-v="Sports" aria-pressed="false">Sports</button>
+        <button type="button" data-v="Predictions" aria-pressed="false">Prediction markets</button>
       </div>
       <div class="st-wrap" id="lg-trades" data-draw="lg-trades" data-source="trades bets" data-portfolio=""></div>
     </section>
@@ -1151,7 +1165,7 @@
     document.querySelectorAll('[data-phase]').forEach((el) => { el.hidden = (el.dataset.phase === 'ended') !== ended; });
   });
   const SYM = (p) => (p === 'China' ? 'US$' : 'C$');
-  const PFS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Predictions', 'Safe', 'Sports'];
+  const PFS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Safe', 'Sports', 'Predictions'];
   const LABEL = { Stocks: 'Stocks and anything', China: 'China stocks (US$)', Energy: 'Oil and energy', Predictions: 'Prediction markets', Safe: 'Play it safe' };
   window.stFmt = {
     money: (v, p) => SYM(p) + d3.format(',.0f')(v),
