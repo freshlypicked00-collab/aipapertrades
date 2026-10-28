@@ -3708,6 +3708,23 @@
     if (f.source) { const a = mk('a', '', 'Source'); a.href = f.source; a.target = '_blank'; a.rel = 'noopener'; p.appendChild(a); }
     return p;
   };
+  // "Last update 12m ago": time since the newest check-in by any AI; zero units are left out (no "0d 0h")
+  dash.draw('since-update', {
+    mount: (el) => {
+      const tick = () => {
+        const rows = dash.baseData('checkins') || [];
+        const ts = rows.map((r) => Date.parse(r.at)).filter((t) => t > 0);
+        if (!ts.length) { el.textContent = '—'; return; }
+        let m = Math.max(0, Math.floor((Date.now() - Math.max(...ts)) / 60000));
+        const d = Math.floor(m / 1440); m -= d * 1440; const h = Math.floor(m / 60); m -= h * 60;
+        const parts = []; if (d) parts.push(d + 'd'); if (h) parts.push(h + 'h'); if (m || !parts.length) parts.push(m + 'm');
+        el.textContent = (d === 0 && h === 0 && m === 0) ? 'just now' : parts.join(' ') + ' ago';
+      };
+      el._tick = tick; tick();
+      return setInterval(tick, 30 * 1000);
+    },
+    update: (el) => { if (el._tick) el._tick(); }
+  });
   dash.draw('health', (el) => {
     el.replaceChildren();
     const rows = dash.baseData('checkins'); if (!rows.length) return;

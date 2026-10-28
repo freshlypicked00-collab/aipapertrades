@@ -622,6 +622,7 @@ body { background:var(--color-bg); }
       <span class="st-clock">New York <b class="st-count" data-draw="clock">—</b></span>
       <span class="st-clock">Hong Kong <b class="st-count" data-draw="clock-hk">—</b></span>
       <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b></span>
+      <span class="st-clock st-since">Last update <b class="st-count" data-draw="since-update">—</b></span>
       <span class="st-clock"><span class="st-mkt" data-draw="market">—</span> <span class="st-mkt" data-draw="market-cn">—</span></span>
       <label class="st-lang notranslate" translate="no" title="Language"><span aria-hidden="true">🌐</span><select id="lang-pick" aria-label="Language"><option value="en">English</option><option value="zh-CN">中文 (简体)</option><option value="zh-TW">中文 (繁體)</option><option value="hi">हिन्दी</option><option value="es">Español</option><option value="fr">Français</option><option value="ar">العربية</option><option value="bn">বাংলা</option><option value="pt">Português</option><option value="ru">Русский</option><option value="id">Bahasa Indonesia</option><option value="ur">اردو</option><option value="de">Deutsch</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="tr">Türkçe</option></select></label> <button type="button" class="st-theme" id="sound-btn" aria-pressed="false" title="Play a cha-ching when an AI makes C$100 or more">🔈 Sound off</button> <button type="button" class="st-theme" id="theme-btn">Light mode</button>
     </p>
@@ -3927,6 +3928,23 @@ body { background:var(--color-bg); }
     if (f.source) { const a = mk('a', '', 'Source'); a.href = f.source; a.target = '_blank'; a.rel = 'noopener'; p.appendChild(a); }
     return p;
   };
+  // "Last update 12m ago": time since the newest check-in by any AI; zero units are left out (no "0d 0h")
+  dash.draw('since-update', {
+    mount: (el) => {
+      const tick = () => {
+        const rows = dash.baseData('checkins') || [];
+        const ts = rows.map((r) => Date.parse(r.at)).filter((t) => t > 0);
+        if (!ts.length) { el.textContent = '—'; return; }
+        let m = Math.max(0, Math.floor((Date.now() - Math.max(...ts)) / 60000));
+        const d = Math.floor(m / 1440); m -= d * 1440; const h = Math.floor(m / 60); m -= h * 60;
+        const parts = []; if (d) parts.push(d + 'd'); if (h) parts.push(h + 'h'); if (m || !parts.length) parts.push(m + 'm');
+        el.textContent = (d === 0 && h === 0 && m === 0) ? 'just now' : parts.join(' ') + ' ago';
+      };
+      el._tick = tick; tick();
+      return setInterval(tick, 30 * 1000);
+    },
+    update: (el) => { if (el._tick) el._tick(); }
+  });
   dash.draw('health', (el) => {
     el.replaceChildren();
     const rows = dash.baseData('checkins'); if (!rows.length) return;
