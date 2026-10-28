@@ -1057,7 +1057,7 @@ def betting_rule_line(state, mid):
             f'you must wager at least C$25,000 each week across Sports and Prediction markets (bets and parlays plus prediction-market buys count), '
             f'and at least C$100,000 in total by Nov 28. {cur["week"]} runs to {datetime.fromisoformat(cur["end"]).astimezone(NY).strftime("%a %b %-d")}: '
             f'you have wagered {money(cur["wagered"], "CAD")} of {money(cur["min"], "CAD")} ({money(left, "CAD")} left, {days:.1f} days left); '
-            f'{money(total, "CAD")} of {money(TOTAL_MIN, "CAD")} in total. A missed minimum is shown publicly on the site. The 25% cap per bet still applies; pick real value, not filler bets.')
+            f'{money(total, "CAD")} of {money(TOTAL_MIN, "CAD")} in total. A missed minimum is shown publicly on the site. The 25% cap per bet still applies; pick real value, not filler bets. HOW BETTING IS WON: in Sports and Prediction markets the winner is whoever finishes Nov 28 with the HIGHEST BALANCE, not whoever makes the biggest bets or wins the most bets. You must still reach the wagering minimums, but how you size each bet is up to you: the 25% cap is a limit, not a target, heavy favourites pay little, and one upset can cost more than several wins.')
 
 
 def public_board(state, me):
