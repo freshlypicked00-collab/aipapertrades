@@ -15,7 +15,7 @@
        "name": "NVIDIA Corporation",
        "opened_at": "2026-10-28T07:44:18Z",
        "last": 217.94,
-       "priced_at": "2026-10-28T07:44:18Z"
+       "priced_at": "2026-10-28T08:21:53Z"
       }
      }
     },
@@ -29,8 +29,8 @@
        "pcur": "USD",
        "name": "Bitcoin USD",
        "opened_at": "2026-10-28T07:44:18Z",
-       "last": 80920.9,
-       "priced_at": "2026-10-28T07:44:18Z"
+       "last": 81086.99,
+       "priced_at": "2026-10-28T08:21:53Z"
       }
      }
     },
@@ -50,7 +50,7 @@
        "name": "Direxion Daily Gold Miners Index Bull 2X Shares",
        "opened_at": "2026-10-28T07:44:18Z",
        "last": 130.12,
-       "priced_at": "2026-10-28T07:44:18Z"
+       "priced_at": "2026-10-28T08:21:53Z"
       }
      }
     },
@@ -65,7 +65,7 @@
        "name": "Direxion Daily S&P Oil & Gas Exp. & Prod. Bull 2X Shares",
        "opened_at": "2026-10-28T07:44:18Z",
        "last": 49.83,
-       "priced_at": "2026-10-28T07:44:18Z"
+       "priced_at": "2026-10-28T08:21:53Z"
       }
      }
     }
@@ -86,17 +86,16 @@
    ],
    "model": "gemini-flash-lite-latest",
    "last_run": {
-    "at": "2026-10-28T07:44:18Z",
+    "at": "2026-10-28T08:21:53Z",
     "status": "ok",
     "notes": [
      "gemini-3.1-pro-preview: HTTP 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https:/",
      "gemini-3.8-flash: HTTP 503 This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
-     "gemini-flash-latest: Remote end closed connection without response",
-     "order refused (China buy 588000.SS): China market is closed; orders fill only during Shanghai/Shenzhen trading hours",
+     "gemini-flash-latest: HTTP 503 This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.",
      "web search quota unavailable this run; decided from the prices and portfolio given"
     ],
     "sources": [],
-    "orders": 4
+    "orders": 0
    }
   }
  },
@@ -358,6 +357,36 @@
    "model": "gemini",
    "experiment": "Energy",
    "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T08:21:53Z",
+   "model": "gemini",
+   "experiment": "Stocks",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T08:21:53Z",
+   "model": "gemini",
+   "experiment": "Crypto",
+   "value": 100205.25
+  },
+  {
+   "at": "2026-10-28T08:21:53Z",
+   "model": "gemini",
+   "experiment": "China",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T08:21:53Z",
+   "model": "gemini",
+   "experiment": "Metals",
+   "value": 100000.0
+  },
+  {
+   "at": "2026-10-28T08:21:53Z",
+   "model": "gemini",
+   "experiment": "Energy",
+   "value": 100000.0
   }
  ],
  "takes": [
@@ -365,6 +394,47 @@
    "at": "2026-10-28T07:44:18Z",
    "model": "gemini",
    "text": "Starting all five high-risk experiments with aggressive plays across tech, crypto, metals, and energy to maximize returns."
+  },
+  {
+   "at": "2026-10-28T08:21:53Z",
+   "model": "gemini",
+   "text": "Fully invested across all portfolios into high-beta leveraged assets and major leaders to chase aggressive upside."
   }
- ]
+ ],
+ "thoughts": [
+  {
+   "at": "2026-10-28T08:21:53Z",
+   "model": "gemini",
+   "experiment": "Stocks",
+   "text": "Holding NVDA for pure play AI momentum and upside."
+  },
+  {
+   "at": "2026-10-28T08:21:53Z",
+   "model": "gemini",
+   "experiment": "Crypto",
+   "text": "Holding Bitcoin for strong crypto market participation."
+  },
+  {
+   "at": "2026-10-28T08:21:53Z",
+   "model": "gemini",
+   "experiment": "China",
+   "text": "Evaluating Chinese market conditions before deploying capital."
+  },
+  {
+   "at": "2026-10-28T08:21:53Z",
+   "model": "gemini",
+   "experiment": "Metals",
+   "text": "Holding NUGT for leveraged exposure to the gold sector."
+  },
+  {
+   "at": "2026-10-28T08:21:53Z",
+   "model": "gemini",
+   "experiment": "Energy",
+   "text": "Holding GUSH to capture explosive energy sector moves."
+  }
+ ],
+ "fx": {
+  "USDCAD": 1.4058,
+  "USDCNY": 6.6658
+ }
 }
