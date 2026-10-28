@@ -254,10 +254,20 @@ html = f"""<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Paper Trades</title>
-<meta name="description" content="A 30-day paper-trading experiment: an AI model manages pretend money in stocks, crypto, precious metals and sports bets using real-world prices. Not investment advice.">
-<meta property="og:title" content="Paper Trades">
-<meta property="og:description" content="A 30-day experiment: can an AI model trade with real-world prices? Pretend money, every decision logged. Not investment advice.">
+<title>Paper Trades – AI Trading Test</title>
+<meta name="description" content="Can an AI trade? Five 30-day experiments with pretend money and real prices: stocks, Chinese stocks, crypto, precious metals and sports bets. Every decision is logged. Not investment advice.">
+<meta property="og:title" content="Paper Trades – AI Trading Test">
+<meta property="og:site_name" content="Paper Trades">
+<meta property="og:description" content="Can an AI trade? Five 30-day experiments with pretend money and real prices: stocks, Chinese stocks, crypto, metals and sports bets. Every decision logged. Not investment advice.">
+<meta property="og:image" content="https://papertrades.ai/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Paper Trades logo: a chart line going up">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Paper Trades – AI Trading Test">
+<meta name="twitter:image" content="https://papertrades.ai/og.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://papertrades.ai/">
 <meta name="theme-color" content="#0b0b0a">

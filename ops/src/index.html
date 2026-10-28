@@ -161,11 +161,11 @@
 
   <nav class="st-tabs" role="tablist" aria-label="Simulations">
     <button class="st-tab" role="tab" data-tab="overview" aria-selected="true">Overview</button>
-    <button class="st-tab" role="tab" data-tab="stocks" aria-selected="false">Stocks</button>
+    <button class="st-tab" role="tab" data-tab="stocks" aria-selected="false">Stocks and anything</button>
+    <button class="st-tab" role="tab" data-tab="china" aria-selected="false">China stocks</button>
     <button class="st-tab" role="tab" data-tab="crypto" aria-selected="false">Crypto</button>
     <button class="st-tab" role="tab" data-tab="metals" aria-selected="false">Metals</button>
     <button class="st-tab" role="tab" data-tab="sports" aria-selected="false">Sports</button>
-    <button class="st-tab" role="tab" data-tab="china" aria-selected="false">China</button>
     <button class="st-tab" role="tab" data-tab="ledger" aria-selected="false">Ledger</button>
   </nav>
 
@@ -182,6 +182,18 @@
           <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Stocks">—</b></span>
           <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Stocks">—</b></span>
           <span>Vs. S&amp;P 500: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=sp500">—</b></span>
+        </span>
+      </button>
+      <button class="st-card" data-goto="china">
+        <span class="st-label">China stocks (US$)</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=China">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=China">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=China">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=China">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=China">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=China">—</b></span>
+          <span>Vs. CSI 300: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=csi300">—</b></span>
         </span>
       </button>
       <button class="st-card" data-goto="crypto">
@@ -220,18 +232,6 @@
           <span>Beat the closing line: <b data-draw="clv-sum" data-source="clvsum" data-field="beat" data-row="0">—</b></span>
         </span>
       </button>
-      <button class="st-card" data-goto="china">
-        <span class="st-label">Chinese stocks (US$)</span>
-        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=China">—</span>
-        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=China">—</span>
-        <span class="st-stats">
-          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=China">—</b></span>
-          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=China">—</b></span>
-          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=China">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=China">—</b></span>
-          <span>Vs. CSI 300: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=csi300">—</b></span>
-        </span>
-      </button>
     </div>
     <p class="st-note">The big figure is total net profit since the start. "Last 24 hours" compares with the check-in closest to 24 hours earlier, or the start if a simulation is newer. "Worst drop" is the biggest fall from a high point, measured at check-ins. Stocks are compared with putting the same <span data-draw="start">—</span> into the S&amp;P 500, crypto and metals with putting it into Bitcoin, and Chinese stocks with the CSI 300 index. Positive means the portfolio is ahead. The Chinese stocks simulation is counted in US dollars.</p>
 
@@ -250,11 +250,11 @@
       <h2 class="st-h2" id="h-ret">How each simulation is doing</h2>
       <p class="st-note">Pick a simulation. Move your cursor along the chart (or drag a finger on a phone) to see the exact value at each check-in.</p>
       <div class="st-chips" role="group" aria-label="Simulation" data-chips-for="perf-overview">
-        <button type="button" data-v="Stocks" aria-pressed="true">Stocks</button>
+        <button type="button" data-v="Stocks" aria-pressed="true">Stocks and anything</button>
+        <button type="button" data-v="China" aria-pressed="false">China stocks</button>
         <button type="button" data-v="Crypto" aria-pressed="false">Crypto</button>
         <button type="button" data-v="Metals" aria-pressed="false">Metals</button>
         <button type="button" data-v="Sports" aria-pressed="false">Sports</button>
-        <button type="button" data-v="China" aria-pressed="false">China</button>
       </div>
       <div class="gx" id="perf-overview" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Stocks"></div>
     </section>
@@ -699,11 +699,11 @@
       <div class="lg-review" data-draw="lg-review" data-source="review"></div>
       <h3 class="st-h3">Total since the start</h3>
       <div class="lg-sims">
-        <div class="lg-sim"><span class="lg-sim-name">Stocks</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Stocks">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Stocks">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Stocks">—</span></div>
+        <div class="lg-sim"><span class="lg-sim-name">Stocks and anything</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Stocks">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Stocks">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Stocks">—</span></div>
+        <div class="lg-sim"><span class="lg-sim-name">China stocks (US$)</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=China">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=China">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=China">—</span></div>
         <div class="lg-sim"><span class="lg-sim-name">Crypto</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Crypto">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Crypto">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Crypto">—</span></div>
         <div class="lg-sim"><span class="lg-sim-name">Metals</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Metals">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Metals">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Metals">—</span></div>
         <div class="lg-sim"><span class="lg-sim-name">Sports</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Sports">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Sports">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=Sports">—</span></div>
-        <div class="lg-sim"><span class="lg-sim-name">China (US$)</span><span class="lg-sim-pnl" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=China">—</span><span class="lg-sim-range" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=China">—</span><span class="lg-sim-range" data-draw="lg-simstats" data-source="ledger" data-where="portfolio=China">—</span></div>
       </div>
       <p class="st-meta lg-today"><span>Today so far, each experiment on its own (the day closes at midnight UTC): <b data-draw="lg-today" data-source="history">—</b></span></p>
     </section>
@@ -715,11 +715,11 @@
         <button type="button" data-v="total" aria-pressed="false">Running total</button>
       </div>
       <div class="st-chips" role="group" aria-label="Simulation" data-chips-for="lg-bars">
-        <button type="button" data-v="Stocks" aria-pressed="true">Stocks</button>
+        <button type="button" data-v="Stocks" aria-pressed="true">Stocks and anything</button>
+        <button type="button" data-v="China" aria-pressed="false">China stocks</button>
         <button type="button" data-v="Crypto" aria-pressed="false">Crypto</button>
         <button type="button" data-v="Metals" aria-pressed="false">Metals</button>
         <button type="button" data-v="Sports" aria-pressed="false">Sports</button>
-        <button type="button" data-v="China" aria-pressed="false">China</button>
       </div>
       <div class="gx" id="lg-bars" data-draw="lg-bars" data-source="ledger" data-portfolio="Stocks"></div>
     </section>
@@ -1489,10 +1489,10 @@
     const rows = d.data.filter((r) => +new Date(r.at) === latestAt);
     const all = rows.find((r) => r.portfolio === 'All');
     const ul = mk('ul');
-    rows.filter((r) => r.portfolio !== 'All').forEach((r) => {
+    rows.filter((r) => r.portfolio !== 'All').sort((a, b) => ['Stocks', 'China', 'Crypto', 'Metals', 'Sports'].indexOf(a.portfolio) - ['Stocks', 'China', 'Crypto', 'Metals', 'Sports'].indexOf(b.portfolio)).forEach((r) => {
       const li = mk('li');
       if (r.grade) li.appendChild(mk('span', 'lg-grade', r.grade));
-      li.append(mk('b', '', (r.portfolio === 'China' ? 'China (US$)' : r.portfolio) + ': '), document.createTextNode(r.text));
+      li.append(mk('b', '', ({ Stocks: 'Stocks and anything', China: 'China stocks (US$)' }[r.portfolio] || r.portfolio) + ': '), document.createTextNode(r.text));
       ul.appendChild(li);
     });
     el.appendChild(ul);
@@ -1523,7 +1523,7 @@
     if (hd.status === 'ok') { const c = hd.data.filter((r) => r.portfolio === 'China'); const u = d3.sum(c, (r) => Number(r.value_usd)); if (u) fx = d3.sum(c, (r) => Number(r.value_cad)) / u; }
     const parts = [];
     let total = 0;
-    ['Stocks', 'Crypto', 'Metals', 'Sports', 'China'].forEach((p) => {
+    ['Stocks', 'China', 'Crypto', 'Metals', 'Sports'].forEach((p) => {
       const s = h.data.filter((r) => r.portfolio === p).map((r) => ({ t: +new Date(r.at), v: Number(r.value) })).sort((a, b) => a.t - b.t);
       if (!s.length) return;
       const near = s.filter((r) => Math.abs(r.t - start) <= 3600e3);
@@ -1598,7 +1598,8 @@
     const L = dash.data('log');
     if (!days) return;
     if (!days.length) { el.appendChild(mk('p', 'st-note', 'The first day closes at midnight UTC.')); return; }
-    const NAMES = { Stocks: 'Stocks', Crypto: 'Crypto', Metals: 'Metals', Sports: 'Sports', China: 'China (US$)' };
+    const NAMES = { Stocks: 'Stocks and anything', China: 'China stocks (US$)', Crypto: 'Crypto', Metals: 'Metals', Sports: 'Sports' };
+    const ORD = ['Stocks', 'China', 'Crypto', 'Metals', 'Sports'];
     days.slice().reverse().forEach((x) => {
       const card = mk('article', 'lg-day');
       const head = mk('div', 'lg-head');
@@ -1607,7 +1608,7 @@
       head.appendChild(h3);
       card.appendChild(head);
       const grid = mk('div', 'lg-sims');
-      x.rows.filter((r) => r.portfolio !== 'All').forEach((r) => {
+      x.rows.filter((r) => r.portfolio !== 'All').sort((a, b) => ORD.indexOf(a.portfolio) - ORD.indexOf(b.portfolio)).forEach((r) => {
         const c = mk('div', 'lg-sim');
         c.appendChild(mk('span', 'lg-sim-name', NAMES[r.portfolio] || r.portfolio));
         const big = mk('span', 'lg-sim-pnl', stFmt.signed(r.pnl, r.portfolio)); tone(big, r.pnl);
