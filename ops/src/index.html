@@ -261,6 +261,8 @@
   .st-plan { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 10px 12px; font-size: 13.5px; line-height: 1.5; }
   .st-plan h4 { margin: 0 0 4px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
   .st-plan small { display: block; margin-top: 4px; color: var(--color-fg-muted); font-size: 11.5px; }
+  .pt-toast { position: fixed; right: 16px; bottom: 16px; z-index: 50; background: var(--color-panel); color: var(--color-fg); border: 1px solid var(--color-ok); border-left: 4px solid var(--color-ok); border-radius: 6px; padding: 10px 14px; font-size: 14px; box-shadow: 0 6px 24px rgba(0,0,0,.35); transition: opacity .5s, transform .5s; }
+  .pt-toast-out { opacity: 0; transform: translateY(8px); }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
@@ -3163,6 +3165,49 @@
     if (Date.now() < Date.parse('2026-10-29T13:00:00Z')) b.hidden = false;   // shows on every visit until 9 a.m. ET Oct 29
     b.querySelector('.pt-banner-x').addEventListener('click', () => { b.hidden = true; });
     const l = b.querySelector('[data-goto-rules]'); if (l) l.addEventListener('click', (ev) => { ev.preventDefault(); const t = document.querySelector('[data-tab="rules"]'); if (t) { t.click(); t.scrollIntoView({ block: 'start' }); } });
+  })();
+  // ---------- cha-ching: a sound when an AI makes C$100 or more since the last update (sound is opt-in)
+  (() => {
+    const btn = document.getElementById('sound-btn'); if (!btn) return;
+    let on = false; try { on = localStorage.getItem('pt-sound') === '1'; } catch (e) {}
+    let ctx = null;
+    const show = () => { btn.textContent = on ? '🔊 Sound on' : '🔈 Sound off'; btn.setAttribute('aria-pressed', String(on)); };
+    const chaching = () => {
+      try {
+        ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+        if (ctx.state === 'suspended') ctx.resume();
+        const t0 = ctx.currentTime;
+        const ding = (t, f, d, v) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'triangle'; o.frequency.setValueAtTime(f, t); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + d); o.connect(g).connect(ctx.destination); o.start(t); o.stop(t + d + 0.05); };
+        const n = ctx.createBufferSource(), buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 0.12), ctx.sampleRate), ch = buf.getChannelData(0);
+        for (let i = 0; i < ch.length; i++) ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / ch.length, 3);
+        const ng = ctx.createGain(); ng.gain.value = 0.25; n.buffer = buf; n.connect(ng).connect(ctx.destination); n.start(t0);
+        ding(t0 + 0.08, 1568, 0.25, 0.35); ding(t0 + 0.08, 2093, 0.2, 0.18);
+        ding(t0 + 0.24, 2637, 0.7, 0.35); ding(t0 + 0.24, 3136, 0.6, 0.15);
+      } catch (e) {}
+    };
+    btn.addEventListener('click', () => { on = !on; try { localStorage.setItem('pt-sound', on ? '1' : '0'); } catch (e) {} show(); if (on) chaching(); });
+    show();
+    const totals = (j) => {
+      const out = {}; const last = {};
+      (j.history || []).forEach((h) => { last['claude|' + h.portfolio] = h; });
+      (j.rivals_history || []).forEach((h) => { last[h.model + '|' + h.experiment] = h; });
+      const fx = (j.fx_meta && j.fx_meta[0] && Number(j.fx_meta[0].usdcad)) || 1.38;
+      Object.entries(last).forEach(([k, h]) => { const [m, e] = k.split('|'); out[m] = (out[m] || 0) + (Number(h.value) - 100000) * (e === 'China' ? fx : 1); });
+      return out;
+    };
+    const toast = (msg) => {
+      const t = mk('div', 'pt-toast', msg); document.body.appendChild(t);
+      setTimeout(() => t.classList.add('pt-toast-out'), 3800); setTimeout(() => t.remove(), 4400);
+    };
+    window.ptOnData = (old, now) => {
+      const a = totals(old), b = totals(now);
+      const wins = Object.keys(b).filter((m) => AIS[m] && b[m] - (a[m] || 0) >= 100).map((m) => [m, b[m] - (a[m] || 0)]);
+      const seen = new Set((old.allin_trades || []).concat(old.rivals_trades || []).map((t) => t.at + t.symbol));
+      (now.rivals_trades || []).concat(now.allin_trades || []).forEach((t) => { if (t.action === 'Won' && Number(t.amount) >= 100 && !seen.has(t.at + t.symbol) && AIS[t.model] && !wins.some((w) => w[0] === t.model)) wins.push([t.model, Number(t.amount)]); });
+      if (!wins.length) return;
+      wins.forEach(([m, g], i) => setTimeout(() => toast('💰 ' + AIS[m].label + ' just made +C$' + d3.format(',.0f')(g)), i * 600));
+      if (on) chaching();
+    };
   })();
   const applyModel = (id) => {
     { const v = document.getElementById('viewing-name'); if (v) v.textContent = ({ claude: 'Claude Opus 5.5 (Anthropic)', gemini: 'Gemini (Google)', chatgpt: 'ChatGPT (OpenAI)' })[id] || id; }

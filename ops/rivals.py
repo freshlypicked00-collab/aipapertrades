@@ -943,6 +943,10 @@ def main():
     fx = get_fx()
     ran = []
     claude_allin(state, fx)
+    try:
+        price_alerts(state)
+    except Exception as e:
+        print('price alerts failed', e)
     for mid, r in RIVALS.items():
         key = os.environ.get(r['env'])
         if not key and mid == 'chatgpt' and os.environ.get('OPENROUTER_API_KEY'):
@@ -1005,7 +1009,7 @@ def main():
             plan_info = 'Your published plans and feeling: ' + '; '.join(f"{k}: \"{v}\"" if v else f'{k}: (none yet)' for k, v in myplans.items()) + '. ' + \
                 ('Recent trades by the other AIs (for your opinions): ' + '; '.join(f"{t['model']} {EXP_LABEL.get(t['experiment'], t['experiment'])} {t['action']} {t['name']} {money(abs(t.get('amount') or 0), 'CAD')}" for t in others) + '. ' if others else '')
             take_info = plan_info + ('Your current take (shown at the top of the site): "' + mine[-1]['text'] + '" written ' + mine[-1]['at'] + '. ' if mine else 'You have no current take yet. ') + \
-                f'You have written {len(today)} new take(s) today (UTC). Aim for about 3 to 5 a day, at key moments (after the US open, midday, after the US close, at the daily close, at the Shanghai open) or after a trade or event that matters, and only when your view has really changed; otherwise send "" to keep it. Each new take is posted publicly.'
+                f'You have written {len(today)} new take(s) today (UTC). Aim for about 3 to 5 a day, at key moments (after the US open, midday, after the US close, at the daily close, at the Shanghai open) or after a trade or event that matters, and only when your view has really changed; otherwise send "" to keep it. Each new take is shown publicly on the site.'
             prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed, refused, take_info, standings(state, fx, mid))
             import time as _time
             t0 = _time.time()
@@ -1101,7 +1105,7 @@ def main():
                 state['takes'].append({'at': iso(), 'model': mid, 'text': take})
                 if NOW >= FRESH_START:
                     head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(r['label'], r['label'])
-                    tg(f"{head}\n💬 <b>{r['label']}'s current take</b>\n“{esc(take)}”\n{SITE}")
+                    pass   # takes are shown on the site only; Telegram gets trades, sells and bets (owner's call, Oct 28)
         if mid == 'gemini' and GEMINI_NO_SEARCH:
             notes.append('web search quota unavailable this run; decided from the prices and portfolio given')
         m['last_run'] = {'at': iso(), 'status': status, 'notes': notes[-12:], 'sources': sources[:8], 'orders': len(made), 'search': SEARCH_LOG[-2:]}
@@ -1115,7 +1119,7 @@ def main():
                 if g.get('text'):
                     lines.append(f"<i>{esc(str(g['text'])[:500])}</i>")
             lines.append(f"\nIn {rr['label']}'s own words. Each experiment is separate. Simulation only. {SITE}")
-            tg('\n'.join(lines)[:4000], silent=False)
+            pass   # per-AI day closes stay on the site (report cards in the Ledger); the race card is the one daily post
         # one post per AI per check-in: every trade listed, with one chart (the biggest trade's price)
         if made:
             def line(t):

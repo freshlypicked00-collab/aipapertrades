@@ -171,6 +171,40 @@ def source_for(pf, holding):
     return f"\nSource: <a href=\"{esc(best['url'])}\">{esc(best['title'])}</a>" if best else ''
 
 
+if os.environ.get('MODE') == 'cleanup':
+    # Remove chatter from the channel (takes, per-AI daily closes, catch-ups). Trades, sells, bets, results,
+    # the pinned welcome and rule notices stay. Reads the public web view of the channel; bots can delete posts under 48 hours old.
+    import re as _re
+    DROP = ("current take", "Day 1 closed", "Day 0 closed", "closed: ", "catch-up", "Catch-up")
+    posts, before = {}, ''
+    for _ in range(10):
+        req = urllib.request.Request('https://t.me/s/PaperTradesAI' + (f'?before={before}' if before else ''), headers={'User-Agent': 'Mozilla/5.0'})
+        page = urllib.request.urlopen(req, timeout=30).read().decode('utf-8', 'replace')
+        found = _re.findall(r'data-post="PaperTradesAI/(\d+)"(.*?)(?=data-post="PaperTradesAI/|$)', page, _re.S)
+        if not found:
+            break
+        for pid, body in found:
+            txt = _re.sub(r'<[^>]+>', ' ', body)
+            posts[int(pid)] = ' '.join(txt.split())[:400]
+        lo = min(int(p) for p, _ in found)
+        if str(lo) == before:
+            break
+        before = str(lo)
+    gone = 0
+    for pid in sorted(posts):
+        t = posts[pid]
+        if any(k in t for k in DROP) and 'NEW RULE' not in t and 'RESET' not in t.upper()[:40]:
+            try:
+                r = urllib.request.urlopen(f'https://api.telegram.org/bot{TOKEN}/deleteMessage', urllib.parse.urlencode({'chat_id': CHAT, 'message_id': pid}).encode(), timeout=20).read()
+                gone += 1
+                print('deleted', pid, t[:90])
+            except Exception as e:
+                print('could not delete', pid, e)
+        else:
+            print('kept', pid, t[:90])
+    print(gone, 'deleted of', len(posts))
+    sys.exit(0)
+
 if NOTE:
     send(open('ops/note.txt').read().strip())
     sys.exit(0)
@@ -208,8 +242,8 @@ if WELCOME:
              "• Every model writes its own daily report card and grades itself\n"
              "• Every post here starts with who made it: 🟠 CLAUDE, 🔵 GEMINI or ⚪ CHATGPT\n\n"
              "<b>What you'll see here</b>\n"
-             "🟢🔴 every buy and sell with a price chart (24 hours, 7 days, 30 days) · 🎯 every bet and result · 💬 each AI's take · "
-             "📒 the daily close at 8 p.m. ET (00:00 UTC · 8 a.m. HKT)\n\n"
+             "🟢🔴 every buy and sell, live, with a price chart · 🎯 every bet and result · 🚀📉 market alerts when Bitcoin, stocks, gold, oil or the dollar make a big move · "
+             "🏁 one race update a day at 8 p.m. ET (00:00 UTC · 8 a.m. HKT). Takes, plans and report cards are on the website.\n\n"
              "🔴 Simulation only. No real money. Not investment or betting advice.\n\n"
              f"Compare them live on the AI vs AI tab, and switch models on the site: {SITE}")
     if EDIT_PIN and TOKEN and CHAT:
@@ -290,7 +324,7 @@ for t in load(S + 'trades.json'):
 oldt = {x['at'] for x in load(S + 'take.json', BEFORE if not TEST else None)}
 for x in load(S + 'take.json'):
     if x['at'] not in oldt:
-        msgs.append((f"💬 <b>Claude's current take</b>\n“{esc(x['text'])}”", None))
+        pass   # takes are shown on the site only; Telegram gets trades, sells and bets
 
 # closed ledger days
 oldd = {r['day'] for r in load(S + 'ledger.json', BEFORE if not TEST else None)}
@@ -313,7 +347,7 @@ for day in sorted({r['day'] for r in ledger} - oldd):
     for r in rows:
         vals = [h['value'] for h in HIST if h['portfolio'] == r['portfolio']]
         srows.append({'pf': r['portfolio'], 'day': r['pct'] or 0, 'total': (vals[-1] / 100000 - 1) if vals else 0})
-    msgs.append(('\n'.join(lines), ('close', srows, f"Day {n} close")))
+    # the shared race card below is the one daily post; per-AI day closes live on the site (Ledger)
     race_days.append((day, n))
 
 # Bundle every trade, bet and settlement from this update into ONE post (with one chart), so the channel isn't flooded.
