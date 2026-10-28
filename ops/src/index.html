@@ -208,6 +208,11 @@
   .st-score-pct { font-family: var(--font-anthropic-serif); font-size: 24px; line-height: 1.15; font-variant-numeric: tabular-nums; }
   .st-score-amt { font-size: 12.5px; color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
   .st-score-wait .st-score-pct { font-size: 15px; color: var(--color-fg-muted); font-family: inherit; }
+  .h2h-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; }
+  .h2h-pick-l { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--color-fg-muted); margin-right: 4px; }
+  .h2h-pick button { font: inherit; font-size: 13px; color: var(--color-fg); background: transparent; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 6px 12px; min-height: 34px; cursor: pointer; }
+  .h2h-pick button[aria-pressed="true"] { border-color: var(--color-fg); background: var(--color-panel); font-weight: 600; }
+  .h2h-pick button:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   .h2h-exp { display: flex; flex-direction: column; gap: 10px; padding-top: 14px; border-top: 1px solid var(--color-border-line); margin-top: 14px; }
   .h2h-exp h3 { margin: 0; font-size: 15px; }
   .h2h-rows { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px; }
@@ -2709,13 +2714,37 @@
   const H2H_EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'];
   const H2H_PLAN = { gemini: H2H_EXPS, chatgpt: H2H_EXPS };
   const H2H_START = (exp) => 100000;
-  dash.draw('h2h', (el) => {
+  const h2hDraw = (el) => {
     const M = dash.data('rivals_models'), RH = dash.data('rivals_history'), RT = dash.data('rivals_trades'), RK = dash.data('rivals_takes');
     const CH = { status: 'ok', data: dash.baseData('history') }, TK = { status: 'ok', data: dash.baseData('take') };
     el.replaceChildren();
     if (M.status !== 'ok' && M.status !== 'missing') return;
     const models = M.status === 'ok' ? M.data : [];
     const rh = RH.status === 'ok' ? RH.data : [];
+    // which AIs to compare: all three, or any two
+    const PAIRS = [['all', 'All three', ['claude', 'gemini', 'chatgpt']], ['cg', 'Claude vs Gemini', ['claude', 'gemini']],
+      ['cc', 'Claude vs ChatGPT', ['claude', 'chatgpt']], ['gc', 'Gemini vs ChatGPT', ['gemini', 'chatgpt']]];
+    if (!el._pair) { try { el._pair = localStorage.getItem('pt-h2h') || 'all'; } catch (e) { el._pair = 'all'; } }
+    const SEL = (PAIRS.find((p) => p[0] === el._pair) || PAIRS[0])[2];
+    const pick = mk('div', 'h2h-pick'); pick.setAttribute('role', 'group'); pick.setAttribute('aria-label', 'Choose which AIs to compare');
+    pick.appendChild(mk('span', 'h2h-pick-l', 'Compare'));
+    PAIRS.forEach(([k, label]) => {
+      const b = mk('button', '', label); b.type = 'button'; b.setAttribute('aria-pressed', String(k === el._pair));
+      b.addEventListener('click', () => { el._pair = k; try { localStorage.setItem('pt-h2h', k); } catch (e) {} h2hDraw(el); });
+      pick.appendChild(b);
+    });
+    el.appendChild(pick);
+    // and which experiment: all of them, or just one
+    if (!el._exp) { try { el._exp = localStorage.getItem('pt-h2h-exp') || 'all'; } catch (e) { el._exp = 'all'; } }
+    const pick2 = mk('div', 'h2h-pick'); pick2.setAttribute('role', 'group'); pick2.setAttribute('aria-label', 'Choose which experiment to compare');
+    pick2.appendChild(mk('span', 'h2h-pick-l', 'In'));
+    [['all', 'All experiments']].concat(H2H_EXPS.map((e) => [e, LABEL[e] || e])).forEach(([k, label]) => {
+      const b = mk('button', '', label); b.type = 'button'; b.setAttribute('aria-pressed', String(k === el._exp));
+      b.addEventListener('click', () => { el._exp = k; try { localStorage.setItem('pt-h2h-exp', k); } catch (e) {} h2hDraw(el); });
+      pick2.appendChild(b);
+    });
+    el.appendChild(pick2);
+    const EXP_SEL = el._exp === 'all' ? null : el._exp;
     const series = (exp) => {
       const out = [];
       const c = CH.data.filter((r) => r.portfolio === exp).map((r) => ({ t: new Date(r.at), v: Number(r.value) })).sort((a, b) => a.t - b.t);
@@ -2727,10 +2756,10 @@
       return out;
     };
     if (!models.length) el.appendChild(mk('p', 'st-note', 'Gemini and ChatGPT appear here after their first check-in.'));
-    H2H_EXPS.filter((exp) => Object.values(H2H_PLAN).some((l) => l.includes(exp))).forEach((exp) => {
+    H2H_EXPS.filter((exp) => (!EXP_SEL || exp === EXP_SEL) && Object.values(H2H_PLAN).some((l) => l.includes(exp))).forEach((exp) => {
       const box = mk('div', 'h2h-exp');
       box.appendChild(mk('h3', '', LABEL[exp] || exp));
-      const ser = series(exp);
+      const ser = series(exp).filter((x) => SEL.includes(x.id));
       const rows = mk('ul', 'h2h-rows');
       const ranked = ser.map((s) => ({ ...s, last: s.pts[s.pts.length - 1].v, pct: s.pts[s.pts.length - 1].v / 100000 - 1 })).sort((a, b) => b.pct - a.pct);
       ranked.forEach((s, i) => {
@@ -2742,7 +2771,7 @@
         li.appendChild(mk('span', 'h2h-sub', 'Now ' + stFmt.money(s.last, exp) + ' · started ' + d3.timeFormat('%b %-d')(s.pts[0].t)));
         rows.appendChild(li);
       });
-      ['gemini', 'chatgpt'].filter((id) => H2H_PLAN[id].includes(exp) && !ser.some((s) => s.id === id)).forEach((id) => {
+      ['gemini', 'chatgpt'].filter((id) => SEL.includes(id) && H2H_PLAN[id].includes(exp) && !ser.some((s) => s.id === id)).forEach((id) => {
         const li = mk('li', 'h2h-row h2h-wait'); li.style.setProperty('--ai', AIS[id].color);
         li.appendChild(mk('span', 'h2h-name', AIS[id].label));
         li.appendChild(mk('span', 'h2h-sub', 'Starts at the 9:30 a.m. ET fresh start'));
@@ -2762,18 +2791,25 @@
     const tbox = mk('div', 'h2h-exp');
     tbox.appendChild(mk('h3', '', 'What each AI is thinking'));
     const ul = mk('ul', 'h2h-takes');
-    const addTake = (id, text, at) => { const li = mk('li'); li.style.setProperty('--ai', AIS[id].color); li.appendChild(mk('b', '', AIS[id].label + (at ? ' · ' + stFmt.when(at) : ''))); li.appendChild(document.createTextNode(text)); ul.appendChild(li); };
+    const addTake = (id, text, at) => { if (!SEL.includes(id)) return; const li = mk('li'); li.style.setProperty('--ai', AIS[id].color); li.appendChild(mk('b', '', AIS[id].label + (at ? ' · ' + stFmt.when(at) : ''))); li.appendChild(document.createTextNode(text)); ul.appendChild(li); };
     if (TK.status === 'ok' && TK.data.length) { const t = TK.data[TK.data.length - 1]; addTake('claude', t.text, t.at); }
-    const latest = {}; (RK.status === 'ok' ? RK.data : []).forEach((t) => { latest[t.model] = t; });
+    const latest = {};
+    if (EXP_SEL) {
+      tbox.firstChild.textContent = 'What each AI is thinking about ' + (LABEL[EXP_SEL] || EXP_SEL);
+      ul.replaceChildren();
+      const cl = dash.baseData('log').filter((r) => r.portfolio === EXP_SEL).sort((a, b) => new Date(b.at) - new Date(a.at))[0];
+      if (cl) addTake('claude', cl.detail, cl.at);
+      dash.baseData('rivals_thoughts').filter((t) => t.experiment === EXP_SEL).forEach((t) => { latest[t.model] = t; });
+    } else (RK.status === 'ok' ? RK.data : []).forEach((t) => { latest[t.model] = t; });
     Object.values(latest).forEach((t) => { if (AIS[t.model]) addTake(t.model, t.text, t.at); });
     ['gemini', 'chatgpt'].forEach((id) => { if (!latest[id]) addTake(id, 'Starts at the 9:30 a.m. ET fresh start.'); });
     tbox.appendChild(ul);
     el.appendChild(tbox);
     // each rival's trades, separately
-    ['gemini', 'chatgpt'].forEach((id) => {
-      const trades = (RT.status === 'ok' ? RT.data : []).filter((t) => t.model === id).slice().reverse().slice(0, 40);
+    ['gemini', 'chatgpt'].filter((id) => SEL.includes(id)).forEach((id) => {
+      const trades = (RT.status === 'ok' ? RT.data : []).filter((t) => t.model === id && (!EXP_SEL || t.experiment === EXP_SEL)).slice().reverse().slice(0, 40);
       const rbox = mk('div', 'h2h-exp');
-      const h = mk('h3', '', AIS[id].label + ' trades'); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px';
+      const h = mk('h3', '', AIS[id].label + ' trades' + (EXP_SEL ? ': ' + (LABEL[EXP_SEL] || EXP_SEL) : '')); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px';
       rbox.appendChild(h);
       const connected = models.some((m) => m.id === id);
       if (!connected) rbox.appendChild(mk('p', 'st-note', 'Starts at the 9:30 a.m. ET fresh start.'));
@@ -2794,7 +2830,9 @@
       }
       el.appendChild(rbox);
     });
-  });
+  };
+  dash.draw('h2h', h2hDraw);
+
   const h2hChart = (el, ser) => {
     el.replaceChildren();
     const W = Math.max(280, el.clientWidth || 600), H = 220, m = { t: 10, r: 12, b: 24, l: 46 };

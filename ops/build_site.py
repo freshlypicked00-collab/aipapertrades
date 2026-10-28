@@ -364,6 +364,8 @@ r = json.load(open(rv)) if os.path.exists(rv) else {'models': {}, 'trades': [], 
 data['rivals_models'] = [{'id': k, **{x: v.get(x) for x in ('label', 'company', 'model', 'started', 'exps', 'last_run')}, 'books': v['books']} for k, v in r['models'].items()]
 for k in ('trades', 'history', 'takes'):
     data['rivals_' + k] = r[k]
+_cut = (datetime.now(timezone.utc) - __import__('datetime').timedelta(days=2)).isoformat()
+data['rivals_thoughts'] = [x for x in r.get('thoughts', []) if x['at'].replace('Z', '+00:00') >= _cut]
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import model_views
 data['models'] = model_views.build(r, {k: data[k] for k in ('indexes', 'bench_history', 'benchmark', 'prices', 'events')} | {'fx': json.load(open(os.path.join(SRC, 'fx.json')))})
