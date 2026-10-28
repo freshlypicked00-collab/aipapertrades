@@ -6,7 +6,7 @@ runs ten separate simulations with real-world prices, each with its own starting
   Shenzhen stocks, US$100,000, counted in US dollars), **Metals** (C$100,000), **Energy**,
   **Options**, **Currencies** (forex with leverage) and **Safe** (a low-risk control), C$100,000 each.
 - Betting: **Sports** (betting) and **Predictions** (prediction markets), C$100,000 each.
-All but Safe are run high risk, high reward; Safe is deliberately cautious.
+Invest every experiment as if it were your own real money and losing it mattered: grow it as much as you can over the whole month without risking ruin, sized like a skilled professional, not a gambler. No all-in single bets on day one; spread risk, keep reserves, use stops, press hard only on a clear, confirmed edge. Safe is deliberately cautious.
 No real money moves. The public site is https://papertrades.ai (this repo,
 served by GitHub Pages). A private tracker mirrors the same data; its link is
 given in the task prompt.
