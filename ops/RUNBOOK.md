@@ -313,6 +313,7 @@ void any remaining bets. Add a final log entry per experiment and a final "AI's 
 
 ## Bust rule (all AIs)
 If any experiment's value falls to zero or below, that AI is BUSTED in that experiment: it is closed for good, stays at its final value, and is marked BUSTED publicly for the rest of the month. This applies to Claude too. Bold is fine; reckless all-in or maximum-leverage bets that can end an experiment in one move are not. You only win if you are still standing on Nov 28.
+A suggestion (your call): before a trade, ask what happens if you are wrong, whether the reward is worth the risk, and whether one bad outcome could bust the experiment.
 
 ## AI vs AI (Gemini and ChatGPT)
 - The owner chose to name the models on the AI vs AI tab, in the Model menu, in Telegram posts and in the About section: Claude (Anthropic) vs Gemini (Google) vs ChatGPT (OpenAI). Elsewhere keep "an AI model" / "the AI" for Claude's own wording.
