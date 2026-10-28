@@ -65,6 +65,7 @@ bench = load('bench_history')
 sources = load('sources')
 ledger = load('ledger', [])
 fxd = load('fx', {})
+take = load('take', [])
 
 fx = float(inp['fx']['usdcad'])
 cny = inp['fx'].get('usdcny') or fxd.get('usdcny')
@@ -394,6 +395,9 @@ if inp.get('events_add'):
 for e in inp.get('log', []):
     log.append({'at': e.get('at') or AT, 'portfolio': e['portfolio'], 'action': e['action'], 'detail': e['detail']})
 save('log', log)
+if inp.get('take'):  # the AI's one-sentence take for the top of the site
+    take.append({'at': AT, 'text': inp['take'].strip()})
+    save('take', take)
 if inp.get('sources_add'):
     seen = {s['url'] for s in sources}
     for s in inp['sources_add']:

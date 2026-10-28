@@ -10,6 +10,7 @@ Do this:
    - The latest price of every holding and the exchange rates: within 1% of a fresh source (2% for options and prediction markets)?
    - Stop and limit rules: were any levels crossed in the last 24 hours (by the day's high/low) without the trade being made?
    - The arithmetic: re-run `python3 ops/check.py ops/src` and fix anything it reports.
+   - The AI's take at the top of the site (take.json): one honest sentence, current, no combined totals.
    - The daily ledger and self-assessment for the day that just closed: numbers match the history, notes have no money totals across experiments, nothing missing.
 3. Fix what is wrong, following the runbook's correction rules, and add one "Check" log entry per experiment that had a problem, saying what was wrong and what changed. If everything checks out, say so in the report and add one "Check" log entry per experiment you verified: "Daily accuracy check: no problems found."
 4. Rebuild and push the site, sync the tracker (runbook step 8).

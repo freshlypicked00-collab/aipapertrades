@@ -187,6 +187,27 @@
   .st-alloc-key { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: var(--cds-font-size-body); }
   .st-alloc-key i { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
   .st-alloc-key b { font-weight: 600; }
+  .st-hook { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+  .st-hook-q { margin: 0; font-size: clamp(24px, 3.4vw, 32px); font-weight: 600; line-height: 1.15; letter-spacing: -0.01em; color: var(--color-fg); text-wrap: balance; }
+  .st-hook-sub { margin: 0; font-size: 16px; color: var(--color-fg-muted); max-width: 70ch; }
+  .st-take { margin: 6px 0 0; font-size: 16px; line-height: 1.5; max-width: 85ch; border-left: 3px solid var(--color-warn); padding: 4px 0 4px 12px; }
+  .st-take-l { display: block; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-warn); margin-bottom: 2px; }
+  .st-take q { quotes: "\201C" "\201D"; }
+  .st-take-when { color: var(--color-fg-muted); font-size: 13px; white-space: nowrap; }
+  .st-score { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+  .st-score-h { margin: 0; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-warn); font-weight: 600; }
+  .st-score-h span { margin-left: 8px; letter-spacing: 0; text-transform: none; color: var(--color-fg-muted); font-weight: 400; font-size: 13px; }
+  .st-score-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.5rem), 1fr)); gap: 8px; }
+  @media (max-width: 560px) { .st-score-pct { font-size: 20px; } .st-score-list button { padding: 7px 8px; } .st-score-h span { display: block; margin: 4px 0 0; } }
+  @media (min-width: 960px) { .st-score-list { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+  .st-score-list button { width: 100%; height: 100%; text-align: left; font: inherit; color: var(--color-fg); background: none; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 8px 10px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+  .st-score-list button:hover { border-color: var(--color-fg-muted); }
+  .st-score-list button:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .st-score-name { font-size: 13px; color: var(--color-fg-muted); }
+  .st-score-name b { color: var(--color-fg); font-weight: 600; margin-right: 6px; }
+  .st-score-pct { font-family: var(--font-anthropic-serif); font-size: 24px; line-height: 1.15; font-variant-numeric: tabular-nums; }
+  .st-score-amt { font-size: 12.5px; color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+  .st-score-wait .st-score-pct { font-size: 15px; color: var(--color-fg-muted); font-family: inherit; }
   [data-dash-source-state=empty] { color: transparent; }
   [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
 </style>
@@ -199,8 +220,17 @@
       <span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 26</span>
     </p>
     <p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>
+    <div class="st-hook">
+      <p class="st-hook-q">Can an AI make money in real markets?</p>
+      <p class="st-hook-sub">Ten separate experiments, each with its own C$100,000 of pretend money and real-world prices. Every trade and bet is public, win or lose, until Nov 26.</p>
+      <p class="st-take"><span class="st-take-l">The AI's take</span><span data-draw="take" data-source="take">—</span></p>
+    </div>
+    <section class="st-score" aria-labelledby="h-score">
+      <h2 class="st-score-h" id="h-score">Scoreboard <span>Return since each experiment started, best first. Tap one to open it.</span></h2>
+      <ol class="st-score-list" data-draw="scoreboard" data-source="totals trades bets"></ol>
+    </section>
     <p class="st-notice" role="note"><span class="st-dot" aria-hidden="true"></span><span><b>This is a simulation, not investment advice.</b> No real money is involved. It is a 30-day experiment in which an AI model makes trading and betting decisions using real-world prices, to see how its judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results for all ten will be posted on Nov 26, win or lose.</span></p>
-    <p class="st-lede">Ten separate paper-trading experiments, each run and scored on its own on Nov 26, 2026. Each one started with its own <span data-draw="start">—</span> (US$100,000 for China stocks) and is judged only against that starting amount; the results are never added together. Last updated <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=All">—</b>.</p>
+    <p class="st-lede">Each experiment is scored on its own against its own starting money; the results are never added together. Last updated <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=All">—</b>.</p>
   </header>
 
   <nav class="st-tabs" role="tablist" aria-label="Simulations">
@@ -2563,6 +2593,44 @@
       key.appendChild(li);
     });
     row.appendChild(key);
+  });
+
+  // ---------- top of page: the AI's take and the scoreboard
+  dash.draw('take', (el) => {
+    const d = dash.data('take');
+    el.replaceChildren();
+    if (d.status !== 'ok' || !d.data.length) { el.textContent = '—'; return; }
+    const r = d.data.reduce((a, b) => (new Date(b.at) > new Date(a.at) ? b : a));
+    el.append(mk('q', '', r.text), document.createTextNode(' '), mk('span', 'st-take-when', stFmt.when(r.at) + ' ET'));
+  });
+  const TABOF = { Stocks: 'stocks', Crypto: 'crypto', China: 'china', Metals: 'metals', Energy: 'energy', Options: 'options', Currencies: 'currencies', Safe: 'safe', Sports: 'sports', Predictions: 'predictions' };
+  dash.draw('scoreboard', (el) => {
+    const d = dash.data('totals'), T = dash.data('trades'), B = dash.data('bets');
+    el.replaceChildren();
+    if (d.status !== 'ok') return;
+    const started = new Set(T.status === 'ok' ? T.data.map((t) => t.portfolio) : []);
+    if (B.status === 'ok' && B.data.length) started.add('Sports');
+    const live = d.data.filter((r) => started.has(r.portfolio)).sort((a, b) => b.pct - a.pct);
+    const wait = d.data.filter((r) => !started.has(r.portfolio));
+    const item = (r, rank) => {
+      const li = mk('li');
+      const b = mk('button', rank ? '' : 'st-score-wait'); b.type = 'button';
+      const nm = mk('span', 'st-score-name'); if (rank) nm.appendChild(mk('b', '', '#' + rank)); nm.appendChild(document.createTextNode(LABEL[r.portfolio] || r.portfolio));
+      b.appendChild(nm);
+      if (rank) {
+        const pc = mk('span', 'st-score-pct', stFmt.pct(r.pct)); tone(pc, r.pnl); b.appendChild(pc);
+        b.appendChild(mk('span', 'st-score-amt', stFmt.signed(r.pnl, r.portfolio) + ' · now ' + stFmt.money(r.value, r.portfolio)));
+      } else {
+        b.appendChild(mk('span', 'st-score-pct', 'Not started yet'));
+        b.appendChild(mk('span', 'st-score-amt', 'First trades at the next market open'));
+      }
+      b.setAttribute('aria-label', (LABEL[r.portfolio] || r.portfolio) + (rank ? ', rank ' + rank + ', ' + stFmt.pct(r.pct) : ', not started yet'));
+      b.addEventListener('click', () => { goTab(TABOF[r.portfolio]); window.scrollTo({ top: document.querySelector('.st-tabs').offsetTop - 8, behavior: 'smooth' }); });
+      li.appendChild(b);
+      el.appendChild(li);
+    };
+    live.forEach((r, i) => item(r, i + 1));
+    wait.forEach((r) => item(r, 0));
   });
 
   // chips that switch a chart's simulation

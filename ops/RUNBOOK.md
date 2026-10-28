@@ -257,6 +257,14 @@ hand), so it lands in `trades.json` / `bets.json` with its time, price and amoun
 Ledger tab's "Every trade" table and in that day's entry. Each trade also needs a log entry with
 the reason.
 
+## The AI's take (top of the site)
+
+The site opens with one sentence from the AI about how things are going. Write a new one (pass
+`"take": "..."` in the input file) whenever the story changes: at every daily ledger close, after
+a trade or settled bet that matters, and after big events. One sentence, about 20 to 35 words,
+plain and honest, starting with the day number ("Day 4: ..."). Name the best and worst
+experiment by name, never a combined or overall total, no hype, no promises.
+
 ## Logging
 
 Add log entries only when something happens: a trade, a bet placed or settled, a rule
