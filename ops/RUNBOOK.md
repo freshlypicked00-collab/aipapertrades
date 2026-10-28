@@ -142,7 +142,11 @@ At the end of every run, list the scheduled tasks (`list_triggers`), and for eac
 the next 3 hours without one, create a one-time scheduled task (`create_trigger` with
 `run_once_at` = event time + 5 minutes, `initiation` = `human_schedule`, name
 `Paper Trades: extra run after <event>`, not requiring a local device) whose prompt is the
-contents of `ops/TASK_PROMPT.md`. Never create duplicates. Mark new big events (rate decisions,
+contents of `ops/TASK_PROMPT.md`. Never create duplicates.
+**Breaking news:** if something important is developing that could move a position (a Hormuz deal
+or attack, a surprise central-bank statement, an earnings shock, a game-changing injury before a
+bet starts), you may also schedule one extra run 20 to 30 minutes later, the same way. Use
+judgment: at most 6 such news runs a day, and none for routine moves. Mark new big events (rate decisions,
 major earnings for held names, key data, election night, market opens with planned orders) with
 `extra_run` when you add them.
 
