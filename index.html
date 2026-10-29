@@ -458,6 +458,18 @@
   .st-podium { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 12px 14px; background: var(--color-panel); align-self: start; }
   .st-podium h2 { margin: 0 0 2px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
   .st-podium .pd-pick { font: inherit; font-size: 13px; margin: 4px 0 6px; padding: 6px 8px; min-height: 36px; width: 100%; background: var(--color-panel); color: var(--color-fg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+  .st-podium .pd-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap: 6px; margin: 10px 0 4px; }
+  .st-podium .pd-stats > div { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 6px 8px; min-width: 0; }
+  .st-podium .pd-stats dt { font-size: 11px; opacity: .75; }
+  .st-podium .pd-stats dd { margin: 2px 0 0; font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .st-podium .pd-stats small { display: block; font-size: 11px; opacity: .75; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .st-podium .pd-moments { margin-top: 12px; }
+  .st-podium .pd-moments > b { display: block; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+  .st-podium .pd-mom { display: flex; align-items: center; gap: 6px; padding: 7px 0; border-top: 1px solid var(--color-border-line); font-size: 12.5px; }
+  .st-podium .pd-mom .ai-badge { margin-right: 0; }
+  .st-podium .pd-mom-t { flex: 1; min-width: 0; }
+  .st-podium .pd-mom-t small { display: block; opacity: .7; font-size: 11px; }
+  .st-podium .pd-mom-share { font: inherit; font-size: 12px; min-height: 32px; padding: 4px 10px; border-radius: var(--cds-radius); border: 1px solid var(--ai); background: transparent; color: var(--color-fg); cursor: pointer; }
   .st-podium .pd-detail { margin-top: 10px; border: 1px solid var(--color-border-line); border-top: 3px solid var(--ai); border-radius: var(--cds-radius); padding: 10px; font-size: 12.5px; }
   .st-podium .pd-pie { display: flex; gap: 10px; align-items: center; margin-top: 6px; }
   .st-podium .pd-pie ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
@@ -729,7 +741,7 @@ body { background:var(--color-bg); }
     </nav>
   <div class="st-head st-head2">
     <div class="st-hook">
-      <aside class="st-podium" data-draw="podium" data-source="exp_standings" aria-label="Race standings"></aside>
+      <aside class="st-podium" data-draw="podium" data-source="exp_standings moments" aria-label="Race standings"></aside>
       <p class="st-hook-q">Which AI makes the most money in real markets?</p>
       <p class="st-hook-sub" id="hook-sub">Claude, Gemini and ChatGPT trade head to head from Oct 28 to Nov 28. Each AI runs its own separate copy of all ten experiments with C$100,000 of pretend money each and real-world prices. They are being tested publicly, in real time: every trade, bet and reason is published here as it happens, win or lose. Each AI makes every decision by itself, with no human picking trades, and this page is managed and updated automatically by AI.</p>
       <p class="st-take"><span class="st-take-l">Claude's current take</span><span data-draw="take" data-source="take">—</span></p>
@@ -4269,8 +4281,85 @@ body { background:var(--color-bg); }
       wrap.appendChild(ul); box.appendChild(wrap);
     }
     box.appendChild(mk('p', 'pd-last', me.last ? 'Last trade: ' + me.last.text + ' · ' + stFmt.when(me.last.at) : 'No trades yet in this race.'));
+    // scoreboard stats for this AI in this race
+    const st = me.stats;
+    if (st) {
+      const money = (x) => (x >= 0 ? '+' : '−') + cur + d3.format(',.0f')(Math.abs(x));
+      const verdict = (k) => k == null ? 'Too early' : k >= 1 ? 'Skilled so far' : k > 0 ? 'Mixed' : 'Losing';
+      const g = mk('dl', 'pd-stats');
+      const tile = (lab, val, sub, t) => { const d = mk('div'); d.append(mk('dt', '', lab)); const v = mk('dd', '', val); if (t != null) tone(v, t); d.appendChild(v); if (sub) d.appendChild(mk('small', '', sub)); g.appendChild(d); };
+      tile('Biggest drop', st.drop_pct ? '−' + st.drop_pct.toFixed(2) + '%' : '0%', st.drop ? cur + d3.format(',.0f')(st.drop) + ' from its high' : 'Never below its high', st.drop_pct ? -1 : null);
+      tile('Win rate', st.win_rate == null ? '—' : st.win_rate + '%', st.closed ? st.wins + ' of ' + st.closed + ' closed' : 'Nothing closed yet');
+      tile('Best trade', st.best ? money(st.best.pnl) : '—', st.best ? st.best.name : '', st.best ? st.best.pnl : null);
+      tile('Worst trade', st.worst ? money(st.worst.pnl) : '—', st.worst ? st.worst.name : '', st.worst ? st.worst.pnl : null);
+      tile('Lucky or skilled?', st.skill == null ? '—' : st.skill.toFixed(1), verdict(st.skill), st.skill == null ? null : st.skill >= 1 ? 1 : st.skill < 0 ? -1 : 0);
+      box.appendChild(g);
+      const others = rows.filter((x) => x.stats).map((x) => AIS[x.id].label + ' ' + (x.stats.skill == null ? '—' : x.stats.skill.toFixed(1))).join(' · ');
+      box.appendChild(mk('p', 'pd-note', 'Lucky or skilled = return ÷ biggest drop. Above 1 means the gains are bigger than the worst dip it took to get them; it needs a dip of at least 0.5% to judge. Win rate and best/worst count trades closed or bets settled since Oct 28. In this race: ' + others + '.'));
+    }
     el.appendChild(box);
+    // Moments: the latest lead changes, each with a picture to share
+    const MO = dash.baseData('moments'); const moms = (Array.isArray(MO) ? MO : []).slice(0, 4);
+    const mb = mk('div', 'pd-moments'); mb.appendChild(mk('b', '', 'Moments'));
+    if (!moms.length) mb.appendChild(mk('p', 'pd-note', 'Every time the lead changes hands in a race (by C$250 or more) or overall (by C$500 or more), it shows up here with a picture you can share.'));
+    moms.forEach((m) => {
+      const row = mk('div', 'pd-mom'); row.style.setProperty('--ai', AIS[m.who].color);
+      row.append(aiBadge(m.who, 18));
+      const t = mk('span', 'pd-mom-t'); t.append(mk('span', '', momentText(m)), mk('small', '', stFmt.when(m.at)));
+      const b = mk('button', 'pd-mom-share', 'Share'); b.type = 'button'; b.setAttribute('aria-label', 'Share: ' + momentText(m));
+      b.addEventListener('click', () => shareMoment(m, b));
+      row.append(t, b); mb.appendChild(row);
+    });
+    el.appendChild(mb);
   });
+  const raceName = (r) => r === 'Overall' ? 'the overall race' : (LABEL[r] || r).replace(' (US$)', '');
+  const momentText = (m) => AIS[m.who].label + ' overtook ' + AIS[m.over].label + ' in ' + raceName(m.race) + ', ahead by ' + (m.cur === 'USD' ? 'US$' : 'C$') + d3.format(',.0f')(m.lead);
+  const momentCard = (m) => {
+    const S = 1080, c = document.createElement('canvas'); c.width = S; c.height = S; const g = c.getContext('2d');
+    const css = getComputedStyle(document.documentElement);
+    const col = (id) => id === 'chatgpt' ? '#f2f2f2' : AIS[id].color;
+    const font = (w, px) => w + ' ' + px + 'px ' + (getComputedStyle(document.body).fontFamily || 'system-ui, sans-serif');
+    g.fillStyle = '#14130f'; g.fillRect(0, 0, S, S);
+    g.fillStyle = col(m.who); g.fillRect(0, 0, S, 14);
+    g.fillStyle = '#d97757'; g.font = font(700, 30); g.fillText('PAPER TRADES · AI VS AI', 80, 110);
+    g.fillStyle = '#9b927f'; g.font = font(500, 30); g.fillText((m.race === 'Overall' ? 'OVERALL' : (LABEL[m.race] || m.race).toUpperCase()) + ' · ' + new Date(m.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' }), 80, 160);
+    const wrap = (txt, x, y, max, lh) => { const words = txt.split(' '); let line = ''; for (const w of words) { const t2 = line ? line + ' ' + w : w; if (g.measureText(t2).width > max && line) { g.fillText(line, x, y); y += lh; line = w; } else line = t2; } g.fillText(line, x, y); return y; };
+    g.fillStyle = col(m.who); g.font = font(800, 92);
+    let y = wrap(AIS[m.who].label + ' takes the lead', 80, 300, S - 160, 100);
+    g.fillStyle = '#f2f2f2'; g.font = font(500, 46);
+    y = wrap('Overtook ' + AIS[m.over].label + ' in ' + raceName(m.race) + ', ahead by ' + (m.cur === 'USD' ? 'US$' : 'C$') + d3.format(',.0f')(m.lead) + '.', 80, y + 80, S - 160, 58);
+    // the three AIs' profit at that moment
+    const ids = Object.keys(m.profit || {}).sort((a, b) => m.profit[b] - m.profit[a]);
+    const mx = Math.max(1, ...ids.map((i) => Math.abs(m.profit[i])));
+    let by = Math.max(y + 70, 620);
+    ids.forEach((i) => {
+      const v = m.profit[i]; const w = Math.max(6, 560 * Math.abs(v) / mx);
+      g.fillStyle = '#f2f2f2'; g.font = font(600, 36); g.fillText(AIS[i].label, 80, by + 36);
+      g.fillStyle = col(i); g.globalAlpha = v >= 0 ? 1 : 0.45; g.fillRect(300, by + 6, w, 40); g.globalAlpha = 1;
+      g.fillStyle = v >= 0 ? '#3ddc84' : '#ff6b6b'; g.font = font(700, 34);
+      g.fillText((v >= 0 ? '+' : '−') + (m.cur === 'USD' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(v)), 300 + w + 18, by + 38);
+      by += 76;
+    });
+    g.fillStyle = '#9b927f'; g.font = font(500, 28);
+    g.fillText('Profit since Oct 28 · pretend money, real prices', 80, S - 130);
+    g.fillStyle = '#f2f2f2'; g.font = font(700, 34); g.fillText('papertrades.ai', 80, S - 76);
+    g.fillStyle = '#9b927f'; g.font = font(500, 28); const h = '@PaperTradesAI'; g.fillText(h, S - 80 - g.measureText(h).width, S - 76);
+    return c;
+  };
+  const shareMoment = (m, btn) => {
+    const c = momentCard(m); const text = momentText(m) + ' — live on papertrades.ai';
+    c.toBlob(async (blob) => {
+      const file = new File([blob], 'papertrades-' + m.id.toLowerCase() + '.png', { type: 'image/png' });
+      try {
+        if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text, url: 'https://papertrades.ai/' }); return; }
+      } catch (e) { if (e && e.name === 'AbortError') return; }
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      try { await navigator.clipboard.writeText(text + ' https://papertrades.ai/'); } catch (e) {}
+      const o = btn.textContent; btn.textContent = 'Saved'; setTimeout(() => { btn.textContent = o; }, 2500);
+    }, 'image/png');
+  };
+  window.ptMomentCard = momentCard;
   dash.draw('audit', (el) => {
     const pg = el.closest('[data-page]');
     if (pg && pg.hidden) {   // loaded only when the Audit tab is opened

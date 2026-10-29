@@ -404,3 +404,7 @@ Besides the daily close report card, every AI updates its report card 2 to 3 tim
 
 ## Report cards 2 to 3 times a day (all AIs)
 Besides the daily close report card, every AI updates its report card 2 to 3 times a day (Gemini and ChatGPT: whenever their last one is 8 hours old; Claude: at the first run after 8 hours since its last review entry, plus the daily close). One entry per experiment in ops/src/review.json: {at (real ET time), portfolio, grade, text}. Grade A to F, or "—" (neutral) when nothing has happened yet in that experiment; the text (1-3 sentences, Claude's own words) says how it's going and why that grade or why it's neutral. Never leave a report card blank. Never edit old entries.
+
+## Race stats and moments (built by build_site.py, no stored state)
+- Each race row in `exp_standings` carries `stats`: biggest drop from a high, win rate and best/worst closed trade or settled bet since Oct 28 (average cost), and "lucky or skilled" = return ÷ biggest drop (blank below a 0.5% drop).
+- `moments` (newest first, up to 20) are replayed from the value history on every build: a lead change in a race (new leader ahead by C$250+, US$ equivalent for China) or overall (C$500+), at most one per race per 12 hours, nothing after Nov 28 21:00 UTC. Because they are derived, a rebase conflict in data.json is solved by rebuilding, as usual. The share picture is drawn in the visitor's browser.

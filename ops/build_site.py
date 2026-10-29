@@ -558,7 +558,132 @@ for _e in _EXPS:
                         'pie': [{'name': n, 'value': round(x, 2)} for n, x in pie if x > 0.5], 'last': last,
                         'busted': bool(bk.get('busted')), 'eliminated': bool(_m.get('eliminated'))})
     _es[_e].sort(key=lambda x: -x['value'])
+
+
+# Scoreboard stats per AI per race: biggest drop from a high, win rate and best/worst closed trade, and a "lucky or skilled" score
+def _closed_claude(e):
+    """Profit or loss of each closed trade or settled bet in Claude's race e, at average cost."""
+    out, lots = [], {}
+    if e == 'Sports':
+        return [{'name': b['pick'], 'pnl': float(b['result_cad'] or 0), 'at': b.get('settled_at') or b['placed_at']}
+                for b in data['bets'] if b.get('status') in ('Won', 'Lost') and b.get('result_cad') is not None and _when(b['placed_at']) >= _FS]
+    for t in sorted([t for t in data['trades'] if t['portfolio'] == e and _when(t['at']) >= _FS], key=lambda t: _when(t['at'])):
+        a, amt, px = t['action'], float(t.get('cad') or 0), float(t.get('price_usd') or 0)
+        if not amt or not px:
+            continue
+        side = 'short' if a in ('Short', 'Cover') else 'long'
+        L = lots.setdefault((t['holding'], side), {'u': 0.0, 'c': 0.0})
+        u = amt / px
+        if a in ('Buy', 'Short'):
+            L['u'] += u; L['c'] += amt
+        elif a in ('Sell', 'Cover', 'Settled', 'Expired') and L['u'] > 1e-12:
+            f = min(1.0, u / L['u']) if a in ('Sell', 'Cover') else 1.0
+            part = L['c'] * f
+            out.append({'name': t['holding'], 'pnl': (amt - part) if side == 'long' else (part - amt), 'at': t['at']})
+            L['u'] -= L['u'] * f; L['c'] -= part
+    return out
+
+
+def _closed_rival(mid, e):
+    bk = (((r.get('models') or {}).get(mid) or {}).get('books') or {}).get(e) or {}
+    if e == 'Sports':
+        return [{'name': b['pick_team'], 'pnl': float(b['result']), 'at': b.get('settled_at') or b['placed_at']}
+                for b in bk.get('bets', []) if b['status'] in ('Won', 'Lost')]
+    out, cost = [], {}
+    for t in [t for t in r.get('trades', []) if t.get('model') == mid and t['experiment'] == e]:
+        key = f"{t['symbol']}|{t['outcome']}" if t.get('outcome') else t['symbol']
+        c = cost.setdefault(key, {'qty': 0.0, 'cost': 0.0})
+        if t['action'] in ('Buy', 'Short'):
+            c['qty'] += t['qty']; c['cost'] += t['amount'] if t['action'] == 'Buy' else -t['amount']
+        elif t['action'] in ('Sell', 'Cover', 'Settled', 'Expired') and c['qty'] > 0:
+            f = min(1.0, t['qty'] / c['qty']); part = c['cost'] * f
+            out.append({'name': t.get('name') or t['symbol'], 'pnl': (-t['amount'] if t['action'] == 'Cover' else t['amount']) - part, 'at': t['at']})
+            c['cost'] -= part; c['qty'] -= t['qty']
+    return out
+
+
+def _stats(series, closed, now_v, base=100000.0):
+    pts = [base] + [v for _, v in sorted(series, key=lambda x: _when(x[0]))] + [now_v]
+    peak, dd, dd_amt = pts[0], 0.0, 0.0
+    for v in pts:
+        peak = max(peak, v)
+        if peak > 0 and (peak - v) / peak > dd:
+            dd, dd_amt = (peak - v) / peak, peak - v
+    ret = (now_v - base) / base
+    wins = [c for c in closed if c['pnl'] > 0.005]
+    s = {'drop_pct': round(100 * dd, 2), 'drop': round(dd_amt, 2), 'ret_pct': round(100 * ret, 2), 'closed': len(closed),
+         'wins': len(wins), 'win_rate': round(100 * len(wins) / len(closed)) if closed else None}
+    if closed:
+        b, w = max(closed, key=lambda c: c['pnl']), min(closed, key=lambda c: c['pnl'])
+        s['best'] = {'name': b['name'], 'pnl': round(b['pnl'], 2)}
+        s['worst'] = {'name': w['name'], 'pnl': round(w['pnl'], 2)}
+    # return per unit of the worst dip; below a 0.5% dip there is too little risk taken to judge
+    s['skill'] = round(ret / dd, 2) if dd >= 0.005 else None
+    return s
+
+
+for _e in _EXPS:
+    for row in _es[_e]:
+        if row['id'] == 'claude':
+            ser = [(h['at'], float(h['value'])) for h in data['history'] if h['portfolio'] == _e and _when(h['at']) >= _FS]
+            row['stats'] = _stats(ser, _closed_claude(_e), row['value'], row['value'] - row['profit'] if row['value'] > 0 else 100000.0)
+        else:
+            ser = [(h['at'], float(h['value'])) for h in r.get('history', []) if h['model'] == row['id'] and h['experiment'] == _e]
+            row['stats'] = _stats(ser, _closed_rival(row['id'], _e), row['value'])
 data['exp_standings'] = _es
+
+
+# Moments: each time the lead changes hands, per race and overall, replayed from the value history (so it rebuilds the same
+# on either workflow). A new leader must be ahead by at least C$250 in a race (C$500 overall); at most one moment per race per 12 hours.
+def _moments():
+    ev = [(_when(h['at']), 'claude', h['portfolio'], float(h['value'])) for h in data['history'] if h['portfolio'] in _EXPS and _when(h['at']) >= _FS]
+    ev += [(_when(h['at']), h['model'], h['experiment'], float(h['value'])) for h in r.get('history', [])
+           if h.get('model') in ('gemini', 'chatgpt') and h['experiment'] in _EXPS and _when(h['at']) >= _FS]
+    ev.sort(key=lambda x: x[0])
+    base = {}
+    for _e in _EXPS:   # Claude's values on Oct 28 before the restart time count from its restart value
+        base[('claude', _e)] = _lastv([(h['at'], float(h['value'])) for h in data['history'] if h['portfolio'] == _e])[1]
+    cur, lead, last_at, out = {}, {}, {}, []
+    fx = float(_cfx)
+    for at, mid, e, v in ev:
+        cur[(mid, e)] = max(v, 0) - base.get((mid, e), 100000.0)
+        if at > RACE_END_DT:
+            break
+        for race in (e, 'Overall'):
+            if race == 'Overall':
+                if any((m, x) not in cur for m in ('claude', 'gemini', 'chatgpt') for x in ('Stocks',)):
+                    continue
+                vals = {m: sum(cur.get((m, x), 0.0) * (fx if x == 'China' else 1) for x in _EXPS) for m in ('claude', 'gemini', 'chatgpt')}
+                need = 500.0
+            else:
+                if any((m, race) not in cur for m in ('claude', 'gemini', 'chatgpt')):
+                    continue
+                vals = {m: cur[(m, race)] for m in ('claude', 'gemini', 'chatgpt')}
+                need = 250.0 if race != 'China' else 250.0 / fx
+            order = sorted(vals, key=lambda m: -vals[m])
+            top, gap = order[0], vals[order[0]] - vals[order[1]]
+            was = lead.get(race)
+            if was is None:
+                if gap >= need:
+                    lead[race] = top
+                continue
+            if top != was and gap >= need:
+                lead[race] = top
+                if race in last_at and (at - last_at[race]).total_seconds() < 12 * 3600:
+                    continue
+                last_at[race] = at
+                out.append({'id': f"{race}-{at.strftime('%Y%m%d%H%M')}-{top}", 'at': at.isoformat().replace('+00:00', 'Z'), 'race': race,
+                            'who': top, 'over': was, 'lead': round(gap, 2), 'cur': 'USD' if race == 'China' else 'CAD',
+                            'profit': {m: round(vals[m], 2) for m in vals}})
+    return out[::-1][:20]
+
+
+try:
+    RACE_END_DT = datetime(2026, 11, 28, 21, 0, tzinfo=timezone.utc)
+    data['moments'] = _moments()
+except Exception as _e:
+    print('moments not built:', _e)
+    data['moments'] = []
 data['penalties'] = [dict(x, model='claude') for x in r.get('claude_penalties', [])] + \
     [dict(x, model=_mid) for _mid, _m in (r.get('models') or {}).items() for x in ((_m.get('books') or {}).get('Sports') or {}).get('penalties', [])]
 data['leader'] = LEADER   # the AI leading the race on total profit; the page opens on it unless the viewer picked one
