@@ -431,6 +431,9 @@
   .st-podium .pd-mom-share { font: inherit; font-size: 12px; min-height: 32px; padding: 4px 10px; border-radius: var(--cds-radius); border: 1px solid var(--ai); background: transparent; color: var(--color-fg); cursor: pointer; }
   td.st-open, .st-table td.st-open { opacity: .6; font-style: italic; }
   .st-podium .pd-amt .pd-amt-l { display: block; font-size: 10.5px; font-weight: 500; opacity: .7; letter-spacing: .04em; text-align: right; }
+  .pd-folded .pd-stats, .pd-folded .pd-stats-note { display: none; }
+  .pd-more { font: inherit; font-size: 13px; color: var(--accent, #ffb000); background: transparent; border: 1px solid color-mix(in srgb, var(--accent, #ffb000) 50%, transparent); border-radius: 999px; padding: 5px 14px; margin: 8px 0 4px; cursor: pointer; }
+  .st-lg-top { margin-top: 6px; }
   .pd-follow { display: flex; align-items: center; gap: 8px; margin: 8px 0 2px; font-size: 13px; cursor: pointer; } .pd-follow input { width: 16px; height: 16px; accent-color: var(--accent, #ffb000); }
   .pd-follow-why { margin: 4px 0 8px; }
   .pd-mom-k { font-style: normal; margin-right: 6px; } .pd-mom-win .pd-mom-k { color: var(--color-ok, #3ddc84); } .pd-mom-loss .pd-mom-k, .pd-mom-penalty .pd-mom-k, .pd-mom-factcheck .pd-mom-k, .pd-mom-busted .pd-mom-k { color: var(--color-bad, #ff5a4e); }
@@ -630,11 +633,6 @@
 
 <div class="st">
   <header class="st-head">
-    <div class="pt-banner" id="pt-banner" role="status" hidden>
-      <span class="pt-banner-short"><b>Update:</b> the race restarted at 1:45 p.m. ET with new limits and betting rules. <a href="#" data-goto-rules>Details</a></span><span class="pt-banner-long"><b>Update, Oct 28:</b> we restarted every experiment for all three AIs at 1:45 p.m. ET to make the race more accurate. The AIs now invest as if it were real money and must follow new limits: at most 50% in one holding, 25% on one bet, and 4× currency leverage. New betting rules: at least C$3,000 per bet and C$3,000 a day, at most 25% of the bankroll on one day, parlays allowed, and at least C$100,000 wagered by Nov 28. The Oct 28 morning tuning run is in the Ledger and doesn't count. <a href="#" data-goto-rules>See How it works</a>.
-      </span>
-      <button type="button" class="pt-banner-x" aria-label="Close this notice">×</button>
-    </div>
     <h1 class="st-title">Simulation Tracker</h1>
     <p class="st-progress" data-phase="live">
       <span>Day <b data-draw="day-num">—</b> of <b data-draw="day-total">—</b></span>
@@ -693,17 +691,10 @@
       <p class="st-hook-sub" id="hook-sub">Claude, Gemini and ChatGPT trade head to head from Oct 28 to Nov 28. Each AI runs its own separate copy of all ten experiments with C$100,000 of pretend money each and real-world prices. They are being tested publicly, in real time: every trade, bet and reason is published here as it happens, win or lose. Each AI makes every decision by itself, with no human picking trades, and this page is managed and updated automatically by AI.</p>
       <p class="st-take"><span class="st-take-l">Claude's current take</span><span data-draw="take" data-source="take">—</span></p>
       <p class="st-fact" data-draw="factcheck" data-source="take factcheck"></p>
-      <div class="st-plans-box" data-draw="plans" data-source="plans"></div>
-      <div class="st-fc" data-draw="forecasts" data-source="forecasts"></div>
     </div>
     <section class="st-score" aria-labelledby="h-score">
       <h2 class="st-score-h" id="h-score">Scoreboard <span>Return since each experiment started, best first. Tap one to open it.</span></h2>
       <ol class="st-score-list" data-draw="scoreboard" data-source="totals trades bets"></ol>
-    </section>
-    <section class="st-card st-report" aria-labelledby="h-report">
-      <h2 class="st-h2" id="h-report">Race Report</h2>
-      <p class="st-note">What has happened so far, written by Claude a few times a day. Claude is also a competitor, so the numbers on this page are the record; this is the story.</p>
-      <div data-draw="report" data-source="report day_reports"></div>
     </section>
     <div class="st-notice-row">
   <p class="st-notice" role="note"><span class="st-dot" aria-hidden="true"></span><span><b>This is a simulation, not investment advice.</b> No real money is involved. It is a one-month experiment in which AI models make trading and betting decisions using real-world prices, to see how their judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results for all ten will be posted on Nov 28, win or lose.</span></p>
@@ -729,150 +720,12 @@
       </div>
     </div>
     <p class="st-viewing" aria-live="polite"><span class="st-viewing-dot" aria-hidden="true"></span>Now viewing: <b id="viewing-name">Claude Opus 5.5 (Anthropic)</b></p>
-    <p class="st-health" data-draw="health" data-source="checkins"></p>
     <p class="st-lede">Each experiment is scored on its own against its own starting money; overall, the AI with the most total profit wins. Last updated <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=All">—</b>.</p>
   </div>
 
 
   <!-- Overview -->
   <section class="st-page" id="overview" data-page="overview">
-    <h2 class="st-group-h">Trading</h2>
-    <div class="st-tiles st-tiles-4" aria-label="Trading experiments">
-      <button class="st-card" data-goto="stocks">
-        <span class="st-label">Stocks and anything</span>
-        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Stocks">—</span>
-        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Stocks">—</span>
-        <span class="st-stats">
-          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Stocks">—</b></span>
-          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Stocks">—</b></span>
-          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Stocks">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Stocks">—</b></span>
-          <span>Vs. S&amp;P 500: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=sp500">—</b></span>
-        </span>
-      </button>
-      <button class="st-card" data-goto="crypto">
-        <span class="st-label">Crypto only</span>
-        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Crypto">—</span>
-        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Crypto">—</span>
-        <span class="st-stats">
-          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Crypto">—</b></span>
-          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Crypto">—</b></span>
-          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Crypto">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Crypto">—</b></span>
-          <span>Vs. just holding Bitcoin: <b data-draw="vs-diff" data-source="vsbtc" data-field="diff" data-where="portfolio=Crypto">—</b></span>
-        </span>
-      </button>
-      <button class="st-card" data-goto="china">
-        <span class="st-label">China stocks (US$)</span>
-        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=China">—</span>
-        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=China">—</span>
-        <span class="st-stats">
-          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=China">—</b></span>
-          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=China">—</b></span>
-          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=China">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=China">—</b></span>
-          <span>Vs. CSI 300: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=csi300">—</b></span>
-        </span>
-      </button>
-      <button class="st-card" data-goto="metals">
-        <span class="st-label">Precious metals</span>
-        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Metals">—</span>
-        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Metals">—</span>
-        <span class="st-stats">
-          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Metals">—</b></span>
-          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Metals">—</b></span>
-          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Metals">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Metals">—</b></span>
-          <span>Vs. just holding gold: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=gold_metals">—</b></span>
-        </span>
-      </button>
-      <button class="st-card" data-goto="energy">
-        <span class="st-label">Oil and energy</span>
-        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Energy">—</span>
-        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Energy">—</span>
-        <span class="st-stats">
-          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Energy">—</b></span>
-          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Energy">—</b></span>
-          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Energy">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Energy">—</b></span>
-          <span>Vs. oil (USO fund): <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=uso_energy">—</b></span>
-        </span>
-      </button>
-      <button class="st-card" data-goto="options">
-        <span class="st-label">Options</span>
-        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Options">—</span>
-        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Options">—</span>
-        <span class="st-stats">
-          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Options">—</b></span>
-          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Options">—</b></span>
-          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Options">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Options">—</b></span>
-          <span>Vs. the S&amp;P 500: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=sp500_options">—</b></span>
-        </span>
-      </button>
-      <button class="st-card" data-goto="currencies">
-        <span class="st-label">Currencies</span>
-        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Currencies">—</span>
-        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Currencies">—</span>
-        <span class="st-stats">
-          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Currencies">—</b></span>
-          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Currencies">—</b></span>
-          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Currencies">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Currencies">—</b></span>
-          <span>Vs. a savings account: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=savings_fx">—</b></span>
-        </span>
-      </button>
-      <button class="st-card" data-goto="safe">
-        <span class="st-label">Play it safe</span>
-        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Safe">—</span>
-        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Safe">—</span>
-        <span class="st-stats">
-          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Safe">—</b></span>
-          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Safe">—</b></span>
-          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Safe">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Safe">—</b></span>
-          <span>Vs. a savings account: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=savings">—</b></span>
-        </span>
-      </button>
-    </div>
-    <h2 class="st-group-h">Betting</h2>
-    <div class="st-tiles" aria-label="Betting experiments">
-      <button class="st-card" data-goto="sports">
-        <span class="st-label">Sports betting</span>
-        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Sports">—</span>
-        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Sports">—</span>
-        <span class="st-stats">
-          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Sports">—</b></span>
-          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Sports">—</b></span>
-          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Sports">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Sports">—</b></span>
-          <span>Beat the closing line: <b data-draw="clv-sum" data-source="clvsum" data-field="beat" data-row="0">—</b></span>
-        </span>
-      </button>
-      <button class="st-card" data-goto="predictions">
-        <span class="st-label">Prediction markets</span>
-        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Predictions">—</span>
-        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Predictions">—</span>
-        <span class="st-stats">
-          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Predictions">—</b></span>
-          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Predictions">—</b></span>
-          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Predictions">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Predictions">—</b></span>
-        </span>
-      </button>
-    </div>
-    <p class="st-note">The big figure is what the simulation is worth now; under it is the profit or loss since the start. "Last 24 hours" compares with the check-in closest to 24 hours earlier, or the start if a simulation is newer. "Worst drop" is the biggest fall from a high point, measured at check-ins. Each "Vs." line compares a simulation with putting the same money into a simple benchmark: the S&amp;P 500 for stocks and options, Bitcoin for crypto, gold for metals, the CSI 300 for China stocks, the USO oil fund for energy, and a 2.25% savings account for currencies and "play it safe". Positive means the simulation is ahead. China stocks are counted in US dollars.</p>
-
-    <section class="st-card" aria-labelledby="h-events-all">
-      <h2 class="st-h2" id="h-events-all">Coming up</h2>
-      <p class="st-note">The next events that could move these simulations, as each AI sees them: switch the Model menu to see Gemini’s or ChatGPT’s own watchlist. Times are Eastern (ET), with UTC in brackets.</p>
-      <div class="st-wrap">
-        <table class="st-table" data-source="events" data-row-key="at,event">
-          <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="affects">Affects</th><th data-field="why">Why it matters</th></tr></thead>
-          <tbody data-draw="events-body" data-limit="8"></tbody>
-        </table>
-      </div>
-    </section>
 
     <section class="st-card" aria-labelledby="h-ret">
       <h2 class="st-h2" id="h-ret">How each simulation is doing</h2>
@@ -892,41 +745,9 @@
       <div class="gx" id="perf-overview" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Stocks"></div>
     </section>
 
-    <section class="st-card" aria-labelledby="h-trig-all">
-      <h2 class="st-h2" id="h-trig-all">Distance to the next trade</h2>
-      <p class="st-note">Every rule tied to a price, closest first. These work like stop and limit orders: if a price touches its level, even between check-ins, the trade is filled at that level at the next update.</p>
-      <div class="st-trig" data-draw="triggers" data-source="triggers" data-limit="6"></div>
-    </section>
 
-    <section class="st-card" aria-labelledby="h-contrib-all">
-      <h2 class="st-h2" id="h-contrib-all">What made or lost money</h2>
-      <p class="st-note">By day: each race’s gain or loss that day (Eastern time) and what closed or settled that day; step back day by day. Since opened: profit or loss on each position and settled bet since it was opened. In Canadian dollars (China stocks in US$).</p>
-      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-limit="12"></div>
-    </section>
 
-    <section class="st-card" aria-labelledby="h-log-all">
-      <h2 class="st-h2" id="h-log-all">Recent decisions</h2>
-      <p class="st-note">The 10 newest trade, bet and hold decisions, newest first, for the model picked in the Model menu. Pick one experiment to see only its decisions. Every decision is kept in the Ledger. Times are Eastern (ET), with UTC in brackets.</p>
-      <div class="lg-pick"><label>Show: <select class="pf-filter" data-target="log-all-body"></select></label></div>
-      <div class="st-wrap">
-        <table class="st-table" data-source="log" data-row-key="at,portfolio">
-          <thead><tr><th data-field="at">When</th><th data-field="portfolio">Portfolio</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
-          <tbody data-draw="log-body" id="log-all-body"></tbody>
-        </table>
-      </div>
-    </section>
 
-    <section class="st-card" aria-labelledby="h-hold-all">
-      <h2 class="st-h2" id="h-hold-all">Holdings</h2>
-      <p class="st-note">What the model picked in the Model menu owns right now. Pick one experiment to see only its holdings. Prices in each market's currency; values in Canadian dollars (China in US$).</p>
-      <div class="lg-pick"><label>Show: <select class="pf-filter" data-target="hold-all-body"></select></label></div>
-      <div class="st-wrap">
-        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
-          <thead><tr><th>Experiment</th><th data-field="holding">Holding</th><th data-field="quantity" class="num">Quantity</th><th class="num">Entry</th><th class="num">Now</th><th data-field="change_pct" class="num">Change</th><th class="num">Value</th><th data-field="price_source">Price source</th></tr></thead>
-          <tbody data-draw="holdings-body" id="hold-all-body" data-all="1"></tbody>
-        </table>
-      </div>
-    </section>
   </section>
 
   <!-- Stocks -->
@@ -1820,6 +1641,9 @@
       <p class="st-note">Claude (Anthropic), Gemini (Google) and ChatGPT (OpenAI) each run their own separate copies of all ten experiments. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored against its own start; overall, the AI with the most total profit wins (see How it works). All three check in at the same times, search the news themselves and make their own trades. Every experiment restarted level on Oct 28 at 1:45 p.m. ET after a morning tuning run, which is kept in the Ledger and doesn’t count.</p>
       <div data-draw="h2h" data-source="exp_standings rivals_models rivals_history rivals_trades rivals_takes history totals take trades log factcheck"></div>
     </section>
+    <section class="st-card st-fc-card" aria-label="Forecasts">
+      <div class="st-fc" data-draw="forecasts" data-source="forecasts"></div>
+    </section>
   </section>
   <section class="st-page" id="rules" data-page="rules" hidden>
     <section class="st-card st-about" aria-labelledby="h-about" id="about">
@@ -1929,13 +1753,28 @@
     </section>
   </section>
   <section class="st-page" id="ai-claude" data-page="ai-claude" hidden>
-    <div data-draw="aipage" data-ai="claude" data-source="exp_standings profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
+    <div data-draw="aipage" data-part="top" data-ai="claude" data-source="exp_standings profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
+    <section class="st-card st-report" aria-label="Race Report">
+      <h2 class="st-h2">Race Report</h2>
+      <div data-draw="report" data-ai="claude" data-source="report day_reports"></div>
+    </section>
+    <div data-draw="aipage" data-part="rest" data-ai="claude" data-source="exp_standings profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
   </section>
   <section class="st-page" id="ai-gemini" data-page="ai-gemini" hidden>
-    <div data-draw="aipage" data-ai="gemini" data-source="exp_standings profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
+    <div data-draw="aipage" data-part="top" data-ai="gemini" data-source="exp_standings profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
+    <section class="st-card st-report" aria-label="Race Report">
+      <h2 class="st-h2">Race Report</h2>
+      <div data-draw="report" data-ai="gemini" data-source="report day_reports"></div>
+    </section>
+    <div data-draw="aipage" data-part="rest" data-ai="gemini" data-source="exp_standings profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
   </section>
   <section class="st-page" id="ai-chatgpt" data-page="ai-chatgpt" hidden>
-    <div data-draw="aipage" data-ai="chatgpt" data-source="exp_standings profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
+    <div data-draw="aipage" data-part="top" data-ai="chatgpt" data-source="exp_standings profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
+    <section class="st-card st-report" aria-label="Race Report">
+      <h2 class="st-h2">Race Report</h2>
+      <div data-draw="report" data-ai="chatgpt" data-source="report day_reports"></div>
+    </section>
+    <div data-draw="aipage" data-part="rest" data-ai="chatgpt" data-source="exp_standings profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
   </section>
   <section class="st-page" id="audit" data-page="audit" hidden>
     <section class="st-card" aria-labelledby="h-audit">
@@ -1947,6 +1786,11 @@
       <h2 class="st-h2" id="h-status">System status</h2>
       <p class="st-note">Everything here runs by itself. This shows when each part last worked, so you can see at a glance whether the race is live and up to date. Times are checked again every minute.</p>
       <div data-draw="status" data-source="status"></div>
+      <p class="st-health" data-draw="health" data-source="checkins"></p>
+    </section>
+    <section class="st-card" id="updates" aria-labelledby="h-updates">
+      <h2 class="st-h2" id="h-updates">Race updates</h2>
+      <p><b>Update, Oct 28:</b> we restarted every experiment for all three AIs at 1:45 p.m. ET to make the race more accurate. The AIs now invest as if it were real money and must follow new limits: at most 50% in one holding, 25% on one bet, and 4× currency leverage. New betting rules: at least C$3,000 per bet and C$3,000 a day, at most 25% of the bankroll on one day, parlays allowed, and at least C$100,000 wagered by Nov 28. The Oct 28 morning tuning run is in the Ledger and doesn't count. <a href="#" data-goto="rules">See How it works</a>.</p>
     </section>
     <section class="st-card" aria-labelledby="h-pa">
       <h2 class="st-h2" id="h-pa">Price check: Claude’s prices vs the feeds</h2>
@@ -1964,6 +1808,180 @@
       </select>
       <p class="st-model-note" data-model-note>Showing Claude’s ten experiments (model: Claude Opus 5.5).</p>
     </div>
+    <h2 class="st-group-h st-lg-top">All ten races right now</h2>
+    <h2 class="st-group-h">Trading</h2>
+    <div class="st-tiles st-tiles-4" aria-label="Trading experiments">
+      <button class="st-card" data-goto="stocks">
+        <span class="st-label">Stocks and anything</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Stocks">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Stocks">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Stocks">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Stocks">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Stocks">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Stocks">—</b></span>
+          <span>Vs. S&amp;P 500: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=sp500">—</b></span>
+        </span>
+      </button>
+      <button class="st-card" data-goto="crypto">
+        <span class="st-label">Crypto only</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Crypto">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Crypto">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Crypto">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Crypto">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Crypto">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Crypto">—</b></span>
+          <span>Vs. just holding Bitcoin: <b data-draw="vs-diff" data-source="vsbtc" data-field="diff" data-where="portfolio=Crypto">—</b></span>
+        </span>
+      </button>
+      <button class="st-card" data-goto="china">
+        <span class="st-label">China stocks (US$)</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=China">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=China">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=China">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=China">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=China">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=China">—</b></span>
+          <span>Vs. CSI 300: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=csi300">—</b></span>
+        </span>
+      </button>
+      <button class="st-card" data-goto="metals">
+        <span class="st-label">Precious metals</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Metals">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Metals">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Metals">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Metals">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Metals">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Metals">—</b></span>
+          <span>Vs. just holding gold: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=gold_metals">—</b></span>
+        </span>
+      </button>
+      <button class="st-card" data-goto="energy">
+        <span class="st-label">Oil and energy</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Energy">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Energy">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Energy">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Energy">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Energy">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Energy">—</b></span>
+          <span>Vs. oil (USO fund): <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=uso_energy">—</b></span>
+        </span>
+      </button>
+      <button class="st-card" data-goto="options">
+        <span class="st-label">Options</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Options">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Options">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Options">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Options">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Options">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Options">—</b></span>
+          <span>Vs. the S&amp;P 500: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=sp500_options">—</b></span>
+        </span>
+      </button>
+      <button class="st-card" data-goto="currencies">
+        <span class="st-label">Currencies</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Currencies">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Currencies">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Currencies">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Currencies">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Currencies">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Currencies">—</b></span>
+          <span>Vs. a savings account: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=savings_fx">—</b></span>
+        </span>
+      </button>
+      <button class="st-card" data-goto="safe">
+        <span class="st-label">Play it safe</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Safe">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Safe">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Safe">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Safe">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Safe">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Safe">—</b></span>
+          <span>Vs. a savings account: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=savings">—</b></span>
+        </span>
+      </button>
+    </div>
+    <h2 class="st-group-h">Betting</h2>
+    <div class="st-tiles" aria-label="Betting experiments">
+      <button class="st-card" data-goto="sports">
+        <span class="st-label">Sports betting</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Sports">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Sports">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Sports">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Sports">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Sports">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Sports">—</b></span>
+          <span>Beat the closing line: <b data-draw="clv-sum" data-source="clvsum" data-field="beat" data-row="0">—</b></span>
+        </span>
+      </button>
+      <button class="st-card" data-goto="predictions">
+        <span class="st-label">Prediction markets</span>
+        <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Predictions">—</span>
+        <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Predictions">—</span>
+        <span class="st-stats">
+          <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Predictions">—</b></span>
+          <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Predictions">—</b></span>
+          <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Predictions">—</b></span>
+          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Predictions">—</b></span>
+        </span>
+      </button>
+    </div>
+    <p class="st-note">The big figure is what the simulation is worth now; under it is the profit or loss since the start. "Last 24 hours" compares with the check-in closest to 24 hours earlier, or the start if a simulation is newer. "Worst drop" is the biggest fall from a high point, measured at check-ins. Each "Vs." line compares a simulation with putting the same money into a simple benchmark: the S&amp;P 500 for stocks and options, Bitcoin for crypto, gold for metals, the CSI 300 for China stocks, the USO oil fund for energy, and a 2.25% savings account for currencies and "play it safe". Positive means the simulation is ahead. China stocks are counted in US dollars.</p>
+    <section class="st-card" aria-labelledby="h-contrib-all">
+      <h2 class="st-h2" id="h-contrib-all">What made or lost money</h2>
+      <p class="st-note">By day: each race’s gain or loss that day (Eastern time) and what closed or settled that day; step back day by day. Since opened: profit or loss on each position and settled bet since it was opened. In Canadian dollars (China stocks in US$).</p>
+      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-limit="12"></div>
+    </section>
+
+    <section class="st-card" aria-labelledby="h-log-all">
+      <h2 class="st-h2" id="h-log-all">Recent decisions</h2>
+      <p class="st-note">Every trade, bet and hold decision, newest first, 10 a page, for the model picked in the Model menu. Pick one experiment to see only its decisions. Every decision is kept in the Ledger. Times are Eastern (ET), with UTC in brackets.</p>
+      <div class="lg-pick"><label>Show: <select class="pf-filter" data-target="log-all-body"></select></label></div>
+      <div class="st-wrap">
+        <table class="st-table" data-source="log" data-row-key="at,portfolio">
+          <thead><tr><th data-field="at">When</th><th data-field="portfolio">Portfolio</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
+          <tbody data-draw="log-body" id="log-all-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="st-card" aria-labelledby="h-hold-all">
+      <h2 class="st-h2" id="h-hold-all">Holdings</h2>
+      <p class="st-note">What the model picked in the Model menu owns right now. Pick one experiment to see only its holdings. Prices in each market's currency; values in Canadian dollars (China in US$).</p>
+      <div class="lg-pick"><label>Show: <select class="pf-filter" data-target="hold-all-body"></select></label></div>
+      <div class="st-wrap">
+        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
+          <thead><tr><th>Experiment</th><th data-field="holding">Holding</th><th data-field="quantity" class="num">Quantity</th><th class="num">Entry</th><th class="num">Now</th><th data-field="change_pct" class="num">Change</th><th class="num">Value</th><th data-field="price_source">Price source</th></tr></thead>
+          <tbody data-draw="holdings-body" id="hold-all-body" data-all="1"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="st-card" aria-labelledby="h-trig-all">
+      <h2 class="st-h2" id="h-trig-all">Distance to the next trade</h2>
+      <p class="st-note">Every rule tied to a price, across all ten races, closest first. These work like stop and limit orders: if a price touches its level, even between check-ins, the trade is filled at that level at the next update. Each race's page shows only its own.</p>
+      <div class="st-trig" data-draw="triggers" data-source="triggers" data-limit="6"></div>
+    </section>
+
+    <section class="st-card" aria-labelledby="h-events-all">
+      <h2 class="st-h2" id="h-events-all">Coming up</h2>
+      <p class="st-note">The next events that could move these simulations, as each AI sees them, 10 a page: switch the Model menu to see Gemini’s or ChatGPT’s own watchlist. Each race's page shows only its own. Times are Eastern (ET), with UTC in brackets.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="events" data-row-key="at,event">
+          <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="affects">Affects</th><th data-field="why">Why it matters</th></tr></thead>
+          <tbody data-draw="events-body" data-limit="8"></tbody>
+        </table>
+      </div>
+    </section>
+
     <section class="st-card" aria-labelledby="h-l-sum">
       <h2 class="st-h2" id="h-l-sum">Ledger</h2>
       <p class="st-note">The full record of how the AI is doing in each experiment: total profit or loss since the start for each one, plus every day's result and write-up. Each day closes at 00:00 UTC (8 p.m. Eastern until Nov 1, then 7 p.m.). Each simulation is its own experiment with its own C$100,000 (US$100,000 for China) and is scored against its own start; only the overall AI-vs-AI ranking adds the ten results up, in C$.</p>
@@ -4064,7 +4082,9 @@
     el.replaceChildren();
     const id = el.dataset.ai, nm = AIS[id].label;
     const last = (rows) => rows.slice().sort((a, b) => new Date(a.at) - new Date(b.at)).pop();
-    const card = (cls) => { const c = mk('section', 'st-card ' + (cls || '')); c.style.setProperty('--ai', AIS[id].color); el.appendChild(c); return c; };
+    // the page is drawn in two parts so each AI's Race Report sits between them: 'top' = hero, own words, goals; 'rest' = notes, trades, fact checks
+    const part = el.dataset.part || ''; let nCard = 0;
+    const card = (cls) => { const c = mk('section', 'st-card ' + (cls || '')); c.style.setProperty('--ai', AIS[id].color); nCard++; if (!part || (part === 'top') === (nCard <= 3)) el.appendChild(c); return c; };
     // hero
     const hero = card('ai-hero');
     { const h = mk('h2'); h.append(aiBadge(id, 30), document.createTextNode(nm)); hero.appendChild(h); }
@@ -4483,8 +4503,8 @@
   dash.draw('report', (el) => {
     el.replaceChildren();
     // each AI writes its own Race Report about itself; the one shown follows the AI being viewed
-    const me = dash.model || 'claude', who = AIS[me] ? AIS[me].label : 'Claude';
-    const hh = document.getElementById('h-report'); if (hh) hh.textContent = who + '’s Race Report';
+    const me = el.dataset.ai || dash.model || 'claude', who = AIS[me] ? AIS[me].label : 'Claude';
+    { const sec = el.closest('section'); const hh = sec && sec.querySelector('.st-h2'); if (hh) hh.textContent = who + '’s Race Report'; }
     const all = dash.baseData('report'), shared = all.filter((r) => !r.model);
     const rows = (me === 'claude' ? all.filter((r) => r.model === 'claude') : dash.baseData('day_reports').filter((r) => r.model === me)).slice().sort((a, b) => new Date(b.at) - new Date(a.at));
     el.appendChild(mk('p', 'st-note', who + ' writes this report about itself, 2 to 3 times a day: what it did, what worked and what didn’t, and its plans. Pick another AI to read its own report.'));
@@ -4781,6 +4801,12 @@
       tile('Best trade', st.best ? money(st.best.pnl) : '—', st.best ? st.best.name : '', st.best ? st.best.pnl : null);
       tile('Worst trade', st.worst ? money(st.worst.pnl) : '—', st.worst ? st.worst.name : '', st.worst ? st.worst.pnl : null);
       tile('Lucky or skilled?', st.skill == null ? '—' : st.skill.toFixed(1), verdict(st.skill), st.skill == null ? null : st.skill >= 1 ? 1 : st.skill < 0 ? -1 : 0);
+      // phones: the five stat tiles fold behind "More stats" (agreed with ChatGPT, Oct 29), so the standings stay short
+      if (window.matchMedia && window.matchMedia('(max-width: 700px)').matches) {
+        const more = mk('button', 'pd-more', el._moreStats ? 'Fewer stats ▴' : 'More stats ▾'); more.type = 'button'; more.setAttribute('aria-expanded', String(!!el._moreStats));
+        more.addEventListener('click', () => { el._moreStats = !el._moreStats; box.classList.toggle('pd-folded', !el._moreStats); more.textContent = el._moreStats ? 'Fewer stats ▴' : 'More stats ▾'; more.setAttribute('aria-expanded', String(!!el._moreStats)); });
+        box.appendChild(more); if (!el._moreStats) box.classList.add('pd-folded');
+      }
       box.appendChild(g);
       const others = rows.filter((x) => x.stats).map((x) => AIS[x.id].label + ' ' + (x.stats.skill == null ? '—' : x.stats.skill.toFixed(1))).join(' · ');
       box.appendChild(mk('p', 'pd-note pd-stats-note', 'Lucky or skilled = return ÷ biggest drop. Above 1 means the gains are bigger than the worst dip it took to get them; it needs a dip of at least 0.5% to judge. Win rate and best/worst count trades closed or bets settled since Oct 28. In this race: ' + others + '.'));
