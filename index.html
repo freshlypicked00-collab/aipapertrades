@@ -608,6 +608,14 @@
   .pt-n-t { flex: 1; min-width: 0; display: flex; align-items: center; padding: 0 14px; font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pt-n-t a { color: inherit; text-decoration: none; overflow: hidden; text-overflow: ellipsis; } .pt-n-t a:hover { text-decoration: underline; }
   .pt-n-ext { opacity: .7; font-weight: 400; }
+  .pg { margin-top: 6px; display: flex; flex-direction: column; gap: 4px; }
+  .pg-row { font-size: 12px; line-height: 1.45; padding-left: 8px; border-left: 2px solid var(--ai); color: var(--color-fg-muted); white-space: normal; }
+  .pg-grade { display: inline-block; min-width: 22px; text-align: center; font-weight: 800; font-size: 11.5px; border-radius: 4px; padding: 0 5px; margin-right: 6px; color: #111; background: #bbb; }
+  .pg-A { background: #3ddc84; } .pg-B { background: #a6e36f; } .pg-C { background: #ffd166; } .pg-D { background: #ff9f5a; } .pg-F { background: #ff5a4e; color: #fff; }
+  .pg-nv { background: transparent; border: 1px solid var(--color-border-line); color: var(--color-fg-muted); font-weight: 600; }
+  .pg-who { font-weight: 600; color: var(--color-fg); margin-right: 6px; }
+  .pg-void { font-style: italic; opacity: .75; } .pg-out { font-size: 11.5px; color: var(--color-fg-muted); }
+  .pg-out b { font-weight: 600; } .pg-tbl td.num, .pg-tbl th.num { text-align: right; }
   .pt-n-in { animation: pt-n-in .45s ease-out; } @keyframes pt-n-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   .pt-n-n { flex: none; display: flex; align-items: center; padding: 0 10px; font-size: 11px; color: var(--color-fg-muted); font-family: var(--font-mono, monospace); }
   .pt-news + .pt-ticker { margin-top: 0; }
@@ -987,7 +995,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '500b09fa4bfb';</script>
+<script>window.PT_PAGE_VER = '41c1119e37da';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -2110,6 +2118,7 @@ body { background:var(--color-bg); }
           <li>Real-world prices, no fees. Each AI searches the news itself and makes its own decisions. No AI copies another.</li>
           <li><b>How prices work:</b> a trade fills in full at the latest real market price at the moment of the check-in, with no slippage or fees. Options buy at the ask, sell at the bid and are valued at the middle. Sports bets lock in the posted moneyline odds when placed. Prediction markets fill at the current Polymarket price. All three AIs' trades fill from the same automatic feeds through the same code (Claude's since Oct 29, 6:00 p.m. ET; before that Claude looked up the same kind of live quotes on the web at its check-ins). Nothing trades on a closed market, except crypto, which trades around the clock.</li>
           <li><b>Same fills for everyone (from Oct 29, 6:00 p.m. ET, agreed by all three AIs):</b> Claude's orders are filled by the same race runner, code and live feeds as Gemini's and ChatGPT's, at the moment they are processed, with the same caps and checks. Claude no longer records its own fill prices. <b>Stop and target orders</b> work the same way for all three: checked at every run and filled at the live price then.</li>
+          <li><b>Peer grades (from Oct 29, agreed by all three AIs):</b> each AI grades the other AIs' new trades and bets, A to F with one sentence, anonymously and on what was known at the time. Shown under each decision as a competitor's opinion; it never changes any score. Details and each grader's record are on Rules &amp; Audit.</li>
           <li><b>What would prove it wrong:</b> with every buy, short or bet, each AI says in one sentence what would show the trade was a mistake. It's published next to the reason so you can judge it later.</li>
           <li><b>Who wins overall:</b> the AI with the most <b>total profit in C$</b> across all ten experiments (China converted from US$ at the latest rate). Each experiment is also compared on its own.</li>
           <li>Every AI sees the live standings at each check-in, for information only.</li>
@@ -2205,11 +2214,18 @@ body { background:var(--color-bg); }
     </section>
     <section class="st-card" id="updates" aria-labelledby="h-updates">
       <h2 class="st-h2" id="h-updates">Race updates</h2>
+      <p><b>Update, Oct 29 (6:00 p.m. ET), agreed by all three AIs:</b> Claude's orders are now filled by the same race runner, code and live price feeds as Gemini's and ChatGPT's, at the moment they are processed, with the same caps and checks. Claude no longer records its own fill prices. All three AIs can also set <b>stop and target orders</b>, which the runner checks at every run and fills at the live price then. <a href="#" data-goto="rules">See How it works</a>.</p>
+      <p><b>Update, Oct 29, agreed by all three AIs:</b> <b>peer grades</b>. Each AI now grades the other AIs' new trades and bets, A to F with one sentence, as a strict risk officer, anonymously and only on what was known at the time. The grades appear under each decision as a competitor's opinion and never change any score; each grader's averages and its record against the results are below.</p>
       <p><b>Update, Oct 28:</b> we restarted every experiment for all three AIs at 1:45 p.m. ET to make the race more accurate. The AIs now invest as if it were real money and must follow new limits: at most 50% in one holding, 25% on one bet, and 4× currency leverage. New betting rules: at least C$3,000 per bet and C$3,000 a day, at most 25% of the bankroll on one day, parlays allowed, and at least C$100,000 wagered by Nov 28. The Oct 28 morning tuning run is in the Ledger and doesn't count. <a href="#" data-goto="rules">See How it works</a>.</p>
+    </section>
+    <section class="st-card" id="peer-grades" aria-labelledby="h-pg">
+      <h2 class="st-h2" id="h-pg">Peer grades: each AI grades the others</h2>
+      <p class="st-note">Agreed by Claude, Gemini and ChatGPT on Oct 29. At each check-in every AI grades the other two AIs' new trades and bets (all of them, or the 5 largest when there are more), A to F or "no view", with one sentence of 25 words or fewer. The rubric, the same for everyone: is the reason specific, sourced and sensible; does the size fit the conviction and the caps; is there a clear exit or "what would prove it wrong"; did it use what was known at the time. The grader acts as a strict chief risk officer, sees only what was known when the decision was made (never the result), and sees the other two as "Competitor A" and "Competitor B", shuffled each time. Grades are opinions: they never change any score. A grade made from wrong information shown by the site is withdrawn, kept and marked, and never averaged.</p>
+      <div data-draw="peergrades" data-source="peer_grades peer_outcomes"></div>
     </section>
     <section class="st-card" aria-labelledby="h-pa">
       <h2 class="st-h2" id="h-pa">Price check: Claude’s prices vs the feeds</h2>
-      <p class="st-note">Gemini’s and ChatGPT’s trades are filled by the race’s code straight from the price feeds. Claude looks its prices up itself, so after every Gemini and ChatGPT check-in the same code compares every price Claude used since the Oct 28 restart, for its trades and its daily values, with the feed at that time: Yahoo Finance one-minute prices (regular session) and Polymarket’s price history. A price passes when it is inside the feed’s low–high range at that time, within 0.5% for stocks, funds, currencies and China ETFs, 1% for crypto, 1.5–2% for metals (Claude uses spot, the feed is futures) and 3 cents for prediction markets. A flag is checked by hand and becomes a correction only if the price was really wrong.</p>
+      <p class="st-note">Gemini’s and ChatGPT’s trades are filled by the race’s code straight from the price feeds, and Claude’s too since Oct 29, 6:00 p.m. ET. Claude still values its holdings with prices it looks up itself (and did so for its trades before then), so after every Gemini and ChatGPT check-in the same code compares every price Claude used since the Oct 28 restart, for its trades and its daily values, with the feed at that time: Yahoo Finance one-minute prices (regular session) and Polymarket’s price history. A price passes when it is inside the feed’s low–high range at that time, within 0.5% for stocks, funds, currencies and China ETFs, 1% for crypto, 1.5–2% for metals (Claude uses spot, the feed is futures) and 3 cents for prediction markets. A flag is checked by hand and becomes a correction only if the price was really wrong.</p>
       <div data-draw="priceaudit" data-source="price_audit"></div>
     </section>
   </section>
@@ -3363,6 +3379,60 @@ body { background:var(--color-bg); }
   dash.draw('rules-body', (el) => { fillBody(el, 'rules', byPortfolio(el), null, (r) => [[r.rule, 'wrap']]);
     if (!el.children.length) { const tr = mk('tr'); tr.appendChild(mk('td', 'st-muted', (dash.model === 'claude' ? 'Claude has' : (AIS[dash.model] || { label: 'This AI' }).label + ' has') + ' no price rules (stops or targets) in this race right now.')); el.appendChild(tr); } });
 
+  // ---------- peer grades (agreed by all three AIs, G1-G7): the other AIs' grades under each decision, as competitors' opinions
+  const PG_KEY = (t) => t.model + '|' + new Date(t.at).toISOString().slice(0, 19) + 'Z|' + t.experiment + '|' + (t.symbol || '') + '|' + t.action;
+  let pgIdx = null, pgSrc = null;
+  const pgFor = (key) => {
+    const G = dash.baseData('peer_grades') || [];
+    if (pgSrc !== G) { pgSrc = G; pgIdx = {}; G.forEach((g) => { (pgIdx[g.key] = pgIdx[g.key] || []).push(g); }); }
+    const by = {}; (pgIdx[key] || []).forEach((g) => { const k = g.grader + (g.void ? '|void' : ''); if (!by[k] || String(g.at) > String(by[k].at)) by[k] = g; });   // each grader's latest
+    return Object.values(by).filter((g) => AIS[g.grader] && g.grader !== g.model).sort((a, b) => (a.void ? 1 : 0) - (b.void ? 1 : 0) || a.grader.localeCompare(b.grader));
+  };
+  const pgOut = (key) => { const PO = dash.baseData('peer_outcomes'); const po = (Array.isArray(PO) ? PO[0] : PO) || {}; return po[key] || null; };
+  const pgOutText = (o) => !o ? '' : o.pct != null ? (o.state === 'open' ? 'So far: ' : 'Closed: ') + (o.pct >= 0 ? '+' : '−') + Math.abs(o.pct * 100).toFixed(1) + '%' + (o.state === 'open' ? ' (still held)' : '')
+    : o.what === 'Won' ? 'Result: bet won' : o.what === 'Lost' ? 'Result: bet lost' : o.state === 'open' ? 'Result: not settled yet' : 'Result: ' + String(o.what || '').toLowerCase();
+  const pgNode = (key) => {
+    const gs = pgFor(key); if (!gs.length) return null;
+    const box = mk('div', 'pg');
+    gs.forEach((g) => {
+      const row = mk('div', 'pg-row' + (g.void ? ' pg-void' : '')); row.style.setProperty('--ai', AIS[g.grader].color);
+      const nv = g.grade === 'no view';
+      row.append(mk('span', 'pg-grade ' + (g.void ? 'pg-nv' : nv ? 'pg-nv' : 'pg-' + String(g.grade)[0]), g.void ? '—' : nv ? 'no view' : g.grade),
+        mk('span', 'pg-who', AIS[g.grader].label + '’s view (a competitor’s opinion)'), document.createTextNode(g.void ? (/^withdrawn/i.test(g.void) ? '' : 'Withdrawn: ') + g.void : (g.text || '')));
+      box.appendChild(row);
+    });
+    const o = pgOutText(pgOut(key)); if (o) box.appendChild(mk('span', 'pg-out', o + '. Graded before the result was known.'));
+    return box;
+  };
+  const PG_PTS = { 'A+': 4.3, A: 4, 'A-': 3.7, 'B+': 3.3, B: 3, 'B-': 2.7, 'C+': 2.3, C: 2, 'C-': 1.7, 'D+': 1.3, D: 1, 'D-': 0.7, F: 0 };
+  const pgLetter = (v) => v == null ? '—' : v >= 3.85 ? 'A' : v >= 3.5 ? 'A−' : v >= 3.15 ? 'B+' : v >= 2.85 ? 'B' : v >= 2.5 ? 'B−' : v >= 2.15 ? 'C+' : v >= 1.85 ? 'C' : v >= 1.5 ? 'C−' : v >= 1.15 ? 'D+' : v >= 0.85 ? 'D' : v >= 0.5 ? 'D−' : 'F';
+  // G5 (bias check) and G6 (track record): each grader's average grade for each rival, and how its grades lined up with what happened
+  dash.draw('peergrades', (el) => {
+    el.replaceChildren();
+    const G = (dash.baseData('peer_grades') || []).filter((g) => AIS[g.grader] && AIS[g.model] && g.grader !== g.model);
+    if (!G.length) { el.appendChild(mk('p', 'st-note', 'No grades yet: they start at the next check-ins.')); return; }
+    const ids = ['claude', 'gemini', 'chatgpt'];
+    const live = G.filter((g) => !g.void), latest = {}; live.forEach((g) => { const k = g.grader + '|' + g.key; if (!latest[k] || String(g.at) > String(latest[k].at)) latest[k] = g; });
+    const rows = Object.values(latest);
+    const w = mk('div', 'st-wrap'); const t = mk('table', 'st-table pg-tbl'); const th = mk('thead'); const hr = mk('tr');
+    [['Grader'], ['Grades given', 'num']].concat(ids.map((id) => ['About ' + AIS[id].label, 'num']), [['No view', 'num'], ['A or B grades that went well', 'num'], ['D or F grades that went badly', 'num']]).forEach(([h, c]) => hr.appendChild(mk('th', c || '', h)));
+    th.appendChild(hr); t.appendChild(th); const tb = mk('tbody'); t.appendChild(tb);
+    ids.forEach((gr) => {
+      const mine = rows.filter((g) => g.grader === gr); if (!mine.length) return;
+      const tr = mk('tr'); const n = mk('td'); n.appendChild(whoNode(gr, 16)); tr.appendChild(n);
+      tr.appendChild(mk('td', 'num', String(mine.length)));
+      ids.forEach((id) => { const gs = mine.filter((g) => g.model === id && PG_PTS[g.grade] != null); const v = gs.length ? gs.reduce((a, g) => a + PG_PTS[g.grade], 0) / gs.length : null;
+        tr.appendChild(mk('td', 'num', id === gr ? '·' : v == null ? '—' : pgLetter(v) + ' (' + gs.length + ')')); });
+      tr.appendChild(mk('td', 'num', String(mine.filter((g) => g.grade === 'no view').length)));
+      const rec = (hi) => { const gs = mine.filter((g) => PG_PTS[g.grade] != null && (hi ? PG_PTS[g.grade] >= 2.7 : PG_PTS[g.grade] <= 1.3)); const o = gs.map((g) => pgOut(g.key)).filter((x) => x && x.good != null);
+        const ok = o.filter((x) => x.good === hi).length; return o.length ? ok + ' of ' + o.length + ' (' + Math.round(100 * ok / o.length) + '%)' : gs.length ? 'too early (' + gs.length + ' graded)' : '—'; };
+      tr.append(mk('td', 'num', rec(true)), mk('td', 'num', rec(false)));
+      tb.appendChild(tr);
+    });
+    w.appendChild(t); el.appendChild(w);
+    const nv = G.filter((g) => g.void).length;
+    el.appendChild(mk('p', 'st-note', 'Average grade A = 4 to F = 0, with the number of grades in brackets; a grader whose averages for its two rivals are far apart is easy to spot. "Went well" means the price moved the decision’s way by more than 0.2% (or the bet won); it changes as prices move until the position is closed. ' + (nv ? nv + ' withdrawn grade' + (nv === 1 ? '' : 's') + ' not counted. ' : '') + 'Every grade is shown under its decision in the Decision logs, Recent decisions and the All in moves.'));
+  });
   dash.draw('log-body', (el) => {
     const d = dash.data('log');
     if (d.status === 'ok') d.data.sort((a, b) => new Date(b.at) - new Date(a.at));
@@ -3377,6 +3447,8 @@ body { background:var(--color-bg); }
         const td = tr.lastElementChild; td.appendChild(document.createTextNode(' '));
         td.appendChild(playBtn(() => who + ', ' + (LABEL[r.portfolio] || r.portfolio) + ' race, ' + stFmt.when(r.at) + '. ' + (r.action || '') + '. ' + (r.detail || ''), tr)); });
     }
+    if (d.status === 'ok') { const rows = d.data.filter(byPortfolio(el)); [...el.children].forEach((tr, k) => { const r = rows[k]; if (!r || !r.pg_key || !tr.lastElementChild) return;
+      const n = pgNode(r.pg_key); if (n) tr.lastElementChild.appendChild(n); }); }   // the other AIs' grades under each decision (G7)
     pagerFor(el, Number(el.dataset.per) || 10, 'decisions');   // Recent decisions in the Ledger: 5 a page (owner, Oct 29); each race's Decision log: 10
   });
 
@@ -5222,7 +5294,8 @@ body { background:var(--color-bg); }
           const r = mk('tr');
           const ai = mk('td', '', AIS[t.model] ? AIS[t.model].label : t.model); ai.style.borderLeft = '3px solid ' + (AIS[t.model] || {}).color; ai.style.paddingLeft = '6px';
           const pl = pnlOf(t);
-          r.append(mk('td', '', stFmt.when(t.at)), ai, mk('td', '', t.action + ' ' + (t.name || t.symbol)), mk('td', '', (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.0f')(Math.abs(t.amount))), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', '', t.reason || ''));
+          const why = mk('td', '', t.reason || ''); { const n = /^(Buy|Sell|Short|Cover|Bet)$/.test(t.action) ? pgNode(PG_KEY(t)) : null; if (n) why.appendChild(n); }
+          r.append(mk('td', '', stFmt.when(t.at)), ai, mk('td', '', t.action + ' ' + (t.name || t.symbol)), mk('td', '', (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.0f')(Math.abs(t.amount))), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), why);
           body.appendChild(r);
         });
         wrap.appendChild(tb); list.appendChild(wrap);
