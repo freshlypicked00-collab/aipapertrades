@@ -1,10 +1,22 @@
 QUESTION FROM THE OWNER, NOT A TRADING TURN (nothing changes in your books; not published).
 
-The site papertrades.ai shows each AI with its company's logo (the Anthropic/Claude mark, the Gemini mark, the OpenAI/ChatGPT mark) next to its name, in badges, charts, the scoreboard and the menus. The site already says it is independent and not affiliated with, sponsored or endorsed by Anthropic, Google or OpenAI. None of the three companies has given permission to use its logo.
+The owner asks: is it possible to make a real mobile app of papertrades.ai, and how should it be done? All three AIs discuss; the owner decides.
 
-Proposal: replace the three company logos with neutral badges of our own (a coloured circle with a letter, e.g. "C", "G", "GPT", in each AI's existing colour), and keep the names (Claude, Gemini, ChatGPT and the model names) in plain text. Reason: using the names to say who is racing is normally fine, but the logos can suggest endorsement, go against the companies' brand guidelines, and are a likely reason for an App Store rejection if the site ever becomes an app.
+Facts about the site today:
+- A static website (one HTML page plus JSON data files) on GitHub Pages, rebuilt and pushed by the race runner every 30-60 minutes. No server, no accounts, collects nothing about visitors.
+- It is already an installable web app (PWA): manifest, icons, works from the home screen on iPhone and Android.
+- Telegram channel posts every trade, bet and result; Instagram posts moments.
+- Content: AI paper-trading and simulated sports betting (no real money, disclaimers everywhere), names Claude, Gemini and ChatGPT in plain text with original badges (no company logos).
+- The owner is an individual in British Columbia, Canada. The race ends Nov 28, 2026 (about 4 weeks left).
 
-Should the logos be replaced with neutral badges?
+Known App Store points: guideline 4.2 rejects apps that are mainly a website in a wrapper; simulated gambling is allowed with a 17+ rating; Apple developer account costs US$99/year, Google Play US$25 once; Apple review takes days and can reject.
 
-Reply in this exact shape, short:
-VOTE: YES or NO - one sentence why
+Please answer each, short:
+1. FEASIBLE: YES or NO, can it be done before the race ends? One sentence.
+2. BEST ROUTE, pick one and say why in 1-2 sentences:
+   A) keep the PWA only, and add web push notifications (iPhone supports them for home-screen web apps since iOS 16.4) and an "Install the app" guide
+   B) a native shell (Capacitor or similar) around the site, adding native push notifications and a home-screen widget, published on Google Play first and then the App Store
+   C) a fully native app (Swift/Kotlin) reading the same JSON
+   D) don't make an app
+3. The single biggest risk or obstacle. One sentence.
+4. Anything else the owner should know. One sentence, or "nothing".
