@@ -986,7 +986,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '5564bdbc0a27';</script>
+<script>window.PT_PAGE_VER = 'a5d875c5338c';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -5650,7 +5650,34 @@ body { background:var(--color-bg); }
   const NEWS_K = { Crypto: 'CRYPTO', Stocks: 'STOCKS', Energy: 'OIL & ENERGY', Metals: 'METALS', China: 'CHINA', Currencies: 'CURRENCIES', Options: 'OPTIONS', Safe: 'PLAY IT SAFE', Predictions: 'PREDICTIONS', Sports: 'SPORTS' };
   const NEWS_MKT = { Options: 'Stocks', Safe: null, Predictions: null, Sports: null };   // the market a race's price line follows (Options: the S&P 500)
   const newsCtx = () => { const t = document.querySelector('.st-tab[aria-selected="true"]'); const tab = (t && t.dataset.tab) || 'overview';
-    if (tab === 'allin') return 'AllIn'; return Object.keys(TABOF).find((r) => TABOF[r] === tab) || 'general'; };
+    if (tab === 'allin') return 'AllIn'; if (/^ai-/.test(tab)) return 'AI:' + tab.slice(3); return Object.keys(TABOF).find((r) => TABOF[r] === tab) || 'general'; };
+  // an AI's own page (owner, Oct 29): news about that AI's race (its moves, the races it leads, its moments, its take) and its company's news
+  const aiNews = (id, P) => {
+    const out = [], now = Date.now(), A = AIS[id]; if (!A) return out;
+    const CO = { claude: ['Claude', 'ANTHROPIC'], gemini: ['Gemini', 'GOOGLE'], chatgpt: ['ChatGPT', 'OPENAI'] }[id];
+    (((P.news || {})[CO[0]]) || []).slice(0, 4).forEach((x) => out.push({ k: CO[1], cls: 'pt-n-news', t: x.t + (x.src ? ' (' + x.src + ')' : ''), href: x.link }));
+    // the races it leads right now (each race on its own; no money totals)
+    { const all = dash.baseData('exp_standings'); const ES = (Array.isArray(all) ? all[0] : all) || {};
+      const led = Object.entries(ES).filter(([, rows]) => rows && rows.length > 1 && rows[0].id === id && rows[0].profit - rows[1].profit >= 0.5).map(([r]) => (LABEL[r] || r).replace(' (US$)', ''));
+      out.push({ k: 'THE RACE', cls: 'pt-n-race', t: A.label + (led.length ? ' leads ' + led.length + ' of the 10 races: ' + led.join(', ') : ' leads none of the 10 races right now') }); }
+    // its latest moves (last 12 hours), the same for all three AIs
+    const VERB = { Buy: 'bought', Sell: 'sold', Short: 'shorted', Cover: 'covered', Bet: 'bet' };
+    const mv = [];
+    if (id === 'claude') {
+      (dash.baseData('trades') || []).filter((t) => VERB[t.action] && !String(t.holding || '').startsWith('[')).forEach((t) => mv.push({ at: Date.parse(t.at), t: 'Claude ' + VERB[t.action] + ' ' + (t.cad ? 'C$' + d3.format(',.0f')(Math.abs(t.cad)) + ' of ' : '') + t.holding + ' · ' + (LABEL[t.portfolio] || t.portfolio).replace(' (US$)', '') }));
+      (dash.baseData('bets') || []).filter((b) => b.placed_at).forEach((b) => mv.push({ at: Date.parse(b.placed_at), t: 'Claude bet C$' + d3.format(',.0f')(Number(b.stake_cad || 0)) + ' on ' + String(b.pick || '').replace(/ moneyline$/, '') + ' · Sports' }));
+    } else (dash.baseData('rivals_trades') || []).filter((t) => t.model === id && VERB[t.action]).forEach((t) => mv.push({ at: Date.parse(t.at),
+      t: A.label + ' ' + VERB[t.action] + ' ' + (t.cur === 'USD' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(Number(t.amount || 0))) + (t.action === 'Bet' ? ' on ' : ' of ') + String(t.name || t.symbol).replace(/^[A-Z]{2,5}: /, '') + ' · ' + (LABEL[t.experiment] || t.experiment).replace(' (US$)', '') }));
+    mv.filter((x) => now - x.at < 12 * 3600e3).sort((a, b) => b.at - a.at).slice(0, 3).forEach((x) => out.push({ k: 'LATEST MOVE', cls: 'pt-n-next', t: x.t }));
+    // its moments in the last 24 hours: lead changes it was part of, big wins and losses, penalties
+    const MA = dash.baseData('moments_all');
+    (Array.isArray(MA) ? MA : []).filter((m) => (m.who === id || m.over === id) && now - Date.parse(m.at) < 24 * 3600e3).slice(0, 3)
+      .forEach((m) => out.push({ k: 'THE RACE', cls: 'pt-n-race pt-n-' + (m.type || 'lead'), t: momentText(m) }));
+    // its own take, in its own words
+    { const tk = id === 'claude' ? (dash.baseData('take') || []).filter((x) => !x.experiment).slice(-1)[0] : (dash.baseData('rivals_takes') || []).filter((x) => x.model === id).slice(-1)[0];
+      if (tk && tk.text) out.push({ k: A.label.toUpperCase() + ' SAYS', cls: 'pt-n-off', t: '“' + String(tk.text).replace(/\s+/g, ' ').slice(0, 220) + '”' }); }
+    return out;
+  };
   const betTeams = () => {   // every team with an open bet, any AI, main races and All in
     const out = new Set(); const add = (ev) => String(ev || '').replace(/\s*\(.*\)$/, '').split(/ @ | vs\.? /).forEach((x) => { x = x.trim(); if (x) out.add(x); });
     (dash.baseData('bets') || []).filter((b) => b.status === 'Open').forEach((b) => add(b.event));
@@ -5662,6 +5689,7 @@ body { background:var(--color-bg); }
   const aboutBet = (txt, teams) => teams.find((t) => { const w = t.split(' '); return new RegExp('\\b(' + esc(t) + (w.length > 1 && w[w.length - 1].length > 3 ? '|' + esc(w[w.length - 1]) : '') + ')\\b', 'i').test(txt); });
   const newsItems = (ctx) => {
     const now = Date.now(), out = [], P = dash.baseData('pulse')[0] || {};
+    if (/^AI:/.test(ctx)) return aiNews(ctx.slice(3), P);
     const clip = (t, n) => { t = String(t || '').replace(/\s+/g, ' ').trim(); const one = t.split(/[.;]\s/)[0]; t = one.length > 30 ? one : t; return t.length > n ? t.slice(0, n - 1).replace(/[ ,;:]+\S*$/, '') + '…' : t.replace(/[.;]$/, ''); };
     const RACES = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Predictions'];
     const race = RACES.includes(ctx) || ctx === 'Sports' ? ctx : null, general = ctx === 'general', allin = ctx === 'AllIn';
@@ -5707,13 +5735,16 @@ body { background:var(--color-bg); }
         if (b.status === 'Open' && b.starts_at && Date.parse(b.starts_at) > now - 3 * 3600e3 && Date.parse(b.starts_at) - now < 12 * 3600e3)
           soon.push({ at: Date.parse(b.starts_at), lg: b.sport || '', ev: String(b.event || '').replace(/\s*\(.*\)$/, ''), who: 'Claude', pick: String(b.pick || '').replace(/ moneyline$/, ''), stake: Number(b.stake_cad || 0) });
       });
-      fin.sort((a, b) => b.at - a.at).slice(0, general ? 2 : 5).forEach((x) => out.push({ k: 'FINAL · ' + x.lg, cls: 'pt-n-sport', t: x.t }));
-      // stories about a team someone has an open bet on (never random sports news)
-      (P.sports || []).filter((x) => !x.final && now - Date.parse(x.at) < 30 * 3600e3 && (x.why || aboutBet(x.headline + ' ' + (x.description || ''), teams)))
-        .slice(0, general ? 2 : 5).forEach((x) => out.push({ k: 'SPORTS · ' + x.league, cls: 'pt-n-sport', t: x.headline, href: x.link || undefined }));
+      // the race runner's sports headlines (new format, already checked): big games and championships, NFL results, stories about
+      // teams with an open bet, big stories (results, titles, trades); older ones only when they are about a team bet on
+      const SP = (P.sports || []).filter((x) => now - Date.parse(x.at) < 36 * 3600e3 && !x.bet && (x.why ? true : !x.final && aboutBet(x.headline + ' ' + (x.description || ''), teams)));
+      const spItem = (x) => ({ k: (x.final ? 'FINAL · ' : 'SPORTS · ') + x.league, cls: 'pt-n-sport', t: x.headline.replace(/^Final: /, ''), href: x.link || undefined });
+      SP.filter((x) => x.rank === 0).slice(0, 3).forEach((x) => out.push(spItem(x)));   // championship and playoff games first
+      fin.sort((a, b) => b.at - a.at).slice(0, general ? 2 : 4).forEach((x) => out.push({ k: 'FINAL · ' + x.lg, cls: 'pt-n-sport', t: x.t }));   // games bet on: who won or lost money
+      SP.filter((x) => x.rank !== 0).slice(0, general ? 1 : 6).forEach((x) => out.push(spItem(x)));
       // games with an open bet, starting soon or being played now: one line per game with who has what on it
       if (!general) { const by = {}; soon.forEach((x) => { const g = (by[x.ev + '|' + x.at] = by[x.ev + '|' + x.at] || { at: x.at, lg: x.lg, ev: x.ev, who: {} }); const k = x.who + ': ' + x.pick; g.who[k] = (g.who[k] || 0) + x.stake; });   // repeat bets add up
-        Object.values(by).sort((a, b) => a.at - b.at).slice(0, 4).forEach((g) => out.push({ k: (g.at <= now ? 'LIVE · ' : 'UP NEXT · ') + g.lg, cls: 'pt-n-next',
+        Object.values(by).sort((a, b) => a.at - b.at).slice(0, 2).forEach((g) => out.push({ k: (g.at <= now ? 'LIVE · ' : 'UP NEXT · ') + g.lg, cls: 'pt-n-next',
           t: g.ev + (g.at > now ? ', ' + stFmt.whenET(new Date(g.at).toISOString()) + ' ET' : ', under way') + ' · ' + Object.entries(g.who).slice(0, 3).map(([k, v]) => k.replace(': ', ': C$' + d3.format(',.0f')(v) + ' on ')).join('; ') })); }
     }
     // 6) the world (the war and the Strait of Hormuz): the Overview and Oil and energy
