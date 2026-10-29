@@ -931,7 +931,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'df42d3f1062b';</script>
+<script>window.PT_PAGE_VER = '408fb14b3882';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -4520,10 +4520,12 @@ body { background:var(--color-bg); }
     });
     // one AI at a time in the long sections (owner, Oct 29): starts on the AI being viewed, or 'All' to see them one after another
     const aiPick = (key) => {
-      const cur = el[key] && (el[key] === 'all' || SEL.includes(el[key])) ? el[key] : (SEL.includes(dash.model) ? dash.model : SEL[0]); el[key] = cur;
+      // follows the website's Model menu; picking an AI here switches the whole site to it (owner, Oct 29)
+      const cur = el[key] === 'all' && SEL.length > 1 ? 'all' : SEL.includes(dash.model) ? dash.model : el[key] && SEL.includes(el[key]) ? el[key] : SEL[0]; el[key] = cur;
       const bar = mk('div', 'lg-pick h2h-aipick'); const l = mk('label', '', 'AI: '); const sl = mk('select'); sl.setAttribute('aria-label', 'Which AI to show');
       SEL.map((id) => [id, aiModel(id)]).concat(SEL.length > 1 ? [['all', 'All ' + (SEL.length === 3 ? 'three' : 'both') + ', one after another']] : []).forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; sl.appendChild(o); });
-      sl.value = cur; sl.addEventListener('change', () => { el[key] = sl.value; h2hDraw(el); }); l.appendChild(sl); bar.appendChild(l);
+      sl.value = cur; sl.addEventListener('change', () => { el[key] = sl.value; const mp = document.getElementById('model-pick');
+        if (sl.value !== 'all' && mp && mp.value !== sl.value) { mp.value = sl.value; mp.dispatchEvent(new Event('change')); } else h2hDraw(el); }); l.appendChild(sl); bar.appendChild(l);
       return { bar, list: cur === 'all' ? SEL : [cur] };
     };
     // latest takes
