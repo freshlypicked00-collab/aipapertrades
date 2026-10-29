@@ -426,3 +426,6 @@ Stories: one each day with the daily results (after the daily post), and one for
 
 ## Corrections on Telegram
 Every trade and bet is announced on Telegram as it happens, so a cancellation or correction must be announced there too. Write the notice to ops/notices/<date>-<what>.txt (Telegram HTML; plain and factual: what was posted, what changed, why, that it never counted) and dispatch it: `gh api -X POST repos/freshlypicked00-collab/aipapertrades/actions/workflows/notice.yml/dispatches -f ref=main -f 'inputs[file]=<file>'`. It posts once, with a push notification. Also add the entry to ops/src/corrections.json. ops/void_bets.py voids bets but does not post: always follow it with a notice.
+
+## Price check (since Oct 29)
+`ops/price_audit.py` runs in every rivals check-in (rivals.yml) and compares every price Claude used since the restart (fills in trades.json, values in prices.json) with Yahoo 1-minute regular-session bars or Polymarket price history at the stated time. Results: `ops/src/price_audit.json`, shown in Rules & Audit. Map new holdings to feed symbols in `MAP` / `PRED` in that script when Claude opens them (a ticker-like name is used as the Yahoo symbol automatically). Agreed with Gemini and ChatGPT (ops/review/pricecheck.json): option C. Next step: Claude sends orders only and the runner fills them at the feed price, like the rivals.

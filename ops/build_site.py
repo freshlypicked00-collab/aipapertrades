@@ -846,6 +846,10 @@ except Exception as _e:
 data['penalties'] = [dict(x, model='claude') for x in r.get('claude_penalties', [])] + \
     [dict(x, model=_mid) for _mid, _m in (r.get('models') or {}).items() for x in ((_m.get('books') or {}).get('Sports') or {}).get('penalties', [])]
 data['leader'] = LEADER   # the AI leading the race on total profit; the page opens on it unless the viewer picked one
+try:
+    data['price_audit'] = [json.load(open(os.path.join(SRC, 'price_audit.json')))]   # Claude's prices vs the feeds (ops/price_audit.py)
+except Exception:
+    data['price_audit'] = []
 data['day_reports'] = r.get('day_reports', [])   # Gemini's and ChatGPT's own Race Reports (Claude's are in report.json)
 data['rivals_thoughts'] = [x for x in r.get('thoughts', []) if x['at'].replace('Z', '+00:00') >= _cut]
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))

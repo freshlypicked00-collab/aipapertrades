@@ -500,6 +500,7 @@
   .st-podium .pd-mom-share { font: inherit; font-size: 12px; min-height: 32px; padding: 4px 10px; border-radius: var(--cds-radius); border: 1px solid var(--ai); background: transparent; color: var(--color-fg); cursor: pointer; }
   td.st-open, .st-table td.st-open { opacity: .6; font-style: italic; }
   .st-podium .pd-amt .pd-amt-l { display: block; font-size: 10.5px; font-weight: 500; opacity: .7; letter-spacing: .04em; text-align: right; }
+  .pa-sum { margin: 6px 0 10px; } .pa-sum b { margin-right: 4px; }
   .lg-csv { font: inherit; font-size: 13px; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
   .lg-csv:hover { border-color: var(--accent, #ffb000); }
   .bg-only { display: none; }
@@ -2138,6 +2139,11 @@ body { background:var(--color-bg); }
       <h2 class="st-h2" id="h-audit">Rules and audit</h2>
       <p class="st-note">Every rule of the race, then proof that nobody steers the AIs: exactly what each AI is told at its latest check-in, word for word, and the raw reply it sent back, plus every correction made by hand. How prices and fills work is in <a href="#" data-goto="rules">How it works</a>; every trade, price and reason is in the Ledger.</p>
       <div data-draw="audit" data-source="checkins"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-pa">
+      <h2 class="st-h2" id="h-pa">Price check: Claude’s prices vs the feeds</h2>
+      <p class="st-note">Gemini’s and ChatGPT’s trades are filled by the race’s code straight from the price feeds. Claude looks its prices up itself, so after every Gemini and ChatGPT check-in the same code compares every price Claude used since the Oct 28 restart, for its trades and its daily values, with the feed at that time: Yahoo Finance one-minute prices (regular session) and Polymarket’s price history. A price passes when it is inside the feed’s low–high range at that time, within 0.5% for stocks, funds, currencies and China ETFs, 1% for crypto, 1.5–2% for metals (Claude uses spot, the feed is futures) and 3 cents for prediction markets. A flag is checked by hand and becomes a correction only if the price was really wrong.</p>
+      <div data-draw="priceaudit" data-source="price_audit"></div>
     </section>
   </section>
   <section class="st-page" id="ledger" data-page="ledger" hidden>
@@ -4549,6 +4555,24 @@ body { background:var(--color-bg); }
     };
     dSel.addEventListener('change', fill);
     dLab.appendChild(dSel); rLab.appendChild(rSel); bar.append(dLab, rLab); el.append(bar, box); fill(); sharedBox();
+  });
+  dash.draw('priceaudit', (el) => {
+    el.replaceChildren();
+    const A = dash.baseData('price_audit')[0];
+    if (!A || !A.rows) { el.appendChild(mk('p', 'st-note', 'The first price check runs at the next Gemini and ChatGPT check-in.')); return; }
+    const S = A.summary || {}, n = (S.ok || 0) + (S.flag || 0);
+    const head = mk('p', 'pa-sum'); head.appendChild(mk('b', S.flag ? 'is-down' : 'is-up', S.flag ? '⚠ ' + S.flag + ' of ' + n + ' prices flagged' : '✓ All ' + n + ' checked prices match the feeds'));
+    head.appendChild(document.createTextNode(' · ' + (S.ok || 0) + ' within tolerance' + (S.no_data ? ' · ' + S.no_data + ' not checkable yet (no feed data for that time)' : '') + (S.no_feed ? ' · ' + S.no_feed + ' with no matching feed' : '') + ' · last run ' + stFmt.when(A.at)));
+    el.appendChild(head);
+    const fmt = (v) => v == null ? '' : Math.abs(v) >= 1000 ? d3.format(',.2f')(v) : Math.abs(v) >= 1 ? d3.format(',.4~f')(v) : d3.format('.6~f')(v);
+    const table = (rows) => { const t = mk('table', 'st-table'); t.innerHTML = '<thead><tr><th>When</th><th>What</th><th>Holding</th><th class="num">Claude</th><th class="num">Feed low–high</th><th>Feed</th><th class="num">Gap</th><th>Result</th></tr></thead>';
+      const tb = mk('tbody'); rows.forEach((r) => { const tr = mk('tr'); const st = { ok: ['✓ OK', 'is-up'], flag: ['⚠ Flag', 'is-down'], no_data: ['No data yet', ''], no_feed: ['No feed', ''] }[r.status] || [r.status, ''];
+        [[stFmt.when(r.at)], [r.kind === 'fill' ? (r.action || 'Trade') : 'Value'], [r.holding], [fmt(r.claude), 'num'], [r.feed_low == null ? '' : fmt(r.feed_low) + ' – ' + fmt(r.feed_high), 'num'], [(r.feed || '') + (r.basis ? ' · ' + r.basis : ''), 'wrap'],
+         [r.gap_pct != null ? (r.gap_pct ? r.gap_pct.toFixed(2) + '%' : '0') : r.gap_abs != null ? (r.gap_abs ? (r.gap_abs * 100).toFixed(1) + '¢' : '0') : '', 'num'], [st[0], st[1]]].forEach(([v, c]) => { const td = mk('td', c || '', v); if (c === 'wrap' && r.note) td.title = r.note; tr.appendChild(td); });
+        tb.appendChild(tr); }); t.appendChild(tb); const w = mk('div', 'st-wrap'); w.appendChild(t); return w; };
+    const fl = A.rows.filter((r) => r.status === 'flag');
+    if (fl.length) { el.appendChild(mk('h3', 'st-h3', 'Flagged')); el.appendChild(table(fl.slice().reverse())); }
+    const d = mk('details'); d.appendChild(mk('summary', '', 'Every checked price (' + A.rows.length + '), newest first')); d.appendChild(table(A.rows.slice().reverse().slice(0, 400))); el.appendChild(d);
   });
   const FC = { ok: ['✓ Checks out', 'fc-ok'], partly: ['⚠ Partly wrong', 'fc-mid'], wrong: ['✗ Wrong', 'fc-bad'], unverified: ['? Can’t confirm yet', 'fc-mid'] };
   const fcNode = (f) => {
