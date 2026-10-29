@@ -692,6 +692,9 @@
   .st-crown-chip .cr-s { color: var(--color-fg-muted); font-size: 12px; }
   .st-tabs > .st-crown-chip { margin-left: auto; align-self: center; margin-right: 2px; }
   .st-crown-line { display: none; margin: 6px 0 0; }
+  .pt-flash { animation: pt-flash 1.6s ease-out; border-radius: var(--cds-radius); }
+  @keyframes pt-flash { 0%, 30% { box-shadow: 0 0 0 2px var(--accent, #ffb000); } 100% { box-shadow: 0 0 0 2px transparent; } }
+  @media (prefers-reduced-motion: reduce) { .pt-flash { animation: none; } }
   @media (max-width: 999px) { .st-tabs > .st-crown-chip { display: none; } .st-crown-line { display: block; } .st-crown-line .st-crown-chip { white-space: normal; } }   /* tablets and phones: at the top of the page */
   @media (min-width: 701px) { .st-tabs .st-tab { padding: 6px 10px; font-size: 13.5px; } .st-tabs .st-tabgroup { padding-top: 15px; } .st-tabs .st-tabgroup-l { font-size: 10px; } }
   @media (max-width: 700px) {   /* phones keep the original layout: tabs after the intro, wrapped, not sticky */
@@ -2243,6 +2246,17 @@
     });
   };
   document.querySelectorAll('.st-tab').forEach((b) => b.addEventListener('click', () => goTab(b.dataset.tab)));
+  // straight to one section of the All in page: All in: sports or All in: trading (owner, Oct 29)
+  const goAllin = (exp) => {
+    goTab('allin', false);
+    setTimeout(() => requestAnimationFrame(() => {
+      const t = document.getElementById('allin-' + exp); if (!t) return;
+      const bar = document.querySelector('.st-tabs'); const sticky = bar && getComputedStyle(bar).position === 'sticky' ? bar.offsetHeight : 0;
+      window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - sticky - 10, behavior: 'smooth' });
+      t.classList.remove('pt-flash'); void t.offsetWidth; t.classList.add('pt-flash'); setTimeout(() => t.classList.remove('pt-flash'), 1800);
+    }), 120);   // after the page has redrawn for the AI that was just picked
+  };
+  window.ptGoAllin = goAllin;
   const goHome = () => { goTab('overview', false); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   // Landing: a refresh (or a visit with no tab in the link) always opens Home at the very top; the browser is told not
   // to restore the old scroll position. A shared link to a tab (e.g. #ledger) still opens that tab on a first visit.
@@ -4755,7 +4769,7 @@
     const usdcad = rates().CAD || 1.38;
     const order = ['claude', 'gemini', 'chatgpt'];
     [['AllInTrading', 'All in: trading', 'Any stock, ETF, crypto or option, no caps.'], ['AllInSports', 'All in: sports', 'Moneyline bets on real games, no caps.']].forEach(([exp, title, sub]) => {
-      const box = mk('div', 'h2h-exp');
+      const box = mk('div', 'h2h-exp'); box.id = 'allin-' + exp;
       box.appendChild(mk('h3', '', title));
       box.appendChild(mk('p', 'st-note', sub + ' Started with C$100,000 each.'));
       const ser = order.map((id) => {
@@ -4928,7 +4942,7 @@
       box.appendChild(t); arm();
     };
     // Details: switch to that AI and open that race, where its trades, holdings and reasons are
-    const openRace = (m, e) => { const s2 = document.getElementById('model-pick'); if (s2 && s2.value !== m) { s2.value = m; s2.dispatchEvent(new Event('change')); } const tab = /^AllIn/.test(e) ? 'allin' : TABOF[e]; if (tab && typeof goTab === 'function') goTab(tab); };
+    const openRace = (m, e) => { const s2 = document.getElementById('model-pick'); if (s2 && s2.value !== m) { s2.value = m; s2.dispatchEvent(new Event('change')); } if (/^AllIn/.test(e)) { goAllin(e); return; } const tab = TABOF[e]; if (tab && typeof goTab === 'function') goTab(tab); };
     // a pop-up when an AI makes money, one race at a time and naming what made it (owner, Oct 29):
     // "💰 Claude just made +C$198 on Gold · Metals". Races are never added together.
     const lastVals = (j) => { const v = {}; (j.history || []).forEach((h) => { v['claude|' + h.portfolio] = +h.value; }); (j.rivals_history || []).forEach((h) => { v[h.model + '|' + h.experiment] = +h.value; }); (j.allin_history || []).forEach((h) => { v[h.model + '|' + h.experiment] = +h.value; }); return v; };
@@ -5434,7 +5448,7 @@
         const tie = i > 0 && Math.abs(r.profit - rows[i - 1].profit) < 0.5;
         bt.append(mk('span', 'pd-place', i === 0 && rows.length > 1 && rows[0].profit - rows[1].profit >= 0.5 ? '👑 1st' : tie ? '=' : ['1st', '2nd', '3rd'][i] || (i + 1) + 'th'), n);
         const am = mk('span', 'pd-amt', (r.profit >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(r.profit))); tone(am, r.profit); am.appendChild(mk('small', 'pd-amt-l', r.profit < -0.5 ? 'loss' : 'profit')); bt.appendChild(am);
-        bt.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2 && s2.value !== r.id) { s2.value = r.id; s2.dispatchEvent(new Event('change')); } goTab('allin'); });
+        bt.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2 && s2.value !== r.id) { s2.value = r.id; s2.dispatchEvent(new Event('change')); } goAllin(el._exp); });
         li.appendChild(bt); ol.appendChild(li);
       });
       el.appendChild(ol);
@@ -5442,7 +5456,7 @@
       const box = mk('div', 'pd-detail'); box.style.setProperty('--ai', AIS[me.id].color);
       box.appendChild(mk('b', '', AIS[me.id].label + ' in ' + ALLIN[el._exp]));
       box.appendChild(mk('p', 'pd-last', 'Now C$' + d3.format(',.0f')(me.value) + ' (' + stFmt.pct(me.value / 100000 - 1) + ').' + (me.last ? ' Last move: ' + me.last.text + ' · ' + stFmt.when(me.last.at) : ' No moves yet.')));
-      const go = mk('button', 'st-model-cmp', 'Open the All in page →'); go.type = 'button'; go.addEventListener('click', () => goTab('allin')); box.appendChild(go);
+      const go = mk('button', 'st-model-cmp', 'Open ' + ALLIN[el._exp] + ' →'); go.type = 'button'; const ex = el._exp; go.addEventListener('click', () => goAllin(ex)); box.appendChild(go);
       el.appendChild(box);
       return;
     }
@@ -6076,7 +6090,7 @@
       const pc = mk('span', 'st-score-pct', stFmt.pct(r.pct)); tone(pc, r.profit); b.appendChild(pc);
       b.appendChild(mk('span', 'st-score-amt', stFmt.signed(r.profit, cp) + ' · now ' + stFmt.money(r.value, cp)));
       b.setAttribute('aria-label', 'Rank ' + rank + ': ' + AIS[r.id].label + ' in ' + rn + ', ' + stFmt.pct(r.pct) + '. Opens it as ' + AIS[r.id].label + '.');
-      b.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2 && s2.value !== r.id) { s2.value = r.id; s2.dispatchEvent(new Event('change')); } goTab(TABOF[r.race] || 'allin'); });
+      b.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2 && s2.value !== r.id) { s2.value = r.id; s2.dispatchEvent(new Event('change')); } if (ALLIN[r.race]) goAllin(r.race); else goTab(TABOF[r.race]); });
       li.appendChild(b); el.appendChild(li);
     });
     const foot = mk('li', 'st-score-foot');
