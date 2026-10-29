@@ -905,7 +905,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '06e4e1a73536';</script>
+<script>window.PT_PAGE_VER = 'f32f6b58902a';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -2351,21 +2351,9 @@ body { background:var(--color-bg); }
       <div class="gx" id="lg-bars" data-draw="lg-bars" data-source="ledger" data-portfolio="Stocks"></div>
     </section>
     <section class="st-card" aria-labelledby="h-l-trades">
-      <h2 class="st-h2" id="h-l-trades">Every trade</h2>
-      <p class="st-note">Every buy, sell, bet and bet result across all ten experiments, newest first, 5 a page (use Older to go back), recorded automatically at each update. Times are Eastern (ET), with UTC in brackets. Pick an experiment to see only its trades.</p>
-      <div class="st-chips" role="group" aria-label="Experiment" data-chips-for="lg-trades">
-        <button type="button" data-v="" aria-pressed="true">All experiments</button>
-        <button type="button" data-v="Stocks" aria-pressed="false">Stocks and anything</button>
-        <button type="button" data-v="Crypto" aria-pressed="false">Crypto</button>
-        <button type="button" data-v="China" aria-pressed="false">China stocks</button>
-        <button type="button" data-v="Metals" aria-pressed="false">Metals</button>
-        <button type="button" data-v="Energy" aria-pressed="false">Oil and energy</button>
-        <button type="button" data-v="Options" aria-pressed="false">Options</button>
-        <button type="button" data-v="Currencies" aria-pressed="false">Currencies</button>
-        <button type="button" data-v="Safe" aria-pressed="false">Play it safe</button>
-        <button type="button" data-v="Sports" aria-pressed="false">Sports</button>
-        <button type="button" data-v="Predictions" aria-pressed="false">Prediction markets</button>
-      </div>
+      <h2 class="st-h2" id="h-l-trades">Every trade and bet</h2>
+      <p class="st-note">Every buy, sell, bet and bet result across all ten experiments in one list, newest first, 5 a page (use Older to go back). "Won / lost" shows what each one made or lost once it was sold or the game ended; "open" means it is still running. Times are Eastern (ET), with UTC in brackets.</p>
+      <div class="lg-pick"><label>Experiment: <select id="lg-trades-pick" aria-label="Experiment"><option value="">All experiments</option><option value="Stocks">Stocks and anything</option><option value="Crypto">Crypto</option><option value="China">China stocks</option><option value="Metals">Metals</option><option value="Energy">Oil and energy</option><option value="Options">Options</option><option value="Currencies">Currencies</option><option value="Safe">Play it safe</option><option value="Sports">Sports (bets)</option><option value="Predictions">Prediction markets</option></select></label></div>
       <div class="st-wrap" id="lg-trades" data-draw="lg-trades" data-source="trades bets" data-portfolio=""></div>
     </section>
     <section class="st-card" aria-labelledby="h-l-days">
@@ -3908,11 +3896,21 @@ body { background:var(--color-bg); }
     B.data.forEach((b) => {
       const odds = (Number(b.odds) > 0 ? '+' : '') + b.odds, stake = Number(b.stake_cad);
       const res = b.status !== 'Open' ? Number(b.result_cad) : null;
-      rows.push({ at: b.placed_at || b.placed + 'T12:00:00-04:00', portfolio: 'Sports', action: 'Bet', item: b.bet + ' ' + b.pick, detail: b.event + ' at ' + odds + ' · to win C$' + d3.format(',.0f')(b.to_win_cad || 0), amount: 'C$' + d3.format(',.0f')(stake), cost: 'C$' + d3.format(',.0f')(stake), profit: null, ret: null, open: b.status === 'Open' });
+      rows.push({ at: b.placed_at || b.placed + 'T12:00:00-04:00', portfolio: 'Sports', action: 'Bet', item: b.bet + ' ' + b.pick, detail: b.event + ' at ' + odds + ' · to win C$' + d3.format(',.0f')(b.to_win_cad || 0), amount: 'C$' + d3.format(',.0f')(stake), cost: 'C$' + d3.format(',.0f')(stake), profit: null, ret: null, open: b.status === 'Open', outcome: res, void: b.status === 'Void' });
       if (b.status !== 'Open') {
         const back = b.status === 'Won' ? stake + res : b.status === 'Lost' ? 0 : stake;
         rows.push({ at: b.settled_at || (b.starts_at ? new Date(new Date(b.starts_at).getTime() + 3 * 3600e3).toISOString() : b.placed + 'T23:00:00-04:00'), portfolio: 'Sports', action: b.status, item: b.bet + ' ' + b.pick, detail: b.event + (b.final ? ' · ' + b.final : '') + ' · paid back C$' + d3.format(',.0f')(back), amount: 'C$' + d3.format(',.0f')(back), cost: 'C$' + d3.format(',.0f')(stake), profit: res, ret: stake ? res / stake : null, open: false });
       }
+    });
+    // a buy (or short) that has since been sold (or covered): its result, from the sells that followed it
+    const HD = dash.data('holdings'), held = new Set((HD.status === 'ok' ? HD.data : []).filter((h) => Math.abs(Number(h.quantity)) > 1e-9).map((h) => h.portfolio + '|' + h.holding));
+    rows.forEach((r) => {
+      if (!/^(Buy|Short)$/.test(r.action) || r.portfolio === 'Sports') return;
+      r.partly = held.has(r.portfolio + '|' + r.item);
+      const t0 = +new Date(r.at), later = T.data.filter((t) => t.portfolio === r.portfolio && t.holding === r.item && +new Date(t.at) > t0).sort((a, b) => new Date(a.at) - new Date(b.at));
+      let sum = null;
+      for (const t of later) { if (/^(Buy|Short)$/.test(t.action)) break; if (/^(Sell|Cover|Settled|Expired)$/.test(t.action) && t.pnl != null) sum = (sum || 0) + Number(t.pnl); }
+      if (sum !== null) r.outcome = sum;
     });
     pensOf().forEach((x) => rows.push({ at: x.at, portfolio: 'Sports', action: 'Penalty', item: x.day === 'total' ? 'Total minimum shortfall' : 'Missed daily minimum ' + x.day, detail: x.reason, amount: '', cost: '', profit: -Number(x.amount), ret: null, open: false }));
     return rows.sort((a, b) => new Date(b.at) - new Date(a.at));
@@ -3925,14 +3923,18 @@ body { background:var(--color-bg); }
       const p = el.dataset.portfolio;
       const shown = rows.filter((r) => !p || r.portfolio === p);
       const table = mk('table', 'st-table');
-      table.innerHTML = '<thead><tr><th>When</th><th>Experiment</th><th>Action</th><th>What</th><th>Details</th><th class="num">Amount</th><th class="num">Cost / stake</th><th class="num">Profit</th><th class="num">Return</th></tr></thead>';
+      table.innerHTML = '<thead><tr><th>When</th><th>Experiment</th><th>Action</th><th>What</th><th>Details</th><th class="num">Amount</th><th class="num">Cost / stake</th><th class="num">Won / lost</th><th class="num">Return</th></tr></thead>';
       const tb = mk('tbody');
       if (!shown.length) { const tr = mk('tr'); const td = mk('td', '', 'No trades yet.'); td.colSpan = 9; tr.appendChild(td); tb.appendChild(tr); }
       shown.forEach((r) => {
         const tr = mk('tr');
         const act = mk('span', 'st-pill' + (r.action === 'Buy' || r.action === 'Won' ? ' is-up' : r.action === 'Sell' || r.action === 'Lost' || r.action === 'Penalty' ? ' is-down' : ''), r.action);
         const cells = [[stFmt.when(r.at)], [LABEL[r.portfolio] || r.portfolio], [act], [r.item], [r.detail, 'wrap'], [r.amount, 'num'], [r.cost || '', 'num'],
-          [r.profit === null ? (r.open ? 'open' : '') : (r.profit >= 0 ? '+' : '−') + (r.portfolio === 'China' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(r.profit)), 'num ' + (r.profit === null ? 'st-open' : upDown(r.profit))],
+          (() => { const v = r.profit !== null ? r.profit : r.outcome != null ? r.outcome : null, cur = r.portfolio === 'China' ? 'US$' : 'C$';
+            if (r.void) return ['Refunded', 'num st-open'];
+            if (v === null) return [r.open ? 'open' : '', 'num st-open'];
+            const txt = v > 0.5 ? 'Won +' + cur + d3.format(',.0f')(v) : v < -0.5 ? 'Lost −' + cur + d3.format(',.0f')(-v) : 'Even';
+            return [txt + (r.profit === null ? (r.action === 'Bet' ? ' (game over)' : r.partly ? ' (partly sold)' : ' (sold)') : ''), 'num ' + upDown(v)]; })(),
           [r.ret === null || r.ret === undefined ? '' : d3.format('+.1%')(r.ret), 'num ' + (r.ret == null ? '' : upDown(r.ret * 1000))]];
         cells.forEach(([v, c]) => { const td = mk('td', c || ''); if (v instanceof Node) td.appendChild(v); else td.textContent = v; tr.appendChild(td); });
         tb.appendChild(tr);
@@ -3949,8 +3951,8 @@ body { background:var(--color-bg); }
         const bar = tw.nextElementSibling;
         if (bar && bar.classList.contains('st-pager')) { const keep = () => { el._tPg = tb._pg || 0; }; bar.addEventListener('click', keep); bar.addEventListener('change', keep); }
       }
-      el.appendChild(mk('p', 'st-note', shown.length + (shown.length === 1 ? ' trade' : ' trades') + (p ? ' in ' + (LABEL[p] || p) : ' in total') + '. The download below has all of them.'));
-      { const dl = mk('button', 'lg-csv', '⬇ Download these trades (CSV)'); dl.type = 'button';
+      el.appendChild(mk('p', 'st-note', shown.length + (shown.length === 1 ? ' trade or bet' : ' trades and bets') + (p ? ' in ' + (LABEL[p] || p) : ' in total') + '. The download below has all of them.'));
+      { const dl = mk('button', 'lg-csv', '⬇ Download this list (CSV)'); dl.type = 'button';
         dl.addEventListener('click', () => {
           const q = (x) => '"' + String(x == null ? '' : x).replace(/"/g, '""') + '"';
           const lines = [['when_utc', 'ai', 'experiment', 'action', 'what', 'details', 'amount', 'cost_or_stake', 'profit', 'return'].join(',')].concat(shown.map((r) => [new Date(r.at).toISOString(), AIS[dash.model || 'claude'].label, r.portfolio, r.action, r.item, r.detail, r.amount, r.cost || '', r.profit == null ? '' : r.profit.toFixed(2), r.ret == null ? '' : (r.ret * 100).toFixed(2) + '%'].map(q).join(',')));
@@ -5956,6 +5958,8 @@ body { background:var(--color-bg); }
       if (t._redraw) t._redraw();
     }));
   });
+  { const sel = document.getElementById('lg-trades-pick'), t = document.getElementById('lg-trades');
+    if (sel && t) sel.addEventListener('change', () => { t.dataset.portfolio = sel.value; if (t._redraw) t._redraw(); }); }
   document.querySelectorAll('[data-mode-for]').forEach((g) => {
     g.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
       g.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
