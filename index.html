@@ -543,6 +543,8 @@
   .st-bets-bar select { font: inherit; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 4px 8px; }
   .st-bets-pager { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
   .st-nowrap { white-space: nowrap; }
+  .st-pager { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0 0; font-size: 13px; }
+  .st-pager select { font: inherit; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 4px 8px; }
   .pa-sum { margin: 6px 0 10px; } .pa-sum b { margin-right: 4px; }
   .lg-csv { font: inherit; font-size: 13px; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
   .lg-csv:hover { border-color: var(--accent, #ffb000); }
@@ -848,7 +850,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '316691e1cafc';</script>
+<script>window.PT_PAGE_VER = 'ed52f634e092';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -2985,13 +2987,27 @@ body { background:var(--color-bg); }
       el.appendChild(tr);
     });
   };
+  const pagerFor = (el, n, noun) => {
+    n = n || 10; const rows = [...el.children]; const key = el.dataset.portfolio || '';
+    if (el._pgKey !== key) { el._pgKey = key; el._pg = 0; }
+    const pages = Math.max(1, Math.ceil(rows.length / n)); if ((el._pg || 0) >= pages) el._pg = pages - 1;
+    rows.forEach((tr, k) => { tr.hidden = Math.floor(k / n) !== (el._pg || 0); });
+    const tbl = el.closest('table'); if (!tbl) return; const host = tbl.closest('.st-wrap') || tbl;
+    let bar = host.nextElementSibling && host.nextElementSibling.classList.contains('st-pager') ? host.nextElementSibling : null;
+    if (!bar) { bar = mk('div', 'st-pager'); host.after(bar); }
+    bar.replaceChildren(); if (rows.length <= n) { bar.hidden = true; return; } bar.hidden = false;
+    const lab = mk('label'); lab.append(document.createTextNode('Page '));
+    const sel = mk('select'); for (let k = 0; k < pages; k++) { const o = mk('option', '', (k + 1) + (k === 0 && el.dataset.draw === 'log-body' ? ' · newest' : '') + ' (' + (k * n + 1) + '–' + Math.min(rows.length, (k + 1) * n) + ')'); o.value = k; if (k === el._pg) o.selected = true; sel.appendChild(o); }
+    sel.addEventListener('change', () => { el._pg = Number(sel.value); pagerFor(el, n, noun); });
+    lab.append(sel, document.createTextNode(' of ' + pages)); bar.append(lab, mk('span', 'st-muted', ' · ' + rows.length + ' ' + (noun || 'rows') + (el.dataset.draw === 'log-body' ? ', newest first' : '')));
+  };
   const byPortfolio = (el, alsoBoth) => (r) => !el.dataset.portfolio || r.portfolio === el.dataset.portfolio || (alsoBoth && r.portfolio === 'Both');
   const num = (v, f) => (v === null || v === undefined || v === '') ? '' : f(Number(v));
   const usd = (v) => Math.abs(v) >= 1000 ? 'US$' + d3.format(',.0f')(v) : Math.abs(v) >= 0.1 ? 'US$' + d3.format(',.2f')(v) : 'US$' + d3.format('.4~r')(v);
   const upDown = (v) => (v > 0 ? 'is-up' : v < 0 ? 'is-down' : '');
 
   const yuan = (v) => '¥' + d3.format(',.3f')(v);
-  dash.draw('holdings-body', (el) => fillBody(el, 'holdings', (r) => byPortfolio(el)(r) && !(Math.abs(Number(r.quantity)) < 1e-9 && !/^Cash/.test(r.holding)), (r) => encodeURIComponent(r.portfolio) + ',' + encodeURIComponent(r.holding), (r) => (el.dataset.all ? [[LABEL[r.portfolio] || r.portfolio]] : []).concat(r.currency === 'CNY' ? [
+  dash.draw('holdings-body', (el) => { fillBody(el, 'holdings', (r) => byPortfolio(el)(r) && !(Math.abs(Number(r.quantity)) < 1e-9 && !/^Cash/.test(r.holding)), (r) => encodeURIComponent(r.portfolio) + ',' + encodeURIComponent(r.holding), (r) => (el.dataset.all ? [[LABEL[r.portfolio] || r.portfolio]] : []).concat(r.currency === 'CNY' ? [
     [r.holding + (r.code ? ' (' + r.code + ')' : '')],
     [num(r.quantity, (v) => d3.format(',.0f')(v)) + (r.holding === 'Cash (CNY)' ? ' yuan' : ''), 'num'],
     [num(r.entry_local, yuan), 'num'],
@@ -3007,16 +3023,16 @@ body { background:var(--color-bg); }
     [r.price_usd === null ? '' : stFmt.pct(Number(r.change_pct)), 'num ' + upDown(Number(r.change_pct))],
     [num(r.portfolio === 'China' ? r.value_usd : r.value_cad, (v) => d3.format(',.0f')(v)), 'num'],
     [r.price_source ? r.price_source + (r.price_at ? ', ' + stFmt.when(r.price_at) : '') : '', 'wrap src']
-  ])));
+  ])); pagerFor(el, 10, 'holdings'); });
   // "Show:" experiment menus on the overview tables
   const fillPf = () => document.querySelectorAll('select.pf-filter').forEach((sel) => {
     const t = document.getElementById(sel.dataset.target); let keep = '';
-    try { keep = localStorage.getItem('pt-f-' + sel.dataset.target) || ''; } catch (e) {}
+    keep = sel.value || '';   // owner's choice: always start on All experiments
     if (!PFS.includes(keep)) keep = '';
     sel.replaceChildren(); const a = document.createElement('option'); a.value = ''; a.textContent = 'All experiments'; sel.appendChild(a);
     PFS.forEach((p) => { const o = document.createElement('option'); o.value = p; o.textContent = LABEL[p] || p; sel.appendChild(o); });
     sel.value = keep; if (keep) t.dataset.portfolio = keep; else delete t.dataset.portfolio;
-    if (!sel._on) { sel._on = 1; sel.addEventListener('change', () => { try { localStorage.setItem('pt-f-' + sel.dataset.target, sel.value); } catch (e) {} if (sel.value) t.dataset.portfolio = sel.value; else delete t.dataset.portfolio; if (dash.redraw) dash.redraw(); }); }
+    if (!sel._on) { sel._on = 1; sel.addEventListener('change', () => { if (sel.value) t.dataset.portfolio = sel.value; else delete t.dataset.portfolio; if (dash.redraw) dash.redraw(); }); }
   });
   fillPf();
 
@@ -3077,7 +3093,8 @@ body { background:var(--color-bg); }
     const all = !el.dataset.portfolio || el.id === 'log-all-body';
     fillBody(el, 'log', byPortfolio(el), (r) => encodeURIComponent(r.at) + ',' + encodeURIComponent(r.portfolio), (r) => all
       ? [[stFmt.when(r.at)], [r.portfolio], [r.action], [r.detail, 'wrap']]
-      : [[stFmt.when(r.at)], [r.action], [r.detail, 'wrap']], 10);
+      : [[stFmt.when(r.at)], [r.action], [r.detail, 'wrap']]);
+    pagerFor(el, 10, 'decisions');
   });
 
   // ---------- Eastern-time formatting (labels say ET, so format in ET whatever the viewer's time zone)
