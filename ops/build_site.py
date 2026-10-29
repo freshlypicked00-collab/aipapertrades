@@ -1067,6 +1067,14 @@ data['day_reports'] = r.get('day_reports', [])   # Gemini's and ChatGPT's own Ra
 data['rivals_thoughts'] = [x for x in r.get('thoughts', []) if x['at'].replace('Z', '+00:00') >= _cut]
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import model_views
+try:   # each of Claude's decisions carries its peer-grade key, so the other AIs' grades show under it (G7)
+    import peer_grades as _PG
+    for _row in data['log']:
+        _k = _PG.claude_key_for_log(_row, data['trades'], data['bets'])
+        if _k:
+            _row['pg_key'] = _k
+except Exception as _e:
+    print('peer grade keys not added:', _e)
 # Claude's "vs. just holding Bitcoin" starts at the Oct 28 restart too, at the restart's exchange rate (the rate every AI's
 # first trades filled at), so all three views show the same benchmark (Oct 29 review: it still had the 9:50 a.m. rate)
 _RST = datetime(2026, 10, 28, 17, 44, tzinfo=timezone.utc)

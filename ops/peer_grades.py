@@ -64,6 +64,32 @@ def _log_reason(log, t):
     return near[0]['detail'] if len(near) == 1 else ''
 
 
+def claude_key_for_log(row, trades, bets):
+    """The peer-grade key of the trade or bet one of Claude's log entries is about (same race and action, within 3 minutes, naming
+    the holding or the bet), or None."""
+    try:
+        at = _when(row['at'])
+    except Exception:
+        return None
+    d = str(row.get('detail', '')).lower()
+    if row.get('action') == 'Bet':
+        near = [b for b in bets if b.get('placed_at') and abs((_when(b['placed_at']) - at).total_seconds()) < 180]
+        hit = [b for b in near if str(b.get('bet', '')).lower() in re.findall(r'\bs\d+\b', d) or str(b.get('pick', '')).lower().replace(' moneyline', '') in d]
+        b = hit[0] if len(hit) == 1 else near[0] if len(near) == 1 else None
+        return key_of('claude', b['placed_at'], 'Sports', b['bet'], 'Bet') if b else None
+    if row.get('action') not in ('Buy', 'Sell', 'Short', 'Cover'):
+        return None
+    near = [t for t in trades if t.get('portfolio') == row.get('portfolio') and t.get('action') == row['action'] and not str(t.get('holding', '')).startswith('[')
+            and abs((_when(t['at']) - at).total_seconds()) < 180]
+    def named(t):
+        name = str(t.get('holding', '')).lower()
+        words = [w for w in re.findall(r'[a-z0-9]{3,}', name) if w not in ('etf', 'the', 'fund', 'shares', 'trust')]
+        return (name and name in d) or (t.get('code') and str(t['code']) in d) or (words and all(w in d for w in words))
+    hit = [t for t in near if named(t)]
+    t = hit[0] if len(hit) == 1 else near[0] if len(near) == 1 else None
+    return key_of('claude', t['at'], t['portfolio'], t['holding'], t['action']) if t else None
+
+
 def decisions(model, state, fx_cad=1.38):
     """Every trade and bet one AI decided itself (not automatic settlements), newest last, with what was known at the time."""
     out = []
@@ -86,14 +112,16 @@ def decisions(model, state, fx_cad=1.38):
             out.append({'key': key_of('claude', b['placed_at'], 'Sports', b['bet'], 'Bet'), 'model': 'claude', 'at': b['placed_at'], 'experiment': 'Sports',
                         'action': 'Bet', 'what': f"{b['pick']} ({b['event']})", 'amount': float(b.get('stake_cad') or 0), 'price': b.get('odds'),
                         'reason': (b.get('note') or '')[:500], 'wrong_if': ''})
-    else:
-        for t in state.get('trades', []):
-            if t.get('model') != model or t.get('action') not in ('Buy', 'Sell', 'Short', 'Cover', 'Bet') or t.get('stop') or t.get('void'):
-                continue
-            amt = abs(float(t.get('amount') or 0)) * (fx_cad if t.get('cur') == 'USD' else 1)
-            out.append({'key': key_of(model, t['at'], t['experiment'], t.get('symbol', ''), t['action']), 'model': model, 'at': t['at'],
-                        'experiment': t['experiment'], 'action': t['action'], 'what': t.get('name') or t.get('symbol'), 'amount': round(amt, 2),
-                        'price': t.get('price'), 'reason': (t.get('reason') or '')[:500], 'wrong_if': (t.get('wrong_if') or '')[:300]})
+    # every AI's All in moves (Claude's are in rivals.json too) and Gemini's and ChatGPT's main-race moves
+    for t in state.get('trades', []):
+        if t.get('model') != model or t.get('action') not in ('Buy', 'Sell', 'Short', 'Cover', 'Bet') or t.get('stop') or t.get('void'):
+            continue
+        if model == 'claude' and not str(t.get('experiment', '')).startswith('AllIn'):
+            continue
+        amt = abs(float(t.get('amount') or 0)) * (fx_cad if t.get('cur') == 'USD' else 1)
+        out.append({'key': key_of(model, t['at'], t['experiment'], t.get('symbol', ''), t['action']), 'model': model, 'at': t['at'],
+                    'experiment': t['experiment'], 'action': t['action'], 'what': t.get('name') or t.get('symbol'), 'amount': round(amt, 2),
+                    'price': t.get('price'), 'reason': (t.get('reason') or '')[:500], 'wrong_if': (t.get('wrong_if') or '')[:300]})
     out.sort(key=lambda d: _when(d['at']))
     return out
 
