@@ -934,7 +934,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '103b72e2e9a0';</script>
+<script>window.PT_PAGE_VER = '5b7d14eb8fff';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -3190,7 +3190,7 @@ body { background:var(--color-bg); }
   });
   fillPf();
 
-  const BETS_PAGE = { n: 25, p: 0 };
+  const BETS_PAGE = { n: 5, p: 0 };   // 5 a page (owner, Oct 29)
   const etShort = (t) => new Date(t).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).replace(' AM', ' a.m.').replace(' PM', ' p.m.');
   dash.draw('bets-body', (el) => { fillBody(el, 'bets', () => true, null, (r) => {
     const c = dash.data('clv');
@@ -3226,7 +3226,7 @@ body { background:var(--color-bg); }
     const ps = mk('select'); for (let k = 0; k < pages; k++) { const a = k * BETS_PAGE.n + 1, b2 = Math.min(rows.length, (k + 1) * BETS_PAGE.n); const o = mk('option', '', (k + 1) + (k === 0 ? ' · newest' : '') + ' (' + a + '–' + b2 + ')'); o.value = k; if (k === BETS_PAGE.p) o.selected = true; ps.appendChild(o); }
     pl.append(ps, document.createTextNode(' of ' + pages));
     const nl = mk('label', 'st-tt'); nl.append(document.createTextNode(' Show '));
-    const ns = mk('select'); [10, 25, 50].forEach((n) => { const o = mk('option', '', n + ' a page'); o.value = n; if (n === BETS_PAGE.n) o.selected = true; ns.appendChild(o); });
+    const ns = mk('select'); [5, 10, 25, 50].forEach((n) => { const o = mk('option', '', n + ' a page'); o.value = n; if (n === BETS_PAGE.n) o.selected = true; ns.appendChild(o); });
     ns.addEventListener('change', () => { BETS_PAGE.n = Number(ns.value); BETS_PAGE.p = 0; redrawBets(); });
     ps.addEventListener('change', () => { BETS_PAGE.p = Number(ps.value); redrawBets(); });
     nl.appendChild(ns);
