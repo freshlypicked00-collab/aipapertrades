@@ -4789,8 +4789,8 @@
     } catch (e) {}
     return byMarket;
   };
-  // the page always opens on whoever is 1st in that race (Race standings), not on the AI viewed last time
-  window.ptLeader = (json) => { const ES = json.exp_standings || {}; const r = ES[window.ptFirstRace(ES)] || []; return (r[0] && r[0].id) || json.leader; };
+  // every visit opens on the AI winning overall (leading the most races), in its colours; if that's tied, on the leader of the race shown first (owner, Oct 29)
+  window.ptLeader = (json) => { if (json.leader) return json.leader; const ES = json.exp_standings || {}; const r = ES[window.ptFirstRace(ES)] || []; return (r[0] && r[0].id) || 'claude'; };
   const MODEL_COL = { claude: ['var(--accent)', 'var(--accent-bg)'], gemini: ['#4f8ff7', 'rgba(79,143,247,.09)'], chatgpt: ['var(--ai-chatgpt)', 'rgba(160,160,160,.08)'] };
   const applyModel = (id) => {
     { const c = MODEL_COL[id] || MODEL_COL.claude; document.documentElement.style.setProperty('--model', c[0]); document.documentElement.style.setProperty('--model-bg', c[1]); document.documentElement.dataset.model = id || 'claude'; }
