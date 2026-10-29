@@ -562,10 +562,12 @@
     .st-hook .st-podium { position: sticky; top: 196px; max-height: calc(100vh - 212px); overflow-y: auto; scrollbar-width: thin; }
   }
   .st-podium .pd-detail { margin-top: 10px; border: 1px solid var(--color-border-line); border-top: 3px solid var(--ai); border-radius: var(--cds-radius); padding: 10px; font-size: 12.5px; }
-  .st-podium .pd-pie { display: flex; gap: 10px; align-items: center; margin-top: 6px; }
-  .st-podium .pd-pie ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-  .st-podium .pd-pie li { display: flex; gap: 6px; align-items: center; overflow-wrap: anywhere; }
-  .st-podium .pd-pie i { width: 9px; height: 9px; border-radius: 2px; flex: 0 0 auto; }
+  .pd-pie { display: flex; gap: 10px; align-items: center; margin-top: 6px; }
+  .pd-pie svg { flex: 0 0 auto; }
+  .pd-pie ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .pd-pie li { display: flex; gap: 6px; align-items: center; overflow-wrap: anywhere; }
+  .pd-pie i { width: 9px; height: 9px; border-radius: 2px; flex: 0 0 auto; }
+  .h2h-pie { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--color-border-line); font-size: 13px; }
   .st-podium .pd-last { margin: 8px 0 0; color: var(--color-fg-muted); }
   .st-podium p.pd-note { margin: 0 0 8px; font-size: 12px; color: var(--color-fg-muted); }
   .st-podium ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
@@ -4411,6 +4413,20 @@
     fcs.forEach((f) => { const p = mk('p', 'st-fact'); if (f.take) p.appendChild(mk('q', '', f.take)); p.appendChild(document.createElement('br')); p.appendChild(fcNode(f)); fcc.appendChild(p); });
   });
 
+  const PIE_COL = ['#d97757', '#4f8ff7', '#3ddc84', '#ffc93c', '#b07cff', '#ff7aa8', '#4fd1c5', '#9b927f', '#f2f2f2'];
+  const isCashSlice = (n) => /^Cash|^Not bet/.test(n);
+  // a donut of what one AI holds, with a legend; colorOf(name, i) lets several donuts use the same colour for the same holding
+  const pieNode = (pie, colorOf, W) => {
+    W = W || 120; const R = W / 2 - 4, tot = d3.sum(pie, (x) => x.value);
+    const col = (x, i) => (isCashSlice(x.name) ? '#3a3833' : colorOf ? colorOf(x.name, i) : PIE_COL[i % PIE_COL.length]);
+    const svg = d3.create('svg').attr('viewBox', `0 0 ${W} ${W}`).attr('width', W).attr('height', W).attr('role', 'img').attr('aria-label', 'Holdings: ' + pie.map((x) => x.name + ' ' + Math.round(100 * x.value / tot) + '%').join(', '));
+    svg.append('g').attr('transform', `translate(${W / 2},${W / 2})`).selectAll('path').data(d3.pie().sort(null).value((x) => x.value)(pie)).join('path')
+      .attr('d', d3.arc().innerRadius(R * 0.55).outerRadius(R)).attr('fill', (x, i) => col(x.data, i)).append('title').text((x) => x.data.name + ' ' + Math.round(100 * x.data.value / tot) + '%');
+    const wrap = mk('div', 'pd-pie'); wrap.appendChild(svg.node());
+    const ul = mk('ul');
+    pie.forEach((x, i) => { const li = mk('li'); const sw = mk('i'); sw.style.background = col(x, i); li.append(sw, document.createTextNode(x.name + ' ' + Math.round(100 * x.value / tot) + '%')); ul.appendChild(li); });
+    wrap.appendChild(ul); return wrap;
+  };
   dash.draw('allin', (el) => {
     el.replaceChildren();
     const MS = dash.baseData('allin_models'), HS = dash.baseData('allin_history'), TS = dash.baseData('allin_trades');
@@ -4428,6 +4444,18 @@
         return { id, book: m.books[exp], pts: [{ t: st, v: 100000 }].concat(pts) };
       }).filter(Boolean);
       const ranked = ser.map((x) => ({ ...x, last: x.pts[x.pts.length - 1].v })).sort((a, b) => b.last - a.last);
+      const pieOf = (bk) => {
+        const out = [];
+        Object.entries(bk.positions || {}).forEach(([k, q]) => { const v = Number(q.qty) * Number(q.last != null ? q.last : q.entry) * (q.pcur === 'USD' ? usdcad : 1); if (v > 0) out.push({ name: q.name || k, value: v }); });
+        (bk.bets || []).filter((b) => b.status === 'Open').forEach((b) => { if (Number(b.stake) > 0) out.push({ name: b.pick_team || b.pick || b.event, value: Number(b.stake) }); });
+        const by = {}; out.forEach((q) => { by[q.name] = (by[q.name] || 0) + q.value; });
+        const merged = Object.entries(by).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+        if (Number(bk.cash) > 1) merged.push({ name: exp === 'AllInSports' ? 'Not bet' : 'Cash', value: Number(bk.cash) });
+        const tot = merged.reduce((a, q) => a + q.value, 0);
+        return merged.filter((q) => tot && q.value / tot >= 0.005);
+      };
+      const names = []; ranked.forEach((x) => pieOf(x.book).forEach((q) => { if (!isCashSlice(q.name) && !names.includes(q.name)) names.push(q.name); }));
+      const colorOf = (n) => PIE_COL[Math.max(0, names.indexOf(n)) % PIE_COL.length];
       const rows = mk('ul', 'h2h-rows');
       ranked.forEach((x, i) => {
         const li = mk('li', 'h2h-row'); li.style.setProperty('--ai', AIS[x.id].color);
@@ -4443,6 +4471,7 @@
         (x.book.bets || []).filter((b) => b.status === 'Open').forEach((b) => hold.push(b.pick_team + ' (' + b.event + ') ' + (b.odds > 0 ? '+' : '') + b.odds + ', C$' + d3.format(',.0f')(b.stake)));
         if (Number(x.book.cash) > 1 && exp === 'AllInTrading') hold.push('Cash C$' + d3.format(',.0f')(x.book.cash));
         li.appendChild(mk('span', 'h2h-sub', hold.length ? 'Holding: ' + hold.join(' · ') : 'Holding: all cash, no bets yet'));
+        { const pie = pieOf(x.book); if (pie.length) { const pn = pieNode(pie, colorOf, 110); pn.classList.add('h2h-pie'); li.appendChild(pn); } }
         rows.appendChild(li);
       });
       box.appendChild(rows);
@@ -4452,21 +4481,35 @@
         const ch = mk('div', 'h2h-chart'); box.append(legend, ch);
         requestAnimationFrame(() => h2hChart(ch, ser));
       }
-      const tr = TS.filter((t) => t.experiment === exp).slice().sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 10);
-      box.appendChild(mk('h3', '', 'Recent moves'));
-      if (!tr.length) box.appendChild(mk('p', 'st-note', 'No moves yet.'));
-      else {
-        const wrap = mk('div', 'h2h-scroll'); const tb = mk('table', 'h2h-table');
-        const hr = mk('tr'); ['When', 'AI', 'Move', 'Amount', 'Cost / stake', 'Profit', 'Why'].forEach((h) => hr.appendChild(mk('th', '', h))); tb.appendChild(hr);
+      // every move, 10 a page with Newer / Older, and a menu to see one AI only (owner, Oct 29)
+      const ST = (el._mv = el._mv || {}); const stt = (ST[exp] = ST[exp] || { m: '', pg: 0, key: '' });
+      const mh = mk('div', 'ai-pick'); mh.appendChild(mk('h3', '', 'Recent moves'));
+      { const l = mk('label', '', 'AI: '); const sel = mk('select'); sel.setAttribute('aria-label', 'Show moves by');
+        [['', 'All three AIs']].concat(order.map((id) => [id, aiModel(id)])).forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; sel.appendChild(o); });
+        sel.value = stt.m; sel.addEventListener('change', () => { stt.m = sel.value; drawMoves(); }); l.appendChild(sel); mh.appendChild(l); }
+      box.appendChild(mh);
+      const list = mk('div'); box.appendChild(list);
+      const drawMoves = () => {
+        list.replaceChildren();
+        const tr = TS.filter((t) => t.experiment === exp && (!stt.m || t.model === stt.m)).slice().sort((a, b) => new Date(b.at) - new Date(a.at));
+        if (!tr.length) { list.appendChild(mk('p', 'st-note', stt.m ? AIS[stt.m].label + ' has made no moves here yet.' : 'No moves yet.')); return; }
+        const wrap = mk('div', 'h2h-scroll st-wrap'); const tb = mk('table', 'h2h-table');
+        const hr = mk('tr'); ['When', 'AI', 'Move', 'Amount', 'Cost / stake', 'Profit', 'Why'].forEach((h) => hr.appendChild(mk('th', '', h))); { const th = mk('thead'); th.appendChild(hr); tb.appendChild(th); }
+        const body = mk('tbody'); tb.appendChild(body);
         tr.forEach((t) => {
           const r = mk('tr');
           const ai = mk('td', '', AIS[t.model] ? AIS[t.model].label : t.model); ai.style.borderLeft = '3px solid ' + (AIS[t.model] || {}).color; ai.style.paddingLeft = '6px';
           const pl = pnlOf(t);
           r.append(mk('td', '', stFmt.when(t.at)), ai, mk('td', '', t.action + ' ' + (t.name || t.symbol)), mk('td', '', (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.0f')(Math.abs(t.amount))), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', '', t.reason || ''));
-          tb.appendChild(r);
+          body.appendChild(r);
         });
-        wrap.appendChild(tb); box.appendChild(wrap);
-      }
+        wrap.appendChild(tb); list.appendChild(wrap);
+        if (stt.key !== stt.m) { stt.key = stt.m; stt.pg = 0; }
+        body.dataset.pgNewest = '1'; body._pgKey = ''; body._pg = stt.pg || 0;
+        pagerFor(body, 10, 'moves');
+        const pbar = wrap.nextElementSibling; if (pbar && pbar.classList.contains('st-pager')) { const keep = () => { stt.pg = body._pg || 0; }; pbar.addEventListener('click', keep); pbar.addEventListener('change', keep); }
+      };
+      drawMoves();
       el.appendChild(box);
     });
   });
@@ -5036,17 +5079,7 @@
     box.appendChild(mk('b', '', AIS[me.id].label + ' in ' + (LABEL[el._exp] || el._exp)));
     { const rk = RISK[el._exp]; if (rk) { const b2 = mk('span', 'bg-risk bg-risk-' + rk[0].toLowerCase(), 'Market risk: ' + rk[0]); b2.title = rk[1]; box.appendChild(b2); box.appendChild(mk('p', 'bg-only bg-note', rk[1])); } }
     const pie = (me.pie || []).filter((x) => x.value > 0);
-    if (pie.length) {
-      const W = 120, R = 56, tot = d3.sum(pie, (x) => x.value);
-      const col = d3.scaleOrdinal(['#d97757', '#4f8ff7', '#3ddc84', '#ffc93c', '#b07cff', '#ff7aa8', '#4fd1c5', '#9b927f', '#f2f2f2']);
-      const svg = d3.create('svg').attr('viewBox', `0 0 ${W} ${W}`).attr('width', W).attr('height', W).attr('role', 'img').attr('aria-label', 'Holdings');
-      svg.append('g').attr('transform', `translate(${W / 2},${W / 2})`).selectAll('path').data(d3.pie().sort(null).value((x) => x.value)(pie)).join('path')
-        .attr('d', d3.arc().innerRadius(R * 0.55).outerRadius(R)).attr('fill', (x, i) => /^Cash|^Not bet/.test(x.data.name) ? '#3a3833' : col(i)).append('title').text((x) => x.data.name);
-      const wrap = mk('div', 'pd-pie'); wrap.appendChild(svg.node());
-      const ul = mk('ul');
-      pie.forEach((x, i) => { const li = mk('li'); const sw = mk('i'); sw.style.background = /^Cash|^Not bet/.test(x.name) ? '#3a3833' : col(i); li.append(sw, document.createTextNode(x.name + ' ' + Math.round(100 * x.value / tot) + '%')); ul.appendChild(li); });
-      wrap.appendChild(ul); box.appendChild(wrap);
-    }
+    if (pie.length) box.appendChild(pieNode(pie));
     box.appendChild(mk('p', 'pd-last', me.last ? 'Last trade: ' + me.last.text + ' · ' + stFmt.when(me.last.at) : 'No trades yet in this race.'));
     // scoreboard stats for this AI in this race
     const st = me.stats;
