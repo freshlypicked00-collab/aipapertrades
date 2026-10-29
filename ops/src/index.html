@@ -6033,6 +6033,9 @@
       li.appendChild(mk('b', '', (u.date_only ? new Date(u.at).toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric' }) : stFmt.when(u.at)) + ': '));
       li.appendChild(document.createTextNode(u.text + ' '));
       li.appendChild(src((u.sources || []).map(([t, url]) => ({ title: t, url }))));
+      // ▶ M / ▶ F on every update: reads its date, whether it is confirmed or a claim, and the update itself (owner, Oct 29)
+      if ('speechSynthesis' in window) { const when = u.date_only ? new Date(u.at).toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'long', day: 'numeric' }) : stFmt.when(u.at);
+        li.appendChild(playBtn(() => when + '. ' + (u.kind === 'claim' ? 'A claim by ' + (u.who || 'one side') + ', not confirmed. ' : two ? 'Confirmed by two sources. ' : 'Reported. ') + u.text, li)); }
       ul.appendChild(li);
     });
     el.appendChild(ul);
