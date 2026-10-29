@@ -155,6 +155,14 @@ def _series(symbol):
 
 
 def trade_card(who, t, path='/tmp/trade_card.png', symbol=None):
+    try:
+        return _trade_card(who, t, path, symbol)
+    except Exception as e:
+        print('sharecard trade_card failed:', e)
+        return None
+
+
+def _trade_card(who, t, path='/tmp/trade_card.png', symbol=None):
     """t: a rivals.py trade dict (experiment, action, symbol, name, amount, cur, price, pcur, stake, pnl, at)."""
     who = _who(who)
     try:

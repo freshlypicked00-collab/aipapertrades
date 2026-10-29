@@ -844,7 +844,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '9b750af4f779';</script>
+<script>window.PT_PAGE_VER = '9b4863aa6ef8';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -4093,7 +4093,9 @@ body { background:var(--color-bg); }
     SAY.btn = btn; SAY.el = el || null;
     btn.setAttribute('aria-pressed', 'true'); btn.textContent = btn._stop; btn.setAttribute('aria-label', 'Stop reading');
     if (el) el.classList.add('is-reading');
-    const go = () => { if (SAY.btn !== btn) return; const v = pickVoice(L, g === 'm' ? 'm' : 'f'); if (v) u.voice = v; if (g === 'm') { u.pitch = 0.55; u.rate = 1.05; } speechSynthesis.speak(u); };   // male: lowered pitch for the robotic AI sound
+    const go = () => { if (SAY.btn !== btn) return; const v = pickVoice(L, g === 'm' ? 'm' : 'f'); if (v) u.voice = v;
+      if (!v && L !== 'en-US') { stopSay(); noVoice(L); return; }
+      btn.title = btn._label + ' · voice: ' + v.name; if (g === 'm') { u.pitch = 0.55; u.rate = 1.05; } speechSynthesis.speak(u); };   // male: lowered pitch for the robotic AI sound
     // wait until the FULL voice list is in: browsers first list only built-in voices (often a male one) and add the natural ones a moment later
     if (VOICES_READY) go();
     else { let done = false; const once = () => { if (!done) { done = true; go(); } }; speechSynthesis.addEventListener('voiceschanged', () => setTimeout(once, 150), { once: true }); setTimeout(once, 1500); }
@@ -4122,7 +4124,10 @@ body { background:var(--color-bg); }
     if (VOICE_CACHE[key]) return VOICE_CACHE[key];
     const vs = speechSynthesis.getVoices(); if (!vs.length) return null;
     const en = L === 'en-US';
-    const pool = en ? vs.filter((x) => /^en[-_](US|CA|GB|AU|IE)/i.test(x.lang)) : vs.filter((x) => x.lang.toLowerCase().replace('_', '-').startsWith(L.toLowerCase().split('-')[0]));
+    const norm = (l) => String(l || '').toLowerCase().replace(/_/g, '-');
+    const base = L.toLowerCase().split('-')[0], ALIAS = { zh: ['zh', 'cmn', 'yue'], id: ['id', 'in'], he: ['he', 'iw'] };
+    const pool = en ? vs.filter((x) => /^en[-_](US|CA|GB|AU|IE)/i.test(x.lang)) : vs.filter((x) => (ALIAS[base] || [base]).some((b) => norm(x.lang).startsWith(b)));
+    if (!en && !pool.length) return null;   // no voice for this language: never fall back to an English voice (it reads only the numbers)
     let v = null;
     if (g === 'm') {   // male: the browser's own default voice (the one heard before), unless that default is a female voice
       const d = vs.find((x) => x.default && (en ? /^en/i.test(x.lang) : x.lang.toLowerCase().replace('_', '-').startsWith(L.toLowerCase().split('-')[0])));
@@ -4130,8 +4135,8 @@ body { background:var(--color-bg); }
     }
     if (!en && pool.length) {   // other languages: the female voice by name (natural first), the male one = any other voice of that language
       const nat = (x) => /natural|online|premium|enhanced|neural/i.test(x.name), fem = (x) => FEMALE_INTL.test(x.name) || FEMALE_HINT.test(x.name);
-      const exact = (x) => x.lang.toLowerCase().replace('_', '-') === L.toLowerCase();
-      const sorted = pool.slice().sort((a, b) => (exact(b) - exact(a)) || (nat(b) - nat(a)));
+      const exact = (x) => norm(x.lang) === L.toLowerCase() || (L === 'zh-TW' && /zh-hk|zh-hant|yue/.test(norm(x.lang)) ? 0.5 : 0);
+      const sorted = pool.slice().sort((a, b) => (Number(exact(b)) - Number(exact(a))) || (nat(b) - nat(a)));
       v = g === 'f' ? (sorted.find(fem) || sorted[0]) : (sorted.find((x) => !fem(x)) || sorted[0]);
       VOICE_CACHE[key] = v; return v;
     }
@@ -4151,6 +4156,14 @@ body { background:var(--color-bg); }
     }
   } catch (e) {}
   const VOICE_LABEL = { m: 'male AI voice', f: 'female voice' };
+  const noVoice = (L) => {   // tell the visitor how to add a voice for their language (once per visit)
+    if (window.__ptNoVoice) { const t0 = document.getElementById('pt-novoice'); if (t0) t0.classList.add('on'); return; } window.__ptNoVoice = 1;
+    const name = { zh: 'Chinese', hi: 'Hindi', es: 'Spanish', fr: 'French', ar: 'Arabic', bn: 'Bengali', pt: 'Portuguese', ru: 'Russian', id: 'Indonesian', ur: 'Urdu', de: 'German', ja: 'Japanese', ko: 'Korean', tr: 'Turkish' }[L.split('-')[0]] || L;
+    const ua = navigator.userAgent, how = /iPhone|iPad|Mac/.test(ua) ? 'Settings → Accessibility → Spoken Content → Voices → ' + name : /Android/.test(ua) ? 'Settings → Accessibility → Text-to-speech → Speech Services by Google → Install voice data → ' + name : 'Windows Settings → Time & language → Speech → Add voices → ' + name + ' (or open the site in Microsoft Edge, which has ' + name + ' voices built in)';
+    const t = document.createElement('div'); t.id = 'pt-novoice'; t.className = 'bg-toast on notranslate'; t.setAttribute('translate', 'no'); t.setAttribute('role', 'status');
+    t.textContent = 'This device has no ' + name + ' voice yet, so it can’t read this aloud. To add one: ' + how + '. Then reload the page.';
+    t.addEventListener('click', () => t.classList.remove('on')); document.body.appendChild(t); setTimeout(() => t.classList.remove('on'), 12000);
+  };
   const sayPair = (getText, el, label) => {   // two small buttons: ▶ M (male voice) and ▶ F (female voice)
     const w = mk('span', 'say-pair');
     ['m', 'f'].forEach((g) => {
