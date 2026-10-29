@@ -8,6 +8,7 @@ Needs the secrets TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID; does nothing without 
 import json, os, subprocess, sys, urllib.parse, urllib.request
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import tgcharts  # noqa: E402
+import sharecard  # noqa: E402
 from datetime import datetime, timezone, timedelta
 
 TOKEN, CHAT = os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID')
@@ -327,7 +328,9 @@ for t in load(S + 'trades.json'):
         price = f"US${t['price_usd']:,.2f}, C${t['cad']:,.0f}"
     why = next((e['detail'] for e in reversed(log) if e['portfolio'] == pf and e['at'][:16] == t['at'][:16]), '') or t.get('note', '')
     msgs.append((f"{ICON.get(a, '•')} <b>{esc(LABEL.get(pf, pf))}: {a} {esc(h)}</b>\n{price}\n{when(t['at'])}" + (f"\n<i>{esc(why[:400])}</i>" if why else '') + source_for(pf, h),
-                 ('trade', pf, tgcharts.symbol_for(pf, h, t.get('code')), t.get('price_local') or t.get('price_usd'), a)))
+                 ('trade', pf, tgcharts.symbol_for(pf, h, t.get('code')), t.get('price_local') or t.get('price_usd'), a,
+                  {'experiment': pf, 'action': a, 'name': h, 'symbol': tgcharts.symbol_for(pf, h, t.get('code')), 'amount': (t.get('usd') if pf == 'China' else t.get('cad')) or 0,
+                   'cur': 'USD' if pf == 'China' else 'CAD', 'price': t.get('price_local') or t.get('price_usd'), 'pcur': 'CNY' if pf == 'China' else 'USD', 'pnl': t.get('pnl'), 'at': t['at']})))
 if TEST:
     msgs = [('🧪 <b>TEST POST</b> (a replay of the latest trade, not a new one)\n\n' + m, p) for m, p in msgs[-1:]]
 
@@ -337,10 +340,13 @@ for b in load(S + 'bets.json'):
     o = oldb.get(b['bet'])
     odds = ('+' if float(b['odds']) > 0 else '') + str(b['odds'])
     if o is None:
-        msgs.append((f"🎯 <b>Sports: new bet {b['bet']}</b>\n{esc(b['pick'])} ({esc(b['event'])}) at {odds}, stake C${b['stake_cad']:,.0f} to win C${b['to_win_cad']:,.0f}", 'Sports'))
+        msgs.append((f"🎯 <b>Sports: new bet {b['bet']}</b>\n{esc(b['pick'])} ({esc(b['event'])}) at {odds}, stake C${b['stake_cad']:,.0f} to win C${b['to_win_cad']:,.0f}",
+                     ('trade', 'Sports', None, None, 'Bet', {'experiment': 'Sports', 'action': 'Bet', 'name': f"{b['pick']} ({b['event']})", 'amount': float(b['stake_cad']), 'price': float(b['odds']), 'to_win': float(b['to_win_cad']), 'cur': 'CAD', 'at': b.get('placed_at')})))
     elif o['status'] == 'Open' and b['status'] != 'Open':
         icon = {'Won': '✅', 'Lost': '❌', 'Push': '➖'}.get(b['status'], '🏁')
-        msgs.append((f"{icon} <b>Sports: {b['bet']} {b['status'].lower()}</b>\n{esc(b['pick'])} ({esc(b['event'])}): {money(b['result_cad'] or 0, 'Sports')}", 'Sports'))
+        msgs.append((f"{icon} <b>Sports: {b['bet']} {b['status'].lower()}</b>\n{esc(b['pick'])} ({esc(b['event'])}): {money(b['result_cad'] or 0, 'Sports')}",
+                     ('trade', 'Sports', None, None, b['status'], {'experiment': 'Sports', 'action': b['status'], 'name': f"{b['pick']} ({b['event']})", 'stake': float(b['stake_cad']),
+                                                                  'pnl': float(b['result_cad'] or 0) if b['status'] == 'Won' else -float(b['stake_cad']) if b['status'] == 'Lost' else 0.0, 'cur': 'CAD', 'at': b.get('settled_at')})))
 
 # prediction markets settled (a sale at 1.00 or 0.00)
 for t in load(S + 'trades.json'):
@@ -381,16 +387,20 @@ for day in sorted({r['day'] for r in ledger} - oldd):
 activity = [(m, p) for m, p in msgs if (isinstance(p, tuple) and p[0] == 'trade') or isinstance(p, str)]
 others = [(m, p) for m, p in msgs if not ((isinstance(p, tuple) and p[0] == 'trade') or isinstance(p, str))]
 if len(activity) > 1:
-    first_chart = next((p for m, p in activity if isinstance(p, tuple)), activity[0][1])
+    cards = [p[5] for m, p in activity if isinstance(p, tuple) and len(p) > 5]
+    first_chart = ('moves', cards) if cards else next((p for m, p in activity if isinstance(p, tuple)), activity[0][1])
     body = f"🧾 <b>{len(activity)} moves this check-in</b>\n\n" + '\n\n'.join(m for m, p in activity)
     if len(body) > 3500:
         body = body[:3450].rsplit('\n\n', 1)[0] + f"\n\n…and more on {SITE}"
     activity = [(body, first_chart)]
 msgs = activity + others
 for i, (m, pic) in enumerate(msgs):
-    if isinstance(pic, tuple) and pic[0] == 'trade':
-        _, pf_, sym_, px_, act_ = pic
-        photo = (tgcharts.price_chart(sym_, 'Claude · ' + LABEL.get(pf_, pf_), '#d97757', px_, act_, f'/tmp/pt_trade_{i}.png') if sym_ else None) or chart_section(pf_, i)
+    if isinstance(pic, tuple) and pic[0] == 'moves':   # several moves: one card in the site's Share-card design
+        photo = sharecard.moves_card('claude', pic[1], f'/tmp/pt_moves_{i}.png') or chart_section(pic[1][0]['experiment'], i)
+    elif isinstance(pic, tuple) and pic[0] == 'trade':
+        _, pf_, sym_, px_, act_ = pic[:5]
+        photo = (sharecard.trade_card('claude', pic[5], f'/tmp/pt_card_{i}.png', symbol=sym_) if len(pic) > 5 else None) or \
+                (tgcharts.price_chart(sym_, 'Claude · ' + LABEL.get(pf_, pf_), '#d97757', px_, act_, f'/tmp/pt_trade_{i}.png') if sym_ else None) or chart_section(pf_, i)
     elif isinstance(pic, tuple):
         photo = chart_scoreboard(pic[1], pic[2])
     else:

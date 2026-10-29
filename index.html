@@ -901,7 +901,7 @@ body { background:var(--color-bg); }
     </nav>
   <div class="st-head st-head2">
     <div class="st-hook">
-      <aside class="st-podium" data-draw="podium" data-source="exp_standings moments moments_all history rivals_history fx_all fx_meta" aria-label="Race standings"></aside>
+      <aside class="st-podium" data-draw="podium" data-source="exp_standings moments moments_all history rivals_history fx_all fx_meta bets rivals_models" aria-label="Race standings"></aside>
       <p class="st-hook-q">Which AI makes the most money in real markets?</p>
       <p class="st-hook-sub" id="hook-sub">Claude, Gemini and ChatGPT trade head to head from Oct 28 to Nov 28. Each AI runs its own separate copy of all ten experiments with C$100,000 of pretend money each and real-world prices. They are being tested publicly, in real time: every trade, bet and reason is published here as it happens, win or lose. Each AI makes every decision by itself, with no human picking trades, and this page is managed and updated automatically by AI.</p>
       <p class="st-take"><span class="st-take-l">Claude's current take</span><span data-draw="take" data-source="take">—</span></p>
@@ -2944,10 +2944,10 @@ body { background:var(--color-bg); }
     pill.className = 'st-pill' + (r.status === 'Won' ? ' is-up' : r.status === 'Lost' ? ' is-down' : '');
     pill.textContent = r.status;
     const res = r.result_cad === null || r.result_cad === undefined ? '' : stFmt.signedCad(Number(r.result_cad)).replace('C$', '');
-    return [[r.bet], [d3.timeFormat('%b %-d')(new Date(r.placed + 'T12:00:00'))], [r.event, 'wrap'], [r.pick],
+    return [[r.bet], [r.placed_at ? stFmt.when(r.placed_at) : d3.timeFormat('%b %-d')(new Date(r.placed + 'T12:00:00'))], [r.event + (r.starts_at ? ' · starts ' + stFmt.when(r.starts_at) : ''), 'wrap'], [r.pick],
       [(Number(r.odds) > 0 ? '+' : '') + r.odds, 'num'],
       [d3.format(',.0f')(Number(r.stake_cad)), 'num'], [d3.format(',.0f')(Number(r.to_win_cad)), 'num'],
-      [pill], [res, 'num ' + upDown(Number(r.result_cad))], [close, 'num'],
+      [(() => { const f = document.createDocumentFragment(); f.appendChild(pill); if (r.settled_at) { f.appendChild(document.createElement('br')); f.appendChild(mk('small', 'st-muted', 'settled ' + new Date(r.settled_at).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' ET')); } return f; })()], [res, 'num ' + upDown(Number(r.result_cad))], [close, 'num'],
       [verdict, verdict === 'Beat' ? 'is-up' : verdict === 'Missed' ? 'is-down' : '']];
   }));
 
@@ -4665,8 +4665,8 @@ body { background:var(--color-bg); }
     el.appendChild(sel);
     { const lab = mk('label', 'pd-follow'); const cb = mk('input'); cb.type = 'checkbox'; cb.checked = !!el._follow;
       cb.addEventListener('change', () => { el._follow = cb.checked; try { localStorage.setItem('pt-follow', cb.checked ? '1' : '0'); } catch (e) {} if (!cb.checked) el._exp = null; dash.redraw ? dash.redraw() : null; });
-      lab.append(cb, document.createTextNode(' Most relevant: follow the biggest move live')); el.appendChild(lab);
-      if (el._follow) el.appendChild(mk('p', 'pd-note pd-follow-why', hot ? '📡 ' + hot.why : '📡 Quiet for now: no race moved in the last 2 hours, so this shows ' + raceName(el._exp) + '. It switches by itself when something happens.')); }
+      lab.append(cb, document.createTextNode(' Most relevant: follow the market that’s live right now')); el.appendChild(lab);
+      if (el._follow && hot) el.appendChild(mk('p', 'pd-note pd-follow-why', '📡 ' + hot.why + ' Switches by itself.')); }
     if (el._exp === 'Overall') {   // how many races each AI leads; the money is only added up at the final scoring
       el.appendChild(mk('p', 'pd-note', 'Races each AI leads right now. Each race is its own experiment, so profits are only added together at the final scoring on Nov 28. Tap one to view it.'));
       const led = { claude: [], gemini: [], chatgpt: [] };
@@ -4767,21 +4767,33 @@ body { background:var(--color-bg); }
     if (all.length > 5) { const d = mk('details', 'pd-mom-more'); d.appendChild(mk('summary', '', 'More moments (' + (all.length - 5) + ')')); all.slice(5).forEach((m) => d.appendChild(row(m))); mb.appendChild(d); }
     el.appendChild(mb);
   };
+  // "Most relevant": the market that is live right now. China while Shanghai trades, the US races while New York trades,
+  // Sports only while a game with an open bet is being played, otherwise Crypto. A sharp move (C$1,000 or more for any AI
+  // in the last hour) in a market that is open right now takes over while it lasts. Closed markets are never picked.
   const hottestRace = () => {
-    const now = Date.now(), WIN = 2 * 3600e3, fx = rates().CAD || 1.38, RACES = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'];
-    const H = dash.baseData('history').map((h) => ({ id: 'claude', e: h.portfolio, t: +new Date(h.at), v: +h.value })).concat(dash.baseData('rivals_history').map((h) => ({ id: h.model, e: h.experiment, t: +new Date(h.at), v: +h.value })))
-      .filter((h) => RACES.includes(h.e) && h.t >= Date.parse('2026-10-28T17:45:00Z') && AIS[h.id]).sort((a, b) => a.t - b.t);
-    let best = null;
+    const now = Date.now(), HOUR = 3600e3, fx = rates().CAD || 1.38;
+    const part = (tz) => Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }).formatToParts(new Date(now)).map((x) => [x.type, x.value]));
+    const bj = part('Asia/Shanghai'), ny = part('America/New_York'), mins = (q) => Number(q.hour) * 60 + Number(q.minute), wk = (q) => !['Sat', 'Sun'].includes(q.weekday);
+    const nyDay = ny.year + '-' + ny.month + '-' + ny.day;
+    const chinaOpen = wk(bj) && ((mins(bj) >= 570 && mins(bj) < 690) || (mins(bj) >= 780 && mins(bj) < 900));
+    const usOpen = wk(ny) && nyDay !== '2026-11-26' && mins(ny) >= 570 && mins(ny) < (nyDay === '2026-11-27' ? 780 : 960);
+    const fxOpen = !(ny.weekday === 'Sat' || (ny.weekday === 'Fri' && mins(ny) >= 1020) || (ny.weekday === 'Sun' && mins(ny) < 1020));
+    // games with an open bet (any AI) that are being played now: started, and less than 4 hours ago
+    const playing = new Set(); dash.baseData('bets').forEach((b) => { const t = Date.parse(b.starts_at); if (b.status === 'Open' && t <= now && now - t < 4 * HOUR) playing.add(b.event); });
+    dash.baseData('rivals_models').forEach((m) => (((m.books || {}).Sports || {}).bets || []).forEach((b) => { const t = Date.parse(b.starts_at); if (b.status === 'Open' && t <= now && now - t < 4 * HOUR) playing.add(b.event); }));
+    const US = ['Stocks', 'Options', 'Energy', 'Metals', 'Safe'];
+    const open = new Set(['Crypto', 'Predictions'].concat(chinaOpen ? ['China'] : [], usOpen ? US : [], fxOpen ? ['Currencies'] : [], playing.size ? ['Sports'] : []));
+    // each AI's move in the last hour, per race (China converted to C$)
+    const H = dash.baseData('history').map((h) => ({ id: 'claude', e: h.portfolio, t: +new Date(h.at), v: +h.value })).concat(dash.baseData('rivals_history').map((h) => ({ id: h.model, e: h.experiment, t: +new Date(h.at), v: +h.value }))).filter((h) => AIS[h.id] && h.t >= Date.parse('2026-10-28T17:45:00Z')).sort((a, b) => a.t - b.t);
     const by = {}; H.forEach((h) => { (by[h.id + '|' + h.e] = by[h.id + '|' + h.e] || []).push(h); });
-    Object.entries(by).forEach(([k, pts]) => {
-      const last = pts[pts.length - 1]; if (now - last.t > WIN) return;
-      const base = pts.filter((p) => p.t <= now - WIN).pop() || pts[0]; const d = (last.v - base.v) * (last.e === 'China' ? fx : 1);
-      if (Math.abs(d) >= 50 && (!best || Math.abs(d) > Math.abs(best.d))) best = { race: last.e, id: last.id, d, t: last.t };
-    });
-    const MA = dash.baseData('moments_all'); const mom = Array.isArray(MA) ? MA.find((m) => now - Date.parse(m.at) <= WIN && m.race !== 'Overall') : null;
-    if (mom && (!best || Math.abs(mom.amount || mom.lead || 0) * (mom.cur === 'USD' ? fx : 1) >= Math.abs(best.d))) return { race: mom.race, why: 'Following ' + raceName(mom.race) + ': ' + momentText(mom) + ', ' + (((m0) => m0 < 60 ? m0 + ' min ago' : Math.round(m0 / 60) + ' h ago')(Math.max(1, Math.round((now - Date.parse(mom.at)) / 60000)))) + '. Updates by itself.' };
-    if (!best) return null;
-    return { race: best.race, why: 'Following ' + raceName(best.race) + ', the biggest move in the last 2 hours: ' + AIS[best.id].label + ' ' + (best.d >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(best.d)) + (best.race === 'China' ? ' (in C$)' : '') + '. Updates by itself.' };
+    const moves = {}; Object.values(by).forEach((pts) => { const last = pts[pts.length - 1]; if (now - last.t > HOUR || !open.has(last.e)) return; const base = pts.filter((q) => q.t <= now - HOUR).pop() || pts[0]; const d = (last.v - base.v) * (last.e === 'China' ? fx : 1); if (!moves[last.e] || Math.abs(d) > Math.abs(moves[last.e].d)) moves[last.e] = { d, id: last.id }; });
+    const sharp = Object.entries(moves).filter(([, m]) => Math.abs(m.d) >= 1000).sort((a, b) => Math.abs(b[1].d) - Math.abs(a[1].d))[0];
+    const mv = (race) => moves[race] && Math.abs(moves[race].d) >= 1 ? ' Biggest move in the last hour: ' + AIS[moves[race].id].label + ' ' + (moves[race].d >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(moves[race].d)) + '.' : '';
+    if (sharp) return { race: sharp[0], why: raceName(sharp[0]) + ': a sharp move right now.' + mv(sharp[0]) };
+    if (chinaOpen) return { race: 'China', why: 'China stocks: Shanghai is trading now (until ' + (mins(bj) < 690 ? '11:30 a.m.' : '3:00 p.m.') + ' Beijing time).' + mv('China') };
+    if (usOpen) { const r = US.filter((x) => moves[x]).sort((a, b) => Math.abs(moves[b].d) - Math.abs(moves[a].d))[0] || 'Stocks'; return { race: r, why: raceName(r) + ': New York is trading now (until 4:00 p.m. ET).' + mv(r) }; }
+    if (playing.size) return { race: 'Sports', why: 'Sports: ' + playing.size + (playing.size === 1 ? ' game' : ' games') + ' with an open bet being played now.' + mv('Sports') };
+    return { race: 'Crypto', why: 'Crypto: the stock markets are closed and no game with a bet is on, so the 24-hour crypto market is the live one.' + mv('Crypto') };
   };
   const raceName = (r) => r === 'Overall' ? 'the overall race' : (LABEL[r] || r).replace(' (US$)', '');
   const MOM_ICON = { lead: '🏁', win: '▲', loss: '▼', penalty: '⚠', factcheck: '✗', busted: '💥' };

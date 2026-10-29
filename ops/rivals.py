@@ -17,6 +17,7 @@ from datetime import datetime, timezone, timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import tgcharts  # noqa: E402
+import sharecard  # noqa: E402
 
 STATE = 'ops/src/rivals.json'
 WATCH_CRON = '7,22,37,52 * * * *'   # the event watcher's schedule in rivals.yml (must match it exactly)
@@ -1506,7 +1507,7 @@ def main():
         if 'AllInTrading' in exps and NOW < RACE_END:
             settled += settle_options(mid, m['books']['AllInTrading'], fx, state, 'AllInTrading')
         for t in settled:
-            tg_trade(r['label'], t, None, chart(r['label'], r['color'], t['experiment'], state, mid))
+            tg_trade(r['label'], t, None, sharecard.trade_card(r['label'], t, f"/tmp/rc_{mid}_{len(state['trades'])}_{t.get('bet') or t.get('symbol')}.png") or chart(r['label'], r['color'], t['experiment'], state, mid))
         values = frozen_values(state, mid, m['books'], exps, fx, notes)
         if NOW >= RACE_END:
             freeze_final(state, mid, exps, values)
@@ -1771,8 +1772,9 @@ def main():
                 body = body[:3650].rsplit('\n\n', 1)[0] + '\n\n…and more on the site'
             body += f'\n⚔️ AI vs AI: Claude vs Gemini vs ChatGPT · {SITE}'
             big = max((t for t in made if t['experiment'] not in ('Predictions', 'Sports', 'AllInSports')), key=lambda t: abs(t['amount']), default=None)
-            pic = None
-            if big:
+            pic = (sharecard.moves_card(r['label'], made, f"/tmp/rm_{mid}_{len(state['trades'])}.png") if len(made) > 1 else
+                   sharecard.trade_card(r['label'], made[0], f"/tmp/rm_{mid}_{len(state['trades'])}.png"))   # the same design as the site's Share cards
+            if not pic and big:
                 csym = {'Currencies': f"{big['symbol']}USD=X" if big['symbol'] != 'USD' else 'CAD=X'}.get(big['experiment'], big['symbol'])
                 if big['experiment'] == 'Options':
                     csym = option_parts(big['symbol'])[0]
