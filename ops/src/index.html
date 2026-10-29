@@ -289,6 +289,8 @@
   .ai-words p { margin: 0; max-width: 80ch; line-height: 1.65; }
   .ai-words small { color: var(--color-fg-muted); font-size: 11.5px; }
   .ai-pick { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin: 8px 0; }
+  .ai-pick select { font: inherit; font-size: 14px; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 5px 8px; max-width: 100%; }
+  .ai-pick select:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   .listen-btn { font: inherit; font-size: 12.5px; color: var(--color-fg); background: transparent; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 4px 12px; cursor: pointer; min-height: 30px; }
   .listen-btn[aria-pressed="true"] { border-color: var(--color-ok); color: var(--color-ok); }
   .st-geo-sum { margin: 0 0 10px; max-width: 85ch; line-height: 1.6; }
@@ -4171,10 +4173,23 @@
     parts.forEach(([t, r]) => { words.appendChild(mk('h3', '', t)); const pp = mk('p', '', r.text + ' '); const by = mk('span', 'st-by', '— ' + nm); by.style.color = AIS[id].color; pp.appendChild(by); words.appendChild(pp); words.appendChild(mk('small', '', 'Written ' + stFmt.when(r.at))); });
     // goals, feelings, opinions
     const goals = card();
-    goals.appendChild(mk('h2', 'st-h2', 'Goals, feelings and opinions'));
+    const gh = mk('div', 'ai-pick'); gh.appendChild(mk('h2', 'st-h2', 'Goals, feelings and opinions')); goals.appendChild(gh);
     const plans = id === 'claude' ? dash.baseData('plans') : dash.baseData('rivals_plans').filter((x) => x.model === id);
     if (!plans.length) goals.appendChild(mk('p', 'st-note', nm + ' writes its goals at its next check-in.'));
-    else { const g = mk('div', 'st-plans'); planCards(plans, g); goals.appendChild(g); }
+    else {
+      // overall, or one race's own goals (each race has its own; they moved here from the box that sat above every tab)
+      const races = PFS_ALL.filter((e) => plans.some((x) => x.experiment === e));
+      const g = mk('div', 'st-plans');
+      const fill = () => { g.replaceChildren(); planCards(plans, g, el._gr || undefined); };
+      if (races.length) {
+        if (el._gr === undefined || (el._gr && !races.includes(el._gr))) el._gr = '';
+        const l = mk('label', '', 'Race: '); const sel = mk('select'); sel.setAttribute('aria-label', 'Goals for which race');
+        [['', 'Overall']].concat(races.map((e) => [e, LABEL[e] || e])).forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; sel.appendChild(o); });
+        sel.value = el._gr; sel.addEventListener('change', () => { el._gr = sel.value; fill(); }); l.appendChild(sel); gh.appendChild(l);
+        goals.appendChild(mk('p', 'st-note', 'Overall shows its plans and feelings for the whole race. Each race also has its own: pick one to see its 24-hour, 7-day and month plans for that race, how it feels about it and its opinion of the others there.'));
+      }
+      fill(); goals.appendChild(g);
+    }
     // notes: what it's thinking in each experiment
     const notes = card();
     notes.appendChild(mk('h2', 'st-h2', 'Notes: what ' + nm + ' is thinking in each experiment'));
@@ -4551,7 +4566,7 @@
     { const sec = el.closest('section'); const hh = sec && sec.querySelector('.st-h2'); if (hh) hh.textContent = who + '’s Race Report'; }
     const all = dash.baseData('report'), shared = all.filter((r) => !r.model);
     const rows = (me === 'claude' ? all.filter((r) => r.model === 'claude') : dash.baseData('day_reports').filter((r) => r.model === me)).slice().sort((a, b) => new Date(b.at) - new Date(a.at));
-    el.appendChild(mk('p', 'st-note', who + ' writes this report about itself, 2 to 3 times a day: what it did, what worked and what didn’t, and its plans. Pick another AI to read its own report.'));
+    el.appendChild(mk('p', 'st-note', who + ' writes this report about itself, 2 to 3 times a day: what it did, what worked and what didn’t, and its plans. It is one of the competitors, so the numbers on this site are the record; this is its side of the story. Pick another AI to read its own report.'));
     const sharedBox = () => { if (!shared.length) return; const d = mk('details', 'st-report-old'); d.appendChild(mk('summary', '', 'Day 1 opening reports (written before each AI had its own)')); shared.slice().sort((a, b) => new Date(a.at) - new Date(b.at)).forEach((r) => { d.appendChild(mk('h3', 'st-report-t', r.title)); d.appendChild(mk('p', 'st-report-when', stFmt.when(r.at))); (r.body || []).forEach((t) => d.appendChild(mk('p', 'st-report-p', t))); }); el.appendChild(d); };
     if (!rows.length) { el.appendChild(mk('p', 'st-note', who + '’s first report arrives at its next check-in.')); sharedBox(); return; }
     const show = (r, box) => { box.replaceChildren(listenBtn(() => r.title + '. ' + (r.body || []).join(' '), 'Listen to this report'), mk('h3', 'st-report-t', r.title), mk('p', 'st-report-when', stFmt.when(r.at))); (r.body || []).forEach((t) => box.appendChild(mk('p', 'st-report-p', t))); };
