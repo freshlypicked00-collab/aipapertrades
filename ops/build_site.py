@@ -912,7 +912,11 @@ data['status'] = [{
     'instagram': {'last': _ig[0] if _ig else None, 'count_24h': sum(1 for t in _ig if (datetime.now(timezone.utc) - datetime.fromisoformat(t)).total_seconds() < 86400)},
 }]
 data['pulse'] = [r['pulse']] if r.get('pulse') else []
-data['ticker'] = (r.get('pulse') or {}).get('ticker') or []   # the scrolling price ticker under the clocks   # each market's main price, last 1 and 3 hours (rivals.py)
+data['ticker'] = (r.get('pulse') or {}).get('ticker') or []
+try:
+    data['facts'] = json.load(open(os.path.join(SRC, 'facts.json')))[-12:]   # official results (checked at the source), for the headline line
+except Exception:
+    data['facts'] = []   # the scrolling price ticker under the clocks   # each market's main price, last 1 and 3 hours (rivals.py)
 data['day_reports'] = r.get('day_reports', [])   # Gemini's and ChatGPT's own Race Reports (Claude's are in report.json)
 data['rivals_thoughts'] = [x for x in r.get('thoughts', []) if x['at'].replace('Z', '+00:00') >= _cut]
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
