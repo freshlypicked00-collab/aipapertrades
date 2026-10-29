@@ -1537,17 +1537,24 @@ def main():
             today = [x for x in mine if x['at'][:10] == NOW.date().isoformat()]
             myplans = {k: next((x['text'] for x in reversed(state.get('plans', [])) if x['model'] == mid and x['horizon'] == k and not x.get('experiment')), '') for k in ('day', 'week', 'month', 'feeling')}
             board, fc_task = public_board(state, mid) + betting_rule_line(state, mid, fx) + ' ', ''
-            if mid == 'gemini':   # Gemini is the independent fact-checker of Claude's takes (Claude never checks itself)
+            # the fact-check loop (each AI checks exactly one other, nobody checks itself): Gemini checks Claude, ChatGPT checks Gemini
+            # (Claude checks ChatGPT in its own runs)
+            fc_target = {'gemini': 'claude', 'chatgpt': 'gemini'}.get(mid)
+            if fc_target:
                 try:
-                    ct = max([x for x in json.load(open('ops/src/take.json')) if not x.get('experiment')], key=lambda x: datetime.fromisoformat(x['at'].replace('Z', '+00:00')))
+                    if fc_target == 'claude':
+                        ct = max([x for x in json.load(open('ops/src/take.json')) if not x.get('experiment')], key=lambda x: datetime.fromisoformat(x['at'].replace('Z', '+00:00')))
+                    else:
+                        ct = max([x for x in state.get('takes', []) if x.get('model') == fc_target], key=lambda x: datetime.fromisoformat(x['at'].replace('Z', '+00:00')))
                 except Exception:
                     ct = None
-                done = {x['take_at'] for x in state.get('factchecks', []) if x.get('model') == 'claude'}
+                done = {x['take_at'] for x in state.get('factchecks', []) if x.get('model') == fc_target}
+                tname = {'claude': 'Claude', 'gemini': 'Gemini'}[fc_target]
                 if ct and ct['at'] not in done:
-                    fc_task = ('INDEPENDENT FACT-CHECK TASK: you are the public fact-checker for Claude\'s takes. Claude\'s newest take (written ' + ct['at'] + '): "' + ct['text'] + '". '
-                               'Use web search to check every factual claim in it (prices, rate decisions, events, what Claude says it holds is not checkable, skip that). Be fair and strict. '
-                               'Add a top-level field to your JSON reply: "fact_check_claude": {"verdict": "ok" | "partly" | "wrong" | "unverified", "text": "1-2 neutral sentences: what is right or wrong, with the correct fact", "source": "one URL you checked"}. '
-                               'This is shown on the website only; it is not sent to Claude. ')
+                    fc_task = (f'INDEPENDENT FACT-CHECK TASK: you are the public fact-checker for {tname}\'s takes. {tname}\'s newest take (written ' + ct['at'] + '): "' + ct['text'] + '". '
+                               f'Use web search to check every factual claim in it (prices, rate decisions, events; what {tname} says it holds is not checkable, skip that). Be fair and strict. '
+                               f'Add a top-level field to your JSON reply: "fact_check_{fc_target}": ' + '{"verdict": "ok" | "partly" | "wrong" | "unverified", "text": "1-2 neutral sentences: what is right or wrong, with the correct fact", "source": "one URL you checked"}. '
+                               f'This is shown on the website only; it is not sent to {tname}. ')
                     fc_take = ct
             myprof = {k: next((x['text'] for x in reversed(state.get('profiles', [])) if x['model'] == mid and x['field'] == k), '') for k in ('about', 'looking_forward', 'not_looking_forward', 'strategy', 'plan')}
             fresh = iso(NOW - timedelta(hours=8))
@@ -1616,7 +1623,7 @@ def main():
                 prev = next((x for x in reversed(state.setdefault('profiles', [])) if x['model'] == mid and x['field'] == k), None)
                 if txt and (not prev or prev['text'] != txt) and (not prev or prev['at'][:10] != NOW.date().isoformat() or len(txt) > 0 and prev['text'] == ''):
                     state['profiles'].append({'at': iso(), 'model': mid, 'field': k, 'text': txt})
-            fcr = reply.get('fact_check_claude')
+            fcr = reply.get(f'fact_check_{fc_target}') if fc_target else None
             if fc_task and isinstance(fcr, dict) and fcr.get('text'):
                 v = str(fcr.get('verdict', 'unverified')).lower().strip()
                 src = str(fcr.get('source', '')).strip()
@@ -1625,7 +1632,7 @@ def main():
                 if searched == 0:   # no web search behind it: it can't count as a check
                     v = 'unverified'
                     fcr = dict(fcr, text='Not checked against the web this time (no search was run). ' + str(fcr['text']))
-                state.setdefault('factchecks', []).append({'at': iso(), 'model': 'claude', 'checker': 'gemini', 'take_at': fc_take['at'], 'take': clip(fc_take['text'], 300),
+                state.setdefault('factchecks', []).append({'at': iso(), 'model': fc_target, 'checker': mid, 'take_at': fc_take['at'], 'take': clip(fc_take['text'], 300),
                                                            'verdict': v if v in ('ok', 'partly', 'wrong', 'unverified') else 'unverified', 'text': clip(re.sub(r'\s*\[\d+(?:,\s*\d+)*\]', '', str(fcr['text'])), 500), 'source': src if src.startswith('http') else ''})
             pl = reply.get('plans') if isinstance(reply.get('plans'), dict) else {}
             pl = dict(pl, feeling=reply.get('feeling', ''))
