@@ -159,7 +159,9 @@ def scoreboard_finals(get_json, now, bet_teams):
                         continue
                     seen.add(str(ev['id']))
                     txt = (note + ': ' if note else '') + f"{w['team']['displayName']} {w.get('score')}, {lo['team']['displayName']} {lo.get('score')}" + (f' ({series})' if series else '')
-                    out.append({'league': short, 'headline': txt, 'at': (start + timedelta(hours=3)).strftime('%Y-%m-%dT%H:%M:%SZ'), 'link': '',
+                    link = next((x.get('href') for x in (ev.get('links') or []) if 'summary' in (x.get('rel') or []) or '/game' in str(x.get('href', ''))), '') \
+                        or f'https://www.espn.com/{lg}/game/_/gameId/{ev["id"]}'   # the game's page: box score and recap
+                    out.append({'league': short, 'headline': txt, 'at': (start + timedelta(hours=3)).strftime('%Y-%m-%dT%H:%M:%SZ'), 'link': link,
                                 'why': 'big game' if note else ('game bet on' if bet else 'result'), 'final': True, 'game': str(ev['id']), 'rank': 0 if note else 1 if bet else 2})
                 except Exception:
                     continue
@@ -195,15 +197,17 @@ def sports_items(get_json, state, claude_bets, now, leagues):
             out.append({'league': name, 'headline': h[:150], 'at': at.strftime('%Y-%m-%dT%H:%M:%SZ'), 'link': ((a.get('links') or {}).get('web') or {}).get('href', ''),
                         'why': f'{hit}: open bet' if hit else 'big story', 'rank': 3 if hit else 4})
     # finals of games bet on (the race's own sports results)
-    finals = {}
+    finals, links = {}, {}
     for mid, m in (state.get('models') or {}).items():
         for e in ('Sports', 'AllInSports'):
             for b in ((m.get('books') or {}).get(e) or {}).get('bets', []):
                 if b.get('status') in ('Won', 'Lost', 'Push') and b.get('final') and b.get('settled_at'):
                     if now - datetime.fromisoformat(b['settled_at'].replace('Z', '+00:00')) <= timedelta(hours=12):
                         finals.setdefault(b['final'], (b.get('short', ''), b['settled_at'], set()))[2].add(mid)
+                        if b.get('game') and b.get('league'):
+                            links[b['final']] = f"https://www.espn.com/{'soccer/match' if b['league'] == 'eng.1' else b['league'] + '/game'}/_/gameId/{b['game']}"
     for f, (lg, at, who) in finals.items():
-        out.append({'league': lg or 'FINAL', 'headline': 'Final: ' + f, 'at': at, 'link': '', 'why': 'bet on by ' + ', '.join(sorted(who)), 'final': True, 'bet': True, 'rank': 1})
+        out.append({'league': lg or 'FINAL', 'headline': 'Final: ' + f, 'at': at, 'link': links.get(f, ''), 'why': 'bet on by ' + ', '.join(sorted(who)), 'final': True, 'bet': True, 'rank': 1})
     try:
         out += scoreboard_finals(get_json, now, set(teams))
     except Exception as e:
