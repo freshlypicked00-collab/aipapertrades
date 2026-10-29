@@ -543,6 +543,7 @@
   .st-bets-bar select { font: inherit; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 4px 8px; }
   .st-bets-pager { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
   .st-nowrap { white-space: nowrap; }
+  .pt-res { letter-spacing: .04em; } .pt-res.is-down { color: var(--color-bad, #ff5a4e); } .pt-res.is-up { color: var(--color-ok, #3ddc84); }
   .st-pager { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0 0; font-size: 13px; }
   .st-pager select { font: inherit; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 4px 8px; }
   .pa-sum { margin: 6px 0 10px; } .pa-sum b { margin-right: 4px; }
@@ -850,7 +851,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '80450ba8c3ed';</script>
+<script>window.PT_PAGE_VER = 'cda80dd58df8';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -5348,7 +5349,11 @@ body { background:var(--color-bg); }
     const paint = () => {
       const mins = Math.max(0, Math.round((Date.now() - new Date(best.at)) / 60000));
       const ago = mins < 1 ? 'just now' : mins < 60 ? mins + ' min ago' : mins < 1440 ? Math.round(mins / 60) + ' h ago' : Math.round(mins / 1440) + ' d ago';
-      el.replaceChildren(mk('b', '', 'Latest: '), document.createTextNode(AIS[best.id].label + ' · ' + best.text.replace(/^Buy /, 'bought ').replace(/^Sell /, 'sold ').replace(/^Bet /, 'bet ').replace(/^Short /, 'shorted ').replace(/^Cover /, 'covered ') + ' · ' + ago));
+      const txt = best.text.replace(/^Buy /, 'bought ').replace(/^Sell /, 'sold ').replace(/^Bet /, 'bet ').replace(/^Short /, 'shorted ').replace(/^Cover /, 'covered ');
+      const m = txt.match(/^(Lost|Won) (.*)$/);   // a settled bet: LOSS in red, WIN in green
+      el.replaceChildren(mk('b', '', 'Latest: '), document.createTextNode(AIS[best.id].label + ' · '));
+      if (m) { el.appendChild(mk('b', m[1] === 'Lost' ? 'is-down pt-res' : 'is-up pt-res', m[1] === 'Lost' ? 'LOSS' : 'WIN')); el.appendChild(document.createTextNode(' ' + m[2] + ' · ' + ago)); }
+      else el.appendChild(document.createTextNode(txt + ' · ' + ago));
     };
     paint(); clearInterval(el._tick); el._tick = setInterval(paint, 60000);   // the "x min ago" keeps counting between data updates
   });
