@@ -1505,6 +1505,14 @@ def shared_steps(state, fx, games=True):
         record_closing(state)
     except Exception as e:
         print('closing odds failed', e)
+    try:   # the nightly ledger fingerprint (agreed item 3): once, 2 hours after each daily close, on the site and Telegram
+        import fingerprint as FP
+        FP.maybe_publish(state, NOW, post=lambda f: tg(f"🔒 <b>Ledger fingerprint, race day {datetime.fromisoformat(f['day']).strftime('%b %-d')}</b>\n"
+                                                       f"Every trade and bet of all three AIs up to the daily close: {f['records']} records.\n"
+                                                       f"SHA-256: <code>{f['sha256']}</code>\n"
+                                                       f"Anyone can re-check it on papertrades.ai (Rules &amp; Audit): if an earlier record were edited, it would no longer match.", silent=True))
+    except Exception as e:
+        print('fingerprint failed', e)
     try:   # the games open for betting, the same list Gemini and ChatGPT see, for Claude's sessions (`python3 ops/orders.py games`)
         if not games:
             return

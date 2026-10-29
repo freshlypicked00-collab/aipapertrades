@@ -452,6 +452,7 @@ if (r.get('stops_migrated') or {}).get('claude'):
                               'asset': _st.get('name'), 'level': _st['level'], 'direction': _st['direction'], 'label': _st['kind'].capitalize(), 'stop_id': _st['id'],
                               **({'watch': _w} if _w else {})})
 data['stops_log'] = (r.get('stops_log') or [])[-60:]
+data['fingerprints'] = r.get('fingerprints') or []   # nightly ledger fingerprints (ops/fingerprint.py), recomputed by the visitor's browser
 # Profit on every closed trade (average cost) and every settled bet, so every trade table can show what went in,
 # what came back and the profit. Buys and open bets are marked open. Sells carry "cost" (what that part cost) and "pnl".
 def _annotate_rivals(r):
@@ -539,11 +540,23 @@ _ny = _ZI('America/New_York')
 _BFS, _BEND = '2026-10-28T17:45:00+00:00', '2026-11-28T21:00:00+00:00'
 def _when(x):
     return datetime.fromisoformat(str(x).replace('Z', '+00:00'))
-_rows = {'claude': [(b.get('placed_at'), float(b.get('stake_cad') or 0)) for b in data['bets'] if b.get('placed_at')] +
-                   [(t['at'], float(t.get('cad') or 0)) for t in data['trades'] if t['portfolio'] == 'Predictions' and t['action'] == 'Buy' and not str(t['holding']).startswith('[')]}
+# every wager that counts toward the minimums, the same rule for all three AIs: bets and parlays placed and prediction-market buys;
+# a bet the organiser cancelled before it started does not count (agreed item 10: the list is published as an audit table)
+_bm_items = []
+for _b in data['bets']:
+    if _b.get('placed_at') and _b.get('status') != 'Void':
+        _bm_items.append({'model': 'claude', 'at': _b['placed_at'], 'amount': float(_b.get('stake_cad') or 0), 'kind': 'Parlay' if _b.get('market') == 'parlay' else 'Bet',
+                          'what': f"{_b.get('pick')} ({_b.get('event')})", 'race': 'Sports'})
+for _t in data['trades']:
+    if _t['portfolio'] == 'Predictions' and _t['action'] == 'Buy' and not str(_t['holding']).startswith('['):
+        _bm_items.append({'model': 'claude', 'at': _t['at'], 'amount': float(_t.get('cad') or 0), 'kind': 'Prediction buy', 'what': _t['holding'], 'race': 'Predictions'})
 for _t in r.get('trades', []):
     if _t.get('experiment') in ('Sports', 'Predictions') and _t.get('action') in ('Bet', 'Buy') and _t.get('model') in ('gemini', 'chatgpt') and not _t.get('void'):
-        _rows.setdefault(_t['model'], []).append((_t['at'], float(_t.get('amount') or 0)))
+        _bm_items.append({'model': _t['model'], 'at': _t['at'], 'amount': float(_t.get('amount') or 0), 'kind': ('Parlay' if _t.get('legs') else 'Bet') if _t['action'] == 'Bet' else 'Prediction buy',
+                          'what': _t.get('name') or _t.get('symbol'), 'race': _t['experiment']})
+_rows = {}
+for _it in _bm_items:
+    _rows.setdefault(_it['model'], []).append((_it['at'], _it['amount']))
 def _betbal(mid):
     if mid == 'claude':
         sp = 100000.0 + sum(float(b.get('result_cad') or 0) for b in data['bets'] if b.get('status') not in ('Open', None)) - sum(float(x['amount']) for x in r.get('claude_penalties', []))
@@ -575,6 +588,8 @@ for _m in ('claude', 'gemini', 'chatgpt'):
                                 'wagered': round(sum(v for a, v in _rs if _a <= _when(a) < _b), 2)})
         _d += timedelta(days=1)
     data['betmins'].append({'model': _m, 'week': 'Total', 'start': _BFS, 'end': _BEND, 'min': 100000, 'wagered': round(sum(v for a, v in _rs), 2), 'day_min': _dmin})
+data['betmin_items'] = sorted([dict(_it, day=_when(_it['at']).astimezone(_ny).date().isoformat(), amount=round(_it['amount'], 2)) for _it in _bm_items if _when(_it['at']) >= _when(_BFS)],
+                              key=lambda x: _when(x['at']), reverse=True)
 # which experiments each AI leads right now (highest value of the three; ties lead nothing)
 _LBL = {'Stocks': 'Stocks', 'Crypto': 'Crypto', 'China': 'China stocks', 'Metals': 'Metals', 'Energy': 'Oil and energy', 'Options': 'Options',
         'Currencies': 'Currencies', 'Safe': 'Play it safe', 'Sports': 'Sports', 'Predictions': 'Prediction markets'}
