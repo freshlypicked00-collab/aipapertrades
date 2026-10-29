@@ -139,10 +139,12 @@ def prepare():
                 import racecard
                 table, big = racecard.races(datetime.fromisoformat(p['day_start']), 'ops/src')
                 when = datetime.fromisoformat(p['day_start'])
+                img0 = f"social/{p['id']}-title.jpg"
+                pc.title_slide(p['day'], when, img0)
                 pc.daily_cover(table, p['day'], when, big, img)
                 img2 = f"social/{p['id']}-races.jpg"
                 pc.daily(table, p['day'], when, big, img2)
-                p['images'] = [img, img2]   # a carousel: the bold cover, then every race
+                p['images'] = [img0, img, img2]   # a carousel: "Day N results" title, the bold summary, then every race
                 lines = []
                 for e in racecard.ORDER:
                     rows = table.get(e) or []

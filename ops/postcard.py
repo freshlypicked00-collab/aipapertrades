@@ -335,6 +335,43 @@ def daily_cover(table, n, when, big, path, glow=True, swipe=True):
     return c.save(path)
 
 
+def title_slide(n, when, path):
+    """Slide 1 of the daily post: just "Day N results" and the date, big and calm, plus where we are in the race."""
+    if not 1 <= n <= 32:
+        raise QualityError('day number out of range')
+    c = Card()
+    _glow(c, AMBER, xy=(1100, 520), r=520)
+    c.header(f'DAY {n} OF 32')
+    c.text((SAFE_X, 360), 'THE AI MONEY RACE', font('mono', 'SemiBold', 34), UP, 'lm', tracking=6)
+    big = c.fit(f'Day {n}', 'sans', 'Bold', 400, W - 2 * SAFE_X, 220)
+    c.text((SAFE_X, 400), f'Day {n}', big, FG, 'lt')
+    y = 400 + int(big.size * 1.0)
+    c.text((SAFE_X, y), 'results', font('sans', 'Bold', 210), AMBER, 'lt')
+    y += 260
+    c.text((SAFE_X, y), when.strftime('%A, %B %-d, %Y'), font('mono', 'Medium', 46), FG, 'lt')
+    # where we are: 32 days, today's filled
+    y += 130
+    seg_w, gap = (W - 2 * SAFE_X - 31 * 8) / 32, 8
+    for i in range(32):
+        x = SAFE_X + i * (seg_w + gap)
+        c.d.rounded_rectangle([x, y, x + seg_w, y + 22], radius=4, fill=AMBER if i < n else LINE)
+    c.text((SAFE_X, y + 64), f'Day {n} of 32', font('mono', 'Medium', 30), MUTED, 'lm')
+    c.text((W - SAFE_X, y + 64), 'Final scoring Nov 28', font('mono', 'Medium', 30), MUTED, 'rm')
+    # the three AIs
+    y += 150
+    x = SAFE_X
+    for k in ('claude', 'gemini', 'chatgpt'):
+        c.d.ellipse([x, y - 14, x + 28, y + 14], fill=AIS[k][1])
+        f = font('sans', 'SemiBold', 48)
+        c.text((x + 44, y), AIS[k][0], f, FG, 'lm')
+        x += 44 + f.getlength(AIS[k][0]) + 70
+    c.text((W - SAFE_X, 1528), 'Swipe for the results  →', font('mono', 'SemiBold', 30), AMBER, 'rm')
+    if y + 40 > 1500:
+        raise QualityError('title slide overflows')
+    c.footer()
+    return c.save(path)
+
+
 # ---------- stories (9:16): the cover, framed for a phone screen, clear of Instagram's own buttons at the top and bottom
 SW, SH = 1440, 2560
 
