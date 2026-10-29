@@ -4068,7 +4068,7 @@
     // Moments: the latest lead changes, each with a picture to share
     const MO = dash.baseData('moments'); const moms = (Array.isArray(MO) ? MO : []).slice(0, 4);
     const mb = mk('div', 'pd-moments'); mb.appendChild(mk('b', '', 'Moments'));
-    if (!moms.length) mb.appendChild(mk('p', 'pd-note', 'Every time the lead changes hands in a race (by C$250 or more) or overall (by C$500 or more), it shows up here with a picture you can share.'));
+    if (!moms.length) mb.appendChild(mk('p', 'pd-note', 'Every time the lead changes hands in a race (by C$250 or more), it shows up here with a picture you can share.'));
     moms.forEach((m) => {
       const row = mk('div', 'pd-mom'); row.style.setProperty('--ai', AIS[m.who].color);
       row.append(aiBadge(m.who, 18));

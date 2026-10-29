@@ -350,9 +350,11 @@ try:
     _sig = hashlib.sha1(json.dumps([[r['id'], round(r['total'] / 50)] for r in _rows]).encode()).hexdigest()[:10]
     _ogj = os.path.join(SRC, 'og.json')
     _old = json.load(open(_ogj)).get('sig') if os.path.exists(_ogj) else None
-    if _rows and (_sig != _old or not os.path.exists(os.path.join(OUT, 'og.png'))):
+    _tab, _ = racecard.races(None, SRC)
+    _sig = hashlib.sha1(json.dumps({e: [[m, round(p / 50)] for m, p in v] for e, v in _tab.items()}).encode()).hexdigest()[:10]
+    if _tab and (_sig != _old or not os.path.exists(os.path.join(OUT, 'og.png'))):
         _now = datetime.now(timezone.utc).astimezone(__import__('zoneinfo').ZoneInfo('America/New_York'))
-        racecard.race_card(_rows, None, 'Live standings · ' + _now.strftime('%a %b %-d, %-I:%M %p ET'), os.path.join(OUT, 'og.png'), height=6.3)
+        racecard.races_card(_tab, None, 'Live standings · ' + _now.strftime('%a %b %-d, %-I:%M %p ET'), os.path.join(OUT, 'og.png'))
         json.dump({'sig': _sig, 'at': _now.isoformat()}, open(_ogj, 'w'))
     OG_V = _sig
     STANDINGS = [{'id': r['id'], 'total': round(r['total'], 2)} for r in _rows]
@@ -375,7 +377,7 @@ html = f"""<!doctype html>
 <meta property="og:image" content="https://papertrades.ai/og.png?v={OG_V}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Paper Trades live standings: Claude vs Gemini vs ChatGPT, total profit since the Oct 28 restart">
+<meta property="og:image:alt" content="Paper Trades live standings: Claude vs Gemini vs ChatGPT in ten separate races, profit since the Oct 28 restart">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Paper Trades - AI Trading Experiment">
 <meta name="twitter:image" content="https://papertrades.ai/og.png?v={OG_V}">
@@ -633,7 +635,7 @@ for _e in _EXPS:
 data['exp_standings'] = _es
 
 
-# Moments: each time the lead changes hands, per race and overall, replayed from the value history (so it rebuilds the same
+# Moments: each time the lead changes hands in a race (each race on its own, never totals), replayed from the value history (so it rebuilds the same
 # on either workflow). A new leader must be ahead by at least C$250 in a race (C$500 overall); at most one moment per race per 12 hours.
 def _moments():
     ev = [(_when(h['at']), 'claude', h['portfolio'], float(h['value'])) for h in data['history'] if h['portfolio'] in _EXPS and _when(h['at']) >= _FS]
@@ -649,7 +651,7 @@ def _moments():
         cur[(mid, e)] = max(v, 0) - base.get((mid, e), 100000.0)
         if at > RACE_END_DT:
             break
-        for race in (e, 'Overall'):
+        for race in (e,):   # each race on its own: lead changes are never counted on totals (owner's rule)
             if race == 'Overall':
                 if any((m, x) not in cur for m in ('claude', 'gemini', 'chatgpt') for x in ('Stocks',)):
                     continue

@@ -1,6 +1,7 @@
-"""Daily share image: the overall race (total profit since the fresh start) plus the day's biggest move.
+"""Daily share image: every race on its own (each experiment is a separate race; nothing is added together until the end).
 
-standings() returns rows for all three AIs; race_card() draws a 1200x675 PNG for Telegram and social sharing.
+races() returns, per race, the three AIs best first with their profit since the Oct 28 restart (China in US$), plus the day's biggest move;
+races_card() draws a 1200x675 PNG for Telegram and social sharing. standings()/race_card() (total profit) are kept for the final result only.
 """
 import json
 from datetime import datetime, timezone, timedelta
@@ -53,6 +54,78 @@ def standings(usdcad, day_start=None, src='ops/src'):
     return rows, big
 
 
+ORDER = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
+
+
+def races(day_start=None, src='ops/src'):
+    """{race: [(ai, profit), ...] best first} and the biggest move since day_start (in that race's own currency)."""
+    ser = _series(src)
+    day_start = day_start or datetime.now(timezone.utc) - timedelta(days=1)
+    out, moves = {}, []
+    for e in ORDER:
+        rows = []
+        for mid in AIS:
+            pts = ser.get((mid, e))
+            if not pts:
+                continue
+            pre = [v for t, v in pts if t <= FS]
+            base = pre[-1] if (mid == 'claude' and pre) else 100000.0
+            end = max(0.0, pts[-1][1])
+            rows.append((mid, end - base))
+            before = [v for t, v in pts if t <= day_start] or [base]
+            moves.append((abs(end - before[-1]) / max(before[-1], 1), mid, e, end - before[-1], end / before[-1] - 1 if before[-1] else 0))
+        if rows:
+            out[e] = sorted(rows, key=lambda x: -x[1])
+    big = max(moves) if moves else None
+    return out, big
+
+
+def money(x, e):
+    return ('+' if x >= 0 else '−') + ('US$' if e == 'China' else 'C$') + f'{abs(x):,.0f}'
+
+
+def races_card(table, big, title, path='/tmp/pt_race.png'):
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    plt.rcParams.update({'text.parse_math': False})
+    BG, FG, MUTED, UP, DOWN = '#0b0b0a', '#f2e9d8', '#9b927f', '#3ddc84', '#ff5a4e'
+    fig = plt.figure(figsize=(12, 6.75), facecolor=BG)
+    ax = fig.add_axes([0, 0, 1, 1]); ax.set_xlim(0, 1200); ax.set_ylim(675, 0); ax.axis('off')
+    ax.text(60, 58, 'PAPER TRADES', color='#ffb000', fontsize=20, fontweight='bold', family='monospace')
+    ax.text(60, 92, title, color=FG, fontsize=15)
+    ax.text(1140, 58, 'Ten separate races · Claude vs Gemini vs ChatGPT', color=MUTED, fontsize=12, ha='right')
+    ax.text(1140, 92, 'Each race on its own · profit since the Oct 28 restart', color=MUTED, fontsize=12, ha='right')
+    ax.text(60, 135, 'RACE', color=MUTED, fontsize=10, family='monospace')
+    for j, h in enumerate(('1ST', '2ND', '3RD')):
+        ax.text(330 + j * 280, 135, h, color=MUTED, fontsize=10, family='monospace')
+    y = 158
+    for i, e in enumerate(ORDER):
+        rows = table.get(e) or []
+        if i % 2 == 0:
+            ax.add_patch(plt.Rectangle((50, y - 4), 1100, 42, color='#141310', zorder=0))
+        ax.text(60, y + 17, LABEL.get(e, e) + (' (US$)' if e == 'China' else ''), color=FG, fontsize=13, fontweight='bold', va='center')
+        even = rows and max(r[1] for r in rows) - min(r[1] for r in rows) < 0.5
+        if not rows or even:
+            ax.text(330, y + 17, 'All even so far' if rows else 'No results yet', color=MUTED, fontsize=12, va='center')
+        else:
+            for j, (mid, p) in enumerate(rows[:3]):
+                x = 330 + j * 280
+                ax.add_patch(plt.Rectangle((x - 12, y + 6), 5, 22, color=AIS[mid][2]))
+                lead = j == 0 and len(rows) > 1 and p - rows[1][1] >= 0.5
+                tied = len(rows) > 1 and any(abs(p - q) < 0.5 for k, (_, q) in enumerate(rows) if k != j)
+                ax.text(x, y + 17, AIS[mid][0] + (' (tied)' if tied else ''), color=FG, fontsize=13, fontweight='bold' if lead else 'normal', va='center')
+                ax.text(x + 250, y + 17, money(p, e), color=UP if p >= 0 else DOWN, fontsize=13, ha='right', va='center', family='monospace')
+        y += 44
+    if big:
+        _, mid, e, d, pct = big
+        ax.text(60, 625, f"Biggest move today: {AIS[mid][0]} in {LABEL.get(e, e)}, {money(d, e)} ({pct * 100:+.1f}%)", color=UP if d >= 0 else DOWN, fontsize=13)
+    ax.text(1140, 655, 'papertrades.ai · @PaperTradesAI · pretend money, real prices', color=MUTED, fontsize=10, ha='right')
+    fig.savefig(path, dpi=100, facecolor=BG)
+    plt.close(fig)
+    return path
+
+
 def race_card(rows, big, title, path='/tmp/pt_race.png', height=6.75):
     import matplotlib
     matplotlib.use('Agg')
@@ -88,6 +161,6 @@ def race_card(rows, big, title, path='/tmp/pt_race.png', height=6.75):
 
 
 if __name__ == '__main__':
-    rows, big = standings(1.38)
-    print(rows, big)
-    print(race_card(rows, big, 'After Day 1 · Wed Oct 28'))
+    t, big = races()
+    print(t, big)
+    print(races_card(t, big, 'After Day 1 · Wed Oct 28'))

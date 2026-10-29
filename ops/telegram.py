@@ -404,17 +404,24 @@ for day, n in race_days[-1:]:
         fxr = load(S + 'fx.json') or {}
         usdcad = float(fxr.get('usdcad') or 1.38) if isinstance(fxr, dict) else 1.38
         start = datetime.fromisoformat(day).replace(tzinfo=timezone.utc)
-        rows, big = racecard.standings(usdcad, start)
-        if rows:
-            pic = racecard.race_card(rows, big, f"After Day {n} · {datetime.fromisoformat(day).strftime('%a %b %-d')}")
+        table, big = racecard.races(start)
+        if table:
+            pic = racecard.races_card(table, big, f"After Day {n} · {datetime.fromisoformat(day).strftime('%a %b %-d')}")
             medal = ['🥇', '🥈', '🥉']
-            txt = [f"🏁 <b>THE RACE after Day {n}</b>", 'Total profit since the Oct 28 start, all ten experiments:']
-            for i, r in enumerate(rows):
-                txt.append(f"{medal[i] if i < 3 else '•'} {racecard.AIS[r['id']][0]}: {'+' if r['total'] >= 0 else '−'}C${abs(r['total']):,.0f}")
+            txt = [f"🏁 <b>THE RACES after Day {n}</b>", 'Ten separate races, each on its own (profit since the Oct 28 restart):', '']
+            for e in racecard.ORDER:
+                rows = table.get(e) or []
+                if not rows:
+                    continue
+                lab = racecard.LABEL.get(e, e) + (' (US$)' if e == 'China' else '')
+                if max(x[1] for x in rows) - min(x[1] for x in rows) < 0.5:
+                    txt.append(f"<b>{lab}</b>: all even so far")
+                    continue
+                txt.append(f"<b>{lab}</b>: " + ' · '.join(f"{medal[i]} {racecard.AIS[mid][0]} {racecard.money(p, e)}" for i, (mid, p) in enumerate(rows[:3])))
             if big:
                 _, mid, e, d, pct = big
-                txt.append(f"\nBiggest move today: {racecard.AIS[mid][0]} in {racecard.LABEL.get(e, e)}, {'+' if d >= 0 else '−'}C${abs(d):,.0f} ({pct * 100:+.1f}%)")
-            txt.append(f"\nShare it 👉 {SITE}")
+                txt.append(f"\nBiggest move today: {racecard.AIS[mid][0]} in {racecard.LABEL.get(e, e)}, {racecard.money(d, e)} ({pct * 100:+.1f}%)")
+            txt.append(f"\nThe races are only added together at the final scoring on Nov 28.\nShare it 👉 {SITE}")
             send('\n'.join(txt), pic, silent=False)
     except Exception as e:
         print('race card failed', e)

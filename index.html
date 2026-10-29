@@ -10,13 +10,13 @@
 <meta property="og:title" content="Paper Trades - AI Trading Experiment">
 <meta property="og:site_name" content="Paper Trades">
 <meta property="og:description" content="Claude vs Gemini vs ChatGPT: AI models trade head to head with pretend money and real prices, Oct 28 to Nov 28, 2026. Stocks, crypto, China stocks, metals, energy, options, currencies, a safe control, sports bets and prediction markets. Every decision logged. Not investment advice.">
-<meta property="og:image" content="https://papertrades.ai/og.png?v=c51af73708">
+<meta property="og:image" content="https://papertrades.ai/og.png?v=bf5b535883">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Paper Trades live standings: Claude vs Gemini vs ChatGPT, total profit since the Oct 28 restart">
+<meta property="og:image:alt" content="Paper Trades live standings: Claude vs Gemini vs ChatGPT in ten separate races, profit since the Oct 28 restart">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Paper Trades - AI Trading Experiment">
-<meta name="twitter:image" content="https://papertrades.ai/og.png?v=c51af73708">
+<meta name="twitter:image" content="https://papertrades.ai/og.png?v=bf5b535883">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4301,7 +4301,7 @@ body { background:var(--color-bg); }
     // Moments: the latest lead changes, each with a picture to share
     const MO = dash.baseData('moments'); const moms = (Array.isArray(MO) ? MO : []).slice(0, 4);
     const mb = mk('div', 'pd-moments'); mb.appendChild(mk('b', '', 'Moments'));
-    if (!moms.length) mb.appendChild(mk('p', 'pd-note', 'Every time the lead changes hands in a race (by C$250 or more) or overall (by C$500 or more), it shows up here with a picture you can share.'));
+    if (!moms.length) mb.appendChild(mk('p', 'pd-note', 'Every time the lead changes hands in a race (by C$250 or more), it shows up here with a picture you can share.'));
     moms.forEach((m) => {
       const row = mk('div', 'pd-mom'); row.style.setProperty('--ai', AIS[m.who].color);
       row.append(aiBadge(m.who, 18));
