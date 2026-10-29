@@ -598,6 +598,14 @@ for _e in _EXPS:
     _v, _b = _lastv([(h['at'], float(h['value'])) for h in data['history'] if h['portfolio'] == _e])
     if _v is not None:
         _ctot += (max(_v, 0) - _b) * (_cfx if _e == 'China' else 1)
+def _merge_pie(items):
+    """One slice per holding: repeat bets on the same pick are added together (Oct 29)."""
+    out = {}
+    for n, x in items:
+        out[n] = out.get(n, 0.0) + float(x)
+    return [{'name': n, 'value': round(x, 2)} for n, x in out.items() if x > 0.5]
+
+
 for _e in _EXPS:
     v, b0 = _lastv([(h['at'], float(h['value'])) for h in data['history'] if h['portfolio'] == _e])
     if v is not None:
@@ -623,8 +631,11 @@ for _e in _EXPS:
         lb = max(_bev, key=lambda x: _when(x[0]), default=None)
         last = ({'at': lb[0], 'text': lb[1]} if lb else
                 {'at': lt['at'], 'text': f"{lt['action']} {lt['holding']}" + (f" ({b2c(lt['cad'])})" if lt.get('cad') else '')} if lt else None)
+        if _e == 'Sports':   # the bankroll is the start plus settled results; what isn't riding on an open bet is "Not bet" (Oct 29)
+            _ob = [(n, x) for n, x in hv if not str(n).startswith('Cash')]
+            hv = _ob + [('Not bet', max(0.0, v - sum(x for _, x in _ob)))]
         _es[_e].append({'id': 'claude', 'value': round(v, 2), 'profit': round(max(v, 0) - b0, 2), 'holds': held[:20], 'busted': v <= 0, 'eliminated': _ctot <= -100000,
-                        'pie': [{'name': n, 'value': round(x, 2)} for n, x in hv], 'last': last})
+                        'pie': _merge_pie(hv), 'last': last})
     for _mid, _m in (r.get('models') or {}).items():
         v, _ = _lastv([(h['at'], float(h['value'])) for h in r.get('history', []) if h['model'] == _mid and h['experiment'] == _e])
         bk = (_m.get('books') or {}).get(_e)
@@ -654,7 +665,7 @@ for _e in _EXPS:
         else:
             last = {'at': lt['at'], 'text': f"{lt['action']} {lt.get('name') or lt['symbol']} ({b2c(abs(lt['amount']), lt['cur'])})"} if lt else None
         _es[_e].append({'id': _mid, 'value': round(v, 2), 'profit': round(max(v, 0) - 100000.0, 2), 'holds': held[:20],
-                        'pie': [{'name': n, 'value': round(x, 2)} for n, x in pie if x > 0.5], 'last': last,
+                        'pie': _merge_pie(pie), 'last': last,
                         'busted': bool(bk.get('busted')), 'eliminated': bool(_m.get('eliminated'))})
     _es[_e].sort(key=lambda x: -x['value'])
 

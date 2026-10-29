@@ -963,7 +963,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '22ed83780532';</script>
+<script>window.PT_PAGE_VER = '63486416134c';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -5048,17 +5048,18 @@ body { background:var(--color-bg); }
         return { id, book: m.books[exp], pts: [{ t: st, v: 100000 }].concat(pts) };
       }).filter(Boolean);
       const ranked = ser.map((x) => ({ ...x, last: x.pts[x.pts.length - 1].v })).sort((a, b) => b.last - a.last);
-      const pieOf = (bk) => {
+      const pieOf = (bk, now) => {
         const out = [];
         Object.entries(bk.positions || {}).forEach(([k, q]) => { const v = Number(q.qty) * Number(q.last != null ? q.last : q.entry) * (q.pcur === 'USD' ? usdcad : 1); if (v > 0) out.push({ name: q.name || k, value: v }); });
         (bk.bets || []).filter((b) => b.status === 'Open').forEach((b) => { if (Number(b.stake) > 0) out.push({ name: b.pick_team || b.pick || b.event, value: Number(b.stake) }); });
         const by = {}; out.forEach((q) => { by[q.name] = (by[q.name] || 0) + q.value; });
         const merged = Object.entries(by).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
-        if (Number(bk.cash) > 1) merged.push({ name: exp === 'AllInSports' ? 'Not bet' : 'Cash', value: Number(bk.cash) });
+        const free = exp === 'AllInSports' ? Math.max(0, Number(now) - (bk.bets || []).filter((b) => b.status === 'Open').reduce((a, b) => a + Number(b.stake || 0), 0)) : Number(bk.cash);   // sports: bankroll minus open stakes (Oct 29)
+        if (free > 1) merged.push({ name: exp === 'AllInSports' ? 'Not bet' : 'Cash', value: free });
         const tot = merged.reduce((a, q) => a + q.value, 0);
         return merged.filter((q) => tot && q.value / tot >= 0.005);
       };
-      const names = []; ranked.forEach((x) => pieOf(x.book).forEach((q) => { if (!isCashSlice(q.name) && !names.includes(q.name)) names.push(q.name); }));
+      const names = []; ranked.forEach((x) => pieOf(x.book, x.last).forEach((q) => { if (!isCashSlice(q.name) && !names.includes(q.name)) names.push(q.name); }));
       const colorOf = (n) => PIE_COL[Math.max(0, names.indexOf(n)) % PIE_COL.length];
       const rows = mk('ul', 'h2h-rows');
       ranked.forEach((x, i) => {
@@ -5075,7 +5076,7 @@ body { background:var(--color-bg); }
         (x.book.bets || []).filter((b) => b.status === 'Open').forEach((b) => hold.push(b.pick_team + ' (' + b.event + ') ' + (b.odds > 0 ? '+' : '') + b.odds + ', C$' + d3.format(',.0f')(b.stake)));
         if (Number(x.book.cash) > 1 && exp === 'AllInTrading') hold.push('Cash C$' + d3.format(',.0f')(x.book.cash));
         li.appendChild(mk('span', 'h2h-sub', hold.length ? 'Holding: ' + hold.join(' · ') : 'Holding: all cash, no bets yet'));
-        { const pie = pieOf(x.book); if (pie.length) { const pn = pieNode(pie, colorOf, 110); pn.classList.add('h2h-pie'); li.appendChild(pn); } }
+        { const pie = pieOf(x.book, x.last); if (pie.length) { const pn = pieNode(pie, colorOf, 110); pn.classList.add('h2h-pie'); li.appendChild(pn); } }
         rows.appendChild(li);
       });
       box.appendChild(rows);
