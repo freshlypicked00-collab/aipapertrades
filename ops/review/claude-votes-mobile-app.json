@@ -1,0 +1,19 @@
+{
+ "at": "2026-10-29T22:38:00Z",
+ "question": "mobile-app (see ops/review/mobile-app.json)",
+ "written_before_reading_the_others": true,
+ "claude": {
+  "1": "YES - a PWA with push can ship within days; a store app is possible but Apple review is the uncertain part.",
+  "2": "A first, then B for Google Play only if wanted: the PWA already installs, and web push gives the main thing an app adds (alerts) with no review or fees; a thin wrapper risks Apple's 4.2 rejection for little gain in 4 weeks.",
+  "3": "Web push needs a small always-on sender (e.g. a scheduled job with VAPID keys) since the site has no server, and iPhone users must add the site to the home screen first.",
+  "4": "Telegram already gives instant alerts to anyone, so an app mainly adds convenience, not new reach."
+ },
+ "tally": {
+  "route_A_pwa": [
+   "claude",
+   "gemini",
+   "chatgpt"
+  ]
+ },
+ "note": "Gemini answered for all three AIs in its reply; only its own section counts as its vote."
+}
