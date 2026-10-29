@@ -539,6 +539,10 @@
   .pt-tk-p { color: var(--color-fg); font-weight: 600; }
   .pt-tk-c { font-size: 12px; } .pt-tk-c.is-up { color: var(--color-ok, #3ddc84); } .pt-tk-c.is-down { color: var(--color-bad, #ff5a4e); }
   @media (prefers-reduced-motion: reduce) { .pt-tk-row { animation: none; } .pt-ticker { overflow-x: auto; } }
+  .st-bets-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 6px 0 10px; font-size: 13px; }
+  .st-bets-bar select { font: inherit; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 4px 8px; }
+  .st-bets-pager { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+  .st-nowrap { white-space: nowrap; }
   .pa-sum { margin: 6px 0 10px; } .pa-sum b { margin-right: 4px; }
   .lg-csv { font: inherit; font-size: 13px; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
   .lg-csv:hover { border-color: var(--accent, #ffb000); }
@@ -844,7 +848,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '5d325444f8f3';</script>
+<script>window.PT_PAGE_VER = '316691e1cafc';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -1912,6 +1916,15 @@ body { background:var(--color-bg); }
     </section>
     <section class="st-card" aria-labelledby="h-b-bets">
       <h2 class="st-h2" id="h-b-bets">Bets</h2>
+      <div class="st-bets-bar">
+        <label class="st-model-l" for="model-pick-bets">Model</label>
+        <select id="model-pick-bets" class="model-pick">
+          <option value="claude">Claude (Anthropic)</option>
+          <option value="gemini">Gemini (Google)</option>
+          <option value="chatgpt">ChatGPT (OpenAI)</option>
+        </select>
+        <span class="st-bets-pager" data-bets-pager></span>
+      </div>
       <p class="st-note">American odds. Stakes and results in Canadian dollars. Closing odds are the last price before the game started; getting a better price than the close is the quickest sign of real skill, long before wins and losses settle it.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="bets" data-row-key="bet">
@@ -3007,7 +3020,9 @@ body { background:var(--color-bg); }
   });
   fillPf();
 
-  dash.draw('bets-body', (el) => fillBody(el, 'bets', () => true, null, (r) => {
+  const BETS_PAGE = { n: 25, p: 0 };
+  const etShort = (t) => new Date(t).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).replace(' AM', ' a.m.').replace(' PM', ' p.m.');
+  dash.draw('bets-body', (el) => { fillBody(el, 'bets', () => true, null, (r) => {
     const c = dash.data('clv');
     const v = c.status === 'ok' ? c.data.find((x) => x.bet === r.bet) : null;
     const odd = (o) => (Number(o) > 0 ? '+' : '') + o;
@@ -3018,12 +3033,41 @@ body { background:var(--color-bg); }
     pill.className = 'st-pill' + (r.status === 'Won' ? ' is-up' : r.status === 'Lost' ? ' is-down' : '');
     pill.textContent = r.status;
     const res = r.result_cad === null || r.result_cad === undefined ? '' : stFmt.signedCad(Number(r.result_cad)).replace('C$', '');
-    return [[r.bet], [r.placed_at ? stFmt.when(r.placed_at) : d3.timeFormat('%b %-d')(new Date(r.placed + 'T12:00:00'))], [r.event + (r.starts_at ? ' · starts ' + stFmt.when(r.starts_at) : ''), 'wrap'], [r.pick],
+    const placed = mk('span', 'st-nowrap', r.placed_at ? etShort(r.placed_at) + ' ET' : d3.timeFormat('%b %-d')(new Date(r.placed + 'T12:00:00'))); if (r.placed_at) placed.title = stFmt.when(r.placed_at);
+    const game = document.createDocumentFragment(); game.appendChild(document.createTextNode(r.event));
+    if (r.starts_at) { game.appendChild(document.createElement('br')); const st = mk('small', 'st-muted', 'Starts ' + etShort(r.starts_at) + ' ET'); st.title = stFmt.when(r.starts_at); game.appendChild(st); }
+    const sortKey = Date.parse(r.placed_at || r.placed + 'T12:00:00') || 0;
+    return [[r.bet], [placed], [game, 'wrap'], [r.pick],
       [(Number(r.odds) > 0 ? '+' : '') + r.odds, 'num'],
       [d3.format(',.0f')(Number(r.stake_cad)), 'num'], [d3.format(',.0f')(Number(r.to_win_cad)), 'num'],
-      [(() => { const f = document.createDocumentFragment(); f.appendChild(pill); if (r.settled_at) { f.appendChild(document.createElement('br')); f.appendChild(mk('small', 'st-muted', 'settled ' + new Date(r.settled_at).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' ET')); } return f; })()], [res, 'num ' + upDown(Number(r.result_cad))], [close, 'num'],
+      [(() => { const f = document.createDocumentFragment(); f.appendChild(pill); if (r.settled_at) { f.appendChild(document.createElement('br')); f.appendChild(mk('small', 'st-muted st-nowrap', 'settled ' + etShort(r.settled_at) + ' ET')); } return f; })()], [res, 'num ' + upDown(Number(r.result_cad))], [close, 'num'],
       [verdict, verdict === 'Beat' ? 'is-up' : verdict === 'Missed' ? 'is-down' : '']];
-  }));
+  });
+    const rows = [...el.children];
+    const d = dash.data('bets'); const list = d.status === 'ok' ? d.data : [];
+    rows.forEach((tr, k) => { const r = list[k] || {}; tr._t = Date.parse(r.placed_at || (r.placed ? r.placed + 'T12:00:00' : '')) || 0; });
+    rows.sort((a, b) => b._t - a._t).forEach((tr) => el.appendChild(tr));   // newest first
+    const pages = Math.max(1, Math.ceil(rows.length / BETS_PAGE.n)); if (BETS_PAGE.p >= pages) BETS_PAGE.p = pages - 1;
+    rows.forEach((tr, k) => { tr.hidden = Math.floor(k / BETS_PAGE.n) !== BETS_PAGE.p; });
+    const bar = document.querySelector('[data-bets-pager]'); if (!bar) return;
+    bar.replaceChildren();
+    if (!rows.length) return;
+    const pl = mk('label', 'st-tt'); pl.append(document.createTextNode('Page '));
+    const ps = mk('select'); for (let k = 0; k < pages; k++) { const a = k * BETS_PAGE.n + 1, b2 = Math.min(rows.length, (k + 1) * BETS_PAGE.n); const o = mk('option', '', (k + 1) + (k === 0 ? ' · newest' : '') + ' (' + a + '–' + b2 + ')'); o.value = k; if (k === BETS_PAGE.p) o.selected = true; ps.appendChild(o); }
+    pl.append(ps, document.createTextNode(' of ' + pages));
+    const nl = mk('label', 'st-tt'); nl.append(document.createTextNode(' Show '));
+    const ns = mk('select'); [10, 25, 50].forEach((n) => { const o = mk('option', '', n + ' a page'); o.value = n; if (n === BETS_PAGE.n) o.selected = true; ns.appendChild(o); });
+    ns.addEventListener('change', () => { BETS_PAGE.n = Number(ns.value); BETS_PAGE.p = 0; redrawBets(); });
+    ps.addEventListener('change', () => { BETS_PAGE.p = Number(ps.value); redrawBets(); });
+    nl.appendChild(ns);
+    bar.append(pl, nl, mk('span', 'st-muted', ' · ' + rows.length + (rows.length === 1 ? ' bet' : ' bets') + ', newest first'));
+  });
+  const redrawBets = () => { const b = document.querySelector('[data-draw="bets-body"]'); if (!b) return; const rows = [...b.children];
+    const pages = Math.max(1, Math.ceil(rows.length / BETS_PAGE.n)); if (BETS_PAGE.p >= pages) BETS_PAGE.p = pages - 1;
+    rows.forEach((tr, k) => { tr.hidden = Math.floor(k / BETS_PAGE.n) !== BETS_PAGE.p; });
+    const bar = document.querySelector('[data-bets-pager]'); if (!bar) return; const [ps] = bar.querySelectorAll('select');
+    if (ps) { ps.replaceChildren(); for (let k = 0; k < pages; k++) { const a = k * BETS_PAGE.n + 1, b2 = Math.min(rows.length, (k + 1) * BETS_PAGE.n); const o = mk('option', '', (k + 1) + (k === 0 ? ' · newest' : '') + ' (' + a + '–' + b2 + ')'); o.value = k; if (k === BETS_PAGE.p) o.selected = true; ps.appendChild(o); }
+      ps.nextSibling.textContent = ' of ' + pages; } };
 
   dash.draw('rules-body', (el) => fillBody(el, 'rules', byPortfolio(el), null, (r) => [[r.rule, 'wrap']]));
 
