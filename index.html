@@ -3782,13 +3782,15 @@ body { background:var(--color-bg); }
     ['gemini', 'chatgpt'].forEach((id) => { if (!latest[id]) addTake(id, Date.now() < Date.parse('2026-10-28T17:45:00Z') ? 'Starts at the 1:45 p.m. ET restart.' : 'No recent note on this experiment.'); });
     tbox.appendChild(ul);
     el.appendChild(tbox);
-    { const pb = mk('div', 'h2h-exp'); pb.appendChild(mk('h3', '', 'Plans, feelings and opinions'));
+    { const pb = mk('div', 'h2h-exp h2h-plans'); pb.appendChild(mk('h3', '', 'Plans, feelings and opinions'));
       pb.appendChild(mk('p', 'st-note', 'Each AI’s own 24-hour, 7-day and month plans, how it feels, and what it thinks of the others, in its own words.'));
       const all = { claude: dash.baseData('plans') };
       Object.entries(dash.models() || {}).forEach(([id, v]) => { if (id !== 'claude' && v && v.plans) all[id] = v.plans.data || v.plans; });
       let any = false;
-      SEL.forEach((id) => { const rows = (all[id] || []).filter((x) => !x.model || x.model === id); any = true; if (!rows.length) { const h = mk('h4', '', AIS[id].label); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px'; h.style.margin = '10px 0 6px'; pb.append(h, mk('p', 'st-note', AIS[id].label + ' writes its plans, feelings and opinions at its next check-in.')); return; } const h = mk('h4', '', AIS[id].label); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px'; h.style.margin = '10px 0 6px'; const g = mk('div', 'st-plans'); planCards(rows, g); pb.append(h, g); });
-      if (any) el.appendChild(pb); }
+      if (EXP_SEL) pb.firstChild.textContent = 'Plans, feelings and opinions on ' + (LABEL[EXP_SEL] || EXP_SEL);
+      SEL.forEach((id) => { const rows = (all[id] || []).filter((x) => !x.model || x.model === id); any = true; if (!rows.length) { const h = mk('h4', '', AIS[id].label); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px'; h.style.margin = '10px 0 6px'; pb.append(h, mk('p', 'st-note', AIS[id].label + ' writes its plans, feelings and opinions at its next check-in.')); return; } const h = mk('h4', '', AIS[id].label); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px'; h.style.margin = '10px 0 6px'; const g = mk('div', 'st-plans'); planCards(rows, g, EXP_SEL || null); pb.append(h, g); });
+      // high up, right under the race picker (and the overview), not below every chart
+      if (any) { const anchor = el.querySelector('.h2h-exp'); if (anchor) anchor.after(tbox, pb); else el.append(tbox, pb); } }
     const fcs = dash.baseData('factcheck').filter((x) => SEL.includes(x.model)).slice().sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 6);
     if (fcs.length) {
       const fb = mk('div', 'h2h-exp'); fb.appendChild(mk('h3', '', 'Fact checks'));
