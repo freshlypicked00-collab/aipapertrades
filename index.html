@@ -367,7 +367,8 @@
   .st-plan { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 10px 12px; font-size: 13.5px; line-height: 1.5; }
   .st-plan h4 { margin: 0 0 4px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
   .st-plan small { display: block; margin-top: 4px; color: var(--color-fg-muted); font-size: 11.5px; }
-  .pt-toast { position: fixed; right: 16px; bottom: 16px; z-index: 50; background: var(--color-panel); color: var(--color-fg); border: 1px solid var(--color-ok); border-left: 4px solid var(--color-ok); border-radius: 6px; padding: 10px 14px; font-size: 14px; box-shadow: 0 6px 24px rgba(0,0,0,.35); transition: opacity .5s, transform .5s; }
+  .pt-toasts { position: fixed; right: 16px; bottom: 16px; z-index: 50; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none; }
+  .pt-toast { position: relative; background: var(--color-panel); color: var(--color-fg); border: 1px solid var(--color-ok); border-left: 4px solid var(--color-ok); border-radius: 6px; padding: 10px 14px; font-size: 14px; box-shadow: 0 6px 24px rgba(0,0,0,.35); transition: opacity .5s, transform .5s; max-width: min(440px, calc(100vw - 32px)); line-height: 1.4; }
   .pt-toast-out { opacity: 0; transform: translateY(8px); }
   .st-health { margin: 6px 0 0; font-size: 13px; color: var(--color-fg-muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
   .st-health b { color: var(--color-fg); font-weight: 600; }
@@ -639,13 +640,23 @@
   .st-podium li:first-child .pd-place { color: #ffc93c; }
   :root[data-theme="light"] .st-podium li:first-child .pd-place, :root[data-theme="reader"] .st-podium li:first-child .pd-place { color: #9a6a00; }
   .st-podium .pd-name { font-weight: 600; display: flex; flex-direction: column; min-width: 0; }
+  .st-podium .pd-who { flex-wrap: wrap; row-gap: 0; }
   .st-podium .pd-leads { font-weight: 400; font-size: 11.5px; color: var(--color-fg-muted); line-height: 1.35; margin-top: 2px; }
   .st-podium .pd-amt { font-family: var(--font-serif, monospace); font-size: 14px; }
   @media (min-width: 1000px) {
-    .st-hook { display: grid; grid-template-columns: minmax(0, 1fr) 300px; column-gap: 28px; }
-    .st-hook > * { grid-column: 1; }
-    .st-hook > .st-podium { grid-column: 2; grid-row: 1 / span 8; }
+    /* one grid for the whole top block: the left column runs question → take → scoreboard → disclaimer and Model menu,
+       with Race standings beside it the whole way down, so no empty box opens up next to the standings (owner, Oct 29) */
+    .st-head2 { display: grid; grid-template-columns: minmax(0, 1fr) 300px; grid-template-rows: repeat(9, auto) 1fr; column-gap: 28px; row-gap: 6px; align-items: start; }
+    .st-head2 > .st-hook { display: contents; }
+    .st-head2 > *, .st-head2 > .st-hook > * { grid-column: 1; min-width: 0; }
+    .st-head2 > .st-hook > .st-podium { grid-column: 2; grid-row: 1 / span 10; }
+    .st-head2 > .st-score { margin-top: 14px; }
+    .st-head2 > .st-notice-row { margin-top: 10px; }
+    .st-head2 > .st-notice-row .st-notice { flex: 1 1 360px; }
+    .st-head2 > .st-notice-row .st-model { flex: 1 1 280px; }   /* side by side when they fit; when the Model box wraps it fills the row instead of leaving a gap */
+    .st-head2 .st-score-list { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
   }
+  @media (min-width: 1240px) { .st-head2 .st-score-list { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
   /* the viewed AI's own colour on its take, goals and opinions (Claude orange, Gemini blue, ChatGPT white) */
   :root { --model: #d97757; --model-bg: rgba(217,119,87,.08); }
   .st-take { border-left-color: var(--model) !important; }
@@ -887,7 +898,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'e530a09dce12';</script>
+<script>window.PT_PAGE_VER = '2b731b238170';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -2591,11 +2602,15 @@ body { background:var(--color-bg); }
     // "Get the app": installs the site as an app (Android and computers: the browser's install prompt; iPhone: Add to Home Screen)
     const standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
     let deferred = null;
-    const app = document.createElement('button'); app.type = 'button'; app.className = 'app-btn'; app.textContent = '📲 Get the app'; app.hidden = true;
+    const app = document.createElement('button'); app.type = 'button'; app.className = 'app-btn'; app.textContent = '📲 Get the app';
     const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    if (!standalone && ios) app.hidden = false;
-    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferred = e; if (!standalone) app.hidden = false; });
-    window.addEventListener('appinstalled', () => { app.hidden = true; deferred = null; });
+    // shown on every browser (Firefox and Safari never send an install prompt, so it used to stay hidden there); hidden only
+    // inside the app itself, or in a browser that has the app installed already
+    let have = false; try { if (standalone) localStorage.setItem('pt-installed', '1'); have = localStorage.getItem('pt-installed') === '1'; } catch (e) {}
+    app.hidden = standalone || have;
+    try { if (!standalone && navigator.getInstalledRelatedApps) navigator.getInstalledRelatedApps().then((l) => { if (l && l.length) app.hidden = true; }).catch(() => {}); } catch (e) {}
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferred = e; try { localStorage.removeItem('pt-installed'); } catch (x) {} if (!standalone) app.hidden = false; });
+    window.addEventListener('appinstalled', () => { app.hidden = true; deferred = null; try { localStorage.setItem('pt-installed', '1'); } catch (e) {} });
     const tip = document.createElement('div'); tip.className = 'app-tip'; tip.hidden = true; tip.setAttribute('role', 'dialog'); tip.setAttribute('aria-label', 'Install the app');
     app.addEventListener('click', () => {
       if (deferred) { deferred.prompt(); deferred.userChoice.finally(() => { deferred = null; }); return; }
@@ -2603,9 +2618,17 @@ body { background:var(--color-bg); }
       const h = document.createElement('div'); h.className = 'm-menu-head'; h.textContent = 'Install Paper Trades';
       const x = document.createElement('button'); x.type = 'button'; x.className = 'm-menu-x'; x.textContent = '✕'; x.setAttribute('aria-label', 'Close'); x.addEventListener('click', () => { tip.hidden = true; });
       h.appendChild(x); tip.appendChild(h);
-      [ios ? '1. Tap the Share button (the square with an arrow) at the bottom of Safari.' : '1. Open your browser menu (⋮ or …).',
-       ios ? '2. Scroll down and tap “Add to Home Screen”.' : '2. Tap “Install app” or “Add to Home screen”.',
-       '3. Paper Trades opens full screen from its own icon, always with the latest race.'].forEach((t) => { const p = document.createElement('p'); p.textContent = t; tip.appendChild(p); });
+      const ua = navigator.userAgent, android = /android/i.test(ua), fx = /firefox\//i.test(ua), edge = /edg\//i.test(ua), sam = /samsungbrowser/i.test(ua), win = /windows/i.test(ua);
+      const macSafari = !ios && /macintosh/i.test(ua) && /safari/i.test(ua) && !/chrome|chromium|edg\/|firefox/i.test(ua);
+      const steps = ios ? ['1. Tap the Share button (the square with an arrow) at the bottom of Safari.', '2. Scroll down and tap “Add to Home Screen”.']
+        : android && sam ? ['1. Tap the menu (☰) at the bottom.', '2. Tap “Add page to”, then “Home screen”.']
+        : android ? ['1. Tap the browser menu (⋮).', '2. Tap “Install app” or “Add to Home screen”.']
+        : fx && win ? ['1. In Firefox 143 or newer, click the web apps button in the address bar, on the right.', '2. Firefox adds Paper Trades to your taskbar and Start menu.', 'Or open papertrades.ai in Edge or Chrome and use the install button in the address bar.']
+        : fx ? ['Firefox on this computer can’t install web apps yet.', '1. Open papertrades.ai in Chrome or Edge (or Safari on a Mac).', '2. Use the install button in the address bar (Safari: File, then Add to Dock).']
+        : macSafari ? ['1. In the menu bar at the top of the screen, choose File.', '2. Choose “Add to Dock”.']
+        : edge ? ['1. Click the “App available” button at the right end of the address bar.', '2. Or open the menu (…), then Apps, then “Install this site as an app”.']
+        : ['1. Click the install button at the right end of the address bar (a screen with a down arrow).', '2. Or open the menu (⋮), then “Cast, save and share”, then “Install page as app”.'];
+      steps.concat(['Paper Trades then opens in its own window from its own icon, always with the latest race.', 'Already installed it? Open it from your Start menu, taskbar, Dock or home screen.']).forEach((t) => { const p = document.createElement('p'); p.textContent = t; tip.appendChild(p); });
       tip.hidden = false;
     });
     if ('serviceWorker' in navigator && location.protocol === 'https:') window.addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => {}); });
@@ -4767,25 +4790,50 @@ body { background:var(--color-bg); }
     };
     btn.addEventListener('click', () => { on = !on; try { localStorage.setItem('pt-sound', on ? '1' : '0'); } catch (e) {} show(); if (on) chaching(); });
     show();
-    const totals = (j) => {
-      const out = {}; const last = {};
-      (j.history || []).forEach((h) => { last['claude|' + h.portfolio] = h; });
-      (j.rivals_history || []).forEach((h) => { last[h.model + '|' + h.experiment] = h; });
-      const fx = (j.fx_meta && j.fx_meta[0] && Number(j.fx_meta[0].usdcad)) || 1.38;
-      Object.entries(last).forEach(([k, h]) => { const [m, e] = k.split('|'); out[m] = (out[m] || 0) + (Number(h.value) - 100000) * (e === 'China' ? fx : 1); });
+    const toast = (msg) => {
+      let box = document.querySelector('.pt-toasts'); if (!box) { box = mk('div', 'pt-toasts'); box.setAttribute('aria-live', 'polite'); document.body.appendChild(box); }   // several pop-ups stack instead of covering each other
+      const t = mk('div', 'pt-toast', msg); box.appendChild(t);
+      setTimeout(() => t.classList.add('pt-toast-out'), 5600); setTimeout(() => t.remove(), 6200);
+    };
+    // a pop-up when an AI makes money, one race at a time and naming what made it (owner, Oct 29):
+    // "💰 Claude just made +C$198 on Gold · Metals". Races are never added together.
+    const lastVals = (j) => { const v = {}; (j.history || []).forEach((h) => { v['claude|' + h.portfolio] = +h.value; }); (j.rivals_history || []).forEach((h) => { v[h.model + '|' + h.experiment] = +h.value; }); (j.allin_history || []).forEach((h) => { v[h.model + '|' + h.experiment] = +h.value; }); return v; };
+    const plOf = (j, m, e) => {   // profit so far on each holding in one race (what it is worth minus what it cost, plus anything already taken)
+      const out = {};
+      if (/^AllIn/.test(e)) {
+        const fx = (j.fx_meta && j.fx_meta[0] && Number(j.fx_meta[0].usdcad)) || 1.38;
+        const bk = (((j.allin_models || []).find((x) => x.id === m) || {}).books || {})[e] || {};
+        Object.entries(bk.positions || {}).forEach(([sym, q]) => { const k = q.pcur === 'USD' ? fx : 1; out[q.name || sym] = Number(q.qty) * (Number(q.last ?? q.entry) - Number(q.entry)) * k; });
+        return out;
+      }
+      const rows = m === 'claude' ? (j.holdings || []) : ((j.models && j.models[m] && j.models[m].holdings) || []);
+      rows.forEach((r) => { if (r.portfolio !== e || /^Cash/.test(r.holding)) return; const cn = e === 'China'; const v = Number(cn ? r.value_usd : r.value_cad), c = Number(cn ? r.cost_usd : r.cost_cad); if (isFinite(v) && isFinite(c)) out[String(r.holding).replace(/ \(closed\)$/, '')] = v - c + Number((cn ? r.realized_usd : r.realized_cad) || 0); });
       return out;
     };
-    const toast = (msg) => {
-      const t = mk('div', 'pt-toast', msg); document.body.appendChild(t);
-      setTimeout(() => t.classList.add('pt-toast-out'), 3800); setTimeout(() => t.remove(), 4400);
+    const betWon = (old, now, m, e) => {   // the bet that just won
+      const clean = (n) => String(n || '').replace(/^[A-Z]{2,5}: /, '').replace(/ \(.*\)$/, '');
+      if (m === 'claude' && e === 'Sports') { const was = {}; (old.bets || []).forEach((x) => { was[x.bet] = x.status; }); const w = (now.bets || []).filter((x) => x.status === 'Won' && was[x.bet] !== 'Won').sort((a, b) => Number(b.result_cad) - Number(a.result_cad))[0]; return w ? clean(w.pick) : ''; }
+      const seen = new Set((old.rivals_trades || []).concat(old.allin_trades || []).map((t) => t.at + t.symbol));
+      const w = (now.rivals_trades || []).concat(now.allin_trades || []).filter((t) => t.model === m && t.experiment === e && t.action === 'Won' && !seen.has(t.at + t.symbol)).sort((a, b) => Number(b.amount) - Number(a.amount))[0];
+      return w ? clean(w.name || w.symbol) : '';
     };
+    const raceName = (e) => (e === 'AllInTrading' ? 'All in: trading' : e === 'AllInSports' ? 'All in: sports' : LABEL[e] || e);
     window.ptOnData = (old, now) => {
-      const a = totals(old), b = totals(now);
-      const wins = Object.keys(b).filter((m) => AIS[m] && b[m] - (a[m] || 0) >= 100).map((m) => [m, b[m] - (a[m] || 0)]);
-      const seen = new Set((old.allin_trades || []).concat(old.rivals_trades || []).map((t) => t.at + t.symbol));
-      (now.rivals_trades || []).concat(now.allin_trades || []).forEach((t) => { if (t.action === 'Won' && Number(t.amount) >= 100 && !seen.has(t.at + t.symbol) && AIS[t.model] && !wins.some((w) => w[0] === t.model)) wins.push([t.model, Number(t.amount)]); });
-      if (!wins.length) return;
-      wins.forEach(([m, g], i) => setTimeout(() => toast('💰 ' + AIS[m].label + ' just made +C$' + d3.format(',.0f')(g)), i * 600));
+      const a = lastVals(old), b = lastVals(now), items = [];
+      Object.keys(b).forEach((k) => {
+        const [m, e] = k.split('|'); if (!AIS[m] || !(k in a)) return;
+        const g = b[k] - a[k]; if (g < 100) return;
+        let what = '';
+        if (e === 'Sports' || e === 'AllInSports') what = betWon(old, now, m, e);
+        else {
+          const pa = plOf(old, m, e), pb = plOf(now, m, e);
+          const ds = Object.keys(pb).map((h) => [h, pb[h] - (pa[h] || 0)]).filter((x) => x[1] > 0).sort((x, y) => y[1] - x[1]);
+          if (ds.length) what = ds[0][0] + (ds[1] && ds[1][1] >= ds[0][1] * 0.4 ? ' and ' + ds[1][0] : '');
+        }
+        items.push({ m, e, g, what });
+      });
+      if (!items.length) return;
+      items.sort((x, y) => y.g - x.g).slice(0, 3).forEach((it, i) => setTimeout(() => toast('💰 ' + AIS[it.m].label + ' just made ' + stFmt.signed(it.g, /^AllIn/.test(it.e) ? 'Stocks' : it.e) + (it.what ? ' on ' + it.what : '') + ' · ' + raceName(it.e)), i * 900));
       if (on) chaching();
     };
   })();
