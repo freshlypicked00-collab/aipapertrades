@@ -1,8 +1,8 @@
 {
- "at": "2026-10-29T19:20:30Z",
+ "at": "2026-10-29T19:46:19Z",
  "since": "2026-10-28T17:45:00Z",
  "summary": {
-  "ok": 243,
+  "ok": 245,
   "flag": 1,
   "no_data": 0,
   "no_feed": 0
@@ -3804,6 +3804,38 @@
    "gap_abs": null,
    "tolerance": "0.5%",
    "status": "ok"
+  },
+  {
+   "kind": "value",
+   "at": "2026-10-29T15:03:00-04:00",
+   "holding": "Gold",
+   "action": "",
+   "claude": 4011.0,
+   "feed": "GC=F",
+   "feed_low": 4021.800049,
+   "feed_high": 4025.800049,
+   "basis": "1-minute bars within 5 minutes",
+   "gap_pct": 0.269,
+   "gap_abs": null,
+   "tolerance": "1.5%",
+   "status": "ok",
+   "note": "Claude uses the spot price; the feed is COMEX futures, which usually trade a little above spot"
+  },
+  {
+   "kind": "value",
+   "at": "2026-10-29T15:15:00-04:00",
+   "holding": "Japanese yen",
+   "action": "",
+   "claude": 0.0063313,
+   "feed": "JPY=X",
+   "feed_low": 0.006331,
+   "feed_high": 0.006333,
+   "basis": "1-minute bars within 5 minutes",
+   "gap_pct": 0.0,
+   "gap_abs": null,
+   "tolerance": "0.5%",
+   "status": "ok",
+   "note": "US$ per yen (the feed quotes yen per US$)"
   }
  ]
 }
