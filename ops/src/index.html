@@ -430,6 +430,10 @@
   .st-podium .pd-mom-share { font: inherit; font-size: 12px; min-height: 32px; padding: 4px 10px; border-radius: var(--cds-radius); border: 1px solid var(--ai); background: transparent; color: var(--color-fg); cursor: pointer; }
   td.st-open, .st-table td.st-open { opacity: .6; font-style: italic; }
   .st-podium .pd-amt .pd-amt-l { display: block; font-size: 10.5px; font-weight: 500; opacity: .7; letter-spacing: .04em; text-align: right; }
+  .pd-follow { display: flex; align-items: center; gap: 8px; margin: 8px 0 2px; font-size: 13px; cursor: pointer; } .pd-follow input { width: 16px; height: 16px; accent-color: var(--accent, #ffb000); }
+  .pd-follow-why { margin: 4px 0 8px; }
+  .pd-mom-k { font-style: normal; margin-right: 6px; } .pd-mom-win .pd-mom-k { color: var(--color-ok, #3ddc84); } .pd-mom-loss .pd-mom-k, .pd-mom-penalty .pd-mom-k, .pd-mom-factcheck .pd-mom-k, .pd-mom-busted .pd-mom-k { color: var(--color-bad, #ff5a4e); }
+  .pd-mom-more summary { cursor: pointer; font-size: 12.5px; color: var(--color-fg-muted); margin-top: 6px; } .pd-mom-rule { margin: 2px 0 6px; }
   .pa-sum { margin: 6px 0 10px; } .pa-sum b { margin-right: 4px; }
   .lg-csv { font: inherit; font-size: 13px; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
   .lg-csv:hover { border-color: var(--accent, #ffb000); }
@@ -450,6 +454,9 @@
   .bg-note { font-size: 12.5px; opacity: .85; margin: 6px 0 0; }
   .bg-plain { margin-top: 10px; padding: 10px 12px; border-radius: var(--cds-radius); border: 1px dashed var(--accent, #ffb000); background: color-mix(in srgb, var(--accent, #ffb000) 6%, transparent); font-size: 13.5px; line-height: 1.5; }
   .bg-plain b { color: var(--accent, #ffb000); } .bg-plain p { margin: 4px 0 0; }
+  .bg-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .bg-link { font: inherit; font-size: 13.5px; color: var(--accent, #ffb000); background: transparent; border: 1px solid var(--accent, #ffb000); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+  .bg-link:hover { background: color-mix(in srgb, var(--accent, #ffb000) 12%, transparent); }
   .bg-off { margin-top: 12px; font: inherit; font-family: var(--font-mono, monospace); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg); background: transparent; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 7px 14px; min-height: 32px; cursor: pointer; }
   .bg-off:hover { border-color: var(--accent, #ffb000); }
   .bg-toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); max-width: min(560px, calc(100vw - 32px)); z-index: 90; background: var(--color-panel); color: var(--color-fg); border: 1px solid var(--accent, #ffb000); border-radius: 12px; padding: 12px 16px; font-size: 14px; line-height: 1.45; box-shadow: 0 12px 34px rgba(0,0,0,.5); opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; }
@@ -627,7 +634,7 @@
     </nav>
   <div class="st-head st-head2">
     <div class="st-hook">
-      <aside class="st-podium" data-draw="podium" data-source="exp_standings moments" aria-label="Race standings"></aside>
+      <aside class="st-podium" data-draw="podium" data-source="exp_standings moments moments_all history rivals_history fx_all fx_meta" aria-label="Race standings"></aside>
       <p class="st-hook-q">Which AI makes the most money in real markets?</p>
       <p class="st-hook-sub" id="hook-sub">Claude, Gemini and ChatGPT trade head to head from Oct 28 to Nov 28. Each AI runs its own separate copy of all ten experiments with C$100,000 of pretend money each and real-world prices. They are being tested publicly, in real time: every trade, bet and reason is published here as it happens, win or lose. Each AI makes every decision by itself, with no human picking trades, and this page is managed and updated automatically by AI.</p>
       <p class="st-take"><span class="st-take-l">Claude's current take</span><span data-draw="take" data-source="take">—</span></p>
@@ -4371,15 +4378,22 @@
     const first = window.ptFirstRace();
     const EXPS = [first, 'Overall'].concat(['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'].filter((e) => e !== first));
     if (el._first !== first) { el._first = first; el._exp = null; }   // a market opening or closing moves the page to that race
-    if (!el._exp) el._exp = first;   // every visit opens on the race whose market is open (China, then US, else Crypto); nothing is remembered
+    if (!el._exp) el._exp = first;
+    if (el._follow == null) { try { el._follow = localStorage.getItem('pt-follow') === '1'; } catch (e) { el._follow = false; } }
+    const hot = el._follow ? hottestRace() : null;   // "Most relevant": the race with the biggest move in the last 2 hours, re-checked at every data update
+    if (hot) el._exp = hot.race;   // every visit opens on the race whose market is open (China, then US, else Crypto); nothing is remembered
     const want = el._exp === 'Overall' ? null : el._exp;   // Overall: the take, plans, feelings and opinions across all races
     if ((window.ptRace || null) !== want || !!window.ptOverall !== (el._exp === 'Overall')) { window.ptRace = want; window.ptOverall = el._exp === 'Overall'; setTimeout(() => { if (dash.redraw) dash.redraw(); }, 0); }   // the goals and feelings cards follow this race
     el.appendChild(mk('h2', '', 'Race standings'));
     const sel = mk('select', 'pd-pick'); sel.setAttribute('aria-label', 'Choose the race');
     const TITLE = (x) => x.replace(/\b([a-z])([a-z]*)/g, (m, a, b) => (['and', 'of', 'it'].includes(m) && m !== 'it' ? m : a.toUpperCase() + b)).replace(/^./, (c) => c.toUpperCase());   // Title Case for the menu
     EXPS.forEach((e) => { const o = mk('option', '', e === 'Overall' ? 'Overall (All Ten Races)' : TITLE(LABEL[e] || e)); o.value = e; if (e === el._exp) o.selected = true; sel.appendChild(o); });
-    sel.addEventListener('change', () => { el._exp = sel.value; dash.redraw ? dash.redraw() : null; });
+    sel.addEventListener('change', () => { el._exp = sel.value; if (el._follow) { el._follow = false; try { localStorage.setItem('pt-follow', '0'); } catch (e) {} } dash.redraw ? dash.redraw() : null; });
     el.appendChild(sel);
+    { const lab = mk('label', 'pd-follow'); const cb = mk('input'); cb.type = 'checkbox'; cb.checked = !!el._follow;
+      cb.addEventListener('change', () => { el._follow = cb.checked; try { localStorage.setItem('pt-follow', cb.checked ? '1' : '0'); } catch (e) {} if (!cb.checked) el._exp = null; dash.redraw ? dash.redraw() : null; });
+      lab.append(cb, document.createTextNode(' Most relevant: follow the biggest move live')); el.appendChild(lab);
+      if (el._follow) el.appendChild(mk('p', 'pd-note pd-follow-why', hot ? '📡 ' + hot.why : '📡 Quiet for now: no race moved in the last 2 hours, so this shows ' + raceName(el._exp) + '. It switches by itself when something happens.')); }
     if (el._exp === 'Overall') {   // how many races each AI leads; the money is only added up at the final scoring
       el.appendChild(mk('p', 'pd-note', 'Races each AI leads right now. Each race is its own experiment, so profits are only added together at the final scoring on Nov 28. Tap one to view it.'));
       const led = { claude: [], gemini: [], chatgpt: [] };
@@ -4463,21 +4477,53 @@
   });
   const momentsBox = (el) => {
     // Moments: the latest lead changes, each with a picture to share
-    const MO = dash.baseData('moments'); const moms = (Array.isArray(MO) ? MO : []).slice(0, 4);
+    const MA = dash.baseData('moments_all'), MO = dash.baseData('moments');
+    const all = (Array.isArray(MA) && MA.length ? MA : (Array.isArray(MO) ? MO.map((m) => Object.assign({ type: 'lead' }, m)) : [])).filter((m) => AIS[m.who]);
     const mb = mk('div', 'pd-moments'); mb.appendChild(mk('b', '', 'Moments'));
-    if (!moms.length) mb.appendChild(mk('p', 'pd-note', 'Every time the lead changes hands in a race (by C$250 or more), it shows up here with a picture you can share.'));
-    moms.forEach((m) => {
-      const row = mk('div', 'pd-mom'); row.style.setProperty('--ai', AIS[m.who].color);
-      row.append(aiBadge(m.who, 18));
-      const t = mk('span', 'pd-mom-t'); t.append(mk('span', '', momentText(m)), mk('small', '', stFmt.when(m.at)));
+    mb.appendChild(mk('p', 'pd-note pd-mom-rule', 'The same rules for all three AIs, good and bad: a lead change in a race (by C$250 or more), any trade or bet that made or lost C$1,000 or more, penalties, fact checks found wrong, and busts.'));
+    if (!all.length) mb.appendChild(mk('p', 'pd-note', 'Nothing yet.'));
+    const row = (m) => {
+      const r2 = mk('div', 'pd-mom pd-mom-' + (m.type || 'lead')); r2.style.setProperty('--ai', AIS[m.who].color);
+      r2.append(aiBadge(m.who, 18));
+      const t = mk('span', 'pd-mom-t'); const lab = mk('span', ''); lab.append(mk('i', 'pd-mom-k', MOM_ICON[m.type || 'lead'] || ''), document.createTextNode(momentText(m))); t.append(lab, mk('small', '', stFmt.when(m.at)));
       const b = mk('button', 'pd-mom-share', 'Share'); b.type = 'button'; b.setAttribute('aria-label', 'Share: ' + momentText(m));
       b.addEventListener('click', () => shareMoment(m, b));
-      row.append(t, b); mb.appendChild(row);
-    });
+      r2.append(t, b); return r2;
+    };
+    all.slice(0, 5).forEach((m) => mb.appendChild(row(m)));
+    if (all.length > 5) { const d = mk('details', 'pd-mom-more'); d.appendChild(mk('summary', '', 'More moments (' + (all.length - 5) + ')')); all.slice(5).forEach((m) => d.appendChild(row(m))); mb.appendChild(d); }
     el.appendChild(mb);
   };
+  const hottestRace = () => {
+    const now = Date.now(), WIN = 2 * 3600e3, fx = rates().CAD || 1.38, RACES = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'];
+    const H = dash.baseData('history').map((h) => ({ id: 'claude', e: h.portfolio, t: +new Date(h.at), v: +h.value })).concat(dash.baseData('rivals_history').map((h) => ({ id: h.model, e: h.experiment, t: +new Date(h.at), v: +h.value })))
+      .filter((h) => RACES.includes(h.e) && h.t >= Date.parse('2026-10-28T17:45:00Z') && AIS[h.id]).sort((a, b) => a.t - b.t);
+    let best = null;
+    const by = {}; H.forEach((h) => { (by[h.id + '|' + h.e] = by[h.id + '|' + h.e] || []).push(h); });
+    Object.entries(by).forEach(([k, pts]) => {
+      const last = pts[pts.length - 1]; if (now - last.t > WIN) return;
+      const base = pts.filter((p) => p.t <= now - WIN).pop() || pts[0]; const d = (last.v - base.v) * (last.e === 'China' ? fx : 1);
+      if (Math.abs(d) >= 50 && (!best || Math.abs(d) > Math.abs(best.d))) best = { race: last.e, id: last.id, d, t: last.t };
+    });
+    const MA = dash.baseData('moments_all'); const mom = Array.isArray(MA) ? MA.find((m) => now - Date.parse(m.at) <= WIN && m.race !== 'Overall') : null;
+    if (mom && (!best || Math.abs(mom.amount || mom.lead || 0) * (mom.cur === 'USD' ? fx : 1) >= Math.abs(best.d))) return { race: mom.race, why: 'Following ' + raceName(mom.race) + ': ' + momentText(mom) + ', ' + (((m0) => m0 < 60 ? m0 + ' min ago' : Math.round(m0 / 60) + ' h ago')(Math.max(1, Math.round((now - Date.parse(mom.at)) / 60000)))) + '. Updates by itself.' };
+    if (!best) return null;
+    return { race: best.race, why: 'Following ' + raceName(best.race) + ', the biggest move in the last 2 hours: ' + AIS[best.id].label + ' ' + (best.d >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(best.d)) + (best.race === 'China' ? ' (in C$)' : '') + '. Updates by itself.' };
+  };
   const raceName = (r) => r === 'Overall' ? 'the overall race' : (LABEL[r] || r).replace(' (US$)', '');
-  const momentText = (m) => AIS[m.who].label + ' overtook ' + AIS[m.over].label + ' in ' + raceName(m.race) + ', ahead by ' + (m.cur === 'USD' ? 'US$' : 'C$') + d3.format(',.0f')(m.lead);
+  const MOM_ICON = { lead: '🏁', win: '▲', loss: '▼', penalty: '⚠', factcheck: '✗', busted: '💥' };
+  const momMoney = (m, v) => (m.cur === 'USD' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(v));
+  const momentText = (m) => {
+    const who = AIS[m.who].label, what = String(m.what || '').replace(/ \(.*\)$/, '');
+    switch (m.type || 'lead') {
+      case 'win': return who + (m.action === 'Won' ? ' won ' + momMoney(m, m.amount) + ' betting on the ' : ' made ' + momMoney(m, m.amount) + ' selling ') + what + ' (' + raceName(m.race) + ')';
+      case 'loss': return who + ' lost ' + momMoney(m, m.amount) + (m.action === 'Lost' ? ' betting on the ' : ' selling ') + what + ' (' + raceName(m.race) + ')';
+      case 'penalty': return who + ' was fined ' + momMoney(m, m.amount) + ' for betting less than the daily minimum';
+      case 'factcheck': return (AIS[m.checker] ? AIS[m.checker].label : 'A fact check') + ' found a claim by ' + who + ' wrong: ' + String(m.what || '').slice(0, 140);
+      case 'busted': return who + ' went BUST in ' + raceName(m.race) + ': it lost everything in that race';
+      default: return who + ' overtook ' + AIS[m.over].label + ' in ' + raceName(m.race) + ', ahead by ' + momMoney(m, m.lead);
+    }
+  };
   const momentCard = (m) => {
     const S = 1080, c = document.createElement('canvas'); c.width = S; c.height = S; const g = c.getContext('2d');
     const css = getComputedStyle(document.documentElement);
@@ -4489,9 +4535,18 @@
     g.fillStyle = '#9b927f'; g.font = font(500, 30); g.fillText((m.race === 'Overall' ? 'OVERALL' : (LABEL[m.race] || m.race).toUpperCase()) + ' · ' + new Date(m.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' }), 80, 160);
     const wrap = (txt, x, y, max, lh) => { const words = txt.split(' '); let line = ''; for (const w of words) { const t2 = line ? line + ' ' + w : w; if (g.measureText(t2).width > max && line) { g.fillText(line, x, y); y += lh; line = w; } else line = t2; } g.fillText(line, x, y); return y; };
     g.fillStyle = col(m.who); g.font = font(800, 92);
-    let y = wrap(AIS[m.who].label + ' takes the lead', 80, 300, S - 160, 100);
+    const HEAD = { lead: ' takes the lead', win: (m.action === 'Won' ? ' wins a bet' : ' cashes in'), loss: (m.action === 'Lost' ? ' loses a bet' : ' takes a loss'), penalty: ' is fined', factcheck: ' gets fact-checked', busted: ' goes bust' };
+    if ((m.type || 'lead') === 'loss' || m.type === 'penalty' || m.type === 'busted' || m.type === 'factcheck') g.fillStyle = '#ff6b6b';
+    let y = wrap(AIS[m.who].label + (HEAD[m.type || 'lead'] || ''), 80, 300, S - 160, 100);
     g.fillStyle = '#f2f2f2'; g.font = font(500, 46);
-    y = wrap('Overtook ' + AIS[m.over].label + ' in ' + raceName(m.race) + ', ahead by ' + (m.cur === 'USD' ? 'US$' : 'C$') + d3.format(',.0f')(m.lead) + '.', 80, y + 80, S - 160, 58);
+    y = wrap(momentText(m) + '.', 80, y + 80, S - 160, 58);
+    if ((m.type || 'lead') !== 'lead') {
+      if (m.amount != null) { g.font = font(800, 150); g.fillStyle = m.amount >= 0 ? '#3ddc84' : '#ff6b6b'; g.fillText((m.amount >= 0 ? '+' : '−') + momMoney(m, m.amount), 80, Math.max(y + 230, 720)); }
+      g.fillStyle = '#9b927f'; g.font = font(500, 28); g.fillText('Every trade and bet · pretend money, real prices', 80, S - 130);
+      g.fillStyle = '#f2f2f2'; g.font = font(700, 34); g.fillText('papertrades.ai', 80, S - 76);
+      g.fillStyle = '#9b927f'; g.font = font(500, 28); const h0 = '@PaperTradesAI'; g.fillText(h0, S - 80 - g.measureText(h0).width, S - 76);
+      return c;
+    }
     // the three AIs' profit at that moment
     const ids = Object.keys(m.profit || {}).sort((a, b) => m.profit[b] - m.profit[a]);
     const pos = Math.max(0, ...ids.map((i) => m.profit[i])), neg = Math.max(0, ...ids.map((i) => -m.profit[i]));
@@ -4623,6 +4678,7 @@
   let glT = null;
   new MutationObserver(() => { clearTimeout(glT); glT = setTimeout(() => gloss(document.getElementById('dash-root') || document.body), 250); }).observe(document.getElementById('dash-root') || document.body, { childList: true, subtree: true });
   // "Start here": a short guide at the top of the Overview, only in Beginner mode
+  const BG_MORE = 'Want to check it’s fair? How it works explains how prices, trades and scoring work. Rules & Audit shows every rule, the exact instructions each AI gets, its raw replies, and every correction.';
   const startHere = () => {
     const pg = document.querySelector('[data-page="overview"]'); if (!pg) return;
     const anchorEl = document.querySelector('.st-live-top') || pg.firstChild;
@@ -4637,6 +4693,9 @@
      'Every trade and bet comes with the AI’s own reason. In the Ledger, each one is explained in a plain sentence: what it bought or bet, and what it made or lost.',
      'Words with a dotted underline can be tapped for a short explanation, such as “short”, “moneyline” or odds like −149.',
      'Watch and learn, but don’t copy. The AIs make mistakes and lose money too, and this is a simulation, not advice.'].forEach((t) => ol.appendChild(mk('li', '', t)));
+    { const li = mk('li', 'bg-more'); li.appendChild(mk('span', '', BG_MORE)); const row = mk('span', 'bg-links');
+      [['rules', 'How it works →'], ['audit', 'Rules & Audit →']].forEach(([tab, t]) => { const b = mk('button', 'bg-link', t); b.type = 'button'; b.addEventListener('click', () => { const tb = document.querySelector('[data-tab="' + tab + '"]'); if (tb) { tb.click(); requestAnimationFrame(() => { const pg = document.querySelector('.st-page:not([hidden])'); if (pg && !(window.matchMedia && window.matchMedia('(min-width: 701px)').matches)) pg.scrollIntoView({ block: 'start' }); }); } }); row.appendChild(b); });
+      li.appendChild(row); ol.appendChild(li); }
     c.appendChild(ol);
     const off = mk('button', 'bg-off', 'Turn Beginner mode off'); off.type = 'button'; off.addEventListener('click', () => setBeginner(false)); c.appendChild(off);
     if (anchorEl && anchorEl.parentNode) anchorEl.parentNode.insertBefore(c, anchorEl); else pg.insertBefore(c, pg.firstChild);

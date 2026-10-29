@@ -40,7 +40,7 @@ markup = sub(markup, '<p class="st-note">Each tab lists the sources used for it;
              '<p class="st-note">Data last refreshed <b data-draw="refreshed">—</b>. Each tab lists the sources used for it; the Ledger tab has the full list.</p>', 1)
 # sources list at the very end of the About card
 markup = sub(markup, '  </section>\n</div>\n', '''  </section>
-  <footer class="st-foot">Paper Trades is an independent one-month experiment: Claude vs Gemini vs ChatGPT. No real money. Not investment or betting advice. Betting content is for adults (18+, or the legal age where you live). If betting is a problem for you or someone you know, free confidential help is available worldwide at <a href="https://www.gamblingtherapy.org" target="_blank" rel="noopener">gamblingtherapy.org</a>.<br>Privacy: no accounts, no ads and no tracking cookies; your settings (language, theme, Beginner mode) are saved only in your own browser. © 2026 Paper Trades. All rights reserved.</footer>
+  <footer class="st-foot">Paper Trades is an independent one-month experiment: Claude vs Gemini vs ChatGPT. No real money. Not investment or betting advice. Betting content is for adults (18+, or the legal age where you live). If betting is a problem for you or someone you know, free confidential help is available worldwide at <a href="https://www.gamblingtherapy.org" target="_blank" rel="noopener">gamblingtherapy.org</a>.<br>Privacy: no accounts, no ads and no cookies. Visits are counted with <a href="https://www.goatcounter.com" target="_blank" rel="noopener">GoatCounter</a>, which stores no personal data; your settings (language, theme, Beginner mode) are saved only in your own browser. © 2026 Paper Trades. All rights reserved.</footer>
 </div>
 ''', 1)
 
@@ -850,6 +850,50 @@ try:
     data['price_audit'] = [json.load(open(os.path.join(SRC, 'price_audit.json')))]   # Claude's prices vs the feeds (ops/price_audit.py)
 except Exception:
     data['price_audit'] = []
+# Moments for the world to see, good and bad, by the same rules for all three AIs (owner's request, Oct 29):
+# lead changes, any single trade or bet that made or lost at least 1,000 (1% of a race), penalties, fact checks found wrong, busts.
+def _all_moments():
+    out = [dict(m, type='lead') for m in data.get('moments', [])]
+    BIG = 1000.0
+    def add(at, who, race, typ, amt=None, what='', extra=None):
+        try:
+            if _when(at) < _FS or _when(at) > RACE_END_DT:
+                return
+        except Exception:
+            return
+        out.append({'id': f"{typ}-{race}-{who}-{_when(at).strftime('%Y%m%d%H%M%S')}", 'at': _when(at).isoformat().replace('+00:00', 'Z'), 'type': typ, 'who': who,
+                    'race': race, 'amount': None if amt is None else round(amt, 2), 'cur': 'USD' if race == 'China' else 'CAD', 'what': what, **(extra or {})})
+    for t in data.get('rivals_trades', []):
+        pnl = t.get('pnl')
+        if pnl is not None and abs(pnl) >= BIG and t.get('experiment') in _EXPS:
+            nm = re.sub(r'^[A-Z]+: ', '', str(t.get('name') or t.get('symbol') or ''))
+            add(t['at'], t['model'], t['experiment'], 'win' if pnl > 0 else 'loss', pnl, nm, {'action': t.get('action')})
+    for t in data.get('trades', []):
+        pnl = t.get('pnl')
+        if pnl is not None and abs(pnl) >= BIG and t.get('portfolio') in _EXPS:
+            add(t['at'], 'claude', t['portfolio'], 'win' if pnl > 0 else 'loss', pnl, str(t.get('holding', '')), {'action': t.get('action')})
+    for b in data.get('bets', []):
+        if b.get('status') in ('Won', 'Lost') and b.get('settled_at'):
+            pnl = float(b.get('result_cad') or 0) if b['status'] == 'Won' else -float(b.get('stake_cad') or 0)
+            if abs(pnl) >= BIG:
+                add(b['settled_at'], 'claude', 'Sports', 'win' if pnl > 0 else 'loss', pnl, str(b.get('pick', '')), {'action': b['status']})
+    for x in data.get('penalties', []):
+        if x.get('at'):
+            add(x['at'], x.get('model', 'claude'), 'Sports', 'penalty', -abs(float(x.get('amount') or x.get('cad') or 0)), 'less than the daily betting minimum')
+    for f in data.get('factcheck', []):
+        if f.get('verdict') == 'wrong' and f.get('model') in ('claude', 'gemini', 'chatgpt'):
+            add(f['at'], f['model'], 'Overall', 'factcheck', None, str(f.get('text', ''))[:200], {'checker': f.get('checker')})
+    for mid, m in (r.get('models') or {}).items():
+        for e, b in (m.get('books') or {}).items():
+            if b.get('busted') and e in _EXPS:
+                add(b['busted'], mid, e, 'busted', None, 'lost everything in this race')
+    out.sort(key=lambda m: m['at'], reverse=True)
+    return out[:40]
+try:
+    data['moments_all'] = _all_moments()
+except Exception as _e:
+    print('moments_all not built:', _e)
+    data['moments_all'] = [dict(m, type='lead') for m in data.get('moments', [])]
 data['day_reports'] = r.get('day_reports', [])   # Gemini's and ChatGPT's own Race Reports (Claude's are in report.json)
 data['rivals_thoughts'] = [x for x in r.get('thoughts', []) if x['at'].replace('Z', '+00:00') >= _cut]
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
