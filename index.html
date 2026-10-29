@@ -763,6 +763,10 @@
   .st-tabs > .st-crown-chip { margin-left: auto; align-self: center; margin-right: 2px; }
   .st-crown-line { display: none; margin: 6px 0 0; }
   .pt-flash { animation: pt-flash 1.6s ease-out; border-radius: var(--cds-radius); }
+  .gx-lead { display: inline-flex; align-items: center; gap: 4px; font: inherit; font-size: 12.5px; color: var(--color-fg); background: color-mix(in srgb, var(--ai, #ffb000) 14%, transparent); border: 1px solid color-mix(in srgb, var(--ai, #ffb000) 55%, transparent); border-radius: 999px; padding: 2px 10px; margin-left: 4px; white-space: nowrap; }
+  .gx-lead b { color: var(--ai, #ffb000); font-weight: 700; }
+  button.gx-lead-go { cursor: pointer; } button.gx-lead-go:hover { border-color: var(--ai, #ffb000); }
+  button.gx-lead-go:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   @keyframes pt-flash { 0%, 30% { box-shadow: 0 0 0 2px var(--accent, #ffb000); } 100% { box-shadow: 0 0 0 2px transparent; } }
   @media (prefers-reduced-motion: reduce) { .pt-flash { animation: none; } }
   @media (max-width: 999px) { .st-tabs > .st-crown-chip { display: none; } .st-crown-line { display: block; } .st-crown-line .st-crown-chip { white-space: normal; } }   /* tablets and phones: at the top of the page */
@@ -966,7 +970,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'e5e5c4162144';</script>
+<script>window.PT_PAGE_VER = 'd2761fe64b5c';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -3641,6 +3645,13 @@ body { background:var(--color-bg); }
       const who = mk('p', 'gx-who'); who.appendChild(mk('span', 'gx-who-l', 'Currently viewing'));
       { const g = mk('span', 'gx-who-m'); const b2 = mk('b', '', aiModelCo(dash.model)); b2.setAttribute('translate', 'no'); g.append(aiBadge(dash.model, 18), b2); who.appendChild(g); }
       who.appendChild(mk('span', 'gx-who-s', '· ' + (LABEL[p] || p)));
+      if (el.id === 'perf-overview') {   // who is first in this race, at a glance; one tap switches to them (owner, Oct 29)
+        const L = raceLeader(p);
+        if (window.ptFollowLeader && L && L !== dash.model) setTimeout(() => setModel(L, true), 0);   // "Race leader" picked in the Model menu: every race you pick opens as its winner
+        if (L && L === dash.model) { const c = mk('span', 'gx-lead', '👑 1st in this race'); c.style.setProperty('--ai', AIS[L].color); who.appendChild(c); }
+        else if (L) { const c = mk('button', 'gx-lead gx-lead-go'); c.type = 'button'; c.style.setProperty('--ai', AIS[L].color); c.append(document.createTextNode('👑 '), mk('b', '', AIS[L].label), document.createTextNode(' is 1st · view')); c.title = 'Switch the site to ' + aiModel(L) + ', first in ' + (LABEL[p] || p) + ' right now'; c.addEventListener('click', () => setModel(L)); who.appendChild(c); }
+        if (window.ptSecModelSync) setTimeout(window.ptSecModelSync, 0);
+      }
       { // the currency menu right on the chart (the same setting as the top bar's Currency menu): C$, US$, € and the rest
         const src = document.getElementById('cur-pick');
         if (src) { const l = mk('label', 'gx-cur', 'Currency '); const s2 = mk('select'); s2.setAttribute('aria-label', 'Currency for the chart (changes it for the whole site)');
@@ -5365,17 +5376,28 @@ body { background:var(--color-bg); }
     const main = document.getElementById('model-pick'); if (!main) return;
     const heads = [...document.querySelectorAll('#h-ret, #perf-overview-pxw > h3, #h-b-chart, h2.st-h2[id$="-log"]')];   // Overview's two charts too (owner, Oct 29)
     const menus = [];
+    const chartRace = () => { const c = document.getElementById('perf-overview'); return c ? c.dataset.portfolio : null; };
     heads.forEach((h) => {
       if (h.parentElement.querySelector('.sec-model')) return;
       const row = mk('div', 'sec-model'); const l = mk('label', '', 'Model '); const sl = mk('select'); sl.setAttribute('aria-label', 'Model (changes the whole page)');
+      sl._leader = h.id === 'h-ret';   // the Overview chart's menu also offers "Race leader" (owner, Oct 29)
       l.appendChild(sl); row.appendChild(l); h.after(row); menus.push(sl);
-      sl.addEventListener('change', () => { if (main.value !== sl.value) { main.value = sl.value; main.dispatchEvent(new Event('change')); } });
+      sl.addEventListener('change', () => {
+        if (sl.value === 'leader') { window.ptFollowLeader = true; const L = raceLeader(chartRace()); if (L) setModel(L, true); sync(); return; }
+        window.ptFollowLeader = false;
+        if (main.value !== sl.value) { main.value = sl.value; main.dispatchEvent(new Event('change')); } else sync();
+      });
     });
+    // picking a model anywhere else turns "Race leader" off
+    main.addEventListener('change', () => { if (window.ptFollowLeader && main.value !== window.__leaderPick) window.ptFollowLeader = false; window.__leaderPick = null; });
     const sync = () => menus.forEach((sl) => {
-      const want = [...main.options].map((o) => [o.value, o.dataset.short || o.textContent, o.disabled]);
+      const L = sl._leader ? raceLeader(chartRace()) : null, short = (id) => { const o = [...main.options].find((x) => x.value === id); return o ? (o.dataset.short || o.textContent) : id; };
+      const want = (sl._leader ? [['leader', '👑 Race leader · ' + (L ? short(L) : 'tied right now'), false]] : [])
+        .concat([...main.options].map((o) => [o.value, (o.dataset.short || o.textContent) + (L && o.value === L ? '  👑' : ''), o.disabled]));
       if (sl.options.length !== want.length || want.some(([v, t, d], k) => sl.options[k].value !== v || sl.options[k].textContent !== t || sl.options[k].disabled !== d)) {
         sl.replaceChildren(); want.forEach(([v, t, d]) => { const o = mk('option', '', t); o.value = v; o.disabled = d; sl.appendChild(o); }); }
-      sl.value = main.value; sl.parentElement.parentElement.style.setProperty('--ai', (AIS[main.value] || {}).color || ''); });
+      sl.value = sl._leader && window.ptFollowLeader ? 'leader' : main.value; sl.parentElement.parentElement.style.setProperty('--ai', (AIS[main.value] || {}).color || ''); });
+    window.ptSecModelSync = sync;
     main.addEventListener('change', () => setTimeout(sync, 0)); dash.onModel(() => setTimeout(sync, 0)); dash.onData(() => setTimeout(sync, 0));
   })();
   // ---------- 🌐 Language: 16 of the most spoken languages, auto-picked from the device on the first visit (Google's free website translator)
@@ -5834,6 +5856,13 @@ body { background:var(--color-bg); }
     if (last) return (last.won ? 'Last: won ' : 'Last: lost ') + last.what + ' ' + m$(last.pnl) + openTxt;
     return open ? open + (open === 1 ? ' bet open' : ' bets open') + ', none settled yet' : 'No bets yet';
   };
+  // who is first in one race right now (null when the top two are level), for the crown on the Overview chart (owner, Oct 29)
+  const raceLeader = (race) => {
+    const all = dash.baseData('exp_standings'); const ES = (Array.isArray(all) ? all[0] : all) || {};
+    const rows = (ES[race] || []).filter((r) => AIS[r.id]).slice().sort((a, b) => Number(b.profit) - Number(a.profit));
+    return rows.length > 1 && Number(rows[0].profit) - Number(rows[1].profit) >= 0.5 ? rows[0].id : null;
+  };
+  const setModel = (id, byLeader) => { const mp = document.getElementById('model-pick'); if (!mp || !AIS[id] || mp.value === id) return; if (byLeader) window.__leaderPick = id; mp.value = id; mp.dispatchEvent(new Event('change')); };
   // the All in side race, per AI: value, profit, what it holds and its last move (the same numbers as the All in page) (owner, Oct 29)
   const ALLIN = { AllInTrading: 'All in: trading', AllInSports: 'All in: sports' };
   const allinRows = (exp) => {
