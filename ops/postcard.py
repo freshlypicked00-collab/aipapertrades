@@ -398,3 +398,80 @@ def story(cover_jpg, path, top='NEW ON PAPER TRADES', bottom='Every trade, live:
         d.text(((SW - w) / 2, y), s, font=f, fill=col, anchor='lm')
     im.save(path, 'JPEG', quality=95, subsampling=0, optimize=True)
     return path
+
+
+# ---------- the "What is Paper Trades?" explainer: a 4-slide carousel for new visitors (pinned), plus its story
+def intro_slides(table, prefix):
+    """1) what it is, 2) nobody touches the trades, 3) the ten races and who leads each now, 4) where to follow. Returns paths."""
+    if not table or any(e not in table for e in ORDER):
+        raise QualityError('intro data incomplete')
+    paths = []
+    # 1. the cover
+    c = Card()
+    _glow(c, AMBER, xy=(1150, 420), r=560)
+    c.header('START HERE')
+    y = brand_block(c)
+    y = title_block(c, y + 10, 'WHAT IS PAPER TRADES?', 'Three AIs. C$100,000 each. Ten races. One month.', max_lines=3)
+    c.text((SAFE_X, max(y + 10, 1300)), 'Real prices. Pretend money. Every trade public.', font('sans', 'Medium', 50), MUTED, 'lt')
+    c.text((W - SAFE_X, 1528), 'Swipe to see how it works  →', font('mono', 'SemiBold', 30), AMBER, 'rm')
+    c.footer(); paths.append(c.save(prefix + '-1.jpg'))
+    # 2. the rules in four lines
+    c = Card()
+    c.header('HOW IT WORKS')
+    y = title_block(c, 300, 'NO HUMAN TOUCHES THE TRADES', 'The AIs decide everything themselves', max_lines=2)
+    pts = [('🧠', 'Each AI picks its own trades and bets, and explains every one in its own words.'),
+           ('📈', 'Real-world prices: stocks, crypto, gold, oil, currencies, China, sports odds.'),
+           ('⚡', 'Every trade is posted the second it happens, wins and losses alike.'),
+           ('🏁', 'Each race is scored on its own. Final scoring: Saturday, November 28.')]
+    y += 40
+    bf, num = font('sans', 'Medium', 50), font('mono', 'Bold', 44)
+    for i, (_, t) in enumerate(pts):
+        c.d.rounded_rectangle([SAFE_X, y, SAFE_X + 74, y + 74], radius=14, fill=PANEL, outline=AMBER, width=3)
+        c.text((SAFE_X + 37, y + 39), str(i + 1), num, AMBER, 'mm')
+        lines = c.wrap(t, bf, W - 2 * SAFE_X - 110)
+        for j, ln in enumerate(lines):
+            c.text((SAFE_X + 110, y + 8 + j * 62), ln, bf, FG, 'lt')
+        y += max(74, len(lines) * 62) + 46
+    if y > 1540:
+        raise QualityError('intro slide 2 overflows')
+    c.footer(); paths.append(c.save(prefix + '-2.jpg'))
+    # 3. the ten races and who leads each right now
+    c = Card()
+    c.header('THE TEN RACES')
+    y = title_block(c, 270, 'WHO LEADS EACH RACE · ' + datetime.now(NY).strftime('%b %-d').upper(), 'Ten races, ten winners', max_lines=1)
+    y += 6
+    rf, lf = font('sans', 'SemiBold', 44), font('sans', 'Bold', 44)
+    for e in ORDER:
+        rows = table.get(e) or []
+        c.d.line([(SAFE_X, y), (W - SAFE_X, y)], fill=LINE, width=2)
+        c.text((SAFE_X, y + 43), LABEL[e], rf, FG, 'lm')
+        if len(rows) > 1 and rows[0][1] - rows[1][1] >= 0.5:
+            k = rows[0][0]
+            c.d.ellipse([W - SAFE_X - lf.getlength(AIS[k][0]) - 44, y + 30, W - SAFE_X - lf.getlength(AIS[k][0]) - 18, y + 56], fill=AIS[k][1])
+            c.text((W - SAFE_X, y + 43), AIS[k][0], lf, AIS[k][1], 'rm')
+        else:
+            c.text((W - SAFE_X, y + 43), 'Tied', lf, MUTED, 'rm')
+        y += 86
+    if y > 1560:
+        raise QualityError('intro slide 3 overflows')
+    c.footer(); paths.append(c.save(prefix + '-3.jpg'))
+    # 4. follow along
+    c = Card()
+    _glow(c, UP, xy=(1150, 520), r=520)
+    c.header('FOLLOW THE RACE')
+    y = title_block(c, 300, 'WHO WILL WIN?', 'Watch it happen, live', max_lines=2)
+    items = [('Instagram', '@papertrades.ai', 'Daily results and every lead change'),
+             ('Telegram', '@PaperTradesAI', 'Every trade, the second it happens'),
+             ('Website', 'papertrades.ai', 'The full ledger, rules and audit'),
+             ('X', '@PaperTradesAI', 'Highlights and race news')]
+    y += 30
+    for name, handle, why in items:
+        c.d.rounded_rectangle([SAFE_X, y, W - SAFE_X, y + 170], radius=18, fill=PANEL, outline=LINE, width=2)
+        c.text((SAFE_X + 40, y + 52), name.upper(), font('mono', 'SemiBold', 30), MUTED, 'lm', tracking=3)
+        c.text((SAFE_X + 40, y + 112), handle, font('sans', 'Bold', 60), FG, 'lm')
+        c.text((W - SAFE_X - 40, y + 112), why, c.fit(why, 'sans', 'Regular', 34, 560, 24), MUTED, 'rm')
+        y += 196
+    if y > 1560:
+        raise QualityError('intro slide 4 overflows')
+    c.footer(); paths.append(c.save(prefix + '-4.jpg'))
+    return paths

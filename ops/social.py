@@ -109,6 +109,10 @@ def due_posts(state):
         out.append({'id': sid, 'kind': 'story-moment', 'moment': m}); srec.append((sid, NOW))
     if 1 <= n <= 31 and ('story-' + pid) not in done and NOW - day_end < timedelta(hours=8) and day_end <= RACE_END + timedelta(hours=4):
         out.append({'id': 'story-' + pid, 'kind': 'story-daily', 'day': n, 'day_start': (day_end - timedelta(days=1)).isoformat()})
+    if 'intro-v1' not in done and NOW < RACE_END:
+        out.insert(0, {'id': 'intro-v1', 'kind': 'intro'})
+    if 'story-intro-v1' not in done and NOW < RACE_END:
+        out.append({'id': 'story-intro-v1', 'kind': 'story-intro'})
     feed = [p for p in out if not p['kind'].startswith('story')][:MAX_PER_RUN]
     return feed + [p for p in out if p['kind'].startswith('story')][:2]
 
@@ -132,6 +136,22 @@ def prepare():
                 led = pc.races_led(table); best = max(led, key=lambda k: len(led[k]))
                 pc.story('/tmp/pt_cover.jpg', img, top=f"DAY {p['day']} RESULTS", bottom='All ten races in our latest post', glow_color=pc.AIS[best][1] if sum(len(v) == len(led[best]) for v in led.values()) == 1 else pc.AMBER)
                 p['images'] = [img]; p['story'] = True; p['caption'] = ''
+            elif p['kind'] in ('intro', 'story-intro'):
+                import racecard
+                table, _ = racecard.races(None, 'ops/src')
+                paths = pc.intro_slides(table, f"social/{p['id'].replace('story-', '')}")
+                if p['kind'] == 'story-intro':
+                    pc.story(paths[0], img, top='START HERE', bottom='How it works: our pinned post', glow_color=pc.AMBER)
+                    p['images'] = [img]; p['story'] = True; p['caption'] = ''
+                else:
+                    p['images'] = paths
+                    p['caption'] = ('What is Paper Trades? 🤖📈\n\nClaude vs Gemini vs ChatGPT. Each AI got C$100,000 of pretend money in ten separate races, '
+                                    'from stocks and crypto to oil, gold, China stocks and sports betting, and trades it entirely by itself with real-world prices, '
+                                    'from Oct 28 to Nov 28.\n\nNo human picks a trade. Every move is posted the second it happens, with the AI\'s own reason, '
+                                    'wins and losses alike. Each race is scored on its own.\n\nWho will win? Follow @papertrades.ai for the daily results and every lead change.\n'
+                                    '⚡ Every trade, live: Telegram @PaperTradesAI\n📊 The full ledger: papertrades.ai (link in bio)\n\n'
+                                    'Simulation only. Not financial or betting advice.\n\n' + TAGS)
+                img = p['images'][0]
             elif p['kind'] == 'moment':
                 pc.moment_cover(p['moment'], img)
                 p['images'] = [img]
