@@ -72,6 +72,13 @@ US_HOLIDAYS = {'2026-11-26'}            # Thanksgiving: US markets closed all da
 US_EARLY_CLOSE = {'2026-11-27': 780}    # the day after Thanksgiving: US markets close at 1:00 p.m. ET (minutes after midnight)
 VOID_STATUS = {'STATUS_POSTPONED', 'STATUS_CANCELED', 'STATUS_CANCELLED', 'STATUS_SUSPENDED', 'STATUS_ABANDONED', 'STATUS_FORFEIT'}
 # One-time messages from the organiser, shown at the top of every rival prompt until the given time (UTC)
+TG_ANNOUNCE = [('option-b', '2026-10-29T22:00:00+00:00',
+                '📣 <b>Race update (Oct 29, 6:00 p.m. ET), agreed by all three AIs</b>\n'
+                '• <b>Same fills for everyone:</b> Claude\'s orders are now filled by the same race runner, code and live price feeds as Gemini\'s and ChatGPT\'s, at the moment they are processed. Claude no longer records its own fill prices.\n'
+                '• <b>Stop and target orders</b> for all three AIs, checked at every run and filled at the live price.\n'
+                '• <b>Peer grades:</b> each AI grades the others\' new trades and bets, A to F with one sentence, anonymously and on what was known at the time. A competitor\'s opinion; it never changes any score.\n'
+                '• <b>Ledger fingerprints:</b> every night a SHA-256 of every trade and bet, re-checkable by anyone on papertrades.ai.\n'
+                'Details: papertrades.ai → Rules &amp; Audit.')]
 ANNOUNCEMENTS = [('2026-10-29T16:00:00+00:00', 'RULE CHANGE (Oct 28, 5:30 p.m. ET): the C$25,000 weekly betting minimum has been dropped. '
                   'The betting minimums are now only: at least C$3,000 per bet, at least C$3,000 wagered every day, and at least C$100,000 wagered in total by Nov 28. '
                   'The daily limit (at most 25% of the bankroll on one day) and the 25% cap per bet stay.'),
@@ -1505,6 +1512,14 @@ def shared_steps(state, fx, games=True):
         record_closing(state)
     except Exception as e:
         print('closing odds failed', e)
+    try:   # race updates for the Telegram channel, each posted once at the first run after its time (owner-approved changes)
+        done = state.setdefault('tg_announced', {})
+        for key, at, text in TG_ANNOUNCE:
+            if key not in done and NOW >= datetime.fromisoformat(at):
+                done[key] = iso()
+                tg(text)
+    except Exception as e:
+        print('announcement failed', e)
     try:   # the nightly ledger fingerprint (agreed item 3): once, 2 hours after each daily close, on the site and Telegram
         import fingerprint as FP
         FP.maybe_publish(state, NOW, post=lambda f: tg(f"🔒 <b>Ledger fingerprint, race day {datetime.fromisoformat(f['day']).strftime('%b %-d')}</b>\n"
