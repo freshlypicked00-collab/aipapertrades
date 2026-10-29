@@ -1459,7 +1459,10 @@ def main():
     if os.environ.get('MODE') != 'force':
         lasts = [datetime.fromisoformat(m['last_run']['at'].replace('Z', '+00:00')) for m in state.get('models', {}).values() if m.get('last_run')]
         final_due = NOW >= RACE_END and not all(m in state.get('final', {}) for m in state.get('models', {}))
-        window = timedelta(minutes=20 if os.environ.get('EVENT') == 'schedule' else 10)
+        # GitHub's timer often fires 30-45 minutes late, so the backup waits longer: 25 minutes in US market hours (check-ins every
+        # 30 minutes), 50 otherwise (hourly). Otherwise a late backup gives Gemini and ChatGPT a second turn in the hour (Oct 29 fix).
+        _ny = NOW.astimezone(NY); _mkt = _ny.weekday() < 5 and (9 * 60 + 25) <= _ny.hour * 60 + _ny.minute <= (16 * 60 + 10)
+        window = timedelta(minutes=(25 if _mkt else 50) if os.environ.get('EVENT') == 'schedule' else 10)
         if lasts and NOW - max(lasts) < window and not final_due:
             print(f'a check-in ran {int((NOW - max(lasts)).total_seconds() // 60)} minutes ago; skipping this run (no double check-ins)')
             return
@@ -1835,7 +1838,17 @@ def main():
                     pulse[RACE_OF[sym]] = row
             except Exception as e:
                 print(f'pulse {sym} failed: {str(e)[:80]}')
-        state['pulse'] = {'at': iso(), 'moves': pulse, 'ticker': tick}
+        sports = []   # the headline line's SPORTS items: ESPN's top stories per league from the last day
+        for sp, lg, name in (('baseball', 'mlb', 'MLB'), ('football', 'nfl', 'NFL'), ('basketball', 'nba', 'NBA'), ('hockey', 'nhl', 'NHL')):
+            try:
+                arts = get_json(f'https://site.api.espn.com/apis/site/v2/sports/{sp}/{lg}/news?limit=4', timeout=15).get('articles') or []
+                for a in arts[:2]:
+                    pub = a.get('published') or ''
+                    if a.get('headline') and pub and (NOW - datetime.fromisoformat(pub.replace('Z', '+00:00'))).total_seconds() < 30 * 3600:
+                        sports.append({'league': name, 'headline': clip(a['headline'], 140), 'at': pub, 'link': ((a.get('links') or {}).get('web') or {}).get('href', '')})
+            except Exception as e:
+                print(f'sports news {lg} failed: {str(e)[:80]}')
+        state['pulse'] = {'at': iso(), 'moves': pulse, 'ticker': tick, 'sports': sports[:8]}
     except Exception as e:
         print('pulse failed', e)
     try:

@@ -452,7 +452,7 @@
   .pt-news { display: flex; align-items: stretch; margin: 10px 0 0; min-height: 34px; border: 1px solid color-mix(in srgb, var(--accent, #ffb000) 45%, transparent); border-bottom: 0; background: var(--color-panel); overflow: hidden; }
   .pt-n-k { flex: none; display: flex; align-items: center; padding: 0 12px; font-weight: 800; font-size: 12px; letter-spacing: .1em; color: #fff; background: var(--accent, #ffb000); color: #111; font-style: italic; }
   .pt-n-k.pt-n-break, .pt-n-k.pt-n-loss, .pt-n-k.pt-n-penalty, .pt-n-k.pt-n-busted, .pt-n-k.pt-n-factcheck { background: #e5383b; color: #fff; }
-  .pt-n-k.pt-n-off { background: #1f5fc4; color: #fff; } .pt-n-k.pt-n-world { background: #6d5b2e; color: #fff; } .pt-n-k.pt-n-win { background: #1e9e5a; color: #fff; }
+  .pt-n-k.pt-n-off { background: #1f5fc4; color: #fff; } .pt-n-k.pt-n-sport { background: #0f7a63; color: #fff; } .pt-n-k.pt-n-race { font-size: 11px; } .pt-n-k.pt-n-world { background: #6d5b2e; color: #fff; } .pt-n-k.pt-n-win { background: #1e9e5a; color: #fff; }
   .pt-n-t { flex: 1; min-width: 0; display: flex; align-items: center; padding: 0 14px; font-weight: 600; font-size: 14px; text-transform: uppercase; letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pt-n-t a { color: inherit; text-decoration: none; overflow: hidden; text-overflow: ellipsis; } .pt-n-t a:hover { text-decoration: underline; }
   .pt-n-in { animation: pt-n-in .45s ease-out; } @keyframes pt-n-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -630,7 +630,7 @@
       <span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 28</span>
     </p>
     <p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>
-    <div class="pt-news" data-draw="newsline" data-source="pulse events geo facts" aria-live="off" aria-label="Headlines"></div>
+    <div class="pt-news" data-draw="newsline" data-source="pulse events geo facts moments_all" aria-live="off" aria-label="Headlines"></div>
     <div class="pt-ticker" data-draw="ticker" data-source="ticker" aria-label="Market prices"></div>
   </header>
     <section class="st-live st-live-top" aria-labelledby="h-live">
@@ -3908,7 +3908,7 @@
   // added automatically wherever they are drawn. Labels, helper notes, tables and rules don't (owner's request, Oct 29).
   (() => {
     if (!('speechSynthesis' in window)) return;
-    const SAY_ONLY = '.h2h-takes, .st-plan, .st-take, .ai-words, .lg-review-box, .lg-review, .st-report-body, .st-report-old, .st-fc-why';   // where the AIs' words are shown
+    const SAY_ONLY = '#hook-sub, .st-hook-sub, .h2h-takes, .st-plan, .st-take, .ai-words, .lg-review-box, .lg-review, .st-report-body, .st-report-old, .st-fc-why';   // where the AIs' words are shown
     const SKIP = '.st-note, .st-model-note, .pd-note, .st-sources, table, .st-live, .bg-start, .bg-plain, .bg-toast, .bg-pop, tr.bg-say, .au-pre, .au-ai, .h2h-holds, .pd-detail, .st-plans-wide, nav, button, select, label, header .st-meta, .st-sub, .st-dates, .st-podium, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, .say-pair, .listen-pair, .sp-track, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
     const words = (t) => (t.trim().match(/\S+/g) || []).length;
     const NESTED = 'p, li, .st-plan, table, ul, ol';
@@ -4440,10 +4440,18 @@
       const h1 = Math.abs(q.chg_1h || 0) >= k, h3 = Math.abs(q.chg_3h || 0) >= 1.5 * k; if (!h1 && !h3) return; const ch = h1 ? q.chg_1h : q.chg_3h;
       out.push({ k: 'BREAKING', cls: 'pt-n-break', t: (nm[q.sym] || q.name) + ' is ' + (ch >= 0 ? 'up ' : 'down ') + Math.abs(ch * 100).toFixed(1) + '% in the last ' + (h1 ? 'hour' : '3 hours') }); });
     dash.baseData('facts').filter((f) => now - Date.parse(f.at) < 3 * 864e5).slice(-4).reverse().forEach((f) => out.push({ k: 'OFFICIAL', cls: 'pt-n-off', t: clip(f.event, 70) + ': ' + clip(f.result, 120), href: f.source }));
+    (((dash.baseData('pulse')[0] || {}).sports) || []).filter((x) => now - Date.parse(x.at) < 30 * 3600e3).slice(0, 4)
+      .forEach((x) => out.push({ k: 'SPORTS · ' + x.league, cls: 'pt-n-sport', t: x.headline, href: x.link || undefined }));
     const G = dash.baseData('geo'); const g = Array.isArray(G) ? G[0] : G;
     if (g && g.status) g.status.slice(0, 3).forEach((x) => out.push({ k: 'WORLD', cls: 'pt-n-world', t: x.label + ': ' + x.value }));
     dash.baseData('events').filter((e) => Date.parse(e.at) > now && Date.parse(e.at) - now < 3 * 864e5).sort((a, b) => Date.parse(a.at) - Date.parse(b.at)).slice(0, 3)
       .forEach((e) => out.push({ k: 'COMING UP', cls: 'pt-n-next', t: (e.when || stFmt.when(e.at)) + (/\d\s?(a\.m\.|p\.m\.)/.test(e.when || '') && !/(ET|UTC)\b/.test(e.when || '') ? ' ET' : '') + ': ' + clip(e.event, 110) }));
+    // the race, kept small: one item at most, only for a big moment in the last 6 hours (a lead change of C$2,000+, a win or loss
+    // of C$3,000+, a bust); everything else about the race is in Moments
+    const MA = dash.baseData('moments_all');
+    const big = (Array.isArray(MA) ? MA : []).find((m) => AIS[m.who] && now - Date.parse(m.at) < 6 * 3600e3 &&
+      ((m.type === 'lead' && Math.abs(m.lead || 0) >= 2000) || ((m.type === 'win' || m.type === 'loss') && Math.abs(m.amount || 0) >= 3000) || m.type === 'busted'));
+    if (big) out.push({ k: 'THE RACE', cls: 'pt-n-race pt-n-' + (big.type || 'lead'), t: momentText(big) });
     return out;
   };
   dash.draw('newsline', {

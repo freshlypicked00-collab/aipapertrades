@@ -2,7 +2,7 @@ name: Post updates to Telegram
 on:
   push:
     branches: [main]
-    paths: ['ops/src/**']
+    paths: ['ops/src/trades.json', 'ops/src/bets.json', 'ops/src/log.json', 'ops/src/take.json', 'ops/src/history.json', 'ops/src/ledger.json', 'ops/src/review.json', 'ops/src/report.json', 'ops/src/holdings.json', 'ops/src/events.json', 'ops/src/plans.json', 'ops/src/factcheck.json', 'ops/src/forecasts.json']
   workflow_dispatch:
     inputs:
       mode:

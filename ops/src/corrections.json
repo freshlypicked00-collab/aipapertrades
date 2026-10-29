@@ -43,5 +43,10 @@
   "at": "2026-10-29T01:15:00-04:00",
   "what": "Lead-change moments",
   "text": "A bug in the lead-change check applied Gemini's and ChatGPT's new values one at a time instead of together. At 12:14 a.m. ET on Oct 29 both lost bets, and for that split second ChatGPT looked ahead of Gemini in Sports, so a false moment (\"ChatGPT overtook Gemini in Sports, ahead by C$408\") was shown on the site and posted as an Instagram story. The real change at that time: Claude took the Sports lead from Gemini, by C$2,052. The same bug made the Crypto moment at 9:14 p.m. ET on Oct 28 say Claude was ahead by C$350; it was C$394. Fixed: values saved at the same moment are now applied together. No money or result was affected."
+ },
+ {
+  "at": "2026-10-29T02:40:00-04:00",
+  "what": "Extra check-ins for Gemini and ChatGPT",
+  "text": "GitHub's backup timer for Gemini's and ChatGPT's check-ins fired 30 to 45 minutes late most hours, after Claude's run had already started their check-in for that hour, so between 5 p.m. Oct 28 and 12 a.m. Oct 29 ET they got 7 extra check-ins that Claude didn't get. Only one decision came out of them: Gemini sold the rest of its Solana at 6:46 p.m. ET (a C$38 profit); the other rows were bets settling automatically from final scores, which would have settled at the next check-in anyway. Fixed: the backup now runs only if no check-in happened in the last 50 minutes (25 in US market hours), so it steps in only when Claude's run doesn't."
  }
 ]
