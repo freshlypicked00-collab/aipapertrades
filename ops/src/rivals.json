@@ -1921,7 +1921,9 @@
        "status": "Open",
        "result": 0.0,
        "reason": "The Lightning are heavy -238 home favorites, providing a high-probability leg for Thursday's sports allocation.",
-       "wrong_if": "The Jets pull off a significant road upset against Tampa Bay."
+       "wrong_if": "The Jets pull off a significant road upset against Tampa Bay.",
+       "closing_odds": -218,
+       "closing_at": "2026-10-29T22:01:02Z"
       },
       {
        "id": "G16",
@@ -1940,7 +1942,9 @@
        "status": "Open",
        "result": 0.0,
        "reason": "The Hurricanes offer strong value as -230 home favorites against the Blue Jackets.",
-       "wrong_if": "Columbus manages to defeat Carolina on the road."
+       "wrong_if": "Columbus manages to defeat Carolina on the road.",
+       "closing_odds": -258,
+       "closing_at": "2026-10-29T22:01:02Z"
       },
       {
        "id": "G17",
@@ -14990,6 +14994,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 113020.83
+  },
+  {
+   "at": "2026-10-29T22:01:02Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 98756.65
+  },
+  {
+   "at": "2026-10-29T22:01:02Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 100000.0
   }
  ],
  "takes": [
@@ -24230,7 +24246,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 715.34,
-      "priced_at": "2026-10-29T21:16:33Z",
+      "priced_at": "2026-10-29T22:01:02Z",
       "hist": [
        [
         29886870,
@@ -24307,6 +24323,10 @@
        [
         29888476,
         715.34
+       ],
+       [
+        29888521,
+        715.34
        ]
       ]
      },
@@ -24316,8 +24336,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 79100.2,
-      "priced_at": "2026-10-29T21:16:33Z",
+      "last": 78832.15,
+      "priced_at": "2026-10-29T22:01:02Z",
       "hist": [
        [
         29886870,
@@ -24534,6 +24554,10 @@
        [
         29888476,
         79100.2
+       ],
+       [
+        29888521,
+        78832.15
        ]
       ]
      }
@@ -33035,10 +33059,988 @@
     "placed_at": "2026-10-29T21:16:33Z",
     "reason": "The all-in book can take more risk, but SOL below 90 would make the crypto leg a capital drain instead of an upside swing."
    }
+  ],
+  "claude": [
+   {
+    "id": "claude-1",
+    "model": "claude",
+    "experiment": "Stocks",
+    "symbol": "SPY",
+    "outcome": null,
+    "kind": "stop",
+    "direction": "below",
+    "level": 735.0,
+    "fraction": 1.0,
+    "name": "SPY",
+    "placed_at": "2026-10-29T22:01:02Z",
+    "reason": "Sell all SPY if it falls to $735 (stop)."
+   },
+   {
+    "id": "claude-2",
+    "model": "claude",
+    "experiment": "Stocks",
+    "symbol": "QQQ",
+    "outcome": null,
+    "kind": "stop",
+    "direction": "below",
+    "level": 685.0,
+    "fraction": 1.0,
+    "name": "QQQ",
+    "placed_at": "2026-10-29T22:01:02Z",
+    "reason": "Sell all QQQ if it falls to $685 (stop)."
+   },
+   {
+    "id": "claude-3",
+    "model": "claude",
+    "experiment": "Crypto",
+    "symbol": "BTC-USD",
+    "outcome": null,
+    "kind": "stop",
+    "direction": "below",
+    "level": 75500.0,
+    "fraction": 1.0,
+    "name": "Bitcoin",
+    "placed_at": "2026-10-29T22:01:02Z",
+    "reason": "Sell all Bitcoin if it falls to $75,500 (stop)."
+   },
+   {
+    "id": "claude-4",
+    "model": "claude",
+    "experiment": "Metals",
+    "symbol": "GC=F",
+    "outcome": null,
+    "kind": "stop",
+    "direction": "below",
+    "level": 3887.75,
+    "fraction": 1.0,
+    "name": "Gold",
+    "placed_at": "2026-10-29T22:01:02Z",
+    "reason": "Sell all gold if it falls to $3,880 (stop). (level 3880 on the spot price, 3887.75 on the futures the runner watches)"
+   },
+   {
+    "id": "claude-5",
+    "model": "claude",
+    "experiment": "Metals",
+    "symbol": "SI=F",
+    "outcome": null,
+    "kind": "stop",
+    "direction": "below",
+    "level": 49.9,
+    "fraction": 1.0,
+    "name": "Silver",
+    "placed_at": "2026-10-29T22:01:02Z",
+    "reason": "Sell all silver if it falls to $50.00 (stop). (level 50 on the spot price, 49.9 on the futures the runner watches)"
+   },
+   {
+    "id": "claude-6",
+    "model": "claude",
+    "experiment": "Energy",
+    "symbol": "USO",
+    "outcome": null,
+    "kind": "stop",
+    "direction": "below",
+    "level": 155.0,
+    "fraction": 1.0,
+    "name": "USO",
+    "placed_at": "2026-10-29T22:01:02Z",
+    "reason": "Sell all USO if it falls to $155 (stop)."
+   },
+   {
+    "id": "claude-7",
+    "model": "claude",
+    "experiment": "Energy",
+    "symbol": "XLE",
+    "outcome": null,
+    "kind": "stop",
+    "direction": "below",
+    "level": 64.5,
+    "fraction": 1.0,
+    "name": "XLE",
+    "placed_at": "2026-10-29T22:01:02Z",
+    "reason": "Sell all XLE if it falls to $64.50 (stop)."
+   },
+   {
+    "id": "claude-8",
+    "model": "claude",
+    "experiment": "Currencies",
+    "symbol": "JPY",
+    "outcome": null,
+    "kind": "stop",
+    "direction": "below",
+    "level": 0.006211,
+    "fraction": 1.0,
+    "name": "Japanese yen",
+    "placed_at": "2026-10-29T22:01:02Z",
+    "reason": "Sell all yen if USD/JPY rises to 161.0 (yen price 0.006211; stop)."
+   },
+   {
+    "id": "claude-9",
+    "model": "claude",
+    "experiment": "Currencies",
+    "symbol": "USD",
+    "outcome": null,
+    "kind": "stop",
+    "direction": "above",
+    "level": 1.42,
+    "fraction": 1.0,
+    "name": "US dollar",
+    "watch": "CAD=X",
+    "placed_at": "2026-10-29T22:01:02Z",
+    "reason": "Cover the US dollar short if USD/CAD rises to 1.4200 (stop, checked each run from the USD/CAD rate)."
+   },
+   {
+    "id": "claude-10",
+    "model": "claude",
+    "experiment": "China",
+    "symbol": "510300.SS",
+    "outcome": null,
+    "kind": "stop",
+    "direction": "below",
+    "level": 3.85,
+    "fraction": 1.0,
+    "name": "CSI 300 ETF",
+    "placed_at": "2026-10-29T22:01:02Z",
+    "reason": "Sell all CSI 300 ETF (510300) if it falls to 3.85 yuan (stop)."
+   },
+   {
+    "id": "claude-11",
+    "model": "claude",
+    "experiment": "China",
+    "symbol": "510880.SS",
+    "outcome": null,
+    "kind": "stop",
+    "direction": "below",
+    "level": 3.2,
+    "fraction": 1.0,
+    "name": "SSE Dividend ETF",
+    "placed_at": "2026-10-29T22:01:02Z",
+    "reason": "Sell all SSE Dividend ETF (510880) if it falls to 3.20 yuan (stop)."
+   }
   ]
  },
  "stop_seq": {
   "gemini": 4,
-  "chatgpt": 10
+  "chatgpt": 10,
+  "claude": 11
+ },
+ "claude_main": {
+  "done": [],
+  "results": [],
+  "codes": {
+   "Democrats win the Senate (Yes)": "will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections|Yes"
+  },
+  "waiting": {}
+ },
+ "stops_migrated": {
+  "claude": "2026-10-29T22:01:02Z"
+ },
+ "tg_announced": {
+  "option-b": "2026-10-29T22:01:02Z"
+ },
+ "fingerprints": [
+  {
+   "day": "2026-10-28",
+   "close_at": "2026-10-29T00:00:00Z",
+   "sha256": "2ba0a8e5ca3d910b251d680c7890ff7d356e46949aa7b08602f2f90591b40caa",
+   "records": 107,
+   "at": "2026-10-29T22:01:02Z"
+  }
+ ],
+ "games_open": {
+  "at": "2026-10-29T22:01:02Z",
+  "games": [
+   {
+    "id": "401892601",
+    "short": "NHL",
+    "away": "Winnipeg Jets",
+    "home": "Tampa Bay Lightning",
+    "start": "2026-10-29T23:00Z",
+    "away_ml": 180,
+    "home_ml": -218
+   },
+   {
+    "id": "401892602",
+    "short": "NHL",
+    "away": "Utah Mammoth",
+    "home": "Pittsburgh Penguins",
+    "start": "2026-10-29T23:00Z",
+    "away_ml": -135,
+    "home_ml": 114
+   },
+   {
+    "id": "401892603",
+    "short": "NHL",
+    "away": "Columbus Blue Jackets",
+    "home": "Carolina Hurricanes",
+    "start": "2026-10-29T23:00Z",
+    "away_ml": 210,
+    "home_ml": -258
+   },
+   {
+    "id": "401892600",
+    "short": "NHL",
+    "away": "Chicago Blackhawks",
+    "home": "Detroit Red Wings",
+    "start": "2026-10-29T23:30Z",
+    "away_ml": 136,
+    "home_ml": -162
+   },
+   {
+    "id": "401862812",
+    "short": "NCAAF",
+    "away": "Florida Atlantic Owls",
+    "home": "North Texas Mean Green",
+    "start": "2026-10-29T23:30Z",
+    "away_ml": 410,
+    "home_ml": -550
+   },
+   {
+    "id": "401869963",
+    "short": "NCAAF",
+    "away": "Troy Trojans",
+    "home": "James Madison Dukes",
+    "start": "2026-10-29T23:30Z",
+    "away_ml": 750,
+    "home_ml": -1200
+   },
+   {
+    "id": "401909893",
+    "short": "NBA",
+    "away": "Cleveland Cavaliers",
+    "home": "Atlanta Hawks",
+    "start": "2026-10-30T00:00Z",
+    "away_ml": -102,
+    "home_ml": -118
+   },
+   {
+    "id": "401909894",
+    "short": "NBA",
+    "away": "Sacramento Kings",
+    "home": "New Orleans Pelicans",
+    "start": "2026-10-30T00:00Z",
+    "away_ml": 195,
+    "home_ml": -238
+   },
+   {
+    "id": "401892604",
+    "short": "NHL",
+    "away": "Boston Bruins",
+    "home": "St. Louis Blues",
+    "start": "2026-10-30T00:00Z",
+    "away_ml": -105,
+    "home_ml": -115
+   },
+   {
+    "id": "401892605",
+    "short": "NHL",
+    "away": "Washington Capitals",
+    "home": "Nashville Predators",
+    "start": "2026-10-30T00:00Z",
+    "away_ml": -112,
+    "home_ml": -108
+   },
+   {
+    "id": "401892606",
+    "short": "NHL",
+    "away": "Montreal Canadiens",
+    "home": "Dallas Stars",
+    "start": "2026-10-30T00:00Z",
+    "away_ml": 145,
+    "home_ml": -175
+   },
+   {
+    "id": "401892607",
+    "short": "NHL",
+    "away": "New York Islanders",
+    "home": "Minnesota Wild",
+    "start": "2026-10-30T00:00Z",
+    "away_ml": 160,
+    "home_ml": -192
+   },
+   {
+    "id": "401873023",
+    "short": "NFL",
+    "away": "Carolina Panthers",
+    "home": "Green Bay Packers",
+    "start": "2026-10-30T00:15Z",
+    "away_ml": 154,
+    "home_ml": -185
+   },
+   {
+    "id": "401909895",
+    "short": "NBA",
+    "away": "Memphis Grizzlies",
+    "home": "Portland Trail Blazers",
+    "start": "2026-10-30T02:00Z",
+    "away_ml": 235,
+    "home_ml": -290
+   },
+   {
+    "id": "401892608",
+    "short": "NHL",
+    "away": "Buffalo Sabres",
+    "home": "Anaheim Ducks",
+    "start": "2026-10-30T02:00Z",
+    "away_ml": -142,
+    "home_ml": 120
+   },
+   {
+    "id": "401892609",
+    "short": "NHL",
+    "away": "Ottawa Senators",
+    "home": "Los Angeles Kings",
+    "start": "2026-10-30T02:00Z",
+    "away_ml": -122,
+    "home_ml": 102
+   },
+   {
+    "id": "401892610",
+    "short": "NHL",
+    "away": "Vancouver Canucks",
+    "home": "San Jose Sharks",
+    "start": "2026-10-30T02:00Z",
+    "away_ml": 145,
+    "home_ml": -175
+   },
+   {
+    "id": "401892611",
+    "short": "NHL",
+    "away": "New Jersey Devils",
+    "home": "Vegas Golden Knights",
+    "start": "2026-10-30T22:00Z",
+    "away_ml": -105,
+    "home_ml": -115
+   },
+   {
+    "id": "401909277",
+    "short": "NBA",
+    "away": "Charlotte Hornets",
+    "home": "Washington Wizards",
+    "start": "2026-10-30T23:00Z",
+    "away_ml": -110,
+    "home_ml": -110
+   },
+   {
+    "id": "401892612",
+    "short": "NHL",
+    "away": "Winnipeg Jets",
+    "home": "Florida Panthers",
+    "start": "2026-10-30T23:00Z",
+    "away_ml": 180,
+    "home_ml": -218
+   },
+   {
+    "id": "401862813",
+    "short": "NCAAF",
+    "away": "Tulane Green Wave",
+    "home": "Charlotte 49ers",
+    "start": "2026-10-30T23:00Z",
+    "away_ml": -345,
+    "home_ml": 275
+   },
+   {
+    "id": "401909278",
+    "short": "NBA",
+    "away": "Chicago Bulls",
+    "home": "Boston Celtics",
+    "start": "2026-10-30T23:30Z",
+    "away_ml": 575,
+    "home_ml": -850
+   },
+   {
+    "id": "401909279",
+    "short": "NBA",
+    "away": "Detroit Pistons",
+    "home": "Brooklyn Nets",
+    "start": "2026-10-30T23:30Z",
+    "away_ml": -258,
+    "home_ml": 210
+   },
+   {
+    "id": "401909280",
+    "short": "NBA",
+    "away": "New York Knicks",
+    "home": "Philadelphia 76ers",
+    "start": "2026-10-30T23:30Z",
+    "away_ml": -120,
+    "home_ml": 100
+   },
+   {
+    "id": "401909281",
+    "short": "NBA",
+    "away": "Orlando Magic",
+    "home": "Toronto Raptors",
+    "start": "2026-10-30T23:30Z",
+    "away_ml": 160,
+    "home_ml": -192
+   },
+   {
+    "id": "401856844",
+    "short": "NCAAF",
+    "away": "Baylor Bears",
+    "home": "UCF Knights",
+    "start": "2026-10-30T23:30Z",
+    "away_ml": -110,
+    "home_ml": -110
+   },
+   {
+    "id": "401909282",
+    "short": "NBA",
+    "away": "Indiana Pacers",
+    "home": "Miami Heat",
+    "start": "2026-10-31T00:00Z",
+    "away_ml": 205,
+    "home_ml": -250
+   },
+   {
+    "id": "401909283",
+    "short": "NBA",
+    "away": "Houston Rockets",
+    "home": "Dallas Mavericks",
+    "start": "2026-10-31T00:00Z",
+    "away_ml": -192,
+    "home_ml": 160
+   },
+   {
+    "id": "401909284",
+    "short": "NBA",
+    "away": "LA Clippers",
+    "home": "Minnesota Timberwolves",
+    "start": "2026-10-31T00:00Z",
+    "away_ml": 200,
+    "home_ml": -245
+   },
+   {
+    "id": "401892613",
+    "short": "NHL",
+    "away": "Seattle Kraken",
+    "home": "Calgary Flames",
+    "start": "2026-10-31T00:00Z",
+    "away_ml": -115,
+    "home_ml": -105
+   },
+   {
+    "id": "401909285",
+    "short": "NBA",
+    "away": "Los Angeles Lakers",
+    "home": "Golden State Warriors",
+    "start": "2026-10-31T02:00Z",
+    "away_ml": -125,
+    "home_ml": 105
+   },
+   {
+    "id": "401909286",
+    "short": "NBA",
+    "away": "Denver Nuggets",
+    "home": "Phoenix Suns",
+    "start": "2026-10-31T02:00Z",
+    "away_ml": -170,
+    "home_ml": 142
+   },
+   {
+    "id": "401866451",
+    "short": "NCAAF",
+    "away": "Kent State Golden Flashes",
+    "home": "Sacramento State Hornets",
+    "start": "2026-10-31T02:30Z",
+    "away_ml": -305,
+    "home_ml": 245
+   },
+   {
+    "id": "401879248",
+    "short": "EPL",
+    "away": "Manchester United",
+    "home": "Chelsea",
+    "start": "2026-10-31T12:30Z",
+    "away_ml": 300,
+    "home_ml": -120
+   },
+   {
+    "id": "401879251",
+    "short": "EPL",
+    "away": "Leeds United",
+    "home": "AFC Bournemouth",
+    "start": "2026-10-31T15:00Z",
+    "away_ml": 250,
+    "home_ml": 115
+   },
+   {
+    "id": "401879249",
+    "short": "EPL",
+    "away": "Nottingham Forest",
+    "home": "Brentford",
+    "start": "2026-10-31T15:00Z",
+    "away_ml": 245,
+    "home_ml": 105
+   },
+   {
+    "id": "401879247",
+    "short": "EPL",
+    "away": "Sunderland",
+    "home": "Coventry City",
+    "start": "2026-10-31T15:00Z",
+    "away_ml": 135,
+    "home_ml": 210
+   },
+   {
+    "id": "401878763",
+    "short": "EPL",
+    "away": "Ipswich Town",
+    "home": "Hull City",
+    "start": "2026-10-31T15:00Z",
+    "away_ml": 165,
+    "home_ml": 165
+   },
+   {
+    "id": "401879245",
+    "short": "EPL",
+    "away": "Brighton & Hove Albion",
+    "home": "Manchester City",
+    "start": "2026-10-31T15:00Z",
+    "away_ml": 370,
+    "home_ml": -160
+   },
+   {
+    "id": "401859185",
+    "short": "NCAAF",
+    "away": "Notre Dame Fighting Irish",
+    "home": "Navy Midshipmen",
+    "start": "2026-10-31T16:00Z",
+    "away_ml": -6500,
+    "home_ml": 2000
+   },
+   {
+    "id": "401856842",
+    "short": "NCAAF",
+    "away": "Arizona Wildcats",
+    "home": "Texas Tech Red Raiders",
+    "start": "2026-10-31T16:00Z",
+    "away_ml": 140,
+    "home_ml": -166
+   },
+   {
+    "id": "401858278",
+    "short": "NCAAF",
+    "away": "SMU Mustangs",
+    "home": "Syracuse Orange",
+    "start": "2026-10-31T16:00Z",
+    "away_ml": -380,
+    "home_ml": 300
+   },
+   {
+    "id": "401858502",
+    "short": "NCAAF",
+    "away": "Wisconsin Badgers",
+    "home": "Iowa Hawkeyes",
+    "start": "2026-10-31T16:00Z",
+    "away_ml": 142,
+    "home_ml": -170
+   },
+   {
+    "id": "401858277",
+    "short": "NCAAF",
+    "away": "California Golden Bears",
+    "home": "NC State Wolfpack",
+    "start": "2026-10-31T16:00Z",
+    "away_ml": 215,
+    "home_ml": -265
+   },
+   {
+    "id": "401858279",
+    "short": "NCAAF",
+    "away": "Boston College Eagles",
+    "home": "Duke Blue Devils",
+    "start": "2026-10-31T16:00Z",
+    "away_ml": 225,
+    "home_ml": -278
+   },
+   {
+    "id": "401858503",
+    "short": "NCAAF",
+    "away": "Illinois Fighting Illini",
+    "home": "Maryland Terrapins",
+    "start": "2026-10-31T16:00Z",
+    "away_ml": -135,
+    "home_ml": 114
+   },
+   {
+    "id": "401862816",
+    "short": "NCAAF",
+    "away": "UAB Blazers",
+    "home": "South Florida Bulls",
+    "start": "2026-10-31T16:00Z",
+    "away_ml": 245,
+    "home_ml": -305
+   },
+   {
+    "id": "401866452",
+    "short": "NCAAF",
+    "away": "Bowling Green Falcons",
+    "home": "Western Michigan Broncos",
+    "start": "2026-10-31T16:00Z",
+    "away_ml": 400,
+    "home_ml": -535
+   },
+   {
+    "id": "401858507",
+    "short": "NCAAF",
+    "away": "Michigan Wolverines",
+    "home": "Rutgers Scarlet Knights",
+    "start": "2026-10-31T16:30Z",
+    "away_ml": -675,
+    "home_ml": 490
+   },
+   {
+    "id": "401856735",
+    "short": "NCAAF",
+    "away": "Auburn Tigers",
+    "home": "Ole Miss Rebels",
+    "start": "2026-10-31T16:45Z",
+    "away_ml": 380,
+    "home_ml": -500
+   },
+   {
+    "id": "401871096",
+    "short": "NCAAF",
+    "away": "Marshall Thundering Herd",
+    "home": "Old Dominion Monarchs",
+    "start": "2026-10-31T17:00Z",
+    "away_ml": -142,
+    "home_ml": 120
+   },
+   {
+    "id": "401878761",
+    "short": "EPL",
+    "away": "Crystal Palace",
+    "home": "Tottenham Hotspur",
+    "start": "2026-10-31T17:30Z",
+    "away_ml": 450,
+    "home_ml": -180
+   },
+   {
+    "id": "401856846",
+    "short": "NCAAF",
+    "away": "Kansas State Wildcats",
+    "home": "Colorado Buffaloes",
+    "start": "2026-10-31T18:00Z",
+    "away_ml": 105,
+    "home_ml": -125
+   },
+   {
+    "id": "401869944",
+    "short": "NCAAF",
+    "away": "Coastal Carolina Chanticleers",
+    "home": "Georgia State Panthers",
+    "start": "2026-10-31T18:00Z",
+    "away_ml": 180,
+    "home_ml": -218
+   },
+   {
+    "id": "401861966",
+    "short": "NCAAF",
+    "away": "UConn Huskies",
+    "home": "Air Force Falcons",
+    "start": "2026-10-31T19:00Z",
+    "away_ml": -105,
+    "home_ml": -115
+   },
+   {
+    "id": "401862815",
+    "short": "NCAAF",
+    "away": "Temple Owls",
+    "home": "East Carolina Pirates",
+    "start": "2026-10-31T19:00Z",
+    "away_ml": 170,
+    "home_ml": -205
+   },
+   {
+    "id": "401871097",
+    "short": "NCAAF",
+    "away": "Louisiana Tech Bulldogs",
+    "home": "South Alabama Jaguars",
+    "start": "2026-10-31T19:00Z",
+    "away_ml": -218,
+    "home_ml": 180
+   },
+   {
+    "id": "401858283",
+    "short": "NCAAF",
+    "away": "Stanford Cardinal",
+    "home": "Louisville Cardinals",
+    "start": "2026-10-31T19:15Z",
+    "away_ml": 1100,
+    "home_ml": -2100
+   },
+   {
+    "id": "401856734",
+    "short": "NCAAF",
+    "away": "Florida Gators",
+    "home": "Georgia Bulldogs",
+    "start": "2026-10-31T19:30Z",
+    "away_ml": 360,
+    "home_ml": -470
+   },
+   {
+    "id": "401858501",
+    "short": "NCAAF",
+    "away": "Minnesota Golden Gophers",
+    "home": "Indiana Hoosiers",
+    "start": "2026-10-31T19:30Z",
+    "away_ml": 850,
+    "home_ml": -1450
+   },
+   {
+    "id": "401856843",
+    "short": "NCAAF",
+    "away": "Arizona State Sun Devils",
+    "home": "BYU Cougars",
+    "start": "2026-10-31T19:30Z",
+    "away_ml": 525,
+    "home_ml": -750
+   },
+   {
+    "id": "401858505",
+    "short": "NCAAF",
+    "away": "Northwestern Wildcats",
+    "home": "Oregon Ducks",
+    "start": "2026-10-31T19:30Z",
+    "away_ml": 145,
+    "home_ml": -175
+   },
+   {
+    "id": "401856845",
+    "short": "NCAAF",
+    "away": "Kansas Jayhawks",
+    "home": "TCU Horned Frogs",
+    "start": "2026-10-31T19:30Z",
+    "away_ml": 190,
+    "home_ml": -230
+   },
+   {
+    "id": "401860910",
+    "short": "NCAAF",
+    "away": "Colorado State Rams",
+    "home": "Utah State Aggies",
+    "start": "2026-10-31T19:30Z",
+    "away_ml": 200,
+    "home_ml": -245
+   },
+   {
+    "id": "401864531",
+    "short": "NCAAF",
+    "away": "UTEP Miners",
+    "home": "North Dakota State Bison",
+    "start": "2026-10-31T19:30Z",
+    "away_ml": 1300,
+    "home_ml": -2800
+   },
+   {
+    "id": "401871059",
+    "short": "NCAAF",
+    "away": "Florida International Panthers",
+    "home": "Liberty Flames",
+    "start": "2026-10-31T19:30Z",
+    "away_ml": 440,
+    "home_ml": -600
+   },
+   {
+    "id": "401871095",
+    "short": "NCAAF",
+    "away": "Southern Miss Golden Eagles",
+    "home": "UL Monroe Warhawks",
+    "start": "2026-10-31T19:30Z",
+    "away_ml": -175,
+    "home_ml": 145
+   },
+   {
+    "id": "401856848",
+    "short": "NCAAF",
+    "away": "Utah Utes",
+    "home": "Cincinnati Bearcats",
+    "start": "2026-10-31T19:45Z",
+    "away_ml": -258,
+    "home_ml": 210
+   },
+   {
+    "id": "401858284",
+    "short": "NCAAF",
+    "away": "Virginia Cavaliers",
+    "home": "Wake Forest Demon Deacons",
+    "start": "2026-10-31T19:45Z",
+    "away_ml": 390,
+    "home_ml": -520
+   },
+   {
+    "id": "401864529",
+    "short": "NCAAF",
+    "away": "New Mexico Lobos",
+    "home": "San Jos\u00e9 State Spartans",
+    "start": "2026-10-31T20:00Z",
+    "away_ml": -650,
+    "home_ml": 470
+   },
+   {
+    "id": "401879250",
+    "short": "EPL",
+    "away": "Fulham",
+    "home": "Aston Villa",
+    "start": "2026-10-31T20:00Z",
+    "away_ml": 270,
+    "home_ml": -105
+   },
+   {
+    "id": "401858508",
+    "short": "NCAAF",
+    "away": "Nevada Wolf Pack",
+    "home": "UCLA Bruins",
+    "start": "2026-10-31T20:15Z",
+    "away_ml": 1100,
+    "home_ml": -2100
+   },
+   {
+    "id": "401856736",
+    "short": "NCAAF",
+    "away": "South Carolina Gamecocks",
+    "home": "Oklahoma Sooners",
+    "start": "2026-10-31T20:15Z",
+    "away_ml": 164,
+    "home_ml": -198
+   },
+   {
+    "id": "401858506",
+    "short": "NCAAF",
+    "away": "Purdue Boilermakers",
+    "home": "Penn State Nittany Lions",
+    "start": "2026-10-31T20:15Z",
+    "away_ml": 270,
+    "home_ml": -340
+   },
+   {
+    "id": "401869846",
+    "short": "NCAAF",
+    "away": "App State Mountaineers",
+    "home": "Georgia Southern Eagles",
+    "start": "2026-10-31T22:30Z",
+    "away_ml": 180,
+    "home_ml": -218
+   },
+   {
+    "id": "401856847",
+    "short": "NCAAF",
+    "away": "Oklahoma State Cowboys",
+    "home": "Iowa State Cyclones",
+    "start": "2026-10-31T23:00Z",
+    "away_ml": -355,
+    "home_ml": 280
+   },
+   {
+    "id": "401858280",
+    "short": "NCAAF",
+    "away": "Clemson Tigers",
+    "home": "Florida State Seminoles",
+    "start": "2026-10-31T23:00Z",
+    "away_ml": 180,
+    "home_ml": -218
+   },
+   {
+    "id": "401860909",
+    "short": "NCAAF",
+    "away": "Washington State Cougars",
+    "home": "San Diego State Aztecs",
+    "start": "2026-10-31T23:00Z",
+    "away_ml": 114,
+    "home_ml": -135
+   },
+   {
+    "id": "401858282",
+    "short": "NCAAF",
+    "away": "Miami Hurricanes",
+    "home": "North Carolina Tar Heels",
+    "start": "2026-10-31T23:30Z",
+    "away_ml": -625,
+    "home_ml": 455
+   },
+   {
+    "id": "401858509",
+    "short": "NCAAF",
+    "away": "Ohio State Buckeyes",
+    "home": "USC Trojans",
+    "start": "2026-10-31T23:30Z",
+    "away_ml": -245,
+    "home_ml": 200
+   },
+   {
+    "id": "401856737",
+    "short": "NCAAF",
+    "away": "Mississippi State Bulldogs",
+    "home": "Texas Longhorns",
+    "start": "2026-10-31T23:30Z",
+    "away_ml": 800,
+    "home_ml": -1350
+   },
+   {
+    "id": "401858281",
+    "short": "NCAAF",
+    "away": "Georgia Tech Yellow Jackets",
+    "home": "Pittsburgh Panthers",
+    "start": "2026-10-31T23:30Z",
+    "away_ml": 245,
+    "home_ml": -305
+   },
+   {
+    "id": "401856733",
+    "short": "NCAAF",
+    "away": "Missouri Tigers",
+    "home": "Arkansas Razorbacks",
+    "start": "2026-10-31T23:45Z",
+    "away_ml": -380,
+    "home_ml": 300
+   },
+   {
+    "id": "401858504",
+    "short": "NCAAF",
+    "away": "Washington Huskies",
+    "home": "Nebraska Cornhuskers",
+    "start": "2026-11-01T00:00Z",
+    "away_ml": 250,
+    "home_ml": -310
+   },
+   {
+    "id": "401862814",
+    "short": "NCAAF",
+    "away": "Army Black Knights",
+    "home": "Memphis Tigers",
+    "start": "2026-11-01T00:00Z",
+    "away_ml": 180,
+    "home_ml": -218
+   },
+   {
+    "id": "401860908",
+    "short": "NCAAF",
+    "away": "Texas State Bobcats",
+    "home": "Boise State Broncos",
+    "start": "2026-11-01T02:00Z",
+    "away_ml": 330,
+    "home_ml": -425
+   },
+   {
+    "id": "401864530",
+    "short": "NCAAF",
+    "away": "Northern Illinois Huskies",
+    "home": "UNLV Rebels",
+    "start": "2026-11-01T02:30Z",
+    "away_ml": 1200,
+    "home_ml": -2400
+   },
+   {
+    "id": "401860924",
+    "short": "NCAAF",
+    "away": "Oregon State Beavers",
+    "home": "Fresno State Bulldogs",
+    "start": "2026-11-01T03:00Z",
+    "away_ml": -225,
+    "home_ml": 185
+   }
+  ]
  }
 }
