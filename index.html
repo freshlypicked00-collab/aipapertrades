@@ -609,6 +609,14 @@
   .st-bets-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 6px 0 10px; font-size: 13px; }
   .st-bets-bar select { font: inherit; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 4px 8px; }
   .st-bets-pager { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+  .bet-tg { font: inherit; font-size: 13px; font-weight: 600; color: var(--color-fg); background: none; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 2px 10px; cursor: pointer; white-space: nowrap; }
+  .bet-tg:hover { border-color: var(--color-fg-muted); }
+  .bet-tg:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  tr.bet-ticket td { font-size: 13px; color: var(--color-fg-muted); background: color-mix(in srgb, var(--color-fg) 3%, transparent); border-top: 1px dotted color-mix(in srgb, var(--color-fg) 18%, transparent) !important; border-bottom: 0 !important; }
+  tr.bet-ticket td:first-child { padding-left: 18px; white-space: nowrap; }
+  .bet-list { margin-top: 4px; font-size: 12.5px; color: var(--color-fg-muted); }
+  .bet-list summary { cursor: pointer; text-decoration: underline dotted; }
+  .bet-list span { display: block; padding-left: 10px; }
   .st-nowrap { white-space: nowrap; }
   .pt-res { letter-spacing: .04em; } .pt-res.is-down { color: var(--color-bad, #ff5a4e); } .pt-res.is-up { color: var(--color-ok, #3ddc84); }
   .st-pager { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0 0; font-size: 13px; }
@@ -934,7 +942,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '5b7d14eb8fff';</script>
+<script>window.PT_PAGE_VER = 'ed4b3197a1c8';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -3192,52 +3200,79 @@ body { background:var(--color-bg); }
 
   const BETS_PAGE = { n: 5, p: 0 };   // 5 a page (owner, Oct 29)
   const etShort = (t) => new Date(t).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).replace(' AM', ' a.m.').replace(' PM', ' p.m.');
-  dash.draw('bets-body', (el) => { fillBody(el, 'bets', () => true, null, (r) => {
-    const c = dash.data('clv');
-    const v = c.status === 'ok' ? c.data.find((x) => x.bet === r.bet) : null;
-    const odd = (o) => (Number(o) > 0 ? '+' : '') + o;
-    const close = r.closing_odds === null || r.closing_odds === undefined ? '' :
-      (r.market === 'spread' ? (Number(r.closing_line) > 0 ? '+' : '') + r.closing_line + ' (' + odd(r.closing_odds) + ')' : odd(r.closing_odds));
-    const verdict = v && v.verdict ? v.verdict : '';
-    const pill = document.createElement('span');
-    pill.className = 'st-pill' + (r.status === 'Won' ? ' is-up' : r.status === 'Lost' ? ' is-down' : '');
-    pill.textContent = r.status;
-    const res = r.result_cad === null || r.result_cad === undefined ? '' : stFmt.signedCad(Number(r.result_cad)).replace('C$', '');
-    const placed = mk('span', 'st-nowrap', r.placed_at ? etShort(r.placed_at) + ' ET' : d3.timeFormat('%b %-d')(new Date(r.placed + 'T12:00:00'))); if (r.placed_at) placed.title = stFmt.when(r.placed_at);
-    const game = document.createDocumentFragment(); game.appendChild(document.createTextNode(r.event));
-    if (r.starts_at) { game.appendChild(document.createElement('br')); const st = mk('small', 'st-muted', 'Starts ' + etShort(r.starts_at) + ' ET'); st.title = stFmt.when(r.starts_at); game.appendChild(st); }
-    const sortKey = Date.parse(r.placed_at || r.placed + 'T12:00:00') || 0;
-    return [[r.bet], [placed], [game, 'wrap'], [r.pick],
-      [(Number(r.odds) > 0 ? '+' : '') + r.odds, 'num'],
-      [d3.format(',.0f')(Number(r.stake_cad)), 'num'], [d3.format(',.0f')(Number(r.to_win_cad)), 'num'],
-      [(() => { const f = document.createDocumentFragment(); f.appendChild(pill); if (r.settled_at) { f.appendChild(document.createElement('br')); f.appendChild(mk('small', 'st-muted st-nowrap', 'settled ' + etShort(r.settled_at) + ' ET')); } return f; })()], [res, 'num ' + upDown(Number(r.result_cad))], [close, 'num'],
-      [verdict, verdict === 'Beat' ? 'is-up' : verdict === 'Missed' ? 'is-down' : '']];
-  });
-    const rows = [...el.children];
+  // Bets: repeats of the same pick on the same game (same status) are one row with the totals; tap it to see each ticket (owner, Oct 29)
+  const BET_OPEN = new Set();
+  const betOdds = (o) => (Number(o) > 0 ? '+' : '') + o;
+  const betTime = (r) => Date.parse(r.placed_at || (r.placed ? r.placed + 'T12:00:00' : '')) || 0;
+  const betGroups = (list) => {
+    const groups = [], by = {};
+    list.slice().sort((a, b) => betTime(b) - betTime(a)).forEach((r) => {
+      const k = [r.event, r.pick, r.market, r.line == null ? '' : r.line, r.status].join('|');
+      if (!by[k]) { by[k] = { key: k, items: [] }; groups.push(by[k]); }
+      by[k].items.push(r);
+    });
+    return groups;   // newest first, by each group's newest ticket
+  };
+  const oddsSpan = (items) => { const u = [...new Set(items.map((x) => Number(x.odds)))]; return u.length === 1 ? betOdds(u[0]) : u.length <= 3 ? u.map(betOdds).join(' / ') : betOdds(Math.min(...u)) + ' to ' + betOdds(Math.max(...u)); };
+  dash.draw('bets-body', (el) => {
+    el.replaceChildren();
     const d = dash.data('bets'); const list = d.status === 'ok' ? d.data : [];
-    rows.forEach((tr, k) => { const r = list[k] || {}; tr._t = Date.parse(r.placed_at || (r.placed ? r.placed + 'T12:00:00' : '')) || 0; });
-    rows.sort((a, b) => b._t - a._t).forEach((tr) => el.appendChild(tr));   // newest first
-    const pages = Math.max(1, Math.ceil(rows.length / BETS_PAGE.n)); if (BETS_PAGE.p >= pages) BETS_PAGE.p = pages - 1;
-    rows.forEach((tr, k) => { tr.hidden = Math.floor(k / BETS_PAGE.n) !== BETS_PAGE.p; });
+    const c = dash.data('clv'); const clv = c.status === 'ok' ? c.data : [];
+    const row = (cells, cls) => { const tr = mk('tr', cls || ''); cells.forEach(([v, cl]) => { const td = mk('td', cl || ''); if (v instanceof Node) td.appendChild(v); else td.textContent = v == null ? '' : v; tr.appendChild(td); }); return tr; };
+    const pillOf = (st, settled) => { const f = document.createDocumentFragment(); const pill = mk('span', 'st-pill' + (st === 'Won' ? ' is-up' : st === 'Lost' ? ' is-down' : ''), st); f.appendChild(pill);
+      if (settled) { f.appendChild(document.createElement('br')); f.appendChild(mk('small', 'st-muted st-nowrap', 'settled ' + etShort(settled) + ' ET')); } return f; };
+    const gameOf = (r) => { const g = document.createDocumentFragment(); g.appendChild(document.createTextNode(r.event));
+      if (r.starts_at) { g.appendChild(document.createElement('br')); const st = mk('small', 'st-muted', 'Starts ' + etShort(r.starts_at) + ' ET'); st.title = stFmt.when(r.starts_at); g.appendChild(st); } return g; };
+    const closeOf = (r) => r.closing_odds === null || r.closing_odds === undefined ? '' : (r.market === 'spread' ? (Number(r.closing_line) > 0 ? '+' : '') + r.closing_line + ' (' + betOdds(r.closing_odds) + ')' : betOdds(r.closing_odds));
+    const verdictOf = (r) => { const v = clv.find((x) => x.bet === r.bet); return v && v.verdict ? v.verdict : ''; };
+    const resOf = (v) => v === null || v === undefined || !isFinite(v) ? '' : stFmt.signedCad(Number(v)).replace('C$', '');
+    const ticket = (r, sub) => {
+      const placed = mk('span', 'st-nowrap', r.placed_at ? etShort(r.placed_at) + ' ET' : d3.timeFormat('%b %-d')(new Date(r.placed + 'T12:00:00'))); if (r.placed_at) placed.title = stFmt.when(r.placed_at);
+      const vd = verdictOf(r);
+      const tr = row([[sub ? '↳ ' + r.bet : r.bet], [placed], [sub ? mk('small', 'st-muted', 'same pick, ticket ' + r.bet) : gameOf(r), 'wrap'], [sub ? '' : r.pick], [betOdds(r.odds), 'num'],
+        [d3.format(',.0f')(Number(r.stake_cad)), 'num'], [d3.format(',.0f')(Number(r.to_win_cad)), 'num'], [pillOf(r.status, r.settled_at)],
+        [resOf(r.result_cad), 'num ' + upDown(Number(r.result_cad))], [closeOf(r), 'num'], [vd, vd === 'Beat' ? 'is-up' : vd === 'Missed' ? 'is-down' : '']], sub ? 'bet-ticket' : '');
+      tr.dataset.key = r.bet; return tr;
+    };
+    betGroups(list).forEach((g) => {
+      if (g.items.length === 1) { const tr = ticket(g.items[0]); tr._top = true; el.appendChild(tr); return; }
+      const r0 = g.items[0], n = g.items.length, sum = (f) => g.items.reduce((a, x) => a + Number(x[f] || 0), 0);
+      const open = BET_OPEN.has(g.key);
+      const tg = mk('button', 'bet-tg', n + ' bets ' + (open ? '▾' : '▸')); tg.type = 'button'; tg.setAttribute('aria-expanded', String(open)); tg.title = 'Show or hide each ticket: ' + g.items.map((x) => x.bet).join(', ');
+      const placed = mk('span', '', n + ' times'); placed.appendChild(document.createElement('br')); placed.appendChild(mk('small', 'st-muted st-nowrap', 'latest ' + (r0.placed_at ? etShort(r0.placed_at) + ' ET' : r0.placed)));
+      const pick = document.createDocumentFragment(); pick.appendChild(document.createTextNode(r0.pick)); pick.appendChild(document.createElement('br')); pick.appendChild(mk('small', 'st-muted', 'the same pick ' + n + ' times'));
+      const results = g.items.filter((x) => x.result_cad !== null && x.result_cad !== undefined);
+      const closes = [...new Set(g.items.map(closeOf))], vds = [...new Set(g.items.map(verdictOf))];
+      const settled = g.items.map((x) => x.settled_at).filter(Boolean).sort().pop();
+      const tr = row([[tg], [placed], [gameOf(r0), 'wrap'], [pick], [oddsSpan(g.items), 'num'], [d3.format(',.0f')(sum('stake_cad')), 'num'], [d3.format(',.0f')(sum('to_win_cad')), 'num'],
+        [pillOf(r0.status, settled)], [results.length ? resOf(sum('result_cad')) : '', 'num ' + (results.length ? upDown(sum('result_cad')) : '')], [closes.length === 1 ? closes[0] : 'varies', 'num'], [vds.length === 1 ? vds[0] : 'mixed', vds.length === 1 ? (vds[0] === 'Beat' ? 'is-up' : vds[0] === 'Missed' ? 'is-down' : '') : 'st-muted']], 'bet-group');
+      tr._top = true; tr._key = g.key; tr._kids = g.items.map((x) => ticket(x, true));
+      el.appendChild(tr); tr._kids.forEach((k) => el.appendChild(k));
+      tg.addEventListener('click', () => { if (BET_OPEN.has(g.key)) BET_OPEN.delete(g.key); else BET_OPEN.add(g.key); const o = BET_OPEN.has(g.key); tg.textContent = n + ' bets ' + (o ? '▾' : '▸'); tg.setAttribute('aria-expanded', String(o)); tr._kids.forEach((k) => { k.hidden = tr.hidden || !o; }); });
+    });
+    el._nBets = list.length;
+    redrawBets(true);
+  });
+  const redrawBets = (build) => { const b = document.querySelector('[data-draw="bets-body"]'); if (!b) return;
+    const tops = [...b.children].filter((r) => r._top);
+    const pages = Math.max(1, Math.ceil(tops.length / BETS_PAGE.n)); if (BETS_PAGE.p >= pages) BETS_PAGE.p = pages - 1;
+    tops.forEach((tr, k) => { tr.hidden = Math.floor(k / BETS_PAGE.n) !== BETS_PAGE.p; (tr._kids || []).forEach((kd) => { kd.hidden = tr.hidden || !BET_OPEN.has(tr._key); }); });
     const bar = document.querySelector('[data-bets-pager]'); if (!bar) return;
+    const opt = (ps) => { ps.replaceChildren(); for (let k = 0; k < pages; k++) { const a = k * BETS_PAGE.n + 1, b2 = Math.min(tops.length, (k + 1) * BETS_PAGE.n); const o = mk('option', '', (k + 1) + (k === 0 ? ' · newest' : '') + ' (' + a + '–' + b2 + ')'); o.value = k; if (k === BETS_PAGE.p) o.selected = true; ps.appendChild(o); } };
+    if (!build) { const [ps] = bar.querySelectorAll('select'); if (ps) { opt(ps); ps.nextSibling.textContent = ' of ' + pages; } return; }
     bar.replaceChildren();
-    if (!rows.length) return;
+    if (!tops.length) return;
     const pl = mk('label', 'st-tt'); pl.append(document.createTextNode('Page '));
-    const ps = mk('select'); for (let k = 0; k < pages; k++) { const a = k * BETS_PAGE.n + 1, b2 = Math.min(rows.length, (k + 1) * BETS_PAGE.n); const o = mk('option', '', (k + 1) + (k === 0 ? ' · newest' : '') + ' (' + a + '–' + b2 + ')'); o.value = k; if (k === BETS_PAGE.p) o.selected = true; ps.appendChild(o); }
+    const ps = mk('select'); opt(ps);
     pl.append(ps, document.createTextNode(' of ' + pages));
     const nl = mk('label', 'st-tt'); nl.append(document.createTextNode(' Show '));
     const ns = mk('select'); [5, 10, 25, 50].forEach((n) => { const o = mk('option', '', n + ' a page'); o.value = n; if (n === BETS_PAGE.n) o.selected = true; ns.appendChild(o); });
     ns.addEventListener('change', () => { BETS_PAGE.n = Number(ns.value); BETS_PAGE.p = 0; redrawBets(); });
     ps.addEventListener('change', () => { BETS_PAGE.p = Number(ps.value); redrawBets(); });
     nl.appendChild(ns);
-    bar.append(pl, nl, mk('span', 'st-muted', ' · ' + rows.length + (rows.length === 1 ? ' bet' : ' bets') + ', newest first'));
-  });
-  const redrawBets = () => { const b = document.querySelector('[data-draw="bets-body"]'); if (!b) return; const rows = [...b.children];
-    const pages = Math.max(1, Math.ceil(rows.length / BETS_PAGE.n)); if (BETS_PAGE.p >= pages) BETS_PAGE.p = pages - 1;
-    rows.forEach((tr, k) => { tr.hidden = Math.floor(k / BETS_PAGE.n) !== BETS_PAGE.p; });
-    const bar = document.querySelector('[data-bets-pager]'); if (!bar) return; const [ps] = bar.querySelectorAll('select');
-    if (ps) { ps.replaceChildren(); for (let k = 0; k < pages; k++) { const a = k * BETS_PAGE.n + 1, b2 = Math.min(rows.length, (k + 1) * BETS_PAGE.n); const o = mk('option', '', (k + 1) + (k === 0 ? ' · newest' : '') + ' (' + a + '–' + b2 + ')'); o.value = k; if (k === BETS_PAGE.p) o.selected = true; ps.appendChild(o); }
-      ps.nextSibling.textContent = ' of ' + pages; } };
+    const nb = b._nBets || tops.length;
+    bar.append(pl, nl, mk('span', 'st-muted', ' · ' + nb + (nb === 1 ? ' bet' : ' bets') + (nb > tops.length ? ' in ' + tops.length + ' rows (repeats of the same pick grouped)' : '') + ', newest first'));
+  };
 
   dash.draw('rules-body', (el) => { fillBody(el, 'rules', byPortfolio(el), null, (r) => [[r.rule, 'wrap']]);
     if (!el.children.length) { const tr = mk('tr'); tr.appendChild(mk('td', 'st-muted', (dash.model === 'claude' ? 'Claude has' : (AIS[dash.model] || { label: 'This AI' }).label + ' has') + ' no price rules (stops or targets) in this race right now.')); el.appendChild(tr); } });
@@ -3470,15 +3505,20 @@ body { background:var(--color-bg); }
       box.appendChild(mk('h3', 'st-h3', nm + '’s bets, newest first'));
       if (!all.length) { box.appendChild(mk('p', 'st-note', 'No bets yet.')); return; }
       const tb = table([['Bet'], ['Placed'], ['Stake', 'num'], ['Odds', 'num'], ['Result', 'num'], ['Game']]);
-      all.forEach((x) => {
-        const tr = mk('tr'); tr.className = 'gx-hold-last'; const od = (Number(x.odds) > 0 ? '+' : '') + x.odds;
+      // repeats of the same pick on the same game are one row with the totals, each ticket listed inside (owner, Oct 29)
+      betGroups(all).forEach((g) => {
+        const x = g.items[0], n = g.items.length, sum = (f) => g.items.reduce((a, y) => a + Number(y[f] || 0), 0);
+        const tr = mk('tr'); tr.className = 'gx-hold-last'; const od = oddsSpan(g.items);
         const c = td(tr, '', 'wrap'); c.append(mk('b', '', x.pick), mk('small', 'st-muted gx-sub', x.event || ''));
-        td(tr, stFmt.when(x.placed_at || x.placed), 'wrap', 1, 'Placed');
-        td(tr, money(x.stake_cad) + ' at ' + od, 'gx-m', 1, 'Bet');
-        td(tr, money(x.stake_cad), 'num gx-d', 1, 'Stake'); td(tr, od, 'num gx-d', 1, 'Odds');
-        const res = x.status === 'Open' ? 'Open: to win ' + money(x.to_win_cad) : x.status === 'Won' ? 'Won +' + money(x.result_cad) : x.status === 'Lost' ? 'Lost ' + money(-Math.abs(Number(x.stake_cad))) : x.status === 'Void' ? 'Cancelled, stake refunded' : String(x.status || '—');
+        if (n > 1) { const dt = mk('details', 'bet-list'); dt.appendChild(mk('summary', '', 'The same pick ' + n + ' times · see each bet'));
+          g.items.forEach((y) => dt.appendChild(mk('span', '', (y.placed_at ? etShort(y.placed_at) + ' ET' : y.placed) + ' · ' + money(y.stake_cad) + ' at ' + betOdds(y.odds)))); c.appendChild(dt); }
+        td(tr, n > 1 ? n + ' times, latest ' + stFmt.when(x.placed_at || x.placed) : stFmt.when(x.placed_at || x.placed), 'wrap', 1, 'Placed');
+        td(tr, money(sum('stake_cad')) + ' at ' + od + (n > 1 ? ' (' + n + ' bets)' : ''), 'gx-m', 1, 'Bet');
+        td(tr, money(sum('stake_cad')), 'num gx-d', 1, 'Stake'); td(tr, od, 'num gx-d', 1, 'Odds');
+        const res = x.status === 'Open' ? 'Open: to win ' + money(sum('to_win_cad')) : x.status === 'Won' ? 'Won +' + money(sum('result_cad')) : x.status === 'Lost' ? 'Lost ' + money(-Math.abs(sum('stake_cad'))) : x.status === 'Void' ? 'Cancelled, stake' + (n > 1 ? 's' : '') + ' refunded' : String(x.status || '—');
         td(tr, res, 'num ' + (x.status === 'Won' ? 'is-up' : x.status === 'Lost' ? 'is-down' : x.status === 'Open' ? '' : 'st-muted'), 1, 'Result');
-        td(tr, x.settled_at && x.status !== 'Open' ? 'Settled ' + stFmt.when(x.settled_at) : x.starts_at ? 'Starts ' + stFmt.when(x.starts_at) : '—', 'wrap', 1, 'Game');
+        const settled = g.items.map((y) => y.settled_at).filter(Boolean).sort().pop();
+        td(tr, settled && x.status !== 'Open' ? 'Settled ' + stFmt.when(settled) : x.starts_at ? 'Starts ' + stFmt.when(x.starts_at) : '—', 'wrap', 1, 'Game');
         tb.appendChild(tr);
       });
       // keep the page while the data refreshes; back to the newest when the AI or the simulation changes
@@ -3488,7 +3528,7 @@ body { background:var(--color-bg); }
       const bar = tb.closest('.st-wrap').nextElementSibling;
       if (bar && bar.classList.contains('st-pager')) { const keep = () => { box._betPg = tb._pg || 0; }; bar.addEventListener('click', keep); bar.addEventListener('change', keep); }
       const open = all.filter((x) => x.status === 'Open');
-      box.appendChild(mk('p', 'st-note', (open.length ? 'Open now: ' + open.length + ' bet' + (open.length === 1 ? '' : 's') + ', ' + money(open.reduce((a, x) => a + Number(x.stake_cad || 0), 0)) + ' staked. ' : 'No open bets right now. ') + 'Times are Eastern (ET), with UTC and Hong Kong in brackets.'));
+      box.appendChild(mk('p', 'st-note', (open.length ? 'Open now: ' + open.length + ' bet' + (open.length === 1 ? '' : 's') + ', ' + money(open.reduce((a, x) => a + Number(x.stake_cad || 0), 0)) + ' staked. ' : 'No open bets right now. ') + 'Bets on the same pick in the same game are shown as one line with the totals. Times are Eastern (ET), with UTC and Hong Kong in brackets.'));
       return;
     }
     const H = dash.data('holdings'); const rows = H.status === 'ok' ? H.data.filter((r) => r.portfolio === p) : [];
@@ -5054,7 +5094,8 @@ body { background:var(--color-bg); }
     let on = true; try { on = localStorage.getItem('pt-sound') !== '0'; } catch (e) {}   // on by default (owner, Oct 29); Sound off is remembered
     ['pointerdown', 'keydown', 'touchstart'].forEach((ev) => document.addEventListener(ev, () => { if (!on) return; try { ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); if (ctx.state === 'suspended') ctx.resume(); } catch (e) {} }, { once: true, passive: true }));
     let ctx = null;
-    const show = () => { btn.textContent = on ? '🔊 Sound on' : '🔈 Sound off'; btn.setAttribute('aria-pressed', String(on)); };
+    const show = () => { btn.textContent = on ? '🔊 Sound on' : '🔈 Sound off'; btn.setAttribute('aria-pressed', String(on));
+      btn.title = on ? 'Sound is on: a cha-ching when an AI makes C$100 or more, a sad trombone when it loses C$100 or more. Tap to turn off.' : 'Sound is off. Tap to turn it on (plays both alert sounds so you know them).'; };
     const chaching = () => {
       try {
         ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
@@ -5068,12 +5109,21 @@ body { background:var(--color-bg); }
         ding(t0 + 0.24, 2637, 0.7, 0.35); ding(t0 + 0.24, 3136, 0.6, 0.15);
       } catch (e) {}
     };
+    // losses get their own sound (owner, Oct 29): a "wah wah wah waaah" sad-trombone slide, nothing like the cha-ching
     const downTone = () => {
       try { ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); if (ctx.state === 'suspended') ctx.resume(); const t0 = ctx.currentTime;
-        [[0, 523], [0.16, 392]].forEach(([d, f]) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(f, t0 + d); g.gain.setValueAtTime(0.0001, t0 + d); g.gain.exponentialRampToValueAtTime(0.18, t0 + d + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d + 0.35); o.connect(g).connect(ctx.destination); o.start(t0 + d); o.stop(t0 + d + 0.4); });
+        const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1300; lp.Q.value = 0.7; lp.connect(ctx.destination);
+        [[0, 311, 294, 0.26], [0.28, 294, 277, 0.26], [0.56, 277, 262, 0.26], [0.84, 262, 233, 0.85]].forEach(([d, f1, f2, len]) => {
+          const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sawtooth';
+          o.frequency.setValueAtTime(f1, t0 + d); o.frequency.linearRampToValueAtTime(f2, t0 + d + len);
+          g.gain.setValueAtTime(0.0001, t0 + d); g.gain.exponentialRampToValueAtTime(0.2, t0 + d + 0.04); g.gain.setValueAtTime(0.2, t0 + d + len * 0.65); g.gain.exponentialRampToValueAtTime(0.0001, t0 + d + len);
+          o.connect(g).connect(lp); o.start(t0 + d); o.stop(t0 + d + len + 0.05);
+          if (len > 0.5) { const lfo = ctx.createOscillator(), lg = ctx.createGain(); lfo.frequency.value = 5.5; lg.gain.value = 7; lfo.connect(lg).connect(o.frequency); lfo.start(t0 + d + 0.12); lfo.stop(t0 + d + len); }   // the wobble on the last long note
+        });
       } catch (e) {}
     };
-    btn.addEventListener('click', () => { on = !on; try { localStorage.setItem('pt-sound', on ? '1' : '0'); } catch (e) {} show(); if (on) chaching(); });
+    window.ptSoundTest = (k) => (k === 'down' ? downTone : chaching)();
+    btn.addEventListener('click', () => { on = !on; try { localStorage.setItem('pt-sound', on ? '1' : '0'); } catch (e) {} show(); if (on) { chaching(); setTimeout(() => { if (on) downTone(); }, 1100); } });   // turning sound on plays both: the gain sound, then the loss sound
     show();
     const toast = (msg, opt) => {
       opt = opt || {};
@@ -5128,8 +5178,9 @@ body { background:var(--color-bg); }
       });
       if (!items.length) return;
       const top = items.sort((x, y) => Math.abs(y.g) - Math.abs(x.g)).slice(0, 3);
-      top.forEach((it, i) => setTimeout(() => toast((it.g > 0 ? '💰 ' : '📉 ') + AIS[it.m].label + (it.g > 0 ? ' just made ' : ' just lost ') + stFmt.signed(it.g, /^AllIn/.test(it.e) ? 'Stocks' : it.e) + (it.what ? ' on ' + it.what : '') + ' · ' + raceName(it.e), { down: it.g < 0, go: () => openRace(it.m, it.e) }), i * 900));
-      if (on) { if (top.some((it) => it.g > 0)) chaching(); else downTone(); }
+      let at = 0;
+      top.forEach((it) => { setTimeout(() => { toast((it.g > 0 ? '💰 ' : '📉 ') + AIS[it.m].label + (it.g > 0 ? ' just made ' : ' just lost ') + stFmt.signed(it.g, /^AllIn/.test(it.e) ? 'Stocks' : it.e) + (it.what ? ' on ' + it.what : '') + ' · ' + raceName(it.e), { down: it.g < 0, go: () => openRace(it.m, it.e) });
+        if (on) (it.g > 0 ? chaching : downTone)(); }, at); at += it.g > 0 ? 1000 : 1900; });   // each pop-up plays its own sound, spaced so they don't run together
     };
   })();
   // every holding an AI has right now, from the per-race standings (one race, or all ten grouped by race)
@@ -5224,7 +5275,7 @@ body { background:var(--color-bg); }
   // ---------- a Model menu right on Bankroll over time and every Decision log; it switches the whole page (owner, Oct 29)
   (() => {
     const main = document.getElementById('model-pick'); if (!main) return;
-    const heads = [...document.querySelectorAll('#h-b-chart, h2.st-h2[id$="-log"]')];
+    const heads = [...document.querySelectorAll('#h-ret, #perf-overview-pxw > h3, #h-b-chart, h2.st-h2[id$="-log"]')];   // Overview's two charts too (owner, Oct 29)
     const menus = [];
     heads.forEach((h) => {
       if (h.parentElement.querySelector('.sec-model')) return;
