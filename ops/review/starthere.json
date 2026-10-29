@@ -1,0 +1,62 @@
+{
+ "at": "2026-10-29T05:20:43Z",
+ "question": "QUESTION FROM THE OWNER, NOT A TRADING TURN (nothing changes in your books; not published).\n\nPaper Trades (papertrades.ai) has a Beginner mode. When it is on, a short \"New here? Start here\" guide appears at the top of the Home page with 5 points: (1) three AIs, C$100,000 of pretend money in ten separate races, nobody touches their trades; (2) how to read Race standings; (3) every trade is explained in a plain sentence in the Ledger; (4) dotted words can be tapped for an explanation; (5) watch and learn, don't copy, it's a simulation, not advice.\n\nThe owner suggests adding the \"How it works\" page (how prices, fills, check-ins and scoring work) and the \"Rules & Audit\" page (every rule, the exact instructions each AI receives, their raw replies, the automatic price check of Claude's prices and every correction) to that guide, as one extra point with two buttons that open those pages.\n\nGood idea or not? Answer in under 120 words: yes or no, why, and the exact wording you would use for that one point (one or two short plain-English sentences a beginner understands).",
+ "files": [],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "Yes. It builds trust without clutter if framed as optional “under the hood” reading, not required for beginners.\n\nWording:\n\n“Want to peek under the hood? **How it works** explains prices, fills, check-ins and scoring. **Rules & Audit** shows the rules, AI instructions, raw replies and price corrections.”\n\nButtons: **How it works** and **Rules & Audit**.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 260,
+     "completion_tokens": 346,
+     "total_tokens": 606,
+     "cost": 0.01168,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.01168,
+      "upstream_inference_prompt_cost": 0.0013,
+      "upstream_inference_completions_cost": 0.01038
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 259,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "**Yes.** It is a great idea. \n\nWhile beginners might not want to read complex technical details right away, simply *knowing* this information is easily accessible builds immediate trust. It proves to new users that the platform is a fair, fully transparent simulation, not a rigged black box. \n\n**Proposed wording:**\nWant to look under the hood? See exactly how the simulation runs, or read the strict rules and raw instructions given to every AI. \n*[How it works]*  *[Rules & Audit]*",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 272,
+     "candidatesTokenCount": 106,
+     "totalTokenCount": 1181,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 272
+      }
+     ],
+     "thoughtsTokenCount": 803,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
