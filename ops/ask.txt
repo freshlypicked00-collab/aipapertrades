@@ -1,22 +1,5 @@
-FULL REVIEW, ROUND 3. NOT A TRADING TURN: nothing you write changes your portfolio, and your answer is not published.
+QUESTION FROM THE OWNER, NOT A TRADING TURN (nothing changes in your books; not published).
 
-The owner of Paper Trades (papertrades.ai, the public Oct 28 to Nov 28, 2026 race between Claude, Gemini and ChatGPT) asks all three AIs to check the WHOLE thing once more for anything at all that is broken, buggy, outdated, inconsistent, unfair, confusing for visitors, or that could stop it running on its own until the end. Earlier today you reviewed the backend and most findings were fixed (option-expiry crash, end-of-race freeze, Thanksgiving, postponed games, soccer draws, busted books, fraction 0, prediction caps, parlay limits, clock change, back-to-back check-ins, state trimming, health alerts). This time the attachments include the website itself.
+Paper Trades (papertrades.ai) is a public one-month race (Oct 28 to Nov 28, 2026) between Claude, Gemini and ChatGPT, each running ten separate C$100,000 experiments (stocks, crypto, China stocks, metals, oil and energy, options, currencies, a low-risk "play it safe", sports betting, prediction markets) plus an "All in" side race. The site already has: live race standings per race with each AI's holdings, a holdings pie chart and last trade; AI vs AI comparison with every holding; a page per AI (profile, plans, feelings, opinions of the others, report cards, every trade with its reason and "what would prove it wrong"); plans and feelings per race; fact checks (Gemini checks Claude, Claude checks the others); a daily Race Report; a ledger with every day; read-aloud buttons on all text; 16 languages and auto currency; dark, light and reader modes; a phone menu and an installable app; a Telegram channel for trades, bets, results and market alerts; Instagram and X links; betting minimums with penalties; health alerts for the owner. The owner wants to grow this into a business (a second season, maybe paid features).
 
-Attached files:
-- ops/src/index.html: the website (HTML, CSS and JavaScript; ops/build_site.py adds a data layer and builds index.html and data.json from it).
-- ops/build_site.py, ops/model_views.py: build the site data.
-- ops/rivals.py and .github/workflows/rivals.yml: Gemini's and ChatGPT's check-ins.
-- ops/RUNBOOK.md: Claude's own instructions (Claude's scheduled runs follow it).
-
-Current rules (the site text and the code must agree with these): ten separate experiments with 100,000 each (China in US$); total profit in C$ since the Oct 28 1:45 p.m. ET restart decides the overall race; every race (experiment) is also compared on its own; at most 50% of a trading experiment in one holding; at most 25% of Sports or Predictions per bet or market and per day; currency leverage at most 4x (one currency at most half of that); C$3,000 minimum per bet; at least C$3,000 wagered each day and C$100,000 in total by Nov 28; penalties: C$500 off the Sports balance for each day under the minimum from Oct 29, and 10% of any shortfall from the C$100,000 total at the end; no weekly minimum (dropped Oct 28); an experiment at zero is BUSTED; a C$100,000 total loss ELIMINATES an AI; the All in side race has no caps and doesn't count; no trading on unconfirmed headlines; US markets closed Thanksgiving Nov 26 and close at 1 p.m. ET Nov 27; final scoring Sat Nov 28 at 4:00 p.m. ET; US clocks change from EDT to EST on Sun Nov 1 (Telegram's daily race update is at 00:00 UTC, which is 8 p.m. ET until Nov 1 and 7 p.m. ET after).
-
-Please look for, most important first:
-1. Bugs: JavaScript errors, wrong numbers or money maths on the page, sorting by time, anything that breaks on phones, empty states, or things that will break later in the month.
-2. Outdated or wrong text: anything on the site or in the runbook that contradicts the rules above (old weekly minimum, old caps, old times, wrong dates), or that will be wrong after Nov 1 or after the race ends.
-3. Unfair or inconsistent treatment of the three AIs (one AI shown or scored differently, missing data for one of them, colours or labels).
-4. Anything confusing for a first-time visitor, or for someone on a phone.
-5. Anything else you would fix before leaving it alone for a month.
-
-How to answer: number each finding; give severity (high / medium / low), the file and the function or visible text, what is wrong and when it shows up, and the fix. Only real problems you can point to; say "unsure" when unsure; skip style nits. End with your top five fixes. Up to about 2,500 words.
-
-The files follow.
+What should be ADDED next? Give your 8 best ideas, most valuable first, each in 1-2 sentences, saying who it helps (visitors, fairness of the race, growth or money for the owner). Include anything you think is missing for trust and fairness, anything that would make people share it or come back daily, and ideas for a second season or paid features. Be concrete and realistic for a small one-person project. Under 500 words.
