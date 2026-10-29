@@ -569,7 +569,7 @@ def standings(state, fx, me):
     return ['', 'THE RACE RIGHT NOW. Each of the ten experiments is its own race, shown and compared separately on the site all month (nothing is added together publicly). Only at the final scoring on Nov 28 are the ten results converted to C$ (China from US$; a busted experiment counts as losing at most its 100,000) and added up to name the overall winner. Your total below is for your own planning and the elimination limit; when you talk publicly about the race, compare race by race. Best total first:'] + [r[1] for r in rows] + \
         ['This is information only. Do not copy another AI; make your own decisions.', '']
 
-def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refused=(), take_info='', race=(), rc_due=False, notice=''):
+def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refused=(), take_info='', race=(), rc_due=False, notice='', dr_due=False):
     lines = ([f'NOTICE FROM THE ORGANISER (read first): {notice}'] if notice else []) + [
         f'You are {label}, taking part in Paper Trades (papertrades.ai), a public paper-trading experiment that compares AI models with pretend money and real prices.',
         f'You are being put to the test publicly, in front of the world, in real time: every trade, every reason, your take, your watchlist and your daily report card are published live on papertrades.ai and the @PaperTradesAI Telegram channel, side by side with the other AIs (Claude, Gemini and ChatGPT). Viewers will see exactly how you think and whether you win or lose. Make decisions you would stand behind in public.',
@@ -631,6 +631,8 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         lines.append('\nREPORT CARD DUE (2 to 3 times a day): grade each experiment honestly in report_card, A to F. If nothing has happened yet in an experiment, use the neutral grade \u2014 and say why. Never leave it blank.')
     if closed_day:
         lines.append(f'\nThe trading day {closed_day[0]} (UTC) has just closed. Your results for that day: ' + '; '.join(f'{EXP_LABEL[e]} {r}' for e, r in closed_day[1].items()) + '. Grade yourself honestly in report_card.')
+    if dr_due:
+        lines.append('\nDAY REPORT DUE (2 to 3 times a day; shown as YOUR Race Report when a visitor views you): write day_report about YOURSELF only, in the first person: what you did since your last report and why, what worked and what did not (with real numbers, losses included), how each race you are in stands for you, and your plans next. Do not describe the other AIs\' trades; they write their own. Plain, honest, no hype.')
     if take_info:
         lines.append('\n' + take_info)
     if refused:
@@ -650,6 +652,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         ' "take": "your CURRENT TAKE: one complete sentence (under 300 characters), in your own words, on how you are doing and what you are thinking overall; or \\"\\" (empty) to keep your current take",',
         ' "thoughts": {' + ', '.join(f'"{e}": "one sentence on this experiment right now, in your own words"' for e in exps) + '}' + (', "report_card": {' + ', '.join(f'"{e}": {{"grade": "A" to "F", "text": "2-3 sentences: how you did in this experiment on {closed_day[0]} and what you will do differently"}}' for e in exps) + '}' if closed_day else (', "report_card": {' + ', '.join(f'"{e}": {{"grade": "A" to "F, or — (neutral) if nothing has happened yet", "text": "1-3 sentences: how this experiment is going so far and why you chose this grade (or why it is neutral)"}}' for e in exps) + '}' if rc_due else '')) + ',',
         ' "sources": ["https://... the main pages you read this check-in", ...] (up to 5),',
+        (' "day_report": {"title": "a short headline about YOUR day", "body": ["3 to 5 short paragraphs, first person, only about you"]},' if dr_due else ''),
         ' "watchlist": [{"at": "ISO date-time, ET", "when": "short human time, e.g. Thu Oct 29, 8:30 a.m. ET", "event": "what is coming up", "affects": ["experiment", ...], "why": "one sentence, in your own words, on why it matters to you"}] (up to 8 upcoming events you are watching),',
         ' "orders": [{"experiment": ' + ' | '.join(f'"{e}"' for e in exps) + ', "action": "buy" | "sell" | "short" | "cover" | "bet", "symbol": "Yahoo symbol, currency code, OCC option symbol or Polymarket slug",',
         '             "outcome": "Yes" | "No" (Predictions only), "game": "id" and "pick": "home" | "away" (Sports only), "contracts": 5 (Options, optional),',
@@ -1583,8 +1586,10 @@ def main():
                 f'You have written {len(today)} new take(s) today (UTC). Aim for about 3 to 5 a day, at key moments (after the US open, midday, after the US close, at the daily close, at the Shanghai open) or after a trade or event that matters, and only when your view has really changed; otherwise send "" to keep it. Each new take is shown publicly on the site.'
             last_rc = max([x['at'] for x in state.get('reviews', []) if x['model'] == mid] or [''])
             rc_due = not closed and (not last_rc or (NOW - datetime.fromisoformat(last_rc.replace('Z', '+00:00'))).total_seconds() >= 8 * 3600)
+            _drs = [x['at'] for x in state.get('day_reports', []) if x.get('model') == mid]
+            dr_due = bool(closed) or not _drs or (NOW - datetime.fromisoformat(max(_drs).replace('Z', '+00:00'))).total_seconds() >= 8 * 3600
             prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed, refused, take_info, standings(state, fx, mid), rc_due,
-                                  ' '.join([state.get('notices', {}).get(mid, '')] + [t for u, t in ANNOUNCEMENTS if NOW < datetime.fromisoformat(u)]).strip())
+                                  ' '.join([state.get('notices', {}).get(mid, '')] + [t for u, t in ANNOUNCEMENTS if NOW < datetime.fromisoformat(u)]).strip(), dr_due)
             import time as _time
             t0 = _time.time()
             for i, model in enumerate(picks):
@@ -1679,6 +1684,13 @@ def main():
             for e, txt in (reply.get('thoughts') or {}).items():
                 if e in exps and str(txt).strip():
                     state.setdefault('thoughts', []).append({'at': iso(), 'model': mid, 'experiment': e, 'text': clip(txt, 600)})
+            drp = reply.get('day_report')
+            if dr_due and isinstance(drp, dict) and str(drp.get('title', '')).strip():
+                body = drp.get('body') or []
+                body = [clip(x, 900) for x in (body if isinstance(body, list) else [body]) if str(x).strip()][:6]
+                if body:
+                    _d = (NOW.astimezone(NY) - timedelta(hours=3)).date().isoformat()   # written in the first hours after midnight = about the day before
+                    state.setdefault('day_reports', []).append({'at': iso(), 'model': mid, 'day': _d, 'title': clip(drp.get('title'), 160), 'body': body})
             rc = reply.get('report_card') or {}
             if rc and not closed and rc_due:   # the regular report card, 2-3 times a day; neutral (—) is fine when nothing has happened
                 for e, g in rc.items():

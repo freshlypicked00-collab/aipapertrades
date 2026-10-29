@@ -500,6 +500,21 @@
   .st-podium .pd-mom-share { font: inherit; font-size: 12px; min-height: 32px; padding: 4px 10px; border-radius: var(--cds-radius); border: 1px solid var(--ai); background: transparent; color: var(--color-fg); cursor: pointer; }
   td.st-open, .st-table td.st-open { opacity: .6; font-style: italic; }
   .st-podium .pd-amt .pd-amt-l { display: block; font-size: 10.5px; font-weight: 500; opacity: .7; letter-spacing: .04em; text-align: right; }
+  .bg-only { display: none; }
+  [data-beginner="1"] .bg-only { display: block; }
+  [data-beginner="1"] .pd-stats, [data-beginner="1"] .pd-stats-note, [data-beginner="1"] .st-fc .st-fc-note { display: none; }
+  .bg-term { text-decoration: underline dotted; text-decoration-color: var(--accent, #ffb000); text-underline-offset: 3px; cursor: help; }
+  .bg-term:focus-visible { outline: 2px solid var(--accent, #ffb000); outline-offset: 1px; }
+  .bg-pop { position: absolute; z-index: 80; background: var(--color-panel); color: var(--color-fg); border: 1px solid var(--accent, #ffb000); border-radius: 10px; padding: 10px 12px; font-size: 14px; line-height: 1.45; box-shadow: 0 10px 30px rgba(0,0,0,.45); }
+  .bg-pop b { display: block; margin-bottom: 4px; color: var(--accent, #ffb000); }
+  .bg-start { border: 1px solid var(--accent, #ffb000); border-radius: var(--cds-radius); background: var(--color-panel); padding: 14px 18px; margin: 0 0 16px; }
+  .bg-start h2 { margin: 0 0 6px; font-size: 18px; }
+  .bg-start ol { margin: 0; padding-left: 22px; line-height: 1.55; }
+  .bg-start li { margin: 4px 0; }
+  tr.bg-say td { font-size: 13.5px; color: var(--color-fg); background: color-mix(in srgb, var(--accent, #ffb000) 7%, transparent); border-top: 0; padding-top: 4px; }
+  .bg-risk { display: inline-block; margin-left: 8px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; vertical-align: middle; }
+  .bg-risk-low { color: var(--color-ok, #3ddc84); } .bg-risk-medium { color: var(--accent, #ffb000); } .bg-risk-high, .bg-risk-very { color: var(--color-bad, #ff5a4e); }
+  .bg-note { font-size: 12.5px; opacity: .85; margin: 6px 0 0; }
   .sp-track { margin-top: 12px; }
   .sp-track h4 { margin: 12px 0 6px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
   .sp-recs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
@@ -582,6 +597,7 @@
   .st-report-t { margin: 4px 0 0; font-size: 16px; }
   .st-report-when { margin: 0; font-size: 12.5px; color: var(--color-fg-muted); }
   .st-report-p { margin: 8px 0 0; max-width: 75ch; line-height: 1.55; }
+  .st-report-old { margin-top: 14px; } .st-report-old summary { cursor: pointer; color: var(--color-fg-muted); font-size: 13px; }
   .st-live { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); padding: 12px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
   .st-live.st-live-top { margin: 10px 0 2px; padding: 6px 10px; gap: 6px 12px; justify-content: space-between; flex-wrap: wrap; }
   .st-live-top .st-live-h { font-size: 13px; white-space: nowrap; }
@@ -817,7 +833,7 @@ body { background:var(--color-bg); }
       <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b></span>
       <span class="st-clock st-since"><span class="st-since-who">Last update</span> <b class="st-count" data-draw="since-update">—</b></span>
       <span class="st-clock"><span class="st-mkt" data-draw="market">—</span> <span class="st-mkt" data-draw="market-cn">—</span></span>
-      <label class="st-lang notranslate" translate="no" title="Language"><span aria-hidden="true">🌐</span><select id="lang-pick" aria-label="Language"><option value="en">English</option><option value="zh-CN">中文 (简体)</option><option value="zh-TW">中文 (繁體)</option><option value="hi">हिन्दी</option><option value="es">Español</option><option value="fr">Français</option><option value="ar">العربية</option><option value="bn">বাংলা</option><option value="pt">Português</option><option value="ru">Русский</option><option value="id">Bahasa Indonesia</option><option value="ur">اردو</option><option value="de">Deutsch</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="tr">Türkçe</option></select></label> <button type="button" class="st-theme" id="sound-btn" aria-pressed="false" title="Play a cha-ching when an AI makes C$100 or more">🔈 Sound off</button> <button type="button" class="st-theme" id="theme-btn">Light mode</button>
+      <label class="st-lang notranslate" translate="no" title="Language"><span aria-hidden="true">🌐</span><select id="lang-pick" aria-label="Language"><option value="en">English</option><option value="zh-CN">中文 (简体)</option><option value="zh-TW">中文 (繁體)</option><option value="hi">हिन्दी</option><option value="es">Español</option><option value="fr">Français</option><option value="ar">العربية</option><option value="bn">বাংলা</option><option value="pt">Português</option><option value="ru">Русский</option><option value="id">Bahasa Indonesia</option><option value="ur">اردو</option><option value="de">Deutsch</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="tr">Türkçe</option></select></label> <button type="button" class="st-theme" id="sound-btn" aria-pressed="false" title="Play a cha-ching when an AI makes C$100 or more">🔈 Sound off</button> <button type="button" class="st-theme" id="beginner-btn" aria-pressed="false" title="Plain-English explanations for people new to markets and betting">🎓 Beginner</button> <button type="button" class="st-theme" id="theme-btn">Light mode</button>
     </p>
     <p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>
   </header>
@@ -880,7 +896,7 @@ body { background:var(--color-bg); }
     <section class="st-card st-report" aria-labelledby="h-report">
       <h2 class="st-h2" id="h-report">Race Report</h2>
       <p class="st-note">What has happened so far, written by Claude a few times a day. Claude is also a competitor, so the numbers on this page are the record; this is the story.</p>
-      <div data-draw="report" data-source="report"></div>
+      <div data-draw="report" data-source="report day_reports"></div>
     </section>
     <div class="st-notice-row">
   <p class="st-notice" role="note"><span class="st-dot" aria-hidden="true"></span><span><b>This is a simulation, not investment advice.</b> No real money is involved. It is a one-month experiment in which AI models make trading and betting decisions using real-world prices, to see how their judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results for all ten will be posted on Nov 28, win or lose.</span></p>
@@ -2331,6 +2347,9 @@ body { background:var(--color-bg); }
       t2.addEventListener('click', () => tb.click());
       box.appendChild(t2);
     }
+    { const b0 = document.getElementById('beginner-btn');
+      if (b0) { const t3 = mk('button', 'st-tt-theme'); t3.type = 'button'; const same3 = () => { t3.textContent = b0.textContent; t3.setAttribute('aria-pressed', b0.getAttribute('aria-pressed') || 'false'); };
+        same3(); new MutationObserver(same3).observe(b0, { childList: true, characterData: true, subtree: true, attributes: true }); t3.addEventListener('click', () => b0.click()); box.insertBefore(t3, box.lastChild); } }
     nav.appendChild(box);
   })();
   document.querySelectorAll('.model-pick').forEach((sel) => sel.addEventListener('change', () => {
@@ -2366,6 +2385,7 @@ body { background:var(--color-bg); }
         box.appendChild(b);
       };
       const top = document.createElement('div'); top.className = 'm-menu-group';
+      { const gb = document.createElement('button'); gb.type = 'button'; const on0 = document.documentElement.dataset.beginner === '1'; gb.textContent = on0 ? '🎓 Beginner mode: on (tap to turn off)' : '🎓 Beginner mode (plain-English explanations)'; gb.addEventListener('click', () => { toggle(false); if (window.ptSetBeginner) window.ptSetBeginner(!on0); }); top.appendChild(gb); }
       { const hb = document.createElement('button'); hb.type = 'button'; hb.textContent = '⌂ Home (top of the page)'; hb.addEventListener('click', () => { toggle(false); if (window.ptHome) window.ptHome(); }); top.appendChild(hb); }
       [...nav.children].forEach((c) => {
         if (c.classList.contains('st-tab')) addBtn(c, top);
@@ -3520,6 +3540,7 @@ body { background:var(--color-bg); }
           [r.ret === null || r.ret === undefined ? '' : d3.format('+.1%')(r.ret), 'num ' + (r.ret == null ? '' : upDown(r.ret * 1000))]];
         cells.forEach(([v, c]) => { const td = mk('td', c || ''); if (v instanceof Node) td.appendChild(v); else td.textContent = v; tr.appendChild(td); });
         tb.appendChild(tr);
+        if (document.documentElement.dataset.beginner === '1') { const s2 = plainTrade(r); if (s2) { const tr2 = mk('tr', 'bg-say'); const td2 = mk('td', '', s2); td2.colSpan = 9; tr2.appendChild(td2); tb.appendChild(tr2); } }
       });
       table.appendChild(tb);
       el.appendChild(table);
@@ -4478,11 +4499,18 @@ body { background:var(--color-bg); }
 
   dash.draw('report', (el) => {
     el.replaceChildren();
-    const rows = dash.baseData('report').slice().sort((a, b) => new Date(b.at) - new Date(a.at));
-    if (!rows.length) { el.appendChild(mk('p', 'st-note', 'The first Race Report comes after the opening trades.')); return; }
+    // each AI writes its own Race Report about itself; the one shown follows the AI being viewed
+    const me = dash.model || 'claude', who = AIS[me] ? AIS[me].label : 'Claude';
+    const hh = document.getElementById('h-report'); if (hh) hh.textContent = who + '’s Race Report';
+    const all = dash.baseData('report'), shared = all.filter((r) => !r.model);
+    const rows = (me === 'claude' ? all.filter((r) => r.model === 'claude') : dash.baseData('day_reports').filter((r) => r.model === me)).slice().sort((a, b) => new Date(b.at) - new Date(a.at));
+    el.appendChild(mk('p', 'st-note', who + ' writes this report about itself, 2 to 3 times a day: what it did, what worked and what didn’t, and its plans. Pick another AI to read its own report.'));
+    const sharedBox = () => { if (!shared.length) return; const d = mk('details', 'st-report-old'); d.appendChild(mk('summary', '', 'Day 1 opening reports (written before each AI had its own)')); shared.slice().sort((a, b) => new Date(a.at) - new Date(b.at)).forEach((r) => { d.appendChild(mk('h3', 'st-report-t', r.title)); d.appendChild(mk('p', 'st-report-when', stFmt.when(r.at))); (r.body || []).forEach((t) => d.appendChild(mk('p', 'st-report-p', t))); }); el.appendChild(d); };
+    if (!rows.length) { el.appendChild(mk('p', 'st-note', who + '’s first report arrives at its next check-in.')); sharedBox(); return; }
     const show = (r, box) => { box.replaceChildren(listenBtn(() => r.title + '. ' + (r.body || []).join(' '), 'Listen to this report'), mk('h3', 'st-report-t', r.title), mk('p', 'st-report-when', stFmt.when(r.at))); (r.body || []).forEach((t) => box.appendChild(mk('p', 'st-report-p', t))); };
     const box = mk('div', 'st-report-body');
-    const etDay = (at) => new Date(at).toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+    const etDay0 = (at) => new Date(at).toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+    const DAYOF = new Map(rows.map((r) => [r, r.day || etDay0(r.at)])); const etDay = (at) => { const r = rows.find((x) => x.at === at); return r ? DAYOF.get(r) : etDay0(at); };
     const dayNo = (d) => Math.round((Date.parse(d) - Date.parse('2026-10-28')) / 864e5) + 1;
     const days = [...new Set(rows.map((r) => etDay(r.at)))];
     const bar = mk('div', 'lg-pick');
@@ -4496,7 +4524,7 @@ body { background:var(--color-bg); }
       rSel.onchange = () => show(list[Number(rSel.value)], box);
     };
     dSel.addEventListener('change', fill);
-    dLab.appendChild(dSel); rLab.appendChild(rSel); bar.append(dLab, rLab); el.append(bar, box); fill();
+    dLab.appendChild(dSel); rLab.appendChild(rSel); bar.append(dLab, rLab); el.append(bar, box); fill(); sharedBox();
   });
   const FC = { ok: ['✓ Checks out', 'fc-ok'], partly: ['⚠ Partly wrong', 'fc-mid'], wrong: ['✗ Wrong', 'fc-bad'], unverified: ['? Can’t confirm yet', 'fc-mid'] };
   const fcNode = (f) => {
@@ -4618,6 +4646,7 @@ body { background:var(--color-bg); }
     const me = rows.find((r) => r.id === dash.model) || rows[0];
     const box = mk('div', 'pd-detail'); box.style.setProperty('--ai', AIS[me.id].color);
     box.appendChild(mk('b', '', AIS[me.id].label + ' in ' + (LABEL[el._exp] || el._exp)));
+    { const rk = RISK[el._exp]; if (rk) { const b2 = mk('span', 'bg-risk bg-risk-' + rk[0].toLowerCase(), 'Risk: ' + rk[0]); b2.title = rk[1]; box.appendChild(b2); box.appendChild(mk('p', 'bg-only bg-note', rk[1])); } }
     const pie = (me.pie || []).filter((x) => x.value > 0);
     if (pie.length) {
       const W = 120, R = 56, tot = d3.sum(pie, (x) => x.value);
@@ -4645,7 +4674,7 @@ body { background:var(--color-bg); }
       tile('Lucky or skilled?', st.skill == null ? '—' : st.skill.toFixed(1), verdict(st.skill), st.skill == null ? null : st.skill >= 1 ? 1 : st.skill < 0 ? -1 : 0);
       box.appendChild(g);
       const others = rows.filter((x) => x.stats).map((x) => AIS[x.id].label + ' ' + (x.stats.skill == null ? '—' : x.stats.skill.toFixed(1))).join(' · ');
-      box.appendChild(mk('p', 'pd-note', 'Lucky or skilled = return ÷ biggest drop. Above 1 means the gains are bigger than the worst dip it took to get them; it needs a dip of at least 0.5% to judge. Win rate and best/worst count trades closed or bets settled since Oct 28. In this race: ' + others + '.'));
+      box.appendChild(mk('p', 'pd-note pd-stats-note', 'Lucky or skilled = return ÷ biggest drop. Above 1 means the gains are bigger than the worst dip it took to get them; it needs a dip of at least 0.5% to judge. Win rate and best/worst count trades closed or bets settled since Oct 28. In this race: ' + others + '.'));
     }
     el.appendChild(box);
     momentsBox(el);
@@ -4715,6 +4744,132 @@ body { background:var(--color-bg); }
     }, 'image/png');
   };
   window.ptMomentCard = momentCard;
+  // ---------- Beginner mode: plain English for people new to markets and betting (a viewing mode; nothing is advice)
+  const RISK = {
+    Safe: ['Low', 'Short-term government bonds and big, steady funds: small ups and downs.'],
+    Stocks: ['Medium', 'Company shares and funds: prices can swing several percent in a day.'],
+    Metals: ['Medium', 'Gold, silver and other metals: they move with fear, interest rates and the dollar.'],
+    Energy: ['High', 'Oil and gas swing hard on wars, weather and supply news.'],
+    China: ['High', 'Chinese shares: big swings on government policy, with special trading rules.'],
+    Currencies: ['High', 'Uses borrowed money (leverage), so gains and losses are bigger than the money put in.'],
+    Crypto: ['High', 'Bitcoin and other coins can rise or fall 10% in a day.'],
+    Options: ['Very high', 'Options can lose all their value by their end date.'],
+    Sports: ['Very high', 'Each bet is won or lost in full on one game.'],
+    Predictions: ['High', 'Yes/No shares on real events; a wrong call goes to zero.'],
+  };
+  window.ptRisk = RISK;
+  const GLOSS = [
+    ['moneyline', 'A bet on which team wins the game. The score doesn’t matter, only who wins.'],
+    ['odds', 'How much a bet pays. −149 means bet C$149 to win C$100 (the favourite); +130 means bet C$100 to win C$130 (the underdog).'],
+    ['stake', 'The money put on a bet. You lose it if the bet loses, and get it back plus your winnings if it wins.'],
+    ['parlay', 'One bet on several games at once. Every game must win; it pays much more because it’s harder.'],
+    ['push', 'A bet that’s neither won nor lost (for example a cancelled game): the stake comes back, no profit.'],
+    ['void', 'A cancelled bet: the stake comes back and it never counts.'],
+    ['bankroll', 'The pot of money set aside for betting.'],
+    ['hit rate', 'The share of bets that won.'],
+    ['short', 'A bet that a price will FALL: borrow and sell now, buy back later. It makes money if the price drops, and loses if it rises.'],
+    ['shorted', 'Took a bet that the price will fall (see “short”).'],
+    ['cover', 'Buying back a short to close it. Profit if the price fell since the short; loss if it rose.'],
+    ['leverage', 'Trading with borrowed money, so profits AND losses are bigger than the money put in.'],
+    ['ETF', 'A fund that trades like a single stock but holds many things, like the 500 biggest US companies or gold.'],
+    ['option', 'A contract to buy (a call) or sell (a put) a stock at a set price by a set date. Cheap, but it can expire worth nothing.'],
+    ['call', 'An option that gains value if the stock goes UP past a set price before a set date.'],
+    ['put', 'An option that gains value if the stock goes DOWN below a set price before a set date.'],
+    ['strike', 'The set price in an option contract.'],
+    ['biggest drop', 'How far the money fell from its highest point, before recovering. A measure of risk.'],
+    ['drawdown', 'How far the money fell from its highest point (see “biggest drop”).'],
+    ['return', 'Profit as a percentage of the money put in. +5% on C$10,000 is C$500.'],
+    ['cost basis', 'What was originally paid for the part that was sold.'],
+    ['prediction market', 'A market where you buy “Yes” or “No” shares on a real event. A share pays US$1 if you’re right, so its price is roughly the chance it happens.'],
+    ['T+1', 'A China rule: shares bought today can only be sold from the next trading day.'],
+    ['stop', 'A preset order to sell automatically if the price falls to a level, to limit the loss.'],
+    ['futures', 'Contracts to buy or sell something (like oil) at a set price later; their prices track the commodity.'],
+    ['benchmark', 'A simple yardstick to compare against, like just holding the S&P 500 or gold.'],
+    ['cash', 'Money not invested. It can’t lose value in the race, but it can’t gain either.'],
+    ['profit', 'What came back beyond the money put in. Bet C$100 and get C$150 back: C$50 profit.'],
+  ];
+  const GMAP = Object.fromEntries(GLOSS.map(([t, d]) => [t.toLowerCase(), d]));
+  const GRE = new RegExp('\\b(' + GLOSS.map(([t]) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).sort((a, b) => b.length - a.length).join('|') + ')\\b', 'i');
+  const oddsWords = (o) => { o = Number(o); if (!o) return ''; const p = o < 0 ? -o / (-o + 100) : 100 / (o + 100); return (o < 0 ? 'At ' + o + ' it was the favourite: bet C$' + (-o) + ' to win C$100' : 'At +' + o + ' it was the underdog: bet C$100 to win C$' + o) + ' (about a ' + Math.round(p * 100) + '% chance, by the odds).'; };
+  const plainTrade = (r) => {
+    const who = AIS[dash.model] ? AIS[dash.model].label : 'Claude', it = String(r.item || '').replace(/^[A-Z]{1,2}\d+\s+/, ''), amt = r.amount || '';
+    const m = (x) => (r.portfolio === 'China' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(x));
+    const odds = (String(r.detail || '').match(/ at ([+−-]?\d+)/) || [])[1];
+    switch (r.action) {
+      case 'Buy': if (r.portfolio === 'Predictions') return who + ' put ' + amt + ' on “' + it + '”. Each share pays 1 dollar if that happens and nothing if it doesn’t, so the price is roughly the market’s chance it happens.'; return who + ' bought ' + amt + ' of ' + it + '. It makes money if the price goes up, and loses if it goes down.';
+      case 'Short': return who + ' shorted ' + it + ' (' + amt + '): a bet that its price will fall. It makes money if the price drops.';
+      case 'Sell': return r.profit == null ? who + ' sold ' + it + ' for ' + amt + '.' : who + ' sold ' + it + ' for ' + amt + '. That part had cost ' + r.cost + ', so it ' + (r.profit >= 0 ? 'made ' : 'lost ') + m(r.profit) + '.';
+      case 'Cover': return r.profit == null ? who + ' closed its short on ' + it + '.' : who + ' closed its short on ' + it + ', paying ' + amt + '. The short had raised ' + r.cost + ', so it ' + (r.profit >= 0 ? 'made ' : 'lost ') + m(r.profit) + '.';
+      case 'Bet': return who + ' bet ' + amt + ' that ' + it.replace(/ moneyline$/, '') + ' would win. ' + (odds ? oddsWords(odds.replace('−', '-')) : '') + ' If they lose, the ' + amt + ' is gone.';
+      case 'Won': return 'The bet won: ' + who + ' got back ' + amt + ' (its ' + r.cost + ' stake plus winnings), a profit of ' + m(r.profit) + '.';
+      case 'Lost': return 'The bet lost: ' + who + ' lost its ' + r.cost + ' stake.';
+      case 'Push': case 'Void': return 'No result: the ' + r.cost + ' stake came back, no profit or loss.';
+      case 'Penalty': return who + ' was fined for betting less than the daily minimum: ' + m(r.profit) + ' off its betting money.';
+      default: return '';
+    }
+  };
+  // tap-to-explain: the first time a term appears in a block of text, it gets a dotted underline you can tap
+  const pop = mk('div', 'bg-pop'); pop.hidden = true; pop.setAttribute('role', 'tooltip'); document.body.appendChild(pop);
+  const showPop = (el) => {
+    const t = el.dataset.term; pop.replaceChildren(mk('b', '', t.charAt(0).toUpperCase() + t.slice(1)), mk('span', '', GMAP[t.toLowerCase()] || ''));
+    pop.hidden = false; const r = el.getBoundingClientRect(), w = Math.min(320, window.innerWidth - 24);
+    pop.style.width = w + 'px'; pop.style.left = Math.max(12, Math.min(window.innerWidth - w - 12, r.left)) + 'px'; pop.style.top = (r.bottom + window.scrollY + 8) + 'px';
+  };
+  document.addEventListener('click', (e) => { const g = e.target.closest && e.target.closest('.bg-term'); if (g) { e.preventDefault(); e.stopPropagation(); showPop(g); } else if (!pop.hidden && !e.target.closest('.bg-pop')) pop.hidden = true; }, true);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') pop.hidden = true; });
+  const SKIPG = '.st-live-top, .sp-splash, script, style, select, option, button, input, textarea, nav, svg, .bg-term, .bg-pop, .st-tabs, header, .say-pair, .listen-pair, .m-menu, .au-pre, code, pre';
+  const gloss = (root) => {
+    if (document.documentElement.dataset.beginner !== '1') return;
+    root.querySelectorAll('p, li, td, .st-plan, .pd-last, small, .h2h-sub, .st-note').forEach((blk) => {
+      if (blk.dataset.gl || blk.closest(SKIPG)) return; blk.dataset.gl = '1';
+      const seen = new Set();
+      const w = document.createTreeWalker(blk, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.parentElement && n.parentElement.closest(SKIPG)) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+      const nodes = []; let n; while ((n = w.nextNode())) nodes.push(n);
+      nodes.forEach((tn) => {
+        let txt = tn.nodeValue, m2, out = null;
+        while ((m2 = GRE.exec(txt)) && seen.size < 3) {
+          const key = m2[1].toLowerCase(); if (seen.has(key)) { const rest = txt.slice(m2.index + m2[0].length); (out = out || document.createDocumentFragment()).appendChild(document.createTextNode(txt.slice(0, m2.index + m2[0].length))); txt = rest; continue; }
+          seen.add(key); out = out || document.createDocumentFragment();
+          out.appendChild(document.createTextNode(txt.slice(0, m2.index)));
+          const a = mk('span', 'bg-term', m2[1]); a.dataset.term = key; a.tabIndex = 0; a.setAttribute('role', 'button'); a.setAttribute('aria-label', m2[1] + ': tap for an explanation'); out.appendChild(a);
+          txt = txt.slice(m2.index + m2[0].length);
+        }
+        if (out) { out.appendChild(document.createTextNode(txt)); tn.replaceWith(out); }
+      });
+    });
+  };
+  let glT = null;
+  new MutationObserver(() => { clearTimeout(glT); glT = setTimeout(() => gloss(document.getElementById('dash-root') || document.body), 250); }).observe(document.getElementById('dash-root') || document.body, { childList: true, subtree: true });
+  // "Start here": a short guide at the top of the Overview, only in Beginner mode
+  const startHere = () => {
+    const pg = document.querySelector('[data-page="overview"]'); if (!pg) return;
+    let c = document.getElementById('bg-start');
+    if (document.documentElement.dataset.beginner !== '1') { if (c) c.remove(); return; }
+    if (c) return;
+    c = mk('section', 'bg-start'); c.id = 'bg-start';
+    c.appendChild(mk('h2', '', '🎓 New here? Start here'));
+    const ol = mk('ol');
+    ['Three AIs (Claude, Gemini and ChatGPT) each got C$100,000 of pretend money in ten separate races, from stocks to sports betting. Nobody touches their trades.',
+     'Race standings (right, or below on phones) shows who is ahead in each race: the green or red number is the profit or loss since Oct 28. Pick a race from the menu to switch.',
+     'Every trade and bet comes with the AI’s own reason. In the Ledger, each one is explained in a plain sentence: what it bought or bet, and what it made or lost.',
+     'Words with a dotted underline can be tapped for a short explanation, such as “short”, “moneyline” or odds like −149.',
+     'Watch and learn, but don’t copy. The AIs make mistakes and lose money too, and this is a simulation, not advice.'].forEach((t) => ol.appendChild(mk('li', '', t)));
+    c.appendChild(ol);
+    pg.insertBefore(c, pg.firstChild);
+  };
+  // the switch (header, sticky bar and phone menu), remembered on this device
+  const bb = document.getElementById('beginner-btn');
+  const setBeginner = (on) => {
+    document.documentElement.dataset.beginner = on ? '1' : '';
+    try { localStorage.setItem('pt-beginner', on ? '1' : '0'); } catch (e) {}
+    if (bb) { bb.setAttribute('aria-pressed', String(on)); bb.textContent = on ? '🎓 Beginner: on' : '🎓 Beginner'; }
+    document.querySelectorAll('[data-gl]').forEach((x) => { delete x.dataset.gl; });
+    if (!on) document.querySelectorAll('.bg-term').forEach((x) => x.replaceWith(document.createTextNode(x.textContent)));
+    startHere(); if (window._bgInit) { document.querySelectorAll('[data-draw]').forEach((x) => { try { if (x._redraw) x._redraw(); } catch (e) {} }); if (dash.useModel) dash.useModel(dash.model || 'claude'); } window._bgInit = 1; setTimeout(() => gloss(document.getElementById('dash-root') || document.body), 300);
+  };
+  window.ptSetBeginner = setBeginner;
+  if (bb) bb.addEventListener('click', () => setBeginner(document.documentElement.dataset.beginner !== '1'));
+  { let on = false; try { on = localStorage.getItem('pt-beginner') === '1'; } catch (e) {} setBeginner(on); }
   // Forecasts: each AI's chances for who wins the selected race (a separate contest that never changes anyone's money)
   dash.draw('forecasts', (el) => {
     el.replaceChildren();
