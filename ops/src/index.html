@@ -479,6 +479,12 @@
   :root[data-theme="light"][data-model="chatgpt"]:not(#pt-a):not(#pt-b), :root[data-theme="reader"][data-model="chatgpt"]:not(#pt-a):not(#pt-b) { --accent: #2a2a2a; --accent-bg: rgba(0,0,0,.05); }
   :root[data-model] .st-score-h, :root[data-model] .st-tabgroup-l { color: var(--accent); }
   /* tab bar at the top: sticky while scrolling; one swipeable row on phones */
+  .st-tabs-tools { display: none; }
+  @media (min-width: 1000px) {
+    .st-tabs-tools { display: flex; position: absolute; right: 0; top: 4px; gap: 12px; align-items: center; }
+    .st-tabs-tools .st-tt { display: flex; align-items: center; gap: 6px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-fg-muted); }
+    .st-tabs-tools select { font: inherit; font-size: 13px; letter-spacing: 0; text-transform: none; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 5px 8px; min-height: 32px; max-width: 210px; }
+  }
   .st-tabs { position: sticky; top: 0; z-index: 40; background: var(--color-bg); margin: 8px 0 14px; padding-top: 2px; box-shadow: 0 6px 12px -10px rgba(0,0,0,.6); }
   @media (min-width: 701px) { .st-tabs .st-tab { padding: 6px 10px; font-size: 13.5px; } .st-tabs .st-tabgroup { padding-top: 15px; } .st-tabs .st-tabgroup-l { font-size: 10px; } }
   @media (max-width: 700px) {   /* phones keep the original layout: tabs after the intro, wrapped, not sticky */
@@ -1989,6 +1995,29 @@
   document.querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', () => goTab(b.dataset.goto)));
   showTab(location.hash.slice(1));
   // on an AI's own page, picking another model in the Model menu goes to that AI's page
+  // Computers: compact Model and money menus in the sticky tab bar (top right), so they stay with you as you scroll.
+  // They mirror the main menus both ways.
+  (() => {
+    const nav = document.querySelector('nav.st-tabs'), mp = document.getElementById('model-pick'), cp = document.getElementById('cur-pick');
+    if (!nav || !mp || nav.querySelector('.st-tabs-tools')) return;
+    const mk = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+    const box = mk('div', 'st-tabs-tools');
+    const mirror = (src, label) => {
+      const l = mk('label', 'st-tt'); l.appendChild(mk('span', '', label));
+      const sel = mk('select'); sel.setAttribute('aria-label', label); l.appendChild(sel);
+      const sync = () => {
+        sel.replaceChildren(...[...src.options].map((o) => { const n = mk('option', '', o.textContent); n.value = o.value; n.disabled = o.disabled; return n; }));
+        sel.value = src.value;
+      };
+      sync(); src.addEventListener('change', sync);
+      new MutationObserver(sync).observe(src, { childList: true, subtree: true, attributes: true });
+      sel.addEventListener('change', () => { src.value = sel.value; src.dispatchEvent(new Event('change', { bubbles: true })); });
+      return l;
+    };
+    box.appendChild(mirror(mp, 'Model'));
+    if (cp) box.appendChild(mirror(cp, 'Money'));
+    nav.appendChild(box);
+  })();
   document.querySelectorAll('.model-pick').forEach((sel) => sel.addEventListener('change', () => {
     const cur = (document.querySelector('.st-tab[aria-selected="true"]') || {}).dataset || {};
     if (String(cur.tab || '').startsWith('ai-') && cur.tab !== 'ai-' + sel.value) goTab('ai-' + sel.value, false);
