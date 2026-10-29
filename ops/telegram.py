@@ -298,7 +298,7 @@ if WELCOME:
         return pts[-1]['value'] if pts else 100000
     rows = [{'pf': pf, 'day': v / ago(pf) - 1, 'total': v / 100000 - 1} for pf, v in board]
     send('\n'.join(lines), chart_scoreboard(rows, f'Day {day} standings'))
-    tk = load(S + 'take.json')
+    tk = [x for x in load(S + 'take.json') if not x.get('experiment')]
     if tk:
         send(f"🟠 <b>CLAUDE</b> (Anthropic)\n💬 <b>Claude's take</b>\n“{esc(tk[-1]['text'])}”\n{SITE}")
     if TOKEN and CHAT and mid:

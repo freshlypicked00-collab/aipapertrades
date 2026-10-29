@@ -1210,7 +1210,7 @@ def public_board(state, me):
         if not str(t.get('experiment', '')).startswith('AllIn'):
             trades.setdefault(t['model'], []).append(t)
     try:
-        ct = json.load(open('ops/src/take.json'))
+        ct = [x for x in json.load(open('ops/src/take.json')) if not x.get('experiment')]   # Claude's overall take (race takes are per race)
         if ct:
             takes['claude'] = max(ct, key=lambda x: datetime.fromisoformat(x['at'].replace('Z', '+00:00')))
         for x in json.load(open('ops/src/plans.json')):
@@ -1539,7 +1539,7 @@ def main():
             board, fc_task = public_board(state, mid) + betting_rule_line(state, mid, fx) + ' ', ''
             if mid == 'gemini':   # Gemini is the independent fact-checker of Claude's takes (Claude never checks itself)
                 try:
-                    ct = max(json.load(open('ops/src/take.json')), key=lambda x: datetime.fromisoformat(x['at'].replace('Z', '+00:00')))
+                    ct = max([x for x in json.load(open('ops/src/take.json')) if not x.get('experiment')], key=lambda x: datetime.fromisoformat(x['at'].replace('Z', '+00:00')))
                 except Exception:
                     ct = None
                 done = {x['take_at'] for x in state.get('factchecks', []) if x.get('model') == 'claude'}

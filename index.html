@@ -262,6 +262,7 @@
   .st-hook-q { margin: 0; font-size: clamp(24px, 3.4vw, 32px); font-weight: 600; line-height: 1.15; letter-spacing: -0.01em; color: var(--color-fg); text-wrap: balance; }
   .st-hook-sub { margin: 0; font-size: 16px; color: var(--color-fg-muted); max-width: 70ch; }
   .st-take { margin: 6px 0 0; font-size: 16px; line-height: 1.5; max-width: 85ch; border-left: 3px solid var(--color-warn); padding: 4px 0 4px 12px; }
+  .st-take-wait { opacity: .75; font-size: .9em; }
   .st-take-l { display: block; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-warn); margin-bottom: 2px; }
   .st-take q { quotes: "\201C" "\201D"; }
   .st-take-when { color: var(--color-fg-muted); font-size: 13px; overflow-wrap: anywhere; }
@@ -4754,10 +4755,24 @@ body { background:var(--color-bg); }
   dash.draw('take', (el) => {
     const d = dash.data('take');
     el.replaceChildren();
-    if (d.status !== 'ok' || !d.data.length) { el.textContent = (dash.model === 'claude' ? 'Claude' : (dash.models()[dash.model] || { _meta: { label: 'This AI' } })._meta.label) + '’s first take comes with its opening trades at the 1:45 p.m. ET restart.'; return; }
-    const r = d.data.reduce((a, b) => (new Date(b.at) > new Date(a.at) ? b : a));
     const who = AIS[dash.model] ? AIS[dash.model].label : 'Claude';
-    el.append(mk('q', '', r.text), document.createTextNode(' '), mk('span', 'st-by', '— ' + who), document.createTextNode(' '), mk('span', 'st-take-when', stFmt.when(r.at)));
+    const race = window.ptRace || (window.ptFirstRace ? window.ptFirstRace() : null);
+    const rn = race ? (LABEL[race] || race).replace(' (US$)', '') : '';
+    const lab = el.closest('.st-take') && el.closest('.st-take').querySelector('.st-take-l');
+    // the take for the race being viewed: Claude's race takes, or Gemini's / ChatGPT's one-sentence note on that race from their latest check-in
+    let r = null;
+    if (race) {
+      const pool = dash.model === 'claude' ? ((dash.baseData('take') || []).filter((x) => x.experiment === race)) : ((dash.baseData('rivals_thoughts') || []).filter((x) => x.model === dash.model && x.experiment === race));
+      if (pool.length) r = pool.reduce((a, b) => (new Date(b.at) > new Date(a.at) ? b : a));
+    }
+    if (lab) lab.textContent = who + '’s current take' + (race ? ' on ' + rn : '');
+    if (r) { el.append(mk('q', '', r.text), document.createTextNode(' '), mk('span', 'st-by', '— ' + who), document.createTextNode(' '), mk('span', 'st-take-when', stFmt.when(r.at))); return; }
+    // no take for this race yet: say so, and show the AI's overall take meanwhile
+    const all = d.status === 'ok' ? d.data.filter((x) => !x.experiment) : [];
+    if (race) el.appendChild(mk('span', 'st-take-wait', who + '’s take on ' + rn + ' comes with its next check-in. Its latest overall take: '));
+    if (!all.length) { el.appendChild(document.createTextNode('—')); return; }
+    const o = all.reduce((a, b) => (new Date(b.at) > new Date(a.at) ? b : a));
+    el.append(mk('q', '', o.text), document.createTextNode(' '), mk('span', 'st-by', '— ' + who), document.createTextNode(' '), mk('span', 'st-take-when', stFmt.when(o.at)));
   });
   const TABOF = { Stocks: 'stocks', Crypto: 'crypto', China: 'china', Metals: 'metals', Energy: 'energy', Options: 'options', Currencies: 'currencies', Safe: 'safe', Sports: 'sports', Predictions: 'predictions' };
   dash.draw('scoreboard', (el) => {

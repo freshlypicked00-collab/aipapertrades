@@ -413,6 +413,12 @@ save('log', log)
 if inp.get('take'):  # the AI's one-sentence take for the top of the site
     take.append({'at': AT, 'text': inp['take'].strip()})
     save('take', take)
+_RT = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
+if isinstance(inp.get('race_takes'), dict):  # one take per race, shown when a visitor picks that race
+    for _e, _t in inp['race_takes'].items():
+        if _e in _RT and str(_t).strip():
+            take.append({'at': AT, 'experiment': _e, 'text': str(_t).strip()[:400]})
+    save('take', take)
 if inp.get('sources_add'):
     seen = {s['url'] for s in sources}
     for s in inp['sources_add']:

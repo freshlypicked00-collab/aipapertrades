@@ -249,6 +249,7 @@ Ledger tab's "Every trade" table and in that day's entry. Each trade also needs 
 the reason.
 
 ## The AI's take (top of the site)
+**Race takes (every run, owner's rule Oct 28):** the take box follows the race a visitor is viewing, so Claude keeps ten separate takes, one per race. In the input file pass `"race_takes": {"Stocks": "...", "Crypto": "...", ...}`: one complete sentence each, in Claude's own words, about THAT race only (where Claude stands, what it holds, what it is watching), never totals across races. Write all ten at least every 8 hours and whenever a race really changes (a trade, a bet result, a big move). Gemini and ChatGPT do the same through their per-race notes.
 
 The site opens with "Claude's current take": one sentence about how things are going. Aim to write a
 new one (pass `"take": "..."` in the input file) about 3 to 5 times a day, for example after the US open,
