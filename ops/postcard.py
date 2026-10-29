@@ -197,3 +197,104 @@ def daily(table, n, when, big, path):
         y += rh
     c.footer()
     return c.save(path)
+
+
+# ---------- covers: the first slide, built to read at thumbnail size (huge type, few elements)
+def _glow(c, color, xy=(1180, 330), r=420):
+    from PIL import ImageFilter
+    layer = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    g = ImageDraw.Draw(layer)
+    rgb = tuple(int(color.lstrip('#')[i:i + 2], 16) for i in (0, 2, 4))
+    g.ellipse([xy[0] - r, xy[1] - r, xy[0] + r, xy[1] + r], fill=rgb + (46,))
+    layer = layer.filter(ImageFilter.GaussianBlur(140))
+    c.im = Image.alpha_composite(c.im.convert('RGBA'), layer).convert('RGB')
+    c.d = ImageDraw.Draw(c.im)
+
+
+def races_led(table):
+    led = {k: [] for k in AIS}
+    for e in ORDER:
+        rows = table.get(e) or []
+        if len(rows) > 1 and rows[0][1] - rows[1][1] >= 0.5:
+            led[rows[0][0]].append(e)
+    return led
+
+
+def moment_cover(m, path):
+    """Lead change: the new leader's name huge, the margin huge, the three in this race below."""
+    race, who, over = m['race'], m['who'], m['over']
+    prof = m.get('profit') or {}
+    if race not in LABEL or who not in AIS or over not in AIS or set(prof) != set(AIS):
+        raise QualityError('moment data incomplete')
+    at = datetime.fromisoformat(m['at'].replace('Z', '+00:00'))
+    c = Card()
+    _glow(c, AIS[who][1])
+    c.header(f'DAY {day_of(at)} OF 32')
+    c.text((SAFE_X, 300), f'LEAD CHANGE · {LABEL[race].upper()}', font('mono', 'SemiBold', 36), AMBER, 'lm', tracking=4)
+    name_f = c.fit(AIS[who][0], 'sans', 'Bold', 330, W - 2 * SAFE_X, 200)
+    c.text((SAFE_X, 345), AIS[who][0], name_f, AIS[who][1], 'lt')
+    y = 345 + int(name_f.size * 1.02)
+    c.text((SAFE_X, y), 'takes the lead', font('sans', 'Bold', 150), FG, 'lt')
+    y += 190
+    c.text((SAFE_X, y), f'in {LABEL[race]}', font('sans', 'Medium', 70), MUTED, 'lt')
+    y += 130
+    amt = money(m['lead'], race).lstrip('+')
+    af = font('mono', 'SemiBold', 150)
+    c.text((SAFE_X, y), amt, af, FG, 'lt')
+    c.text((SAFE_X + af.getlength(amt) + 30, y + 95), f'ahead of {AIS[over][0]}', font('sans', 'Medium', 52), MUTED, 'lm')
+    y = 1270
+    ids = sorted(prof, key=lambda k: -prof[k])
+    for i, mid in enumerate(ids):
+        c.d.rectangle([SAFE_X, y + 14, SAFE_X + 10, y + 82], fill=AIS[mid][1])
+        c.text((SAFE_X + 40, y + 48), AIS[mid][0], font('sans', 'SemiBold', 58), FG, 'lm')
+        v = prof[mid]
+        c.text((W - SAFE_X, y + 48), money(v, race), font('mono', 'SemiBold', 54), UP if v > 0.5 else DOWN if v < -0.5 else MUTED, 'rm')
+        y += 104
+    c.footer()
+    return c.save(path)
+
+
+def daily_cover(table, n, when, big, path):
+    """Day N: who leads the most races (names huge), races led per AI, and the biggest move. Slide 2 has every race."""
+    if not table or any(e not in table for e in ORDER):
+        raise QualityError('daily data incomplete')
+    led = races_led(table)
+    order = sorted(AIS, key=lambda k: -len(led[k]))
+    top = [k for k in order if len(led[k]) == len(led[order[0]])]
+    c = Card()
+    _glow(c, AIS[top[0]][1] if len(top) == 1 else AMBER)
+    c.header(f'DAY {n} OF 32')
+    c.text((SAFE_X, 300), f'DAY {n} RESULTS · {when.strftime("%a %b %-d").upper()}', font('mono', 'SemiBold', 36), AMBER, 'lm', tracking=4)
+    if len(top) == 1:
+        nf = c.fit(AIS[top[0]][0], 'sans', 'Bold', 300, W - 2 * SAFE_X, 180)
+        c.text((SAFE_X, 345), AIS[top[0]][0], nf, AIS[top[0]][1], 'lt')
+        y = 345 + int(nf.size * 1.02)
+        c.text((SAFE_X, y), f'leads {len(led[top[0]])} of 10 races', font('sans', 'Bold', 128), FG, 'lt')
+        y += 170
+    else:
+        nf = font('sans', 'Bold', 150)
+        y = 360
+        for k in top:
+            c.text((SAFE_X, y), AIS[k][0], nf, AIS[k][1], 'lt'); y += 160
+        c.text((SAFE_X, y), f'tied at {len(led[top[0]])} races each', font('sans', 'Bold', 100), FG, 'lt')
+        y += 140
+    # races led, per AI: three big tiles
+    y = max(y + 40, 900)
+    tw = (W - 2 * SAFE_X - 2 * 30) / 3
+    for i, k in enumerate(order):
+        x = SAFE_X + i * (tw + 30)
+        c.d.rounded_rectangle([x, y, x + tw, y + 250], radius=18, fill=PANEL, outline=LINE, width=2)
+        c.d.rectangle([x, y, x + tw, y + 10], fill=AIS[k][1])
+        c.text((x + 30, y + 70), AIS[k][0], font('sans', 'SemiBold', 48), FG, 'lm')
+        c.text((x + 30, y + 165), str(len(led[k])), font('mono', 'SemiBold', 110), AIS[k][1], 'lm')
+        c.text((x + 30 + font('mono', 'SemiBold', 110).getlength(str(len(led[k]))) + 18, y + 185), 'races led', font('sans', 'Regular', 32), MUTED, 'lm')
+    y += 310
+    if big:
+        _, mid, e, d, pct = big
+        c.text((SAFE_X, y), 'BIGGEST MOVE TODAY', font('mono', 'Medium', 28), MUTED, 'lm', tracking=3)
+        line = f'{AIS[mid][0]} in {LABEL.get(e, e)}  {money(d, e)}'
+        c.text((SAFE_X, y + 66), line, c.fit(line, 'sans', 'SemiBold', 64, W - 2 * SAFE_X, 36), UP if d > 0.5 else DOWN if d < -0.5 else FG, 'lm')
+    c.text((SAFE_X, 1470), 'Ten separate races, each judged on its own. Final scoring Nov 28.', font('sans', 'Regular', 34), MUTED, 'lm')
+    c.text((W - SAFE_X, 1560), 'Swipe for all ten races  →', font('mono', 'SemiBold', 32), AMBER, 'rm')
+    c.footer()
+    return c.save(path)

@@ -109,12 +109,16 @@ def prepare():
         img = f"social/{p['id']}.jpg"
         try:
             if p['kind'] == 'moment':
-                pc.moment(p['moment'], img)
+                pc.moment_cover(p['moment'], img)
+                p['images'] = [img]
             else:
                 import racecard
                 table, big = racecard.races(datetime.fromisoformat(p['day_start']), 'ops/src')
                 when = datetime.fromisoformat(p['day_start'])
-                pc.daily(table, p['day'], when, big, img)
+                pc.daily_cover(table, p['day'], when, big, img)
+                img2 = f"social/{p['id']}-races.jpg"
+                pc.daily(table, p['day'], when, big, img2)
+                p['images'] = [img, img2]   # a carousel: the bold cover, then every race
                 lines = []
                 for e in racecard.ORDER:
                     rows = table.get(e) or []
@@ -146,28 +150,36 @@ def publish():
     for p in pend:
         if p['id'] in state['posted']:
             continue
-        url = f"{SITE}/{p['image']}?v={p['id']}"
+        imgs = p.get('images') or [p['image']]
+        urls = [f"{SITE}/{x}?v={p['id']}" for x in imgs]
         live = False
-        for _ in range(30):   # wait for GitHub Pages to serve the new picture (usually under a minute)
+        for _ in range(30):   # wait for GitHub Pages to serve the new pictures (usually under a minute)
             try:
-                with urllib.request.urlopen(urllib.request.Request(url, method='HEAD'), timeout=20) as r:
-                    live = r.status == 200 and 'image' in (r.headers.get('Content-Type') or '')
+                live = all(urllib.request.urlopen(urllib.request.Request(u, method='HEAD'), timeout=20).status == 200 for u in urls)
             except Exception:
                 live = False
             if live:
                 break
             time.sleep(10)
         if not live:
-            print('picture not live yet, will retry next run:', url); continue
+            print('::warning::pictures not live yet, will retry next run: ' + p['id']); continue
         try:
-            c = api(f'{ig}/media', {'image_url': url, 'caption': p['caption'][:2150]}, 'POST')
-            for _ in range(12):   # Instagram processes the picture before it can be published
-                st = api(c['id'], {'fields': 'status_code'})
-                if st.get('status_code') in ('FINISHED', None):
-                    break
-                if st.get('status_code') == 'ERROR':
-                    raise RuntimeError('Instagram could not process the picture')
-                time.sleep(5)
+            def wait_ready(cid):
+                for _ in range(24):   # Instagram processes each picture before it can be used
+                    st = api(cid, {'fields': 'status_code'})
+                    if st.get('status_code') in ('FINISHED', None):
+                        return
+                    if st.get('status_code') == 'ERROR':
+                        raise RuntimeError('Instagram could not process a picture')
+                    time.sleep(5)
+            if len(urls) == 1:
+                c = api(f'{ig}/media', {'image_url': urls[0], 'caption': p['caption'][:2150]}, 'POST')
+            else:
+                kids = []
+                for u in urls:
+                    k = api(f'{ig}/media', {'image_url': u, 'is_carousel_item': 'true'}, 'POST'); wait_ready(k['id']); kids.append(k['id'])
+                c = api(f'{ig}/media', {'media_type': 'CAROUSEL', 'children': ','.join(kids), 'caption': p['caption'][:2150]}, 'POST')
+            wait_ready(c['id'])
             r = api(f'{ig}/media_publish', {'creation_id': c['id']}, 'POST')
             state['posted'][p['id']] = {'at': NOW.isoformat(), 'media': r.get('id')}
             print('::notice::posted ' + p['id'] + ' ' + str(r.get('id')))
