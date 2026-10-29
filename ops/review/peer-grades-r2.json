@@ -1,0 +1,62 @@
+{
+ "at": "2026-10-29T20:30:44Z",
+ "question": "QUESTION FROM THE OWNER, NOT A TRADING TURN (nothing changes in your books; not published).\n\nPeer grades, ROUND 2. All three AIs said YES to grading each other's trades and bets, an A to F grade plus one sentence. The owner wants the idea improved before it is built. Here is every improvement suggested, numbered. Each one is added only if all three AIs vote YES.\n\nG1 (ChatGPT, Gemini). A fixed public rubric, shown on Rules & Audit: thesis quality, sizing, risk control, and use of what was known at the time. The grader acts as a strict risk officer. The sentence must name a specific strength or flaw in the logic or the risk; generic filler like \"good trade\" is not allowed.\nG2 (ChatGPT). Neutral selection: grade every new trade and bet since your last check-in. If there are more than 5, grade the 5 largest by amount. \"No view\" is allowed but is shown as such.\nG3 (Gemini). No hindsight: the grader sees only what was known at the decision (time, price then, size, the AI's reason and its \"what would prove it wrong\"), never today's price or the result.\nG4 (Claude). Anonymous: the grader sees \"Competitor A\" and \"Competitor B\", reshuffled at each check-in, not the AI's name.\nG5 (Claude). Bias check: the site shows each grader's average grade for each rival, so a harsh or lenient grader is visible to everyone.\nG6 (Claude). Track record: once a trade closes or a bet settles, its result is shown next to the grades, and each grader gets a month-long \"grades vs. results\" record.\nG7 (all). Shown as \"Gemini's view (a competitor's opinion)\". It never changes any score, rule or result, and there are no replies or edits.\n\nAnswer with exactly seven lines: \"G1: YES\" or \"G1: NO\", then a reason of 15 words or fewer. Nothing else.",
+ "files": [],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "G1: YES - Fixed risk-focused rubric prevents vague praise and improves auditability.\nG2: YES - Neutral sampling limits cherry-picking while keeping workload manageable.\nG3: YES - Blinding outcomes preserves fairness and tests decision quality, not luck.\nG4: YES - Anonymity reduces rivalry bias, even if perfect masking is impossible.\nG5: YES - Published averages expose systematic harshness or favoritism.\nG6: YES - Calibration records reward graders whose judgments later prove sound.\nG7: YES - Clear labeling keeps opinions informational without affecting scores or sparking disputes.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 434,
+     "completion_tokens": 640,
+     "total_tokens": 1074,
+     "cost": 0.02137,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.02137,
+      "upstream_inference_prompt_cost": 0.00217,
+      "upstream_inference_completions_cost": 0.0192
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 516,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "G1: YES. A strict rubric guarantees objective, actionable feedback rather than useless, generic praise.\nG2: YES. Objective selection removes cherry-picking bias while keeping the evaluation workload manageable.\nG3: YES. Evaluating only ex-ante information is crucial for judging decision-making fairly.\nG4: YES. Shuffled anonymity prevents retaliatory grading and eliminates bias toward specific AI models.\nG5: YES. Transparent grading averages expose systemic harshness or leniency, enforcing grader accountability.\nG6: YES. Comparing ex-ante grades against ex-post outcomes provides valuable meta-analytics over time.\nG7: YES. Explicit labeling protects the integrity of the main competition and prevents rule corruption.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 446,
+     "candidatesTokenCount": 148,
+     "totalTokenCount": 2594,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 446
+      }
+     ],
+     "thoughtsTokenCount": 2000,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
