@@ -28,6 +28,12 @@ def _nearest_level(bench, series, at):
     return pick
 
 
+def _fx_at(trades, st):
+    """USD/CAD at a moment: the rate recorded on the first trade filled at or after it."""
+    xs = sorted((t for t in trades if (t.get('fx') or {}).get('USDCAD') and _t(t['at']) >= st), key=lambda t: _t(t['at']))
+    return xs[0]['fx']['USDCAD'] if xs else None
+
+
 def build(rivals, claude):
     """rivals: parsed rivals.json; claude: dict of Claude's datasets (indexes, bench_history, benchmark, prices, events, fx)."""
     out = {}
@@ -196,7 +202,7 @@ def build(rivals, claude):
                 if pick:
                     r.update(start_at=pick['at'], start_level=pick['level'], fx_start=pick.get('fx', r.get('fx_start')))
                 elif r.get('now_level'):
-                    r.update(start_at=st.isoformat(), start_level=r['now_level'], fx_start=r.get('fx_now'))
+                    r.update(start_at=st.isoformat(), start_level=r['now_level'], fx_start=_fx_at(rivals.get('trades', []), st) or r.get('fx_now'))
             idx.append(r)
         d['indexes'] = idx
         btc = sorted((p for p in claude['prices'] if p['asset'] == 'Bitcoin'), key=lambda p: _t(p['at']))
@@ -208,8 +214,8 @@ def build(rivals, claude):
             st = started[r['portfolio']]
             after = [p for p in btc if _t(p['at']) >= st]
             p0 = after[0] if after else (btc[-1] if btc else None)
-            if p0:
-                r.update(start_at=st.isoformat(), btc_start_usd=p0['price'], fx_start=fx_now['USDCAD'])
+            if p0:   # the exchange rate AT the start (the rate the first trades filled at), not today's (Oct 29 fix: it drifted with the C$)
+                r.update(start_at=st.isoformat(), btc_start_usd=p0['price'], fx_start=_fx_at(rivals.get('trades', []), st) or r.get('fx_start') or fx_now['USDCAD'])
             bm.append(r)
         d['benchmark'] = bm
         # "Coming up": the model's own watchlist, in its own words

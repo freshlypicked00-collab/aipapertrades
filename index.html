@@ -970,7 +970,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'd2761fe64b5c';</script>
+<script>window.PT_PAGE_VER = '0715c1b72dbd';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -1083,7 +1083,7 @@ body { background:var(--color-bg); }
       <p class="st-fact" data-draw="factcheck" data-source="take factcheck"></p>
     </div>
     <section class="st-score" aria-labelledby="h-score">
-      <h2 class="st-score-h" id="h-score">Scoreboard <span>The best results across all three AIs, each race on its own (the ten races and the All in side race), best first. Tap one to open that race as that AI.</span></h2>
+      <h2 class="st-score-h" id="h-score">Scoreboard <span>The best results across all three AIs, each race on its own (the ten races and the two All in side races), best first. Tap one to open that race as that AI.</span></h2>
       <ol class="st-score-list" data-draw="scoreboard" data-source="totals trades bets"></ol>
     </section>
     <div class="st-notice-row">
@@ -2331,7 +2331,7 @@ body { background:var(--color-bg); }
     <p class="st-note">The big figure is what the simulation is worth now; under it is the profit or loss since the start. "Last 24 hours" compares with the check-in closest to 24 hours earlier, or the start if a simulation is newer. "Worst drop" is the biggest fall from a high point, measured at check-ins. Each "Vs." line compares a simulation with putting the same money into a simple benchmark: the S&amp;P 500 for stocks and options, Bitcoin for crypto, gold for metals, the CSI 300 for China stocks, the USO oil fund for energy, and a 2.25% savings account for currencies and "play it safe". Positive means the simulation is ahead. China stocks are counted in US dollars.</p>
     <section class="st-card" aria-labelledby="h-contrib-all">
       <h2 class="st-h2" id="h-contrib-all">What made or lost money</h2>
-      <p class="st-note">By day: each race’s gain or loss that race day and what closed or settled that day; step back day by day. Race days close at 8 p.m. ET (00:00 UTC), the same days as the Ledger. Since opened: profit or loss on each position and settled bet since it was opened. In Canadian dollars (China stocks in US$).</p>
+      <p class="st-note">By day: each race’s gain or loss that race day and what closed or settled that day; step back day by day. Race days close at 00:00 UTC (8 p.m. ET until the clocks change on Nov 1, then 7 p.m. ET), the same days as the Ledger. Since opened: profit or loss on each position and settled bet since it was opened. In Canadian dollars (China stocks in US$).</p>
       <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-limit="12"></div>
     </section>
 
@@ -3023,7 +3023,8 @@ body { background:var(--color-bg); }
   dash.draw('clv-sum', (el) => {
     const d = dash.data('clvsum');
     const r = d.status === 'ok' ? d.data[0] : null;
-    el.textContent = r && r.graded ? r.beat + ' of ' + r.graded : '—';
+    el.textContent = r && r.graded ? r.beat + ' of ' + r.graded : dash.model !== 'claude' ? 'Not recorded yet' : '—';
+    el.title = dash.model !== 'claude' && !(r && r.graded) ? 'Closing odds are only recorded for Claude’s bets so far, so this cannot be scored for ' + ((AIS[dash.model] || {}).label || 'this AI') + ' yet.' : '';   // Oct 29 review
   });
   dash.draw('events-body', (el) => {
     const d = dash.data('events');
@@ -4319,14 +4320,15 @@ body { background:var(--color-bg); }
         if (isUsd(r)) { const tq = t && Number(t.qty), q = tq || Math.abs(Number(r.quantity)), c = tq ? Number(t.cad) : Math.abs(Number(r.cost_cad)); return q && c ? d3.format('.4f')(c / q) + ' C$ per US$' : ''; }
         return 'US$' + d3.format('.4f')(px) + ' each';
       }
-      return 'US$' + d3.format(px >= 1 ? ',.2f' : '.4f')(px) + (pf === 'Crypto' ? ' a coin' : pf === 'Options' ? ' a share of the contract' : /Metals|Energy|Stocks|Safe/.test(pf) ? ' a share' : '');
+      const ounce = pf === 'Metals' && /^(Gold|Silver|Platinum|Palladium)$/i.test(String(r.holding));   // spot metal (in troy ounces), not a fund
+      return 'US$' + d3.format(px >= 1 ? ',.2f' : '.4f')(px) + (pf === 'Crypto' ? ' a coin' : pf === 'Options' ? ' a share of the contract' : ounce ? ' an ounce' : /Metals|Energy|Stocks|Safe/.test(pf) ? ' a share' : '');
     };
     const amtTxt = (t) => { const a = pf === 'China' ? Number(t.usd != null ? t.usd : t.cad) : Number(t.cad); return isFinite(a) && a ? stFmt.money(Math.abs(a), pf) : ''; };
     const buysOf = (r) => {
       const ts = TR.filter((t) => t.holding === r.holding).sort((a, b) => new Date(a.at) - new Date(b.at));
       // only the buys since this holding was last sold off completely
       let start = 0; ts.forEach((t, k) => { if ((t.action === 'Sell' || t.action === 'Cover') && t.outcome !== 'partial' && k < ts.length - 1 && ts.slice(k + 1).some((x) => x.action === 'Buy' || x.action === 'Short')) start = k + 1; });
-      const open = ts.slice(start).filter((t) => t.action === 'Buy' || t.action === 'Short');
+      const open = ts.slice(start).filter((t) => t.action === 'Buy' || t.action === 'Short' || t.action === 'Sell' || t.action === 'Cover');   // trims show too (Oct 29 review)
       const box = mk('span', 'st-alloc-buys');
       const short = Number(r.quantity) < 0;
       if (!open.length) { const e = r.entry_usd != null ? r.entry_usd : r.entry_local; box.appendChild(mk('span', '', 'Bought before the Oct 28 restart' + (pxTxt(r, e) ? ' at ' + pxTxt(r, e) : ''))); return box; }
@@ -4335,7 +4337,8 @@ body { background:var(--color-bg); }
       if (older.length) { more = mk('details', 'st-alloc-more'); more.appendChild(mk('summary', '', older.length + ' earlier ' + (older.length === 1 ? 'one' : 'ones'))); box.appendChild(more); }
       open.forEach((t, k) => {
         const ln = mk('span'); ln.title = stFmt.when(t.at);
-        ln.append(document.createTextNode((TRADE_VERB[t.action] || t.action) + ' '), mk('b', '', stFmt.whenET(t.at) + ' ET'));
+        const trim = t.action === 'Sell' || t.action === 'Cover';
+        ln.append(document.createTextNode((TRADE_VERB[t.action] || t.action) + (trim ? ' part ' : ' ')), mk('b', '', stFmt.whenET(t.at) + ' ET'));
         const px = pxTxt(r, t.price_local != null ? t.price_local : t.price_usd, t), am = amtTxt(t);
         ln.append(document.createTextNode((px ? ' at ' : ''))); if (px) ln.appendChild(mk('b', '', px));
         if (am) ln.append(document.createTextNode(' · ' + am));
@@ -4343,7 +4346,8 @@ body { background:var(--color-bg); }
       });
       const e = r.entry_usd != null ? r.entry_usd : r.entry_local, now = r.price_usd != null ? r.price_usd : r.price_local;
       const tail = [];
-      if (open.length > 1 && pxTxt(r, e)) tail.push('Average ' + (short ? 'price' : 'price paid') + ': ' + pxTxt(r, e));
+      if (open.filter((t) => t.action === 'Buy' || t.action === 'Short').length > 1 && pxTxt(r, e)) tail.push('Average ' + (short ? 'price' : 'price paid') + ': ' + pxTxt(r, e));
+      if (open.some((t) => t.action === 'Sell' || t.action === 'Cover')) { const c = Math.abs(Number(pf === 'China' ? r.cost_usd : r.cost_cad)); if (isFinite(c) && c) tail.push('Still in: ' + stFmt.money(c, pf) + ' at cost'); }
       if (pxTxt(r, now) && !isUsd(r)) { const ch = e && now ? (now / e - 1) : null; tail.push('Now ' + pxTxt(r, now) + (ch != null && isFinite(ch) && !isJpy(r) ? ' (' + stFmt.pct(ch) + ')' : '')); }
       if (tail.length) box.appendChild(mk('span', '', tail.join(' · ')));
       return box;
@@ -5638,7 +5642,12 @@ body { background:var(--color-bg); }
     const v = FC[f.verdict] || FC.unverified;
     const by = AIS[f.checker || 'claude'] ? AIS[f.checker || 'claude'].label : 'Claude';
     p.appendChild(mk('b', v[1], 'Fact check by ' + by + ' · ' + v[0]));
-    p.appendChild(document.createTextNode(f.text + ' '));
+    const NOSEARCH = 'Not checked against the web this time (no search was run). ', txt = String(f.text || '');
+    if (txt.startsWith(NOSEARCH)) {   // no web search ran: the checker's words are only its own view, so they are not shown as a verdict (Oct 29 review)
+      p.appendChild(document.createTextNode(' Not checked against the web this time (no search was run), so this is only ' + by + '’s own view: “' + txt.slice(NOSEARCH.length).trim() + '”'));
+      return p;
+    }
+    p.appendChild(document.createTextNode(' ' + txt + ' '));
     if (f.source) { const a = mk('a', '', 'Source'); a.href = f.source; a.target = '_blank'; a.rel = 'noopener'; p.appendChild(a); }
     return p;
   };

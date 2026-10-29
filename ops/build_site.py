@@ -952,6 +952,13 @@ data['day_reports'] = r.get('day_reports', [])   # Gemini's and ChatGPT's own Ra
 data['rivals_thoughts'] = [x for x in r.get('thoughts', []) if x['at'].replace('Z', '+00:00') >= _cut]
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import model_views
+# Claude's "vs. just holding Bitcoin" starts at the Oct 28 restart too, at the restart's exchange rate (the rate every AI's
+# first trades filled at), so all three views show the same benchmark (Oct 29 review: it still had the 9:50 a.m. rate)
+_RST = datetime(2026, 10, 28, 17, 44, tzinfo=timezone.utc)
+_fx0 = model_views._fx_at(r.get('trades', []), _RST)
+for _b in data.get('benchmark') or []:
+    if _fx0 and _b.get('btc_start_usd') and _b.get('start_at') and _when(_b['start_at']) < _RST:
+        _b.update(start_at=_RST.isoformat(), fx_start=_fx0)
 data['models'] = model_views.build(r, {k: data[k] for k in ('indexes', 'bench_history', 'benchmark', 'prices', 'events')} | {'fx': json.load(open(os.path.join(SRC, 'fx.json')))})
 times = [r['at'] for r in data['log'] + data['history']]
 data['meta'] = [{'refreshed_at': max(times, key=lambda t: datetime.fromisoformat(t))}]
@@ -978,6 +985,21 @@ except Exception as _e:
 json.dump(_aud, open(os.path.join(OUT, 'audit.json'), 'w'), separators=(',', ':'), ensure_ascii=False)
 # data.ver: a tiny fingerprint of the data (also stored inside data.json as "ver"). Open pages check data.ver every minute
 # and download data.json only when it changed.
+# A US dollar position is always worth US$1 in US dollars; what moves its C$ value is USD/CAD, so its price source is the
+# exchange rate and where it came from (Oct 29 review: it said only "fixed")
+try:
+    _fxc = json.load(open(os.path.join(SRC, 'fx.json')))
+except Exception:
+    _fxc = {}
+def _usd_src(rows, rate, src, at):
+    for _h in rows or []:
+        if str(_h.get('holding', '')).startswith('US dollar') and str(_h.get('price_source') or '').lower() in ('fixed', 'unit', '') and abs(float(_h.get('quantity') or 0)) > 1e-9 and rate:
+            _h['price_source'] = src if src and 'USD/CAD' in src else f"USD/CAD {float(rate):.4f}" + (f" from {src}" if src else '')
+            if at:
+                _h['price_at'] = at
+_usd_src(data.get('holdings'), _fxc.get('usdcad'), _fxc.get('usdcad_source'), _fxc.get('usdcad_at'))
+for _mid, _mv in (data.get('models') or {}).items():
+    _usd_src(_mv.get('holdings'), (r.get('fx') or {}).get('USDCAD'), 'Yahoo Finance', None)
 import hashlib as _hl
 data.pop('ver', None)
 data['page_ver'] = PAGE_VER
