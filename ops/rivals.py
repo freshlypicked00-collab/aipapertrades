@@ -1004,6 +1004,7 @@ def tg_photo(text, photo, silent=False):   # every trade, bet and result pings (
     try:
         req = urllib.request.Request(f'https://api.telegram.org/bot{tok}/sendPhoto', b''.join(parts), {'Content-Type': f'multipart/form-data; boundary={b}'})
         urllib.request.urlopen(req, timeout=30).read()
+        TGSTAT['sent'] += 1
     except Exception as e:
         print('telegram photo failed', e)
         tg(text)
@@ -1055,6 +1056,9 @@ def chart(label, color, exp, state, mid):
         return None
 
 
+TGSTAT = {'sent': 0, 'failed': 0, 'error': ''}   # this run's Telegram results, saved in state['telegram'] for the status panel and health check
+
+
 def tg(text, silent=False):
     tok, chat = os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID')
     if not (tok and chat):
@@ -1063,8 +1067,11 @@ def tg(text, silent=False):
     data = urllib.parse.urlencode({'chat_id': chat, 'text': text, 'parse_mode': 'HTML', 'disable_web_page_preview': 'true', 'disable_notification': 'true' if silent else 'false'}).encode()
     try:
         urllib.request.urlopen(f'https://api.telegram.org/bot{tok}/sendMessage', data, timeout=20).read()
+        TGSTAT['sent'] += 1
     except Exception as e:
         print('telegram failed', e)
+        TGSTAT['failed'] += 1
+        TGSTAT['error'] = str(e)[:160]
 
 
 def esc(s):
@@ -1808,11 +1815,38 @@ def main():
         except Exception:
             pass
     state['fx_all'] = allfx
+    try:   # market pulse and the site's ticker: main prices with their 1-hour, 3-hour, 24-hour and 7-day change (Yahoo, 5-minute bars)
+        pulse, tick = {}, []
+        RACE_OF = {'BTC-USD': 'Crypto', '^GSPC': 'Stocks', 'CL=F': 'Energy', 'GC=F': 'Metals', '000300.SS': 'China', 'JPY=X': 'Currencies'}
+        for sym, name in (('BTC-USD', 'Bitcoin'), ('ETH-USD', 'Ethereum'), ('SOL-USD', 'Solana'), ('^GSPC', 'S&P 500'), ('^IXIC', 'Nasdaq'), ('^DJI', 'Dow Jones'),
+                          ('GC=F', 'Gold'), ('SI=F', 'Silver'), ('CL=F', 'Oil (WTI)'), ('000300.SS', 'CSI 300'), ('^HSI', 'Hang Seng'), ('CAD=X', 'USD/CAD'), ('JPY=X', 'USD/JPY'), ('EURUSD=X', 'EUR/USD')):
+            try:
+                j = get_json(f'https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(sym)}?range=7d&interval=5m', timeout=20)['chart']['result'][0]
+                pts = [(t, c) for t, c in zip(j.get('timestamp') or [], j['indicators']['quote'][0].get('close') or []) if c is not None]
+                if len(pts) < 2:
+                    continue
+                t1, last = pts[-1]
+                ago = lambda h: next((c for t, c in reversed(pts) if t <= t1 - h * 3600), pts[0][1])
+                row = {'sym': sym, 'name': name, 'cur': j['meta'].get('currency') or 'USD', 'price': round(last, 6),
+                       'last_at': datetime.fromtimestamp(t1, timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                       'chg_1h': round(last / ago(1) - 1, 5), 'chg_3h': round(last / ago(3) - 1, 5), 'chg_24h': round(last / ago(24) - 1, 5), 'chg_7d': round(last / pts[0][1] - 1, 5)}
+                tick.append(row)
+                if sym in RACE_OF:
+                    pulse[RACE_OF[sym]] = row
+            except Exception as e:
+                print(f'pulse {sym} failed: {str(e)[:80]}')
+        state['pulse'] = {'at': iso(), 'moves': pulse, 'ticker': tick}
+    except Exception as e:
+        print('pulse failed', e)
     try:
         g = espn_games()
         state['feeds'] = {'at': iso(), 'espn_games': len(g), 'open_with_moneylines': sum(1 for x in g.values() if x['state'] == 'pre' and x['home_ml'] and x['away_ml'])}
     except Exception as e:
         state['feeds'] = {'at': iso(), 'error': str(e)[:200]}
+    if TGSTAT['sent'] or TGSTAT['failed']:   # Telegram health: last success, consecutive failed sends
+        t0 = state.get('telegram') or {}
+        state['telegram'] = {'at': iso(), 'last_ok': iso() if TGSTAT['sent'] else t0.get('last_ok'), 'sent': TGSTAT['sent'], 'failed': TGSTAT['failed'],
+                             'fail_streak': 0 if TGSTAT['sent'] else int(t0.get('fail_streak', 0)) + TGSTAT['failed'], 'error': TGSTAT['error'] or ('' if TGSTAT['sent'] else t0.get('error', ''))}
     try:
         compact(state)
     except Exception as e:

@@ -159,6 +159,33 @@ jobs:
                   print(f"- Claude: no update for {int((now - last).total_seconds() // 3600)} hours (last {last.isoformat()}). Its scheduled tasks may be paused or failing.")
           except Exception as e:
               print(f'- could not read Claude history: {e}')
+          # serious problems only (owner's rule, Oct 29): failed public posts, cap breaches, duplicate trades
+          tg = s.get('telegram') or {}
+          if tg.get('fail_streak', 0) >= 3:
+              print(f"- Telegram: the last {tg['fail_streak']} posts failed ({tg.get('error', '')[:120]}). Check the bot token and that the bot is still an admin of the channel.")
+          try:   # Claude's holdings over a cap (checked from Oct 29 10:30 a.m. ET, after the SGOV fix at the US open)
+              if now >= datetime(2026, 10, 29, 14, 30, tzinfo=timezone.utc):
+                  hold = json.load(open('ops/src/holdings.json'))
+                  CAP = {'Safe': 0.5, 'Stocks': 0.5, 'Crypto': 0.5, 'China': 0.5, 'Metals': 0.5, 'Energy': 0.5, 'Options': 0.5, 'Predictions': 0.25}
+                  tot = {}
+                  for x in hold:
+                      tot[x['portfolio']] = tot.get(x['portfolio'], 0) + float(x.get('value_cad') or x.get('value_usd') or 0)
+                  for x in hold:
+                      pf, v = x['portfolio'], float(x.get('value_cad') or x.get('value_usd') or 0)
+                      if pf in CAP and not str(x['holding']).startswith('Cash') and tot.get(pf) and v / tot[pf] > CAP[pf] + 0.05:
+                          print(f"- Claude: {x['holding']} is {v / tot[pf]:.0%} of {pf}, over the {CAP[pf]:.0%} cap.")
+          except Exception as e:
+              print(f'- could not check caps: {e}')
+          try:   # the same trade recorded twice within 2 minutes
+              seen = {}
+              for t in s.get('trades', [])[-300:]:
+                  k = (t.get('model'), t.get('experiment'), t.get('action'), t.get('symbol'), round(float(t.get('amount') or 0), 2))
+                  at = datetime.fromisoformat(t['at'].replace('Z', '+00:00'))
+                  if k in seen and abs((at - seen[k]).total_seconds()) <= 120 and t.get('action') in ('Buy', 'Sell', 'Short', 'Cover', 'Bet') and now - at < timedelta(hours=6):
+                      print(f"- {t.get('model')}: the same {t.get('action')} of {t.get('symbol')} was recorded twice within 2 minutes ({t['at']}).")
+                  seen[k] = at
+          except Exception as e:
+              print(f'- could not check duplicates: {e}')
           PY
           fails=$(gh run list -R "$GITHUB_REPOSITORY" -w rivals.yml -L 6 --json status,conclusion --jq '[.[] | select(.status == "completed")][:3] | map(select(.conclusion == "failure")) | length' 2>/dev/null || echo 0)
           [ "$fails" = 3 ] && echo "- The Gemini and ChatGPT workflow failed its last 3 runs: https://github.com/$GITHUB_REPOSITORY/actions/workflows/rivals.yml" >> /tmp/alert.txt

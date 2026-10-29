@@ -405,6 +405,7 @@
   .goog-te-banner-frame, .skiptranslate > iframe, iframe.skiptranslate, #goog-gt-tt, .goog-te-balloon-frame, .VIpgJd-ZVi9od-ORHb-OEVmcd, .VIpgJd-ZVi9od-aZ2wEe-wOHMyf { display: none !important; }
   body { top: 0 !important; }
   .goog-text-highlight { background: none !important; box-shadow: none !important; }
+  html.pt-tr-wait body { opacity: 0; } html body { transition: opacity .15s; }
   #google_translate_element { display: none; }
   .pt-banner-short { display: none; }
   .hook-more { display: none; }
@@ -504,6 +505,28 @@
   .pd-follow-why { margin: 4px 0 8px; }
   .pd-mom-k { font-style: normal; margin-right: 6px; } .pd-mom-win .pd-mom-k { color: var(--color-ok, #3ddc84); } .pd-mom-loss .pd-mom-k, .pd-mom-penalty .pd-mom-k, .pd-mom-factcheck .pd-mom-k, .pd-mom-busted .pd-mom-k { color: var(--color-bad, #ff5a4e); }
   .pd-mom-more summary { cursor: pointer; font-size: 12.5px; color: var(--color-fg-muted); margin-top: 6px; } .pd-mom-rule { margin: 2px 0 6px; }
+  .st-status-dot { font: inherit; font-size: 12px; letter-spacing: .04em; background: transparent; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 3px 10px; cursor: pointer; color: var(--color-fg-muted); }
+  .st-status-dot.is-up { color: var(--color-ok, #3ddc84); } .st-status-dot.st-warn, td.st-warn { color: #ffb000; } .st-status-dot.is-down { color: var(--color-bad, #ff5a4e); }
+  .st-status-t td:first-child { white-space: nowrap; font-weight: 600; } .st-status-t td:nth-child(2) { white-space: nowrap; }
+  .pt-livebox { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 3px 6px 3px 4px; font-size: 12px; white-space: nowrap; }
+  .pt-livebox .st-live-badge { display: inline-flex; align-items: center; gap: 4px; background: #e5383b; color: #fff; font-size: 10.5px; font-weight: 800; letter-spacing: .08em; padding: 2px 6px; border-radius: 4px; }
+  .pt-livebox .st-live-dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; animation: pt-pulse 1.4s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) { .pt-livebox .st-live-dot { animation: none; } }
+  .pt-livebox-t { color: var(--color-fg-muted); letter-spacing: .02em; margin-right: 2px; }
+  .pt-livebox-a { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; color: #fff; text-decoration: none; }
+  .m-menu-live { margin: 2px 0 8px; } .m-menu-live .pt-livebox-a { width: 34px; height: 34px; }
+  .pt-lb-tg { background: #29a9eb; } .pt-lb-ig { background: #c13584; } .pt-lb-x { background: #111; border: 1px solid #444; }
+  .pt-livebox-a:hover { filter: brightness(1.15); }
+  .pt-ticker:empty { display: none; }
+  .pt-ticker { position: relative; overflow: hidden; margin: 10px 0 0; border-top: 1px solid color-mix(in srgb, var(--accent, #ffb000) 55%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--accent, #ffb000) 55%, transparent); background: var(--accent-bg, rgba(255,176,0,.06)); transition: border-color .3s, background .3s; -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }
+  .pt-tk-row { display: inline-flex; white-space: nowrap; animation: pt-tk var(--pt-tk-d, 60s) linear infinite; will-change: transform; }
+  .pt-ticker:hover .pt-tk-row { animation-play-state: paused; }
+  @keyframes pt-tk { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .pt-tk-i { display: inline-flex; align-items: baseline; gap: 8px; padding: 7px 22px; font-family: var(--font-mono, monospace); font-size: 13px; border-right: 1px solid color-mix(in srgb, var(--accent, #ffb000) 30%, transparent); }
+  .pt-tk-n { font-weight: 700; color: var(--accent, #ffb000); letter-spacing: .04em; text-transform: uppercase; font-size: 12px; }
+  .pt-tk-p { color: var(--color-fg); font-weight: 600; }
+  .pt-tk-c { font-size: 12px; } .pt-tk-c.is-up { color: var(--color-ok, #3ddc84); } .pt-tk-c.is-down { color: var(--color-bad, #ff5a4e); }
+  @media (prefers-reduced-motion: reduce) { .pt-tk-row { animation: none; } .pt-ticker { overflow-x: auto; } }
   .pa-sum { margin: 6px 0 10px; } .pa-sum b { margin-right: 4px; }
   .lg-csv { font: inherit; font-size: 13px; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
   .lg-csv:hover { border-color: var(--accent, #ffb000); }
@@ -597,9 +620,15 @@
     .st-tabs-tools .st-tt-clock b { color: var(--accent, #ffb000); font-weight: 500; font-size: 13px; letter-spacing: .02em; margin-right: 6px; }
     .st-tabs-tools .st-tt-theme { font: inherit; font-family: var(--font-mono, monospace); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 6px 12px; min-height: 32px; cursor: pointer; white-space: nowrap; }
     .st-tabs-tools select { font: inherit; font-size: 13px; letter-spacing: 0; text-transform: none; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 5px 8px; min-height: 32px; max-width: 170px; }
-    @media (max-width: 1099px) { .st-tabs-tools .st-tt-clock { display: none; } }
     .st-tabs-tools .st-tt-brand { margin-right: auto; display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--color-fg); font-family: var(--font-mono, monospace); font-size: 15px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
     .st-tabs-tools .st-tt-brand svg { width: 30px; height: 30px; flex: none; }
+    .st-tabs-tools .st-tt-brand { margin-right: 0; }
+    .st-tabs-tools .st-tt-live { margin-right: auto; }
+    .st-tabs-tools .st-tt-brand span, .st-tabs-tools .st-tt-clock { white-space: nowrap; }
+    .st-tabs-tools .st-tt-brand { font-size: 14px; letter-spacing: .12em; }
+    @media (max-width: 1499px) { .st-tabs-tools .st-tt-clock { display: none; } }
+    @media (max-width: 1349px) { .st-tabs-tools .pt-livebox-t, .st-tabs-tools .st-tt > span { display: none; } }
+    @media (max-width: 1199px) { .st-tabs-tools .st-tt-brand span { display: none; } .st-tabs-tools select { max-width: 150px; } }
     .st-tabs-tools .st-tt-brand:hover span { color: #4cc283; }
   }
   .st-tabs { position: sticky; top: 0; z-index: 40; background: var(--color-bg); margin: 8px 0 14px; padding-top: 2px; box-shadow: 0 6px 12px -10px rgba(0,0,0,.6); }
@@ -825,6 +854,7 @@ body { background:var(--color-bg); }
   <script>
     (function () {
       var el = document.getElementById('pt-splash'); if (!el) return;
+      try { if (sessionStorage.getItem('pt-nosplash')) { sessionStorage.removeItem('pt-nosplash'); el.remove(); return; } } catch (e) {}
       if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) { el.remove(); return; }
       var n = el.querySelector('.sp-name'), t = n.textContent; n.textContent = '';
       for (var i = 0; i < t.length; i++) { var s = document.createElement('span'); s.textContent = t[i] === ' ' ? '\u00a0' : t[i]; s.style.animationDelay = (0.45 + i * 0.04) + 's'; n.appendChild(s); }
@@ -852,10 +882,12 @@ body { background:var(--color-bg); }
       <span class="st-clock">Hong Kong <b class="st-count" data-draw="clock-hk">—</b></span>
       <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b></span>
       <span class="st-clock st-since"><span class="st-since-who">Last update</span> <b class="st-count" data-draw="since-update">—</b></span>
+      <button type="button" class="st-status-dot" data-draw="statusdot" data-source="status" title="System status">—</button>
       <span class="st-clock"><span class="st-mkt" data-draw="market">—</span> <span class="st-mkt" data-draw="market-cn">—</span></span>
       <label class="st-lang notranslate" translate="no" title="Language"><span aria-hidden="true">🌐</span><select id="lang-pick" aria-label="Language"><option value="en">English</option><option value="zh-CN">中文 (简体)</option><option value="zh-TW">中文 (繁體)</option><option value="hi">हिन्दी</option><option value="es">Español</option><option value="fr">Français</option><option value="ar">العربية</option><option value="bn">বাংলা</option><option value="pt">Português</option><option value="ru">Русский</option><option value="id">Bahasa Indonesia</option><option value="ur">اردو</option><option value="de">Deutsch</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="tr">Türkçe</option></select></label> <button type="button" class="st-theme" id="sound-btn" aria-pressed="false" title="Play a cha-ching when an AI makes C$100 or more">🔈 Sound off</button> <button type="button" class="st-theme" id="beginner-btn" aria-pressed="false" title="Plain-English explanations for people new to markets and betting">🎓 Beginner</button> <button type="button" class="st-theme" id="theme-btn">Light mode</button>
     </p>
     <p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>
+    <div class="pt-ticker" data-draw="ticker" data-source="ticker" aria-label="Market prices"></div>
   </header>
     <section class="st-live st-live-top" aria-labelledby="h-live">
       <div class="st-live-hook">
@@ -901,7 +933,7 @@ body { background:var(--color-bg); }
     </nav>
   <div class="st-head st-head2">
     <div class="st-hook">
-      <aside class="st-podium" data-draw="podium" data-source="exp_standings moments moments_all history rivals_history fx_all fx_meta bets rivals_models" aria-label="Race standings"></aside>
+      <aside class="st-podium" data-draw="podium" data-source="exp_standings moments moments_all history rivals_history fx_all fx_meta bets rivals_models pulse" aria-label="Race standings"></aside>
       <p class="st-hook-q">Which AI makes the most money in real markets?</p>
       <p class="st-hook-sub" id="hook-sub">Claude, Gemini and ChatGPT trade head to head from Oct 28 to Nov 28. Each AI runs its own separate copy of all ten experiments with C$100,000 of pretend money each and real-world prices. They are being tested publicly, in real time: every trade, bet and reason is published here as it happens, win or lose. Each AI makes every decision by itself, with no human picking trades, and this page is managed and updated automatically by AI.</p>
       <p class="st-take"><span class="st-take-l">Claude's current take</span><span data-draw="take" data-source="take">—</span></p>
@@ -2147,6 +2179,11 @@ body { background:var(--color-bg); }
       <p class="st-note">Every rule of the race, then proof that nobody steers the AIs: exactly what each AI is told at its latest check-in, word for word, and the raw reply it sent back, plus every correction made by hand. How prices and fills work is in <a href="#" data-goto="rules">How it works</a>; every trade, price and reason is in the Ledger.</p>
       <div data-draw="audit" data-source="checkins"></div>
     </section>
+    <section class="st-card" id="status" aria-labelledby="h-status">
+      <h2 class="st-h2" id="h-status">System status</h2>
+      <p class="st-note">Everything here runs by itself. This shows when each part last worked, so you can see at a glance whether the race is live and up to date. Times are checked again every minute.</p>
+      <div data-draw="status" data-source="status"></div>
+    </section>
     <section class="st-card" aria-labelledby="h-pa">
       <h2 class="st-h2" id="h-pa">Price check: Claude’s prices vs the feeds</h2>
       <p class="st-note">Gemini’s and ChatGPT’s trades are filled by the race’s code straight from the price feeds. Claude looks its prices up itself, so after every Gemini and ChatGPT check-in the same code compares every price Claude used since the Oct 28 restart, for its trades and its daily values, with the feed at that time: Yahoo Finance one-minute prices (regular session) and Polymarket’s price history. A price passes when it is inside the feed’s low–high range at that time, within 0.5% for stocks, funds, currencies and China ETFs, 1% for crypto, 1.5–2% for metals (Claude uses spot, the feed is futures) and 3 cents for prediction markets. A flag is checked by hand and becomes a correction only if the price was really wrong.</p>
@@ -2305,6 +2342,19 @@ body { background:var(--color-bg); }
     document.querySelectorAll('[data-page]').forEach((s) => { s.hidden = s.dataset.page !== name; });
     document.querySelectorAll('.st-tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
   };
+  // the LIVE alerts box: Telegram, Instagram and X, for the sticky bar and the phone menu (icons copied from the LIVE bar's buttons)
+  const liveBox = (cls) => {
+    const w = document.createElement('span'); w.className = 'pt-livebox ' + (cls || '');
+    const b = document.createElement('span'); b.className = 'st-live-badge'; b.innerHTML = '<span class="st-live-dot" aria-hidden="true"></span>LIVE'; w.appendChild(b);
+    const t = document.createElement('span'); t.className = 'pt-livebox-t'; t.textContent = 'Real-time alerts'; w.appendChild(t);
+    const src = { tg: document.querySelector('.st-live-top a[href*="t.me"] svg'), x: document.querySelector('.st-follow-x svg') };
+    [['https://t.me/PaperTradesAI', 'Telegram: every trade, bet and result as it happens', 'tg'], ['https://www.instagram.com/papertrades.ai/', 'Instagram: daily results and lead changes', 'ig'], ['https://x.com/papertradesai', 'X', 'x']].forEach(([href, title, k]) => {
+      const a = document.createElement('a'); a.className = 'pt-livebox-a pt-lb-' + k; a.href = href; a.target = '_blank'; a.rel = 'noopener'; a.title = title; a.setAttribute('aria-label', title);
+      if (k === 'ig') a.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.3" cy="6.7" r="1.3" fill="currentColor"/></svg>'; else if (src[k]) { const sv = src[k].cloneNode(true); sv.setAttribute('width', '15'); sv.setAttribute('height', '15'); a.appendChild(sv); } else a.textContent = k.toUpperCase();
+      w.appendChild(a); });
+    return w;
+  };
+  window.ptLiveBox = liveBox;
   const goTab = (name, jump) => {
     showTab(name); dash.setLink(name);
     { const t = document.querySelector('.st-tab[aria-selected="true"]'); const bar = document.querySelector('.st-tabs'); if (t && bar && bar.scrollWidth > bar.clientWidth) bar.scrollTo({ left: t.offsetLeft - bar.clientWidth / 2 + t.offsetWidth / 2, behavior: 'smooth' }); }
@@ -2344,6 +2394,7 @@ body { background:var(--color-bg); }
     { const lg = mk('a', 'st-tt-brand'); lg.href = '#'; lg.setAttribute('aria-label', 'Paper Trades: back to Home');
       lg.innerHTML = '<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#17201c"/><path d="M7 22l6-6 4 4 8-9" stroke="#4cc283" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Paper Trades</span>';
       lg.addEventListener('click', (e) => { e.preventDefault(); if (window.ptHome) window.ptHome(); else window.scrollTo(0, 0); }); box.appendChild(lg); }
+    box.appendChild(liveBox('st-tt-live'));
     const mirror = (src, label) => {
       const l = mk('label', 'st-tt'); l.appendChild(mk('span', '', label));
       const sel = mk('select'); sel.setAttribute('aria-label', label); l.appendChild(sel);
@@ -2414,6 +2465,7 @@ body { background:var(--color-bg); }
       };
       const top = document.createElement('div'); top.className = 'm-menu-group';
       { const gb = document.createElement('button'); gb.type = 'button'; const on0 = document.documentElement.dataset.beginner === '1'; gb.textContent = on0 ? '🎓 Beginner mode: on (tap to turn off)' : '🎓 Beginner mode (plain-English explanations)'; gb.addEventListener('click', () => { toggle(false); if (window.ptSetBeginner) window.ptSetBeginner(!on0); }); top.appendChild(gb); }
+      if (window.ptLiveBox) { const lb = window.ptLiveBox('m-menu-live'); top.appendChild(lb); }
       { const hb = document.createElement('button'); hb.type = 'button'; hb.textContent = '⌂ Home (top of the page)'; hb.addEventListener('click', () => { toggle(false); if (window.ptHome) window.ptHome(); }); top.appendChild(hb); }
       [...nav.children].forEach((c) => {
         if (c.classList.contains('st-tab')) addBtn(c, top);
@@ -4012,7 +4064,8 @@ body { background:var(--color-bg); }
     const again = SAY.btn === btn;
     stopSay();
     if (again) return;
-    const L = window.PT_LANG && window.PT_LANG !== 'en' ? window.PT_LANG : 'en-US';
+    const L = window.PT_LANG && window.PT_LANG !== 'en' ? (BCP47[window.PT_LANG] || window.PT_LANG) : 'en-US';
+    if (L !== 'en-US' && btn) { const t2 = shownText(btn); if (t2) text = t2; }   // read the translated words on screen, not the English original
     const u = new SpeechSynthesisUtterance(L === 'en-US' ? sayable(text) : text); u.rate = 1; u.lang = L;
     u.onend = u.onerror = () => { if (SAY.btn === btn) stopSay(); };
     SAY.btn = btn; SAY.el = el || null;
@@ -4032,6 +4085,16 @@ body { background:var(--color-bg); }
   };
   const FEMALE_HINT = /female|Aria|Jenny|Ava|Emma|Samantha|Zira|Karen|Moira|Tessa|Serena|Allison|Susan|Victoria|Google US English$/i;
   const VOICE_CACHE = {};
+  const BCP47 = { 'zh-CN': 'zh-CN', 'zh-TW': 'zh-TW', hi: 'hi-IN', es: 'es-ES', fr: 'fr-FR', ar: 'ar-SA', bn: 'bn-IN', pt: 'pt-BR', ru: 'ru-RU', id: 'id-ID', ur: 'ur-PK', de: 'de-DE', ja: 'ja-JP', ko: 'ko-KR', tr: 'tr-TR' };
+  // female voice names across Windows/Edge, Chrome, Apple and Android for the other languages (used to tell the two voices apart)
+  const FEMALE_INTL = /Helena|Laura|Elvira|Dalia|Hortense|Julie|Denise|Hedda|Katja|Amala|Seraphina|Ayumi|Haruka|Nanami|Kyoko|Heami|SunHi|Yuna|Huihui|Xiaoxiao|Xiaoyi|Yaoyao|Hanhan|HsiaoChen|HsiaoYu|Tracy|Ting-?Ting|Mei-?Jia|Sin-?ji|Irina|Svetlana|Dariya|Milena|Kalpana|Swara|Lekha|Heera|Maria|Francisca|Luciana|Joana|Thalita|Seda|Emel|Yelda|Zariyah|Salma|Hoda|Laila|Gadis|Damayanti|Uzma|Tanishaa|Nabanita|Monica|Paulina|Amelie|Marie|Anna|Sara|female|femme|weiblich|mujer|feminina/i;
+  // the visible (translated) text of the block a Listen button belongs to, without the buttons themselves
+  const shownText = (btn) => {
+    const box = btn.closest('.st-report-body, .lg-review-box, .ai-words, .st-take, .st-plan, li, p, .st-card') || btn.parentElement; if (!box) return '';
+    const c = box.cloneNode(true); c.querySelectorAll('button, select, svg, .say-pair, .listen-pair, .bg-pop').forEach((x) => x.remove());
+    c.querySelectorAll('*').forEach((x) => x.append(' '));   // keep words from separate lines apart
+    return c.textContent.replace(/\s+/g, ' ').replace(/\s+([,.;:!?)])/g, '$1').trim();
+  };
   const pickVoice = (L, g) => {
     const key = L + ':' + g;
     if (VOICE_CACHE[key]) return VOICE_CACHE[key];
@@ -4040,8 +4103,15 @@ body { background:var(--color-bg); }
     const pool = en ? vs.filter((x) => /^en[-_](US|CA|GB|AU|IE)/i.test(x.lang)) : vs.filter((x) => x.lang.toLowerCase().replace('_', '-').startsWith(L.toLowerCase().split('-')[0]));
     let v = null;
     if (g === 'm') {   // male: the browser's own default voice (the one heard before), unless that default is a female voice
-      const d = vs.find((x) => x.default && (!en || /^en/i.test(x.lang)));
+      const d = vs.find((x) => x.default && (en ? /^en/i.test(x.lang) : x.lang.toLowerCase().replace('_', '-').startsWith(L.toLowerCase().split('-')[0])));
       if (d && !FEMALE_HINT.test(d.name)) { VOICE_CACHE[key] = d; return d; }
+    }
+    if (!en && pool.length) {   // other languages: the female voice by name (natural first), the male one = any other voice of that language
+      const nat = (x) => /natural|online|premium|enhanced|neural/i.test(x.name), fem = (x) => FEMALE_INTL.test(x.name) || FEMALE_HINT.test(x.name);
+      const exact = (x) => x.lang.toLowerCase().replace('_', '-') === L.toLowerCase();
+      const sorted = pool.slice().sort((a, b) => (exact(b) - exact(a)) || (nat(b) - nat(a)));
+      v = g === 'f' ? (sorted.find(fem) || sorted[0]) : (sorted.find((x) => !fem(x)) || sorted[0]);
+      VOICE_CACHE[key] = v; return v;
     }
     for (const re of VOICE_PREF[g]) { v = pool.find((x) => re.test(x.name) && (g === 'f' || !FEMALE_HINT.test(x.name))); if (v) break; }
     if (!v && g === 'm') v = pool.find((x) => !FEMALE_HINT.test(x.name));
@@ -4490,10 +4560,25 @@ body { background:var(--color-bg); }
         n.append(document.createTextNode('The translator didn’t load. '), a, document.createTextNode(' '), x); document.body.appendChild(n);
       }, 8000);
     };
-    if (lang !== 'en') load(); else cookie(null);
+    if (lang !== 'en') {
+      const H = document.documentElement; H.classList.add('pt-tr-wait');
+      const show = () => H.classList.remove('pt-tr-wait');
+      new MutationObserver(() => { if (/translated-(ltr|rtl)/.test(H.className)) show(); }).observe(H, { attributes: true, attributeFilter: ['class'] });
+      setTimeout(show, 2500);
+      load();
+    } else cookie(null);
     sel.addEventListener('change', () => {
-      try { localStorage.setItem('pt-lang', sel.value); } catch (e) {}
-      cookie(sel.value === 'en' ? null : sel.value);
+      const v = sel.value;
+      try { localStorage.setItem('pt-lang', v); } catch (e) {}
+      cookie(v === 'en' ? null : v);
+      // switch in place when Google's translator is already on the page: no reload, no flash, no opening animation
+      const combo = document.querySelector('.goog-te-combo');
+      if (v !== 'en' && combo) {
+        window.PT_LANG = v; document.documentElement.lang = v; document.documentElement.dir = (v === 'ar' || v === 'ur') ? 'rtl' : 'ltr';
+        combo.value = v; combo.dispatchEvent(new Event('change')); return;
+      }
+      // otherwise (first switch away from English, or back to English) reload without the opening animation, hidden until translated
+      try { sessionStorage.setItem('pt-nosplash', '1'); } catch (e) {}
       location.reload();
     });
   })();
@@ -4562,6 +4647,59 @@ body { background:var(--color-bg); }
     };
     dSel.addEventListener('change', fill);
     dLab.appendChild(dSel); rLab.appendChild(rSel); bar.append(dLab, rLab); el.append(bar, box); fill(); sharedBox();
+  });
+  // ---------- system status: when each part last worked (ok / late / down), judged on the visitor's clock
+  const statusRows = () => {
+    const S = dash.baseData('status')[0]; if (!S) return null;
+    const now = Date.now(), age = (t) => t ? (now - Date.parse(t)) / 60000 : Infinity;
+    const ago = (t) => { const m = age(t); if (!isFinite(m)) return 'never'; if (m < 1) return 'just now'; if (m < 60) return Math.round(m) + ' min ago'; if (m < 48 * 60) return Math.round(m / 60) + ' h ago'; return Math.round(m / 1440) + ' days ago'; };
+    const by = (m, okMin, downMin) => m <= okMin ? 'ok' : m <= downMin ? 'late' : 'down';
+    const ended = now > Date.parse('2026-11-28T21:30:00Z');
+    const rows = [];
+    rows.push(['Website data', by(age(S.built_at), 80, 180), 'Rebuilt ' + ago(S.built_at) + '. New data appears without reloading the page.']);
+    rows.push(['Claude check-ins', ended ? 'ok' : by(age(S.claude), 80, 180), 'Last check-in ' + ago(S.claude) + '. Expected every hour (every 30 minutes in US market hours).']);
+    Object.entries(S.rivals || {}).forEach(([id, x]) => { if (!AIS[id]) return; let st = ended ? 'ok' : by(age(x.at), 80, 180); if (x.fail_streak >= 3) st = 'down'; else if (x.status && x.status !== 'ok' && st === 'ok') st = 'late';
+      rows.push([AIS[id].label + ' check-ins', st, 'Last check-in ' + ago(x.at) + (x.status && x.status !== 'ok' ? ' · last result: ' + String(x.status).slice(0, 80) : '') + (x.fail_streak ? ' · ' + x.fail_streak + ' failed in a row' : '') + '.']); });
+    const od = S.odds || {}; rows.push(['Sports odds feed (ESPN)', od.error ? 'down' : by(age(od.at), 80, 180), od.error ? 'Last attempt failed: ' + String(od.error).slice(0, 80) : 'Checked ' + ago(od.at) + (od.open_with_moneylines != null ? ' · ' + od.open_with_moneylines + ' games open for betting' : '') + '.']);
+    rows.push(['Prices (Yahoo Finance, Cboe, Polymarket)', (S.prices_missing || []).length ? 'late' : 'ok', (S.prices_missing || []).length ? 'Some prices were missing at the last check-in; the last known price was kept: ' + S.prices_missing[0].slice(0, 90) : 'Every price was found at the last check-in.']);
+    const pc = S.price_check || {}, pcs = pc.summary || {}; rows.push(['Price check of Claude’s prices', pcs.flag ? 'late' : by(age(pc.at), 180, 720), (pcs.flag ? pcs.flag + ' flagged for review · ' : '') + ((pcs.ok || 0) + ' passed') + ' · last new check ' + ago(pc.at) + '.']);
+    const tg = S.telegram || {}; rows.push(['Telegram posts', tg.fail_streak >= 3 ? 'down' : tg.fail_streak ? 'late' : 'ok', tg.last_ok ? 'Last post sent ' + ago(tg.last_ok) + (tg.fail_streak ? ' · ' + tg.fail_streak + ' failed since' : '') + '.' : 'Every trade, bet and result is posted as it happens; send times are recorded from the next check-in.']);
+    const ig = S.instagram || {}; rows.push(['Instagram posts', by(age(ig.last), 30 * 60, 54 * 60), 'Last post ' + ago(ig.last) + ' · ' + (ig.count_24h || 0) + ' in the last 24 hours (a daily post, plus lead changes).']);
+    return rows;
+  };
+  const ST_LABEL = { ok: ['● Working', 'is-up'], late: ['● Delayed', 'st-warn'], down: ['● Not working', 'is-down'] };
+  dash.draw('status', {
+    mount: (el) => { const paint = () => { el.replaceChildren(); const rows = statusRows(); if (!rows) { el.appendChild(mk('p', 'st-note', 'Status appears after the next update.')); return; }
+      const t = mk('table', 'st-table st-status-t'); t.innerHTML = '<thead><tr><th>Part</th><th>Status</th><th>Details</th></tr></thead>'; const tb = mk('tbody');
+      rows.forEach(([k, st, d]) => { const tr = mk('tr'); tr.append(mk('td', '', k), mk('td', ST_LABEL[st][1], ST_LABEL[st][0]), mk('td', 'wrap', d)); tb.appendChild(tr); }); t.appendChild(tb); const w = mk('div', 'st-wrap'); w.appendChild(t); el.appendChild(w); };
+      el._paint = paint; paint(); return setInterval(paint, 60000); },
+    update: (el) => { if (el._paint) el._paint(); },
+  });
+  dash.draw('statusdot', {
+    mount: (el) => { const paint = () => { const rows = statusRows(); if (!rows) { el.textContent = ''; return; } const bad = rows.filter((r) => r[1] === 'down'), late = rows.filter((r) => r[1] === 'late');
+      el.className = 'st-status-dot ' + (bad.length ? 'is-down' : late.length ? 'st-warn' : 'is-up');
+      el.textContent = bad.length ? '● ' + bad[0][0] + ': not working' : late.length ? '● ' + (late.length === 1 ? late[0][0] + ' delayed' : late.length + ' parts delayed') : '● All systems working';
+      el.title = 'System status: tap for details'; };
+      if (!el._on) { el._on = 1; el.addEventListener('click', () => { const tb = document.querySelector('[data-tab="audit"]'); if (tb) tb.click(); setTimeout(() => { const c = document.getElementById('status'); if (c) c.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 120); }); }
+      el._paint = paint; paint(); return setInterval(paint, 60000); },
+    update: (el) => { if (el._paint) el._paint(); },
+  });
+  // ---------- the price ticker under the clocks (like a TV business channel): each asset slides by with its price and its 24-hour and 7-day change
+  dash.draw('ticker', (el) => {
+    const T = dash.baseData('ticker');
+    el.replaceChildren(); if (!Array.isArray(T) || !T.length) return;
+    const SY = { USD: 'US$', CAD: 'C$', CNY: '¥', HKD: 'HK$', JPY: '¥' };
+    const fx = (q) => /=X$/.test(q.sym);
+    const num = (q) => { const v = q.price, s = fx(q) ? '' : (SY[q.cur] || ''); const isIdx = /^\^|000300/.test(q.sym);
+      return (isIdx ? '' : s) + (v >= 1000 ? d3.format(',.0f')(v) : v >= 10 ? d3.format(',.2f')(v) : d3.format(',.4f')(v)); };
+    const pct = (x, lab) => { const sp = mk('span', 'pt-tk-c ' + (x >= 0 ? 'is-up' : 'is-down'), (x >= 0 ? '▲ +' : '▼ −') + Math.abs(x * 100).toFixed(1) + '% ' + lab); return sp; };
+    const row = mk('div', 'pt-tk-row');
+    const item = (q) => { const it = mk('span', 'pt-tk-i'); it.append(mk('b', 'pt-tk-n', q.name), mk('span', 'pt-tk-p', num(q)), pct(q.chg_24h || 0, '24h'), pct(q.chg_7d || 0, '7d')); return it; };
+    T.forEach((q) => row.appendChild(item(q)));
+    T.forEach((q) => { const it = item(q); it.setAttribute('aria-hidden', 'true'); row.appendChild(it); });   // a second copy so the loop is seamless
+    el.appendChild(row);
+    requestAnimationFrame(() => { const w = row.scrollWidth / 2; row.style.setProperty('--pt-tk-d', Math.max(30, w / 70) + 's'); });   // about 70 pixels a second
+    const when = T.map((q) => Date.parse(q.last_at)).filter(Boolean); el.title = 'Prices from Yahoo Finance, updated at every check-in' + (when.length ? ' (last ' + new Date(Math.max(...when)).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) + ' ET)' : '') + '. Hover to pause.';
   });
   dash.draw('priceaudit', (el) => {
     el.replaceChildren();
@@ -4652,7 +4790,7 @@ body { background:var(--color-bg); }
     const EXPS = [first, 'Overall'].concat(['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'].filter((e) => e !== first));
     if (el._first !== first) { el._first = first; el._exp = null; }   // a market opening or closing moves the page to that race
     if (!el._exp) el._exp = first;
-    if (el._follow == null) { try { el._follow = localStorage.getItem('pt-follow') === '1'; } catch (e) { el._follow = false; } }
+    if (el._follow == null) el._follow = true;   // owner's choice: Most relevant is on at every visit
     const hot = el._follow ? hottestRace() : null;   // "Most relevant": the race with the biggest move in the last 2 hours, re-checked at every data update
     if (hot) el._exp = hot.race;   // every visit opens on the race whose market is open (China, then US, else Crypto); nothing is remembered
     const want = el._exp === 'Overall' ? null : el._exp;   // Overall: the take, plans, feelings and opinions across all races
@@ -4661,10 +4799,10 @@ body { background:var(--color-bg); }
     const sel = mk('select', 'pd-pick'); sel.setAttribute('aria-label', 'Choose the race');
     const TITLE = (x) => x.replace(/\b([a-z])([a-z]*)/g, (m, a, b) => (['and', 'of', 'it'].includes(m) && m !== 'it' ? m : a.toUpperCase() + b)).replace(/^./, (c) => c.toUpperCase());   // Title Case for the menu
     EXPS.forEach((e) => { const o = mk('option', '', e === 'Overall' ? 'Overall (All Ten Races)' : TITLE(LABEL[e] || e)); o.value = e; if (e === el._exp) o.selected = true; sel.appendChild(o); });
-    sel.addEventListener('change', () => { el._exp = sel.value; if (el._follow) { el._follow = false; try { localStorage.setItem('pt-follow', '0'); } catch (e) {} } dash.redraw ? dash.redraw() : null; });
+    sel.addEventListener('change', () => { el._exp = sel.value; el._follow = false; dash.redraw ? dash.redraw() : null; });
     el.appendChild(sel);
     { const lab = mk('label', 'pd-follow'); const cb = mk('input'); cb.type = 'checkbox'; cb.checked = !!el._follow;
-      cb.addEventListener('change', () => { el._follow = cb.checked; try { localStorage.setItem('pt-follow', cb.checked ? '1' : '0'); } catch (e) {} if (!cb.checked) el._exp = null; dash.redraw ? dash.redraw() : null; });
+      cb.addEventListener('change', () => { el._follow = cb.checked; if (!cb.checked) el._exp = null; dash.redraw ? dash.redraw() : null; });
       lab.append(cb, document.createTextNode(' Most relevant: follow the market that’s live right now')); el.appendChild(lab);
       if (el._follow && hot) el.appendChild(mk('p', 'pd-note pd-follow-why', '📡 ' + hot.why + ' Switches by itself.')); }
     if (el._exp === 'Overall') {   // how many races each AI leads; the money is only added up at the final scoring
@@ -4789,6 +4927,15 @@ body { background:var(--color-bg); }
     const moves = {}; Object.values(by).forEach((pts) => { const last = pts[pts.length - 1]; if (now - last.t > HOUR || !open.has(last.e)) return; const base = pts.filter((q) => q.t <= now - HOUR).pop() || pts[0]; const d = (last.v - base.v) * (last.e === 'China' ? fx : 1); if (!moves[last.e] || Math.abs(d) > Math.abs(moves[last.e].d)) moves[last.e] = { d, id: last.id }; });
     const sharp = Object.entries(moves).filter(([, m]) => Math.abs(m.d) >= 1000).sort((a, b) => Math.abs(b[1].d) - Math.abs(a[1].d))[0];
     const mv = (race) => moves[race] && Math.abs(moves[race].d) >= 1 ? ' Biggest move in the last hour: ' + AIS[moves[race].id].label + ' ' + (moves[race].d >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(moves[race].d)) + '.' : '';
+    // news beats the open session: a sharp move in a market's main price (Bitcoin, the S&P 500, oil, gold, the CSI 300, USD/JPY),
+    // even if no AI holds it. Thresholds per market, for the last hour (or 1.5x that over 3 hours); only while that price is live.
+    const NEWS = { Crypto: 0.03, Stocks: 0.015, Energy: 0.03, Metals: 0.02, China: 0.02, Currencies: 0.01 };
+    const PU = (dash.baseData('pulse')[0] || {}).moves || {};
+    const news = Object.entries(PU).map(([race, q]) => { const live = now - Date.parse(q.last_at) < 45 * 60000, k = NEWS[race] || 1;
+      const sc = Math.max(Math.abs(q.chg_1h || 0) / k, Math.abs(q.chg_3h || 0) / (1.5 * k)); return { race, q, sc, live }; }).filter((x) => x.live && x.sc >= 1).sort((a, b) => b.sc - a.sc)[0];
+    if (news) { const q = news.q, h1 = Math.abs(q.chg_1h || 0) / (NEWS[news.race]) >= Math.abs(q.chg_3h || 0) / (1.5 * NEWS[news.race]), ch = h1 ? q.chg_1h : q.chg_3h;
+      const nm = { 'BTC-USD': 'Bitcoin', '^GSPC': 'The S&P 500', 'CL=F': 'Oil', 'GC=F': 'Gold', '000300.SS': 'The CSI 300', 'JPY=X': 'USD/JPY' }[q.sym] || q.name;
+      return { race: news.race, why: raceName(news.race) + ': news. ' + nm + ' is ' + (ch >= 0 ? 'up ' : 'down ') + Math.abs(ch * 100).toFixed(1) + '% in the last ' + (h1 ? 'hour' : '3 hours') + ', so it comes first.' + mv(news.race) }; }
     if (sharp) return { race: sharp[0], why: raceName(sharp[0]) + ': a sharp move right now.' + mv(sharp[0]) };
     if (chinaOpen) return { race: 'China', why: 'China stocks: Shanghai is trading now (until ' + (mins(bj) < 690 ? '11:30 a.m.' : '3:00 p.m.') + ' Beijing time).' + mv('China') };
     if (usOpen) { const r = US.filter((x) => moves[x]).sort((a, b) => Math.abs(moves[b].d) - Math.abs(moves[a].d))[0] || 'Stocks'; return { race: r, why: raceName(r) + ': New York is trading now (until 4:00 p.m. ET).' + mv(r) }; }
