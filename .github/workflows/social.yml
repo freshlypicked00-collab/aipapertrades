@@ -1,0 +1,33 @@
+name: Instagram (manual check or post)
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'check = confirm the key works (posts nothing); post = post whatever is due now'
+        type: choice
+        options: [check, post]
+        default: check
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: rivals
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+      INSTAGRAM_USER_ID: ${{ secrets.INSTAGRAM_USER_ID }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Check the Instagram key
+        if: ${{ inputs.mode == 'check' }}
+        run: python3 ops/social.py check
+      - name: Post what is due
+        if: ${{ inputs.mode == 'post' }}
+        run: bash ops/social.sh
