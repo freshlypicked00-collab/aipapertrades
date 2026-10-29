@@ -246,6 +246,12 @@
   .st-score-name b { color: var(--color-fg); font-weight: 600; margin-right: 6px; }
   .st-score-pct { font-family: var(--font-anthropic-serif); font-size: 24px; line-height: 1.15; font-variant-numeric: tabular-nums; }
   .st-score-amt { font-size: 12.5px; color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+  .st-score-list button.st-score-ai { border-top: 3px solid var(--ai); }
+  .st-score-list button.st-score-ai[aria-current="true"] { background: var(--card-inset, #1d1c18); }
+  .st-score-who { font-size: 13px; font-weight: 600; color: var(--ai); gap: 5px; }
+  .st-score-who .ai-mdl { color: var(--color-fg-muted); }
+  .st-score-list li.st-score-foot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 12.5px; color: var(--color-fg-muted); }
+  .st-score-list button.st-score-more { width: auto; height: auto; padding: 5px 12px; border-radius: 999px; font-size: 13px; }
   .st-score-wait .st-score-pct { font-size: 15px; color: var(--color-fg-muted); font-family: inherit; }
   .h2h-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; }
   .h2h-pick-l { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--color-fg-muted); margin-right: 4px; }
@@ -749,7 +755,7 @@
       <p class="st-fact" data-draw="factcheck" data-source="take factcheck"></p>
     </div>
     <section class="st-score" aria-labelledby="h-score">
-      <h2 class="st-score-h" id="h-score">Scoreboard <span>Return since each experiment started, best first. Tap one to open it.</span></h2>
+      <h2 class="st-score-h" id="h-score">Scoreboard <span>The best results across all three AIs, each race on its own, best first. Tap one to open that race as that AI.</span></h2>
       <ol class="st-score-list" data-draw="scoreboard" data-source="totals trades bets"></ol>
     </section>
     <div class="st-notice-row">
@@ -3212,6 +3218,11 @@
     const run = () => {
       const h = dash.data('history'), b = dash.data('bench_history');
       if (h.status !== 'ok') { el.replaceChildren(); return; }
+      // the Overview chart opens on the race Race standings shows ("Most relevant"), until the visitor picks one (owner, Oct 29)
+      if (el.id === 'perf-overview' && !el._userPicked && window.ptRace && !window.ptOverall && TABOF[window.ptRace] && el.dataset.portfolio !== window.ptRace) {
+        el.dataset.portfolio = window.ptRace;
+        document.querySelectorAll('[data-chips-for="perf-overview"] button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === window.ptRace)));
+      }
       const p = el.dataset.portfolio;
       let pts = h.data.filter((r) => r.portfolio === p).map((r) => ({ t: new Date(r.at), v: Number(r.value) })).sort((a, c) => a.t - c.t);
       const T = dash.data('trades');
@@ -5678,35 +5689,31 @@
   });
   const TABOF = { Stocks: 'stocks', Crypto: 'crypto', China: 'china', Metals: 'metals', Energy: 'energy', Options: 'options', Currencies: 'currencies', Safe: 'safe', Sports: 'sports', Predictions: 'predictions' };
   dash.draw('scoreboard', (el) => {
-    const d = dash.data('totals'), T = dash.data('trades'), B = dash.data('bets');
+    // the best results across all three AIs, each race on its own (owner, Oct 29): tap one to switch to that AI and open that race
     el.replaceChildren();
-    if (d.status !== 'ok') return;
-    const started = new Set(T.status === 'ok' ? T.data.filter((t) => !String(t.holding || '').startsWith('[')).map((t) => t.portfolio) : []);   // practice and tuning trades don't count
-    if (B.status === 'ok' && B.data.length) started.add('Sports');
-    const allowed = modelExps();
-    const rowsAll = d.data.filter((r) => !allowed || allowed.includes(r.portfolio));
-    const live = rowsAll.filter((r) => started.has(r.portfolio)).sort((a, b) => b.pct - a.pct);
-    const wait = rowsAll.filter((r) => !started.has(r.portfolio));
-    const item = (r, rank) => {
-      const li = mk('li');
-      const b = mk('button', rank ? (rank === 1 ? 'st-score-top' : '') : 'st-score-wait'); b.type = 'button';
-      const ORD = (n) => n + (['th', 'st', 'nd', 'rd'][(n % 100 - 20) % 10] || ['th', 'st', 'nd', 'rd'][n % 100] || 'th');
-      const nm = mk('span', 'st-score-name'); if (rank) nm.appendChild(mk('b', rank === 1 ? 'st-rank-1' : '', rank === 1 ? '👑 1st' : ORD(rank))); nm.appendChild(document.createTextNode(LABEL[r.portfolio] || r.portfolio));
-      b.appendChild(nm);
-      if (rank) {
-        const pc = mk('span', 'st-score-pct', stFmt.pct(r.pct)); tone(pc, r.pnl); b.appendChild(pc);
-        b.appendChild(mk('span', 'st-score-amt', stFmt.signed(r.pnl, r.portfolio) + ' · now ' + stFmt.money(r.value, r.portfolio)));
-      } else {
-        b.appendChild(mk('span', 'st-score-pct', r.portfolio === 'China' ? 'Not started yet' : 'All in cash'));
-        b.appendChild(mk('span', 'st-score-amt', r.portfolio === 'China' ? 'No China trades yet (Shanghai opens 9:30 a.m. Beijing time)' : (r.portfolio === 'Sports' || r.portfolio === 'Predictions' ? 'No bets yet; holding cash is allowed' : 'No trades yet; holding cash is allowed')));
-      }
-      b.setAttribute('aria-label', (LABEL[r.portfolio] || r.portfolio) + (rank ? ', rank ' + rank + ', ' + stFmt.pct(r.pct) : r.portfolio === 'China' ? ', not started yet' : ', all in cash'));
-      b.addEventListener('click', () => { goTab(TABOF[r.portfolio]); });
-      li.appendChild(b);
-      el.appendChild(li);
-    };
-    live.forEach((r, i) => item(r, i + 1));
-    wait.forEach((r) => item(r, 0));
+    const all = dash.baseData('exp_standings'); const ES = (Array.isArray(all) ? all[0] : all) || {};
+    const rows = [];
+    Object.entries(ES).forEach(([race, list]) => { if (!TABOF[race]) return; (list || []).forEach((r) => { if (!AIS[r.id]) return; const pr = Number(r.profit) || 0; rows.push({ id: r.id, race, profit: pr, value: Number(r.value), pct: pr / 100000, idle: Math.abs(pr) < 0.5 && !(r.holds && r.holds.length) && !r.last }); }); });
+    if (!rows.length) return;
+    const ORD = (n) => n + (['th', 'st', 'nd', 'rd'][(n % 100 - 20) % 10] || ['th', 'st', 'nd', 'rd'][n % 100] || 'th');
+    const live = rows.filter((r) => !r.idle).sort((a, b) => b.pct - a.pct), idle = rows.filter((r) => r.idle);
+    const shown = el._all ? live : live.slice(0, 10);
+    shown.forEach((r, i) => {
+      const li = mk('li'); const rank = i + 1;
+      const b = mk('button', 'st-score-ai' + (rank === 1 ? ' st-score-top' : '')); b.type = 'button'; b.style.setProperty('--ai', AIS[r.id].color);
+      if (dash.model === r.id) b.setAttribute('aria-current', 'true');
+      const nm = mk('span', 'st-score-name'); nm.appendChild(mk('b', rank === 1 ? 'st-rank-1' : '', rank === 1 ? '👑 1st' : ORD(rank))); nm.appendChild(document.createTextNode(LABEL[r.race] || r.race)); b.appendChild(nm);
+      b.appendChild(whoNode(r.id, 16, 'pd-who st-score-who'));
+      const pc = mk('span', 'st-score-pct', stFmt.pct(r.pct)); tone(pc, r.profit); b.appendChild(pc);
+      b.appendChild(mk('span', 'st-score-amt', stFmt.signed(r.profit, r.race) + ' · now ' + stFmt.money(r.value, r.race)));
+      b.setAttribute('aria-label', 'Rank ' + rank + ': ' + AIS[r.id].label + ' in ' + (LABEL[r.race] || r.race) + ', ' + stFmt.pct(r.pct) + '. Opens it as ' + AIS[r.id].label + '.');
+      b.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2 && s2.value !== r.id) { s2.value = r.id; s2.dispatchEvent(new Event('change')); } goTab(TABOF[r.race]); });
+      li.appendChild(b); el.appendChild(li);
+    });
+    const foot = mk('li', 'st-score-foot');
+    if (live.length > 10) { const t = mk('button', 'st-score-more', el._all ? 'Show the top 10 ▴' : 'Show all ' + live.length + ' ▾'); t.type = 'button'; t.addEventListener('click', () => { el._all = !el._all; if (el._redraw) el._redraw(); else dash.redraw(); }); foot.appendChild(t); }
+    if (idle.length) foot.appendChild(mk('span', 'st-score-idle', idle.length + ' not started yet (still all in cash): ' + idle.map((r) => AIS[r.id].label + ' in ' + (LABEL[r.race] || r.race)).join(', ') + '.'));
+    if (foot.childNodes.length) el.appendChild(foot);
   });
 
   // chips that switch a chart's simulation
@@ -5714,7 +5721,7 @@
     g.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
       g.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
       const t = document.getElementById(g.dataset.chipsFor);
-      t.dataset.portfolio = b.dataset.v;
+      t.dataset.portfolio = b.dataset.v; t._userPicked = true;
       if (t._redraw) t._redraw();
     }));
   });
