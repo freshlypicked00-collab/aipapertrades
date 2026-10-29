@@ -290,6 +290,11 @@
   .st-alloc-key { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: var(--cds-font-size-body); }
   .st-alloc-key i { display: inline-block; width: 11px; height: 11px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
   .st-alloc-key b { font-weight: 600; }
+  .st-alloc-buys { display: block; margin: 3px 0 0 17px; font-size: 0.86em; line-height: 1.45; color: var(--color-fg-muted); }
+  .st-alloc-buys span { display: block; }
+  .st-alloc-buys span b { color: var(--color-fg); font-weight: 600; }
+  .st-alloc-more summary { cursor: pointer; color: var(--color-fg-muted); text-decoration: underline dotted; }
+  .st-alloc-key i.st-alloc-hollow { background: transparent !important; border: 1.5px dashed var(--color-fg-muted); }
   .st-hook { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
   .st-hook-q { margin: 0; font-size: clamp(24px, 3.4vw, 32px); font-weight: 600; line-height: 1.15; letter-spacing: -0.01em; color: var(--color-fg); text-wrap: balance; }
   .st-hook-sub { margin: 0; font-size: 16px; color: var(--color-fg-muted); max-width: 70ch; }
@@ -342,6 +347,8 @@
   .h2h-holds li b { color: var(--color-fg); font-weight: 600; }
   .h2h-wait { opacity: .7; }
   .h2h-chart { position: relative; }
+  .h2h-chartpick { margin-bottom: 0; }
+  .h2h-chartpick .st-chips button { font-size: 13px; padding: 4px 11px; }
   .h2h-chart svg { display: block; width: 100%; height: auto; overflow: visible; }
   .h2h-chart .h2h-tip { position: absolute; top: 0; pointer-events: none; background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 6px 8px; font-size: 12px; display: none; white-space: nowrap; }
   .h2h-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--color-fg-muted); margin: 0; }
@@ -924,7 +931,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '20dfe84b0cb8';</script>
+<script>window.PT_PAGE_VER = 'df42d3f1062b';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -4185,12 +4192,62 @@ body { background:var(--color-bg); }
       .attr('transform', (a) => `translate(${d3.arc().innerRadius(R * 0.55).outerRadius(R * 0.55).centroid(a)})`)
       .attr('text-anchor', 'middle').attr('dy', '0.35em').attr('font-size', 13).attr('font-weight', 600)
       .style('fill', '#0b0b0a').style('pointer-events', 'none').text((a) => d3.format('.0%')(a.data.value_cad / total));
+    // exactly when each holding was bought, at what price and for how much (owner, Oct 29)
+    const T = dash.data('trades');
+    const TR = T.status === 'ok' ? T.data.filter((t) => t.portfolio === pf && !String(t.holding || '').startsWith('[') && +new Date(t.at) >= RESTART - 60e3) : [];
+    const isUsd = (r) => r.holding === 'US dollar' || r.holding === 'USD' || /^US dollar/.test(r.holding);
+    const isJpy = (r) => r.holding === 'Japanese yen' || r.holding === 'JPY' || /yen/i.test(r.holding);
+    const pxTxt = (r, px, t) => {
+      px = Number(px); if (!isFinite(px) || !px) return '';
+      if (pf === 'China') return '¥' + d3.format(',.3f')(px) + ' a share';
+      if (pf === 'Predictions') return d3.format('.1f')(px * 100).replace(/\.0$/, '') + '¢ a share';
+      if (pf === 'Currencies' || pf === 'AllInTrading' && isJpy(r)) {
+        if (isJpy(r)) return d3.format('.2f')(1 / px) + ' yen per US$';
+        if (isUsd(r)) { const tq = t && Number(t.qty), q = tq || Math.abs(Number(r.quantity)), c = tq ? Number(t.cad) : Math.abs(Number(r.cost_cad)); return q && c ? d3.format('.4f')(c / q) + ' C$ per US$' : ''; }
+        return 'US$' + d3.format('.4f')(px) + ' each';
+      }
+      return 'US$' + d3.format(px >= 1 ? ',.2f' : '.4f')(px) + (pf === 'Crypto' ? ' a coin' : pf === 'Options' ? ' a share of the contract' : /Metals|Energy|Stocks|Safe/.test(pf) ? ' a share' : '');
+    };
+    const amtTxt = (t) => { const a = pf === 'China' ? Number(t.usd != null ? t.usd : t.cad) : Number(t.cad); return isFinite(a) && a ? stFmt.money(Math.abs(a), pf) : ''; };
+    const buysOf = (r) => {
+      const ts = TR.filter((t) => t.holding === r.holding).sort((a, b) => new Date(a.at) - new Date(b.at));
+      // only the buys since this holding was last sold off completely
+      let start = 0; ts.forEach((t, k) => { if ((t.action === 'Sell' || t.action === 'Cover') && t.outcome !== 'partial' && k < ts.length - 1 && ts.slice(k + 1).some((x) => x.action === 'Buy' || x.action === 'Short')) start = k + 1; });
+      const open = ts.slice(start).filter((t) => t.action === 'Buy' || t.action === 'Short');
+      const box = mk('span', 'st-alloc-buys');
+      const short = Number(r.quantity) < 0;
+      if (!open.length) { const e = r.entry_usd != null ? r.entry_usd : r.entry_local; box.appendChild(mk('span', '', 'Bought before the Oct 28 restart' + (pxTxt(r, e) ? ' at ' + pxTxt(r, e) : ''))); return box; }
+      const MAX = 4, older = open.length > MAX ? open.slice(0, open.length - MAX) : [];
+      let more = null;
+      if (older.length) { more = mk('details', 'st-alloc-more'); more.appendChild(mk('summary', '', older.length + ' earlier ' + (older.length === 1 ? 'one' : 'ones'))); box.appendChild(more); }
+      open.forEach((t, k) => {
+        const ln = mk('span'); ln.title = stFmt.when(t.at);
+        ln.append(document.createTextNode((TRADE_VERB[t.action] || t.action) + ' '), mk('b', '', stFmt.whenET(t.at) + ' ET'));
+        const px = pxTxt(r, t.price_local != null ? t.price_local : t.price_usd, t), am = amtTxt(t);
+        ln.append(document.createTextNode((px ? ' at ' : ''))); if (px) ln.appendChild(mk('b', '', px));
+        if (am) ln.append(document.createTextNode(' · ' + am));
+        (k < older.length ? more : box).appendChild(ln);
+      });
+      const e = r.entry_usd != null ? r.entry_usd : r.entry_local, now = r.price_usd != null ? r.price_usd : r.price_local;
+      const tail = [];
+      if (open.length > 1 && pxTxt(r, e)) tail.push('Average ' + (short ? 'price' : 'price paid') + ': ' + pxTxt(r, e));
+      if (pxTxt(r, now) && !isUsd(r)) { const ch = e && now ? (now / e - 1) : null; tail.push('Now ' + pxTxt(r, now) + (ch != null && isFinite(ch) && !isJpy(r) ? ' (' + stFmt.pct(ch) + ')' : '')); }
+      if (tail.length) box.appendChild(mk('span', '', tail.join(' · ')));
+      return box;
+    };
     const key = mk('ul', 'st-alloc-key');
     rows.forEach((r, i) => {
       const li = mk('li');
       const sw = mk('i'); sw.style.background = col(r, i);
       li.append(sw, mk('b', '', r.holding + ' '), document.createTextNode(d3.format('.0%')(r.value_cad / total) + ' · ' + (pf === 'China' ? stFmt.money(vOf(r), pf) : stFmt.cad(r.value_cad))));
+      if (!cash(r)) li.appendChild(buysOf(r));
       key.appendChild(li);
+    });
+    // shorts and borrowed money aren't slices of the pie, but they are holdings: list them with when and at what price
+    d.data.filter((r) => r.portfolio === pf && Number(r.value_cad) < 0 && !cash(r) && Math.abs(Number(r.quantity)) > 1e-9).forEach((r) => {
+      const li = mk('li'); const sw = mk('i', 'st-alloc-hollow');
+      li.append(sw, mk('b', '', (Number(r.quantity) < 0 ? 'Short ' : '') + r.holding + ' '), document.createTextNode((Number(r.quantity) < 0 ? 'owes ' : '') + (pf === 'China' ? stFmt.money(Math.abs(vOf(r)), pf) : stFmt.cad(Math.abs(r.value_cad))) + ' (not in the chart)'));
+      li.appendChild(buysOf(r)); key.appendChild(li);
     });
     row.appendChild(key);
   });
@@ -4409,7 +4466,24 @@ body { background:var(--color-bg); }
         el.appendChild(box);
       }
     }
-    H2H_EXPS.filter((exp) => (!EXP_SEL || exp === EXP_SEL) && Object.values(H2H_PLAN).some((l) => l.includes(exp))).forEach((exp) => {
+    // one race chart at a time, picked with buttons, instead of all ten in a row (owner, Oct 29)
+    const CH_EXPS = H2H_EXPS.filter((exp) => (!EXP_SEL || exp === EXP_SEL) && Object.values(H2H_PLAN).some((l) => l.includes(exp)));
+    let SHOW = CH_EXPS;
+    if (!EXP_SEL && CH_EXPS.length > 1) {
+      if (!el._chart || (el._chart !== 'all' && !CH_EXPS.includes(el._chart))) el._chart = CH_EXPS.includes(window.ptRace) ? window.ptRace : CH_EXPS[0];
+      const cb = mk('div', 'h2h-exp h2h-chartpick');
+      cb.appendChild(mk('h3', '', 'Race by race'));
+      cb.appendChild(mk('p', 'st-note', 'Pick a race to see its chart. It starts on the race with the most going on right now.'));
+      const chips = mk('div', 'st-chips'); chips.setAttribute('role', 'group'); chips.setAttribute('aria-label', 'Which race chart to show');
+      CH_EXPS.map((e) => [e, LABEL[e] || e]).concat([['all', 'All ten, one after another']]).forEach(([k, label]) => {
+        const b = mk('button', '', label); b.type = 'button'; b.setAttribute('aria-pressed', String(k === el._chart));
+        b.addEventListener('click', () => { el._chart = k; h2hDraw(el); const n = el.querySelector('.h2h-chartpick'); if (n && n.getBoundingClientRect().top < 0) n.scrollIntoView({ block: 'start' }); });
+        chips.appendChild(b);
+      });
+      cb.appendChild(chips); el.appendChild(cb);
+      if (el._chart !== 'all') SHOW = [el._chart];
+    }
+    SHOW.forEach((exp) => {
       const box = mk('div', 'h2h-exp');
       box.appendChild(mk('h3', '', LABEL[exp] || exp));
       const ser = series(exp).filter((x) => SEL.includes(x.id));
