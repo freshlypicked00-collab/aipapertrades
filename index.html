@@ -405,7 +405,7 @@
   .goog-te-banner-frame, .skiptranslate > iframe, iframe.skiptranslate, #goog-gt-tt, .goog-te-balloon-frame, .VIpgJd-ZVi9od-ORHb-OEVmcd, .VIpgJd-ZVi9od-aZ2wEe-wOHMyf { display: none !important; }
   body { top: 0 !important; }
   .goog-text-highlight { background: none !important; box-shadow: none !important; }
-  html.pt-tr-wait body { opacity: 0; } html body { transition: opacity .15s; }
+
   #google_translate_element { display: none; }
   .pt-banner-short { display: none; }
   .hook-more { display: none; }
@@ -826,9 +826,10 @@ body { background:var(--color-bg); }
         }).then((json) => {
           const sig = (j) => JSON.stringify([j.history, j.rivals_history, j.trades, j.rivals_trades, j.allin_history]).length + ':' + JSON.stringify(j.history).slice(-80) + JSON.stringify(j.rivals_history).slice(-80);
           if (!json || !base || sig(json) === sig(base)) return;
-          if (json.page_ver && window.PT_PAGE_VER && json.page_ver !== window.PT_PAGE_VER && !window.__ptNewPage) {
+          let tried = null; try { tried = sessionStorage.getItem('pt-upd'); } catch (e) {}
+          if (json.page_ver && window.PT_PAGE_VER && json.page_ver !== window.PT_PAGE_VER && !window.__ptNewPage && tried !== json.page_ver) {
             window.__ptNewPage = 1;
-            const go = () => { try { sessionStorage.setItem('pt-nosplash', '1'); } catch (e) {} location.reload(); };
+            const go = () => { try { sessionStorage.setItem('pt-upd', json.page_ver); sessionStorage.setItem('pt-nosplash', '1'); } catch (e) {} location.replace(location.pathname + '?v=' + json.page_ver); };
             const n = document.createElement('button'); n.type = 'button'; n.className = 'pt-update'; n.textContent = '✨ The site was just updated. Tap to load the new version.'; n.addEventListener('click', go); document.body.appendChild(n);
             document.addEventListener('visibilitychange', () => { if (!document.hidden && !(window.speechSynthesis && speechSynthesis.speaking)) go(); });
           }
@@ -843,7 +844,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '272d8a947bf9';</script>
+<script>window.PT_PAGE_VER = '9b750af4f779';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -906,7 +907,7 @@ body { background:var(--color-bg); }
       <label class="st-lang notranslate" translate="no" title="Language"><span aria-hidden="true">🌐</span><select id="lang-pick" aria-label="Language"><option value="en">English</option><option value="zh-CN">中文 (简体)</option><option value="zh-TW">中文 (繁體)</option><option value="hi">हिन्दी</option><option value="es">Español</option><option value="fr">Français</option><option value="ar">العربية</option><option value="bn">বাংলা</option><option value="pt">Português</option><option value="ru">Русский</option><option value="id">Bahasa Indonesia</option><option value="ur">اردو</option><option value="de">Deutsch</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="tr">Türkçe</option></select></label> <button type="button" class="st-theme" id="sound-btn" aria-pressed="false" title="Play a cha-ching when an AI makes C$100 or more">🔈 Sound off</button> <button type="button" class="st-theme" id="beginner-btn" aria-pressed="false" title="Plain-English explanations for people new to markets and betting">🎓 Beginner</button> <button type="button" class="st-theme" id="theme-btn">Light mode</button>
     </p>
     <p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>
-    <div class="pt-news" data-draw="newsline" data-source="pulse events geo facts moments_all" aria-live="off" aria-label="Headlines"></div>
+    <div class="pt-news" data-draw="newsline" data-source="pulse events geo facts" aria-live="off" aria-label="Headlines"></div>
     <div class="pt-ticker" data-draw="ticker" data-source="ticker" aria-label="Market prices"></div>
   </header>
     <section class="st-live st-live-top" aria-labelledby="h-live">
@@ -2389,6 +2390,7 @@ body { background:var(--color-bg); }
   const goHome = () => { goTab('overview', false); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   // Landing: a refresh (or a visit with no tab in the link) always opens Home at the very top; the browser is told not
   // to restore the old scroll position. A shared link to a tab (e.g. #ledger) still opens that tab on a first visit.
+  try { if (/[?&]v=/.test(location.search)) history.replaceState(null, '', location.pathname + location.hash); } catch (e) {}   // the update reload's ?v= is only there to skip the cache
   try {
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     const nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {};
@@ -4580,13 +4582,7 @@ body { background:var(--color-bg); }
         n.append(document.createTextNode('The translator didn’t load. '), a, document.createTextNode(' '), x); document.body.appendChild(n);
       }, 8000);
     };
-    if (lang !== 'en') {
-      const H = document.documentElement; H.classList.add('pt-tr-wait');
-      const show = () => H.classList.remove('pt-tr-wait');
-      new MutationObserver(() => { if (/translated-(ltr|rtl)/.test(H.className)) show(); }).observe(H, { attributes: true, attributeFilter: ['class'] });
-      setTimeout(show, 2500);
-      load();
-    } else cookie(null);
+    if (lang !== 'en') load(); else cookie(null);
     sel.addEventListener('change', () => {
       const v = sel.value;
       try { localStorage.setItem('pt-lang', v); } catch (e) {}
@@ -4707,7 +4703,7 @@ body { background:var(--color-bg); }
   // ---------- the headline line (like a TV news channel): breaking market moves, official results, the world, what's coming up, and the race
   const newsItems = () => {
     const now = Date.now(), out = [];
-    const clip = (t, n) => { t = String(t || '').replace(/\s+/g, ' ').trim(); const one = t.split(/(?<=[.;])\s/)[0]; t = one.length > 30 ? one : t; return t.length > n ? t.slice(0, n - 1).replace(/[ ,;:]+\S*$/, '') + '…' : t.replace(/[.;]$/, ''); };
+    const clip = (t, n) => { t = String(t || '').replace(/\s+/g, ' ').trim(); const one = t.split(/[.;]\s/)[0]; t = one.length > 30 ? one : t; return t.length > n ? t.slice(0, n - 1).replace(/[ ,;:]+\S*$/, '') + '…' : t.replace(/[.;]$/, ''); };
     const NEWS = { Crypto: 0.03, Stocks: 0.015, Energy: 0.03, Metals: 0.02, China: 0.02, Currencies: 0.01 };
     const nm = { 'BTC-USD': 'Bitcoin', '^GSPC': 'The S&P 500', 'CL=F': 'Oil', 'GC=F': 'Gold', '000300.SS': 'The CSI 300', 'JPY=X': 'The dollar against the yen' };
     Object.entries((dash.baseData('pulse')[0] || {}).moves || {}).forEach(([race, q]) => { if (now - Date.parse(q.last_at) > 90 * 60000) return; const k = NEWS[race] || 1;
@@ -4718,14 +4714,13 @@ body { background:var(--color-bg); }
     if (g && g.status) g.status.slice(0, 3).forEach((x) => out.push({ k: 'WORLD', cls: 'pt-n-world', t: x.label + ': ' + x.value }));
     dash.baseData('events').filter((e) => Date.parse(e.at) > now && Date.parse(e.at) - now < 3 * 864e5).sort((a, b) => Date.parse(a.at) - Date.parse(b.at)).slice(0, 3)
       .forEach((e) => out.push({ k: 'COMING UP', cls: 'pt-n-next', t: (e.when || stFmt.when(e.at)) + (/\d\s?(a\.m\.|p\.m\.)/.test(e.when || '') && !/(ET|UTC)\b/.test(e.when || '') ? ' ET' : '') + ': ' + clip(e.event, 110) }));
-    const MA = dash.baseData('moments_all'); (Array.isArray(MA) ? MA : []).filter((m) => now - Date.parse(m.at) < 864e5 && AIS[m.who]).slice(0, 3).forEach((m) => out.push({ k: 'THE RACE', cls: 'pt-n-race pt-n-' + (m.type || 'lead'), t: momentText(m) }));
     return out;
   };
   dash.draw('newsline', {
     mount: (el) => {
       let i = 0;
       const paint = () => {
-        const L = newsItems(); if (!L.length) { el.replaceChildren(); return; }
+        let L = []; try { L = newsItems(); } catch (e) { L = []; } if (!L.length) { el.replaceChildren(); return; }
         // breaking news first, then everything else in turn
         const it = L.find((x) => x.k === 'BREAKING' && !el._seen?.has(x.t)) || L[i++ % L.length]; el._seen = el._seen || new Set(); if (it.k === 'BREAKING') el._seen.add(it.t);
         if (!el.firstChild) { el.append(mk('span', 'pt-n-k'), mk('span', 'pt-n-t'), mk('span', 'pt-n-n')); }

@@ -328,9 +328,10 @@ SHIM = r"""
         }).then((json) => {
           const sig = (j) => JSON.stringify([j.history, j.rivals_history, j.trades, j.rivals_trades, j.allin_history]).length + ':' + JSON.stringify(j.history).slice(-80) + JSON.stringify(j.rivals_history).slice(-80);
           if (!json || !base || sig(json) === sig(base)) return;
-          if (json.page_ver && window.PT_PAGE_VER && json.page_ver !== window.PT_PAGE_VER && !window.__ptNewPage) {
+          let tried = null; try { tried = sessionStorage.getItem('pt-upd'); } catch (e) {}
+          if (json.page_ver && window.PT_PAGE_VER && json.page_ver !== window.PT_PAGE_VER && !window.__ptNewPage && tried !== json.page_ver) {
             window.__ptNewPage = 1;
-            const go = () => { try { sessionStorage.setItem('pt-nosplash', '1'); } catch (e) {} location.reload(); };
+            const go = () => { try { sessionStorage.setItem('pt-upd', json.page_ver); sessionStorage.setItem('pt-nosplash', '1'); } catch (e) {} location.replace(location.pathname + '?v=' + json.page_ver); };
             const n = document.createElement('button'); n.type = 'button'; n.className = 'pt-update'; n.textContent = '✨ The site was just updated. Tap to load the new version.'; n.addEventListener('click', go); document.body.appendChild(n);
             document.addEventListener('visibilitychange', () => { if (!document.hidden && !(window.speechSynthesis && speechSynthesis.speaking)) go(); });
           }
