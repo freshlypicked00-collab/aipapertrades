@@ -2810,13 +2810,13 @@
     if (!bar) { bar = mk('div', 'st-pager'); host.after(bar); }
     bar.replaceChildren(); if (rows.length <= n) { bar.hidden = true; return; } bar.hidden = false;
     const lab = mk('label'); lab.append(document.createTextNode('Page '));
-    const sel = mk('select'); for (let k = 0; k < pages; k++) { const o = mk('option', '', (k + 1) + (k === 0 && el.dataset.draw === 'log-body' ? ' · newest' : '') + ' (' + (k * n + 1) + '–' + Math.min(rows.length, (k + 1) * n) + ')'); o.value = k; if (k === el._pg) o.selected = true; sel.appendChild(o); }
+    const sel = mk('select'); for (let k = 0; k < pages; k++) { const o = mk('option', '', (k + 1) + (k === 0 && (el.dataset.draw === 'log-body' || el.dataset.pgNewest === '1') ? ' · newest' : '') + ' (' + (k * n + 1) + '–' + Math.min(rows.length, (k + 1) * n) + ')'); o.value = k; if (k === el._pg) o.selected = true; sel.appendChild(o); }
     sel.addEventListener('change', () => { el._pg = Number(sel.value); pagerFor(el, n, noun); });
     lab.append(sel, document.createTextNode(' of ' + pages));
     const go = (k) => { el._pg = Math.max(0, Math.min(pages - 1, k)); pagerFor(el, n, noun); };
     const prev = mk('button', 'st-pg-btn', '‹ Previous'); prev.type = 'button'; prev.disabled = el._pg === 0; prev.addEventListener('click', () => go(el._pg - 1));
     const next = mk('button', 'st-pg-btn', 'Next ›'); next.type = 'button'; next.disabled = el._pg >= pages - 1; next.addEventListener('click', () => go(el._pg + 1));
-    const old = el.dataset.draw === 'log-body';
+    const old = el.dataset.draw === 'log-body' || el.dataset.pgNewest === '1';
     if (old) { prev.textContent = '‹ Newer'; next.textContent = 'Older ›'; }
     bar.append(prev, lab, next, mk('span', 'st-muted', ' · ' + rows.length + ' ' + (noun || 'rows') + (old ? ', newest first' : el.dataset.draw === 'events-body' ? ', soonest first' : '')));
   };
@@ -3114,15 +3114,34 @@
   const holdList = (box, p, trades, money) => {
     box.replaceChildren();
     const nm = aiModel(dash.model), race = LABEL[p] || p, cn = p === 'China';
+    if (p !== 'Sports') box._betKey = null;   // coming back to Sports starts again at the newest bets
     const table = (heads) => { const w = mk('div', 'st-wrap'); const t = mk('table', 'st-table gx-hold-t'); const th = mk('thead'); const r = mk('tr'); heads.forEach(([h, c]) => r.appendChild(mk('th', c || '', h))); th.appendChild(r); const tb = mk('tbody'); t.append(th, tb); w.appendChild(t); box.appendChild(w); return tb; };
     const td = (tr, text, cls, span, label) => { const c = mk('td', cls || '', text); if (span > 1) c.rowSpan = span; if (label) c.dataset.label = label; tr.appendChild(c); return c; };
     if (p === 'Sports') {
-      const B = dash.data('bets'); const open = (B.status === 'ok' ? B.data : []).filter((x) => x.status === 'Open').sort((a, b) => new Date(a.placed_at) - new Date(b.placed_at));
-      box.appendChild(mk('h3', 'st-h3', nm + '’s open bets in Sports'));
-      if (!open.length) { box.appendChild(mk('p', 'st-note', 'No open bets right now. Every bet, with its result, is on the Sports page.')); return; }
-      const tb = table([['Bet'], ['Placed'], ['Stake', 'num'], ['Odds', 'num'], ['To win', 'num'], ['Game starts']]);
-      open.forEach((x) => { const tr = mk('tr'); tr.className = 'gx-hold-last'; const c = td(tr, '', 'wrap'); c.append(mk('b', '', x.pick), mk('small', 'st-muted gx-sub', x.event || '')); td(tr, stFmt.when(x.placed_at), 'wrap', 1, 'Placed'); { const od = (Number(x.odds) > 0 ? '+' : '') + x.odds; td(tr, money(x.stake_cad) + ' at ' + od + ', to win ' + money(x.to_win_cad), 'gx-m', 1, 'Bet'); td(tr, money(x.stake_cad), 'num gx-d', 1, 'Stake'); td(tr, od, 'num gx-d', 1, 'Odds'); td(tr, money(x.to_win_cad), 'num is-up gx-d', 1, 'To win'); } td(tr, x.starts_at ? stFmt.when(x.starts_at) : '—', 'wrap', 1, 'Game starts'); tb.appendChild(tr); });
-      box.appendChild(mk('p', 'st-note', 'Staked on open bets: ' + money(open.reduce((a, x) => a + Number(x.stake_cad || 0), 0)) + '. Times are Eastern (ET), with UTC and Hong Kong in brackets.'));
+      // every bet, newest first, 5 a page; Newer / Older to step back through the old ones (owner's request, Oct 29)
+      const B = dash.data('bets'); const all = (B.status === 'ok' ? B.data : []).filter((x) => x.placed_at || x.placed).slice().sort((a, b) => new Date(b.placed_at || b.placed) - new Date(a.placed_at || a.placed));
+      box.appendChild(mk('h3', 'st-h3', nm + '’s bets, newest first'));
+      if (!all.length) { box.appendChild(mk('p', 'st-note', 'No bets yet.')); return; }
+      const tb = table([['Bet'], ['Placed'], ['Stake', 'num'], ['Odds', 'num'], ['Result', 'num'], ['Game']]);
+      all.forEach((x) => {
+        const tr = mk('tr'); tr.className = 'gx-hold-last'; const od = (Number(x.odds) > 0 ? '+' : '') + x.odds;
+        const c = td(tr, '', 'wrap'); c.append(mk('b', '', x.pick), mk('small', 'st-muted gx-sub', x.event || ''));
+        td(tr, stFmt.when(x.placed_at || x.placed), 'wrap', 1, 'Placed');
+        td(tr, money(x.stake_cad) + ' at ' + od, 'gx-m', 1, 'Bet');
+        td(tr, money(x.stake_cad), 'num gx-d', 1, 'Stake'); td(tr, od, 'num gx-d', 1, 'Odds');
+        const res = x.status === 'Open' ? 'Open: to win ' + money(x.to_win_cad) : x.status === 'Won' ? 'Won +' + money(x.result_cad) : x.status === 'Lost' ? 'Lost ' + money(-Math.abs(Number(x.stake_cad))) : x.status === 'Void' ? 'Cancelled, stake refunded' : String(x.status || '—');
+        td(tr, res, 'num ' + (x.status === 'Won' ? 'is-up' : x.status === 'Lost' ? 'is-down' : x.status === 'Open' ? '' : 'st-muted'), 1, 'Result');
+        td(tr, x.settled_at && x.status !== 'Open' ? 'Settled ' + stFmt.when(x.settled_at) : x.starts_at ? 'Starts ' + stFmt.when(x.starts_at) : '—', 'wrap', 1, 'Game');
+        tb.appendChild(tr);
+      });
+      // keep the page while the data refreshes; back to the newest when the AI or the simulation changes
+      const key = dash.model + '|' + p; if (box._betKey !== key) { box._betKey = key; box._betPg = 0; }
+      tb.dataset.pgNewest = '1'; tb._pgKey = ''; tb._pg = box._betPg || 0;
+      pagerFor(tb, 5, 'bets');
+      const bar = tb.closest('.st-wrap').nextElementSibling;
+      if (bar && bar.classList.contains('st-pager')) { const keep = () => { box._betPg = tb._pg || 0; }; bar.addEventListener('click', keep); bar.addEventListener('change', keep); }
+      const open = all.filter((x) => x.status === 'Open');
+      box.appendChild(mk('p', 'st-note', (open.length ? 'Open now: ' + open.length + ' bet' + (open.length === 1 ? '' : 's') + ', ' + money(open.reduce((a, x) => a + Number(x.stake_cad || 0), 0)) + ' staked. ' : 'No open bets right now. ') + 'Times are Eastern (ET), with UTC and Hong Kong in brackets.'));
       return;
     }
     const H = dash.data('holdings'); const rows = H.status === 'ok' ? H.data.filter((r) => r.portfolio === p) : [];
