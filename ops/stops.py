@@ -223,10 +223,13 @@ def migrate_claude(state, rules, fx, books):
             key, p = yield_pair
             level = float(r['level'])
             if exp == 'Metals' and str(r['asset']) in ('Gold', 'Silver'):
-                fut = R.yahoo('GC=F' if r['asset'] == 'Gold' else 'SI=F')[0]
-                spot = float(p.get('last') or 0)
-                if spot > 0:
-                    level = round(level * fut / spot, 2)
+                try:   # a feed hiccup at the switch must not lose the stop: then it keeps the spot level (a little tighter than meant)
+                    fut = R.yahoo('GC=F' if r['asset'] == 'Gold' else 'SI=F')[0]
+                    spot = float(p.get('last') or 0)
+                    if spot > 0:
+                        level = round(level * fut / spot, 2)
+                except Exception as e:
+                    print('futures price unavailable at the switch; the stop keeps its spot level', r['asset'], e)
             kind = 'stop' if r['direction'] == direction('stop', float(p['qty'])) else 'target'
             sym, _, out = key.partition('|')
             state.setdefault('stops', {}).setdefault('claude', [])
