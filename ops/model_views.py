@@ -154,8 +154,12 @@ def build(rivals, claude):
             d['log'].append({'at': started[e].isoformat(), 'portfolio': e, 'action': 'Start',
                              'detail': 'Started with ' + ('US$' if e == 'China' else 'C$') + '100,000.'})
         recent_cut = min(datetime.now(UTC), RACE_END) - timedelta(days=3)  # keep the page light: notes from the last 3 days (all are kept in rivals.json)
+        notes = {}
         for th in rivals.get('thoughts', []):
             if th['model'] == mid and th['experiment'] in exps and _t(th['at']) >= recent_cut:
+                notes.setdefault(th['experiment'], []).append(th)
+        for e, ths in notes.items():   # and at most the 12 newest per race (faster first load on phones, agreed item 6); trades and bets are all kept
+            for th in sorted(ths, key=lambda x: _t(x['at']))[-12:]:
                 d['log'].append({'at': th['at'], 'portfolio': th['experiment'], 'action': 'Note', 'detail': th['text']})
         lr = m.get('last_run') or {}
         for n in lr.get('notes', []):

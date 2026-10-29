@@ -1079,7 +1079,12 @@ try:
 except Exception:
     data['facts'] = []   # the scrolling price ticker under the clocks   # each market's main price, last 1 and 3 hours (rivals.py)
 data['day_reports'] = r.get('day_reports', [])   # Gemini's and ChatGPT's own Race Reports (Claude's are in report.json)
-data['rivals_thoughts'] = [x for x in r.get('thoughts', []) if x['at'].replace('Z', '+00:00') >= _cut]
+_lt = {}
+for _x in r.get('thoughts', []):   # the site only ever shows each AI's latest note per race, so only those are sent (faster first load, agreed item 6)
+    _k = (_x.get('model'), _x.get('experiment'))
+    if _k not in _lt or _when(_x['at']) >= _when(_lt[_k]['at']):
+        _lt[_k] = _x
+data['rivals_thoughts'] = sorted(_lt.values(), key=lambda x: _when(x['at']))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import model_views
 try:   # each of Claude's decisions carries its peer-grade key, so the other AIs' grades show under it (G7)
