@@ -247,6 +247,8 @@
   .st-model { flex: 0 1 300px; min-width: 0; max-width: 100%; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
   .st-model-inline { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 14px; }
   .st-model-inline .st-model-note { flex: 1 1 220px; }
+  .st-page > .st-model-inline { flex: none; }   /* the page is a column, so the 300px basis was making this box 300px tall */
+  .st-model-inline .model-pick { flex: 0 1 340px; width: auto; }
   .st-model-l { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--color-fg-muted); }
   .model-pick, .cur-pick { width: 100%; max-width: 100%; min-width: 0; font: inherit; font-size: 15px; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 8px 10px; min-height: 40px; }
   .model-pick:focus-visible, .cur-pick:focus-visible, .st-model-cmp:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
@@ -355,6 +357,7 @@
   .ai-badge .ab-g { fill: none; stroke: #fff; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
   :root[data-theme="light"] .ai-badge .ab-g, :root[data-theme="reader"] .ai-badge .ab-g { stroke: var(--color-fg); }
   .pd-who { display: flex; align-items: center; }
+  .ai-mdl { margin-left: 6px; font-size: 11px; font-weight: 500; color: var(--color-fg-muted); white-space: nowrap; letter-spacing: .01em; }
   .ai-hero h2 { display: flex; align-items: center; }
   .m-menu-btn, .m-menu { display: none; }
   .st-lang-wrap { display: inline-flex; align-items: center; gap: 6px; }
@@ -688,7 +691,7 @@
     <div class="st-hook">
       <aside class="st-podium" data-draw="podium" data-source="exp_standings moments moments_all history rivals_history fx_all fx_meta bets rivals_models rivals_trades pulse" aria-label="Race standings"></aside>
       <p class="st-hook-q">Which AI makes the most money in real markets?</p>
-      <p class="st-hook-sub" id="hook-sub">Claude, Gemini and ChatGPT trade head to head from Oct 28 to Nov 28. Each AI runs its own separate copy of all ten experiments with C$100,000 of pretend money each and real-world prices. They are being tested publicly, in real time: every trade, bet and reason is published here as it happens, win or lose. Each AI makes every decision by itself, with no human picking trades, and this page is managed and updated automatically by AI.</p>
+      <p class="st-hook-sub" id="hook-sub"><span data-model-name="claude" translate="no">Claude Opus 5.5</span>, <span data-model-name="gemini" translate="no">Gemini 3.1 Pro Preview</span> and <span data-model-name="chatgpt" translate="no">ChatGPT (GPT-5.5)</span> trade head to head from Oct 28 to Nov 28. Each AI runs its own separate copy of all ten experiments with C$100,000 of pretend money each and real-world prices. They are being tested publicly, in real time: every trade, bet and reason is published here as it happens, win or lose. Each AI makes every decision by itself, with no human picking trades, and this page is managed and updated automatically by AI.</p>
       <p class="st-take"><span class="st-take-l">Claude's current take</span><span data-draw="take" data-source="take">—</span></p>
       <p class="st-fact" data-draw="factcheck" data-source="take factcheck"></p>
     </div>
@@ -701,9 +704,9 @@
       <div class="st-model" role="group" aria-labelledby="model-l">
         <label class="st-model-l" id="model-l" for="model-pick">Model</label>
         <select id="model-pick" class="model-pick">
-          <option value="claude">Claude (Anthropic)</option>
-          <option value="gemini">Gemini (Google)</option>
-          <option value="chatgpt" disabled>ChatGPT (OpenAI)</option>
+          <option value="claude">Claude Opus 5.5 (Anthropic)</option>
+          <option value="gemini">Gemini 3.1 Pro Preview (Google)</option>
+          <option value="chatgpt" disabled>ChatGPT (OpenAI’s GPT-5.5)</option>
         </select>
         <p class="st-model-note" data-model-note>Showing Claude’s ten experiments (model: Claude Opus 5.5).</p>
         <label class="st-model-l" for="cur-pick">Show money in</label>
@@ -1470,9 +1473,9 @@
       <div class="st-bets-bar">
         <label class="st-model-l" for="model-pick-bets">Model</label>
         <select id="model-pick-bets" class="model-pick">
-          <option value="claude">Claude (Anthropic)</option>
-          <option value="gemini">Gemini (Google)</option>
-          <option value="chatgpt">ChatGPT (OpenAI)</option>
+          <option value="claude">Claude Opus 5.5 (Anthropic)</option>
+          <option value="gemini">Gemini 3.1 Pro Preview (Google)</option>
+          <option value="chatgpt">ChatGPT (OpenAI’s GPT-5.5)</option>
         </select>
         <span class="st-bets-pager" data-bets-pager></span>
       </div>
@@ -1638,7 +1641,7 @@
   <section class="st-page" id="h2h" data-page="h2h" hidden>
     <section class="st-card" aria-labelledby="h-h2h">
       <h2 class="st-h2" id="h-h2h">Claude vs Gemini vs ChatGPT</h2>
-      <p class="st-note">Claude (Anthropic), Gemini (Google) and ChatGPT (OpenAI) each run their own separate copies of all ten experiments. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored against its own start; overall, the AI with the most total profit wins (see How it works). All three check in at the same times, search the news themselves and make their own trades. Every experiment restarted level on Oct 28 at 1:45 p.m. ET after a morning tuning run, which is kept in the Ledger and doesn’t count.</p>
+      <p class="st-note"><span data-model-name="claude" data-form="co" translate="no">Claude Opus 5.5 (Anthropic)</span>, <span data-model-name="gemini" data-form="co" translate="no">Gemini 3.1 Pro Preview (Google)</span> and <span data-model-name="chatgpt" data-form="co" translate="no">ChatGPT (OpenAI’s GPT-5.5)</span> each run their own separate copies of all ten experiments. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored against its own start; overall, the AI with the most total profit wins (see How it works). All three check in at the same times, search the news themselves and make their own trades. Every experiment restarted level on Oct 28 at 1:45 p.m. ET after a morning tuning run, which is kept in the Ledger and doesn’t count.</p>
       <div data-draw="h2h" data-source="exp_standings rivals_models rivals_history rivals_trades rivals_takes history totals take trades log factcheck"></div>
     </section>
     <section class="st-card st-fc-card" aria-label="Forecasts">
@@ -1802,9 +1805,9 @@
     <div class="st-model st-model-inline" role="group" aria-label="Model for the ledger">
       <label class="st-model-l" for="model-pick-ledger">Model</label>
       <select id="model-pick-ledger" class="model-pick">
-        <option value="claude">Claude (Anthropic)</option>
-        <option value="gemini">Gemini (Google)</option>
-        <option value="chatgpt" disabled>ChatGPT (OpenAI)</option>
+        <option value="claude">Claude Opus 5.5 (Anthropic)</option>
+        <option value="gemini">Gemini 3.1 Pro Preview (Google)</option>
+        <option value="chatgpt" disabled>ChatGPT (OpenAI’s GPT-5.5)</option>
       </select>
       <p class="st-model-note" data-model-note>Showing Claude’s ten experiments (model: Claude Opus 5.5).</p>
     </div>
@@ -2179,7 +2182,7 @@
       const l = mk('label', 'st-tt'); l.appendChild(mk('span', '', label));
       const sel = mk('select'); sel.setAttribute('aria-label', label); l.appendChild(sel);
       const sync = () => {
-        sel.replaceChildren(...[...src.options].map((o) => { const n = mk('option', '', o.textContent); n.value = o.value; n.disabled = o.disabled; return n; }));
+        sel.replaceChildren(...[...src.options].map((o) => { const n = mk('option', '', o.dataset.short || o.textContent); n.value = o.value; n.disabled = o.disabled; return n; }));
         sel.value = src.value;
       };
       sync(); src.addEventListener('change', sync);
@@ -3645,6 +3648,47 @@
     return w;
   };
   const AIS = { claude: { label: 'Claude', color: '#d97757' }, gemini: { label: 'Gemini', color: '#4f8ff7' }, chatgpt: { label: 'ChatGPT', color: 'var(--ai-chatgpt)' } };
+  // the exact model behind each AI, wherever the site names them (owner's request, Oct 29). Claude is Claude Opus 5.5; Gemini and ChatGPT
+  // use their company's newest flagship, re-checked at every check-in, so their names come from the model that answered the latest check-in.
+  const MODEL_RAW0 = { claude: 'claude-opus-5-5', gemini: 'gemini-3.1-pro-preview', chatgpt: 'openai/gpt-5.5' };
+  const MODEL_CO = { claude: 'Anthropic', gemini: 'Google', chatgpt: 'OpenAI' };
+  const modelRaw = (id) => {
+    if (id === 'claude') return MODEL_RAW0.claude;
+    try { const m = (dash.baseData('rivals_models') || []).find((x) => x.id === id); if (m && m.model) return String(m.model); } catch (e) {}
+    return MODEL_RAW0[id] || '';
+  };
+  const capW = (w) => w.split('-').map((x) => x.charAt(0).toUpperCase() + x.slice(1)).join('-');
+  const prettyModel = (raw) => {
+    const r = String(raw || '').replace(/^[a-z-]+\//, ''); let m;
+    if ((m = r.match(/^claude-([a-z]+)-(\d+)(?:[-.](\d+))?/))) return 'Claude ' + capW(m[1]) + ' ' + m[2] + (m[3] ? '.' + m[3] : '');
+    if ((m = r.match(/^gemini-(\d+(?:\.\d+)?)-(pro|flash-lite|flash|ultra)(-preview)?/))) return 'Gemini ' + m[1] + ' ' + capW(m[2]) + (m[3] ? ' Preview' : '');
+    if ((m = r.match(/^gemini-(pro|flash-lite|flash)-latest$/))) return 'Gemini ' + capW(m[1]) + ' (latest)';
+    if ((m = r.match(/^gpt-(\d+(?:\.\d+)?)(?:-(mini|nano|pro))?/))) return 'GPT-' + m[1] + (m[2] ? ' ' + m[2] : '');
+    return r;
+  };
+  const ownBrand = (id, p) => p.toLowerCase().startsWith(((AIS[id] || {}).label || id).toLowerCase());
+  // 'Claude Opus 5.5', 'Gemini 3.1 Pro Preview', 'ChatGPT (GPT-5.5)'
+  const aiModel = (id) => { const p = prettyModel(modelRaw(id)); return ownBrand(id, p) ? p : ((AIS[id] || {}).label || id) + ' (' + p + ')'; };
+  // with the company: 'Claude Opus 5.5 (Anthropic)', 'Gemini 3.1 Pro Preview (Google)', 'ChatGPT (OpenAI’s GPT-5.5)'
+  const aiModelCo = (id) => { const p = prettyModel(modelRaw(id)); return ownBrand(id, p) ? p + ' (' + MODEL_CO[id] + ')' : ((AIS[id] || {}).label || id) + ' (' + MODEL_CO[id] + '’s ' + p + ')'; };
+  // the short tag next to a name: 'Opus 5.5', '3.1 Pro', 'GPT-5.5'
+  const modelTag = (id) => { const p = prettyModel(modelRaw(id)), l = ((AIS[id] || {}).label || id) + ' '; return (p.toLowerCase().startsWith(l.toLowerCase()) ? p.slice(l.length) : p).replace(/ Preview$/, ''); };
+  // a name with its badge and model tag, for standings and head-to-head rows
+  const whoNode = (id, size, cls) => {
+    const w = mk('span', cls || 'pd-who'); w.append(aiBadge(id, size), document.createTextNode(AIS[id].label));
+    const t = mk('small', 'ai-mdl', modelTag(id)); t.setAttribute('translate', 'no'); w.appendChild(t); w.title = aiModelCo(id); return w;
+  };
+  // fill every [data-model-name] in the page text, the Model menus and the AI tabs' tooltips
+  const fillModelNames = () => {
+    document.querySelectorAll('[data-model-name]').forEach((n) => { const id = n.dataset.modelName; const v = n.dataset.form === 'co' ? aiModelCo(id) : aiModel(id); if (n.textContent !== v) n.textContent = v; });
+    document.querySelectorAll('.model-pick option').forEach((o) => {
+      if (!MODEL_CO[o.value]) return; const wait = o.disabled && o.value !== 'claude' ? ': starts at the 1:45 p.m. ET open' : '';
+      const v = aiModelCo(o.value) + wait; if (o.textContent !== v) o.textContent = v;
+      const sh = aiModel(o.value).replace(/ Preview$/, '') + wait; if (o.dataset.short !== sh) o.dataset.short = sh;   // the narrow menu in the bar that stays at the top
+    });
+    document.querySelectorAll('.st-tab[data-tab^="ai-"]').forEach((b) => { const id = b.dataset.tab.slice(3); if (MODEL_CO[id]) b.title = aiModelCo(id); });
+  };
+  dash.onData(fillModelNames);
   const H2H_EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'];
   const H2H_PLAN = { gemini: H2H_EXPS, chatgpt: H2H_EXPS };
   const H2H_START = (exp) => 100000;
@@ -3776,7 +3820,7 @@
         const ranked = SEL.map((id) => ({ id, ...tally[id], avg: avg(tally[id].pcts) })).sort((a, b) => GLANCE ? (b.wins - a.wins) : (b.profit - a.profit));
         ranked.forEach((s, i) => {
           const li = mk('li', 'h2h-row'); li.style.setProperty('--ai', AIS[s.id].color);
-          const nm = mk('span', 'h2h-name'); { const w = mk('span', 'pd-who'); w.append(aiBadge(s.id, 18), document.createTextNode(AIS[s.id].label)); nm.appendChild(w); }
+          const nm = mk('span', 'h2h-name'); { nm.appendChild(whoNode(s.id, 18)); }
           if (!GLANCE && i === 0 && ranked.length > 1 && s.profit !== ranked[1].profit) nm.appendChild(mk('span', 'h2h-lead', ENDED && !EXP_SEL ? '👑 Overall winner' : '👑 Leading'));
           if (GLANCE && i === 0 && ranked.length > 1 && s.wins !== ranked[1].wins) nm.appendChild(mk('span', 'h2h-lead', '👑 Leads the most races'));
           const elim = s.profit <= -100000 || (models.find((x) => x.id === s.id) || {}).eliminated;
@@ -3808,7 +3852,7 @@
       const ranked = ser.map((s) => ({ ...s, last: s.pts[s.pts.length - 1].v, pct: s.pts[s.pts.length - 1].v / 100000 - 1 })).sort((a, b) => b.pct - a.pct);
       ranked.forEach((s, i) => {
         const li = mk('li', 'h2h-row'); li.style.setProperty('--ai', AIS[s.id].color);
-        const nm = mk('span', 'h2h-name'); { const w = mk('span', 'pd-who'); w.append(aiBadge(s.id, 18), document.createTextNode(AIS[s.id].label)); nm.appendChild(w); }
+        const nm = mk('span', 'h2h-name'); { nm.appendChild(whoNode(s.id, 18)); }
         if (i === 0 && ranked.length > 1 && s.pct !== ranked[1].pct) nm.appendChild(mk('span', 'h2h-lead', 'Leading'));
         li.appendChild(nm);
         const mdl = models.find((x) => x.id === s.id);
@@ -3820,7 +3864,7 @@
       });
       ['gemini', 'chatgpt'].filter((id) => SEL.includes(id) && H2H_PLAN[id].includes(exp) && !ser.some((s) => s.id === id)).forEach((id) => {
         const li = mk('li', 'h2h-row h2h-wait'); li.style.setProperty('--ai', AIS[id].color);
-        { const w = mk('span', 'h2h-name pd-who'); w.append(aiBadge(id, 18), document.createTextNode(AIS[id].label)); li.appendChild(w); }
+        li.appendChild(whoNode(id, 18, 'h2h-name pd-who'));
         li.appendChild(mk('span', 'h2h-sub', Date.now() < Date.parse('2026-10-28T17:45:00Z') ? 'Starts at the 1:45 p.m. ET restart' : 'No check-in in this experiment yet'));
         rows.appendChild(li);
       });
@@ -4089,7 +4133,7 @@
     const hero = card('ai-hero');
     { const h = mk('h2'); h.append(aiBadge(id, 30), document.createTextNode(nm)); hero.appendChild(h); }
     const meta = (dash.baseData('rivals_models').find((m) => m.id === id) || {});
-    hero.appendChild(mk('p', 'ai-co', AI_CO[id] + ' · model: ' + (id === 'claude' ? 'Claude Opus 5.5' : (meta.model || '—')) + ' · everything below is written and decided by ' + nm + ' itself'));
+    hero.appendChild(mk('p', 'ai-co', AI_CO[id] + ' · model: ' + prettyModel(modelRaw(id)) + ' (API name: ' + modelRaw(id) + ') · everything below is written and decided by ' + nm + ' itself'));
     const fx = rates().CAD || 1.38;
     const H = id === 'claude' ? dash.baseData('history').map((h) => ({ e: h.portfolio, at: h.at, v: +h.value })) : dash.baseData('rivals_history').filter((h) => h.model === id).map((h) => ({ e: h.experiment, at: h.at, v: +h.value }));
     const lastV = {}; H.slice().sort((a, b) => new Date(a.at) - new Date(b.at)).forEach((h) => { lastV[h.e] = h.v; });
@@ -4197,7 +4241,7 @@
       const rows = mk('ul', 'h2h-rows');
       ranked.forEach((x, i) => {
         const li = mk('li', 'h2h-row'); li.style.setProperty('--ai', AIS[x.id].color);
-        const nm = mk('span', 'h2h-name'); { const w = mk('span', 'pd-who'); w.append(aiBadge(x.id, 18), document.createTextNode(AIS[x.id].label)); nm.appendChild(w); }
+        const nm = mk('span', 'h2h-name'); { nm.appendChild(whoNode(x.id, 18)); }
         if (x.book.busted) { const t = mk('span', 'h2h-lead', 'BUSTED'); t.style.color = '#ff5a4e'; nm.appendChild(t); }
         else if (i === 0 && ranked.length > 1 && x.last !== ranked[1].last) nm.appendChild(mk('span', 'h2h-lead', 'Leading'));
         li.appendChild(nm);
@@ -4367,15 +4411,15 @@
   const MODEL_COL = { claude: ['var(--accent)', 'var(--accent-bg)'], gemini: ['#4f8ff7', 'rgba(79,143,247,.09)'], chatgpt: ['var(--ai-chatgpt)', 'rgba(160,160,160,.08)'] };
   const applyModel = (id) => {
     { const c = MODEL_COL[id] || MODEL_COL.claude; document.documentElement.style.setProperty('--model', c[0]); document.documentElement.style.setProperty('--model-bg', c[1]); document.documentElement.dataset.model = id || 'claude'; }
-    { const v = document.getElementById('viewing-name'); if (v) { v.textContent = ({ claude: 'Claude Opus 5.5 (Anthropic)', gemini: 'Gemini (Google)', chatgpt: 'ChatGPT (OpenAI)' })[id] || id; const L = dash.baseData('leader'); if (L === id) v.appendChild(mk('span', 'st-crown', '👑 leading the race')); } }
+    { const v = document.getElementById('viewing-name'); if (v) { v.textContent = MODEL_CO[id] ? aiModelCo(id) : id; const L = dash.baseData('leader'); if (L === id) v.appendChild(mk('span', 'st-crown', '👑 leading the race')); } }
     const views = dash.models();
     document.querySelectorAll('.model-pick').forEach((sel) => {
       sel.value = id;
       [...sel.options].forEach((o) => {
-        if (o.value === 'claude') return;
+        if (o.value === 'claude') { o.textContent = aiModelCo('claude'); return; }
         const ok = !!views[o.value];
         o.disabled = !ok;
-        o.textContent = MODEL_LABEL[o.value] + ' (' + (o.value === 'gemini' ? 'Google' : 'OpenAI') + ')' + (ok ? '' : ': starts at the 1:45 p.m. ET open');
+        o.textContent = aiModelCo(o.value) + (ok ? '' : ': starts at the 1:45 p.m. ET open');
       });
     });
     const exps = modelExps();
@@ -4398,7 +4442,7 @@
       el.textContent = meta.label + '’s own copy of this experiment' + (st ? ', started ' + stFmt.when(st) : '') + ' with ' + (el.dataset.modelText === 'China' ? 'US$100,000' : 'C$100,000') + '. Holdings, trades and decisions below are ' + meta.label + '’s; it checks in at the same times as Claude and searches the news itself.';
     });
     document.querySelectorAll('[data-model-note]').forEach((n) => {
-      n.textContent = meta ? 'Showing ' + meta.label + '’s own separate copies of ' + exps.length + ' experiments' + (meta.model ? ' (model: ' + meta.model + ')' : '') + '. Each started with its own 100,000 at the Oct 28 1:45 p.m. ET restart.' : 'Showing Claude’s ten experiments (model: Claude Opus 5.5).';
+      n.textContent = meta ? 'Showing ' + meta.label + '’s own separate copies of ' + exps.length + ' experiments' + (meta.model ? ' (model: ' + prettyModel(meta.model) + ')' : '') + '. Each started with its own 100,000 at the Oct 28 1:45 p.m. ET restart.' : 'Showing Claude’s ten experiments (model: Claude Opus 5.5).';
     });
     const take = document.querySelector('.st-take-l'); if (take) take.textContent = (meta ? meta.label : 'Claude') + '’s current take';
     Object.entries(TABOF).forEach(([pf, tab]) => {
@@ -4736,7 +4780,7 @@
       ord.forEach((id, i) => {
         const li = mk('li'); const bt = mk('button'); bt.type = 'button'; bt.style.setProperty('--ai', AIS[id].color);
         if (dash.model === id) bt.setAttribute('aria-current', 'true');
-        const n = mk('span', 'pd-name'); const w = mk('span', 'pd-who'); w.append(aiBadge(id, 20), document.createTextNode(AIS[id].label)); n.appendChild(w);
+        const n = mk('span', 'pd-name'); n.appendChild(whoNode(id, 20));
         n.appendChild(mk('small', 'pd-leads', led[id].length ? 'Leads ' + led[id].map((r) => (LABEL[r] || r).replace(' (US$)', '')).join(', ') : 'Leads no race yet'));
         const tie = i > 0 && led[id].length === led[ord[i - 1]].length;
         bt.append(mk('span', 'pd-place', i === 0 && led[id].length > led[ord[1]].length ? '👑 1st' : tie ? '=' : ['1st', '2nd', '3rd'][i]), n, mk('span', 'pd-amt', led[id].length + ' of 10'));
@@ -4757,7 +4801,7 @@
     rows.forEach((r, i) => {
       const li = mk('li'); const bt = mk('button'); bt.type = 'button'; bt.style.setProperty('--ai', AIS[r.id].color);
       if (dash.model === r.id) bt.setAttribute('aria-current', 'true');
-      const n = mk('span', 'pd-name'); const w = mk('span', 'pd-who'); w.append(aiBadge(r.id, 20), document.createTextNode(AIS[r.id].label)); n.appendChild(w);
+      const n = mk('span', 'pd-name'); n.appendChild(whoNode(r.id, 20));
       const tag = r.eliminated ? 'Eliminated · ' : r.busted ? 'BUSTED · ' : '';
       n.appendChild(mk('small', 'pd-leads', tag + (el._exp === 'Sports' ? sportsLine(r.id) : r.holds && r.holds.length ? 'Holds ' + r.holds.slice(0, 3).join(', ') + (r.holds.length > 3 ? ' +' + (r.holds.length - 3) + ' more' : '') : 'All cash')));
       bt.append(mk('span', 'pd-place', i === 0 ? '👑 1st' : ['1st', '2nd', '3rd'][i] || (i + 1) + 'th'), n);
@@ -5062,7 +5106,7 @@
     c = mk('section', 'bg-start'); c.id = 'bg-start';
     c.appendChild(mk('h2', '', '🎓 New here? Start here'));
     const ol = mk('ol');
-    ['Three AIs (Claude, Gemini and ChatGPT) each got C$100,000 of pretend money in ten separate races, from stocks to sports betting. Nobody touches their trades.',
+    ['Three AIs, ' + aiModel('claude') + ', ' + aiModel('gemini') + ' and ' + aiModel('chatgpt') + ', each got C$100,000 of pretend money in ten separate races, from stocks to sports betting. Nobody touches their trades.',
      'Race standings (right, or below on phones) shows who is ahead in each race: the green or red number is the profit or loss since Oct 28. Pick a race from the menu to switch.',
      'Every trade and bet comes with the AI’s own reason. In the Ledger, each one is explained in a plain sentence: what it bought or bet, and what it made or lost.',
      'Words with a dotted underline can be tapped for a short explanation, such as “short”, “moneyline” or odds like −149.',
@@ -5188,7 +5232,7 @@
         const x = (a.ais || {})[id]; const c = mk('section', 'au-ai'); c.style.setProperty('--ai', AIS[id].color);
         const h = mk('h3'); h.append(aiBadge(id, 22), document.createTextNode(AIS[id].label)); c.appendChild(h);
         if (!x) { c.appendChild(mk('p', 'st-note', 'Appears after its next check-in.')); grid.appendChild(c); return; }
-        c.appendChild(mk('p', 'au-meta', 'Model: ' + (x.model || '—') + (x.at ? ' · latest check-in ' + stFmt.when(x.at) : '') + (x.searches !== undefined && x.searches !== null ? ' · web searches: ' + x.searches : '')));
+        c.appendChild(mk('p', 'au-meta', 'Model: ' + (!x.model ? '—' : / /.test(x.model) ? x.model : prettyModel(x.model) + ' (' + x.model + ')') + (x.at ? ' · latest check-in ' + stFmt.when(x.at) : '') + (x.searches !== undefined && x.searches !== null ? ' · web searches: ' + x.searches : '')));
         c.appendChild(mk('p', 'st-note', x.how || ''));
         const words = (t) => (t || '').split(/\s+/).filter(Boolean).length;
         const block = (title, text) => { const d = document.createElement('details'); d.appendChild(mk('summary', '', title + ' (' + d3.format(',')(words(text)) + ' words)')); const pre = mk('pre', 'au-pre'); pre.textContent = text; d.appendChild(pre); return d; };
