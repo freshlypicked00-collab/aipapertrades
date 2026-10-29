@@ -372,11 +372,14 @@
   .st-geo-tag { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; font-weight: 700; margin-right: 6px; }
   .st-geo-tag.ok { color: var(--color-ok); } .st-geo-tag.claim { color: var(--color-warn); }
   .say-btn { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; margin-left: 4px; vertical-align: middle; border-radius: 50%; border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg-muted); font-size: 11px; line-height: 1; cursor: pointer; padding: 0; flex: none; }
+  .say-pair { display: inline-flex; gap: 4px; margin-left: 4px; vertical-align: middle; white-space: nowrap; }
+  .say-pair .say-btn { margin-left: 0; width: auto; min-width: 34px; padding: 0 7px; border-radius: 13px; font-size: 11px; font-weight: 600; }
+  .listen-pair { display: inline-flex; flex-wrap: wrap; gap: 6px; }
   .say-btn:hover { color: var(--color-fg); border-color: var(--color-fg-muted); }
   .say-btn:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   .say-btn[aria-pressed="true"] { color: var(--color-ok); border-color: var(--color-ok); }
   .is-reading { background: var(--accent-bg, rgba(255,176,0,.06)); border-radius: 4px; box-shadow: 0 0 0 4px var(--accent-bg, rgba(255,176,0,.06)); }
-  @media (pointer: coarse) { .say-btn { width: 32px; height: 32px; font-size: 12px; } }
+  @media (pointer: coarse) { .say-btn { width: 32px; height: 32px; font-size: 12px; } .say-pair .say-btn { width: auto; min-width: 40px; } }
   .st-sources, .st-sources li, .st-sources a, .st-geo-src a, .st-fact a, td a { overflow-wrap: anywhere; word-break: break-word; }
   .st-shipmap { position: relative; width: 100%; height: 460px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); overflow: hidden; background: var(--card-inset, #1d1c18); }
   .st-shipmap iframe { display: block; width: 100%; height: 100%; border: 0; }
@@ -3723,7 +3726,7 @@ body { background:var(--color-bg); }
     if (SAY.el) SAY.el.classList.remove('is-reading');
     SAY.btn = SAY.el = null;
   };
-  const say = (text, btn, el) => {
+  const say = (text, btn, el, g) => {
     const again = SAY.btn === btn;
     stopSay();
     if (again) return;
@@ -3733,29 +3736,35 @@ body { background:var(--color-bg); }
     SAY.btn = btn; SAY.el = el || null;
     btn.setAttribute('aria-pressed', 'true'); btn.textContent = btn._stop; btn.setAttribute('aria-label', 'Stop reading');
     if (el) el.classList.add('is-reading');
-    const go = () => { if (SAY.btn !== btn) return; const v = pickVoice(L); if (v) u.voice = v; speechSynthesis.speak(u); };
+    const go = () => { if (SAY.btn !== btn) return; const v = pickVoice(L, g === 'm' ? 'm' : 'f'); if (v) u.voice = v; if (g === 'm') { u.pitch = 0.55; u.rate = 1.05; } speechSynthesis.speak(u); };   // male: lowered pitch for the robotic AI sound
     // wait until the FULL voice list is in: browsers first list only built-in voices (often a male one) and add the natural ones a moment later
     if (VOICES_READY) go();
     else { let done = false; const once = () => { if (!done) { done = true; go(); } }; speechSynthesis.addEventListener('voiceschanged', () => setTimeout(once, 150), { once: true }); setTimeout(once, 1500); }
   };
-  // ONE voice for every read-aloud, the same every time: a fixed ranked list of natural female English voices
-  // (Edge, Chrome, Safari/iPhone, Android, Windows), then the first English voice; other languages keep one voice each.
-  const VOICE_PREF = [/Aria.*Natural/i, /Jenny.*Natural/i, /Ava.*(Natural|Premium|Enhanced)/i, /Samantha/i, /^Google US English$/i, /Microsoft Aria/i, /Microsoft Jenny/i, /Microsoft Zira/i, /English.*United States.*(female|#1)?/i];
+  // Two fixed voices, the same every time: a realistic natural female voice and a male voice (ranked lists across
+  // Edge/Windows, Chrome, Safari/iPhone/Mac and Android); other languages pick by name where they can, else one voice.
+  const VOICE_PREF = {
+    f: [/Aria.*Natural/i, /Jenny.*Natural/i, /Ava.*(Natural|Premium|Enhanced)/i, /Emma.*Natural/i, /Samantha.*(Premium|Enhanced)/i, /Samantha/i, /^Google US English$/i, /Microsoft (Aria|Jenny|Zira)/i, /Karen|Moira|Tessa|Serena|Allison|Susan|Victoria/i, /female/i],
+    // male = the robotic "AI" voice: classic synthetic system voices first (no natural ones), then any male voice
+    m: [/^Fred\b/i, /Microsoft David/i, /Microsoft Mark/i, /^Google UK English Male$/i, /Microsoft George/i, /Daniel|Alex\b|Aaron|Arthur|Oliver|Rishi|Tom\b/i, /\bmale\b/i],
+  };
+  const FEMALE_HINT = /female|Aria|Jenny|Ava|Emma|Samantha|Zira|Karen|Moira|Tessa|Serena|Allison|Susan|Victoria|Google US English$/i;
   const VOICE_CACHE = {};
-  const pickVoice = (L) => {
-    if (VOICE_CACHE[L]) return VOICE_CACHE[L];
+  const pickVoice = (L, g) => {
+    const key = L + ':' + g;
+    if (VOICE_CACHE[key]) return VOICE_CACHE[key];
     const vs = speechSynthesis.getVoices(); if (!vs.length) return null;
+    const en = L === 'en-US';
+    const pool = en ? vs.filter((x) => /^en[-_](US|CA|GB|AU|IE)/i.test(x.lang)) : vs.filter((x) => x.lang.toLowerCase().replace('_', '-').startsWith(L.toLowerCase().split('-')[0]));
     let v = null;
-    if (L === 'en-US') {
-      const en = vs.filter((x) => /^en[-_](US|CA|GB)/i.test(x.lang));
-      for (const re of VOICE_PREF) { v = en.find((x) => re.test(x.name)); if (v) break; }
-      v = v || en.find((x) => /^en[-_]US/i.test(x.lang)) || en[0] || vs.find((x) => /^en/i.test(x.lang));
-    } else {
-      const base = L.toLowerCase().split('-')[0];
-      const same = vs.filter((x) => x.lang.toLowerCase().replace('_', '-').startsWith(base));
-      v = same.find((x) => /Natural|Google/i.test(x.name)) || same[0];
+    if (g === 'm') {   // male: the browser's own default voice (the one heard before), unless that default is a female voice
+      const d = vs.find((x) => x.default && (!en || /^en/i.test(x.lang)));
+      if (d && !FEMALE_HINT.test(d.name)) { VOICE_CACHE[key] = d; return d; }
     }
-    if (v) VOICE_CACHE[L] = v;
+    for (const re of VOICE_PREF[g]) { v = pool.find((x) => re.test(x.name) && (g === 'f' || !FEMALE_HINT.test(x.name))); if (v) break; }
+    if (!v && g === 'm') v = pool.find((x) => !FEMALE_HINT.test(x.name));
+    v = v || pool[0] || vs.find((x) => /^en/i.test(x.lang));
+    if (v) VOICE_CACHE[key] = v;
     return v;
   };
   let VOICES_READY = false;
@@ -3767,37 +3776,45 @@ body { background:var(--color-bg); }
       setTimeout(() => { VOICES_READY = true; }, 2500);   // browsers that never send voiceschanged
     }
   } catch (e) {}
-  const playBtn = (getText, el) => {   // the small ▶ used on every paragraph
-    const b = mk('button', 'say-btn', '▶'); b.type = 'button'; b._idle = '▶'; b._stop = '⏹'; b._label = 'Listen to this';
-    b.setAttribute('aria-label', 'Listen to this'); b.setAttribute('aria-pressed', 'false'); b.title = 'Listen to this';
-    b.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); say(getText(), b, el); });
-    return b;
+  const VOICE_LABEL = { m: 'male AI voice', f: 'female voice' };
+  const sayPair = (getText, el, label) => {   // two small buttons: ▶ M (male voice) and ▶ F (female voice)
+    const w = mk('span', 'say-pair');
+    ['m', 'f'].forEach((g) => {
+      const b = mk('button', 'say-btn'); b.type = 'button'; b._idle = '▶ ' + g.toUpperCase(); b._stop = '⏹'; b._label = (label || 'Listen to this') + ' (' + VOICE_LABEL[g] + ')';
+      b.textContent = b._idle; b.setAttribute('aria-label', b._label); b.setAttribute('aria-pressed', 'false'); b.title = b._label;
+      b.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); say(getText(), b, el, g); });
+      w.appendChild(b);
+    });
+    return w;
   };
-  const listenBtn = (getText, label) => {
-    const b = mk('button', 'listen-btn', '🔊 ' + (label || 'Listen')); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
-    b._idle = '🔊 ' + (label || 'Listen'); b._stop = '⏹ Stop'; b._label = label || 'Listen';
-    if (!('speechSynthesis' in window)) { b.disabled = true; b.title = 'Your browser cannot read text aloud'; return b; }
-    b.addEventListener('click', () => say(getText(), b, null));
-    return b;
+  const playBtn = (getText, el) => sayPair(getText, el, 'Listen to this');
+  const listenBtn = (getText, label) => {   // the bigger "Listen" buttons, also as a male / female pair
+    const w = mk('span', 'listen-pair');
+    ['m', 'f'].forEach((g) => {
+      const name = (label || 'Listen') + (g === 'm' ? ' · AI voice (male)' : ' · Female voice');
+      const b = mk('button', 'listen-btn', '🔊 ' + name); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
+      b._idle = '🔊 ' + name; b._stop = '⏹ Stop'; b._label = name;
+      if (!('speechSynthesis' in window)) { b.disabled = true; b.title = 'Your browser cannot read text aloud'; }
+      else b.addEventListener('click', () => say(getText(), b, null, g));
+      w.appendChild(b);
+    });
+    return w;
   };
   // Every paragraph gets its own ▶ button, and so does any other block of text longer than 50 words
   // (trade reasons, notes, fact checks, plan cards, updates). Added automatically wherever text is drawn.
   (() => {
     if (!('speechSynthesis' in window)) return;
-    const SKIP = '.au-pre, .au-ai, .h2h-holds, .pd-detail, .st-plans-wide, nav, button, select, label, header .st-meta, .st-sub, .st-dates, .st-podium, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
+    const SKIP = '.au-pre, .au-ai, .h2h-holds, .pd-detail, .st-plans-wide, nav, button, select, label, header .st-meta, .st-sub, .st-dates, .st-podium, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, .say-pair, .listen-pair, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
     const words = (t) => (t.trim().match(/\S+/g) || []).length;
     const NESTED = 'p, li, .st-plan, table, ul, ol';
     const textOf = (el, own) => {
-      const c = el.cloneNode(true); c.querySelectorAll('.say-btn, .listen-btn, button, select, svg' + (own ? ', ' + NESTED : '')).forEach((x) => x.remove());
+      const c = el.cloneNode(true); c.querySelectorAll('.say-pair, .listen-pair, .say-btn, .listen-btn, button, select, svg' + (own ? ', ' + NESTED : '')).forEach((x) => x.remove());
       const parts = []; const w = document.createTreeWalker(c, NodeFilter.SHOW_TEXT); let n; while ((n = w.nextNode())) parts.push(n.nodeValue);
       return parts.join(' ').replace(/\s+/g, ' ').replace(/\s+([,.;:!?)])/g, '$1').replace(/\(\s+/g, '(').trim();
     };
     const addTo = (el, kind) => {
-      const b = document.createElement('button'); b.type = 'button'; b.className = 'say-btn';
-      b._idle = '▶'; b._stop = '⏹'; b._label = kind === 'p' ? 'Listen to this paragraph' : 'Listen to this';
-      b.textContent = '▶'; b.setAttribute('aria-label', b._label); b.setAttribute('aria-pressed', 'false'); b.title = b._label;
       const own = !!el.querySelector(NESTED);
-      b.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); say(textOf(el, own), b, el); });
+      const b = sayPair(() => textOf(el, own), el, kind === 'p' ? 'Listen to this paragraph' : 'Listen to this');
       const firstNested = own ? el.querySelector(':scope > p, :scope > ul, :scope > ol, :scope > table, :scope > .st-plan') : null;
       if (firstNested) el.insertBefore(b, firstNested); else { el.appendChild(document.createTextNode(' ')); el.appendChild(b); }
       el.dataset.say = '1';
