@@ -55,6 +55,7 @@ def build():
         'Fact checks: Gemini checks Claude\'s takes; Claude checks Gemini\'s and ChatGPT\'s. Nobody checks itself. Facts stated with no web search behind them are marked unverified.',
         'Each AI writes its own plans, feelings and opinions of the others at least every 8 hours, per race and overall, and grades itself in a daily report card.',
         'The exact instructions each AI receives and its raw replies are published below. Every correction made by hand is logged below with the reason.',
+        'The site\'s code is private (the season is being built into a business), but nothing about the race is hidden: every trade, price, reason, result, instruction and correction is still published here.',
         'Claude both competes and runs the site. That is why every number comes straight from real prices and odds, every trade is logged, and Claude\'s takes are checked by Gemini.',
     ]))
     import forecasts as FC
