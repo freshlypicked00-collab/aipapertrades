@@ -2005,7 +2005,19 @@
     });
   };
   document.querySelectorAll('.st-tab').forEach((b) => b.addEventListener('click', () => goTab(b.dataset.tab)));
-  const goHome = () => { goTab('overview', false); window.scrollTo({ top: 0, behavior: 'smooth' }); };   // Home: the Overview, from the very top
+  const goHome = () => { goTab('overview', false); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  // Landing: a refresh (or a visit with no tab in the link) always opens Home at the very top; the browser is told not
+  // to restore the old scroll position. A shared link to a tab (e.g. #ledger) still opens that tab on a first visit.
+  try {
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    const nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {};
+    const reload = nav.type === 'reload' || nav.type === 'back_forward';
+    if (reload || !location.hash || location.hash === '#overview') {
+      goTab('overview', false);
+      try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+      window.scrollTo(0, 0); requestAnimationFrame(() => window.scrollTo(0, 0));
+    }
+  } catch (e) {}   // Home: the Overview, from the very top
   document.querySelectorAll('[data-home]').forEach((b) => b.addEventListener('click', goHome));
   window.ptHome = goHome;
   document.querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', () => goTab(b.dataset.goto)));
