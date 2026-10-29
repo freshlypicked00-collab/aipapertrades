@@ -728,8 +728,12 @@ def _moments():
         base[('claude', _e)] = _lastv([(h['at'], float(h['value'])) for h in data['history'] if h['portfolio'] == _e])[1]
     cur, lead, last_at, out = {}, {}, {}, []
     fx = float(_cfx)
-    for at, mid, e, v in ev:
-        cur[(mid, e)] = max(v, 0) - base.get((mid, e), 100000.0)
+    groups = {}
+    for at, mid, e, v in ev:   # values saved at the same moment are applied together, so a half-updated race never looks like a lead change
+        groups.setdefault((at, e), []).append((mid, v))
+    for (at, e) in sorted(groups, key=lambda k: k[0]):
+        for mid, v in groups[(at, e)]:
+            cur[(mid, e)] = max(v, 0) - base.get((mid, e), 100000.0)
         if at > RACE_END_DT:
             break
         for race in (e,):   # each race on its own: lead changes are never counted on totals (owner's rule)

@@ -4061,11 +4061,12 @@ body { background:var(--color-bg); }
     });
     return w;
   };
-  // Every paragraph gets its own ▶ button, and so does any other block of text longer than 50 words
-  // (trade reasons, notes, fact checks, plan cards, updates). Added automatically wherever text is drawn.
+  // The AIs' own words (takes, plans, feelings, opinions, notes, profiles, report cards and Race Reports) get ▶ buttons,
+  // added automatically wherever they are drawn. Labels, helper notes, tables and rules don't (owner's request, Oct 29).
   (() => {
     if (!('speechSynthesis' in window)) return;
-    const SKIP = '.bg-start, .bg-plain, .bg-toast, .bg-pop, tr.bg-say, .au-pre, .au-ai, .h2h-holds, .pd-detail, .st-plans-wide, nav, button, select, label, header .st-meta, .st-sub, .st-dates, .st-podium, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, .say-pair, .listen-pair, .sp-track, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
+    const SAY_ONLY = '.h2h-takes, .st-plan, .st-take, .ai-words, .lg-review-box, .lg-review, .st-report-body, .st-report-old, .st-fc-why';   // where the AIs' words are shown
+    const SKIP = '.st-note, .st-model-note, .pd-note, .st-sources, table, .st-live, .bg-start, .bg-plain, .bg-toast, .bg-pop, tr.bg-say, .au-pre, .au-ai, .h2h-holds, .pd-detail, .st-plans-wide, nav, button, select, label, header .st-meta, .st-sub, .st-dates, .st-podium, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, .say-pair, .listen-pair, .sp-track, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
     const words = (t) => (t.trim().match(/\S+/g) || []).length;
     const NESTED = 'p, li, .st-plan, table, ul, ol';
     const textOf = (el, own) => {
@@ -4083,6 +4084,7 @@ body { background:var(--color-bg); }
     const scan = () => {
       document.querySelectorAll('#dash-root p, #dash-root li, #dash-root td, #dash-root .st-plan, #dash-root blockquote').forEach((el) => {
         if (el.dataset.say || el.dataset.sayChecked === (el.textContent.length + '') || el.closest(SKIP) || el.offsetParent === null || el.querySelector('#theme-btn, #lang-pick, .st-count')) return;
+        if (!el.closest(SAY_ONLY) && !el.querySelector('q')) return;   // only the AIs' own words and the reports get a ▶ button, never labels, helper notes or tables
         el.dataset.sayChecked = el.textContent.length + '';   // don't re-check unchanged text
         const own = !!el.querySelector(NESTED);   // inner paragraphs carry their own buttons; this one reads only its own text
         const n = words(textOf(el, own));
