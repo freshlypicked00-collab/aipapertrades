@@ -1,8 +1,8 @@
 {
- "at": "2026-10-29T10:18:15Z",
+ "at": "2026-10-29T12:22:52Z",
  "since": "2026-10-28T17:45:00Z",
  "summary": {
-  "ok": 123,
+  "ok": 128,
   "flag": 0,
   "no_data": 0,
   "no_feed": 0
@@ -1934,6 +1934,85 @@
    "tolerance": "0.5%",
    "status": "ok",
    "note": "US$ per yen (the feed quotes yen per US$)"
+  },
+  {
+   "kind": "value",
+   "at": "2026-10-29T07:31:00-04:00",
+   "holding": "Bitcoin",
+   "action": "",
+   "claude": 79848.0,
+   "feed": "BTC-USD",
+   "feed_low": 80006.070312,
+   "feed_high": 80098.773438,
+   "basis": "1-minute bars within 5 minutes",
+   "gap_pct": 0.198,
+   "gap_abs": null,
+   "tolerance": "1.0%",
+   "status": "ok"
+  },
+  {
+   "kind": "value",
+   "at": "2026-10-29T07:33:00-04:00",
+   "holding": "Gold",
+   "action": "",
+   "claude": 4026.42,
+   "feed": "GC=F",
+   "feed_low": 4039.0,
+   "feed_high": 4046.300049,
+   "basis": "1-minute bars within 5 minutes",
+   "gap_pct": 0.312,
+   "gap_abs": null,
+   "tolerance": "1.5%",
+   "status": "ok",
+   "note": "Claude uses the spot price; the feed is COMEX futures, which usually trade a little above spot"
+  },
+  {
+   "kind": "value",
+   "at": "2026-10-29T07:33:00-04:00",
+   "holding": "Japanese yen",
+   "action": "",
+   "claude": 0.0063279,
+   "feed": "JPY=X",
+   "feed_low": 0.006329,
+   "feed_high": 0.006332,
+   "basis": "1-minute bars within 5 minutes",
+   "gap_pct": 0.015,
+   "gap_abs": null,
+   "tolerance": "0.5%",
+   "status": "ok",
+   "note": "US$ per yen (the feed quotes yen per US$)"
+  },
+  {
+   "kind": "value",
+   "at": "2026-10-29T07:33:00-04:00",
+   "holding": "Silver",
+   "action": "",
+   "claude": 52.76,
+   "feed": "SI=F",
+   "feed_low": 52.695,
+   "feed_high": 52.945,
+   "basis": "1-minute bars within 5 minutes",
+   "gap_pct": 0.0,
+   "gap_abs": null,
+   "tolerance": "2.0%",
+   "status": "ok",
+   "note": "Claude uses the spot price; the feed is COMEX futures, which usually trade a little above spot"
+  },
+  {
+   "kind": "value",
+   "at": "2026-10-29T07:35:00-04:00",
+   "holding": "Democrats win the Senate (Yes)",
+   "action": "",
+   "claude": 0.66,
+   "feed": "Polymarket",
+   "feed_low": 0.675,
+   "feed_high": 0.675,
+   "basis": "Polymarket price history within 30 minutes",
+   "gap_pct": null,
+   "gap_abs": 0.015,
+   "tolerance": "3 cents",
+   "status": "ok",
+   "note": "tolerance 3 cents"
   }
  ]
 }
