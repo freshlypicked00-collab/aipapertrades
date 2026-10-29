@@ -650,7 +650,7 @@
   .pg-nv { background: transparent; border: 1px solid var(--color-border-line); color: var(--color-fg-muted); font-weight: 600; }
   .pg-who { font-weight: 600; color: var(--color-fg); margin-right: 6px; }
   .pg-void { font-style: italic; opacity: .75; } .pg-out { font-size: 11.5px; color: var(--color-fg-muted); }
-  .pg-out b { font-weight: 600; } .pg-tbl td.num, .pg-tbl th.num { text-align: right; }
+  .pg-out b { font-weight: 600; } .pg-wait { margin-top: 5px; } .pg-tbl td.num, .pg-tbl th.num { text-align: right; }
   .pt-n-in { animation: pt-n-in .45s ease-out; } @keyframes pt-n-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   .pt-n-n { flex: none; display: flex; align-items: center; padding: 0 10px; font-size: 11px; color: var(--color-fg-muted); font-family: var(--font-mono, monospace); }
   .pt-news + .pt-ticker { margin-top: 0; }
@@ -1034,7 +1034,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'f71ee1d9f4ef';</script>
+<script>window.PT_PAGE_VER = '183707fde7f7';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -2424,9 +2424,10 @@ body { background:var(--color-bg); }
     <section class="st-card" aria-labelledby="h-log-all">
       <h2 class="st-h2" id="h-log-all">Recent decisions</h2>
       <p class="st-note">Every trade, bet and hold decision, newest first, 5 a page (use Older to go back), for the model picked in the Model menu. Pick one experiment to see only its decisions. Every decision is kept in the Ledger. Times are Eastern (ET), with UTC in brackets.</p>
-      <div class="lg-pick"><label>Show: <select class="pf-filter" data-target="log-all-body"></select></label></div>
+      <p class="st-note">⚖️ <b>Peer grades:</b> under each trade or bet, the other two AIs' grade (A to F) and one-sentence opinion, given anonymously (they see "Competitor A/B", not the name) and only on what was known at the time. Pick "Graded by the other AIs" to see only those.</p>
+      <div class="lg-pick"><label>Show: <select class="pf-filter" data-target="log-all-body"></select></label> <label>Decisions: <select id="log-all-graded" aria-label="Which decisions"><option value="">All decisions</option><option value="1">Graded by the other AIs</option></select></label></div>
       <div class="st-wrap">
-        <table class="st-table" data-source="log" data-row-key="at,portfolio">
+        <table class="st-table" data-source="log peer_grades" data-row-key="at,portfolio">
           <thead><tr><th data-field="at">When</th><th data-field="portfolio">Portfolio</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
           <tbody data-draw="log-body" id="log-all-body" data-per="5"></tbody>
         </table>
@@ -3624,18 +3625,21 @@ body { background:var(--color-bg); }
     const d = dash.data('log');
     if (d.status === 'ok') d.data.sort((a, b) => new Date(b.at) - new Date(a.at));
     const all = !el.dataset.portfolio || el.id === 'log-all-body';
-    fillBody(el, 'log', byPortfolio(el), (r) => encodeURIComponent(r.at) + ',' + encodeURIComponent(r.portfolio), (r) => all
+    const flt = (r) => byPortfolio(el)(r) && (!el.dataset.graded || (r.pg_key && pgFor(r.pg_key).length > 0));   // "Graded by the other AIs" (owner, Oct 29)
+    fillBody(el, 'log', flt, (r) => encodeURIComponent(r.at) + ',' + encodeURIComponent(r.portfolio), (r) => all
       ? [[stFmt.when(r.at)], [r.portfolio], [r.action], [r.detail, 'wrap']]
       : [[stFmt.when(r.at)], [r.action], [r.detail, 'wrap']]);
     // ▶ M / ▶ F on every decision: reads out who, which race, when, the action and the reason (owner, Oct 29)
     if (d.status === 'ok' && 'speechSynthesis' in window) {
-      const rows = d.data.filter(byPortfolio(el)); const who = aiModel(dash.model) || 'The AI';
+      const rows = d.data.filter(flt); const who = aiModel(dash.model) || 'The AI';
       [...el.children].forEach((tr, k) => { const r = rows[k]; if (!r || !tr.lastElementChild) return;
         const td = tr.lastElementChild; td.appendChild(document.createTextNode(' '));
         td.appendChild(playBtn(() => who + ', ' + (LABEL[r.portfolio] || r.portfolio) + ' race, ' + stFmt.when(r.at) + '. ' + (r.action || '') + '. ' + (r.detail || ''), tr)); });
     }
-    if (d.status === 'ok') { const rows = d.data.filter(byPortfolio(el)); [...el.children].forEach((tr, k) => { const r = rows[k]; if (!r || !r.pg_key || !tr.lastElementChild) return;
-      const n = pgNode(r.pg_key); if (n) tr.lastElementChild.appendChild(n); }); }   // the other AIs' grades under each decision (G7)
+    if (d.status === 'ok') { const rows = d.data.filter(flt); [...el.children].forEach((tr, k) => { const r = rows[k]; if (!r || !r.pg_key || !tr.lastElementChild) return;
+      const n = pgNode(r.pg_key); if (n) { tr.lastElementChild.appendChild(n); return; }
+      if (Date.now() - Date.parse(r.at) < 3 * 3600e3) tr.lastElementChild.appendChild(mk('div', 'pg-out pg-wait', '⏳ The other AIs grade this at their next check-in, anonymously.')); }); }   // the other AIs' grades under each decision (G7)
+    if (d.status === 'ok' && el.dataset.graded && !el.children.length) { const tr = mk('tr'); const td = mk('td', 'st-muted', 'No graded decisions here yet: the other AIs grade new trades and bets at each check-in.'); td.colSpan = 4; tr.appendChild(td); el.appendChild(tr); }
     pagerFor(el, Number(el.dataset.per) || 10, 'decisions');   // Recent decisions in the Ledger: 5 a page (owner, Oct 29); each race's Decision log: 10
   });
 
@@ -6989,6 +6993,8 @@ body { background:var(--color-bg); }
       if (t._redraw) t._redraw();
     }));
   });
+  { const g = document.getElementById('log-all-graded'), t = document.getElementById('log-all-body');
+    if (g && t) g.addEventListener('change', () => { if (g.value) t.dataset.graded = '1'; else delete t.dataset.graded; t._pgKey = null; if (dash.redraw) dash.redraw(); }); }
   { const sel = document.getElementById('lg-trades-pick'), t = document.getElementById('lg-trades');
     if (sel && t) sel.addEventListener('change', () => { t.dataset.portfolio = sel.value; if (t._redraw) t._redraw(); }); }
   document.querySelectorAll('[data-mode-for]').forEach((g) => {
