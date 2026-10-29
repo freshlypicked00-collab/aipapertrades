@@ -8,7 +8,8 @@ Do this:
    - Every trade and bet in trades.json and bets.json from the last 24 hours: was the price real at that time (within the day's range), the amount and quantity right, the rule or reason sound, and was it logged?
    - Every settled bet and prediction market: is the result right (final score, official resolution)?
    - The latest price of every holding and the exchange rates: within 1% of a fresh source (2% for options and prediction markets)?
-   - Stop and limit rules: were any levels crossed in the last 24 hours (by the day's high/low) without the trade being made?
+   - Stops and targets: from option B (Oct 29, 6:00 p.m. ET) they are runner orders for all three AIs, filled at the live price at a run (`python3 ops/orders.py status`, ops/src/rivals.json "stops_log"). Check that every crossed stop was filled at the next run in market hours; never fill one by hand.
+   - Trades filled by the race runner (trades.json "filled_by": "runner"): the price is the feed's at that moment, like Gemini's and ChatGPT's. Do not edit them; if one looks wrong, describe it in your report and the log (a "Check" entry) instead.
    - The arithmetic: re-run `python3 ops/check.py ops/src` and fix anything it reports.
    - Claude's take at the top of the site (take.json): one honest sentence, current. (Gemini, not you, fact-checks Claude's takes.)
    - The daily ledger and self-assessment for the day that just closed: numbers match the history, nothing missing.

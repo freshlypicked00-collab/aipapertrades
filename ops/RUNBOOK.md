@@ -129,8 +129,9 @@ no trades; it re-checks the last 24 hours against fresh sources and fixes mistak
   `cost_cad`/`cost_usd` (and the funding cash) to what they would have been, then run `update.py`
   with current prices so values and history update. Never delete a trade to hide a loss.
 - **Wrong bet result:** fix `status` and `result_cad` in `bets.json`, then run `update.py`.
-- **Missed stop or limit:** make the trade now at the rule's level with `fill_at` set to when it
-  was crossed, as in the stop-order section.
+- **Stops and runner fills (from option B):** stops and targets are runner orders and Claude's trades are filled by the race
+  runner at the feed price (`"filled_by": "runner"`). Never fill a stop by hand and never edit a runner fill; if one looks wrong,
+  say so in the report and a `Check` log entry. (Before option B, a missed stop was filled at the rule's level.)
 - **Ledger mistakes:** fix the numbers or notes in `ledger.json` for that day.
 - Every correction gets a `Check` log entry in that experiment saying what was wrong and what
   changed. Then run `ops/check.py`, rebuild, push and sync.
