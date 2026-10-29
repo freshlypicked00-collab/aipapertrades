@@ -41,13 +41,16 @@ jobs:
           git add ops/fonts && git commit -qm "Fonts for the Instagram pictures: IBM Plex (the website's fonts, SIL Open Font License)" && git push -q origin HEAD:main || true
       - name: Check the Instagram key
         if: ${{ inputs.mode == 'check' }}
-        run: python3 ops/social.py check
+        run: |
+          pip install -q matplotlib pillow >/dev/null 2>&1 || true
+          python3 ops/social.py check
       - name: Delete the named posts so they post again
         if: ${{ inputs.mode == 'redo' }}
         env:
           IDS: ${{ inputs.ids }}
         run: |
           git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
+          pip install -q matplotlib pillow >/dev/null 2>&1 || true
           python3 ops/social.py redo $IDS
           git add ops/src/social.json && git commit -qm "Instagram: removed posts to redo them" && git push -q origin HEAD:main || true
       - name: Post what is due
