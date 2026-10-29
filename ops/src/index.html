@@ -799,7 +799,7 @@
       <p class="st-fact" data-draw="factcheck" data-source="take factcheck"></p>
     </div>
     <section class="st-score" aria-labelledby="h-score">
-      <h2 class="st-score-h" id="h-score">Scoreboard <span>The best results across all three AIs, each race on its own, best first. Tap one to open that race as that AI.</span></h2>
+      <h2 class="st-score-h" id="h-score">Scoreboard <span>The best results across all three AIs, each race on its own (the ten races and the All in side race), best first. Tap one to open that race as that AI.</span></h2>
       <ol class="st-score-list" data-draw="scoreboard" data-source="totals trades bets"></ol>
     </section>
     <div class="st-notice-row">
@@ -5380,18 +5380,18 @@
     const all = dash.baseData('exp_standings'); const ES = Array.isArray(all) ? all[0] : all;
     if (!ES) return;
     const first = window.ptFirstRace();
-    const EXPS = [first, 'Overall'].concat(['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'].filter((e) => e !== first));
+    const EXPS = [first, 'Overall'].concat(['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'].filter((e) => e !== first), ['AllInTrading', 'AllInSports']);   // plus the All in side race (owner, Oct 29)
     if (el._first !== first) { el._first = first; el._exp = null; }   // a market opening or closing moves the page to that race
     if (!el._exp) el._exp = first;
     if (el._follow == null) el._follow = true;   // owner's choice: Most relevant is on at every visit
     const hot = el._follow ? hottestRace() : null;   // "Most relevant": the race with the biggest move in the last 2 hours, re-checked at every data update
     if (hot) el._exp = hot.race;   // every visit opens on the race whose market is open (China, then US, else Crypto); nothing is remembered
     const want = el._exp === 'Overall' ? null : el._exp;   // Overall: the take, plans, feelings and opinions across all races
-    if ((window.ptRace || null) !== want || !!window.ptOverall !== (el._exp === 'Overall')) { window.ptRace = want; window.ptOverall = el._exp === 'Overall'; setTimeout(() => { if (dash.redraw) dash.redraw(); }, 0); }   // the goals and feelings cards follow this race
+    if (!ALLIN[el._exp] && ((window.ptRace || null) !== want || !!window.ptOverall !== (el._exp === 'Overall'))) { window.ptRace = want; window.ptOverall = el._exp === 'Overall'; setTimeout(() => { if (dash.redraw) dash.redraw(); }, 0); }   // the goals and feelings cards follow this race (the All in side race has none, so they stay put)
     el.appendChild(mk('h2', '', 'Race standings'));
     const sel = mk('select', 'pd-pick'); sel.setAttribute('aria-label', 'Choose the race');
     const TITLE = (x) => x.replace(/\b([a-z])([a-z]*)/g, (m, a, b) => (['and', 'of', 'it'].includes(m) && m !== 'it' ? m : a.toUpperCase() + b)).replace(/^./, (c) => c.toUpperCase());   // Title Case for the menu
-    EXPS.forEach((e) => { const o = mk('option', '', e === 'Overall' ? 'Overall (All Ten Races)' : TITLE(LABEL[e] || e)); o.value = e; if (e === el._exp) o.selected = true; sel.appendChild(o); });
+    EXPS.forEach((e) => { const o = mk('option', '', e === 'Overall' ? 'Overall (All Ten Races)' : ALLIN[e] ? TITLE(ALLIN[e]) + ' (Side Race)' : TITLE(LABEL[e] || e)); o.value = e; if (e === el._exp) o.selected = true; sel.appendChild(o); });
     sel.addEventListener('change', () => { el._exp = sel.value; el._follow = false; dash.redraw ? dash.redraw() : null; });
     el.appendChild(sel);
     { const lab = mk('label', 'pd-follow'); const cb = mk('input'); cb.type = 'checkbox'; cb.checked = !!el._follow;
@@ -5418,6 +5418,31 @@
       { const bx = mk('div', 'bg-only bg-plain'); bx.appendChild(mk('b', '', '🎓 In plain words'));
         bx.appendChild(mk('p', '', 'There are 10 separate races. This counts how many each AI is winning right now. Pick one race from the menu above to see the money.')); el.appendChild(bx); }
       momentsBox(el);
+      return;
+    }
+    if (ALLIN[el._exp]) {   // the All in side race: no caps, everything in; not one of the ten races
+      el.appendChild(mk('p', 'pd-note', 'The All in side race: C$100,000 each, no caps, ' + (el._exp === 'AllInSports' ? 'moneyline bets on real games' : 'any stock, ETF, crypto or option') + '. It is not one of the ten races. Tap one to view it.'));
+      const rows = allinRows(el._exp);
+      if (!rows.length) { el.appendChild(mk('p', 'pd-note', 'All in starts at the next check-in.')); return; }
+      const ol = mk('ol');
+      rows.forEach((r, i) => {
+        const li = mk('li'); const bt = mk('button'); bt.type = 'button'; bt.style.setProperty('--ai', AIS[r.id].color);
+        if (dash.model === r.id) bt.setAttribute('aria-current', 'true');
+        const n = mk('span', 'pd-name'); n.appendChild(whoNode(r.id, 20));
+        n.appendChild(mk('small', 'pd-leads', (r.busted ? 'BUSTED · ' : '') + (r.holds.length ? (el._exp === 'AllInSports' ? 'Open bets: ' : 'Holds ') + r.holds.slice(0, 3).join(', ') + (r.holds.length > 3 ? ' +' + (r.holds.length - 3) + ' more' : '') : el._exp === 'AllInSports' ? 'No open bets' : 'All cash')));
+        const tie = i > 0 && Math.abs(r.profit - rows[i - 1].profit) < 0.5;
+        bt.append(mk('span', 'pd-place', i === 0 && rows.length > 1 && rows[0].profit - rows[1].profit >= 0.5 ? '👑 1st' : tie ? '=' : ['1st', '2nd', '3rd'][i] || (i + 1) + 'th'), n);
+        const am = mk('span', 'pd-amt', (r.profit >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(r.profit))); tone(am, r.profit); am.appendChild(mk('small', 'pd-amt-l', r.profit < -0.5 ? 'loss' : 'profit')); bt.appendChild(am);
+        bt.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2 && s2.value !== r.id) { s2.value = r.id; s2.dispatchEvent(new Event('change')); } goTab('allin'); });
+        li.appendChild(bt); ol.appendChild(li);
+      });
+      el.appendChild(ol);
+      const me = rows.find((r) => r.id === dash.model) || rows[0];
+      const box = mk('div', 'pd-detail'); box.style.setProperty('--ai', AIS[me.id].color);
+      box.appendChild(mk('b', '', AIS[me.id].label + ' in ' + ALLIN[el._exp]));
+      box.appendChild(mk('p', 'pd-last', 'Now C$' + d3.format(',.0f')(me.value) + ' (' + stFmt.pct(me.value / 100000 - 1) + ').' + (me.last ? ' Last move: ' + me.last.text + ' · ' + stFmt.when(me.last.at) : ' No moves yet.')));
+      const go = mk('button', 'st-model-cmp', 'Open the All in page →'); go.type = 'button'; go.addEventListener('click', () => goTab('allin')); box.appendChild(go);
+      el.appendChild(box);
       return;
     }
     const cur = el._exp === 'China' ? 'US$' : 'C$';
@@ -5511,6 +5536,25 @@
     if (last) return (last.won ? 'Last: won ' : 'Last: lost ') + last.what + ' ' + m$(last.pnl) + openTxt;
     return open ? open + (open === 1 ? ' bet open' : ' bets open') + ', none settled yet' : 'No bets yet';
   };
+  // the All in side race, per AI: value, profit, what it holds and its last move (the same numbers as the All in page) (owner, Oct 29)
+  const ALLIN = { AllInTrading: 'All in: trading', AllInSports: 'All in: sports' };
+  const allinRows = (exp) => {
+    const MS = dash.baseData('allin_models') || [], HS = dash.baseData('allin_history') || [], TS = dash.baseData('allin_trades') || [];
+    const clean = (n) => String(n || '').replace(/^[A-Z]{2,5}: /, '').replace(/ \(.*\)$/, '');
+    const VERB = { Buy: 'Bought', Sell: 'Sold', Short: 'Shorted', Cover: 'Covered', Bet: 'Bet', Won: 'Won', Lost: 'Lost', Void: 'Refunded' };
+    return ['claude', 'gemini', 'chatgpt'].map((id) => {
+      const m = MS.find((x) => x.id === id); if (!m || !m.books || !m.books[exp]) return null;
+      const bk = m.books[exp];
+      const pts = HS.filter((h) => h.model === id && h.experiment === exp).sort((a, b) => new Date(a.at) - new Date(b.at));
+      const value = pts.length ? Math.max(0, Number(pts[pts.length - 1].value)) : 100000;
+      const c = {}; Object.entries(bk.positions || {}).forEach(([k, q]) => { const n = q.name || k; c[n] = (c[n] || 0) + 1; });
+      (bk.bets || []).filter((b) => b.status === 'Open').forEach((b) => { const n = b.pick_team || b.pick || b.event; c[n] = (c[n] || 0) + 1; });
+      const holds = Object.keys(c).map((n) => (c[n] > 1 ? n + ' (' + c[n] + ' bets)' : n));
+      const tr = TS.filter((t) => t.model === id && t.experiment === exp).sort((a, b) => new Date(b.at) - new Date(a.at))[0];
+      const last = tr ? { at: tr.at, text: (VERB[tr.action] || tr.action) + ' C$' + d3.format(',.0f')(Math.abs(Number(tr.amount) || 0)) + (tr.action === 'Buy' || tr.action === 'Short' ? ' of ' : ' on ') + clean(tr.name || tr.symbol) } : null;
+      return { id, value, profit: value - 100000, holds, busted: !!bk.busted, last };
+    }).filter(Boolean).sort((a, b) => b.profit - a.profit);
+  };
   const hottestRace = () => {
     const now = Date.now(), HOUR = 3600e3, fx = rates().CAD || 1.38;
     const part = (tz) => Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }).formatToParts(new Date(now)).map((x) => [x.type, x.value]));
@@ -5523,12 +5567,12 @@
     const playing = new Set(); dash.baseData('bets').forEach((b) => { const t = Date.parse(b.starts_at); if (b.status === 'Open' && t <= now && now - t < 4 * HOUR) playing.add(b.event); });
     dash.baseData('rivals_models').forEach((m) => (((m.books || {}).Sports || {}).bets || []).forEach((b) => { const t = Date.parse(b.starts_at); if (b.status === 'Open' && t <= now && now - t < 4 * HOUR) playing.add(b.event); }));
     const US = ['Stocks', 'Options', 'Energy', 'Metals', 'Safe'];
-    const open = new Set(['Crypto', 'Predictions'].concat(chinaOpen ? ['China'] : [], usOpen ? US : [], fxOpen ? ['Currencies'] : [], playing.size ? ['Sports'] : []));
+    const open = new Set(['Crypto', 'Predictions', 'AllInTrading', 'AllInSports'].concat(chinaOpen ? ['China'] : [], usOpen ? US : [], fxOpen ? ['Currencies'] : [], playing.size ? ['Sports'] : []));   // the All in side race always counts (crypto and games run around the clock)
     // each AI's move in the last hour, per race (China converted to C$)
-    const H = dash.baseData('history').map((h) => ({ id: 'claude', e: h.portfolio, t: +new Date(h.at), v: +h.value })).concat(dash.baseData('rivals_history').map((h) => ({ id: h.model, e: h.experiment, t: +new Date(h.at), v: +h.value }))).filter((h) => AIS[h.id] && h.t >= Date.parse('2026-10-28T17:45:00Z')).sort((a, b) => a.t - b.t);
+    const H = dash.baseData('history').map((h) => ({ id: 'claude', e: h.portfolio, t: +new Date(h.at), v: +h.value })).concat(dash.baseData('rivals_history').map((h) => ({ id: h.model, e: h.experiment, t: +new Date(h.at), v: +h.value })), (dash.baseData('allin_history') || []).map((h) => ({ id: h.model, e: h.experiment, t: +new Date(h.at), v: +h.value }))).filter((h) => AIS[h.id] && h.t >= Date.parse('2026-10-28T17:45:00Z')).sort((a, b) => a.t - b.t);
     const by = {}; H.forEach((h) => { (by[h.id + '|' + h.e] = by[h.id + '|' + h.e] || []).push(h); });
     const moves = {}; Object.values(by).forEach((pts) => { const last = pts[pts.length - 1]; if (now - last.t > HOUR || !open.has(last.e)) return; const base = pts.filter((q) => q.t <= now - HOUR).pop() || pts[0]; const d = (last.v - base.v) * (last.e === 'China' ? fx : 1); if (!moves[last.e] || Math.abs(d) > Math.abs(moves[last.e].d)) moves[last.e] = { d, id: last.id }; });
-    const sharp = Object.entries(moves).filter(([, m]) => Math.abs(m.d) >= 1000).sort((a, b) => Math.abs(b[1].d) - Math.abs(a[1].d))[0];
+    const sharp = Object.entries(moves).filter(([race, m]) => Math.abs(m.d) >= (ALLIN[race] ? 5000 : 1000)).sort((a, b) => Math.abs(b[1].d) - Math.abs(a[1].d))[0];   // the uncapped All in side race needs a bigger swing (C$5,000 in an hour) to take over
     const mv = (race) => moves[race] && Math.abs(moves[race].d) >= 1 ? ' Biggest move in the last hour: ' + AIS[moves[race].id].label + ' ' + (moves[race].d >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(moves[race].d)) + '.' : '';
     // news beats the open session: a sharp move in a market's main price (Bitcoin, the S&P 500, oil, gold, the CSI 300, USD/JPY),
     // even if no AI holds it. Thresholds per market, for the last hour (or 1.5x that over 3 hours); only while that price is live.
@@ -5545,7 +5589,7 @@
     if (playing.size) return { race: 'Sports', why: 'Sports: ' + playing.size + (playing.size === 1 ? ' game' : ' games') + ' with an open bet being played now.' + mv('Sports') };
     return { race: 'Crypto', why: 'Crypto: the stock markets are closed and no game with a bet is on, so the 24-hour crypto market is the live one.' + mv('Crypto') };
   };
-  const raceName = (r) => r === 'Overall' ? 'the overall race' : (LABEL[r] || r).replace(' (US$)', '');
+  const raceName = (r) => r === 'Overall' ? 'the overall race' : ALLIN[r] ? ALLIN[r] + ' (side race)' : (LABEL[r] || r).replace(' (US$)', '');
   const MOM_ICON = { lead: '🏁', win: '▲', loss: '▼', penalty: '⚠', factcheck: '✗', busted: '💥' };
   const momMoney = (m, v) => (m.cur === 'USD' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(v));
   const momentText = (m) => {
@@ -6016,6 +6060,7 @@
     const all = dash.baseData('exp_standings'); const ES = (Array.isArray(all) ? all[0] : all) || {};
     const rows = [];
     Object.entries(ES).forEach(([race, list]) => { if (!TABOF[race]) return; (list || []).forEach((r) => { if (!AIS[r.id]) return; const pr = Number(r.profit) || 0; rows.push({ id: r.id, race, profit: pr, value: Number(r.value), pct: pr / 100000, idle: Math.abs(pr) < 0.5 && !(r.holds && r.holds.length) && !r.last }); }); });
+    Object.keys(ALLIN).forEach((race) => allinRows(race).forEach((r) => rows.push({ id: r.id, race, profit: r.profit, value: r.value, pct: r.profit / 100000, idle: Math.abs(r.profit) < 0.5 && !r.holds.length && !r.last })));   // the All in side race too (owner, Oct 29)
     if (!rows.length) return;
     const ORD = (n) => n + (['th', 'st', 'nd', 'rd'][(n % 100 - 20) % 10] || ['th', 'st', 'nd', 'rd'][n % 100] || 'th');
     const live = rows.filter((r) => !r.idle).sort((a, b) => b.pct - a.pct), idle = rows.filter((r) => r.idle);
@@ -6024,17 +6069,18 @@
       const li = mk('li'); const rank = i + 1;
       const b = mk('button', 'st-score-ai' + (rank === 1 ? ' st-score-top' : '')); b.type = 'button'; b.style.setProperty('--ai', AIS[r.id].color);
       if (dash.model === r.id) b.setAttribute('aria-current', 'true');
-      const nm = mk('span', 'st-score-name'); nm.appendChild(mk('b', rank === 1 ? 'st-rank-1' : '', rank === 1 ? '👑 1st' : ORD(rank))); nm.appendChild(document.createTextNode(LABEL[r.race] || r.race)); b.appendChild(nm);
+      const rn = ALLIN[r.race] ? ALLIN[r.race] + ' (side race)' : LABEL[r.race] || r.race, cp = ALLIN[r.race] ? 'Stocks' : r.race;   // All in is in C$
+      const nm = mk('span', 'st-score-name'); nm.appendChild(mk('b', rank === 1 ? 'st-rank-1' : '', rank === 1 ? '👑 1st' : ORD(rank))); nm.appendChild(document.createTextNode(rn)); b.appendChild(nm);
       b.appendChild(whoNode(r.id, 16, 'pd-who st-score-who'));
       const pc = mk('span', 'st-score-pct', stFmt.pct(r.pct)); tone(pc, r.profit); b.appendChild(pc);
-      b.appendChild(mk('span', 'st-score-amt', stFmt.signed(r.profit, r.race) + ' · now ' + stFmt.money(r.value, r.race)));
-      b.setAttribute('aria-label', 'Rank ' + rank + ': ' + AIS[r.id].label + ' in ' + (LABEL[r.race] || r.race) + ', ' + stFmt.pct(r.pct) + '. Opens it as ' + AIS[r.id].label + '.');
-      b.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2 && s2.value !== r.id) { s2.value = r.id; s2.dispatchEvent(new Event('change')); } goTab(TABOF[r.race]); });
+      b.appendChild(mk('span', 'st-score-amt', stFmt.signed(r.profit, cp) + ' · now ' + stFmt.money(r.value, cp)));
+      b.setAttribute('aria-label', 'Rank ' + rank + ': ' + AIS[r.id].label + ' in ' + rn + ', ' + stFmt.pct(r.pct) + '. Opens it as ' + AIS[r.id].label + '.');
+      b.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2 && s2.value !== r.id) { s2.value = r.id; s2.dispatchEvent(new Event('change')); } goTab(TABOF[r.race] || 'allin'); });
       li.appendChild(b); el.appendChild(li);
     });
     const foot = mk('li', 'st-score-foot');
     if (live.length > 10) { const t = mk('button', 'st-score-more', el._all ? 'Show the top 10 ▴' : 'Show all ' + live.length + ' ▾'); t.type = 'button'; t.addEventListener('click', () => { el._all = !el._all; if (el._redraw) el._redraw(); else dash.redraw(); }); foot.appendChild(t); }
-    if (idle.length) foot.appendChild(mk('span', 'st-score-idle', idle.length + ' not started yet (still all in cash): ' + idle.map((r) => AIS[r.id].label + ' in ' + (LABEL[r.race] || r.race)).join(', ') + '.'));
+    if (idle.length) foot.appendChild(mk('span', 'st-score-idle', idle.length + ' not started yet (still all in cash): ' + idle.map((r) => AIS[r.id].label + ' in ' + (ALLIN[r.race] || LABEL[r.race] || r.race)).join(', ') + '.'));
     if (foot.childNodes.length) el.appendChild(foot);
   });
 
