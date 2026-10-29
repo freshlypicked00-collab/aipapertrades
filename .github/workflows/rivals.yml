@@ -111,7 +111,7 @@ jobs:
             cp /tmp/rivals.json ops/src/rivals.json
             if [ -f /tmp/thoughts.jsonl ]; then mkdir -p ops/archive && cp /tmp/thoughts.jsonl ops/archive/thoughts.jsonl; fi
             python3 ops/build_site.py ops/src .
-            git add ops/src/rivals.json index.html data.json data.ver og.png ops/src/og.json
+            git add ops/src/rivals.json index.html data.json data.ver audit.json og.png ops/src/og.json
             [ -f ops/archive/thoughts.jsonl ] && git add ops/archive/thoughts.jsonl
             git diff --cached --quiet && exit 0
             git commit -qm "Head to head: hourly Gemini and ChatGPT run"

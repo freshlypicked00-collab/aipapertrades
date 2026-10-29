@@ -1589,12 +1589,15 @@ def main():
                     notes.append(f'{model}: ' + (f'HTTP {e.code}{detail}' if isinstance(e, urllib.error.HTTPError) else str(e)[:120]))
                     if i == len(picks) - 1:
                         raise
+            # the audit page: the exact instructions this AI got and its raw reply (only the latest check-in is kept)
+            state.setdefault('audit', {})[mid] = {'at': iso(), 'model': m.get('model'), 'searches': LAST_SEARCHES, 'prompt': prompt, 'reply': str(text)[:40000]}
             try:
                 reply = parse_reply(text)
             except ValueError:
                 notes.append(f'{m.get("model")}: reply was not JSON; asked again')
                 text, src2 = r['ask'](key, m['model'], prompt + '\n\nIMPORTANT: reply with ONLY the JSON object, starting with { and ending with }. No other text.')
                 sources = sources or src2
+                state['audit'][mid]['reply'] = str(text)[:40000]
                 reply = parse_reply(text)
             take = clip(reply.get('take', ''), 600) or None
             prof = reply.get('profile') if isinstance(reply.get('profile'), dict) else {}

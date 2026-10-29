@@ -447,6 +447,13 @@
   }
   .st-progress.is-ended > span:first-child { display: none; }
   .st-copy { max-width: 1100px; margin: 24px auto 32px; padding: 0 16px; font-size: 12px; color: var(--color-fg-muted); text-align: center; }
+  .au-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; }
+  .au-ai { border: 1px solid var(--color-border-line); border-top: 3px solid var(--ai); border-radius: var(--cds-radius); padding: 10px 12px; min-width: 0; }
+  .au-ai h3 { margin: 0 0 4px; display: flex; align-items: center; font-size: 16px; }
+  .au-meta { margin: 0 0 4px; font-size: 13px; }
+  .au-ai details { margin-top: 6px; } .au-ai summary { cursor: pointer; font-weight: 600; font-size: 13.5px; }
+  .au-pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 420px; overflow: auto; font-size: 12px; line-height: 1.45; background: var(--card-inset, #1d1c18); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 8px; }
+  .au-corr { padding-left: 18px; } .au-corr li { margin: 6px 0; font-size: 14px; }
   .st-podium:empty { display: none; }
   .st-podium { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 12px 14px; background: var(--color-panel); align-self: start; }
   .st-podium h2 { margin: 0 0 2px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
@@ -695,6 +702,7 @@ body { background:var(--color-bg); }
       <button class="st-tab" role="tab" data-tab="ledger" aria-selected="false">Ledger</button>
       <button class="st-tab st-tab-h2h" role="tab" data-tab="h2h" aria-selected="false">AI vs AI</button>
       <button class="st-tab" role="tab" data-tab="rules" aria-selected="false">How it works</button>
+      <button class="st-tab" role="tab" data-tab="audit" aria-selected="false">Audit</button>
       <div class="st-tabgroup" role="presentation"><span class="st-tabgroup-l">Trading</span>
         <button class="st-tab" role="tab" data-tab="stocks" aria-selected="false">Stocks and anything</button>
         <button class="st-tab" role="tab" data-tab="crypto" aria-selected="false">Crypto</button>
@@ -1971,6 +1979,13 @@ body { background:var(--color-bg); }
   <section class="st-page" id="ai-chatgpt" data-page="ai-chatgpt" hidden>
     <div data-draw="aipage" data-ai="chatgpt" data-source="profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
   </section>
+  <section class="st-page" id="audit" data-page="audit" hidden>
+    <section class="st-card" aria-labelledby="h-audit">
+      <h2 class="st-h2" id="h-audit">Rules and audit</h2>
+      <p class="st-note">Nobody steers the AIs. Below is exactly what each AI is told at its latest check-in, word for word, and the raw reply it sent back, plus every correction made by hand. How prices and fills work is in <a href="#" data-goto="rules">How it works</a>; every trade, price and reason is in the Ledger.</p>
+      <div data-draw="audit" data-source="checkins"></div>
+    </section>
+  </section>
   <section class="st-page" id="ledger" data-page="ledger" hidden>
     <div class="st-model st-model-inline" role="group" aria-label="Model for the ledger">
       <label class="st-model-l" for="model-pick-ledger">Model</label>
@@ -2117,7 +2132,7 @@ body { background:var(--color-bg); }
   };
 
   // Tabs
-  const TABS = ['h2h', 'rules', 'allin', 'ai-claude', 'ai-gemini', 'ai-chatgpt', 'overview', 'stocks', 'crypto', 'metals', 'sports', 'china', 'energy', 'options', 'predictions', 'safe', 'currencies', 'support', 'ledger'];
+  const TABS = ['h2h', 'rules', 'audit', 'allin', 'ai-claude', 'ai-gemini', 'ai-chatgpt', 'overview', 'stocks', 'crypto', 'metals', 'sports', 'china', 'energy', 'options', 'predictions', 'safe', 'currencies', 'support', 'ledger'];
   const showTab = (name) => {
     if (!TABS.includes(name)) name = 'overview';
     document.querySelectorAll('[data-page]').forEach((s) => { s.hidden = s.dataset.page !== name; });
@@ -2136,6 +2151,11 @@ body { background:var(--color-bg); }
   document.querySelectorAll('.st-tab').forEach((b) => b.addEventListener('click', () => goTab(b.dataset.tab)));
   document.querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', () => goTab(b.dataset.goto)));
   showTab(location.hash.slice(1));
+  // on an AI's own page, picking another model in the Model menu goes to that AI's page
+  document.querySelectorAll('.model-pick').forEach((sel) => sel.addEventListener('change', () => {
+    const cur = (document.querySelector('.st-tab[aria-selected="true"]') || {}).dataset || {};
+    if (String(cur.tab || '').startsWith('ai-') && cur.tab !== 'ai-' + sel.value) goTab('ai-' + sel.value, false);
+  }));
   // phones: a floating Menu button that opens every section, so nobody has to scroll down to the tabs
   (() => {
     const nav = document.querySelector('.st-tabs'); if (!nav) return;
@@ -3680,7 +3700,7 @@ body { background:var(--color-bg); }
   // (trade reasons, notes, fact checks, plan cards, updates). Added automatically wherever text is drawn.
   (() => {
     if (!('speechSynthesis' in window)) return;
-    const SKIP = '.h2h-holds, .pd-detail, .st-plans-wide, nav, button, select, label, header .st-meta, .st-sub, .st-dates, .st-podium, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
+    const SKIP = '.au-pre, .au-ai, .h2h-holds, .pd-detail, .st-plans-wide, nav, button, select, label, header .st-meta, .st-sub, .st-dates, .st-podium, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
     const words = (t) => (t.trim().match(/\S+/g) || []).length;
     const NESTED = 'p, li, .st-plan, table, ul, ol';
     const textOf = (el, own) => {
@@ -4251,6 +4271,43 @@ body { background:var(--color-bg); }
     box.appendChild(mk('p', 'pd-last', me.last ? 'Last trade: ' + me.last.text + ' · ' + stFmt.when(me.last.at) : 'No trades yet in this race.'));
     el.appendChild(box);
   });
+  dash.draw('audit', (el) => {
+    const pg = el.closest('[data-page]');
+    if (pg && pg.hidden) {   // loaded only when the Audit tab is opened
+      if (!el._obs) { el._obs = new MutationObserver(() => { if (!pg.hidden) { el._obs.disconnect(); el._obs = null; el._load(); } }); el._obs.observe(pg, { attributes: true, attributeFilter: ['hidden'] }); }
+      el._load = () => auditLoad(el); return;
+    }
+    auditLoad(el);
+  });
+  const auditLoad = (el) => {
+    if (el._busy) return;
+    const ver = String(Math.floor(Date.now() / 3e5));   // refreshed at most every 5 minutes while the tab is open
+    if (el._a && el._v === ver) return;
+    el._busy = true;
+    fetch('audit.json?v=' + encodeURIComponent(ver || Date.now()), { cache: 'no-store' }).then((r) => r.ok ? r.json() : null).then((a) => {
+      el._busy = false; if (!a) { el.replaceChildren(mk('p', 'st-note', 'The audit file could not be loaded; try again in a minute.')); return; }
+      el._a = a; el._v = ver; el.replaceChildren();
+      const grid = mk('div', 'au-grid');
+      ['claude', 'gemini', 'chatgpt'].forEach((id) => {
+        const x = (a.ais || {})[id]; const c = mk('section', 'au-ai'); c.style.setProperty('--ai', AIS[id].color);
+        const h = mk('h3'); h.append(aiBadge(id, 22), document.createTextNode(AIS[id].label)); c.appendChild(h);
+        if (!x) { c.appendChild(mk('p', 'st-note', 'Appears after its next check-in.')); grid.appendChild(c); return; }
+        c.appendChild(mk('p', 'au-meta', 'Model: ' + (x.model || '—') + (x.at ? ' · latest check-in ' + stFmt.when(x.at) : '') + (x.searches !== undefined && x.searches !== null ? ' · web searches: ' + x.searches : '')));
+        c.appendChild(mk('p', 'st-note', x.how || ''));
+        const words = (t) => (t || '').split(/\s+/).filter(Boolean).length;
+        const block = (title, text) => { const d = document.createElement('details'); d.appendChild(mk('summary', '', title + ' (' + d3.format(',')(words(text)) + ' words)')); const pre = mk('pre', 'au-pre'); pre.textContent = text; d.appendChild(pre); return d; };
+        if (x.prompt) c.appendChild(block(id === 'claude' ? 'Claude’s instructions' : 'Full instructions it got', x.prompt));
+        if (x.reply) c.appendChild(block('Its raw reply', x.reply));
+        grid.appendChild(c);
+      });
+      el.appendChild(grid);
+      el.appendChild(mk('h3', 'st-h3', 'Corrections made by hand'));
+      const ul = mk('ul', 'au-corr');
+      (a.corrections || []).slice().sort((p, q) => new Date(q.at) - new Date(p.at)).forEach((x) => { const li = mk('li'); li.append(mk('b', '', x.what + ' · ' + stFmt.when(x.at) + ': '), document.createTextNode(x.text)); ul.appendChild(li); });
+      if (!(a.corrections || []).length) ul.appendChild(mk('li', '', 'None so far.'));
+      el.appendChild(ul);
+    }).catch(() => { el._busy = false; });
+  };
   dash.draw('betmins', (el) => {
     el.replaceChildren();
     const rows = dash.baseData('betmins'); if (!rows.length) return;

@@ -568,6 +568,22 @@ import model_views
 data['models'] = model_views.build(r, {k: data[k] for k in ('indexes', 'bench_history', 'benchmark', 'prices', 'events')} | {'fx': json.load(open(os.path.join(SRC, 'fx.json')))})
 times = [r['at'] for r in data['log'] + data['history']]
 data['meta'] = [{'refreshed_at': max(times, key=lambda t: datetime.fromisoformat(t))}]
+# audit.json: the exact instructions each AI gets and its latest raw reply, plus the corrections log (loaded only by the Audit tab)
+try:
+    _corr = json.load(open(os.path.join(SRC, 'corrections.json')))
+except Exception:
+    _corr = []
+_aud = {'built_at': datetime.now(timezone.utc).isoformat(), 'corrections': _corr, 'ais': {}}
+try:
+    _tp = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'TASK_PROMPT.md')).read()
+except Exception:
+    _tp = ''
+_cl = next((c for c in data.get('checkins', []) if c.get('id') == 'claude'), {})
+_aud['ais']['claude'] = {'model': 'Claude Opus 5.5 (claude-opus-5-5)', 'at': _cl.get('at'), 'how': 'Claude runs as scheduled sessions that follow the instructions below (and the longer runbook they point to), look up prices on the web, and record every trade with ops/update.py.', 'prompt': _tp, 'reply': None}
+for _mid, _a in (r.get('audit') or {}).items():
+    _aud['ais'][_mid] = {'model': _a.get('model'), 'at': _a.get('at'), 'searches': _a.get('searches'), 'how': 'Sent by ops/rivals.py at each check-in; this is the full text of the latest one, and the raw reply exactly as the AI sent it.',
+                         'prompt': _a.get('prompt', ''), 'reply': _a.get('reply', '')}
+json.dump(_aud, open(os.path.join(OUT, 'audit.json'), 'w'), separators=(',', ':'), ensure_ascii=False)
 # data.ver: a tiny fingerprint of the data (also stored inside data.json as "ver"). Open pages check data.ver every minute
 # and download data.json only when it changed.
 import hashlib as _hl
