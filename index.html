@@ -924,7 +924,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '001c0757f4ab';</script>
+<script>window.PT_PAGE_VER = '20dfe84b0cb8';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -3239,6 +3239,13 @@ body { background:var(--color-bg); }
     fillBody(el, 'log', byPortfolio(el), (r) => encodeURIComponent(r.at) + ',' + encodeURIComponent(r.portfolio), (r) => all
       ? [[stFmt.when(r.at)], [r.portfolio], [r.action], [r.detail, 'wrap']]
       : [[stFmt.when(r.at)], [r.action], [r.detail, 'wrap']]);
+    // ▶ M / ▶ F on every decision: reads out who, which race, when, the action and the reason (owner, Oct 29)
+    if (d.status === 'ok' && 'speechSynthesis' in window) {
+      const rows = d.data.filter(byPortfolio(el)); const who = aiModel(dash.model) || 'The AI';
+      [...el.children].forEach((tr, k) => { const r = rows[k]; if (!r || !tr.lastElementChild) return;
+        const td = tr.lastElementChild; td.appendChild(document.createTextNode(' '));
+        td.appendChild(playBtn(() => who + ', ' + (LABEL[r.portfolio] || r.portfolio) + ' race, ' + stFmt.when(r.at) + '. ' + (r.action || '') + '. ' + (r.detail || ''), tr)); });
+    }
     pagerFor(el, Number(el.dataset.per) || 10, 'decisions');   // Recent decisions in the Ledger: 5 a page (owner, Oct 29); each race's Decision log: 10
   });
 
@@ -4437,6 +4444,14 @@ body { background:var(--color-bg); }
       if (exp === 'Sports') { const sb = sportsTrack(SEL, models); if (sb) box.appendChild(sb); }
       el.appendChild(box);
     });
+    // one AI at a time in the long sections (owner, Oct 29): starts on the AI being viewed, or 'All' to see them one after another
+    const aiPick = (key) => {
+      const cur = el[key] && (el[key] === 'all' || SEL.includes(el[key])) ? el[key] : (SEL.includes(dash.model) ? dash.model : SEL[0]); el[key] = cur;
+      const bar = mk('div', 'lg-pick h2h-aipick'); const l = mk('label', '', 'AI: '); const sl = mk('select'); sl.setAttribute('aria-label', 'Which AI to show');
+      SEL.map((id) => [id, aiModel(id)]).concat(SEL.length > 1 ? [['all', 'All ' + (SEL.length === 3 ? 'three' : 'both') + ', one after another']] : []).forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; sl.appendChild(o); });
+      sl.value = cur; sl.addEventListener('change', () => { el[key] = sl.value; h2hDraw(el); }); l.appendChild(sl); bar.appendChild(l);
+      return { bar, list: cur === 'all' ? SEL : [cur] };
+    };
     // latest takes
     const tbox = mk('div', 'h2h-exp');
     tbox.appendChild(mk('h3', '', 'What each AI is thinking'));
@@ -4457,11 +4472,12 @@ body { background:var(--color-bg); }
     el.appendChild(tbox);
     { const pb = mk('div', 'h2h-exp h2h-plans'); pb.appendChild(mk('h3', '', 'Plans, feelings and opinions'));
       pb.appendChild(mk('p', 'st-note', 'Each AI’s own 24-hour, 7-day and month plans, how it feels, and what it thinks of the others, in its own words.'));
+      const pp = aiPick('_pm'); pb.appendChild(pp.bar);
       const all = { claude: dash.baseData('plans') };
       Object.entries(dash.models() || {}).forEach(([id, v]) => { if (id !== 'claude' && v && v.plans) all[id] = v.plans.data || v.plans; });
       let any = false;
       if (EXP_SEL) pb.firstChild.textContent = 'Plans, feelings and opinions on ' + (LABEL[EXP_SEL] || EXP_SEL);
-      SEL.forEach((id) => { const rows = (all[id] || []).filter((x) => !x.model || x.model === id); any = true; if (!rows.length) { const h = mk('h4', '', AIS[id].label); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px'; h.style.margin = '10px 0 6px'; pb.append(h, mk('p', 'st-note', AIS[id].label + ' writes its plans, feelings and opinions at its next check-in.')); return; } const h = mk('h4', '', AIS[id].label); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px'; h.style.margin = '10px 0 6px'; const g = mk('div', 'st-plans'); planCards(rows, g, EXP_SEL || null); pb.append(h, g); });
+      pp.list.forEach((id) => { const rows = (all[id] || []).filter((x) => !x.model || x.model === id); any = true; if (!rows.length) { const h = mk('h4', '', AIS[id].label); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px'; h.style.margin = '10px 0 6px'; pb.append(h, mk('p', 'st-note', AIS[id].label + ' writes its plans, feelings and opinions at its next check-in.')); return; } const h = mk('h4', '', AIS[id].label); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px'; h.style.margin = '10px 0 6px'; const g = mk('div', 'st-plans'); planCards(rows, g, EXP_SEL || null); pb.append(h, g); });
       // high up, right under the race picker (and the overview), not below every chart
       if (any) { const anchor = el.querySelector('.h2h-exp'); if (anchor) anchor.after(tbox, pb); else el.append(tbox, pb); } }
     const fcs = dash.baseData('factcheck').filter((x) => SEL.includes(x.model)).slice().sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 6);
@@ -4484,14 +4500,15 @@ body { background:var(--color-bg); }
       sel.addEventListener('change', () => { el._tx = sel.value; try { localStorage.setItem('pt-h2h-tx', sel.value); } catch (e) {} h2hDraw(el); });
       lab.appendChild(sel); bar.appendChild(lab); tbx.appendChild(bar);
     }
-    tbx.appendChild(mk('p', 'st-note', 'The 10 newest trades for each AI' + (tx ? ' in ' + (LABEL[tx] || tx) : '') + ', newest first. Every trade is kept in the Ledger.'));
+    const tp = aiPick('_tm'); tbx.appendChild(tp.bar);
+    tbx.appendChild(mk('p', 'st-note', 'The 10 newest trades ' + (tp.list.length === 1 ? 'of ' + AIS[tp.list[0]].label : 'for each AI') + (tx ? ' in ' + (LABEL[tx] || tx) : '') + ', newest first. Every trade is kept in the Ledger.'));
     el.appendChild(tbx);
     const logRows = dash.baseData('log') || [];
     const claudeTrades = (dash.baseData('trades') || []).filter((t) => !String(t.holding).startsWith('[')).map((t) => {
       const lg = logFor(logRows, t);
       return { at: t.at, experiment: t.portfolio, action: t.action, name: t.holding, symbol: t.holding, price: t.price_local != null ? Number(t.price_local) : Number(t.price_usd), pcur: t.portfolio === 'China' ? 'CNY' : t.portfolio === 'Predictions' ? 'P' : 'USD', amount: Number(t.cad != null ? t.cad : t.usd), cost: t.cost, pnl: t.pnl, reason: lg ? lg.detail : '' };
     });
-    SEL.forEach((id) => {
+    tp.list.forEach((id) => {
       const src = id === 'claude' ? claudeTrades : (RT.status === 'ok' ? RT.data : []).filter((t) => t.model === id);
       const trades = src.filter((t) => !tx || t.experiment === tx).slice().sort((p, q) => new Date(q.at) - new Date(p.at)).slice(0, 10);
       const rbox = mk('div', 'h2h-exp');
@@ -4547,7 +4564,7 @@ body { background:var(--color-bg); }
     if (el) el.classList.add('is-reading');
     const go = () => { if (SAY.btn !== btn) return; const v = pickVoice(L, g === 'm' ? 'm' : 'f'); if (v) u.voice = v;
       if (!v && L !== 'en-US') { stopSay(); noVoice(L); return; }
-      btn.title = btn._label + ' · voice: ' + v.name; if (g === 'm') { u.pitch = 0.55; u.rate = 1.05; } speechSynthesis.speak(u); };   // male: lowered pitch for the robotic AI sound
+      btn.title = btn._label + (v ? ' · voice: ' + v.name : ''); if (g === 'm') { u.pitch = 0.55; u.rate = 1.05; } speechSynthesis.speak(u); };   // male: lowered pitch for the robotic AI sound
     // wait until the FULL voice list is in: browsers first list only built-in voices (often a male one) and add the natural ones a moment later
     if (VOICES_READY) go();
     else { let done = false; const once = () => { if (!done) { done = true; go(); } }; speechSynthesis.addEventListener('voiceschanged', () => setTimeout(once, 150), { once: true }); setTimeout(once, 1500); }
