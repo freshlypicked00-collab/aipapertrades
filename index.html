@@ -924,7 +924,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'dd18bd74fe72';</script>
+<script>window.PT_PAGE_VER = '800a8d0fe09f';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -3561,6 +3561,53 @@ body { background:var(--color-bg); }
     run();
   });
 
+  // plain-words descriptions for Beginner mode (by ticker or name; anything else gets a description from its race)
+  const WHAT = {
+    SPY: 'A fund that owns the 500 biggest US companies (the S&P 500), so it rises and falls with the US stock market as a whole.',
+    VOO: 'A fund that owns the 500 biggest US companies (the S&P 500), so it rises and falls with the US stock market as a whole.',
+    IVV: 'A fund that owns the 500 biggest US companies (the S&P 500), so it rises and falls with the US stock market as a whole.',
+    VTI: 'A fund that owns almost every company on the US stock market.',
+    RSP: 'A fund that owns the same 500 big US companies as the S&P 500, but an equal amount of each, so the giants like Apple and Nvidia count less.',
+    QQQ: 'A fund that owns the 100 biggest companies on the Nasdaq market, mostly tech: Apple, Microsoft, Nvidia, Amazon, Google and others.',
+    TQQQ: 'A fund that moves about 3 times as much as the Nasdaq-100 each day, up or down. Big gains when tech rises, big losses when it falls.',
+    SQQQ: 'A fund that rises about 3% for every 1% the Nasdaq-100 falls in a day: a bet that big tech stocks go down. It loses fast if they rise.',
+    SOXL: 'A fund that moves about 3 times as much as chip-maker stocks each day. Very risky.',
+    LMT: 'Lockheed Martin: a big US defence company that makes fighter jets and missiles for the US and its allies.',
+    MSFT: 'Microsoft: the company behind Windows, Office and the Azure cloud, and a big investor in AI.',
+    GOOGL: 'Alphabet: the company that owns Google, YouTube and Google Cloud.',
+    AAPL: 'Apple: the company that makes the iPhone, Mac and iPad.',
+    NVDA: 'Nvidia: the company that makes most of the chips used to train AI.',
+    XOM: 'ExxonMobil: one of the world’s biggest oil and gas companies.',
+    'BTC-USD': 'Bitcoin: the biggest cryptocurrency, a digital money with no bank or government behind it. Its price can swing a lot in a day.',
+    Bitcoin: 'Bitcoin: the biggest cryptocurrency, a digital money with no bank or government behind it. Its price can swing a lot in a day.',
+    'ETH-USD': 'Ethereum: the second-biggest cryptocurrency, used to run apps and other tokens on its network.',
+    Ethereum: 'Ethereum: the second-biggest cryptocurrency, used to run apps and other tokens on its network.',
+    'SOL-USD': 'Solana: a fast, newer cryptocurrency network. Smaller than Bitcoin and Ethereum, and usually more up and down.',
+    Solana: 'Solana: a fast, newer cryptocurrency network. Smaller than Bitcoin and Ethereum, and usually more up and down.',
+    GLD: 'A fund that holds real gold bars, so its price follows the price of gold.', IAU: 'A fund that holds real gold bars, so its price follows the price of gold.',
+    GLDM: 'A low-cost fund that holds real gold bars, so its price follows the price of gold.',
+    Gold: 'Gold itself, priced per ounce. People often buy it when they are worried about inflation or trouble in the world.',
+    SLV: 'A fund that holds real silver, so its price follows the price of silver.', Silver: 'Silver itself, priced per ounce. It moves more than gold, up and down.',
+    USO: 'A fund that follows the price of US crude oil.', XLE: 'A fund that owns the big US energy companies, like ExxonMobil and Chevron.',
+    UNG: 'A fund that follows the price of US natural gas, which can jump with the weather.',
+    SGOV: 'A fund of US government loans that pay back within 3 months (Treasury bills): very safe, paying steady interest, like a savings account.',
+    BIL: 'A fund of US government loans that pay back within 3 months (Treasury bills): very safe, paying steady interest, like a savings account.',
+    SHV: 'A fund of short US government loans: very safe, steady interest.', TLT: 'A fund of long US government loans (20+ years). Safe from default, but its price moves a lot when interest rates change.',
+    '510300.SS': 'A fund that owns China’s 300 biggest companies listed in Shanghai and Shenzhen (the CSI 300).', 'CSI 300 ETF': 'A fund that owns China’s 300 biggest companies listed in Shanghai and Shenzhen (the CSI 300).',
+    '510880.SS': 'A fund of big Shanghai companies that pay high dividends (a share of their profits) to their owners.', 'SSE Dividend ETF': 'A fund of big Shanghai companies that pay high dividends (a share of their profits) to their owners.',
+    '159915.SZ': 'A fund of fast-growing Chinese companies on Shenzhen’s ChiNext board, many of them tech.', '588000.SS': 'A fund of China’s 50 biggest tech companies on Shanghai’s STAR market.'
+  };
+  const whatIsIt = (h, pf) => {
+    const k = WHAT[h.code] || WHAT[h.holding]; if (k) return k;
+    if (pf === 'Currencies') return h.holding + ', a currency. Holding it is a bet that it rises against the US dollar; shorting it is a bet that it falls.';
+    if (pf === 'Options' || /\b(call|put)\b/i.test(h.holding)) return 'An option: ' + (/put/i.test(h.holding) ? 'a put, which gains when the price falls' : 'a call, which gains when the price rises') + ' before its date. It can multiply the money, or expire worth nothing.';
+    if (pf === 'Predictions') return 'A prediction-market share: it pays US$1 if this happens and nothing if it doesn’t. Its price is what the market thinks the chance is.';
+    if (pf === 'Crypto') return 'A cryptocurrency: digital money with no bank or government behind it. Prices can swing a lot.';
+    if (pf === 'China') return 'A Chinese company or fund listed in Shanghai or Shenzhen, priced in yuan.';
+    if (pf === 'Safe') return 'One of the low-risk funds allowed in Play it safe.';
+    if (/\b(ETF|Fund|Trust|Shares)\b/.test(h.holding)) return 'A fund: one share holds a basket of many investments, so it is less risky than one company.';
+    return 'A company’s stock: owning a small piece of the company, so it rises and falls with how the company does.';
+  };
   // ---------- one holding's price, picked with chips
   dash.draw('price-chart', (el) => {
     const run = () => {
@@ -3604,6 +3651,16 @@ body { background:var(--color-bg); }
         ranges: [['24 hours', 864e5], ['7 days', 7 * 864e5], ['30 days', 30 * 864e5], ['3 months', 91 * 864e5], ['1 year', 365 * 864e5], ['5 years', 1826 * 864e5], ['Since bought', 'since']], range: 'Since bought', sinceT: since || +pts[0].t });
       if (!window.ptPxLong && !window.ptPxLongLoading) { window.ptPxLongLoading = 1; fetch('px_long.json?v=' + Math.floor(Date.now() / 36e5), { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j) { window.ptPxLong = j; document.querySelectorAll('[data-draw="price-chart"]').forEach((e) => { if (e._redraw) e._redraw(); }); } }).catch(() => {}); }
       note.textContent = out.length ? 'Further away: ' + out.map((r) => r.label.toLowerCase() + ' at ' + f(Number(r.level))).join('; ') + '.' : '';
+      // Beginner mode: what this investment is, and why the AI bought it, in its own words (owner, Oct 29)
+      { const bx = mk('div', 'bg-only bg-plain'); bx.appendChild(mk('b', '', '🎓 In plain words: ' + h.holding));
+        const what = whatIsIt(h, pf); bx.appendChild(mk('p', '', 'What it is: ' + what));
+        if (Number(h.quantity) < 0) bx.appendChild(mk('p', '', 'This is a short: the AI borrowed it and sold it, so it makes money if the price FALLS and loses money if it rises.'));
+        const LGr = dash.data('log'), lgRows = LGr.status === 'ok' ? LGr.data : [];
+        const buys = T.data.filter((t) => t.portfolio === pf && t.holding === h.holding && /^(Buy|Short)$/.test(t.action)).sort((a, b) => new Date(a.at) - new Date(b.at));
+        const why = buys.length ? (buys[0].note || buys[0].reason || (logFor(lgRows, buys[0]) || {}).detail || '') : '';
+        const who = (AIS[dash.model] || { label: 'The AI' }).label;
+        bx.appendChild(mk('p', '', why ? 'Why ' + who + (buys[0].action === 'Short' ? ' shorted' : ' bought') + ' it (its own words, ' + stFmt.when(buys[0].at) + '): “' + why + '”' : who + ' has not written a reason for this one yet.'));
+        el.appendChild(bx); }
     };
     el._redraw = run;
     run();
