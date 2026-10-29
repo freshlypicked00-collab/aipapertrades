@@ -1991,7 +1991,7 @@
        "reason": "The Lightning are heavy -238 home favorites, providing a high-probability leg for Thursday's sports allocation.",
        "wrong_if": "The Jets pull off a significant road upset against Tampa Bay.",
        "closing_odds": -218,
-       "closing_at": "2026-10-29T22:15:24Z"
+       "closing_at": "2026-10-29T22:25:04Z"
       },
       {
        "id": "G16",
@@ -2012,7 +2012,7 @@
        "reason": "The Hurricanes offer strong value as -230 home favorites against the Blue Jackets.",
        "wrong_if": "Columbus manages to defeat Carolina on the road.",
        "closing_odds": -258,
-       "closing_at": "2026-10-29T22:15:24Z"
+       "closing_at": "2026-10-29T22:25:04Z"
       },
       {
        "id": "G17",
@@ -2317,7 +2317,7 @@
        "reason": "North Texas is an overwhelming -550 home favorite in NCAAF, presenting a very safe compounding opportunity for the All In bankroll.",
        "wrong_if": "If Florida Atlantic stages an improbable upset on the road.",
        "closing_odds": -550,
-       "closing_at": "2026-10-29T22:15:24Z"
+       "closing_at": "2026-10-29T22:25:04Z"
       },
       {
        "id": "G22",
@@ -2357,7 +2357,7 @@
        "reason": "James Madison is a massive -1350 home favorite over Troy, making this an extremely high-probability compounding opportunity for the uncapped All In bankroll.",
        "wrong_if": "Troy pulls off a massive upset on the road, breaking the compounding streak.",
        "closing_odds": -1200,
-       "closing_at": "2026-10-29T22:15:24Z"
+       "closing_at": "2026-10-29T22:25:04Z"
       },
       {
        "id": "G24",
@@ -15295,6 +15295,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 113020.83
+  },
+  {
+   "at": "2026-10-29T22:25:04Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 98796.36
+  },
+  {
+   "at": "2026-10-29T22:25:04Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 100000.0
   }
  ],
  "takes": [
@@ -24679,7 +24691,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 715.34,
-      "priced_at": "2026-10-29T22:15:24Z",
+      "priced_at": "2026-10-29T22:25:04Z",
       "hist": [
        [
         29886870,
@@ -24760,6 +24772,10 @@
        [
         29888521,
         715.34
+       ],
+       [
+        29888545,
+        715.34
        ]
       ]
      },
@@ -24769,8 +24785,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 78537.4,
-      "priced_at": "2026-10-29T22:15:24Z",
+      "last": 79005.48,
+      "priced_at": "2026-10-29T22:25:04Z",
       "hist": [
        [
         29886870,
@@ -24991,6 +25007,10 @@
        [
         29888521,
         78832.15
+       ],
+       [
+        29888545,
+        79005.48
        ]
       ]
      }
@@ -33875,8 +33895,12 @@
   "claude": 11
  },
  "claude_main": {
-  "done": [],
-  "results": [],
+  "done": [
+   "c20261029222314-0"
+  ],
+  "results": [
+   "c20261029222314-0: filled Sell Bitcoin C$11,288 at 79,005.5"
+  ],
   "codes": {
    "Democrats win the Senate (Yes)": "will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections|Yes"
   },
@@ -33898,7 +33922,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-10-29T22:15:24Z",
+  "at": "2026-10-29T22:25:04Z",
   "games": [
    {
     "id": "401892601",
@@ -33964,15 +33988,6 @@
     "home_ml": -118
    },
    {
-    "id": "401909894",
-    "short": "NBA",
-    "away": "Sacramento Kings",
-    "home": "New Orleans Pelicans",
-    "start": "2026-10-30T00:00Z",
-    "away_ml": 195,
-    "home_ml": -238
-   },
-   {
     "id": "401892604",
     "short": "NHL",
     "away": "Boston Bruins",
@@ -33987,8 +34002,8 @@
     "away": "Washington Capitals",
     "home": "Nashville Predators",
     "start": "2026-10-30T00:00Z",
-    "away_ml": -112,
-    "home_ml": -108
+    "away_ml": -108,
+    "home_ml": -112
    },
    {
     "id": "401892606",
