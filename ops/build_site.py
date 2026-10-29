@@ -710,6 +710,11 @@ _aud['ais']['claude'] = {'model': 'Claude Opus 5.5 (claude-opus-5-5)', 'at': _cl
 for _mid, _a in (r.get('audit') or {}).items():
     _aud['ais'][_mid] = {'model': _a.get('model'), 'at': _a.get('at'), 'searches': _a.get('searches'), 'how': 'Sent by ops/rivals.py at each check-in; this is the full text of the latest one, and the raw reply exactly as the AI sent it.',
                          'prompt': _a.get('prompt', ''), 'reply': _a.get('reply', '')}
+try:
+    import rulebook
+    _aud['rulebook'] = rulebook.build()   # every rule, from the same constants the race code enforces
+except Exception as _e:
+    print('rulebook not built:', _e)
 json.dump(_aud, open(os.path.join(OUT, 'audit.json'), 'w'), separators=(',', ':'), ensure_ascii=False)
 # data.ver: a tiny fingerprint of the data (also stored inside data.json as "ver"). Open pages check data.ver every minute
 # and download data.json only when it changed.

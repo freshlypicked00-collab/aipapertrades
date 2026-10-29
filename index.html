@@ -447,6 +447,10 @@
   }
   .st-progress.is-ended > span:first-child { display: none; }
   .st-copy { max-width: 1100px; margin: 24px auto 32px; padding: 0 16px; font-size: 12px; color: var(--color-fg-muted); text-align: center; }
+  .au-rules details { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 8px 12px; margin: 0 0 8px; background: var(--color-panel); }
+  .au-rules summary { cursor: pointer; font-weight: 700; min-height: 32px; display: flex; align-items: center; }
+  .au-rules ol { margin: 6px 0 4px; padding-left: 22px; line-height: 1.5; font-size: 14px; }
+  .au-rules li { margin: 4px 0; }
   .au-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; }
   .au-ai { border: 1px solid var(--color-border-line); border-top: 3px solid var(--ai); border-radius: var(--cds-radius); padding: 10px 12px; min-width: 0; }
   .au-ai h3 { margin: 0 0 4px; display: flex; align-items: center; font-size: 16px; }
@@ -714,7 +718,7 @@ body { background:var(--color-bg); }
       <button class="st-tab" role="tab" data-tab="ledger" aria-selected="false">Ledger</button>
       <button class="st-tab st-tab-h2h" role="tab" data-tab="h2h" aria-selected="false">AI vs AI</button>
       <button class="st-tab" role="tab" data-tab="rules" aria-selected="false">How it works</button>
-      <button class="st-tab" role="tab" data-tab="audit" aria-selected="false">Audit</button>
+      <button class="st-tab" role="tab" data-tab="audit" aria-selected="false">Rules &amp; Audit</button>
       <div class="st-tabgroup" role="presentation"><span class="st-tabgroup-l">Trading</span>
         <button class="st-tab" role="tab" data-tab="stocks" aria-selected="false">Stocks and anything</button>
         <button class="st-tab" role="tab" data-tab="crypto" aria-selected="false">Crypto</button>
@@ -1994,7 +1998,7 @@ body { background:var(--color-bg); }
   <section class="st-page" id="audit" data-page="audit" hidden>
     <section class="st-card" aria-labelledby="h-audit">
       <h2 class="st-h2" id="h-audit">Rules and audit</h2>
-      <p class="st-note">Nobody steers the AIs. Below is exactly what each AI is told at its latest check-in, word for word, and the raw reply it sent back, plus every correction made by hand. How prices and fills work is in <a href="#" data-goto="rules">How it works</a>; every trade, price and reason is in the Ledger.</p>
+      <p class="st-note">Every rule of the race, then proof that nobody steers the AIs: exactly what each AI is told at its latest check-in, word for word, and the raw reply it sent back, plus every correction made by hand. How prices and fills work is in <a href="#" data-goto="rules">How it works</a>; every trade, price and reason is in the Ledger.</p>
       <div data-draw="audit" data-source="checkins"></div>
     </section>
   </section>
@@ -3527,24 +3531,33 @@ body { background:var(--color-bg); }
       });
       if (counted) {
         const box = mk('div', 'h2h-exp');
-        box.appendChild(mk('h3', '', EXP_SEL ? 'Overall in ' + (LABEL[EXP_SEL] || EXP_SEL) : 'Overall'));
+        const ENDED = Date.now() >= Date.parse('2026-11-28T21:00:00Z');   // the races are only added together at the final scoring
+        const GLANCE = !EXP_SEL && !ENDED;
+        box.appendChild(mk('h3', '', EXP_SEL ? 'Overall in ' + (LABEL[EXP_SEL] || EXP_SEL) : GLANCE ? 'All ten races at a glance' : 'Final result: all races added up'));
         if (EXP_SEL) box.appendChild(mk('p', 'st-note', 'Profit or loss in ' + (LABEL[EXP_SEL] || EXP_SEL) + ' since the restart (Oct 28, 1:45 p.m. ET), in Canadian dollars' + (EXP_SEL === 'China' ? ' (converted from US$ at the latest rate)' : '') + '. Ranked by profit.'));
+        else if (GLANCE) box.appendChild(mk('p', 'st-note', 'Each race is its own experiment, so profits are not added together during the month: this shows how many of the ' + counted + ' races each AI is leading right now. Pick a race above to see its numbers. The ten results are only converted to C$ and added up at the final scoring on Sat Nov 28, 4:00 p.m. ET.'));
         else box.appendChild(mk('p', 'st-note', 'Total profit or loss since the restart (Oct 28, 1:45 p.m. ET) across the ' + counted + ' experiments every AI shown has started, in Canadian dollars (China converted from US$ at the latest rate). A busted experiment counts as losing at most its 100,000. Ranked by total profit. The final winner is decided on Nov 28. An AI whose total loss reaches C$100,000 is ELIMINATED from the whole race.'));
         const rows = mk('ul', 'h2h-rows');
         const avg = (a) => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
-        const ranked = SEL.map((id) => ({ id, ...tally[id], avg: avg(tally[id].pcts) })).sort((a, b) => b.profit - a.profit);
+        const ranked = SEL.map((id) => ({ id, ...tally[id], avg: avg(tally[id].pcts) })).sort((a, b) => GLANCE ? (b.wins - a.wins) : (b.profit - a.profit));
         ranked.forEach((s, i) => {
           const li = mk('li', 'h2h-row'); li.style.setProperty('--ai', AIS[s.id].color);
           const nm = mk('span', 'h2h-name'); { const w = mk('span', 'pd-who'); w.append(aiBadge(s.id, 18), document.createTextNode(AIS[s.id].label)); nm.appendChild(w); }
-          if (i === 0 && ranked.length > 1 && s.profit !== ranked[1].profit) nm.appendChild(mk('span', 'h2h-lead', '👑 Leading overall'));
+          if (!GLANCE && i === 0 && ranked.length > 1 && s.profit !== ranked[1].profit) nm.appendChild(mk('span', 'h2h-lead', ENDED && !EXP_SEL ? '👑 Overall winner' : '👑 Leading'));
+          if (GLANCE && i === 0 && ranked.length > 1 && s.wins !== ranked[1].wins) nm.appendChild(mk('span', 'h2h-lead', '👑 Leads the most races'));
           const elim = s.profit <= -100000 || (models.find((x) => x.id === s.id) || {}).eliminated;
           if (elim) { const t = mk('span', 'h2h-lead', 'ELIMINATED'); t.style.color = 'var(--color-bad, #ff5a4e)'; nm.appendChild(t); }
           li.appendChild(nm);
-          const pf = mk('span', 'h2h-pct', (s.profit >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(s.profit))); tone(pf, s.profit); li.appendChild(pf);
-          li.appendChild(mk('span', 'h2h-sub', EXP_SEL ? 'profit in this experiment' : 'total profit · leads ' + s.wins + ' of ' + counted + ' experiments'));
-          const ml = mk('span', 'h2h-sub'); const mm = mk('span', 'is-up', 'Made +C$' + d3.format(',.0f')(s.made)); const ll = mk('span', 'is-down', 'Lost −C$' + d3.format(',.0f')(-s.lost));
-          ml.append(mm, document.createTextNode(' · '), ll); if (!EXP_SEL) li.appendChild(ml);
-          const av = mk('span', 'h2h-sub', (EXP_SEL ? 'Return ' : 'Average return ') + stFmt.pct(s.avg)); tone(av, s.avg); li.appendChild(av);
+          if (GLANCE) {
+            li.appendChild(mk('span', 'h2h-pct', 'Leads ' + s.wins + ' of ' + counted));
+            li.appendChild(mk('span', 'h2h-sub', 'races it is first in right now'));
+          } else {
+            const pf = mk('span', 'h2h-pct', (s.profit >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(s.profit))); tone(pf, s.profit); li.appendChild(pf);
+            li.appendChild(mk('span', 'h2h-sub', EXP_SEL ? 'profit in this experiment' : 'total profit · led ' + s.wins + ' of ' + counted + ' races'));
+            const ml = mk('span', 'h2h-sub'); const mm = mk('span', 'is-up', 'Made +C$' + d3.format(',.0f')(s.made)); const ll = mk('span', 'is-down', 'Lost −C$' + d3.format(',.0f')(-s.lost));
+            ml.append(mm, document.createTextNode(' · '), ll); if (!EXP_SEL) li.appendChild(ml);
+            const av = mk('span', 'h2h-sub', (EXP_SEL ? 'Return ' : 'Average return ') + stFmt.pct(s.avg)); tone(av, s.avg); li.appendChild(av);
+          }
           if (!EXP_SEL) li.appendChild(mk('span', 'h2h-sub', s.up + ' up · ' + (s.pcts.length - s.up) + ' flat or down' + (s.busted ? ' · ' + s.busted + ' BUSTED' : '')));
           { const hn = holdingsNode(s.id, EXP_SEL); if (hn) li.appendChild(hn); }
           rows.appendChild(li);
@@ -4376,6 +4389,20 @@ body { background:var(--color-bg); }
     fetch('audit.json?v=' + encodeURIComponent(ver || Date.now()), { cache: 'no-store' }).then((r) => r.ok ? r.json() : null).then((a) => {
       el._busy = false; if (!a) { el.replaceChildren(mk('p', 'st-note', 'The audit file could not be loaded; try again in a minute.')); return; }
       el._a = a; el._v = ver; el.replaceChildren();
+      // the full rulebook first, built from the same numbers the race code enforces
+      if ((a.rulebook || []).length) {
+        el.appendChild(mk('h3', 'st-h3', 'The rules'));
+        el.appendChild(mk('p', 'st-note', 'Every rule of the race, for all three AIs. The numbers here come from the same settings the race code enforces.'));
+        const rb = mk('div', 'au-rules');
+        a.rulebook.forEach((sct, i) => {
+          const d = document.createElement('details'); if (i < 2) d.open = true;
+          d.appendChild(mk('summary', '', sct.title + ' (' + sct.items.length + ')'));
+          const ol = mk('ol'); sct.items.forEach((x) => ol.appendChild(mk('li', '', x))); d.appendChild(ol);
+          rb.appendChild(d);
+        });
+        el.appendChild(rb);
+        el.appendChild(mk('h3', 'st-h3', 'Audit: what each AI is told and what it says'));
+      }
       const grid = mk('div', 'au-grid');
       ['claude', 'gemini', 'chatgpt'].forEach((id) => {
         const x = (a.ais || {})[id]; const c = mk('section', 'au-ai'); c.style.setProperty('--ai', AIS[id].color);
