@@ -611,6 +611,8 @@
   .gx-key-tog { cursor: pointer; border-bottom: 1px dotted var(--color-fg-muted); } .gx-key-tog:hover { color: var(--color-fg); } .gx-key-tog.is-off { opacity: .65; }
   .gx-key-tog:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   .gx-led { font-size: 11.5px; margin-left: 6px; white-space: nowrap; }
+  .fp-hash { font-family: var(--font-mono, monospace); font-size: 11.5px; word-break: break-all; }
+  .bm-audit { margin-top: 8px; font-size: 12.5px; } .bm-audit summary { cursor: pointer; color: var(--color-fg-muted); } .bm-audit table { font-size: 12px; margin-top: 6px; }
   .pt-mtick:empty { display: none; }
   @media (max-width: 700px) { .pt-mtick { position: sticky; top: 0; z-index: 45; background: var(--color-bg); margin: 0 -16px; padding: 0; }
     .pt-mtick .pt-ticker { margin: 0; } .pt-mtick .pt-tk-i { padding: 4px 14px; font-size: 11.5px; } }
@@ -1005,7 +1007,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'ebfb7c536ed3';</script>
+<script>window.PT_PAGE_VER = 'a6d6de332e34';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -2238,6 +2240,11 @@ body { background:var(--color-bg); }
       <p class="st-note">Agreed by Claude, Gemini and ChatGPT on Oct 29. At each check-in every AI grades the other two AIs' new trades and bets (all of them, or the 5 largest when there are more), A to F or "no view", with one sentence of 25 words or fewer. The rubric, the same for everyone: is the reason specific, sourced and sensible; does the size fit the conviction and the caps; is there a clear exit or "what would prove it wrong"; did it use what was known at the time. The grader acts as a strict chief risk officer, sees only what was known when the decision was made (never the result), and sees the other two as "Competitor A" and "Competitor B", shuffled each time. Grades are opinions: they never change any score. A grade made from wrong information shown by the site is withdrawn, kept and marked, and never averaged.</p>
       <div data-draw="peergrades" data-source="peer_grades peer_outcomes"></div>
     </section>
+    <section class="st-card" id="fingerprints" aria-labelledby="h-fp">
+      <h2 class="st-h2" id="h-fp">Ledger fingerprints: proof nothing was changed later</h2>
+      <p class="st-note">Agreed by all three AIs on Oct 29. After each daily close (8 p.m. ET until Nov 1, 7 p.m. ET after), the race runner takes a SHA-256 fingerprint of every trade and bet of all three AIs up to that close and publishes it here and on Telegram, once. Your browser recomputes each one right now from the data on this page: if any earlier trade or bet had been edited since, its fingerprint would no longer match. Corrections, when there are any, are listed below with their reasons.</p>
+      <div data-draw="fingerprints" data-source="fingerprints trades bets rivals_trades allin_trades"></div>
+    </section>
     <section class="st-card" aria-labelledby="h-pa">
       <h2 class="st-h2" id="h-pa">Price check: Claude’s prices vs the feeds</h2>
       <p class="st-note">Gemini’s and ChatGPT’s trades are filled by the race’s code straight from the price feeds, and Claude’s too since Oct 29, 6:00 p.m. ET. Claude still values its holdings with prices it looks up itself (and did so for its trades before then), so after every Gemini and ChatGPT check-in the same code compares every price Claude used since the Oct 28 restart, for its trades and its daily values, with the feed at that time: Yahoo Finance one-minute prices (regular session) and Polymarket’s price history. A price passes when it is inside the feed’s low–high range at that time, within 0.5% for stocks, funds, currencies and China ETFs, 1% for crypto, 1.5–2% for metals (Claude uses spot, the feed is futures) and 3 cents for prediction markets. A flag is checked by hand and becomes a correction only if the price was really wrong.</p>
@@ -3446,6 +3453,37 @@ body { background:var(--color-bg); }
     };
     el.appendChild(table(false));
     el.appendChild(mk('h3', 'st-h3', 'All in: sports (side race, no caps)')); el.appendChild(table(true));
+  });
+  // ---------- ledger fingerprints (agreed item 3): the same lines and SHA-256 as ops/fingerprint.py, recomputed in the visitor's browser
+  const fpLines = (close) => {
+    const S = (x) => (x === null || x === undefined ? '' : String(x)), T = (x) => Date.parse(String(x));
+    const C = (x) => (x === null || x === undefined || x === '' ? '' : String(Math.floor(Number(x) * 100 + 0.5)));
+    const P = (x) => (x === null || x === undefined || x === '' ? '' : String(Math.floor(Number(x) * 1e6 + 0.5)));
+    const out = [];
+    (dash.baseData('trades') || []).forEach((t) => { if (t.at && T(t.at) < close) out.push(['C', S(t.at), S(t.portfolio), S(t.holding), S(t.action), C(t.cad !== null && t.cad !== undefined ? t.cad : t.usd), P(t.price_usd !== null && t.price_usd !== undefined ? t.price_usd : t.price_local)].join('|')); });
+    (dash.baseData('bets') || []).forEach((b) => {
+      if (b.placed_at && T(b.placed_at) < close) out.push(['B', S(b.bet), S(b.placed_at), S(b.pick), C(b.odds), C(b.stake_cad)].join('|'));
+      if (b.settled_at && b.status && b.status !== 'Open' && T(b.settled_at) < close) out.push(['S', S(b.bet), S(b.settled_at), S(b.status), C(b.result_cad)].join('|'));
+    });
+    (dash.baseData('rivals_trades') || []).concat(dash.baseData('allin_trades') || []).forEach((t) => {
+      if (t.at && T(t.at) < close && (t.model !== 'claude' || /^AllIn/.test(t.experiment || ''))) out.push(['R', S(t.model), S(t.at), S(t.experiment), S(t.action), S(t.symbol), C(t.amount), P(t.price)].join('|')); });
+    return out.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  };
+  const fpHash = async (ls) => { const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(ls.join('\n'))); return [...new Uint8Array(buf)].map((x) => x.toString(16).padStart(2, '0')).join(''); };
+  dash.draw('fingerprints', (el) => {
+    el.replaceChildren();
+    const F = (dash.baseData('fingerprints') || []).slice().sort((a, b) => (a.day < b.day ? 1 : -1));
+    if (!F.length) { el.appendChild(mk('p', 'st-note', 'The first fingerprint is published at the first run two hours after the next daily close.')); return; }
+    const w = mk('div', 'st-wrap'); const t = mk('table', 'st-table'); t.innerHTML = '<thead><tr><th>Race day</th><th>Up to</th><th class="num">Records</th><th>SHA-256 fingerprint</th><th>Check now</th></tr></thead>';
+    const tb = mk('tbody'); t.appendChild(tb);
+    F.forEach((f) => { const tr = mk('tr'); const chk = mk('td', 'st-muted', 'checking…');
+      tr.append(mk('td', '', new Date(f.day + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })), mk('td', '', stFmt.when(f.close_at)), mk('td', 'num', String(f.records)), mk('td', 'wrap fp-hash', f.sha256), chk);
+      tb.appendChild(tr);
+      if (!(window.crypto && crypto.subtle)) { chk.textContent = 'your browser can’t check it'; return; }
+      const ls = fpLines(Date.parse(f.close_at));
+      fpHash(ls).then((h) => { const ok = h === f.sha256; chk.className = ok ? 'is-up' : 'is-down'; chk.textContent = ok ? '✓ matches (' + ls.length + ' records)' : '✗ changed since: see the corrections'; }).catch(() => { chk.textContent = 'could not check'; });
+    });
+    w.appendChild(t); el.appendChild(w);
   });
   // ---------- peer grades (agreed by all three AIs, G1-G7): the other AIs' grades under each decision, as competitors' opinions
   const PG_KEY = (t) => t.model + '|' + new Date(t.at).toISOString().slice(0, 19) + 'Z|' + t.experiment + '|' + (t.symbol || '') + '|' + t.action;
@@ -6703,6 +6741,16 @@ body { background:var(--color-bg); }
       if (tot) box.appendChild(line('Total by Nov 28', tot));
       const pens = dash.baseData('penalties').filter((x) => x.model === id);
       if (pens.length) { const d = mk('div', 'bm-row'); d.appendChild(mk('span', 'bm-miss', 'Penalties −' + money(d3.sum(pens, (x) => x.amount)) + ': ')); d.appendChild(document.createTextNode(pens.map((x) => x.day === 'total' ? 'total shortfall' : day(x.day)).join(', '))); box.appendChild(d); }
+      { // every wager that counted, with when, which day it counted for and how much (agreed item 10); tap one to see it in the Ledger
+        const items = (dash.baseData('betmin_items') || []).filter((x) => x.model === id);
+        if (items.length) { const dt = mk('details', 'bm-audit'); dt.appendChild(mk('summary', '', 'Every wager counted (' + items.length + ') ▾'));
+          const w = mk('div', 'st-wrap'); const t = mk('table', 'st-table'); t.innerHTML = '<thead><tr><th>When</th><th>Counted for</th><th>Type</th><th>What</th><th class="num">Amount</th></tr></thead>';
+          const tb = mk('tbody'); t.appendChild(tb);
+          items.forEach((x) => { const tr = mk('tr'); const a = mk('a', '', stFmt.whenET(x.at) + ' ET'); a.href = '#ledger'; a.title = 'See it in the Ledger';
+            a.addEventListener('click', (ev) => { ev.preventDefault(); setModel(id); setTimeout(() => window.ptGoLedgerTrade(x.race, x.at, ''), 60); });
+            const c0 = mk('td'); c0.appendChild(a); tr.append(c0, mk('td', '', day(x.day)), mk('td', '', x.kind), mk('td', 'wrap', String(x.what || '').replace(/^[A-Z]{2,5}: /, '')), mk('td', 'num', money(x.amount))); tb.appendChild(tr); });
+          w.appendChild(t); dt.appendChild(w); box.appendChild(dt);
+          tb.dataset.pgNewest = '1'; if (items.length > 10) pagerFor(tb, 10, 'wagers'); } }
       grid.appendChild(box);
     });
     el.appendChild(grid);
