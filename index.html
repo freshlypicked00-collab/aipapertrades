@@ -3734,8 +3734,9 @@ body { background:var(--color-bg); }
     btn.setAttribute('aria-pressed', 'true'); btn.textContent = btn._stop; btn.setAttribute('aria-label', 'Stop reading');
     if (el) el.classList.add('is-reading');
     const go = () => { if (SAY.btn !== btn) return; const v = pickVoice(L); if (v) u.voice = v; speechSynthesis.speak(u); };
-    if (speechSynthesis.getVoices().length) go();
-    else { let done = false; const once = () => { if (!done) { done = true; go(); } }; speechSynthesis.addEventListener('voiceschanged', once, { once: true }); setTimeout(once, 1200); }   // wait for the voice list so the same voice is always used
+    // wait until the FULL voice list is in: browsers first list only built-in voices (often a male one) and add the natural ones a moment later
+    if (VOICES_READY) go();
+    else { let done = false; const once = () => { if (!done) { done = true; go(); } }; speechSynthesis.addEventListener('voiceschanged', () => setTimeout(once, 150), { once: true }); setTimeout(once, 1500); }
   };
   // ONE voice for every read-aloud, the same every time: a fixed ranked list of natural female English voices
   // (Edge, Chrome, Safari/iPhone, Android, Windows), then the first English voice; other languages keep one voice each.
@@ -3757,7 +3758,15 @@ body { background:var(--color-bg); }
     if (v) VOICE_CACHE[L] = v;
     return v;
   };
-  try { if ('speechSynthesis' in window) { speechSynthesis.getVoices(); speechSynthesis.addEventListener('voiceschanged', () => { for (const k in VOICE_CACHE) delete VOICE_CACHE[k]; }); } } catch (e) {}
+  let VOICES_READY = false;
+  try {
+    if ('speechSynthesis' in window) {
+      speechSynthesis.getVoices();
+      let t = null;
+      speechSynthesis.addEventListener('voiceschanged', () => { for (const k in VOICE_CACHE) delete VOICE_CACHE[k]; clearTimeout(t); t = setTimeout(() => { VOICES_READY = true; }, 300); });
+      setTimeout(() => { VOICES_READY = true; }, 2500);   // browsers that never send voiceschanged
+    }
+  } catch (e) {}
   const playBtn = (getText, el) => {   // the small ▶ used on every paragraph
     const b = mk('button', 'say-btn', '▶'); b.type = 'button'; b._idle = '▶'; b._stop = '⏹'; b._label = 'Listen to this';
     b.setAttribute('aria-label', 'Listen to this'); b.setAttribute('aria-pressed', 'false'); b.title = 'Listen to this';
