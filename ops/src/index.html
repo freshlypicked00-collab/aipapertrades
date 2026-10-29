@@ -445,6 +445,13 @@
   .bg-risk { display: inline-block; margin-left: 8px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; vertical-align: middle; }
   .bg-risk-low { color: var(--color-ok, #3ddc84); } .bg-risk-medium { color: var(--accent, #ffb000); } .bg-risk-high, .bg-risk-very { color: var(--color-bad, #ff5a4e); }
   .bg-note { font-size: 12.5px; opacity: .85; margin: 6px 0 0; }
+  .bg-plain { margin-top: 10px; padding: 10px 12px; border-radius: var(--cds-radius); border: 1px dashed var(--accent, #ffb000); background: color-mix(in srgb, var(--accent, #ffb000) 6%, transparent); font-size: 13.5px; line-height: 1.5; }
+  .bg-plain b { color: var(--accent, #ffb000); } .bg-plain p { margin: 4px 0 0; }
+  .bg-off { margin-top: 12px; font: inherit; font-family: var(--font-mono, monospace); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg); background: transparent; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 7px 14px; min-height: 32px; cursor: pointer; }
+  .bg-off:hover { border-color: var(--accent, #ffb000); }
+  .bg-toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); max-width: min(560px, calc(100vw - 32px)); z-index: 90; background: var(--color-panel); color: var(--color-fg); border: 1px solid var(--accent, #ffb000); border-radius: 12px; padding: 12px 16px; font-size: 14px; line-height: 1.45; box-shadow: 0 12px 34px rgba(0,0,0,.5); opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; }
+  .bg-toast.on { opacity: 1; transform: translate(-50%, 0); }
+  [data-beginner="1"] #beginner-btn, [data-beginner="1"] .st-tt-theme[aria-pressed="true"] { border-color: var(--accent, #ffb000); color: var(--accent, #ffb000); }
   .sp-track { margin-top: 12px; }
   .sp-track h4 { margin: 12px 0 6px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
   .sp-recs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
@@ -3785,7 +3792,7 @@
   // (trade reasons, notes, fact checks, plan cards, updates). Added automatically wherever text is drawn.
   (() => {
     if (!('speechSynthesis' in window)) return;
-    const SKIP = '.au-pre, .au-ai, .h2h-holds, .pd-detail, .st-plans-wide, nav, button, select, label, header .st-meta, .st-sub, .st-dates, .st-podium, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, .say-pair, .listen-pair, .sp-track, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
+    const SKIP = '.bg-start, .bg-plain, .bg-toast, .bg-pop, tr.bg-say, .au-pre, .au-ai, .h2h-holds, .pd-detail, .st-plans-wide, nav, button, select, label, header .st-meta, .st-sub, .st-dates, .st-podium, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, .say-pair, .listen-pair, .sp-track, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
     const words = (t) => (t.trim().match(/\S+/g) || []).length;
     const NESTED = 'p, li, .st-plan, table, ul, ol';
     const textOf = (el, own) => {
@@ -4355,6 +4362,8 @@
         li.appendChild(bt); ol.appendChild(li);
       });
       el.appendChild(ol);
+      { const bx = mk('div', 'bg-only bg-plain'); bx.appendChild(mk('b', '', '🎓 In plain words'));
+        bx.appendChild(mk('p', '', 'There are 10 separate races. This counts how many each AI is winning right now. Pick one race from the menu above to see the money.')); el.appendChild(bx); }
       momentsBox(el);
       return;
     }
@@ -4375,6 +4384,11 @@
       li.appendChild(bt); ol.appendChild(li);
     });
     el.appendChild(ol);
+    { const st = el._exp === 'China' ? 100000 : 100000, f = (x) => cur + d3.format(',.0f')(Math.abs(x));
+      const bx = mk('div', 'bg-only bg-plain'); bx.appendChild(mk('b', '', '🎓 In plain words'));
+      rows.forEach((r, i) => bx.appendChild(mk('p', '', (i === 0 ? '🥇 ' : '') + AIS[r.id].label + (Math.abs(r.profit) < 0.5 ? ' has exactly the ' + f(st) + ' it started with (no gain, no loss yet).' : ' has about ' + f(st + r.profit) + ': ' + f(r.profit) + (r.profit > 0 ? ' MORE' : ' LESS') + ' than the ' + f(st) + ' it started with.'))));
+      bx.appendChild(mk('p', 'bg-note', 'The AI with the most money in this race on Nov 28 wins it. Risk level: ' + ((RISK[el._exp] || ['?'])[0]).toLowerCase() + '.'));
+      el.appendChild(bx); }
     // the selected AI in this race: what it holds (pie) and its last trade
     const me = rows.find((r) => r.id === dash.model) || rows[0];
     const box = mk('div', 'pd-detail'); box.style.setProperty('--ai', AIS[me.id].color);
@@ -4576,6 +4590,7 @@
   // "Start here": a short guide at the top of the Overview, only in Beginner mode
   const startHere = () => {
     const pg = document.querySelector('[data-page="overview"]'); if (!pg) return;
+    const anchorEl = document.querySelector('.st-live-top') || pg.firstChild;
     let c = document.getElementById('bg-start');
     if (document.documentElement.dataset.beginner !== '1') { if (c) c.remove(); return; }
     if (c) return;
@@ -4588,7 +4603,8 @@
      'Words with a dotted underline can be tapped for a short explanation, such as “short”, “moneyline” or odds like −149.',
      'Watch and learn, but don’t copy. The AIs make mistakes and lose money too, and this is a simulation, not advice.'].forEach((t) => ol.appendChild(mk('li', '', t)));
     c.appendChild(ol);
-    pg.insertBefore(c, pg.firstChild);
+    const off = mk('button', 'bg-off', 'Turn Beginner mode off'); off.type = 'button'; off.addEventListener('click', () => setBeginner(false)); c.appendChild(off);
+    if (anchorEl && anchorEl.parentNode) anchorEl.parentNode.insertBefore(c, anchorEl); else pg.insertBefore(c, pg.firstChild);
   };
   // the switch (header, sticky bar and phone menu), remembered on this device
   const bb = document.getElementById('beginner-btn');
@@ -4601,7 +4617,11 @@
     startHere(); if (window._bgInit) { document.querySelectorAll('[data-draw]').forEach((x) => { try { if (x._redraw) x._redraw(); } catch (e) {} }); if (dash.useModel) dash.useModel(dash.model || 'claude'); } window._bgInit = 1; setTimeout(() => gloss(document.getElementById('dash-root') || document.body), 300);
   };
   window.ptSetBeginner = setBeginner;
-  if (bb) bb.addEventListener('click', () => setBeginner(document.documentElement.dataset.beginner !== '1'));
+  const bgToast = (on) => { let t = document.getElementById('bg-toast'); if (!t) { t = mk('div', 'bg-toast'); t.id = 'bg-toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+    t.textContent = on ? '🎓 Beginner mode on: a guide is at the top of Home, dotted words can be tapped, races are explained in plain words, and every trade in the Ledger gets a plain sentence.' : 'Beginner mode off.';
+    t.classList.add('on'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('on'), on ? 6500 : 2000); };
+  if (bb) bb.addEventListener('click', () => { const on = document.documentElement.dataset.beginner !== '1'; setBeginner(on); bgToast(on);
+    if (on) setTimeout(() => { const c = document.getElementById('bg-start'); if (c && c.offsetParent) c.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 350); });
   { let on = false; try { on = localStorage.getItem('pt-beginner') === '1'; } catch (e) {} setBeginner(on); }
   // Forecasts: each AI's chances for who wins the selected race (a separate contest that never changes anyone's money)
   dash.draw('forecasts', (el) => {
