@@ -906,7 +906,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'e9b59b10c40d';</script>
+<script>window.PT_PAGE_VER = 'e89b0556d77d';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -1032,7 +1032,7 @@ body { background:var(--color-bg); }
           <option value="chatgpt" disabled>ChatGPT (OpenAI’s GPT-5.5)</option>
         </select>
         <p class="st-model-note" data-model-note>Showing Claude’s ten experiments (model: Claude Opus 5.5).</p>
-        <label class="st-model-l" for="cur-pick">Show money in</label>
+        <label class="st-model-l" for="cur-pick">Currency</label>
         <select id="cur-pick" class="cur-pick">
           <option value="">Each experiment's own (C$, or US$ for China)</option>
           <option value="CAD">Canadian dollars (C$)</option><option value="USD">US dollars (US$)</option><option value="EUR">Euros (€)</option>
@@ -2515,7 +2515,7 @@ body { background:var(--color-bg); }
     tick(); setInterval(tick, 15000);
     box.appendChild(clk);
     box.appendChild(mirror(mp, 'Model'));
-    if (cp) box.appendChild(mirror(cp, 'Money'));
+    if (cp) box.appendChild(mirror(cp, 'Currency'));
     // light / dark mode, the same as the header button
     const tb = document.getElementById('theme-btn');
     if (tb) {
