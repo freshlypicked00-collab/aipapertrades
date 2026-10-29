@@ -3496,15 +3496,35 @@
     if (again) return;
     const L = window.PT_LANG && window.PT_LANG !== 'en' ? window.PT_LANG : 'en-US';
     const u = new SpeechSynthesisUtterance(L === 'en-US' ? sayable(text) : text); u.rate = 1; u.lang = L;
-    const vs = speechSynthesis.getVoices();
-    const v = L === 'en-US' ? (vs.find((x) => /en-(US|GB|CA)/.test(x.lang) && /Natural|Google|Samantha|Aria|Jenny|Daniel/i.test(x.name)) || vs.find((x) => /^en/.test(x.lang))) : vs.find((x) => x.lang.toLowerCase().startsWith(L.toLowerCase().split('-')[0]));
-    if (v) u.voice = v;
     u.onend = u.onerror = () => { if (SAY.btn === btn) stopSay(); };
     SAY.btn = btn; SAY.el = el || null;
     btn.setAttribute('aria-pressed', 'true'); btn.textContent = btn._stop; btn.setAttribute('aria-label', 'Stop reading');
     if (el) el.classList.add('is-reading');
-    speechSynthesis.speak(u);
+    const go = () => { if (SAY.btn !== btn) return; const v = pickVoice(L); if (v) u.voice = v; speechSynthesis.speak(u); };
+    if (speechSynthesis.getVoices().length) go();
+    else { let done = false; const once = () => { if (!done) { done = true; go(); } }; speechSynthesis.addEventListener('voiceschanged', once, { once: true }); setTimeout(once, 1200); }   // wait for the voice list so the same voice is always used
   };
+  // ONE voice for every read-aloud, the same every time: a fixed ranked list of natural female English voices
+  // (Edge, Chrome, Safari/iPhone, Android, Windows), then the first English voice; other languages keep one voice each.
+  const VOICE_PREF = [/Aria.*Natural/i, /Jenny.*Natural/i, /Ava.*(Natural|Premium|Enhanced)/i, /Samantha/i, /^Google US English$/i, /Microsoft Aria/i, /Microsoft Jenny/i, /Microsoft Zira/i, /English.*United States.*(female|#1)?/i];
+  const VOICE_CACHE = {};
+  const pickVoice = (L) => {
+    if (VOICE_CACHE[L]) return VOICE_CACHE[L];
+    const vs = speechSynthesis.getVoices(); if (!vs.length) return null;
+    let v = null;
+    if (L === 'en-US') {
+      const en = vs.filter((x) => /^en[-_](US|CA|GB)/i.test(x.lang));
+      for (const re of VOICE_PREF) { v = en.find((x) => re.test(x.name)); if (v) break; }
+      v = v || en.find((x) => /^en[-_]US/i.test(x.lang)) || en[0] || vs.find((x) => /^en/i.test(x.lang));
+    } else {
+      const base = L.toLowerCase().split('-')[0];
+      const same = vs.filter((x) => x.lang.toLowerCase().replace('_', '-').startsWith(base));
+      v = same.find((x) => /Natural|Google/i.test(x.name)) || same[0];
+    }
+    if (v) VOICE_CACHE[L] = v;
+    return v;
+  };
+  try { if ('speechSynthesis' in window) { speechSynthesis.getVoices(); speechSynthesis.addEventListener('voiceschanged', () => { for (const k in VOICE_CACHE) delete VOICE_CACHE[k]; }); } } catch (e) {}
   const playBtn = (getText, el) => {   // the small ▶ used on every paragraph
     const b = mk('button', 'say-btn', '▶'); b.type = 'button'; b._idle = '▶'; b._stop = '⏹'; b._label = 'Listen to this';
     b.setAttribute('aria-label', 'Listen to this'); b.setAttribute('aria-pressed', 'false'); b.title = 'Listen to this';
