@@ -1,0 +1,64 @@
+{
+ "at": "2026-10-29T18:05:37Z",
+ "question": "QUESTION FROM THE OWNER, NOT A TRADING TURN (nothing changes in your books; not published).\n\nPaper Trades (papertrades.ai): Claude vs Gemini vs ChatGPT, ten separate C$100,000 races (China in US$), Oct 28 to Nov 28, plus the All in side race. Owner's rules: each race is its own experiment and races are never added together in public before the final; every AI is treated the same, good and bad.\n\nThe owner asks: \"any fixes needed? check everything.\" Attached is the visible text of every page of the live site as of 2:05 p.m. ET today (each tab cut to a few thousand characters; tables appear as plain text, and the price ticker repeats because it scrolls).\n\nCurrent system facts: all three AIs' check-ins succeeded today with no failures; Gemini and ChatGPT check in together, Claude in its own scheduled sessions about every 30 minutes in US market hours; Claude's latest price check: 221 of 221 prices matched the feeds; Telegram posting OK; Instagram last posted 9:49 a.m. ET (12 posts in 24 hours).\n\nRead it carefully as a first-time visitor and as an auditor. Answer in under 350 words, as a numbered list, most important first:\n- anything wrong, inconsistent or contradictory (numbers that don't add up, two places that disagree, times or dates that look wrong, rules described two different ways),\n- anything unfair or treated differently between the three AIs,\n- anything confusing or misleading for a visitor,\n- anything important that is missing.\nQuote the exact text you mean and say which tab it is on. Skip general praise and skip things that are fine.",
+ "files": [
+  "ops/review/site_snapshot.txt"
+ ],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "1. **Public “overall” language may violate the owner rule.** Top/Race standings shows **“Overall (All Ten Races)”** and **“NOW VIEWING: CLAUDE OPUS 5.5 (ANTHROPIC) 👑 LEADING THE RACE”**; AI vs AI says **“overall, the AI with the most total profit wins”**. But AI vs AI also says profits are **“not added together during the month”**. Remove/rename current overall/leading language until final.\n\n2. **Check-in fairness wording is inaccurate.** Top says **“Automatic check-ins wake all three at the same times”**; How it works/Rules says **“All three AIs check in at the same times”**. But Rules & Audit shows **Claude latest check-in 1:58 p.m. ET** vs **Gemini/ChatGPT 1:44 p.m. ET**, and current ops says Claude runs separate scheduled sessions. Reword to “same schedule/equivalent windows” or make times actually identical.\n\n3. **Claude fact-check appears overdue.** Top says **“FACT CHECK · PENDING Gemini fact-checks Claude’s takes at its next check-in”** for Claude’s **10:08 a.m.** take, while Rules & Audit shows Gemini’s latest check-in was **1:44 p.m. ET**. Since all check-ins succeeded, this looks stuck.\n\n4. **China tab uses wrong currency labels in holdings.** China stocks tab says counted in **US dollars** and **“values in US dollars”**, but holdings show **“Cash (CNY) 50% · C$70,018 / CSI 300 ETF … C$42,022 / SSE Dividend ETF … C$28,076”**. Those C$ figures confuse the US$ race and don’t match the US$100,248 total.\n\n5. **Gemini/ChatGPT start time contradicts restart rule.** Rules & Audit: **“restarted level on Oct 28 at 1:45 p.m. ET”**. Gemini Crypto and ChatGPT Crypto say **“started Oct 28, 1:44 p.m. ET”**.\n\n6. **All In numbers look contradictory.** Gemini tab: **“ALL IN (SIDE RACE) +C$17,395”**; All in tab under trading: **“Gemini … −C$2,956”**. ChatGPT tab similarly says **+C$11,150** while All in trading says **−C$1,871**. If profile totals include All-in sports, label it.\n\n7. **Daily cutoff is described two ways.** How it works: **“Each day closes at midnight UTC.”** Ledger: **“By day: each race’s gain or loss that day (Eastern time)”**. Pick one or explain both.\n\n8. **Race-lead count is incomplete/confusing.** AI vs AI says **Claude leads 6**, **ChatGPT 2**, **Gemini 1** = 9 of 10. If one race is tied, show “1 tied” or identify it.\n\n9. **Negative “profit” wording is misleading.** Race standings shows **“−C$456 profit”**, **“−C$853 profit”**, **“−C$1,223 profit”**. Use “profit/loss” or “return.”\n\n10. **Gemini sports holdings are duplicated without explanation.** AI vs AI lists **“Notre Dame Fighting Irish …”** and **“Tulane Green Wave …”** multiple times. If these are separate bets/parlays, label them; otherwise dedupe.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 30247,
+     "completion_tokens": 4916,
+     "total_tokens": 35163,
+     "cost": 0.298715,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.298715,
+      "upstream_inference_prompt_cost": 0.151235,
+      "upstream_inference_completions_cost": 0.14748
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 4142,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "Here are the necessary fixes, starting with the most critical:\n\n1. **Unfair and contradictory check-in times:** The site falsely claims Claude receives no special treatment, stating \"All three check in at the same times\" and \"an extra check-in is never for Claude alone: Gemini and ChatGPT check in at the same moment\" (on the **How it works** and **Rules & Audit** tabs). However, the system facts say Claude runs on its own schedule. The **Rules & Audit** tab confirms this unfairness, showing Claude’s latest check-in at \"Oct 29, 1:58 p.m. ET\" while the others are at \"Oct 29, 1:44 p.m. ET\". This gives Claude extra turns.\n\n2. **Contradictory All-In numbers:** The individual AI profile tabs show completely different results for the side race than the main tracking page. The **Gemini (ai-gemini)** tab claims its \"ALL IN (SIDE RACE)\" is at \"+C$17,395\" and the **ChatGPT (ai-chatgpt)** tab claims \"+C$11,150\". However, the actual **All in** tab explicitly shows both are losing money: Gemini at \"−C$2,956\" and ChatGPT at \"−C$1,871\". \n\n3. **Broken rule enforcement (Sports limits):** Gemini blatantly violated the maximum wager limit but was not penalized. The **Sports** and **Prediction markets** tabs clearly state the rule: \"Every day: at least C$3,000 wagered, and at most 25% of the bankroll on one day’s games\". With a roughly C$100,000 bankroll, the daily cap is C$25,000. Yet, right below this rule, Gemini's status reads: \"Today: C$47,000 of C$3,000 ✓ met\". It wagered 47% of its bankroll but incorrectly received a checkmark instead of a penalty.\n\n4. **Missing social media links:** The system facts note that the project's Instagram is highly active (12 posts in 24 hours), but the site completely fails to mention it. The **How it works** tab only informs visitors that updates are \"posted automatically to the @PaperTradesAI Telegram channel\", leaving out a major platform visitors could be following.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 35052,
+     "candidatesTokenCount": 526,
+     "totalTokenCount": 47140,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 35052
+      }
+     ],
+     "thoughtsTokenCount": 11562,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
