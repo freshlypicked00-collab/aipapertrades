@@ -79,13 +79,16 @@ def moment_card(m, path):
     ax.text(80, 535, f"ahead by {money(m['lead'], race).lstrip('+')}.", color=FG, fontsize=32)
     prof = m.get('profit') or {}
     ids = sorted(prof, key=lambda k: -prof[k])
-    mx = max([abs(v) for v in prof.values()] + [1])
+    pos = max([v for v in prof.values() if v > 0] + [0]); neg = max([-v for v in prof.values() if v < 0] + [0])
+    span = 440.0; tot = (pos + neg) or 1
+    x0 = 300 + span * neg / tot   # the zero line: profits grow right of it, losses left of it
+    ax.plot([x0, x0], [630, 640 + 76 * len(ids)], color=MUTED, lw=1.5)
     y = 650
     for i in ids:
-        v = prof[i]; w = max(6, 560 * abs(v) / mx)
+        v = prof[i]; w = max(4, span * abs(v) / tot)
         ax.text(80, y + 26, AIS[i][0], color=FG, fontsize=26, fontweight='bold', va='center')
-        ax.add_patch(plt.Rectangle((300, y + 6), w, 40, color=AIS[i][1], alpha=1 if v >= 0 else 0.45))
-        ax.text(300 + w + 18, y + 26, money(v, race), color=UP if v >= 0 else DOWN, fontsize=24, fontweight='bold', va='center')
+        ax.add_patch(plt.Rectangle((x0 if v >= 0 else x0 - w, y + 6), w, 40, color=AIS[i][1], alpha=1 if v >= 0 else 0.5))
+        ax.text(max(x0 + (w if v >= 0 else 0), x0) + 16, y + 26, money(v, race), color=UP if v >= 0 else DOWN, fontsize=24, fontweight='bold', va='center')
         y += 76
     ax.text(80, 950, 'Profit in this race since Oct 28 · pretend money, real prices', color=MUTED, fontsize=19)
     ax.text(80, 1004, 'papertrades.ai', color=FG, fontsize=25, fontweight='bold')

@@ -4265,14 +4265,16 @@
     y = wrap('Overtook ' + AIS[m.over].label + ' in ' + raceName(m.race) + ', ahead by ' + (m.cur === 'USD' ? 'US$' : 'C$') + d3.format(',.0f')(m.lead) + '.', 80, y + 80, S - 160, 58);
     // the three AIs' profit at that moment
     const ids = Object.keys(m.profit || {}).sort((a, b) => m.profit[b] - m.profit[a]);
-    const mx = Math.max(1, ...ids.map((i) => Math.abs(m.profit[i])));
+    const pos = Math.max(0, ...ids.map((i) => m.profit[i])), neg = Math.max(0, ...ids.map((i) => -m.profit[i]));
+    const span = 440, tot = (pos + neg) || 1, x0 = 300 + span * neg / tot;   // zero line: profits grow right, losses left
     let by = Math.max(y + 70, 620);
+    g.fillStyle = '#9b927f'; g.fillRect(x0 - 1, by - 10, 2, 76 * ids.length + 4);
     ids.forEach((i) => {
-      const v = m.profit[i]; const w = Math.max(6, 560 * Math.abs(v) / mx);
+      const v = m.profit[i]; const w = Math.max(4, span * Math.abs(v) / tot);
       g.fillStyle = '#f2f2f2'; g.font = font(600, 36); g.fillText(AIS[i].label, 80, by + 36);
-      g.fillStyle = col(i); g.globalAlpha = v >= 0 ? 1 : 0.45; g.fillRect(300, by + 6, w, 40); g.globalAlpha = 1;
+      g.fillStyle = col(i); g.globalAlpha = v >= 0 ? 1 : 0.5; g.fillRect(v >= 0 ? x0 : x0 - w, by + 6, w, 40); g.globalAlpha = 1;
       g.fillStyle = v >= 0 ? '#3ddc84' : '#ff6b6b'; g.font = font(700, 34);
-      g.fillText((v >= 0 ? '+' : '−') + (m.cur === 'USD' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(v)), 300 + w + 18, by + 38);
+      g.fillText((v >= 0 ? '+' : '−') + (m.cur === 'USD' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(v)), x0 + (v >= 0 ? w : 0) + 16, by + 38);
       by += 76;
     });
     g.fillStyle = '#9b927f'; g.font = font(500, 28);
