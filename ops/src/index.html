@@ -277,6 +277,9 @@
   .h2h-holds li b { color: var(--color-fg); font-weight: 600; }
   .h2h-wait { opacity: .7; }
   .h2h-chart { position: relative; }
+  .sec-model { margin: -2px 0 10px; font-size: 13px; color: var(--color-fg-muted); }
+  .sec-model select { font: inherit; font-size: 13px; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--ai, var(--color-border-line)); border-radius: var(--cds-radius); padding: 4px 8px; margin-left: 4px; max-width: 100%; }
+  .sec-model select:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   .h2h-chartpick { margin-bottom: 0; }
   .h2h-chartpick .st-chips button { font-size: 13px; padding: 4px 11px; }
   .h2h-chart svg { display: block; width: 100%; height: auto; overflow: visible; }
@@ -3031,7 +3034,9 @@
       if (pts.length < 2 && all.length > 1) pts = all.slice(-2);
       const whole = span === Infinity || since;
       const ref = whole || pts.length < 2 ? cfg.base : pts[0].v;
-      const refName = whole || pts.length < 2 ? (cfg.sinceLabel || 'since start') : 'over the last ' + (range === '1 year' ? 'year' : range.toLowerCase());
+      // when the history on hand starts well after the range's start, say so instead of claiming the full range
+      const short = !whole && pts.length >= 2 && +all[0].t > from + 2 * 864e5;
+      const refName = whole || pts.length < 2 ? (cfg.sinceLabel || 'since start') : short ? 'since ' + d3.timeFormat('%b %-d')(all[0].t) + (cfg.shortNote || '') : 'over the last ' + (range === '1 year' ? 'year' : range.toLowerCase());
       val.textContent = cfg.fmt(last.v);
       const diff = ref === undefined || ref === null ? null : last.v - ref;
       chg.className = 'gx-chg ' + (diff > 0 ? 'is-up' : diff < 0 ? 'is-down' : '');
@@ -3379,8 +3384,9 @@
       const levels = inRange.map((r) => ({ v: Number(r.level), label: r.label + ' at ' + f(Number(r.level)), color: r.direction === 'above' ? 'var(--color-ok)' : 'var(--color-bad)' }));
       const markers = T.data.filter((t) => t.portfolio === pf && t.holding === h.holding).map((t) => ({ t: new Date(t.at), v: Number(t.price_local ?? t.price_usd), kind: t.action }));
       gChart(box, { points: pts, name: h.holding + ' price', fmt: f, axis: fa, base: entry, baseLabel: 'Paid ' + f(entry) + ' on average', sinceLabel: 'since bought', levels, markers,
-        ranges: [['24 hours', 864e5], ['7 days', 7 * 864e5], ['30 days', 30 * 864e5], ['3 months', 91 * 864e5], ['1 year', 365 * 864e5], ['5 years', 1826 * 864e5], ['Since bought', 'since']], range: 'Since bought', sinceT: since || +pts[0].t });
-      if (!window.ptPxLong && !window.ptPxLongLoading) { window.ptPxLongLoading = 1; fetch('px_long.json?v=' + Math.floor(Date.now() / 36e5), { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j) { window.ptPxLong = j; document.querySelectorAll('[data-draw="price-chart"]').forEach((e) => { if (e._redraw) e._redraw(); }); } }).catch(() => {}); }
+        ranges: [['24 hours', 864e5], ['7 days', 7 * 864e5], ['30 days', 30 * 864e5], ['3 months', 91 * 864e5], ['1 year', 365 * 864e5], ['5 years', 1826 * 864e5], ['Since bought', 'since']], range: 'Since bought', sinceT: since || +pts[0].t,
+        shortNote: ls ? ' (the earliest price on hand)' : window.ptPxLong && !window.ptPxLong.missing ? ' (no longer history for this one)' : window.ptPxLong ? ' (longer history not available yet)' : ' (longer history is loading)' });
+      if (!window.ptPxLong && !window.ptPxLongLoading) { window.ptPxLongLoading = 1; fetch('px_long.json?v=' + Math.floor(Date.now() / 36e5), { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).then((j) => { window.ptPxLong = j || { missing: 1 }; window.ptPxLongLoading = 0; { document.querySelectorAll('[data-draw="price-chart"]').forEach((e) => { if (e._redraw) e._redraw(); }); } }).catch(() => { window.ptPxLongLoading = 0; }); }
       note.textContent = out.length ? 'Further away: ' + out.map((r) => r.label.toLowerCase() + ' at ' + f(Number(r.level))).join('; ') + '.' : '';
       // Beginner mode: what this investment is, and why the AI bought it, in its own words (owner, Oct 29)
       { const bx = mk('div', 'bg-only bg-plain'); bx.appendChild(mk('b', '', '🎓 In plain words: ' + h.holding));
@@ -4932,6 +4938,24 @@
     if (exps && pfOf && !exps.includes(pfOf)) goTab('overview');
   };
   dash.onModel(applyModel);
+  // ---------- a Model menu right on Bankroll over time and every Decision log; it switches the whole page (owner, Oct 29)
+  (() => {
+    const main = document.getElementById('model-pick'); if (!main) return;
+    const heads = [...document.querySelectorAll('#h-b-chart, h2.st-h2[id$="-log"]')];
+    const menus = [];
+    heads.forEach((h) => {
+      if (h.parentElement.querySelector('.sec-model')) return;
+      const row = mk('div', 'sec-model'); const l = mk('label', '', 'Model '); const sl = mk('select'); sl.setAttribute('aria-label', 'Model (changes the whole page)');
+      l.appendChild(sl); row.appendChild(l); h.after(row); menus.push(sl);
+      sl.addEventListener('change', () => { if (main.value !== sl.value) { main.value = sl.value; main.dispatchEvent(new Event('change')); } });
+    });
+    const sync = () => menus.forEach((sl) => {
+      const want = [...main.options].map((o) => [o.value, o.dataset.short || o.textContent, o.disabled]);
+      if (sl.options.length !== want.length || want.some(([v, t, d], k) => sl.options[k].value !== v || sl.options[k].textContent !== t || sl.options[k].disabled !== d)) {
+        sl.replaceChildren(); want.forEach(([v, t, d]) => { const o = mk('option', '', t); o.value = v; o.disabled = d; sl.appendChild(o); }); }
+      sl.value = main.value; sl.parentElement.parentElement.style.setProperty('--ai', (AIS[main.value] || {}).color || ''); });
+    main.addEventListener('change', () => setTimeout(sync, 0)); dash.onModel(() => setTimeout(sync, 0)); dash.onData(() => setTimeout(sync, 0));
+  })();
   // ---------- 🌐 Language: 16 of the most spoken languages, auto-picked from the device on the first visit (Google's free website translator)
   (() => {
     const sel = document.getElementById('lang-pick'); if (!sel) return;
