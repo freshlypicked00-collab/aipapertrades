@@ -547,6 +547,8 @@
   .st-pager { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0 0; font-size: 13px; }
   .st-pg-btn { font: inherit; font-size: 13px; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
   .st-pg-btn:hover:not(:disabled) { border-color: var(--accent, #ffb000); } .st-pg-btn:disabled { opacity: .35; cursor: default; }
+  .st-modebar { display: flex; gap: 8px; margin: 0 0 8px; } .st-pg-btn.on { border-color: var(--accent, #ffb000); color: var(--accent, #ffb000); }
+  .st-dayer { margin: 0 0 10px; } .st-bsub { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--color-fg-muted); margin: 10px 0 4px; }
   .st-pager select { font: inherit; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 4px 8px; }
   .pa-sum { margin: 6px 0 10px; } .pa-sum b { margin-right: 4px; }
   .lg-csv { font: inherit; font-size: 13px; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
@@ -853,7 +855,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'a0b949ffe7f1';</script>
+<script>window.PT_PAGE_VER = '56e11e178a89';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -1175,7 +1177,7 @@ body { background:var(--color-bg); }
 
     <section class="st-card" aria-labelledby="h-contrib-all">
       <h2 class="st-h2" id="h-contrib-all">What made or lost money</h2>
-      <p class="st-note">Profit or loss on each position and settled bet since it was opened, in Canadian dollars (China stocks in US$). Cash and USDC are left out.</p>
+      <p class="st-note">By day: each race’s gain or loss that day (Eastern time) and what closed or settled that day; step back day by day. Since opened: profit or loss on each position and settled bet since it was opened. In Canadian dollars (China stocks in US$).</p>
       <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-limit="12"></div>
     </section>
 
@@ -2935,11 +2937,54 @@ body { background:var(--color-bg); }
     });
   });
 
+  // "What made or lost money", day by day (owner's request): each race's result that day, plus what closed or settled that day
+  const RESTART = Date.parse('2026-10-28T17:45:00Z');
+  const etDayOf = (t) => new Date(t).toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+  const etMidnight = (day) => { const g = new Date(day + 'T12:00:00Z'); const off = (new Date(g.toLocaleString('en-US', { timeZone: 'America/New_York' })) - new Date(g.toLocaleString('en-US', { timeZone: 'UTC' }))); return Date.parse(day + 'T00:00:00Z') - off; };
+  const dayView = (el, p) => {
+    const id = dash.model || 'claude', START = 100000;
+    const H = (id === 'claude' ? dash.baseData('history').map((h) => ({ e: h.portfolio, t: Date.parse(h.at), v: +h.value })) : dash.baseData('rivals_history').filter((h) => h.model === id).map((h) => ({ e: h.experiment, t: Date.parse(h.at), v: +h.value })))
+      .filter((h) => PFS.includes(h.e) && h.t >= RESTART).sort((a, b) => a.t - b.t);
+    const closed = (id === 'claude'
+      ? dash.baseData('trades').filter((t) => t.pnl != null && PFS.includes(t.portfolio)).map((t) => ({ e: t.portfolio, t: Date.parse(t.at), pnl: +t.pnl, what: t.action + ' ' + t.holding }))
+        .concat(dash.baseData('bets').filter((b) => (b.status === 'Won' || b.status === 'Lost') && b.settled_at).map((b) => ({ e: 'Sports', t: Date.parse(b.settled_at), pnl: b.status === 'Won' ? +b.result_cad : -b.stake_cad, what: b.status + ' ' + b.pick })))
+      : dash.baseData('rivals_trades').filter((t) => t.model === id && t.pnl != null && PFS.includes(t.experiment) && ['Sell', 'Cover', 'Won', 'Lost', 'Settled', 'Expired'].includes(t.action)).map((t) => ({ e: t.experiment, t: Date.parse(t.at), pnl: +t.pnl, what: t.action + ' ' + String(t.name || t.symbol).replace(/^[A-Z]+: /, '').replace(/ \(.*\)$/, '') }))
+    ).filter((x) => x.t >= RESTART && (!p || x.e === p));
+    const days = []; for (let d = etDayOf(RESTART); ; ) { days.push(d); const nx = etDayOf(etMidnight(d) + 36 * 3600e3); if (nx > etDayOf(Date.now())) break; d = nx; }
+    if (el._day == null || el._day >= days.length) el._day = days.length - 1;
+    const day = days[el._day], t0 = Math.max(etMidnight(day), RESTART), t1 = etMidnight(etDayOf(etMidnight(day) + 36 * 3600e3));
+    const at = (e, t) => { let v = null; for (const h of H) { if (h.e !== e) continue; if (h.t <= t) v = h.v; else break; } return v; };
+    const rows = (p ? [p] : PFS).map((e) => { const a = at(e, t0) ?? START, b = at(e, Math.min(t1, Date.now())); return b == null ? null : { key: LABEL[e] || e, e, pnl: b - a }; }).filter((r) => r && Math.abs(r.pnl) >= 0.5);
+    const shut = closed.filter((x) => x.t >= t0 && x.t < t1).sort((a, b) => Math.abs(b.pnl) - Math.abs(a.pnl));
+    const nav = mk('div', 'st-pager st-dayer');
+    const prev = mk('button', 'st-pg-btn', '‹ Previous day'); prev.type = 'button'; prev.disabled = el._day === 0; prev.addEventListener('click', () => { el._day--; drawContrib(el); });
+    const next = mk('button', 'st-pg-btn', 'Next day ›'); next.type = 'button'; next.disabled = el._day >= days.length - 1; next.addEventListener('click', () => { el._day++; drawContrib(el); });
+    const sel = mk('select'); days.forEach((d, k) => { const o = mk('option', '', 'Day ' + (k + 1) + ' · ' + new Date(d + 'T12:00:00Z').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }) + (k === days.length - 1 ? ' (today)' : '')); o.value = k; if (k === el._day) o.selected = true; sel.appendChild(o); });
+    sel.addEventListener('change', () => { el._day = Number(sel.value); drawContrib(el); });
+    nav.append(prev, sel, next); el.appendChild(nav);
+    const bars = (list, label, lab) => { if (!list.length) return; el.appendChild(mk('div', 'st-bsub', label)); const max = d3.max(list, (r) => Math.abs(r.pnl)) || 1;
+      list.forEach((r) => { const row = mk('div', 'st-brow'); const l = mk('div', 'lbl', lab(r)); const tr = mk('div', 'st-btrack'); const bar = mk('div', 'st-bar ' + (r.pnl >= 0 ? 'up' : 'down')); bar.style.width = (Math.abs(r.pnl) / max * 50) + '%'; tr.appendChild(bar);
+        row.append(l, tr, mk('div', 'val ' + upDown(r.pnl), stFmt.signed(r.pnl, r.e))); el.appendChild(row); }); };
+    if (!rows.length && !shut.length) { el.appendChild(mk('p', 'st-note', 'Nothing moved this day.')); return; }
+    bars(rows.sort((a, b) => Math.abs(b.pnl) - Math.abs(a.pnl)), p ? 'This race over the day' : 'Each race over the day (everything it holds, open and closed)', (r) => r.key);
+    bars(shut, 'Closed or settled that day', (r) => (p ? '' : (LABEL[r.e] || r.e) + ': ') + r.what);
+  };
+  const drawContrib = (el) => { const f = el._drawFn; if (f) f(); };
   dash.draw('contrib-bars', (el) => {
+    el._drawFn = () => contribDraw(el); contribDraw(el);
+  });
+  const contribDraw = (el) => {
     const d = dash.data('contrib');
     el.replaceChildren();
     if (d.status !== 'ok') return;
     const p = el.dataset.portfolio, limit = Number(el.dataset.limit) || 99, running = el.dataset.running === '1';
+    if (!running) {   // By day (default) or Since opened
+      el._mode = el._mode || 'day';
+      const mb = mk('div', 'st-modebar');
+      [['day', 'By day'], ['all', 'Since opened']].forEach(([k, t]) => { const b = mk('button', 'st-pg-btn' + (el._mode === k ? ' on' : ''), t); b.type = 'button'; b.setAttribute('aria-pressed', String(el._mode === k)); b.addEventListener('click', () => { el._mode = k; drawContrib(el); }); mb.appendChild(b); });
+      el.appendChild(mb);
+      if (el._mode === 'day') { dayView(el, p); return; }
+    }
     let rows = d.data.filter((r) => !p || r.portfolio === p);
     if (!running) rows = rows.slice().sort((a, b) => Math.abs(b.pnl) - Math.abs(a.pnl)).slice(0, limit);
     if (!rows.length) {
@@ -2961,7 +3006,7 @@ body { background:var(--color-bg); }
       row.append(lbl, tr, val);
       el.appendChild(row);
     });
-  });
+  };
 
   dash.draw('bysport-body', (el) => fillBody(el, 'bysport', () => true, null, (r) => [
     [r.sport], [String(r.bets), 'num'], [String(r.won), 'num'], [String(r.lost), 'num'], [String(r.open), 'num'],
