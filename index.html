@@ -903,7 +903,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '328084ad876a';</script>
+<script>window.PT_PAGE_VER = '57c894b73fb6';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -4646,31 +4646,43 @@ body { background:var(--color-bg); }
     else { const ul = mk('ul', 'h2h-takes'); nrows.forEach(([e, t, at]) => { const li = mk('li'); li.style.setProperty('--ai', AIS[id].color); li.appendChild(mk('b', '', (LABEL[e] || e.replace('AllIn', 'All in: ').replace('Trading', 'trading').replace('Sports', 'sports')) + ' · ' + stFmt.when(at))); li.appendChild(document.createTextNode(t)); ul.appendChild(li); }); notes.appendChild(ul); }
     // every trade, with filters
     const tc = card();
-    tc.appendChild(mk('h2', 'st-h2', nm + '’s trades'));
+    tc.appendChild(mk('h2', 'st-h2', nm + '’s recent trades'));
     let all;
     if (id === 'claude') {
       const lg = dash.baseData('log');
       all = dash.baseData('trades').filter((t) => !String(t.holding).startsWith('[')).map((t) => ({ at: t.at, experiment: t.portfolio, action: t.action, name: t.holding, amount: +(t.cad != null ? t.cad : t.usd), cost: t.cost, pnl: t.pnl, reason: (logFor(lg, t) || {}).detail || '' }));
+      // Claude's bets live in their own list: add them like Gemini's and ChatGPT's, the bet when placed and its result when settled
+      dash.baseData('bets').filter((x) => x.placed_at && +new Date(x.placed_at) >= RESTART - 60e3).forEach((x) => {
+        const nm2 = x.pick + (x.event ? ' (' + x.event + ')' : ''), st = Number(x.stake_cad) || 0, res = x.status === 'Won' ? Number(x.result_cad) : x.status === 'Lost' ? -st : x.status === 'Void' ? 0 : null;
+        const why = (lg.filter((l) => l.portfolio === 'Sports' && l.at === x.placed_at)[0] || {}).detail || '';
+        all.push({ at: x.placed_at, experiment: 'Sports', action: 'Bet', name: nm2, amount: st, stake: st, result: res, reason: why });
+        if (x.settled_at && res !== null) all.push({ at: x.settled_at, experiment: 'Sports', action: x.status, name: nm2, amount: x.status === 'Void' ? 0 : res, stake: st, pnl: res, reason: '' });
+      });
     } else all = dash.baseData('rivals_trades').filter((t) => t.model === id);
     all = all.concat(dash.baseData('allin_trades').filter((t) => t.model === id));
-    if (el._f === undefined) el._f = { exp: '', kind: '', n: 25 };
+    if (el._f === undefined) el._f = { exp: '', kind: '' };
     const bar = mk('div', 'ai-pick');
     const mksel = (label, opts, key) => { const l = mk('label', '', label + ' '); const s = mk('select'); opts.forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; s.appendChild(o); }); s.value = String(el._f[key]); s.addEventListener('change', () => { el._f[key] = key === 'n' ? Number(s.value) : s.value; draw(); }); l.appendChild(s); bar.appendChild(l); };
     mksel('Experiment:', [['', 'All experiments']].concat(PFS_ALL.map((e) => [e, LABEL[e] || e])).concat([['AllInTrading', 'All in: trading'], ['AllInSports', 'All in: sports']]), 'exp');
     mksel('Type:', [['', 'Everything'], ['buy', 'Buys'], ['sell', 'Sells and covers'], ['bet', 'Bets and results']], 'kind');
-    mksel('Show:', [['10', '10 newest'], ['25', '25 newest'], ['100', '100 newest'], ['100000', 'All']], 'n');
     tc.appendChild(bar);
     const box = mk('div'); tc.appendChild(box);
     const draw = () => {
       box.replaceChildren();
       const f = el._f;
       const rows = all.filter((t) => (!f.exp || t.experiment === f.exp) && (!f.kind || (f.kind === 'buy' ? /^(Buy|Short)$/.test(t.action) : f.kind === 'sell' ? /^(Sell|Cover|Expired|Settled)$/.test(t.action) : /^(Bet|Won|Lost|Push)$/.test(t.action)))).sort((a, b) => new Date(b.at) - new Date(a.at));
-      box.appendChild(mk('p', 'st-note', rows.length + ' matching trade' + (rows.length === 1 ? '' : 's') + '; showing ' + Math.min(rows.length, f.n) + '.'));
+      box.appendChild(mk('p', 'st-note', rows.length + ' matching trade' + (rows.length === 1 ? '' : 's') + ', newest first, 10 a page. Use Older and Newer to see the rest.'));
       if (!rows.length) return;
-      const wrap = mk('div', 'h2h-scroll'); const tb = mk('table', 'h2h-table');
-      const hr = mk('tr'); ['When', 'Experiment', 'Trade', 'Amount', 'Cost / stake', 'Profit', 'Return', 'Why'].forEach((x) => hr.appendChild(mk('th', '', x))); tb.appendChild(hr);
-      rows.slice(0, f.n).forEach((t) => { const tr = mk('tr'); const pl = pnlOf(t); [stFmt.when(t.at), LABEL[t.experiment] || String(t.experiment).replace('AllInTrading', 'All in: trading').replace('AllInSports', 'All in: sports'), t.action + ' ' + (t.name || t.symbol), Number.isFinite(+t.amount) ? (t.amount < 0 ? '−' : '') + (t.experiment === 'China' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(t.amount)) : ''].forEach((v) => tr.appendChild(mk('td', '', v))); tr.append(mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret), mk('td', '', t.reason || '')); tb.appendChild(tr); });
+      const wrap = mk('div', 'h2h-scroll st-wrap'); const tb = mk('table', 'h2h-table');
+      const hr = mk('tr'); ['When', 'Experiment', 'Trade', 'Amount', 'Cost / stake', 'Profit', 'Return', 'Why'].forEach((x) => hr.appendChild(mk('th', '', x))); { const th = mk('thead'); th.appendChild(hr); tb.appendChild(th); }
+      const body = mk('tbody'); tb.appendChild(body);
+      rows.forEach((t) => { const tr = mk('tr'); const pl = pnlOf(t); [stFmt.when(t.at), LABEL[t.experiment] || String(t.experiment).replace('AllInTrading', 'All in: trading').replace('AllInSports', 'All in: sports'), t.action + ' ' + (t.name || t.symbol), Number.isFinite(+t.amount) ? (t.amount < 0 ? '−' : '') + (t.experiment === 'China' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(t.amount)) : ''].forEach((v) => tr.appendChild(mk('td', '', v))); tr.append(mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret), mk('td', '', t.reason || '')); body.appendChild(tr); });
       wrap.appendChild(tb); box.appendChild(wrap);
+      // the 10 newest, then Older / Newer for the rest (owner, Oct 29); the page survives refreshes, and resets when a filter changes
+      const key = f.exp + '|' + f.kind; if (el._tKey !== key) { el._tKey = key; el._tPg = 0; }
+      body.dataset.pgNewest = '1'; body._pgKey = ''; body._pg = el._tPg || 0;
+      pagerFor(body, 10, 'trades');
+      const pbar = wrap.nextElementSibling; if (pbar && pbar.classList.contains('st-pager')) { const keep = () => { el._tPg = body._pg || 0; }; pbar.addEventListener('click', keep); pbar.addEventListener('change', keep); }
     };
     draw();
     // fact checks about this AI
