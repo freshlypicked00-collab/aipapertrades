@@ -475,3 +475,120 @@ def intro_slides(table, prefix):
         raise QualityError('intro slide 4 overflows')
     c.footer(); paths.append(c.save(prefix + '-4.jpg'))
     return paths
+
+
+# ---------- "Day 1 results", remade to grab attention (owner's request, Oct 29): a 5-slide carousel about the first night
+def _grad_text(c, xy, s, f, c1, c2):
+    """Big text filled with a left-to-right gradient (c1 -> c2)."""
+    from PIL import ImageChops
+    x, y = xy
+    l, t, r, b = c.d.textbbox((x, y), s, font=f)
+    mask = Image.new('L', (W, H), 0); ImageDraw.Draw(mask).text((x, y), s, font=f, fill=255)
+    grad = Image.new('RGB', (W, H), c1); gd = ImageDraw.Draw(grad)
+    rgb = lambda h: tuple(int(h.lstrip('#')[i:i + 2], 16) for i in (0, 2, 4))
+    a, z = rgb(c1), rgb(c2)
+    for xx in range(max(0, l), min(W, r + 1)):
+        k = (xx - l) / max(1, r - l)
+        gd.line([(xx, t), (xx, b)], fill=tuple(int(a[i] + (z[i] - a[i]) * k) for i in range(3)))
+    c.im.paste(grad, (0, 0), mask)
+    c.d = ImageDraw.Draw(c.im)
+    return b
+
+
+def _pill(c, x, y, w, h, fill, outline):
+    c.d.rounded_rectangle([x, y, x + w, y + h], radius=h // 2 if h < 120 else 28, fill=fill, outline=outline, width=3)
+
+
+def day1_remake(table, swings, when_label, prefix):
+    """swings: list of (who, amount, what) for the night's biggest wins and losses, any AI. Returns 5 paths."""
+    if not table or any(e not in table for e in ORDER) or not swings:
+        raise QualityError('day 1 data incomplete')
+    led = races_led(table)
+    paths = []
+    best = max(swings, key=lambda s: s[1]); worst = min(swings, key=lambda s: s[1])
+    # 1. the hook
+    c = Card()
+    _glow(c, UP, xy=(260, 760), r=520); _glow(c, DOWN, xy=(1250, 1250), r=460)
+    c.header('DAY 1 RESULTS')
+    c.text((SAFE_X, 300), 'THE AI MONEY RACE · ' + when_label, font('mono', 'SemiBold', 30), MUTED, 'lm', tracking=4)
+    y = _grad_text(c, (SAFE_X - 8, 330), 'DAY 1', font('sans', 'Bold', 380), AMBER, UP)
+    y = title_block(c, y + 40, 'THE FIRST NIGHT', 'Sports decided the first night', max_lines=2)
+    for who, amt, what in (best, worst):
+        col = UP if amt >= 0 else DOWN
+        _pill(c, SAFE_X, y, W - 2 * SAFE_X, 150, PANEL, col)
+        c.text((SAFE_X + 40, y + 52), AIS[who][0].upper(), font('mono', 'SemiBold', 30), AIS[who][1], 'lm', tracking=3)
+        c.text((SAFE_X + 40, y + 108), what, c.fit(what, 'sans', 'Medium', 42, 760, 28), FG, 'lm')
+        c.text((W - SAFE_X - 40, y + 76), ('+' if amt >= 0 else '−') + f'C${abs(amt):,.0f}', font('sans', 'Bold', 84), col, 'rm')
+        y += 176
+    if y > 1500:
+        raise QualityError('day 1 cover overflows')
+    c.text((W - SAFE_X, 1528), 'Swipe for every race  →', font('mono', 'SemiBold', 30), AMBER, 'rm')
+    c.footer(); paths.append(c.save(prefix + '-1.jpg'))
+    # 2. races led
+    c = Card()
+    c.header('DAY 1 · SCOREBOARD')
+    y = title_block(c, 280, 'RACES LED AFTER THE FIRST NIGHT', 'Who is ahead in the ten races', max_lines=2)
+    order = sorted(AIS, key=lambda k: -len(led[k]))
+    top, base_y, colw = max(1, len(led[order[0]])), 1350, (W - 2 * SAFE_X - 2 * 50) / 3
+    for i, k in enumerate(order):
+        x = SAFE_X + i * (colw + 50); n = len(led[k]); hgt = int(520 * n / top) if n else 8
+        c.d.rounded_rectangle([x, base_y - hgt, x + colw, base_y], radius=22, fill=AIS[k][1])
+        c.text((x + colw / 2, base_y - hgt - 70), str(n), font('sans', 'Bold', 130), AIS[k][1], 'mm')
+        c.text((x + colw / 2, base_y + 52), AIS[k][0], font('sans', 'SemiBold', 54), FG, 'mm')
+    tied = [e for e in ORDER if not (len(table[e]) > 1 and table[e][0][1] - table[e][1][1] >= 0.5)]
+    note = (f"{len(tied)} race tied ({', '.join(LABEL[e] for e in tied)}). " if tied else '') + 'Each race is scored on its own; leading can mean losing the least.'
+    for j, ln in enumerate(c.wrap(note, font('sans', 'Regular', 34), W - 2 * SAFE_X)[:2]):
+        c.text((SAFE_X, 1478 + j * 42), ln, font('sans', 'Regular', 34), MUTED, 'lm')
+    c.footer(); paths.append(c.save(prefix + '-2.jpg'))
+    # 3. all ten races
+    c = Card()
+    c.header('DAY 1 · ALL TEN RACES')
+    y = title_block(c, 270, 'PROFIT SINCE THE OCT 28 START', 'Ten races, one look', max_lines=1)
+    cw, ch, gx, gy = (W - 2 * SAFE_X - 30) / 2, 184, 30, 18
+    for i, e in enumerate(ORDER):
+        x = SAFE_X + (i % 2) * (cw + gx); yy = y + 6 + (i // 2) * (ch + gy)
+        rows = table[e]; tie = not (len(rows) > 1 and rows[0][1] - rows[1][1] >= 0.5)
+        lead = rows[0][0]; col = MUTED if tie else AIS[lead][1]
+        c.d.rounded_rectangle([x, yy, x + cw, yy + ch], radius=18, fill=PANEL, outline=LINE, width=2)
+        c.d.rectangle([x, yy + 18, x + 8, yy + ch - 18], fill=col)
+        c.text((x + 32, yy + 40), LABEL[e].upper(), font('mono', 'SemiBold', 24), MUTED, 'lm', tracking=2)
+        c.text((x + 32, yy + 90), 'Tied' if tie else AIS[lead][0], font('sans', 'Bold', 50), col, 'lm')
+        if not tie:
+            c.text((x + cw - 28, yy + 90), money(rows[0][1], e), font('mono', 'SemiBold', 40), UP if rows[0][1] > 0.5 else DOWN if rows[0][1] < -0.5 else MUTED, 'rm')
+        bx = x + 32
+        for m, p in sorted(rows, key=lambda r: list(AIS).index(r[0])):   # the three AIs, always in the same order
+            c.d.rounded_rectangle([bx, yy + 132, bx + (cw - 96) / 3, yy + 150], radius=9, fill=AIS[m][1] if p > 0.5 else LINE if abs(p) <= 0.5 else '#5a2420')
+            bx += (cw - 96) / 3 + 16
+    if y + 6 + 5 * (ch + gy) > 1580:
+        raise QualityError('day 1 grid overflows')
+    c.footer(); paths.append(c.save(prefix + '-3.jpg'))
+    # 4. the night's biggest swings
+    c = Card()
+    _glow(c, AMBER, xy=(1150, 600), r=480)
+    c.header('DAY 1 · BIGGEST SWINGS')
+    y = title_block(c, 280, 'ONE GAME CAN MAKE OR BREAK A NIGHT', 'The biggest wins and losses', max_lines=2)
+    y += 20
+    for who, amt, what in sorted(swings, key=lambda s: -abs(s[1]))[:6]:
+        col = UP if amt >= 0 else DOWN
+        c.d.rectangle([SAFE_X, y + 10, SAFE_X + 10, y + 120], fill=AIS[who][1])
+        c.text((SAFE_X + 40, y + 40), AIS[who][0], font('sans', 'Bold', 48), AIS[who][1], 'lm')
+        c.text((SAFE_X + 40, y + 96), what, c.fit(what, 'sans', 'Regular', 36, 760, 26), FG, 'lm')
+        c.text((W - SAFE_X, y + 66), ('+' if amt >= 0 else '−') + f'C${abs(amt):,.0f}', font('sans', 'Bold', 76), col, 'rm')
+        y += 150
+    if y > 1560:
+        raise QualityError('day 1 swings overflow')
+    c.footer(); paths.append(c.save(prefix + '-4.jpg'))
+    # 5. follow
+    c = Card()
+    _glow(c, UP, xy=(720, 760), r=600)
+    c.header('DAY 2 IS LIVE')
+    y = _grad_text(c, (SAFE_X - 6, 300), 'Day 2', font('sans', 'Bold', 300), FG, AMBER)
+    y = title_block(c, y + 40, 'WHO WINS ON NOV 28?', 'Follow every trade as it happens', max_lines=2)
+    for name, handle in (('Instagram', '@papertrades.ai'), ('Telegram, every trade live', '@PaperTradesAI'), ('The full ledger', 'papertrades.ai')):
+        c.text((SAFE_X, y + 30), name.upper(), font('mono', 'SemiBold', 28), MUTED, 'lm', tracking=3)
+        c.text((SAFE_X, y + 92), handle, font('sans', 'Bold', 72), FG, 'lm')
+        y += 160
+    if y > 1560:
+        raise QualityError('day 1 follow slide overflows')
+    c.footer(); paths.append(c.save(prefix + '-5.jpg'))
+    return paths

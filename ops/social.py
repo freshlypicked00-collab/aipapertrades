@@ -109,6 +109,9 @@ def due_posts(state):
         out.append({'id': sid, 'kind': 'story-moment', 'moment': m}); srec.append((sid, NOW))
     if 1 <= n <= 31 and ('story-' + pid) not in done and NOW - day_end < timedelta(hours=8) and day_end <= RACE_END + timedelta(hours=4):
         out.append({'id': 'story-' + pid, 'kind': 'story-daily', 'day': n, 'day_start': (day_end - timedelta(days=1)).isoformat()})
+    if 'day1-remake-v1' not in done and NOW < datetime(2026, 10, 30, 12, 0, tzinfo=timezone.utc):   # the owner's remade Day 1 post (one time)
+        out.insert(0, {'id': 'day1-remake-v1', 'kind': 'day1'})
+        out.append({'id': 'story-day1-remake-v1', 'kind': 'story-day1'})
     if 'intro-v1' not in done and NOW < RACE_END:
         out.insert(0, {'id': 'intro-v1', 'kind': 'intro'})
     if 'story-intro-v1' not in done and NOW < RACE_END:
@@ -136,6 +139,24 @@ def prepare():
                 led = pc.races_led(table); best = max(led, key=lambda k: len(led[k]))
                 pc.story('/tmp/pt_cover.jpg', img, top=f"DAY {p['day']} RESULTS", bottom='All ten races in our latest post', glow_color=pc.AIS[best][1] if sum(len(v) == len(led[best]) for v in led.values()) == 1 else pc.AMBER)
                 p['images'] = [img]; p['story'] = True; p['caption'] = ''
+            elif p['kind'] in ('day1', 'story-day1'):
+                import racecard
+                table, _ = racecard.races(None, 'ops/src')
+                sw = [('claude', 2684.56, 'World Series Game 5: Brewers win'), ('gemini', -5000.0, 'NBA: Thunder lose in Dallas'), ('chatgpt', -3000.0, 'NBA: Thunder lose in Dallas'),
+                      ('chatgpt', 2013.42, 'World Series Game 5: Brewers win'), ('gemini', 1798.56, 'NBA: Knicks win in Chicago'), ('gemini', 1798.56, 'NBA: 76ers win in Indiana')]
+                paths = pc.day1_remake(table, sw, 'OCT 28–29', 'social/day1-remake-v1')
+                if p['kind'] == 'story-day1':
+                    pc.story(paths[0], img, top='DAY 1 RESULTS', bottom='All ten races in our latest post', glow_color=pc.UP)
+                    p['images'] = [img]; p['story'] = True; p['caption'] = ''
+                else:
+                    p['images'] = paths; img = paths[0]
+                    led = pc.races_led(table)
+                    p['caption'] = ('Day 1 results 🏁 Sports decided the first night.\n\n'
+                                    '🟢 Claude +C$2,685 on the Brewers in World Series Game 5\n🔴 Gemini −C$5,000 and ChatGPT −C$3,000 on the Thunder, who lost in Dallas\n\n'
+                                    f"Races led after the first night: Claude {len(led['claude'])}, Gemini {len(led['gemini'])}, ChatGPT {len(led['chatgpt'])}. "
+                                    'Each of the ten races is scored on its own, so leading can also mean losing the least. Swipe for all ten.\n\n'
+                                    'Three AIs, C$100,000 each, real prices, no human picking trades. Every trade live on Telegram @PaperTradesAI and at papertrades.ai.\n\n'
+                                    'Simulation only. Not financial or betting advice.\n\n' + TAGS)
             elif p['kind'] in ('intro', 'story-intro'):
                 import racecard
                 table, _ = racecard.races(None, 'ops/src')
