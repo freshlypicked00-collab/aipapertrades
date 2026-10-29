@@ -576,7 +576,10 @@ for _e, _lab in _LBL.items():
         for _s in STANDINGS:
             if _s['id'] == _who[0]:
                 _s['leads'].append(_lab)
-data['standings'] = STANDINGS
+# the crown goes to the AI leading the most races; races are never added together in public before the final (owner's rule)
+_led = sorted(((len(x['leads']), x['id']) for x in STANDINGS), reverse=True)
+LEADER = _led[0][1] if len(_led) > 1 and _led[0][0] > _led[1][0] else None
+data['standings'] = [{'id': x['id'], 'leads': x['leads']} for x in STANDINGS]
 # Race standings per experiment (each race is separate): value now, profit since the restart, and what each AI holds
 _FS = datetime(2026, 10, 28, 17, 45, tzinfo=timezone.utc)
 _EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
@@ -856,7 +859,7 @@ except Exception as _e:
     data['moments'] = []
 data['penalties'] = [dict(x, model='claude') for x in r.get('claude_penalties', [])] + \
     [dict(x, model=_mid) for _mid, _m in (r.get('models') or {}).items() for x in ((_m.get('books') or {}).get('Sports') or {}).get('penalties', [])]
-data['leader'] = LEADER   # the AI leading the race on total profit; the page opens on it unless the viewer picked one
+data['leader'] = LEADER   # the AI leading the most races (None when tied); the page opens on the leader of the first race unless the viewer picked one
 try:
     data['price_audit'] = [json.load(open(os.path.join(SRC, 'price_audit.json')))]   # Claude's prices vs the feeds (ops/price_audit.py)
 except Exception:
@@ -920,7 +923,8 @@ data['status'] = [{
     'prices_missing': [n for n in _notes if 'no price' in n.lower() or 'price unavailable' in n.lower()][:5],
     'price_check': {k: v for k, v in (data.get('price_audit') or [{}])[0].items() if k in ('at', 'summary')} if data.get('price_audit') else {},
     'telegram': r.get('telegram') or {},
-    'instagram': {'last': _ig[0] if _ig else None, 'count_24h': sum(1 for t in _ig if (datetime.now(timezone.utc) - datetime.fromisoformat(t)).total_seconds() < 86400)},
+    'instagram': {'last': _ig[0] if _ig else None, 'count_24h': sum(1 for t in _ig if (datetime.now(timezone.utc) - datetime.fromisoformat(t)).total_seconds() < 86400),
+                  'error': (json.load(open(os.path.join(SRC, 'social.json'))).get('errors') if os.path.exists(os.path.join(SRC, 'social.json')) else None)},
 }]
 data['pulse'] = [r['pulse']] if r.get('pulse') else []
 data['ticker'] = (r.get('pulse') or {}).get('ticker') or []

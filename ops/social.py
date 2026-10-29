@@ -251,9 +251,12 @@ def publish():
             wait_ready(c['id'])
             r = api(f'{ig}/media_publish', {'creation_id': c['id']}, 'POST')
             state['posted'][p['id']] = {'at': NOW.isoformat(), 'media': r.get('id')}
+            state.pop('errors', None)   # posting works again
             print('::notice::posted ' + p['id'] + ' ' + str(r.get('id')))
         except Exception as e:
             print('::warning::post failed ' + p['id'] + ': ' + str(e)[:300])
+            er = state.get('errors') or {}
+            state['errors'] = {'since': er.get('since') or NOW.isoformat(), 'last': NOW.isoformat(), 'msg': str(e)[:200], 'count': int(er.get('count') or 0) + 1}   # shown on the status panel; the health check emails the owner
     json.dump(state, open(STATE, 'w'), indent=1)
 
 

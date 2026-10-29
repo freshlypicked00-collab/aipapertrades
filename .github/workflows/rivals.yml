@@ -163,6 +163,12 @@ jobs:
           tg = s.get('telegram') or {}
           if tg.get('fail_streak', 0) >= 3:
               print(f"- Telegram: the last {tg['fail_streak']} posts failed ({tg.get('error', '')[:120]}). Check the bot token and that the bot is still an admin of the channel.")
+          try:   # Instagram posts failing for 2+ hours (usually the access token needs renewing)
+              ig = json.load(open('ops/src/social.json')).get('errors') or {}
+              if ig.get('since') and now - datetime.fromisoformat(ig['since']) > timedelta(hours=2):
+                  print(f"- Instagram: posts have failed since {ig['since'][:16]} UTC: {ig.get('msg', '')[:160]}. Usually the access token needs renewing: make a new long-lived token for the Paper Trades app and update the INSTAGRAM_ACCESS_TOKEN secret.")
+          except Exception:
+              pass
           try:   # Claude's holdings over a cap (checked from Oct 29 10:30 a.m. ET, after the SGOV fix at the US open)
               if now >= datetime(2026, 10, 29, 14, 30, tzinfo=timezone.utc):
                   hold = json.load(open('ops/src/holdings.json'))
