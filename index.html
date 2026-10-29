@@ -517,6 +517,7 @@
   .m-menu-live { margin: 2px 0 8px; } .m-menu-live .pt-livebox-a { width: 34px; height: 34px; }
   .pt-lb-tg { background: #29a9eb; } .pt-lb-ig { background: #c13584; } .pt-lb-x { background: #111; border: 1px solid #444; }
   .pt-livebox-a:hover { filter: brightness(1.15); }
+  .pt-update { position: fixed; left: 50%; top: 14px; transform: translateX(-50%); z-index: 95; font: inherit; font-size: 14px; font-weight: 600; color: #111; background: var(--accent, #ffb000); border: 0; border-radius: 999px; padding: 10px 18px; box-shadow: 0 10px 30px rgba(0,0,0,.45); cursor: pointer; max-width: calc(100vw - 32px); }
   .pt-news:empty, .pt-ticker:empty { display: none; }
   .pt-news { display: flex; align-items: stretch; margin: 10px 0 0; min-height: 34px; border: 1px solid color-mix(in srgb, var(--accent, #ffb000) 45%, transparent); border-bottom: 0; background: var(--color-panel); overflow: hidden; }
   .pt-n-k { flex: none; display: flex; align-items: center; padding: 0 12px; font-weight: 800; font-size: 12px; letter-spacing: .1em; color: #fff; background: var(--accent, #ffb000); color: #111; font-style: italic; }
@@ -825,6 +826,12 @@ body { background:var(--color-bg); }
         }).then((json) => {
           const sig = (j) => JSON.stringify([j.history, j.rivals_history, j.trades, j.rivals_trades, j.allin_history]).length + ':' + JSON.stringify(j.history).slice(-80) + JSON.stringify(j.rivals_history).slice(-80);
           if (!json || !base || sig(json) === sig(base)) return;
+          if (json.page_ver && window.PT_PAGE_VER && json.page_ver !== window.PT_PAGE_VER && !window.__ptNewPage) {
+            window.__ptNewPage = 1;
+            const go = () => { try { sessionStorage.setItem('pt-nosplash', '1'); } catch (e) {} location.reload(); };
+            const n = document.createElement('button'); n.type = 'button'; n.className = 'pt-update'; n.textContent = '✨ The site was just updated. Tap to load the new version.'; n.addEventListener('click', go); document.body.appendChild(n);
+            document.addEventListener('visibilitychange', () => { if (!document.hidden && !(window.speechSynthesis && speechSynthesis.speaking)) go(); });
+          }
           const old = base; base = json; Object.assign(raw, json);
           const m = api.model; Object.keys(cache).forEach((k) => delete cache[k]); if (m !== 'claude' && json.models && json.models[m]) api.useModel(m); else runAll();
           try { if (window.ptOnData) window.ptOnData(old, json); } catch (e) { console.error(e); }
@@ -836,6 +843,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
+<script>window.PT_PAGE_VER = '272d8a947bf9';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }

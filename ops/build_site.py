@@ -328,6 +328,12 @@ SHIM = r"""
         }).then((json) => {
           const sig = (j) => JSON.stringify([j.history, j.rivals_history, j.trades, j.rivals_trades, j.allin_history]).length + ':' + JSON.stringify(j.history).slice(-80) + JSON.stringify(j.rivals_history).slice(-80);
           if (!json || !base || sig(json) === sig(base)) return;
+          if (json.page_ver && window.PT_PAGE_VER && json.page_ver !== window.PT_PAGE_VER && !window.__ptNewPage) {
+            window.__ptNewPage = 1;
+            const go = () => { try { sessionStorage.setItem('pt-nosplash', '1'); } catch (e) {} location.reload(); };
+            const n = document.createElement('button'); n.type = 'button'; n.className = 'pt-update'; n.textContent = '✨ The site was just updated. Tap to load the new version.'; n.addEventListener('click', go); document.body.appendChild(n);
+            document.addEventListener('visibilitychange', () => { if (!document.hidden && !(window.speechSynthesis && speechSynthesis.speaking)) go(); });
+          }
           const old = base; base = json; Object.assign(raw, json);
           const m = api.model; Object.keys(cache).forEach((k) => delete cache[k]); if (m !== 'claude' && json.models && json.models[m]) api.useModel(m); else runAll();
           try { if (window.ptOnData) window.ptOnData(old, json); } catch (e) { console.error(e); }
@@ -404,6 +410,7 @@ html = f"""<!doctype html>
 <script>{SHIM}</script>
 </head>
 <body>
+<script>window.PT_PAGE_VER = '__PAGE_VER__';</script>
 {SPLASH}
 <div id="dash-root">
 {markup.strip()}
@@ -414,6 +421,9 @@ html = f"""<!doctype html>
 </body>
 </html>
 """
+import hashlib as _hlp
+PAGE_VER = _hlp.sha1((html.replace(OG_V, '') if OG_V else html).encode()).hexdigest()[:12]   # not the share-picture tag, which changes with the standings   # changes whenever the page itself changes; open pages see it in data.json and update
+html = html.replace('__PAGE_VER__', PAGE_VER)
 open(os.path.join(OUT, 'index.html'), 'w').write(html)
 
 # ---- data.json ----
@@ -949,6 +959,7 @@ json.dump(_aud, open(os.path.join(OUT, 'audit.json'), 'w'), separators=(',', ':'
 # and download data.json only when it changed.
 import hashlib as _hl
 data.pop('ver', None)
+data['page_ver'] = PAGE_VER
 data['ver'] = _hl.sha1(json.dumps(data, separators=(',', ':'), sort_keys=True).encode()).hexdigest()[:16]
 json.dump(data, open(os.path.join(OUT, 'data.json'), 'w'), separators=(',', ':'))  # compact: smaller and faster to load
 open(os.path.join(OUT, 'data.ver'), 'w').write(data['ver'])

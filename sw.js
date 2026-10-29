@@ -1,6 +1,6 @@
 // Paper Trades app: keeps the race live. Pages and data always come fresh from the network;
 // the last page seen is kept only as an offline fallback, and the icons are cached.
-const CACHE = 'pt-app-v1';
+const CACHE = 'pt-app-v2';
 const ICONS = ['/icon-192.png', '/icon-512.png', '/icon-maskable-512.png', '/apple-touch-icon.png'];
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ICONS)).catch(() => {})); self.skipWaiting(); });
 self.addEventListener('activate', (e) => {
@@ -12,7 +12,8 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(req.url);
   if (url.origin !== location.origin) return;                       // fonts, charts library, maps: the browser handles them
   if (req.mode === 'navigate') {                                     // the page: network first, last copy if offline
-    e.respondWith(fetch(req).then((r) => { const c = r.clone(); caches.open(CACHE).then((x) => x.put('/', c)); return r; })
+    e.respondWith(fetch(req, { cache: 'no-cache' }).then((r) =>   // always ask the server: a new version shows on the next open, not 10 minutes later
+ { const c = r.clone(); caches.open(CACHE).then((x) => x.put('/', c)); return r; })
       .catch(() => caches.match('/').then((r) => r || new Response('You are offline. Paper Trades will update when you are back online.', { headers: { 'Content-Type': 'text/plain' } }))));
     return;
   }
