@@ -1,29 +1,14 @@
 QUESTION FROM THE OWNER, NOT A TRADING TURN (nothing changes in your books; not published).
 
-Paper Trades (papertrades.ai): Claude vs Gemini vs ChatGPT, ten separate C$100,000 races, Oct 28 to Nov 28. The owner thinks the Overview (the first page every visitor lands on) has too much for a first-time visitor. He wants advice on MOVING sections to other tabs. Nothing will be deleted: every section must still exist somewhere on the site.
+Paper Trades (papertrades.ai): Claude vs Gemini vs ChatGPT, ten separate C$100,000 races, Oct 28 to Nov 28. The owner wants your honest view on one fairness change.
 
-The Overview today, top to bottom (height in pixels on a computer; the whole page is 9.7 screens on a computer and 21.5 screens on a phone):
-1. Header: an old notice about the Oct 28 restart (110), title, Day 2 of 32, countdown, clocks, status dot, language, sound, Beginner and Light mode buttons (140)
-2. TV-style headline line (35) and a scrolling price ticker (36)
-3. LIVE bar: "Get every AI trade the second it happens. Free." with Telegram, Instagram, X buttons (60)
-4. Tabs (sticky): Home, Overview, Ledger, AI vs AI, How it works, Rules & Audit; ten experiment pages; Claude, Gemini, ChatGPT pages; All in; Support
-5. Hero: "Which AI makes the most money in real markets?" plus a 4-line intro
-6. Right column, beside 5-10: Race standings (race picker on "Most relevant", 1st/2nd/3rd with profit, market-risk label, a holdings pie, 5 stat tiles, Moments list) (714)
-7. The viewed AI's current take on the selected race, with a fact check (about 150)
-8. Goals, feelings and opinions: six cards (next 24 hours, 7 days, rest of month, feeling, opinion of each rival) (about 420)
-9. Forecasts: who wins this race? (about 140)
-10. Scoreboard: ten small tiles, return per race, tap to open its page (about 250)
-11. The viewed AI's Race Report (its own day report, day and report pickers) (695)
-12. A box with the Model and Money menus and the simulation disclaimer; a "last check-ins" strip
-13. Trading: eight big experiment cards (value, profit, last 24 hours, worst drop, last trade, last updated, vs benchmark) (about 600) and Betting: two more (254), plus a note explaining the cards (75)
-14. Coming up: upcoming events table, 10 a page (803)
-15. How each simulation is doing: a chart with race picker and 24h / 7d / All (588)
-16. Distance to the next trade: price levels of stops and targets (387)
-17. What made or lost money: by day, with previous/next day (437)
-18. Recent decisions: every decision, 10 a page (1,292)
-19. Holdings: 10 a page (699)
-20. Footer
+How fills work today:
+- Gemini and ChatGPT reply with orders; the runner (ops/rivals.py) fills them automatically at the automatic price feed (Yahoo Finance for stocks, ETFs, crypto, metals, currencies and China ETFs; Cboe for options; Polymarket for predictions; ESPN/odds feed for sports), the same second, for both of you.
+- Claude runs as scheduled sessions. It looks prices up itself on the web and records its own fill price. After every check-in, the same code compares every Claude price with the same feeds (tolerances: 0.5% stocks/funds/currencies/China ETFs, 1% crypto, 1.5-2% metals, 3 cents predictions). So far 189 of 189 matched; nothing has ever been flagged.
 
-Other tabs already exist: Ledger (every trade and bet, daily results, report cards, CSV), AI vs AI (head-to-head by race, plans, what each AI is thinking, sports tracker), How it works, Rules & Audit (rules, prompts, raw replies, system status, price check, corrections), each experiment's own page (its numbers, chart, holdings, decisions, coming up), each AI's own page (profile, goals and feelings, notes, trades).
+Proposed change (option B): Claude stops recording its own fill prices. Claude writes the same kind of order you do, and the same runner code fills it at the same feed price, at the moment of the order. If a feed has no price, the order waits for the next check-in, exactly as it does for you. Claude's past fills stay as they are (they all passed the price check). It would be built and tested end to end before switching, and announced on the Rules & Audit page.
 
-Answer in under 300 words: for each numbered section 1-19 say KEEP on the Overview or MOVE to which tab, list the Overview's new order, and name anything that duplicates another section and could be merged. Aim for an Overview a first-time visitor understands in about 3 screens on a computer. Be concrete.
+Answer in under 200 words:
+1. Yes or no: should the owner make this change now, mid-race (day 2 of 32)?
+2. The biggest risk of switching, and how to avoid it.
+3. Anything that would still be unequal between the three AIs after the change.
