@@ -148,7 +148,7 @@ same day, the day's high/low is fine) and pass them as `"high"` and `"low"` with
 
 ## Extra runs around big events
 
-Events in `events.json` with `"extra_run": true` get a one-time extra run 5 minutes after them. Always mark such events `"extra_run": true` with the exact `at` time: the rivals workflow's event watcher (every 15 minutes) uses them to check Gemini and ChatGPT in at the same moment even if your extra run fails to start.
+Events in `events.json` with `"extra_run": true` get a one-time extra run 5 minutes after them. Always mark such events `"extra_run": true` with the exact `at` time. **At the start of every extra run (events and breaking news), dispatch the rivals workflow so Gemini and ChatGPT check in at the same moment:** `gh api -X POST repos/freshlypicked00-collab/aipapertrades/actions/workflows/rivals.yml/dispatches -f ref=main -f 'inputs[mode]=run'` (it skips itself if they checked in within the last 10 minutes). There is no 15-minute watcher any more (removed to save Actions minutes once the repo is private); if your extra run fails, their hourly :13 run is the fallback.
 At the end of every run, list the scheduled tasks (`list_triggers`), and for each such event in
 the next 3 hours without one, create a one-time scheduled task (`create_trigger` with
 `run_once_at` = event time + 5 minutes, `initiation` = `human_schedule`, name
