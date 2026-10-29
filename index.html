@@ -4434,15 +4434,36 @@ body { background:var(--color-bg); }
     const all = dash.baseData('exp_standings'); const ES = Array.isArray(all) ? all[0] : all;
     if (!ES) return;
     const first = window.ptFirstRace();
-    const EXPS = [first].concat(['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'].filter((e) => e !== first));
+    const EXPS = [first, 'Overall'].concat(['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'].filter((e) => e !== first));
     if (el._first !== first) { el._first = first; el._exp = null; }   // a market opening or closing moves the page to that race
     if (!el._exp) el._exp = first;   // every visit opens on the race whose market is open (China, then US, else Crypto); nothing is remembered
-    if (window.ptRace !== el._exp) { window.ptRace = el._exp; setTimeout(() => { if (dash.redraw) dash.redraw(); }, 0); }   // the goals and feelings cards follow this race
+    const want = el._exp === 'Overall' ? null : el._exp;   // Overall: the take, plans, feelings and opinions across all races
+    if ((window.ptRace || null) !== want || !!window.ptOverall !== (el._exp === 'Overall')) { window.ptRace = want; window.ptOverall = el._exp === 'Overall'; setTimeout(() => { if (dash.redraw) dash.redraw(); }, 0); }   // the goals and feelings cards follow this race
     el.appendChild(mk('h2', '', 'Race standings'));
     const sel = mk('select', 'pd-pick'); sel.setAttribute('aria-label', 'Choose the race');
-    EXPS.forEach((e) => { const o = mk('option', '', LABEL[e] || e); o.value = e; if (e === el._exp) o.selected = true; sel.appendChild(o); });
+    EXPS.forEach((e) => { const o = mk('option', '', e === 'Overall' ? 'Overall (all ten races)' : LABEL[e] || e); o.value = e; if (e === el._exp) o.selected = true; sel.appendChild(o); });
     sel.addEventListener('change', () => { el._exp = sel.value; dash.redraw ? dash.redraw() : null; });
     el.appendChild(sel);
+    if (el._exp === 'Overall') {   // how many races each AI leads; the money is only added up at the final scoring
+      el.appendChild(mk('p', 'pd-note', 'Races each AI leads right now. Each race is its own experiment, so profits are only added together at the final scoring on Nov 28. Tap one to view it.'));
+      const led = { claude: [], gemini: [], chatgpt: [] };
+      Object.entries(ES).forEach(([race, rows]) => { if (rows && rows.length > 1 && rows[0].profit - rows[1].profit >= 0.5 && led[rows[0].id]) led[rows[0].id].push(race); });
+      const ord = Object.keys(led).sort((a, b) => led[b].length - led[a].length);
+      const ol = mk('ol');
+      ord.forEach((id, i) => {
+        const li = mk('li'); const bt = mk('button'); bt.type = 'button'; bt.style.setProperty('--ai', AIS[id].color);
+        if (dash.model === id) bt.setAttribute('aria-current', 'true');
+        const n = mk('span', 'pd-name'); const w = mk('span', 'pd-who'); w.append(aiBadge(id, 20), document.createTextNode(AIS[id].label)); n.appendChild(w);
+        n.appendChild(mk('small', 'pd-leads', led[id].length ? 'Leads ' + led[id].map((r) => (LABEL[r] || r).replace(' (US$)', '')).join(', ') : 'Leads no race yet'));
+        const tie = i > 0 && led[id].length === led[ord[i - 1]].length;
+        bt.append(mk('span', 'pd-place', i === 0 && led[id].length > led[ord[1]].length ? '👑 1st' : tie ? '=' : ['1st', '2nd', '3rd'][i]), n, mk('span', 'pd-amt', led[id].length + ' of 10'));
+        bt.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2) { s2.value = id; s2.dispatchEvent(new Event('change')); } });
+        li.appendChild(bt); ol.appendChild(li);
+      });
+      el.appendChild(ol);
+      momentsBox(el);
+      return;
+    }
     const cur = el._exp === 'China' ? 'US$' : 'C$';
     el.appendChild(mk('p', 'pd-note', 'Each race is separate. Profit since the Oct 28 restart and what each AI holds now. Tap one to view it.'));
     const rows = ES[el._exp] || [];
@@ -4494,6 +4515,9 @@ body { background:var(--color-bg); }
       box.appendChild(mk('p', 'pd-note', 'Lucky or skilled = return ÷ biggest drop. Above 1 means the gains are bigger than the worst dip it took to get them; it needs a dip of at least 0.5% to judge. Win rate and best/worst count trades closed or bets settled since Oct 28. In this race: ' + others + '.'));
     }
     el.appendChild(box);
+    momentsBox(el);
+  });
+  const momentsBox = (el) => {
     // Moments: the latest lead changes, each with a picture to share
     const MO = dash.baseData('moments'); const moms = (Array.isArray(MO) ? MO : []).slice(0, 4);
     const mb = mk('div', 'pd-moments'); mb.appendChild(mk('b', '', 'Moments'));
@@ -4507,7 +4531,7 @@ body { background:var(--color-bg); }
       row.append(t, b); mb.appendChild(row);
     });
     el.appendChild(mb);
-  });
+  };
   const raceName = (r) => r === 'Overall' ? 'the overall race' : (LABEL[r] || r).replace(' (US$)', '');
   const momentText = (m) => AIS[m.who].label + ' overtook ' + AIS[m.over].label + ' in ' + raceName(m.race) + ', ahead by ' + (m.cur === 'USD' ? 'US$' : 'C$') + d3.format(',.0f')(m.lead);
   const momentCard = (m) => {
@@ -4563,9 +4587,9 @@ body { background:var(--color-bg); }
     el.replaceChildren();
     const F = dash.baseData('forecasts'); const FD = Array.isArray(F) ? F[0] : F;
     if (!FD || !(FD.rounds || []).length) return;
-    const race = window.ptRace || (window.ptFirstRace ? window.ptFirstRace() : 'Stocks');
-    const rn = (LABEL[race] || race).replace(' (US$)', '');
-    el.appendChild(mk('h3', 'st-fc-h', 'Forecasts: who wins ' + rn + '?'));
+    const race = window.ptOverall ? null : window.ptRace || (window.ptFirstRace ? window.ptFirstRace() : 'Stocks');
+    const rn = race ? (LABEL[race] || race).replace(' (US$)', '') : '';
+    el.appendChild(mk('h3', 'st-fc-h', race ? 'Forecasts: who wins ' + rn + '?' : 'Forecasts: best forecaster'));
     const shown = FD.rounds.filter((x) => x.state === 'shown' && x.forecasts && Object.keys(x.forecasts).length);
     const live = FD.rounds.find((x) => x.state === 'sealed');
     const next = FD.rounds.find((x) => x.state === 'upcoming');
@@ -4573,8 +4597,9 @@ body { background:var(--color-bg); }
     const bar = (p) => { const b = mk('div', 'st-fc-bar'); ids.forEach((id) => { const s2 = mk('i'); s2.style.width = (p[id] || 0) + '%'; s2.style.background = AIS[id].color; s2.title = AIS[id].label + ' ' + (p[id] || 0) + '%'; b.appendChild(s2); }); return b; };
     const pline = (p) => ids.map((id) => AIS[id].label + ' ' + (p[id] || 0) + '%').join(' · ');
     if (live) el.appendChild(mk('p', 'st-note', 'Round ' + live.id.slice(1) + ' is open: ' + (live.sent.length ? live.sent.map((id) => AIS[id].label).join(' and ') + ' sent ' + (live.sent.length > 1 ? 'theirs' : 'its') : 'no forecasts yet') + '. Sealed until all three are in (or ' + stFmt.when(live.due) + ').'));
-    const rd = shown[shown.length - 1];
-    if (!rd) {
+    const rd = race ? shown[shown.length - 1] : null;
+    if (!race) el.appendChild(mk('p', 'st-note', 'Pick a race above to see each AI’s chances in it. Below: who has called the races best so far.'));
+    else if (!rd) {
       el.appendChild(mk('p', 'st-note', 'Each AI will give its chances of each AI winning each race, sealed until all three are in, then shown here next to what really happened. ' + (next && !live ? 'First round: ' + stFmt.when(next.open) + '.' : '')));
     } else {
       el.appendChild(mk('p', 'st-note', 'Round ' + rd.id.slice(1) + ' (' + stFmt.when(rd.open) + '): each AI\'s chance that each AI is first in ' + rn + '.'));
@@ -4783,7 +4808,7 @@ body { background:var(--color-bg); }
     const d = dash.data('take');
     el.replaceChildren();
     const who = AIS[dash.model] ? AIS[dash.model].label : 'Claude';
-    const race = window.ptRace || (window.ptFirstRace ? window.ptFirstRace() : null);
+    const race = window.ptOverall ? null : window.ptRace || (window.ptFirstRace ? window.ptFirstRace() : null);
     const rn = race ? (LABEL[race] || race).replace(' (US$)', '') : '';
     const lab = el.closest('.st-take') && el.closest('.st-take').querySelector('.st-take-l');
     // the take for the race being viewed: Claude's race takes, or Gemini's / ChatGPT's one-sentence note on that race from their latest check-in
@@ -4792,7 +4817,7 @@ body { background:var(--color-bg); }
       const pool = dash.model === 'claude' ? ((dash.baseData('take') || []).filter((x) => x.experiment === race)) : ((dash.baseData('rivals_thoughts') || []).filter((x) => x.model === dash.model && x.experiment === race));
       if (pool.length) r = pool.reduce((a, b) => (new Date(b.at) > new Date(a.at) ? b : a));
     }
-    if (lab) lab.textContent = who + '’s current take' + (race ? ' on ' + rn : '');
+    if (lab) lab.textContent = who + '’s current take' + (race ? ' on ' + rn : ' overall');
     if (r) { el.append(mk('q', '', r.text), document.createTextNode(' '), mk('span', 'st-by', '— ' + who), document.createTextNode(' '), mk('span', 'st-take-when', stFmt.when(r.at))); return; }
     // no take for this race yet: say so, and show the AI's overall take meanwhile
     const all = d.status === 'ok' ? d.data.filter((x) => !x.experiment) : [];
