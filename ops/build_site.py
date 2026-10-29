@@ -588,8 +588,21 @@ for _e in _EXPS:
         held = [n for n, _ in hv if not str(n).startswith('Cash')]
         lt = [t for t in data['trades'] if t['portfolio'] == _e and not str(t.get('holding', '')).startswith('[')]
         lt = max(lt, key=lambda t: _when(t['at']), default=None)
-        lb = max([b for b in data['bets'] if _e == 'Sports' and b.get('placed_at')], key=lambda b: _when(b['placed_at']), default=None)
-        last = ({'at': lb['placed_at'], 'text': f"Bet {b2c(lb['stake_cad'])} on {lb['pick']}"} if lb else
+        # Sports: the latest bet placed or settled; a result always says the stake and the profit (never just one number)
+        _bev = []
+        for b in (data['bets'] if _e == 'Sports' else []):
+            if b.get('placed_at'):
+                _bev.append((b['placed_at'], f"Bet {b2c(b['stake_cad'])} on {b['pick']}"))
+            if b.get('status') in ('Won', 'Lost', 'Push', 'Void') and (b.get('settled_at') or b.get('placed_at')):
+                _r = float(b.get('result_cad') or 0)
+                _txt = {'Won': f"Won {b['pick']}: +{b2c(_r)} profit on a {b2c(b['stake_cad'])} stake",
+                        'Lost': f"Lost {b['pick']}: −{b2c(-_r)} (the {b2c(b['stake_cad'])} stake)",
+                        'Push': f"Push on {b['pick']}: {b2c(b['stake_cad'])} stake returned, no profit",
+                        'Void': f"Void {b['pick']}: {b2c(b['stake_cad'])} stake returned, no profit"}[b['status']]
+                _sa = b.get('settled_at') or b['placed_at']
+                _bev.append((_sa if _when(_sa) >= _when(b['placed_at']) else b['placed_at'], _txt))
+        lb = max(_bev, key=lambda x: _when(x[0]), default=None)
+        last = ({'at': lb[0], 'text': lb[1]} if lb else
                 {'at': lt['at'], 'text': f"{lt['action']} {lt['holding']}" + (f" ({b2c(lt['cad'])})" if lt.get('cad') else '')} if lt else None)
         _es[_e].append({'id': 'claude', 'value': round(v, 2), 'profit': round(max(v, 0) - b0, 2), 'holds': held[:20], 'busted': v <= 0, 'eliminated': _ctot <= -100000,
                         'pie': [{'name': n, 'value': round(x, 2)} for n, x in hv], 'last': last})
@@ -610,7 +623,17 @@ for _e in _EXPS:
         if _e == 'Sports':
             pie.append(('Not bet', max(0.0, v - sum(x for _, x in ob))))
         lt = max([t for t in r.get('trades', []) if t.get('model') == _mid and t['experiment'] == _e and t['action'] not in ('Void',)], key=lambda t: _when(t['at']), default=None)
-        last = {'at': lt['at'], 'text': f"{lt['action']} {lt.get('name') or lt['symbol']} ({b2c(abs(lt['amount']), lt['cur'])})"} if lt else None
+        if lt and lt['action'] in ('Won', 'Lost', 'Push') and lt.get('stake') is not None:   # a result says the stake and the profit
+            _p = float(lt.get('pnl') if lt.get('pnl') is not None else lt['amount'])
+            _nm = lt.get('name') or lt['symbol']
+            _tx = (f"Won {_nm}: +{b2c(_p)} profit on a {b2c(lt['stake'])} stake" if lt['action'] == 'Won' else
+                   f"Lost {_nm}: −{b2c(abs(_p))} (the {b2c(lt['stake'])} stake)" if lt['action'] == 'Lost' else
+                   f"Push on {_nm}: {b2c(lt['stake'])} stake returned, no profit")
+            last = {'at': lt['at'], 'text': _tx}
+        elif lt and lt['action'] in ('Sell', 'Cover', 'Settled', 'Expired') and lt.get('pnl') is not None:
+            last = {'at': lt['at'], 'text': f"{lt['action']} {lt.get('name') or lt['symbol']} ({b2c(abs(lt['amount']), lt['cur'])}): {'+' if lt['pnl'] >= 0 else '−'}{b2c(abs(lt['pnl']), lt['cur'])} profit"}
+        else:
+            last = {'at': lt['at'], 'text': f"{lt['action']} {lt.get('name') or lt['symbol']} ({b2c(abs(lt['amount']), lt['cur'])})"} if lt else None
         _es[_e].append({'id': _mid, 'value': round(v, 2), 'profit': round(max(v, 0) - 100000.0, 2), 'holds': held[:20],
                         'pie': [{'name': n, 'value': round(x, 2)} for n, x in pie if x > 0.5], 'last': last,
                         'busted': bool(bk.get('busted')), 'eliminated': bool(_m.get('eliminated'))})
