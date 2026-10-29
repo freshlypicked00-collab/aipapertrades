@@ -187,6 +187,9 @@
   .gx-who-l { font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; }
   .gx-who b { color: var(--model, var(--color-fg)); font-weight: 600; }
   .gx-who-m { display: inline-flex; align-items: center; gap: 6px; }
+  .gx-cur { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-anthropic-sans, inherit); font-size: 13px; letter-spacing: 0; text-transform: none; color: var(--color-fg-muted); }
+  .gx-cur select { font: inherit; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 4px 8px; max-width: 220px; }
+  @media (max-width: 700px) { .gx-cur { margin-left: 0; width: 100%; } .gx-cur select { flex: 1 1 auto; max-width: none; } }
   .gx-hold-t td.gx-m { display: none; }
   @media (max-width: 700px) {
     .gx-hold-t { min-width: 0 !important; width: 100%; }
@@ -906,7 +909,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'e89b0556d77d';</script>
+<script>window.PT_PAGE_VER = '6ce67b2bdc83';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -3504,6 +3507,11 @@ body { background:var(--color-bg); }
       const who = mk('p', 'gx-who'); who.appendChild(mk('span', 'gx-who-l', 'Currently viewing'));
       { const g = mk('span', 'gx-who-m'); const b2 = mk('b', '', aiModelCo(dash.model)); b2.setAttribute('translate', 'no'); g.append(aiBadge(dash.model, 18), b2); who.appendChild(g); }
       who.appendChild(mk('span', 'gx-who-s', '· ' + (LABEL[p] || p)));
+      { // the currency menu right on the chart (the same setting as the top bar's Currency menu): C$, US$, € and the rest
+        const src = document.getElementById('cur-pick');
+        if (src) { const l = mk('label', 'gx-cur', 'Currency '); const s2 = mk('select'); s2.setAttribute('aria-label', 'Currency for the chart (changes it for the whole site)');
+          [...src.options].forEach((o) => { const n = mk('option', '', o.value ? o.textContent : 'Own currency (C$, US$ for China)'); n.value = o.value; s2.appendChild(n); });
+          s2.value = src.value; s2.addEventListener('change', () => { src.value = s2.value; src.dispatchEvent(new Event('change')); }); l.appendChild(s2); who.appendChild(l); } }
       // every trade (or bet) on the line, with what and how much in the tooltip
       const TR = T.status === 'ok' ? T.data.filter((t) => t.portfolio === p && !String(t.holding || '').startsWith('[') && +new Date(t.at) >= RESTART - 60e3) : [];
       const valAt = (t) => { const i = pts.findIndex((q) => +q.t >= +t); if (i <= 0) return (pts[Math.max(0, i)] || pts[pts.length - 1] || { v: START }).v; const a = pts[i - 1], c = pts[i]; return a.v + (c.v - a.v) * ((+t - +a.t) / Math.max(1, +c.t - +a.t)); };
