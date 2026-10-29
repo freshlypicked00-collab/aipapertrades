@@ -97,7 +97,20 @@ def due_posts(state):
     pid = 'daily-' + day_end.date().isoformat()
     if 1 <= n <= 31 and pid not in done and NOW - day_end < timedelta(hours=8) and day_end <= RACE_END + timedelta(hours=4):
         out.append({'id': pid, 'kind': 'daily', 'day': n, 'day_start': (day_end - timedelta(days=1)).isoformat()})
-    return out[:MAX_PER_RUN]
+    # stories (they vanish after 24 hours, so they can carry every lead change the site shows, at most one per race per 12 hours)
+    srec = [(k, datetime.fromisoformat(v['at'])) for k, v in posted.items() if k.startswith('story-moment-')]
+    for m in reversed(data.get('moments', [])):
+        sid = 'story-moment-' + m['id']
+        at = datetime.fromisoformat(m['at'].replace('Z', '+00:00'))
+        if sid in done or NOW - at > timedelta(hours=6) or at > RACE_END:
+            continue
+        if any(k.startswith('story-moment-' + m['race'] + '-') and NOW - t < timedelta(hours=12) for k, t in srec):
+            continue
+        out.append({'id': sid, 'kind': 'story-moment', 'moment': m}); srec.append((sid, NOW))
+    if 1 <= n <= 31 and ('story-' + pid) not in done and NOW - day_end < timedelta(hours=8) and day_end <= RACE_END + timedelta(hours=4):
+        out.append({'id': 'story-' + pid, 'kind': 'story-daily', 'day': n, 'day_start': (day_end - timedelta(days=1)).isoformat()})
+    feed = [p for p in out if not p['kind'].startswith('story')][:MAX_PER_RUN]
+    return feed + [p for p in out if p['kind'].startswith('story')][:2]
 
 
 def prepare():
@@ -108,7 +121,18 @@ def prepare():
     for p in posts:
         img = f"social/{p['id']}.jpg"
         try:
-            if p['kind'] == 'moment':
+            if p['kind'] == 'story-moment':
+                pc.moment_cover(p['moment'], '/tmp/pt_cover.jpg', glow=False)
+                pc.story('/tmp/pt_cover.jpg', img, top='LEAD CHANGE', glow_color=pc.AIS[p['moment']['who']][1])
+                p['images'] = [img]; p['story'] = True; p['caption'] = ''
+            elif p['kind'] == 'story-daily':
+                import racecard
+                table, big = racecard.races(datetime.fromisoformat(p['day_start']), 'ops/src')
+                pc.daily_cover(table, p['day'], datetime.fromisoformat(p['day_start']), big, '/tmp/pt_cover.jpg', glow=False, swipe=False)
+                led = pc.races_led(table); best = max(led, key=lambda k: len(led[k]))
+                pc.story('/tmp/pt_cover.jpg', img, top=f"DAY {p['day']} RESULTS", bottom='All ten races in our latest post', glow_color=pc.AIS[best][1] if sum(len(v) == len(led[best]) for v in led.values()) == 1 else pc.AMBER)
+                p['images'] = [img]; p['story'] = True; p['caption'] = ''
+            elif p['kind'] == 'moment':
                 pc.moment_cover(p['moment'], img)
                 p['images'] = [img]
             else:
@@ -172,7 +196,9 @@ def publish():
                     if st.get('status_code') == 'ERROR':
                         raise RuntimeError('Instagram could not process a picture')
                     time.sleep(5)
-            if len(urls) == 1:
+            if p.get('story'):
+                c = api(f'{ig}/media', {'image_url': urls[0], 'media_type': 'STORIES'}, 'POST')
+            elif len(urls) == 1:
                 c = api(f'{ig}/media', {'image_url': urls[0], 'caption': p['caption'][:2150]}, 'POST')
             else:
                 kids = []

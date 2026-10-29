@@ -220,7 +220,7 @@ def races_led(table):
     return led
 
 
-def moment_cover(m, path):
+def moment_cover(m, path, glow=True):
     """Lead change: the new leader's name huge, the margin huge, the three in this race below."""
     race, who, over = m['race'], m['who'], m['over']
     prof = m.get('profit') or {}
@@ -228,7 +228,8 @@ def moment_cover(m, path):
         raise QualityError('moment data incomplete')
     at = datetime.fromisoformat(m['at'].replace('Z', '+00:00'))
     c = Card()
-    _glow(c, AIS[who][1])
+    if glow:
+        _glow(c, AIS[who][1])
     c.header(f'DAY {day_of(at)} OF 32')
     c.text((SAFE_X, 300), f'LEAD CHANGE · {LABEL[race].upper()}', font('mono', 'SemiBold', 36), AMBER, 'lm', tracking=4)
     name_f = c.fit(AIS[who][0], 'sans', 'Bold', 330, W - 2 * SAFE_X, 200)
@@ -254,7 +255,7 @@ def moment_cover(m, path):
     return c.save(path)
 
 
-def daily_cover(table, n, when, big, path):
+def daily_cover(table, n, when, big, path, glow=True, swipe=True):
     """Day N: who leads the most races (names huge), races led per AI, and the biggest move. Slide 2 has every race."""
     if not table or any(e not in table for e in ORDER):
         raise QualityError('daily data incomplete')
@@ -262,7 +263,8 @@ def daily_cover(table, n, when, big, path):
     order = sorted(AIS, key=lambda k: -len(led[k]))
     top = [k for k in order if len(led[k]) == len(led[order[0]])]
     c = Card()
-    _glow(c, AIS[top[0]][1] if len(top) == 1 else AMBER)
+    if glow:
+        _glow(c, AIS[top[0]][1] if len(top) == 1 else AMBER)
     c.header(f'DAY {n} OF 32')
     c.text((SAFE_X, 300), f'DAY {n} RESULTS · {when.strftime("%a %b %-d").upper()}', font('mono', 'SemiBold', 36), AMBER, 'lm', tracking=4)
     if len(top) == 1:
@@ -295,6 +297,35 @@ def daily_cover(table, n, when, big, path):
         line = f'{AIS[mid][0]} in {LABEL.get(e, e)}  {money(d, e)}'
         c.text((SAFE_X, y + 66), line, c.fit(line, 'sans', 'SemiBold', 64, W - 2 * SAFE_X, 36), UP if d > 0.5 else DOWN if d < -0.5 else FG, 'lm')
     c.text((SAFE_X, 1470), 'Ten separate races, each judged on its own. Final scoring Nov 28.', font('sans', 'Regular', 34), MUTED, 'lm')
-    c.text((W - SAFE_X, 1560), 'Swipe for all ten races  →', font('mono', 'SemiBold', 32), AMBER, 'rm')
+    if swipe:
+        c.text((W - SAFE_X, 1560), 'Swipe for all ten races  →', font('mono', 'SemiBold', 32), AMBER, 'rm')
     c.footer()
     return c.save(path)
+
+
+# ---------- stories (9:16): the cover, framed for a phone screen, clear of Instagram's own buttons at the top and bottom
+SW, SH = 1440, 2560
+
+
+def story(cover_jpg, path, top='NEW ON PAPER TRADES', bottom='Every trade, live: papertrades.ai', glow_color=None):
+    cov = Image.open(cover_jpg).convert('RGB')
+    if cov.size != (W, H):
+        raise QualityError('story cover has the wrong size')
+    im = Image.new('RGB', (SW, SH), BG)
+    im.paste(cov, (0, 380))
+    if glow_color:   # one soft glow across the whole story, so there is no seam where the cover sits
+        from PIL import ImageFilter
+        layer = Image.new('RGBA', (SW, SH), (0, 0, 0, 0)); g = ImageDraw.Draw(layer)
+        rgb = tuple(int(glow_color.lstrip('#')[i:i + 2], 16) for i in (0, 2, 4))
+        g.ellipse([1180 - 560, 760 - 560, 1180 + 560, 760 + 560], fill=rgb + (40,))
+        layer = layer.filter(ImageFilter.GaussianBlur(180))
+        im = Image.alpha_composite(im.convert('RGBA'), layer).convert('RGB')
+    d = ImageDraw.Draw(im)
+    f1, f2 = font('mono', 'SemiBold', 40), font('sans', 'SemiBold', 54)
+    for s, f, y, col in ((top, f1, 300, AMBER), (bottom, f2, 2260, FG)):
+        w = f.getlength(s)
+        if w > SW - 2 * SAFE_X:
+            raise QualityError('story text too long')
+        d.text(((SW - w) / 2, y), s, font=f, fill=col, anchor='lm')
+    im.save(path, 'JPEG', quality=95, subsampling=0, optimize=True)
+    return path
