@@ -1,8 +1,8 @@
 {
- "at": "2026-10-29T09:19:01Z",
+ "at": "2026-10-29T10:18:15Z",
  "since": "2026-10-28T17:45:00Z",
  "summary": {
-  "ok": 118,
+  "ok": 123,
   "flag": 0,
   "no_data": 0,
   "no_feed": 0
@@ -1855,6 +1855,85 @@
    "tolerance": "2.0%",
    "status": "ok",
    "note": "Claude uses the spot price; the feed is COMEX futures, which usually trade a little above spot"
+  },
+  {
+   "kind": "value",
+   "at": "2026-10-29T05:11:00-04:00",
+   "holding": "Silver",
+   "action": "",
+   "claude": 52.84,
+   "feed": "SI=F",
+   "feed_low": 52.790001,
+   "feed_high": 53.07,
+   "basis": "1-minute bars within 5 minutes",
+   "gap_pct": 0.0,
+   "gap_abs": null,
+   "tolerance": "2.0%",
+   "status": "ok",
+   "note": "Claude uses the spot price; the feed is COMEX futures, which usually trade a little above spot"
+  },
+  {
+   "kind": "value",
+   "at": "2026-10-29T05:16:00-04:00",
+   "holding": "Gold",
+   "action": "",
+   "claude": 4030.2,
+   "feed": "GC=F",
+   "feed_low": 4036.5,
+   "feed_high": 4046.600098,
+   "basis": "1-minute bars within 5 minutes",
+   "gap_pct": 0.156,
+   "gap_abs": null,
+   "tolerance": "1.5%",
+   "status": "ok",
+   "note": "Claude uses the spot price; the feed is COMEX futures, which usually trade a little above spot"
+  },
+  {
+   "kind": "value",
+   "at": "2026-10-29T05:22:00-04:00",
+   "holding": "Bitcoin",
+   "action": "",
+   "claude": 80136.0,
+   "feed": "BTC-USD",
+   "feed_low": 80090.71875,
+   "feed_high": 80159.5625,
+   "basis": "1-minute bars within 5 minutes",
+   "gap_pct": 0.0,
+   "gap_abs": null,
+   "tolerance": "1.0%",
+   "status": "ok"
+  },
+  {
+   "kind": "value",
+   "at": "2026-10-29T05:30:00-04:00",
+   "holding": "Democrats win the Senate (Yes)",
+   "action": "",
+   "claude": 0.66,
+   "feed": "Polymarket",
+   "feed_low": 0.675,
+   "feed_high": 0.675,
+   "basis": "Polymarket price history within 30 minutes",
+   "gap_pct": null,
+   "gap_abs": 0.015,
+   "tolerance": "3 cents",
+   "status": "ok",
+   "note": "tolerance 3 cents"
+  },
+  {
+   "kind": "value",
+   "at": "2026-10-29T05:30:00-04:00",
+   "holding": "Japanese yen",
+   "action": "",
+   "claude": 0.0063341,
+   "feed": "JPY=X",
+   "feed_low": 0.006331,
+   "feed_high": 0.006333,
+   "basis": "1-minute bars within 5 minutes",
+   "gap_pct": 0.012,
+   "gap_abs": null,
+   "tolerance": "0.5%",
+   "status": "ok",
+   "note": "US$ per yen (the feed quotes yen per US$)"
   }
  ]
 }
