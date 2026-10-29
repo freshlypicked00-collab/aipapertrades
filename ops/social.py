@@ -198,8 +198,15 @@ def publish():
 def check():
     if not os.environ.get('INSTAGRAM_ACCESS_TOKEN'):
         print('INSTAGRAM_ACCESS_TOKEN is not set'); sys.exit(1)
-    me = api(os.environ['INSTAGRAM_USER_ID'], {'fields': 'username,media_count'})
-    print('Instagram key works for @' + me.get('username', '?'), '·', me.get('media_count'), 'posts so far')
+    ig = os.environ.get('INSTAGRAM_USER_ID', '').strip()
+    tok = os.environ['INSTAGRAM_ACCESS_TOKEN']
+    info = f"user id: {len(ig)} digits, {'all digits' if ig.isdigit() else 'NOT all digits'}; key: {len(tok)} characters, starts {tok[:3]!r}, {'has spaces/quotes' if any(c in tok for c in ' \n\"') else 'clean'}"
+    try:
+        me = api(ig, {'fields': 'username,media_count'})
+        msg = 'Instagram key works for @' + me.get('username', '?') + ' · ' + str(me.get('media_count')) + ' posts so far'
+        print('::notice::' + msg)
+    except Exception as e:
+        print('::error::Instagram check failed: ' + str(e)[:300] + ' | ' + info); sys.exit(1)
 
 
 if __name__ == '__main__':
