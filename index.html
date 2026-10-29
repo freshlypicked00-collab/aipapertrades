@@ -4270,12 +4270,12 @@ body { background:var(--color-bg); }
     const first = window.ptFirstRace();
     const EXPS = [first].concat(['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'].filter((e) => e !== first));
     if (el._first !== first) { el._first = first; el._exp = null; }   // a market opening or closing moves the page to that race
-    if (!el._exp) { try { el._exp = sessionStorage.getItem('pt-pod-exp') || first; } catch (e) { el._exp = first; } }
+    if (!el._exp) el._exp = first;   // every visit opens on the race whose market is open (China, then US, else Crypto); nothing is remembered
     if (window.ptRace !== el._exp) { window.ptRace = el._exp; setTimeout(() => { if (dash.redraw) dash.redraw(); }, 0); }   // the goals and feelings cards follow this race
     el.appendChild(mk('h2', '', 'Race standings'));
     const sel = mk('select', 'pd-pick'); sel.setAttribute('aria-label', 'Choose the race');
     EXPS.forEach((e) => { const o = mk('option', '', LABEL[e] || e); o.value = e; if (e === el._exp) o.selected = true; sel.appendChild(o); });
-    sel.addEventListener('change', () => { el._exp = sel.value; try { sessionStorage.setItem('pt-pod-exp', sel.value); } catch (e) {} dash.redraw ? dash.redraw() : null; });
+    sel.addEventListener('change', () => { el._exp = sel.value; dash.redraw ? dash.redraw() : null; });
     el.appendChild(sel);
     const cur = el._exp === 'China' ? 'US$' : 'C$';
     el.appendChild(mk('p', 'pd-note', 'Each race is separate. Profit since the Oct 28 restart and what each AI holds now. Tap one to view it.'));
