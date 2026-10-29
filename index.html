@@ -545,6 +545,8 @@
   .st-nowrap { white-space: nowrap; }
   .pt-res { letter-spacing: .04em; } .pt-res.is-down { color: var(--color-bad, #ff5a4e); } .pt-res.is-up { color: var(--color-ok, #3ddc84); }
   .st-pager { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0 0; font-size: 13px; }
+  .st-pg-btn { font: inherit; font-size: 13px; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+  .st-pg-btn:hover:not(:disabled) { border-color: var(--accent, #ffb000); } .st-pg-btn:disabled { opacity: .35; cursor: default; }
   .st-pager select { font: inherit; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 4px 8px; }
   .pa-sum { margin: 6px 0 10px; } .pa-sum b { margin-right: 4px; }
   .lg-csv { font: inherit; font-size: 13px; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
@@ -851,7 +853,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'cda80dd58df8';</script>
+<script>window.PT_PAGE_VER = 'a0b949ffe7f1';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -1138,7 +1140,7 @@ body { background:var(--color-bg); }
 
     <section class="st-card" aria-labelledby="h-events-all">
       <h2 class="st-h2" id="h-events-all">Coming up</h2>
-      <p class="st-note">The next events that could move these simulations. Times are Eastern (ET), with UTC in brackets.</p>
+      <p class="st-note">The next events that could move these simulations, as each AI sees them: switch the Model menu to see Gemini’s or ChatGPT’s own watchlist. Times are Eastern (ET), with UTC in brackets.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="events" data-row-key="at,event">
           <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="affects">Affects</th><th data-field="why">Why it matters</th></tr></thead>
@@ -2870,7 +2872,6 @@ body { background:var(--color-bg); }
       .filter((r) => new Date(r.at).getTime() >= now)
       .filter((r) => !p || r.affects.split(', ').includes(p))
       .sort((a, b) => new Date(a.at) - new Date(b.at))
-      .slice(0, limit)
       .forEach((r) => {
         const tr = document.createElement('tr');
         tr.dataset.key = encodeURIComponent(r.at) + ',' + encodeURIComponent(r.event);
@@ -2884,6 +2885,7 @@ body { background:var(--color-bg); }
         });
         el.appendChild(tr);
       });
+    pagerFor(el, 10, 'events');
   });
   dash.draw('last-trade', (el) => {
     const r = rowFor('lasts', stFmt.whereOf(el));
@@ -3000,7 +3002,13 @@ body { background:var(--color-bg); }
     const lab = mk('label'); lab.append(document.createTextNode('Page '));
     const sel = mk('select'); for (let k = 0; k < pages; k++) { const o = mk('option', '', (k + 1) + (k === 0 && el.dataset.draw === 'log-body' ? ' · newest' : '') + ' (' + (k * n + 1) + '–' + Math.min(rows.length, (k + 1) * n) + ')'); o.value = k; if (k === el._pg) o.selected = true; sel.appendChild(o); }
     sel.addEventListener('change', () => { el._pg = Number(sel.value); pagerFor(el, n, noun); });
-    lab.append(sel, document.createTextNode(' of ' + pages)); bar.append(lab, mk('span', 'st-muted', ' · ' + rows.length + ' ' + (noun || 'rows') + (el.dataset.draw === 'log-body' ? ', newest first' : '')));
+    lab.append(sel, document.createTextNode(' of ' + pages));
+    const go = (k) => { el._pg = Math.max(0, Math.min(pages - 1, k)); pagerFor(el, n, noun); };
+    const prev = mk('button', 'st-pg-btn', '‹ Previous'); prev.type = 'button'; prev.disabled = el._pg === 0; prev.addEventListener('click', () => go(el._pg - 1));
+    const next = mk('button', 'st-pg-btn', 'Next ›'); next.type = 'button'; next.disabled = el._pg >= pages - 1; next.addEventListener('click', () => go(el._pg + 1));
+    const old = el.dataset.draw === 'log-body';
+    if (old) { prev.textContent = '‹ Newer'; next.textContent = 'Older ›'; }
+    bar.append(prev, lab, next, mk('span', 'st-muted', ' · ' + rows.length + ' ' + (noun || 'rows') + (old ? ', newest first' : el.dataset.draw === 'events-body' ? ', soonest first' : '')));
   };
   const byPortfolio = (el, alsoBoth) => (r) => !el.dataset.portfolio || r.portfolio === el.dataset.portfolio || (alsoBoth && r.portfolio === 'Both');
   const num = (v, f) => (v === null || v === undefined || v === '') ? '' : f(Number(v));
