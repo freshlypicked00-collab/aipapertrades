@@ -479,6 +479,9 @@
   :root[data-theme="light"][data-model="chatgpt"]:not(#pt-a):not(#pt-b), :root[data-theme="reader"][data-model="chatgpt"]:not(#pt-a):not(#pt-b) { --accent: #2a2a2a; --accent-bg: rgba(0,0,0,.05); }
   :root[data-model] .st-score-h, :root[data-model] .st-tabgroup-l { color: var(--accent); }
   /* tab bar at the top: sticky while scrolling; one swipeable row on phones */
+  .st-home { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-family: var(--font-mono, monospace); font-size: 13.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); background: none; border: 0; border-bottom: 2px solid transparent; padding: 6px 10px; cursor: pointer; align-self: flex-end; }
+  .st-home:hover { color: var(--color-fg); }
+  .st-home:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   .st-tabs-tools { display: none; }
   @media (min-width: 1000px) {
     .st-tabs-tools { display: flex; position: absolute; right: 0; top: 4px; gap: 12px; align-items: center; }
@@ -554,6 +557,7 @@
       </div>
     </section>
     <nav class="st-tabs" role="tablist" aria-label="Simulations">
+      <button class="st-home" type="button" data-home aria-label="Home: back to the top of the page"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M3 11 12 3l9 8M5.5 9.5V21h5v-6h3v6h5V9.5"/></svg>Home</button>
       <button class="st-tab" role="tab" data-tab="overview" aria-selected="true">Overview</button>
       <button class="st-tab" role="tab" data-tab="ledger" aria-selected="false">Ledger</button>
       <button class="st-tab st-tab-h2h" role="tab" data-tab="h2h" aria-selected="false">AI vs AI</button>
@@ -1992,6 +1996,9 @@
     });
   };
   document.querySelectorAll('.st-tab').forEach((b) => b.addEventListener('click', () => goTab(b.dataset.tab)));
+  const goHome = () => { goTab('overview', false); window.scrollTo({ top: 0, behavior: 'smooth' }); };   // Home: the Overview, from the very top
+  document.querySelectorAll('[data-home]').forEach((b) => b.addEventListener('click', goHome));
+  window.ptHome = goHome;
   document.querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', () => goTab(b.dataset.goto)));
   showTab(location.hash.slice(1));
   // on an AI's own page, picking another model in the Model menu goes to that AI's page
@@ -2051,6 +2058,7 @@
         box.appendChild(b);
       };
       const top = document.createElement('div'); top.className = 'm-menu-group';
+      { const hb = document.createElement('button'); hb.type = 'button'; hb.textContent = '⌂ Home (top of the page)'; hb.addEventListener('click', () => { toggle(false); if (window.ptHome) window.ptHome(); }); top.appendChild(hb); }
       [...nav.children].forEach((c) => {
         if (c.classList.contains('st-tab')) addBtn(c, top);
         else if (c.classList.contains('st-tabgroup')) {
