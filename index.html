@@ -611,6 +611,10 @@
   .gx-key-tog { cursor: pointer; border-bottom: 1px dotted var(--color-fg-muted); } .gx-key-tog:hover { color: var(--color-fg); } .gx-key-tog.is-off { opacity: .65; }
   .gx-key-tog:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   .gx-led { font-size: 11.5px; margin-left: 6px; white-space: nowrap; }
+  .pt-since { border-left: 3px solid var(--model, var(--accent)); } .pt-since-h { display: flex; align-items: center; gap: 8px; } .pt-since-h b { font-size: 15px; }
+  .pt-since-x { margin-left: auto; font: inherit; background: none; border: 0; color: var(--color-fg-muted); cursor: pointer; min-width: 36px; min-height: 32px; }
+  .pt-since ul { margin: 8px 0 4px; padding-left: 18px; } .pt-since li { margin: 3px 0; }
+  .px-age { color: var(--color-fg-muted); } .px-old { color: #e0a33a; }
   .fp-hash { font-family: var(--font-mono, monospace); font-size: 11.5px; word-break: break-all; }
   .bm-audit { margin-top: 8px; font-size: 12.5px; } .bm-audit summary { cursor: pointer; color: var(--color-fg-muted); } .bm-audit table { font-size: 12px; margin-top: 6px; }
   .pt-mtick:empty { display: none; }
@@ -1007,7 +1011,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'a6d6de332e34';</script>
+<script>window.PT_PAGE_VER = 'eaf0e9501a8e';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -3313,6 +3317,24 @@ body { background:var(--color-bg); }
   const upDown = (v) => (v > 0 ? 'is-up' : v < 0 ? 'is-down' : '');
 
   const yuan = (v) => '¥' + d3.format(',.3f')(v);
+  // price freshness on every valuation (agreed item 11): the feed, the quote time, its age, and "older than 30 min" while its market is open
+  const mktOpen = (race, holding) => {
+    const now = new Date(), et = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' })), wd = et.getDay(), mins = et.getHours() * 60 + et.getMinutes();
+    const fxHours = !(wd === 6 || (wd === 5 && mins >= 17 * 60) || (wd === 0 && mins < 17 * 60));   // Sunday 5 p.m. to Friday 5 p.m. ET
+    if (race === 'Crypto' || race === 'Predictions' || race === 'Sports') return true;
+    if (race === 'Currencies' || (race === 'Metals' && /^(Gold|Silver|Platinum|Palladium|Copper)$/.test(holding))) return fxHours;
+    if (race === 'China') { const bj = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Shanghai' })), d = bj.getDay(), m = bj.getHours() * 60 + bj.getMinutes(); return d >= 1 && d <= 5 && ((m >= 570 && m < 690) || (m >= 780 && m < 900)); }
+    return wd >= 1 && wd <= 5 && mins >= 570 && mins < 960;   // US stocks, funds and options
+  };
+  const pxSrc = (r) => {
+    if (!r.price_source) return '';
+    const f = document.createDocumentFragment(); f.appendChild(document.createTextNode(r.price_source + (r.price_at ? ', ' + stFmt.when(r.price_at) : '')));
+    if (r.price_at && !/^Cash/.test(r.holding)) { const age = Math.max(0, (Date.now() - Date.parse(r.price_at)) / 60000);
+      const txt = age < 60 ? Math.round(age) + ' min old' : age < 48 * 60 ? Math.round(age / 60) + ' h old' : Math.round(age / 1440) + ' days old';
+      const old = age > 30 && mktOpen(r.portfolio, r.holding);
+      const b = mk('span', 'px-age' + (old ? ' px-old' : ''), ' · ' + txt + (old ? ' (older than 30 min while its market is open)' : '')); f.appendChild(b); }
+    return f;
+  };
   dash.draw('holdings-body', (el) => { fillBody(el, 'holdings', (r) => byPortfolio(el)(r) && !(Math.abs(Number(r.quantity)) < 1e-9 && !/^Cash/.test(r.holding)), (r) => encodeURIComponent(r.portfolio) + ',' + encodeURIComponent(r.holding), (r) => (el.dataset.all ? [[LABEL[r.portfolio] || r.portfolio]] : []).concat(r.currency === 'CNY' ? [
     [r.holding + (r.code ? ' (' + r.code + ')' : '')],
     [num(r.quantity, (v) => d3.format(',.0f')(v)) + (r.holding === 'Cash (CNY)' ? ' yuan' : ''), 'num'],
@@ -3320,7 +3342,7 @@ body { background:var(--color-bg); }
     [num(r.price_local, yuan), 'num'],
     [r.price_local === null || r.price_local === undefined ? '' : stFmt.pct(Number(r.change_pct)), 'num ' + upDown(Number(r.change_pct))],
     [num(r.value_usd, (v) => d3.format(',.0f')(v)), 'num'],
-    [r.price_source ? r.price_source + (r.price_at ? ', ' + stFmt.when(r.price_at) : '') : '', 'wrap src']
+    [pxSrc(r), 'wrap src']
   ] : [
     [r.holding],
     [num(r.quantity, (v) => v >= 100 ? d3.format(',.2f')(v) : d3.format(',.4f')(v)), 'num'],
@@ -3328,7 +3350,7 @@ body { background:var(--color-bg); }
     [num(r.price_usd, r.portfolio === 'Predictions' ? (v) => d3.format('.1f')(v * 100) + '¢' : usd), 'num'],
     [r.price_usd === null ? '' : stFmt.pct(Number(r.change_pct)), 'num ' + upDown(Number(r.change_pct))],
     [num(r.portfolio === 'China' ? r.value_usd : r.value_cad, (v) => d3.format(',.0f')(v)), 'num'],
-    [r.price_source ? r.price_source + (r.price_at ? ', ' + stFmt.when(r.price_at) : '') : '', 'wrap src']
+    [pxSrc(r), 'wrap src']
   ])); pagerFor(el, 10, 'holdings'); });
   // "Show:" experiment menus on the overview tables
   const fillPf = () => document.querySelectorAll('select.pf-filter').forEach((sel) => {
@@ -3454,6 +3476,42 @@ body { background:var(--color-bg); }
     el.appendChild(table(false));
     el.appendChild(mk('h3', 'st-h3', 'All in: sports (side race, no caps)')); el.appendChild(table(true));
   });
+  // ---------- "Since your last visit" (agreed item 4): what changed since this browser last opened the page; stored only in this browser
+  (() => {
+    let prev = null; try { prev = JSON.parse(localStorage.getItem('pt-visit') || 'null'); } catch (e) { prev = null; }
+    let done = false;
+    const snap = () => {
+      const all = dash.baseData('exp_standings'); const ES = (Array.isArray(all) ? all[0] : all) || {}; if (!Object.keys(ES).length) return null;
+      const p = {}, lead = {}, led = { claude: 0, gemini: 0, chatgpt: 0 };
+      Object.entries(ES).forEach(([race, rows]) => { (rows || []).forEach((r) => { if (AIS[r.id]) p[r.id + '|' + race] = Number(r.profit) || 0; });
+        const L = rows && rows.length > 1 && rows[0].profit - rows[1].profit >= 0.5 ? rows[0].id : null; lead[race] = L; if (L && led[L] != null) led[L] += 1; });
+      try { Object.keys(ALLIN).forEach((race) => allinRows(race).forEach((r) => { p[r.id + '|' + race] = Number(r.profit) || 0; })); } catch (e) {}
+      return { at: Date.now(), p, lead, led };
+    };
+    const moves = (since) => { const n = (arr, f) => (arr || []).filter((x) => Date.parse(x[f] || x.at) > since).length;
+      return n(dash.baseData('trades'), 'at') + n((dash.baseData('bets') || []).filter((b) => b.placed_at), 'placed_at') + n((dash.baseData('rivals_trades') || []).filter((t) => /^(Buy|Sell|Short|Cover|Bet)$/.test(t.action)), 'at') + n((dash.baseData('allin_trades') || []).filter((t) => /^(Buy|Sell|Short|Cover|Bet)$/.test(t.action)), 'at'); };
+    const nameOf = (race) => ALLIN[race] ? ALLIN[race] : (LABEL[race] || race).replace(' (US$)', '');
+    dash.onData(() => {
+      if (done) return; const cur = snap(); if (!cur) return; done = true;
+      try { localStorage.setItem('pt-visit', JSON.stringify(cur)); } catch (e) {}
+      if (!prev || !prev.at || Date.now() - prev.at < 10 * 60000 || !prev.p) return;
+      const lines = [];
+      const nm = moves(prev.at); if (nm) lines.push(nm + ' new trade' + (nm === 1 ? '' : 's') + ' and bets by the three AIs.');
+      Object.keys(cur.lead).forEach((race) => { const a = (prev.lead || {})[race], b = cur.lead[race]; if (b && a && a !== b && AIS[a] && AIS[b]) lines.push(nameOf(race) + ': ' + AIS[b].label + ' took the lead from ' + AIS[a].label + '.'); });
+      const d = Object.keys(cur.p).filter((k) => prev.p[k] != null).map((k) => ({ k, d: cur.p[k] - prev.p[k] })).filter((x) => Math.abs(x.d) >= 100).sort((a, b) => Math.abs(b.d) - Math.abs(a.d)).slice(0, 3);
+      d.forEach((x) => { const [id, race] = x.k.split('|'); if (!AIS[id]) return; lines.push(AIS[id].label + ' ' + (x.d >= 0 ? 'made ' : 'lost ') + (race === 'China' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(x.d)) + ' in ' + nameOf(race) + '.'); });
+      const ch = Object.keys(cur.led).filter((id) => prev.led && prev.led[id] != null && prev.led[id] !== cur.led[id]);
+      if (ch.length) lines.push('Races led now: ' + ch.map((id) => AIS[id].label + ' ' + cur.led[id] + ' (was ' + prev.led[id] + ')').join(', ') + '.');
+      if (!lines.length) return;
+      const ov = document.getElementById('overview'); if (!ov) return;
+      const box = mk('section', 'st-card pt-since'); box.setAttribute('aria-label', 'Since your last visit');
+      const h = mk('div', 'pt-since-h'); h.append(mk('b', '', '👋 Since your last visit'), mk('span', 'st-muted', ' ' + stFmt.whenET(new Date(prev.at).toISOString()) + ' ET'));
+      const x = mk('button', 'pt-since-x', '✕'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); x.addEventListener('click', () => box.remove()); h.appendChild(x);
+      const ul = mk('ul'); lines.slice(0, 6).forEach((t) => ul.appendChild(mk('li', '', t)));
+      box.append(h, ul, mk('p', 'st-note', 'Only this browser remembers your last visit; nothing is sent anywhere.'));
+      ov.insertBefore(box, ov.firstChild);
+    });
+  })();
   // ---------- ledger fingerprints (agreed item 3): the same lines and SHA-256 as ops/fingerprint.py, recomputed in the visitor's browser
   const fpLines = (close) => {
     const S = (x) => (x === null || x === undefined ? '' : String(x)), T = (x) => Date.parse(String(x));
