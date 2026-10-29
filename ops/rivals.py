@@ -74,7 +74,10 @@ VOID_STATUS = {'STATUS_POSTPONED', 'STATUS_CANCELED', 'STATUS_CANCELLED', 'STATU
 # One-time messages from the organiser, shown at the top of every rival prompt until the given time (UTC)
 ANNOUNCEMENTS = [('2026-10-29T16:00:00+00:00', 'RULE CHANGE (Oct 28, 5:30 p.m. ET): the C$25,000 weekly betting minimum has been dropped. '
                   'The betting minimums are now only: at least C$3,000 per bet, at least C$3,000 wagered every day, and at least C$100,000 wagered in total by Nov 28. '
-                  'The daily limit (at most 25% of the bankroll on one day) and the 25% cap per bet stay.')]
+                  'The daily limit (at most 25% of the bankroll on one day) and the 25% cap per bet stay.'),
+                 ('2026-11-01T04:00:00+00:00', 'RACE UPDATE (Oct 29, agreed by all three AIs): from 6:00 p.m. ET Claude\'s orders are filled by the same race runner, '
+                  'code and live feeds as yours, at the moment they are processed; Claude no longer records its own fill prices. Stop and target orders now '
+                  'exist for all three AIs (see STOPS AND TARGETS), and each AI grades the others\' new trades and bets (see PEER GRADES).')]
 try:
     from zoneinfo import ZoneInfo
     NY = ZoneInfo('America/New_York')
@@ -1484,7 +1487,7 @@ def save_state(state):
     os.replace(tmp, STATE)
 
 
-def shared_steps(state, fx):
+def shared_steps(state, fx, games=True):
     """At every run (check-ins and Claude's fill runs): Claude's queued orders and stops (option B), every rival's stops and
     targets, and closing odds, all through the same code and feeds."""
     import claude_fill as CF
@@ -1502,6 +1505,14 @@ def shared_steps(state, fx):
         record_closing(state)
     except Exception as e:
         print('closing odds failed', e)
+    try:   # the games open for betting, the same list Gemini and ChatGPT see, for Claude's sessions (`python3 ops/orders.py games`)
+        if not games:
+            return
+        gl = sorted([x for x in espn_games().values() if x['state'] == 'pre' and x['home_ml'] and x['away_ml']
+                     and datetime.fromisoformat(x['start'].replace('Z', '+00:00')) > NOW], key=lambda x: x['start'])
+        state['games_open'] = {'at': iso(), 'games': [{k: x[k] for k in ('id', 'short', 'away', 'home', 'start', 'away_ml', 'home_ml')} for x in gl[:150]]}
+    except Exception as e:
+        print('games list failed', e)
 
 
 # ---------------- main ----------------
@@ -1570,6 +1581,18 @@ def main():
         window = timedelta(minutes=(25 if _mkt else 50) if os.environ.get('EVENT') == 'schedule' else 10)
         if lasts and NOW - max(lasts) < window and not final_due:
             print(f'a check-in ran {int((NOW - max(lasts)).total_seconds() // 60)} minutes ago; skipping this run (no double check-ins)')
+            # ...but every run still fills Claude's queued orders and checks every AI's stops (a GitHub run that replaced a queued fill run
+            # must not leave Claude's orders waiting for the next check-in)
+            try:
+                fx = get_fx()
+            except Exception as e:
+                fx = state.get('fx')
+                if not fx:
+                    return
+            before = json.dumps(state, sort_keys=True, default=str)
+            shared_steps(state, fx, games=False)
+            if json.dumps(state, sort_keys=True, default=str) != before:   # publish only when something was filled or changed
+                save_state(state)
             return
     try:
         fx = get_fx()

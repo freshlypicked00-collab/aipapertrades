@@ -156,9 +156,33 @@ def eng_bet(x):
             'result': float(res) if res is not None else 0.0, 'legs': x.get('legs')}
 
 
+def team_game(team, league=None):
+    """A bet may name the team instead of the ESPN game id: the one game open for betting with that team (full name, or its
+    nickname when that is unique). Returns (game id, 'home' or 'away')."""
+    t = str(team or '').strip().lower()
+    if not t:
+        raise ValueError('a bet needs "game" and "pick", or "team"')
+    hits = []
+    for g in R.espn_games().values():
+        if g['state'] != 'pre' or (league and str(league).lower() not in (g['league'], g['short'].lower())):
+            continue
+        for side in ('home', 'away'):
+            nm = g[side].lower()
+            if t == nm or (len(t) > 3 and (nm.endswith(' ' + t) or nm.startswith(t + ' '))):
+                hits.append((g['id'], side, g))
+    if len(hits) != 1:
+        raise ValueError(f'team "{team}" matches {len(hits)} open games' + (': ' + '; '.join(f"{g['id']} {g['away']} @ {g['home']}" for _, _, g in hits[:4]) if hits else '')
+                         + ' (give the game id from `python3 ops/orders.py games`)')
+    return hits[0][0], hits[0][1]
+
+
 def normalize(o, names):
     """Claude may name a holding the way it is shown ("Bitcoin", "CSI 300 ETF", "Japanese yen") or by its feed symbol."""
     o = dict(o)
+    if o.get('experiment') == 'Sports' and str(o.get('action', '')).lower() == 'bet' and not o.get('game') and o.get('team'):
+        o['game'], o['pick'] = team_game(o['team'], o.get('league'))
+    if o.get('experiment') == 'Sports' and str(o.get('action', '')).lower() == 'parlay':
+        o['legs'] = [dict(lg, **dict(zip(('game', 'pick'), team_game(lg['team'], lg.get('league'))))) if not lg.get('game') and lg.get('team') else lg for lg in (o.get('legs') or [])]
     exp = o.get('experiment')
     sym = str(o.get('symbol') or o.get('holding') or '').strip()
     for (e, key), h in names.items():
@@ -302,7 +326,7 @@ def process(state, fx):
             t = R.execute('claude', MAIN, books, on, fx, scratch)
             frag, what = fill_fragment(t, on, names, books, used)
             frags.append({'id': oid, 'frag': frag, 'engine': t})
-            cm['results'].append(f"{oid}: filled {t['action']} {what} {R.money(t['amount'], t['cur'])}"
+            cm['results'].append(f"{oid}: filled {t['action']} {what}" + (f" ({t.get('name')})" if t['action'] == 'Bet' and t.get('name') else '') + f" {R.money(t['amount'], t['cur'])}"
                                  + (f" at {t['price']:+d}" if t['action'] == 'Bet' else f" at {t['price']:,.6g}"))
             cm['done'].append(oid)
             waiting.pop(oid, None)

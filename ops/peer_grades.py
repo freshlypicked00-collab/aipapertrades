@@ -49,6 +49,21 @@ def key_of(model, at, exp, what, action):
     return f'{model}|{_when(at).strftime("%Y-%m-%dT%H:%M:%SZ")}|{exp}|{what}|{action}'
 
 
+def _log_reason(log, t):
+    """The log entry that explains one of Claude's trades: same race, same action, within 3 minutes, and naming this holding (two buys
+    at the same minute each have their own entry; the first fix after a grader was shown the wrong one, Oct 29)."""
+    near = [x for x in log if x.get('portfolio') == t['portfolio'] and x.get('action') == t['action']
+            and abs((_when(x['at']) - _when(t['at'])).total_seconds()) < 180]
+    name = str(t.get('holding', '')).lower()
+    words = [w for w in re.findall(r'[a-z0-9]{3,}', name) if w not in ('etf', 'the', 'fund', 'shares', 'trust')]
+    code = str(t.get('code') or '')
+    for x in near:
+        d = str(x.get('detail', '')).lower()
+        if name and name in d or (code and code in d) or (words and all(w in d for w in words)):
+            return x['detail']
+    return near[0]['detail'] if len(near) == 1 else ''
+
+
 def decisions(model, state, fx_cad=1.38):
     """Every trade and bet one AI decided itself (not automatic settlements), newest last, with what was known at the time."""
     out = []
@@ -61,8 +76,7 @@ def decisions(model, state, fx_cad=1.38):
                 continue
             amt = abs(float(t.get('cad') or 0)) or abs(float(t.get('usd') or 0)) * fx_cad
             px = t.get('price_usd', t.get('price_local'))
-            why = t.get('note') or next((x['detail'] for x in log if x.get('portfolio') == t['portfolio'] and x.get('action') == t['action']
-                                         and abs((_when(x['at']) - _when(t['at'])).total_seconds()) < 180), '')
+            why = t.get('note') or _log_reason(log, t)
             out.append({'key': key_of('claude', t['at'], t['portfolio'], t['holding'], t['action']), 'model': 'claude', 'at': t['at'],
                         'experiment': t['portfolio'], 'action': t['action'], 'what': t['holding'], 'amount': round(amt, 2),
                         'price': px, 'reason': why[:500], 'wrong_if': ''})
@@ -84,10 +98,16 @@ def decisions(model, state, fx_cad=1.38):
     return out
 
 
+def _voids(grader):
+    """{key: withdrawn at} for this grader's grades withdrawn by the site (ops/src/peer_grades_void.json: the grader was shown wrong
+    information because of a site bug); such a decision is offered again with the right information."""
+    return {v['key']: v.get('at', '') for v in _j('peer_grades_void', []) if v.get('grader') == grader}
+
+
 def graded_keys(grader, state):
-    if grader == 'claude':
-        return {g['key'] for g in _j('claude_grades', [])}
-    return {g['key'] for g in state.get('peer_grades', []) if g.get('grader') == grader}
+    rows = _j('claude_grades', []) if grader == 'claude' else [g for g in state.get('peer_grades', []) if g.get('grader') == grader]
+    vo = _voids(grader)
+    return {g['key'] for g in rows if g['key'] not in vo or str(g.get('at', '')) > vo[g['key']]}
 
 
 def last_graded(grader, state):
@@ -104,7 +124,8 @@ def tasks(grader, state, now, fx_cad=1.38):
     floor = now - timedelta(hours=24)
     since_t = max(_when(since), floor) if since else floor
     done = graded_keys(grader, state)
-    pool = [d for m in others for d in decisions(m, state, fx_cad) if _when(d['at']) > since_t and d['key'] not in done and _when(d['at']) <= now]
+    vo = _voids(grader)
+    pool = [d for m in others for d in decisions(m, state, fx_cad) if (_when(d['at']) > since_t or d['key'] in vo) and d['key'] not in done and _when(d['at']) <= now]
     if not pool:
         return '', {}
     pick = sorted(pool, key=lambda d: -d['amount'])[:MAX] if len(pool) > MAX else pool

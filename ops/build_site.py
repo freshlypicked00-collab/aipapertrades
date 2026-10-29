@@ -446,10 +446,11 @@ if (r.get('stops_migrated') or {}).get('claude'):
         _act = 'Sell' if _st['direction'] == ('below' if _st['kind'] == 'stop' else 'above') else 'Cover'
         _share = 'all' if _st['fraction'] >= 1 else format(_st['fraction'], '.0%') + ' of'
         _move = 'falls' if _st['direction'] == 'below' else 'rises'
-        _watch = ' (watching USD/CAD)' if _st.get('watch') == 'CAD=X' else ''
+        _w = _st.get('watch') or ({'Gold': 'GC=F', 'Silver': 'SI=F'}.get(_st.get('name')) if _st['experiment'] == 'Metals' and _st.get('symbol') in ('GC=F', 'SI=F') else None)
+        _watch = ' (watching USD/CAD)' if _w == 'CAD=X' else ' (on the futures price the runner watches)' if _w in ('GC=F', 'SI=F') else ''
         data['rules'].append({'portfolio': _st['experiment'], 'rule': f"{_act} {_share} {_st.get('name')} if it {_move} to {_st['level']:g}{_watch} ({_st['kind']}, checked at every run by the race runner).",
                               'asset': _st.get('name'), 'level': _st['level'], 'direction': _st['direction'], 'label': _st['kind'].capitalize(), 'stop_id': _st['id'],
-                              **({'watch': _st['watch']} if _st.get('watch') else {})})
+                              **({'watch': _w} if _w else {})})
 data['stops_log'] = (r.get('stops_log') or [])[-60:]
 # Profit on every closed trade (average cost) and every settled bet, so every trade table can show what went in,
 # what came back and the profit. Buys and open bets are marked open. Sells carry "cost" (what that part cost) and "pnl".
@@ -1108,6 +1109,12 @@ def _peer():
     except Exception:
         cg = []
     pg = (r.get('peer_grades') or []) + cg
+    # grades withdrawn because the grader was shown wrong information by the site (our bug, never the grader's opinion): kept, marked, never averaged
+    try:
+        voids = {(v['grader'], v['key']): v['why'] for v in json.load(open(os.path.join(SRC, 'peer_grades_void.json')))}
+    except Exception:
+        voids = {}
+    pg = [dict(g, void=voids[(g.get('grader'), g.get('key'))]) if (g.get('grader'), g.get('key')) in voids else g for g in pg]
     def k_at(x):
         return _when(x).astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
     c_last = {}

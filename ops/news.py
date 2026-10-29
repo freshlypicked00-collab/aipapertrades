@@ -47,10 +47,11 @@ GOOD = {'reuters', 'bloomberg', 'cnbc', 'associated press', 'ap', 'the wall stre
         'cnet', 'the guardian', 'associated press finance', 'investopedia'}
 BAD = re.compile(r'\?$|^(should you|is it time|is now|could|will .* (soar|crash)|here\'s why|this (stock|is why)|\d+ (stocks?|reasons))'
                  r'|prediction:|buy now|millionaire|billionaire|forever|dividend stocks?|best stocks?|top stocks?|i\'d buy|no-brainer|'
-                 r'motley|zacks|price prediction|to the moon|you won\'t believe|smart money|bull run incoming', re.I)
+                 r'motley|zacks|price prediction|to the moon|you won\'t believe|smart money|bull run incoming|here\'?s how|how (you|to) (can )?invest|'
+                 r'is it too late|could make you|buy (this|these)\b|don\'t want to wait|before it\'s too late|\bmust-own\b', re.I)
 
 
-def yahoo_news(get_json, q, n=10):
+def yahoo_news(get_json, q, n=20):
     u = f'https://query1.finance.yahoo.com/v1/finance/search?q={urllib.parse.quote(q)}&quotesCount=0&newsCount={n}&enableFuzzyQuery=false'
     try:
         return get_json(u, timeout=15).get('news') or []
@@ -63,10 +64,10 @@ def race_news(get_json, now):
     """{race: [{t, src, link, at}]}: up to 4 good, on-topic headlines from the last 24 hours, newest first."""
     out = {}
     for race, qs in QUERIES.items():
-        seen, items = set(), []
+        seen, items, dropped = set(), [], []
         for q in qs:
             for a in yahoo_news(get_json, q):
-                t = ' '.join(str(a.get('title', '')).split())
+                t = ' '.join(str(a.get('title', '')).split()).replace('\u2019', "'").replace('\u2018', "'")
                 pub = str(a.get('publisher', '')).strip()
                 ts = a.get('providerPublishTime')
                 if not t or not ts or not a.get('link'):
@@ -75,6 +76,7 @@ def race_news(get_json, now):
                 if now - at > timedelta(hours=WINDOW.get(race, 24)) or at > now + timedelta(minutes=5):
                     continue
                 if pub.lower() not in GOOD or BAD.search(t) or not re.search(TOPIC[race], t, re.I):
+                    dropped.append(pub if pub.lower() not in GOOD else 'clickbait' if BAD.search(t) else 'off topic')
                     continue
                 k = re.sub(r'[^a-z0-9 ]', '', t.lower())[:60]
                 if k in seen:
@@ -84,6 +86,8 @@ def race_news(get_json, now):
         items.sort(key=lambda x: x['at'], reverse=True)
         if items:
             out[race] = items[:4]
+        from collections import Counter
+        print(f'news {race}: kept {len(items)}, dropped {len(dropped)} ' + ', '.join(f'{k} {v}' for k, v in Counter(dropped).most_common(6)))
     return out
 
 
@@ -97,30 +101,52 @@ def _team_words(name):
 
 
 def open_bet_teams(state, claude_bets):
+    """{team: {'mids': who bet, 'lg': leagues}} for every open bet of any AI (main races and All in)."""
     teams = {}
+    def add(name, mid, lg):
+        name = name.strip()
+        if name:
+            t = teams.setdefault(name, {'mids': set(), 'lg': set()})
+            t['mids'].add(mid)
+            if lg:
+                t['lg'].add(str(lg).upper())
     for mid, m in (state.get('models') or {}).items():
         for e in ('Sports', 'AllInSports'):
             for b in ((m.get('books') or {}).get(e) or {}).get('bets', []):
                 if b.get('status') == 'Open':
                     for side in str(b.get('event', '')).split(' @ '):
-                        teams.setdefault(side.strip(), set()).add(mid)
-    for e in ('AllInSports',):
-        for b in (((state.get('claude_allin') or {}).get('books') or {}).get(e) or {}).get('bets', []):
-            if b.get('status') == 'Open':
-                for side in str(b.get('event', '')).split(' @ '):
-                    teams.setdefault(side.strip(), set()).add('claude')
+                        add(side, mid, b.get('short'))
+    for b in (((state.get('claude_allin') or {}).get('books') or {}).get('AllInSports') or {}).get('bets', []):
+        if b.get('status') == 'Open':
+            for side in str(b.get('event', '')).split(' @ '):
+                add(side, 'claude', b.get('short'))
     for b in claude_bets or []:
         if b.get('status') == 'Open':
             for side in re.split(r' @ | vs\.? ', re.sub(r'\s*\(.*\)$', '', str(b.get('event', '')))):
-                teams.setdefault(side.strip(), set()).add('claude')
-    return {k: v for k, v in teams.items() if k}
+                add(side, 'claude', b.get('sport'))
+    return teams
+
+
+def _hit(text, teams, league):
+    """The team with an open bet that a story is about: its full name anywhere, or its nickname in Title Case (so "a wild finish" is
+    not the Minnesota Wild), and only in the same league's feed (the New York Jets are not the Winnipeg Jets)."""
+    for t, info in teams.items():
+        if info['lg'] and league.upper() not in info['lg']:
+            continue
+        if re.search(r'\b' + re.escape(t) + r'\b', text, re.I):
+            return t
+        w = t.split()
+        if len(w) > 1 and len(w[-1]) > 3 and re.search(r'\b' + re.escape(w[-1]) + r'\b', text):
+            return t
+    return None
 
 
 # general sports news worth a headline (owner, Oct 29: "how the MLB just finished and who won"): results and big stories, never filler
 MAJOR = re.compile(r"\b(wins?|won|beats?|title|champions?(hip)?|clinch(es|ed)?|sweeps?|swept|series|walk-?off|no-hitter|perfect game|record|traded?|"
                    r"signs?|signed|fired|hires?|hired|retires?|retiring|suspended|mvp|world series|super bowl|stanley cup|finals?|playoffs?)\b", re.I)
-NOISE = re.compile(r"practice|questionable|doubtful|day-to-day|fantasy|betting|\bodds\b|\bpicks?\b|\bprops?\b|best bets|power rankings|"
-                   r"mock draft|uniforms?|podcast|^watch|video|takeaways|grades?\b|how to watch|what we learned|overreactions?", re.I)
+NOISE = re.compile(r"\bbet\b|betting|\bodds\b|\bpicks?\b|\bprops?\b|best bets|fantasy|power rankings|mock draft|uniforms?|podcast|^watch|"
+                   r"video|takeaways|grades?\b|how to watch|what to watch|what we learned|overreactions?|predictions?\b|\bdfs\b", re.I)
+SMALL = re.compile(r"practice|questionable|doubtful|day-to-day|injury report", re.I)   # fine when it is about a team bet on, filler otherwise
 BIG = (('baseball', 'mlb', 'MLB'), ('football', 'nfl', 'NFL'), ('basketball', 'nba', 'NBA'), ('hockey', 'nhl', 'NHL'))
 
 
@@ -172,7 +198,6 @@ def sports_items(get_json, state, claude_bets, now, leagues):
     """The Sports headlines: finished games worth knowing (playoffs and championships, NFL, games bet on), big stories (results,
     titles, trades, signings; no filler), stories about teams with an open bet, and the finals of games bet on."""
     teams = open_bet_teams(state, claude_bets)
-    words = {w: t for t in teams for w in _team_words(t)}
     out, seen = [], set()
     for sp, lg, name in leagues:
         try:
@@ -187,11 +212,10 @@ def sports_items(get_json, state, claude_bets, now, leagues):
             at = datetime.fromisoformat(pub.replace('Z', '+00:00'))
             if now - at > timedelta(hours=30):
                 continue
-            text = (h + ' ' + str(a.get('description', ''))).lower()
-            hit = next((t for w, t in words.items() if re.search(r'\b' + re.escape(w) + r'\b', text)), None)
+            hit = _hit(h + ' ' + str(a.get('description', '')), teams, name)
             k = re.sub(r'[^a-z0-9 ]', '', h.lower())[:60]
-            big = (sp, lg, name) in BIG and MAJOR.search(h) and not NOISE.search(h)
-            if not (hit or big) or k in seen:   # the same story often runs in several leagues' feeds
+            big = (sp, lg, name) in BIG and MAJOR.search(h) and not SMALL.search(h)
+            if not (hit or big) or NOISE.search(h) or k in seen:   # no betting tips or filler, even about a team bet on; one line per story
                 continue
             seen.add(k)
             out.append({'league': name, 'headline': h[:150], 'at': at.strftime('%Y-%m-%dT%H:%M:%SZ'), 'link': ((a.get('links') or {}).get('web') or {}).get('href', ''),

@@ -113,7 +113,7 @@ jobs:
         run: |
           [ -f ops/src/rivals.json ] || exit 0
           # nothing to publish when this run skipped or changed nothing: never push an old copy over newer data
-          if git diff --quiet -- ops/src/rivals.json && [ -z "$(git status --porcelain -- ops/src/price_audit.json ops/src/px_long.json)" ]; then echo "nothing changed; nothing to publish"; exit 0; fi
+          if git diff --quiet -- ops/src/rivals.json && [ -z "$(git status --porcelain -- ops/src/price_audit.json ops/src/px_long.json)" ] && [ ! -f /tmp/claude_fill_batch.json ]; then echo "nothing changed; nothing to publish"; exit 0; fi
           cp ops/src/rivals.json /tmp/rivals.json
           [ -f ops/src/price_audit.json ] && cp ops/src/price_audit.json /tmp/price_audit.json
           [ -f ops/src/px_long.json ] && cp ops/src/px_long.json /tmp/px_long.json

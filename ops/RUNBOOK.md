@@ -55,22 +55,26 @@ then publishes everything. It runs every hour.
      (a model edge over the posted odds, or sharp money clearly against the public). Sizes follow the current rules:
      at least C$3,000 per bet or parlay, at most 25% of the bankroll per bet and 25% on one day's games, parlays allowed (2 to 6 legs). The C$3,000 floor is
      only there to stop tiny bets: bet as if the money were real and losing it mattered, usually near the minimum, and go
-     bigger only on a clear edge. Meet the C$3,000 daily minimum every day (one minimum bet is enough) and pace toward the C$100,000 total with real value bets. Use real posted
-     odds (DraftKings, FanDuel or an exchange) and record `starts_at`. Number bets continuing from the highest id.
-5. **Decide trades.** Apply `rules.json` strictly, then judgment on new information (news,
-   earnings, central banks). Stocks trade only while the market is open. Each trade needs a
+     bigger only on a clear edge. Meet the C$3,000 daily minimum every day (one minimum bet is enough) and pace toward the C$100,000 total with real value bets.
+     **From option B** queue each bet with `ops/orders.py` (the game id from `python3 ops/orders.py games`, or `"team"`); the runner places it
+     at the ESPN moneyline at that moment (the same odds feed as Gemini and ChatGPT), numbers it, records `starts_at`, and later its closing
+     odds and its result from the final score. The closing-odds and settling steps above are only for the bets placed before option B.
+5. **Decide trades.** The runner applies your stops and targets at every run (see Option B);
+   then use judgment on new information (news, earnings, central banks) and queue each trade with
+   `python3 ops/orders.py queue` (never in the update.py input). Stocks trade only while the market is open. Each trade needs a
    one-sentence reason. Plans not captured as price rules go in the log when you make them
    (the plans from before the Oct 28 fresh start no longer apply).
    - China: see the China section below.
    Update rules when plans change (`rules_add` / `rules_remove`), keeping `label`, `asset`,
    `level`, `direction` on price rules.
-6. **Write the input file** (format below) to a temp path and run
+6. **Write the input file** (format below; from option B without `trades` or `bets_new`) to a temp path and run
    `python3 ops/update.py ops/src <input.json>`. Read the warnings. Fix and re-run from a
    fresh `git checkout ops/src` if something is wrong.
 6b. **Check the arithmetic:** run `python3 ops/check.py ops/src`. If it reports problems, fix them
    before publishing.
 7. **Build and publish the site:** `python3 ops/build_site.py ops/src .`, then commit
-   (`UPDATE ALL <Mon D, h:mm a.m./p.m. ET>`), `git pull --rebase`, and push to `main`.
+   (`UPDATE ALL <Mon D, h:mm a.m./p.m. ET>`), `git pull --rebase`, and push to `main`. Then dispatch the ONE fill run
+   for the orders you queued (Option B): `gh api -X POST repos/freshlypicked00-collab/aipapertrades/actions/workflows/rivals.yml/dispatches -f ref=main -f 'inputs[mode]=fill'`.
 7b. **Daily ledger.** If `update.py` printed `LEDGER DAY CLOSED <day>` (the first run after
    00:00 UTC, i.e. 8 p.m. ET until Nov 1, 7 p.m. ET after), write the day's notes and run
    `python3 ops/ledger_note.py ops/src notes.json`, then rebuild the site before committing. Notes:
@@ -131,20 +135,17 @@ no trades; it re-checks the last 24 hours against fresh sources and fixes mistak
 - Every correction gets a `Check` log entry in that experiment saying what was wrong and what
   changed. Then run `ops/check.py`, rebuild, push and sync.
 
-## Stop and limit orders between runs
+## Stop and limit orders (from option B: runner orders, the same for all three AIs)
 
-Treat every price rule (one with `asset`, `level`, `direction`) like a real order sitting at the
-broker. At each run, for each asset with a price rule, find the **high and low since the last
-run** (the day's range from the quote page, or an intraday chart; for prices fetched within the
-same day, the day's high/low is fine) and pass them as `"high"` and `"low"` with the price.
-`update.py` prints `RULE LEVEL CROSSED` for any rule whose level was touched. Then:
-- If the level was crossed and the trade hasn't been made, make it now at **the rule's level**,
-  with `"fill_at"` set to when it was crossed (if known, else the run time) and a `"note"` saying
-  it filled as a stop or limit. If the price **gapped** past the level (opened beyond it), fill at
-  the first real price after the gap instead, which is worse. Never fill at a better price than
-  the level, and never use a price you didn't see recorded.
-- Remove or replace the rule after it executes (`rules_remove` / `rules_add`).
-- If you can't find a reliable high/low for an asset, use the current price only and say so.
+Stops and targets are orders held by the race runner, for Claude exactly as for Gemini and ChatGPT:
+`python3 ops/orders.py queue '{"experiment": "Crypto", "action": "stop", "symbol": "Bitcoin", "level": 75500, "fraction": 1, "reason": "..."}'`
+(or `"target"`; `fraction` is the share of the position to sell or cover; one stop and one target per holding, a new one replaces the old).
+The runner checks every stop at every run (check-ins, fill runs and skipped runs, about every 30 to 60 minutes) and fills a crossed one at the
+LIVE price then, never at the level (a gap fills worse); stocks and China only while their market is open. `python3 ops/orders.py status`
+lists them with their ids; `{"action": "cancel_stop", "stop": "claude-3"}` removes one. At the first run after the option B start the runner
+turned Claude's price rules in `rules.json` into stops (gold and silver levels moved to the futures scale the feed uses; the US-dollar short
+watches USD/CAD). Do not execute price rules yourself any more, and do not pass highs and lows for them. Non-price plans stay in `rules.json`.
+(Before option B, Claude's own runs filled price rules at the rule's level; those fills stay in the history as they were.)
 
 ## Extra runs around big events
 
@@ -243,10 +244,11 @@ Every new source in `sources_add` needs `"portfolios"`: the list of simulations 
 
 ## Every trade is tracked
 
-Every buy, sell, bet and settlement must go through `ops/update.py` (never edit the data files by
+Every buy, sell, bet and settlement goes through `ops/update.py` (never edit the data files by
 hand), so it lands in `trades.json` / `bets.json` with its time, price and amount and appears in the
-Ledger tab's "Every trade" table and in that day's entry. Each trade also needs a log entry with
-the reason.
+Ledger tab's "Every trade" table and in that day's entry. From option B the race runner calls `update.py` for Claude's fills
+(`"filled_by": "runner"`, Claude's own reason as the note, a log entry saying the runner filled it); Claude's runs record
+everything else.
 
 ## The AI's take (top of the site)
 **Race takes (every run, owner's rule Oct 28):** the take box follows the race a visitor is viewing, so Claude keeps ten separate takes, one per race. In the input file pass `"race_takes": {"Stocks": "...", "Crypto": "...", ...}`: one complete sentence each, in Claude's own words, about THAT race only (where Claude stands, what it holds, what it is watching), never totals across races. Write all ten at least every 8 hours and whenever a race really changes (a trade, a bet result, a big move). Gemini and ChatGPT do the same through their per-race notes.
@@ -267,6 +269,9 @@ change, or news that changes the plan. At the 4 p.m. ET weekday run, add one sho
 updates. Write plainly, in past tense, without naming the AI model or company.
 
 ## The input file
+
+From option B (Oct 29, 6:00 p.m. ET) the input never has `trades` or `bets_new`: `update.py` refuses them and saves nothing
+(queue them with `ops/orders.py`). The other fields are unchanged; the example below still shows the old trade fields for the history.
 
 ```json
 {
@@ -353,6 +358,7 @@ If an AI's TOTAL profit across all its experiments (C$, China converted from US$
 - SAME MOMENT: at the START of every run (scheduled or extra, before you look anything up), start a rival check-in so Gemini and ChatGPT check in at the same moment as you:
   `gh api -X POST repos/freshlypicked00-collab/aipapertrades/actions/workflows/rivals.yml/dispatches -f ref=main -f 'inputs[mode]=run'`
   (if it fails, note it in your report and carry on; GitHub's own schedule is a backup that only runs when no check-in happened in the last 20 minutes, and any check-in is skipped if another ran in the last 10 minutes, so two never run back to back; use `-f 'inputs[mode]=force'` only when a check-in must run anyway). Don't start one in the daily accuracy check.
+- FILL RUNS (`inputs[mode]=fill`, option B): fill Claude's queued orders (main races and All in) and check every AI's stops and the closing odds; no rival check-in. Every other run does the same first, including a run skipped as a double check-in, so a queued order never waits more than one run.
 - Scheduled runs must NOT edit `ops/src/rivals.json` or trade for the rivals. Just keep it when rebuilding (build_site.py reads it). If `git pull --rebase` conflicts on index.html or data.json, take the latest origin version and rebuild.
 - The daily accuracy check may read rivals.json and report anything odd (a price far off, a refused-order pattern, `last_run.status` errors) in its report, but changes nothing there.
 
@@ -361,7 +367,7 @@ After every scheduled big event (central bank decisions, CPI, jobs reports, majo
 
 ## All in (High risk, high reward side-race)
 Two extra experiments per AI, each C$100,000: **AllInTrading** (any US$ stock/ETF, crypto like BTC-USD, or OCC option) and **AllInSports** (moneyline bets on the ESPN games). NO caps here; going all in is allowed; the goal is the biggest number. Still compete to win: no caps does not mean careless, and busting All in on one bad bet would be embarrassing in public. Go big only on real conviction and a real edge. Never counted in the main race, totals, standings or elimination; busting here only closes that All in experiment. Gemini and ChatGPT play it inside ops/rivals.py.
-Claude plays it by QUEUEING orders (Claude's sandbox cannot reach the price feed): `python3 ops/allin.py queue '{"experiment": "AllInTrading", "action": "buy", "symbol": "TSLA", "amount": 60000, "reason": "..."}'` (bets: `{"experiment": "AllInSports", "action": "bet", "game": "<ESPN id>", "pick": "home"|"away", "amount": 25000, "reason": "..."}`; sells: `"action": "sell", "fraction": 1`). Game ids: see the games listed in the rivals' latest prompt notes or ESPN. Commit and push ops/src/allin_orders.json, then dispatch the rivals workflow (mode run): it fills Claude's orders at the same prices as the rivals, values and settles Claude's All in books every run, and posts them to Telegram. `python3 ops/allin.py status` shows Claude's All in books and the result of each queued order (filled or refused). Decide Claude's All in moves at each check-in like any other experiment, in Claude's own words.
+Claude plays it by QUEUEING orders (Claude's sandbox cannot reach the price feed): `python3 ops/allin.py queue '{"experiment": "AllInTrading", "action": "buy", "symbol": "TSLA", "amount": 60000, "reason": "..."}'` (bets: `{"experiment": "AllInSports", "action": "bet", "game": "<ESPN id>", "pick": "home"|"away", "amount": 25000, "reason": "..."}`; sells: `"action": "sell", "fraction": 1`). Game ids: see the games listed in the rivals' latest prompt notes or ESPN. Commit and push ops/src/allin_orders.json; the fill run you dispatch at the end of your run (mode fill) fills them at the same prices as the rivals (any later check-in does too), values and settles Claude's All in books every run, and posts them to Telegram. `python3 ops/allin.py status` shows Claude's All in books and the result of each queued order (filled or refused). Decide Claude's All in moves at each check-in like any other experiment, in Claude's own words.
 
 ## Fact checks (ops/src/factcheck.json)
 WEBSITE ONLY, AND DECISIONS ARE FINAL: never correct any AI, Claude included. When an AI (Claude too) gets a fact wrong, publish the fact check and leave its take, reasons and trades exactly as they were. Claude must not change its own earlier decisions or takes because a fact check found them wrong; it may only make new decisions at later check-ins in the normal way.
@@ -426,3 +432,29 @@ Every trade and bet is announced on Telegram as it happens, so a cancellation or
 
 ## Price check (since Oct 29)
 `ops/price_audit.py` runs in every rivals check-in (rivals.yml) and compares every price Claude used since the restart (fills in trades.json, values in prices.json) with Yahoo 1-minute regular-session bars or Polymarket price history at the stated time. Results: `ops/src/price_audit.json`, shown in Rules & Audit. Map new holdings to feed symbols in `MAP` / `PRED` in that script when Claude opens them (a ticker-like name is used as the Yahoo symbol automatically). Agreed with Gemini and ChatGPT (ops/review/pricecheck.json): option C. Next step: Claude sends orders only and the runner fills them at the feed price, like the rivals.
+
+## Option B: Claude's orders are filled by the race runner (from Oct 29, 6:00 p.m. ET)
+Agreed by Claude, Gemini and ChatGPT and approved by the owner: every AI's trade is filled by the same code (`execute` in `ops/rivals.py`),
+from the same feeds (Yahoo Finance, Cboe, Polymarket, ESPN), at the moment the runner processes it. Claude no longer records its own fill prices.
+- **Queue:** `python3 ops/orders.py queue '{...}'` (examples in `ops/orders.py`). Symbols: the holding's name as the site shows it (Bitcoin, Gold,
+  CSI 300 ETF, Japanese yen, SPY, "Democrats win the Senate (Yes)") or the feed symbol (BTC-USD, GC=F, 510300, JPY, an OCC option symbol, a
+  Polymarket market slug with "outcome"). Amounts in the race's currency: C$, China in US$ (rounded down to lots of 100 shares). Options:
+  "contracts" or "amount". Sports: "game" (ESPN id) and "pick" (home/away), or "team"; parlays: "legs". Every order needs Claude's own
+  "reason"; buys, shorts and bets also "wrong_if".
+- **Fill:** commit and push `ops/src/claude_orders.json` with the rest of the run, then dispatch ONE fill run (mode fill). The runner applies
+  the same caps and rules as for the rivals: a cap breach, a closed market, a sell of something not held or an unknown symbol is refused; a feed
+  outage waits for the next run (up to 6 hours, then it is refused). Fills are written to `ops/src` through `update.py` on the latest data and
+  posted to Telegram as Claude's.
+- **Check:** `git pull`, then `python3 ops/orders.py status` (pending, waiting, results, stops). A refused order is not retried: queue a new one
+  if you still want it. `python3 ops/orders.py games [team]` lists the games open for betting (the runner's list from its last run).
+- The price check (`price_audit.json`) and Claude's valuations at each run stay as they were.
+
+## Peer grades (agreed by all three AIs, G1-G7; from Oct 29)
+Each AI grades the OTHER AIs' new trades and bets: A to F or "no view", plus one sentence of 25 words or fewer, shown publicly under each decision
+as "<grader>'s view (a competitor's opinion)". It never changes any score. The rubric (G1): thesis quality, sizing, risk control (an exit or
+"what would prove it wrong"), and use of what was known at the time; strict risk-officer tone; no generic filler. Selection (G2): every new
+decision since the grader's last grading, or the 5 largest by amount. No hindsight (G3): the grader sees only what was known at the decision.
+Anonymous (G4): "Competitor A/B", reshuffled each time. The site shows each grader's average grade per rival (G5) and grades next to results (G6).
+Gemini and ChatGPT grade inside their check-ins; Claude grades in its runs with `python3 ops/grades.py todo` and `python3 ops/grades.py submit '{...}'`
+(stored in `ops/src/claude_grades.json`).
+

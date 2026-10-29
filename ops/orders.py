@@ -8,6 +8,8 @@ and with the same code as Gemini's and ChatGPT's orders. Claude never records it
   python3 ops/orders.py queue '{"experiment": "Options", "action": "buy", "symbol": "SPY261120P00700000", "contracts": 5, "reason": "..."}'
   python3 ops/orders.py queue '{"experiment": "Predictions", "action": "buy", "symbol": "<market slug>", "outcome": "Yes", "amount": 3000, "reason": "..."}'
   python3 ops/orders.py queue '{"experiment": "Sports", "action": "bet", "game": "<ESPN id>", "pick": "home", "amount": 3000, "reason": "...", "wrong_if": "..."}'
+  python3 ops/orders.py queue '{"experiment": "Sports", "action": "bet", "team": "Boston Celtics", "amount": 3000, "reason": "...", "wrong_if": "..."}'   (by team)
+  python3 ops/orders.py games [filter]   (the games open for betting with ids and moneylines, as of the last run: the list the rivals get)
   python3 ops/orders.py queue '{"experiment": "Sports", "action": "parlay", "legs": [{"game": "...", "pick": "away"}, ...], "amount": 3000, "reason": "..."}'
   python3 ops/orders.py queue '{"experiment": "Crypto", "action": "stop", "symbol": "Bitcoin", "level": 75500, "fraction": 1, "reason": "..."}'
   python3 ops/orders.py queue '{"experiment": "Crypto", "action": "target", "symbol": "Bitcoin", "level": 92000, "fraction": 0.5, "reason": "..."}'
@@ -30,6 +32,18 @@ ACTIONS = ('buy', 'sell', 'short', 'cover', 'bet', 'parlay', 'stop', 'target', '
 
 if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else 'status'
+    if cmd == 'games':
+        from zoneinfo import ZoneInfo
+        go = (json.load(open(ST)).get('games_open') or {})
+        f = ' '.join(sys.argv[2:]).lower()
+        print(f"Games open for betting as of {go.get('at', '(no list yet: the next run saves it)')} (id: league, away @ home, start ET, moneylines away / home).")
+        print('The odds that count are the ones at the moment the race runner fills the bet; this list can be up to an hour old.')
+        for g in go.get('games', []):
+            st = datetime.fromisoformat(g['start'].replace('Z', '+00:00')).astimezone(ZoneInfo('America/New_York')).strftime('%a %b %-d %-I:%M %p')
+            line = f"  {g['id']}: {g['short']}, {g['away']} @ {g['home']}, {st}, {g['away_ml']:+d} / {g['home_ml']:+d}"
+            if f in line.lower():
+                print(line)
+        sys.exit(0)
     try:
         q = json.load(open(Q))
     except FileNotFoundError:
@@ -41,6 +55,8 @@ if __name__ == '__main__':
             sys.exit('action must be one of ' + ', '.join(ACTIONS))
         if act != 'cancel_stop' and o.get('experiment') not in EXPS:
             sys.exit('experiment must be one of ' + ', '.join(EXPS) + ' (All in orders go through ops/allin.py)')
+        if act == 'bet' and not ((o.get('game') and o.get('pick') in ('home', 'away')) or o.get('team')):
+            sys.exit('a bet needs "game" (ESPN id) and "pick" ("home" or "away"), or "team"; see `python3 ops/orders.py games`')
         if act in ('buy', 'short', 'bet', 'parlay') and not (o.get('amount') or o.get('contracts')):
             sys.exit('a buy, short or bet needs "amount" (or "contracts" for options)')
         if act in ('buy', 'short', 'bet', 'parlay', 'sell', 'cover') and not str(o.get('reason', '')).strip():
