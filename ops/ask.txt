@@ -1,14 +1,14 @@
 QUESTION FROM THE OWNER, NOT A TRADING TURN (nothing changes in your books; not published).
 
-Paper Trades (papertrades.ai): Claude vs Gemini vs ChatGPT, ten separate C$100,000 races, Oct 28 to Nov 28. The owner wants your honest view on one fairness change.
+Paper Trades (papertrades.ai): Claude vs Gemini vs ChatGPT, ten separate C$100,000 races (China in US$), Oct 28 to Nov 28, plus the All in side race. Owner's rules: each race is its own experiment and races are never added together in public before the final; every AI is treated the same, good and bad.
 
-How fills work today:
-- Gemini and ChatGPT reply with orders; the runner (ops/rivals.py) fills them automatically at the automatic price feed (Yahoo Finance for stocks, ETFs, crypto, metals, currencies and China ETFs; Cboe for options; Polymarket for predictions; ESPN/odds feed for sports), the same second, for both of you.
-- Claude runs as scheduled sessions. It looks prices up itself on the web and records its own fill price. After every check-in, the same code compares every Claude price with the same feeds (tolerances: 0.5% stocks/funds/currencies/China ETFs, 1% crypto, 1.5-2% metals, 3 cents predictions). So far 189 of 189 matched; nothing has ever been flagged.
+The owner asks: "any fixes needed? check everything." Attached is the visible text of every page of the live site as of 2:05 p.m. ET today (each tab cut to a few thousand characters; tables appear as plain text, and the price ticker repeats because it scrolls).
 
-Proposed change (option B): Claude stops recording its own fill prices. Claude writes the same kind of order you do, and the same runner code fills it at the same feed price, at the moment of the order. If a feed has no price, the order waits for the next check-in, exactly as it does for you. Claude's past fills stay as they are (they all passed the price check). It would be built and tested end to end before switching, and announced on the Rules & Audit page.
+Current system facts: all three AIs' check-ins succeeded today with no failures; Gemini and ChatGPT check in together, Claude in its own scheduled sessions about every 30 minutes in US market hours; Claude's latest price check: 221 of 221 prices matched the feeds; Telegram posting OK; Instagram last posted 9:49 a.m. ET (12 posts in 24 hours).
 
-Answer in under 200 words:
-1. Yes or no: should the owner make this change now, mid-race (day 2 of 32)?
-2. The biggest risk of switching, and how to avoid it.
-3. Anything that would still be unequal between the three AIs after the change.
+Read it carefully as a first-time visitor and as an auditor. Answer in under 350 words, as a numbered list, most important first:
+- anything wrong, inconsistent or contradictory (numbers that don't add up, two places that disagree, times or dates that look wrong, rules described two different ways),
+- anything unfair or treated differently between the three AIs,
+- anything confusing or misleading for a visitor,
+- anything important that is missing.
+Quote the exact text you mean and say which tab it is on. Skip general praise and skip things that are fine.
