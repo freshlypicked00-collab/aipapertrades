@@ -423,6 +423,21 @@
   .st-podium .pd-mom-t { flex: 1; min-width: 0; }
   .st-podium .pd-mom-t small { display: block; opacity: .7; font-size: 11px; }
   .st-podium .pd-mom-share { font: inherit; font-size: 12px; min-height: 32px; padding: 4px 10px; border-radius: var(--cds-radius); border: 1px solid var(--ai); background: transparent; color: var(--color-fg); cursor: pointer; }
+  .sp-track { margin-top: 12px; }
+  .sp-track h4 { margin: 12px 0 6px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+  .sp-recs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+  .sp-rec { border: 1px solid var(--color-border-line); border-top: 3px solid var(--ai); border-radius: var(--cds-radius); padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
+  .sp-rec b { display: flex; align-items: center; font-size: 13px; }
+  .sp-rec .sp-wl { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .sp-rec small { font-size: 11.5px; opacity: .8; }
+  .sp-list { list-style: none; margin: 0; padding: 0; }
+  .sp-list li { display: grid; grid-template-columns: 22px 64px minmax(0, 1fr) auto; gap: 8px; align-items: start; padding: 6px 0; border-top: 1px solid var(--color-border-line); font-size: 13px; }
+  .sp-list .sp-who { font-weight: 700; color: var(--ai); }
+  .sp-list .sp-t small { display: block; font-size: 11.5px; opacity: .75; }
+  .sp-list .sp-amt { font-variant-numeric: tabular-nums; font-weight: 700; }
+  @media (min-width: 701px) {   /* the standings column scrolls inside itself so a long holdings list never leaves a big empty gap beside the page */
+    .st-hook .st-podium { position: sticky; top: 156px; max-height: calc(100vh - 172px); overflow-y: auto; scrollbar-width: thin; }
+  }
   .st-podium .pd-detail { margin-top: 10px; border: 1px solid var(--color-border-line); border-top: 3px solid var(--ai); border-radius: var(--cds-radius); padding: 10px; font-size: 12.5px; }
   .st-podium .pd-pie { display: flex; gap: 10px; align-items: center; margin-top: 6px; }
   .st-podium .pd-pie ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
@@ -3266,6 +3281,58 @@
   const H2H_EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'];
   const H2H_PLAN = { gemini: H2H_EXPS, chatgpt: H2H_EXPS };
   const H2H_START = (exp) => 100000;
+  // Sports tracker for AI vs AI: each AI's record (won-lost-void), profit from settled bets, open bets with start times, and the latest results
+  const sportsTrack = (SEL, models) => {
+    const all = [];
+    if (SEL.includes('claude')) (dash.baseData('bets') || []).forEach((b) => all.push({ id: 'claude', pick: b.pick, event: b.event, odds: b.odds, stake: Number(b.stake_cad) || 0, status: b.status, result: Number(b.result_cad) || 0, starts: b.starts_at, placed: b.placed_at, settled: b.settled_at || b.placed_at, final: b.final || '' }));
+    (models || []).filter((m) => SEL.includes(m.id)).forEach((m) => ((((m.books || {}).Sports || {}).bets) || []).forEach((b) => all.push({ id: m.id, pick: b.pick_team + ' moneyline', event: b.event, odds: b.odds, stake: Number(b.stake) || 0, status: b.status, result: Number(b.result) || 0, starts: b.starts_at, placed: b.placed_at, settled: b.settled_at || b.placed_at, final: b.final || '', legs: b.legs })));
+    const real = all.filter((b) => b.status !== 'Void' && new Date(b.placed) >= new Date('2026-10-28T17:45:00Z'));
+    if (!real.length) return null;
+    const wrap = mk('div', 'sp-track');
+    wrap.appendChild(mk('h4', '', 'Betting record since Oct 28'));
+    const recs = mk('div', 'sp-recs');
+    SEL.forEach((id) => {
+      const mine = real.filter((b) => b.id === id);
+      const w = mine.filter((b) => b.status === 'Won').length, l = mine.filter((b) => b.status === 'Lost').length, pu = mine.filter((b) => b.status === 'Push').length, op = mine.filter((b) => b.status === 'Open');
+      const net = mine.filter((b) => b.status !== 'Open').reduce((a, b) => a + b.result, 0);
+      const c = mk('div', 'sp-rec'); c.style.setProperty('--ai', AIS[id].color);
+      const h = mk('b'); h.append(aiBadge(id, 16), document.createTextNode(AIS[id].label)); c.appendChild(h);
+      c.appendChild(mk('span', 'sp-wl', w + '–' + l + (pu ? '–' + pu : '')));
+      c.appendChild(mk('small', '', 'won–lost' + (pu ? '–push' : '') + (w + l ? ' · ' + Math.round(100 * w / (w + l)) + '% hit rate' : '')));
+      const n = mk('small', '', 'Settled: ' + (net >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(net)) + ' · ' + op.length + ' open (C$' + d3.format(',.0f')(op.reduce((a, b) => a + b.stake, 0)) + ' riding)'); c.appendChild(n);
+      recs.appendChild(c);
+    });
+    wrap.appendChild(recs);
+    const done = real.filter((b) => b.status !== 'Open').sort((a, b) => new Date(b.settled) - new Date(a.settled)).slice(0, 8);
+    if (done.length) {
+      wrap.appendChild(mk('h4', '', 'Latest results'));
+      const ul = mk('ul', 'sp-list');
+      done.forEach((b) => {
+        const li = mk('li'); li.style.setProperty('--ai', AIS[b.id].color);
+        const icon = b.status === 'Won' ? '✅' : b.status === 'Lost' ? '❌' : '➖';
+        li.append(mk('span', 'sp-ic', icon), mk('span', 'sp-who', AIS[b.id].label));
+        const t = mk('span', 'sp-t'); t.append(document.createTextNode(b.pick + (b.odds ? ' (' + (b.odds > 0 ? '+' : '') + b.odds + ')' : '')), mk('small', '', b.event + (b.final ? ' · ' + b.final : '') + ' · ' + stFmt.when(b.settled)));
+        const amt = mk('span', 'sp-amt', (b.result >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(b.result))); tone(amt, b.result);
+        li.append(t, amt); ul.appendChild(li);
+      });
+      wrap.appendChild(ul);
+    }
+    const open = real.filter((b) => b.status === 'Open').sort((a, b) => new Date(a.starts) - new Date(b.starts)).slice(0, 10);
+    if (open.length) {
+      wrap.appendChild(mk('h4', '', 'Open bets: next games'));
+      const ul = mk('ul', 'sp-list');
+      open.forEach((b) => {
+        const li = mk('li'); li.style.setProperty('--ai', AIS[b.id].color);
+        const started = new Date(b.starts) <= new Date();
+        li.append(mk('span', 'sp-ic', started ? '🔴' : '⏳'), mk('span', 'sp-who', AIS[b.id].label));
+        const t = mk('span', 'sp-t'); t.append(document.createTextNode(b.pick + (b.odds ? ' (' + (b.odds > 0 ? '+' : '') + b.odds + ')' : '')), mk('small', '', b.event + ' · ' + (started ? 'in play or awaiting the final score' : 'starts ' + stFmt.when(b.starts))));
+        li.append(t, mk('span', 'sp-amt', 'C$' + d3.format(',.0f')(b.stake)));
+        ul.appendChild(li);
+      });
+      wrap.appendChild(ul);
+    }
+    return wrap;
+  };
   const h2hDraw = (el) => {
     const M = dash.data('rivals_models'), RH = dash.data('rivals_history'), RT = dash.data('rivals_trades'), RK = dash.data('rivals_takes');
     const CH = { status: 'ok', data: dash.baseData('history') }, TK = { status: 'ok', data: dash.baseData('take') };
@@ -3398,6 +3465,7 @@
         box.append(legend, ch);
         requestAnimationFrame(() => h2hChart(ch, ser));
       }
+      if (exp === 'Sports') { const sb = sportsTrack(SEL, models); if (sb) box.appendChild(sb); }
       el.appendChild(box);
     });
     // latest takes
@@ -3571,7 +3639,7 @@
   // (trade reasons, notes, fact checks, plan cards, updates). Added automatically wherever text is drawn.
   (() => {
     if (!('speechSynthesis' in window)) return;
-    const SKIP = '.au-pre, .au-ai, .h2h-holds, .pd-detail, .st-plans-wide, nav, button, select, label, header .st-meta, .st-sub, .st-dates, .st-podium, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, .say-pair, .listen-pair, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
+    const SKIP = '.au-pre, .au-ai, .h2h-holds, .pd-detail, .st-plans-wide, nav, button, select, label, header .st-meta, .st-sub, .st-dates, .st-podium, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, .say-pair, .listen-pair, .sp-track, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
     const words = (t) => (t.trim().match(/\S+/g) || []).length;
     const NESTED = 'p, li, .st-plan, table, ul, ol';
     const textOf = (el, own) => {
@@ -3866,17 +3934,28 @@
     return c.find((l) => l.action === t.action && String(l.detail || '').toLowerCase().includes(h)) || c.find((l) => String(l.detail || '').toLowerCase().includes(h)) || c.find((l) => l.action === t.action) || c[0];
   };
   // the race shown first follows the markets: China while Shanghai is open, Stocks while New York is open, otherwise Crypto
-  window.ptFirstRace = () => {
+  window.ptFirstRace = (ES0) => {
     const part = (tz) => Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }).formatToParts(new Date()).map((x) => [x.type, x.value]));
     const bj = part('Asia/Shanghai'), ny = part('America/New_York');
     const mins = (p) => Number(p.hour) * 60 + Number(p.minute), wk = (p) => !['Sat', 'Sun'].includes(p.weekday);
     const nyDay = ny.year + '-' + ny.month + '-' + ny.day;
     const chinaOpen = wk(bj) && ((mins(bj) >= 570 && mins(bj) < 690) || (mins(bj) >= 780 && mins(bj) < 900));
     const usOpen = wk(ny) && nyDay !== '2026-11-26' && mins(ny) >= 570 && mins(ny) < (nyDay === '2026-11-27' ? 780 : 960);
-    return chinaOpen ? 'China' : usOpen ? 'Stocks' : 'Crypto';
+    const byMarket = chinaOpen ? 'China' : usOpen ? 'Stocks' : 'Crypto';
+    // the race with the biggest gain right now (any AI's profit, China converted from US$) opens first; if no race is up, the open market's race
+    try {
+      let src = ES0;
+      if (!src && window.dash && dash.baseData) { const a = dash.baseData('exp_standings'); src = Array.isArray(a) ? a[0] : a; }
+      if (src) {
+        let best = null, top = 0.5;
+        Object.entries(src).forEach(([race, rows]) => { const p = Math.max(...(rows || []).map((r) => Number(r.profit) || 0)) * (race === 'China' ? 1.38 : 1); if (p > top) { top = p; best = race; } });
+        if (best) return best;
+      }
+    } catch (e) {}
+    return byMarket;
   };
   // the page always opens on whoever is 1st in that race (Race standings), not on the AI viewed last time
-  window.ptLeader = (json) => { const ES = json.exp_standings || {}; const r = ES[window.ptFirstRace()] || []; return (r[0] && r[0].id) || json.leader; };
+  window.ptLeader = (json) => { const ES = json.exp_standings || {}; const r = ES[window.ptFirstRace(ES)] || []; return (r[0] && r[0].id) || json.leader; };
   const MODEL_COL = { claude: ['var(--accent)', 'var(--accent-bg)'], gemini: ['#4f8ff7', 'rgba(79,143,247,.09)'], chatgpt: ['var(--ai-chatgpt)', 'rgba(160,160,160,.08)'] };
   const applyModel = (id) => {
     { const c = MODEL_COL[id] || MODEL_COL.claude; document.documentElement.style.setProperty('--model', c[0]); document.documentElement.style.setProperty('--model-bg', c[1]); document.documentElement.dataset.model = id || 'claude'; }
