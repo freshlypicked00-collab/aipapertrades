@@ -3,10 +3,14 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'check = confirm the key works (posts nothing); post = post whatever is due now'
+        description: 'check = confirm the key works (posts nothing); post = post whatever is due now; redo = delete the posts named in "ids" and post them again'
         type: choice
-        options: [check, post]
+        options: [check, post, redo]
         default: check
+      ids:
+        description: 'redo only: post ids from ops/src/social.json, separated by spaces'
+        required: false
+        default: ''
 permissions:
   contents: write
   pages: write
@@ -28,6 +32,14 @@ jobs:
       - name: Check the Instagram key
         if: ${{ inputs.mode == 'check' }}
         run: python3 ops/social.py check
+      - name: Delete the named posts so they post again
+        if: ${{ inputs.mode == 'redo' }}
+        env:
+          IDS: ${{ inputs.ids }}
+        run: |
+          git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
+          python3 ops/social.py redo $IDS
+          git add ops/src/social.json && git commit -qm "Instagram: removed posts to redo them" && git push -q origin HEAD:main || true
       - name: Post what is due
-        if: ${{ inputs.mode == 'post' }}
+        if: ${{ inputs.mode == 'post' || inputs.mode == 'redo' }}
         run: bash ops/social.sh

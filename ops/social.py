@@ -50,7 +50,7 @@ def money(x, race):
 def api(path, params=None, method='GET'):
     params = dict(params or {}, access_token=os.environ['INSTAGRAM_ACCESS_TOKEN'])
     data = urllib.parse.urlencode(params).encode()
-    url = f'{GRAPH}/{path}' + (f'?{data.decode()}' if method == 'GET' else '')
+    url = f'{GRAPH}/{path}' + (f'?{data.decode()}' if method in ('GET', 'DELETE') else '')
     req = urllib.request.Request(url, data if method == 'POST' else None, method=method)
     try:
         with urllib.request.urlopen(req, timeout=60) as r:
@@ -93,7 +93,43 @@ def moment_card(m, path):
     ax.text(80, 950, 'Profit in this race since Oct 28 · pretend money, real prices', color=MUTED, fontsize=19)
     ax.text(80, 1004, 'papertrades.ai', color=FG, fontsize=25, fontweight='bold')
     ax.text(1000, 1004, '@PaperTradesAI', color=MUTED, fontsize=20, ha='right')
-    fig.savefig(path, dpi=100, facecolor=BG, format='jpg', pil_kwargs={'quality': 90})
+    fig.savefig(path, dpi=1440 / 10.8, facecolor=BG, format='jpg', pil_kwargs={'quality': 95, 'subsampling': 0})   # 1440x1440, the largest Instagram keeps
+    plt.close(fig)
+
+
+def daily_card(table, big, n, when, path):
+    """The ten races after a daily close, as a tall 4:5 picture (1440x1800) that fills a phone screen in the feed."""
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    import racecard
+    plt.rcParams.update({'text.parse_math': False})
+    BG, FG, MUTED, UP, DOWN = '#0b0b0a', '#f2e9d8', '#9b927f', '#3ddc84', '#ff5a4e'
+    fig = plt.figure(figsize=(10.8, 13.5), facecolor=BG)
+    ax = fig.add_axes([0, 0, 1, 1]); ax.set_xlim(0, 1080); ax.set_ylim(1350, 0); ax.axis('off')
+    ax.text(60, 80, 'PAPER TRADES', color='#ffb000', fontsize=30, fontweight='bold', family='monospace')
+    ax.text(60, 132, f"After Day {n} · {when.strftime('%a %b %-d')}", color=FG, fontsize=24)
+    ax.text(60, 174, 'Ten separate races · each on its own · profit since Oct 28', color=MUTED, fontsize=16)
+    y = 205
+    for i, e in enumerate(racecard.ORDER):
+        rows = table.get(e) or []
+        ax.add_patch(plt.Rectangle((40, y), 1000, 96, color='#16150f' if i % 2 == 0 else '#0f0e0b', zorder=0))
+        ax.text(60, y + 30, (racecard.LABEL.get(e, e) + (' (US$)' if e == 'China' else '')).upper(), color=MUTED, fontsize=15, fontweight='bold', va='center')
+        if not rows or max(r[1] for r in rows) - min(r[1] for r in rows) < 0.5:
+            ax.text(60, y + 70, 'All even so far' if rows else 'No results yet', color=MUTED, fontsize=20, va='center')
+        else:
+            for j, (mid, p) in enumerate(rows[:3]):
+                x = 60 + j * 335
+                lead = j == 0 and len(rows) > 1 and p - rows[1][1] >= 0.5
+                ax.add_patch(plt.Rectangle((x, y + 52), 7, 36, color=racecard.AIS[mid][2]))
+                ax.text(x + 18, y + 70, ('👑 ' if False else '') + racecard.AIS[mid][0], color=FG, fontsize=20, fontweight='bold' if lead else 'normal', va='center')
+                ax.text(x + 300, y + 70, racecard.money(p, e), color=UP if p >= 0 else DOWN, fontsize=19, ha='right', va='center', family='monospace', fontweight='bold')
+        y += 101
+    if big:
+        _, mid, e, d, pct = big
+        ax.text(60, 1262, f"Biggest move: {racecard.AIS[mid][0]} in {racecard.LABEL.get(e, e)}, {racecard.money(d, e)} ({pct * 100:+.1f}%)", color=UP if d >= 0 else DOWN, fontsize=19)
+    ax.text(60, 1322, 'papertrades.ai · @PaperTradesAI · pretend money, real prices', color=MUTED, fontsize=15)
+    fig.savefig(path, dpi=1440 / 10.8, facecolor=BG, format='jpg', pil_kwargs={'quality': 95, 'subsampling': 0})
     plt.close(fig)
 
 
@@ -138,8 +174,7 @@ def prepare():
                 import racecard
                 table, big = racecard.races(datetime.fromisoformat(p['day_start']), 'ops/src')
                 when = datetime.fromisoformat(p['day_start'])
-                racecard.races_card(table, big, f"After Day {p['day']} · {when.strftime('%a %b %-d')}", '/tmp/pt_daily.png')
-                to_jpg('/tmp/pt_daily.png', img)
+                daily_card(table, big, p['day'], when, img)
                 medal = ['🥇', '🥈', '🥉']
                 lines = []
                 for e in racecard.ORDER:
@@ -192,9 +227,25 @@ def publish():
                 time.sleep(5)
             r = api(f'{ig}/media_publish', {'creation_id': c['id']}, 'POST')
             state['posted'][p['id']] = {'at': NOW.isoformat(), 'media': r.get('id')}
-            print('posted', p['id'], r.get('id'))
+            print('::notice::posted ' + p['id'] + ' ' + str(r.get('id')))
         except Exception as e:
-            print('post failed', p['id'], e)
+            print('::warning::post failed ' + p['id'] + ': ' + str(e)[:300])
+    json.dump(state, open(STATE, 'w'), indent=1)
+
+
+def redo(ids):
+    """Delete these posts from Instagram and forget them, so the next prepare/publish posts them again (fresh pictures)."""
+    state = load(STATE, {'posted': {}})
+    for pid in ids:
+        rec = state['posted'].get(pid)
+        if not rec:
+            continue
+        try:
+            api(rec['media'], {}, 'DELETE')
+            print('::notice::deleted ' + pid)
+        except Exception as e:
+            print('::warning::could not delete ' + pid + ': ' + str(e)[:200])
+        state['posted'].pop(pid, None)
     json.dump(state, open(STATE, 'w'), indent=1)
 
 
@@ -213,4 +264,7 @@ def check():
 
 
 if __name__ == '__main__':
-    {'prepare': prepare, 'publish': publish, 'check': check}[sys.argv[1] if len(sys.argv) > 1 else 'check']()
+    if len(sys.argv) > 1 and sys.argv[1] == 'redo':
+        redo(sys.argv[2:])
+    else:
+        {'prepare': prepare, 'publish': publish, 'check': check}[sys.argv[1] if len(sys.argv) > 1 else 'check']()
