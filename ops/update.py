@@ -61,6 +61,7 @@ indexes = load('indexes')
 events = load('events')
 prices = load('prices')
 trades = load('trades')
+_trades_before = [dict(x) for x in trades]   # restored if this run's buys break a position cap
 bench = load('bench_history')
 sources = load('sources')
 ledger = load('ledger', [])
@@ -290,6 +291,25 @@ for r in holdings:
         r['change_pct'] = round(r['price_usd'] / r['entry_usd'] - 1, 4) if r['entry_usd'] else 0
         r['value_cad'] = round(r['quantity'] * r['price_usd'] * fx, 2)
     r['as_of'] = AT
+# ---- position caps (the same hard rules the rivals' code enforces): a buy that leaves one holding above 50% of its
+# experiment (Play it safe: gold funds at most 10%; Prediction markets: one market at most 25%) is refused, and the
+# whole run is undone so nothing half-applied is saved. Currencies, Sports and All in have their own rules.
+_CAP = {'Predictions': 0.25}
+_GOLD = {'GLD', 'IAU', 'GLDM'}
+_bought = {(t['portfolio'], t['holding']) for t in inp.get('trades', []) if t.get('action') in ('Buy', 'Short')}
+_bad = []
+for (pf_, h_) in _bought:
+    if pf_ in ('Currencies', 'Sports') or pf_.startswith('AllIn'):
+        continue
+    key = 'value_usd' if pf_ == 'China' else 'value_cad'
+    tot_ = sum(float(r.get(key) or 0) for r in holdings if r['portfolio'] == pf_)
+    val_ = sum(float(r.get(key) or 0) for r in holdings if r['portfolio'] == pf_ and r['holding'] == h_)
+    cap_ = 0.10 if (pf_ == 'Safe' and h_ in _GOLD) else _CAP.get(pf_, 0.50)
+    if tot_ > 0 and val_ / tot_ > cap_ + 0.005:
+        _bad.append(f'{pf_} {h_}: {val_ / tot_:.0%} of the experiment (cap {cap_:.0%})')
+if _bad:
+    save('trades', _trades_before)
+    raise SystemExit('position cap: order refused, nothing saved. ' + '; '.join(_bad) + '. Buy less so the holding stays within the cap.')
 save('holdings', holdings)
 
 # ---- bets

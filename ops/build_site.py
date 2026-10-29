@@ -584,8 +584,9 @@ for _e in _EXPS:
     v, b0 = _lastv([(h['at'], float(h['value'])) for h in data['history'] if h['portfolio'] == _e])
     if v is not None:
         hv = [(h['holding'], float(h.get('value_cad') or h.get('value_usd') or 0)) for h in data['holdings'] if h['portfolio'] == _e and float(h.get('value_cad') or h.get('value_usd') or 0) > 0.5]
+        _shorts = [f"{h['holding']} (short)" for h in data['holdings'] if h['portfolio'] == _e and float(h.get('value_cad') or h.get('value_usd') or 0) < -0.5]   # shorts are holdings too
         hv += [(f"{b['pick']} ({b['event']})", float(b['stake_cad'])) for b in data['bets'] if _e == 'Sports' and b.get('status') == 'Open']
-        held = [n for n, _ in hv if not str(n).startswith('Cash')]
+        held = [n for n, _ in hv if not str(n).startswith('Cash')] + _shorts
         lt = [t for t in data['trades'] if t['portfolio'] == _e and not str(t.get('holding', '')).startswith('[')]
         lt = max(lt, key=lambda t: _when(t['at']), default=None)
         # Sports: the latest bet placed or settled; a result always says the stake and the profit (never just one number)
@@ -616,7 +617,7 @@ for _e in _EXPS:
             amt = abs(q['qty'] * q.get('last', q['entry']))
             usd = amt if q['pcur'] == 'USD' else amt / _fx['USDCNY'] if q['pcur'] == 'CNY' else amt / _fx['USDCAD']
             return usd if cur == 'USD' else usd * _fx['USDCAD']
-        pos = [(q.get('name') or k, _val(q)) for k, q in bk.get('positions', {}).items() if abs(q.get('qty', 0)) > 1e-9]
+        pos = [((q.get('name') or k) + (' (short)' if q.get('qty', 0) < 0 else ''), _val(q)) for k, q in bk.get('positions', {}).items() if abs(q.get('qty', 0)) > 1e-9]
         ob = [(f"{b['pick_team']} ({b['event']})", b['stake']) for b in bk.get('bets', []) if b['status'] == 'Open']
         held = [n for n, _ in pos + ob]
         pie = pos + ob + ([('Cash', bk['cash'])] if _e != 'Sports' and bk.get('cash', 0) > 0.5 else [])

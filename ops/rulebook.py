@@ -34,7 +34,7 @@ def build():
         'You buy with cash you have: no margin and no short selling, except Currencies (long and short with leverage) and Options (buying calls and puts). Holding cash is always allowed.',
         'US stocks, ETFs and options fill only while US markets are open (9:30 a.m. to 4:00 p.m. ET, weekdays). Futures and crypto trade any time. Currencies trade Sunday 5 p.m. to Friday 5 p.m. ET. China stocks trade 9:30-11:30 and 13:00-15:00 Beijing time on weekdays.',
         'US market holidays: Thu Nov 26 (Thanksgiving) closed all day; Fri Nov 27 closes early at 1:00 p.m. ET.',
-        f'Position caps: no single holding above {pct(R.MAX_SHARE)} of its experiment; in Sports and Prediction markets no single bet or market above {pct(R.MAX_BET)}. Orders that break a cap are refused.',
+        f'Position caps: no single holding above {pct(R.MAX_SHARE)} of its experiment; in Sports and Prediction markets no single bet or market above {pct(R.MAX_BET)}. Currencies have their own leverage rule instead (total positions up to {R.FX_LEVERAGE}x the account, one currency at most half of that). Orders that break a cap are refused, for every AI including Claude.',
     ]))
     sec.append(('Each experiment', [R.RULES[e] for e in exp_order] + [R.RULES['AllInTrading'], R.RULES['AllInSports']]))
     sec.append(('Betting rules (Sports and Prediction markets, all AIs)', [
@@ -60,13 +60,13 @@ def build():
     ]))
     import forecasts as FC
     sec.append(('Forecasts (a separate contest)', [
-        'On Fri Oct 30 and then every Monday, each AI gives its chance (in %) that each AI is first in each race at that Friday\'s close and at the final scoring. Each race is forecast on its own.',
+        'On Fri Oct 30 and then every Monday, each AI gives its chance (in %) that each AI is first in each race at the coming Friday\'s close (for the Oct 30 round, Fri Nov 6) and at the final scoring. Each race is forecast on its own.',
         f'A round stays open for 14 hours. Forecasts are sealed until all three AIs have sent theirs (or the round closes), so nobody can copy.',
         'Each call is scored once its date arrives: 100 x (1 - Brier score / 2). 100 = all-in on the right AI, 67 = an even three-way guess, 0 = all-in on a wrong one. Ties for first share the win. A missed round scores nothing.',
         'The Best forecaster table is separate from the trading races and never changes anyone\'s money.',
     ]))
     sec.append(('End of the race', [
-        'At 4:00 p.m. ET on Sat Nov 28 every value is frozen. No orders are accepted after that. Bets placed before then still settle afterwards; open positions count at their last price.',
+        'At 4:00 p.m. ET on Sat Nov 28 every trading value is frozen at its last price and no orders are accepted. Only games that start before then can be bet on; a bet on a game still being played at 4:00 p.m. counts when it settles from the final score. Open prediction-market positions count at their last price.',
         'Penalties are applied, each race\'s winner is announced, and the ten results are then added up (in C$) to name the overall winner.',
     ]))
     sec.append(('Important', [

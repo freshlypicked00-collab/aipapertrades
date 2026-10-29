@@ -368,6 +368,10 @@
     .st-lang-wrap .app-btn { display: none; }
     .app-tip:not([hidden]) { left: 8px; right: 8px; width: auto; transform: none; }
     .m-menu-group .m-menu-app { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+    .m-menu-fab { display: flex; align-items: center; justify-content: center; position: fixed; right: 14px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 55; width: 48px; height: 48px; border-radius: 50%; font-size: 20px; line-height: 1; color: var(--color-fg); background: color-mix(in srgb, var(--color-panel) 92%, transparent); border: 1px solid var(--color-border-line); box-shadow: 0 6px 18px rgba(0,0,0,.35); backdrop-filter: blur(6px); cursor: pointer; opacity: 0; transform: translateY(80px); pointer-events: none; transition: opacity .2s, transform .2s; }
+    .m-menu-fab.is-on { opacity: 1; transform: none; pointer-events: auto; }
+    body { padding-bottom: 72px; }   /* room at the end so the round menu button never covers the last lines */
+    @media (prefers-reduced-motion: reduce) { .m-menu-fab { transition: none; } }
     .m-menu-btn { display: block; flex-basis: 100%; max-width: max-content; margin-top: 8px; font: inherit; font-size: 14px; font-weight: 600; padding: 8px 14px; min-height: 40px; border-radius: 999px; border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); cursor: pointer; }
     .m-menu:not([hidden]) { display: block; position: fixed; left: 8px; right: 8px; top: 12px; max-height: 80vh; overflow-y: auto; z-index: 61; background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 12px; padding: 10px 12px 12px; box-shadow: 0 8px 30px rgba(0,0,0,.45); }
     .m-menu-head { display: flex; justify-content: space-between; align-items: center; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
@@ -482,6 +486,7 @@
   .st-home { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-family: var(--font-mono, monospace); font-size: 13.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); background: none; border: 0; border-bottom: 2px solid transparent; padding: 6px 10px; cursor: pointer; align-self: flex-end; }
   .st-home:hover { color: var(--color-fg); }
   .st-home:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  @media (min-width: 701px) { .m-menu-fab { display: none !important; } }
   .st-tabs-tools { display: none; }
   @media (min-width: 1000px) {
     .st-tabs-tools { display: flex; order: -1; flex: 0 0 100%; justify-content: flex-end; gap: 12px; align-items: center; padding: 4px 0 2px; }   /* its own slim row at the top of the sticky bar */
@@ -2097,6 +2102,20 @@
     { const sel = document.getElementById('model-pick'); if (sel) sel.addEventListener('change', () => setTimeout(label, 50)); }
     btn.addEventListener('click', () => toggle(sheet.hidden));
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !sheet.hidden) toggle(false); });
+    // a small round ☰ in the bottom-right corner once you have scrolled past the top: it slides away while you scroll
+    // down (reading), comes back as soon as you scroll up, and never sits over the text
+    const fab = document.createElement('button'); fab.type = 'button'; fab.className = 'm-menu-fab'; fab.textContent = '☰';
+    fab.setAttribute('aria-label', 'Menu'); fab.setAttribute('aria-controls', 'm-menu');
+    fab.addEventListener('click', () => toggle(sheet.hidden));
+    document.body.appendChild(fab);
+    { let lastY = window.scrollY, shown = false;
+      const set = (v) => { if (v !== shown) { shown = v; fab.classList.toggle('is-on', v); } };
+      window.addEventListener('scroll', () => {
+        const y = window.scrollY, d = y - lastY; lastY = y;
+        if (y < 500) return set(false);
+        if (d > 6) set(false); else if (d < -6) set(true);
+      }, { passive: true });
+    }
     // "Get the app": installs the site as an app (Android and computers: the browser's install prompt; iPhone: Add to Home Screen)
     const standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
     let deferred = null;
