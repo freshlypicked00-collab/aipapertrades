@@ -108,10 +108,22 @@ class Card:
         self.d.line([(SAFE_X, 210), (W - SAFE_X, 210)], fill=LINE, width=3)
 
     def footer(self):
-        self.d.line([(SAFE_X, 1610), (W - SAFE_X, 1610)], fill=LINE, width=3)
-        self.text((SAFE_X, 1672), 'papertrades.ai', font('mono', 'SemiBold', 40), FG, 'lm')
-        self.text((W - SAFE_X, 1672), '@PaperTradesAI', font('mono', 'Medium', 30), MUTED, 'rm')
-        self.text((SAFE_X, 1730), 'Simulation with pretend money and real prices. Not financial advice.', font('sans', 'Regular', 28), MUTED, 'lm')
+        """Where to find us: X, Telegram and Discord (with their logos), the site, and the disclaimer."""
+        self.d.line([(SAFE_X, 1575), (W - SAFE_X, 1575)], fill=LINE, width=3)
+        x, y = SAFE_X, 1630
+        for icon, label in (('x', '@PaperTradesAI'), ('telegram', '@PaperTradesAI'), ('discord', 'Discord in bio')):
+            path = os.path.join(HERE, 'icons', icon + '.png')
+            if not os.path.exists(path):
+                raise QualityError(f'missing icon {icon}')
+            ic = Image.open(path).convert('RGBA').resize((44, 44), Image.LANCZOS)
+            self.im.paste(ic, (int(x), y - 22), ic)
+            f = font('mono', 'Medium', 28)
+            self.text((x + 60, y), label, f, FG, 'lm')
+            x += 60 + f.getlength(label) + 64
+        if x - 64 > W - SAFE_X:
+            raise QualityError('find-us row too wide')
+        self.text((SAFE_X, 1712), 'papertrades.ai', font('mono', 'SemiBold', 40), FG, 'lm')
+        self.text((W - SAFE_X, 1712), 'Pretend money · real prices · not advice', font('sans', 'Regular', 28), MUTED, 'rm')
 
     def save(self, path):
         self.im.save(path, 'JPEG', quality=95, subsampling=0, optimize=True)
@@ -171,7 +183,7 @@ def daily(table, n, when, big, path):
     c.text((SAFE_X, 290), f'DAY {n} RESULTS · {when.strftime("%a %b %-d").upper()}', font('mono', 'SemiBold', 34), AMBER, 'lm', tracking=4)
     c.text((SAFE_X, 330), 'Who leads each race', font('sans', 'Bold', 104), FG, 'lt')
     c.text((SAFE_X, 455), 'Ten separate races · profit since the Oct 28 restart', font('sans', 'Regular', 34), MUTED, 'lt')
-    y, rh = 528, 106
+    y, rh = 520, 104
     for i, e in enumerate(ORDER):
         rows = table[e]
         if i % 2 == 0:
@@ -220,8 +232,41 @@ def races_led(table):
     return led
 
 
+def brand_block(c, y=268):
+    """Always first: Claude vs Gemini vs ChatGPT, stacked in their colors, like the launch post."""
+    c.text((SAFE_X, y), 'THE AI MONEY RACE · OCT 28 – NOV 28', font('mono', 'SemiBold', 30), UP, 'lm', tracking=4)
+    nf, vf = font('sans', 'Bold', 150), font('sans', 'Medium', 84)
+    y += 42
+    for i, k in enumerate(('claude', 'gemini', 'chatgpt')):
+        x = SAFE_X
+        if i:
+            c.text((x, y + 104), 'vs', vf, MUTED, 'ls'); x += vf.getlength('vs') + 26
+        c.text((x, y + 128), AIS[k][0], nf, AIS[k][1], 'ls')
+        y += 150
+    return y + 20
+
+
+def title_block(c, y, kicker, title, color=FG, max_lines=2):
+    """The bold title of what's going on."""
+    c.d.line([(SAFE_X, y), (SAFE_X + 120, y)], fill=AMBER, width=6)
+    c.text((SAFE_X, y + 46), kicker, font('mono', 'SemiBold', 32), AMBER, 'lm', tracking=4)
+    size = 104
+    while size >= 64:
+        f = font('sans', 'Bold', size)
+        lines = c.wrap(title, f, W - 2 * SAFE_X)
+        if len(lines) <= max_lines:
+            break
+        size -= 4
+    else:
+        raise QualityError('title too long')
+    y += 86
+    for ln in lines:
+        c.text((SAFE_X, y), ln, f, color, 'lt'); y += int(size * 1.08)
+    return y + 24
+
+
 def moment_cover(m, path, glow=True):
-    """Lead change: the new leader's name huge, the margin huge, the three in this race below."""
+    """Lead change: the three AIs, then the title (who took the lead, where, by how much), then that race's standings."""
     race, who, over = m['race'], m['who'], m['over']
     prof = m.get('profit') or {}
     if race not in LABEL or who not in AIS or over not in AIS or set(prof) != set(AIS):
@@ -231,32 +276,25 @@ def moment_cover(m, path, glow=True):
     if glow:
         _glow(c, AIS[who][1])
     c.header(f'DAY {day_of(at)} OF 32')
-    c.text((SAFE_X, 300), f'LEAD CHANGE · {LABEL[race].upper()}', font('mono', 'SemiBold', 36), AMBER, 'lm', tracking=4)
-    name_f = c.fit(AIS[who][0], 'sans', 'Bold', 330, W - 2 * SAFE_X, 200)
-    c.text((SAFE_X, 345), AIS[who][0], name_f, AIS[who][1], 'lt')
-    y = 345 + int(name_f.size * 1.02)
-    c.text((SAFE_X, y), 'takes the lead', font('sans', 'Bold', 150), FG, 'lt')
-    y += 190
-    c.text((SAFE_X, y), f'in {LABEL[race]}', font('sans', 'Medium', 70), MUTED, 'lt')
-    y += 130
-    amt = money(m['lead'], race).lstrip('+')
-    af = font('mono', 'SemiBold', 150)
-    c.text((SAFE_X, y), amt, af, FG, 'lt')
-    c.text((SAFE_X + af.getlength(amt) + 30, y + 95), f'ahead of {AIS[over][0]}', font('sans', 'Medium', 52), MUTED, 'lm')
-    y = 1270
+    y = brand_block(c)
+    y = title_block(c, y + 10, f'LEAD CHANGE · {LABEL[race].upper()}',
+                    f'{AIS[who][0]} takes the lead in {LABEL[race]}, {money(m["lead"], race).lstrip("+")} ahead of {AIS[over][0]}')
+    y = max(y, 1250)
     ids = sorted(prof, key=lambda k: -prof[k])
     for i, mid in enumerate(ids):
-        c.d.rectangle([SAFE_X, y + 14, SAFE_X + 10, y + 82], fill=AIS[mid][1])
-        c.text((SAFE_X + 40, y + 48), AIS[mid][0], font('sans', 'SemiBold', 58), FG, 'lm')
+        c.d.rectangle([SAFE_X, y + 12, SAFE_X + 9, y + 70], fill=AIS[mid][1])
+        c.text((SAFE_X + 34, y + 41), f"{['1st', '2nd', '3rd'][i]}  {AIS[mid][0]}", font('sans', 'SemiBold', 50), FG, 'lm')
         v = prof[mid]
-        c.text((W - SAFE_X, y + 48), money(v, race), font('mono', 'SemiBold', 54), UP if v > 0.5 else DOWN if v < -0.5 else MUTED, 'rm')
-        y += 104
+        c.text((W - SAFE_X, y + 41), money(v, race), font('mono', 'SemiBold', 48), UP if v > 0.5 else DOWN if v < -0.5 else MUTED, 'rm')
+        y += 88
+    if y > 1560:
+        raise QualityError('moment cover overflows')
     c.footer()
     return c.save(path)
 
 
 def daily_cover(table, n, when, big, path, glow=True, swipe=True):
-    """Day N: who leads the most races (names huge), races led per AI, and the biggest move. Slide 2 has every race."""
+    """Day N: the three AIs, then the title (who leads the most races), races led per AI, the biggest move."""
     if not table or any(e not in table for e in ORDER):
         raise QualityError('daily data incomplete')
     led = races_led(table)
@@ -266,39 +304,33 @@ def daily_cover(table, n, when, big, path, glow=True, swipe=True):
     if glow:
         _glow(c, AIS[top[0]][1] if len(top) == 1 else AMBER)
     c.header(f'DAY {n} OF 32')
-    c.text((SAFE_X, 300), f'DAY {n} RESULTS · {when.strftime("%a %b %-d").upper()}', font('mono', 'SemiBold', 36), AMBER, 'lm', tracking=4)
+    y = brand_block(c)
     if len(top) == 1:
-        nf = c.fit(AIS[top[0]][0], 'sans', 'Bold', 300, W - 2 * SAFE_X, 180)
-        c.text((SAFE_X, 345), AIS[top[0]][0], nf, AIS[top[0]][1], 'lt')
-        y = 345 + int(nf.size * 1.02)
-        c.text((SAFE_X, y), f'leads {len(led[top[0]])} of 10 races', font('sans', 'Bold', 128), FG, 'lt')
-        y += 170
+        title = f'{AIS[top[0]][0]} leads {len(led[top[0]])} of the 10 races'
+    elif len(top) == 2:
+        title = f'{AIS[top[0]][0]} and {AIS[top[1]][0]} lead {len(led[top[0]])} races each'
     else:
-        nf = font('sans', 'Bold', 150)
-        y = 360
-        for k in top:
-            c.text((SAFE_X, y), AIS[k][0], nf, AIS[k][1], 'lt'); y += 160
-        c.text((SAFE_X, y), f'tied at {len(led[top[0]])} races each', font('sans', 'Bold', 100), FG, 'lt')
-        y += 140
-    # races led, per AI: three big tiles
-    y = max(y + 40, 900)
-    tw = (W - 2 * SAFE_X - 2 * 30) / 3
+        title = f'All three lead {len(led[top[0]])} races each'
+    y = title_block(c, y + 10, f'DAY {n} RESULTS · {when.strftime("%a %b %-d").upper()}', title)
+    y = max(y, 1225)
+    tw = (W - 2 * SAFE_X - 2 * 24) / 3
     for i, k in enumerate(order):
-        x = SAFE_X + i * (tw + 30)
-        c.d.rounded_rectangle([x, y, x + tw, y + 250], radius=18, fill=PANEL, outline=LINE, width=2)
-        c.d.rectangle([x, y, x + tw, y + 10], fill=AIS[k][1])
-        c.text((x + 30, y + 70), AIS[k][0], font('sans', 'SemiBold', 48), FG, 'lm')
-        c.text((x + 30, y + 165), str(len(led[k])), font('mono', 'SemiBold', 110), AIS[k][1], 'lm')
-        c.text((x + 30 + font('mono', 'SemiBold', 110).getlength(str(len(led[k]))) + 18, y + 185), 'races led', font('sans', 'Regular', 32), MUTED, 'lm')
-    y += 310
+        x = SAFE_X + i * (tw + 24)
+        c.d.rounded_rectangle([x, y, x + tw, y + 150], radius=16, fill=PANEL, outline=LINE, width=2)
+        c.d.rectangle([x, y, x + tw, y + 8], fill=AIS[k][1])
+        c.text((x + 26, y + 52), AIS[k][0], font('sans', 'SemiBold', 40), FG, 'lm')
+        nf = font('mono', 'SemiBold', 64)
+        c.text((x + 26, y + 112), str(len(led[k])), nf, AIS[k][1], 'lm')
+        c.text((x + 26 + nf.getlength(str(len(led[k]))) + 14, y + 116), 'races led', font('sans', 'Regular', 28), MUTED, 'lm')
+    y += 190
     if big:
         _, mid, e, d, pct = big
-        c.text((SAFE_X, y), 'BIGGEST MOVE TODAY', font('mono', 'Medium', 28), MUTED, 'lm', tracking=3)
-        line = f'{AIS[mid][0]} in {LABEL.get(e, e)}  {money(d, e)}'
-        c.text((SAFE_X, y + 66), line, c.fit(line, 'sans', 'SemiBold', 64, W - 2 * SAFE_X, 36), UP if d > 0.5 else DOWN if d < -0.5 else FG, 'lm')
-    c.text((SAFE_X, 1470), 'Ten separate races, each judged on its own. Final scoring Nov 28.', font('sans', 'Regular', 34), MUTED, 'lm')
+        line = f'Biggest move: {AIS[mid][0]} in {LABEL.get(e, e)} {money(d, e)}'
+        c.text((SAFE_X, y + 20), line, c.fit(line, 'sans', 'SemiBold', 46, W - 2 * SAFE_X - (0 if not swipe else 0), 30), UP if d > 0.5 else DOWN if d < -0.5 else FG, 'lm')
     if swipe:
-        c.text((W - SAFE_X, 1560), 'Swipe for all ten races  →', font('mono', 'SemiBold', 32), AMBER, 'rm')
+        c.text((W - SAFE_X, 1528), 'Swipe for all ten races  →', font('mono', 'SemiBold', 30), AMBER, 'rm')
+    if y + 40 > 1560:
+        raise QualityError('daily cover overflows')
     c.footer()
     return c.save(path)
 
