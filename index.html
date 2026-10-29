@@ -175,6 +175,8 @@
   .gx-chg { font-size: 16px; }
   .gx-when { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
   .gx-ranges { display: flex; gap: 2px; }
+  .gx-ranges { flex-wrap: wrap; row-gap: 2px; }
+  .gx-ranges button { white-space: nowrap; }
   .gx-ranges button { font: inherit; font-size: 13px; padding: 4px 12px; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--color-fg-muted); cursor: pointer; }
   .gx-ranges button[aria-pressed="true"] { color: var(--color-fg); border-bottom-color: var(--color-fg); }
   .gx-plot { position: relative; touch-action: pan-y; min-height: 200px; }
@@ -911,7 +913,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '394b3526b24b';</script>
+<script>window.PT_PAGE_VER = 'e811dc47b3b0';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -3267,10 +3269,10 @@ body { background:var(--color-bg); }
     const plot = mk('div', 'gx-plot');
     const key = mk('p', 'gx-key');
     el.append(top, plot, key);
-    const RANGES = [['24 hours', 864e5], ['7 days', 7 * 864e5], ['All', Infinity]];
+    const RANGES = cfg.ranges || [['24 hours', 864e5], ['7 days', 7 * 864e5], ['All', Infinity]];   // a range can also be 'since' (from cfg.sinceT)
     const fmtTip = cfg.fmtTip || cfg.fmt;
     const draw = () => {
-      const range = el._range || 'All';
+      const range = (el._range && RANGES.some((r) => r[0] === el._range)) ? el._range : (cfg.range || 'All');
       rangesEl.replaceChildren();
       RANGES.forEach(([name]) => {
         const b = mk('button', '', name); b.type = 'button';
@@ -3280,12 +3282,14 @@ body { background:var(--color-bg); }
       });
       const span = RANGES.find((r) => r[0] === range)[1];
       const last = all[all.length - 1];
-      const from = +last.t - span;
+      const since = span === 'since', from = since ? +cfg.sinceT : +last.t - span;
       let pts = all.filter((p) => +p.t >= from);
       const before = all.filter((p) => +p.t < from);
       if (before.length && span !== Infinity) pts = [before[before.length - 1]].concat(pts);
-      const ref = span === Infinity || pts.length < 2 ? cfg.base : pts[0].v;
-      const refName = span === Infinity || pts.length < 2 ? (cfg.sinceLabel || 'since start') : 'over the last ' + range;
+      if (pts.length < 2 && all.length > 1) pts = all.slice(-2);
+      const whole = span === Infinity || since;
+      const ref = whole || pts.length < 2 ? cfg.base : pts[0].v;
+      const refName = whole || pts.length < 2 ? (cfg.sinceLabel || 'since start') : 'over the last ' + (range === '1 year' ? 'year' : range.toLowerCase());
       val.textContent = cfg.fmt(last.v);
       const diff = ref === undefined || ref === null ? null : last.v - ref;
       chg.className = 'gx-chg ' + (diff > 0 ? 'is-up' : diff < 0 ? 'is-down' : '');
@@ -3326,7 +3330,7 @@ body { background:var(--color-bg); }
       const xt = x.ticks(Math.max(2, Math.min(6, Math.floor((W - M.l) / 120))));
       svg.append('g').selectAll('text').data(xt).join('text')
         .attr('x', (t) => x(t)).attr('y', H - 8).attr('text-anchor', 'middle').attr('font-size', 13)
-        .style('fill', 'var(--color-fg-muted)').text((t) => (spanMs < 2 * 864e5 ? etHour(t) : etDay(t)));
+        .style('fill', 'var(--color-fg-muted)').text((t) => (spanMs < 2 * 864e5 ? etHour(t) : spanMs > 300 * 864e5 ? d3.timeFormat('%b %Y')(t) : etDay(t)));
       // start / paid line
       if (cfg.base !== undefined && cfg.base !== null) {
         svg.append('line').attr('x1', M.l).attr('x2', W - M.r).attr('y1', y(cfg.base)).attr('y2', y(cfg.base))
@@ -3568,7 +3572,11 @@ body { background:var(--color-bg); }
       const since = firstBuy ? +new Date(firstBuy.at) - 5 * 60e3 : 0;
       const allPts = P.data.filter((r) => r.asset === h.holding).map((r) => ({ t: new Date(r.at), v: Number(r.price) })).sort((a, b) => a.t - b.t);
       const before = allPts.filter((p) => +p.t < since);
-      const pts = (before.length ? [before[before.length - 1]] : []).concat(allPts.filter((p) => +p.t >= since));
+      // years of history for this holding (ops/px_long.py, loaded once), then every check-in price
+      const LX = window.ptPxLong; const lsym = LX && LX.names ? LX.names[(dash.model || 'claude') + '|' + h.holding] : null; const ls = lsym && LX.series ? LX.series[lsym] : null;
+      const t0c = allPts.length ? +allPts[0].t : Date.now();
+      const longPts = ls ? ls.w.filter((q) => q[0] * 60e3 < Date.now() - 365 * 864e5).concat(ls.d).filter((q) => q[0] * 60e3 < t0c - 30 * 60e3).map((q) => ({ t: new Date(q[0] * 60e3), v: q[1] })) : [];
+      const pts = longPts.concat(allPts);
       const entry = Number(h.entry_local ?? h.entry_usd);
       const cur = Number(h.price_local ?? h.price_usd);
       const rules = R.data.filter((r) => r.portfolio === pf && r.asset === h.holding && r.level !== null && r.level !== undefined);
@@ -3576,7 +3584,9 @@ body { background:var(--color-bg); }
       const out = rules.filter((r) => Math.abs(r.level - cur) / cur > 0.15);
       const levels = inRange.map((r) => ({ v: Number(r.level), label: r.label + ' at ' + f(Number(r.level)), color: r.direction === 'above' ? 'var(--color-ok)' : 'var(--color-bad)' }));
       const markers = T.data.filter((t) => t.portfolio === pf && t.holding === h.holding).map((t) => ({ t: new Date(t.at), v: Number(t.price_local ?? t.price_usd), kind: t.action }));
-      gChart(box, { points: pts, name: h.holding + ' price', fmt: f, axis: fa, base: entry, baseLabel: 'Paid ' + f(entry) + ' on average', sinceLabel: 'since bought', levels, markers });
+      gChart(box, { points: pts, name: h.holding + ' price', fmt: f, axis: fa, base: entry, baseLabel: 'Paid ' + f(entry) + ' on average', sinceLabel: 'since bought', levels, markers,
+        ranges: [['24 hours', 864e5], ['7 days', 7 * 864e5], ['30 days', 30 * 864e5], ['3 months', 91 * 864e5], ['1 year', 365 * 864e5], ['5 years', 1826 * 864e5], ['Since bought', 'since']], range: 'Since bought', sinceT: since || +pts[0].t });
+      if (!window.ptPxLong && !window.ptPxLongLoading) { window.ptPxLongLoading = 1; fetch('px_long.json?v=' + Math.floor(Date.now() / 36e5), { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j) { window.ptPxLong = j; document.querySelectorAll('[data-draw="price-chart"]').forEach((e) => { if (e._redraw) e._redraw(); }); } }).catch(() => {}); }
       note.textContent = out.length ? 'Further away: ' + out.map((r) => r.label.toLowerCase() + ' at ' + f(Number(r.level))).join('; ') + '.' : '';
     };
     el._redraw = run;

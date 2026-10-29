@@ -99,6 +99,11 @@ jobs:
         continue-on-error: true
         timeout-minutes: 5
         run: python3 ops/price_audit.py
+      - name: Long price history for every holding (ops/px_long.py; the site's 30-day to 5-year holding charts)
+        if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' }}
+        continue-on-error: true
+        timeout-minutes: 4
+        run: python3 ops/px_long.py
       - name: Publish
         if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' }}
         env:
@@ -106,9 +111,10 @@ jobs:
         run: |
           [ -f ops/src/rivals.json ] || exit 0
           # nothing to publish when this run skipped or changed nothing: never push an old copy over newer data
-          if git diff --quiet -- ops/src/rivals.json && [ -z "$(git status --porcelain -- ops/src/price_audit.json)" ]; then echo "nothing changed; nothing to publish"; exit 0; fi
+          if git diff --quiet -- ops/src/rivals.json && [ -z "$(git status --porcelain -- ops/src/price_audit.json ops/src/px_long.json)" ]; then echo "nothing changed; nothing to publish"; exit 0; fi
           cp ops/src/rivals.json /tmp/rivals.json
           [ -f ops/src/price_audit.json ] && cp ops/src/price_audit.json /tmp/price_audit.json
+          [ -f ops/src/px_long.json ] && cp ops/src/px_long.json /tmp/px_long.json
           [ -f ops/archive/thoughts.jsonl ] && cp ops/archive/thoughts.jsonl /tmp/thoughts.jsonl
           git config user.name "paper-trades-bot"
           git config user.email "paper-trades-bot@users.noreply.github.com"
@@ -116,10 +122,12 @@ jobs:
             git fetch -q origin main && git reset -q --hard origin/main
             cp /tmp/rivals.json ops/src/rivals.json
             [ -f /tmp/price_audit.json ] && cp /tmp/price_audit.json ops/src/price_audit.json
+            [ -f /tmp/px_long.json ] && cp /tmp/px_long.json ops/src/px_long.json
             if [ -f /tmp/thoughts.jsonl ]; then mkdir -p ops/archive && cp /tmp/thoughts.jsonl ops/archive/thoughts.jsonl; fi
             python3 ops/build_site.py ops/src .
             git add ops/src/rivals.json index.html data.json data.ver audit.json og.png ops/src/og.json
             [ -f ops/src/price_audit.json ] && git add ops/src/price_audit.json
+            [ -f ops/src/px_long.json ] && git add ops/src/px_long.json px_long.json
             [ -f ops/archive/thoughts.jsonl ] && git add ops/archive/thoughts.jsonl
             git diff --cached --quiet && exit 0
             git commit -qm "Head to head: hourly Gemini and ChatGPT run"

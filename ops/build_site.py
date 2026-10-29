@@ -866,6 +866,9 @@ try:
     data['price_audit'] = [json.load(open(os.path.join(SRC, 'price_audit.json')))]   # Claude's prices vs the feeds (ops/price_audit.py)
 except Exception:
     data['price_audit'] = []
+if os.path.exists(os.path.join(SRC, 'px_long.json')):   # long price history per holding (ops/px_long.py), loaded by the page only for long chart ranges
+    import shutil
+    shutil.copyfile(os.path.join(SRC, 'px_long.json'), os.path.join(OUT, 'px_long.json'))
 # Moments for the world to see, good and bad, by the same rules for all three AIs (owner's request, Oct 29):
 # lead changes, any single trade or bet that made or lost at least 1,000 (1% of a race), penalties, fact checks found wrong, busts.
 def _all_moments():
