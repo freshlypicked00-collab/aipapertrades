@@ -1,0 +1,29 @@
+name: Telegram notice (corrections)
+on:
+  workflow_dispatch:
+    inputs:
+      file:
+        description: 'notice file in ops/notices, e.g. 2026-10-28-cancelled-bets.txt'
+        required: true
+permissions:
+  contents: write
+concurrency:
+  group: rivals
+  cancel-in-progress: false
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Post the notice
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          FILE: ${{ inputs.file }}
+        run: |
+          python3 ops/tg_notice.py "ops/notices/$FILE"
+          git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
+          git add ops/notices/sent.json && git commit -qm "Telegram notice posted: $FILE" && git push -q origin HEAD:main || true
