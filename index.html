@@ -903,7 +903,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'e88501cea1fb';</script>
+<script>window.PT_PAGE_VER = '328084ad876a';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -2268,12 +2268,12 @@ body { background:var(--color-bg); }
 
     <section class="st-card" aria-labelledby="h-log-all">
       <h2 class="st-h2" id="h-log-all">Recent decisions</h2>
-      <p class="st-note">Every trade, bet and hold decision, newest first, 10 a page, for the model picked in the Model menu. Pick one experiment to see only its decisions. Every decision is kept in the Ledger. Times are Eastern (ET), with UTC in brackets.</p>
+      <p class="st-note">Every trade, bet and hold decision, newest first, 5 a page (use Older to go back), for the model picked in the Model menu. Pick one experiment to see only its decisions. Every decision is kept in the Ledger. Times are Eastern (ET), with UTC in brackets.</p>
       <div class="lg-pick"><label>Show: <select class="pf-filter" data-target="log-all-body"></select></label></div>
       <div class="st-wrap">
         <table class="st-table" data-source="log" data-row-key="at,portfolio">
           <thead><tr><th data-field="at">When</th><th data-field="portfolio">Portfolio</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
-          <tbody data-draw="log-body" id="log-all-body"></tbody>
+          <tbody data-draw="log-body" id="log-all-body" data-per="5"></tbody>
         </table>
       </div>
     </section>
@@ -2350,7 +2350,7 @@ body { background:var(--color-bg); }
     </section>
     <section class="st-card" aria-labelledby="h-l-trades">
       <h2 class="st-h2" id="h-l-trades">Every trade</h2>
-      <p class="st-note">Every buy, sell, bet and bet result across all ten experiments, newest first, recorded automatically at each update. Times are Eastern (ET), with UTC in brackets. Pick an experiment to see only its trades.</p>
+      <p class="st-note">Every buy, sell, bet and bet result across all ten experiments, newest first, 5 a page (use Older to go back), recorded automatically at each update. Times are Eastern (ET), with UTC in brackets. Pick an experiment to see only its trades.</p>
       <div class="st-chips" role="group" aria-label="Experiment" data-chips-for="lg-trades">
         <button type="button" data-v="" aria-pressed="true">All experiments</button>
         <button type="button" data-v="Stocks" aria-pressed="false">Stocks and anything</button>
@@ -3114,10 +3114,10 @@ body { background:var(--color-bg); }
     });
   };
   const pagerFor = (el, n, noun) => {
-    n = n || 10; const rows = [...el.children]; const key = el.dataset.portfolio || '';
+    n = n || 10; const rows = [...el.children].filter((r) => !r.classList.contains('bg-say')); const key = el.dataset.portfolio || '';
     if (el._pgKey !== key) { el._pgKey = key; el._pg = 0; }
     const pages = Math.max(1, Math.ceil(rows.length / n)); if ((el._pg || 0) >= pages) el._pg = pages - 1;
-    rows.forEach((tr, k) => { tr.hidden = Math.floor(k / n) !== (el._pg || 0); });
+    rows.forEach((tr, k) => { const hid = Math.floor(k / n) !== (el._pg || 0); tr.hidden = hid; let nx = tr.nextElementSibling; while (nx && nx.classList.contains('bg-say')) { nx.hidden = hid; nx = nx.nextElementSibling; } });   // a Beginner explanation row moves with its trade
     const tbl = el.closest('table'); if (!tbl) return; const host = tbl.closest('.st-wrap') || tbl;
     let bar = host.nextElementSibling && host.nextElementSibling.classList.contains('st-pager') ? host.nextElementSibling : null;
     if (!bar) { bar = mk('div', 'st-pager'); host.after(bar); }
@@ -3226,7 +3226,7 @@ body { background:var(--color-bg); }
     fillBody(el, 'log', byPortfolio(el), (r) => encodeURIComponent(r.at) + ',' + encodeURIComponent(r.portfolio), (r) => all
       ? [[stFmt.when(r.at)], [r.portfolio], [r.action], [r.detail, 'wrap']]
       : [[stFmt.when(r.at)], [r.action], [r.detail, 'wrap']]);
-    pagerFor(el, 10, 'decisions');
+    pagerFor(el, Number(el.dataset.per) || 10, 'decisions');   // Recent decisions in the Ledger: 5 a page (owner, Oct 29); each race's Decision log: 10
   });
 
   // ---------- Eastern-time formatting (labels say ET, so format in ET whatever the viewer's time zone)
@@ -3937,8 +3937,17 @@ body { background:var(--color-bg); }
         if (document.documentElement.dataset.beginner === '1') { const s2 = plainTrade(r); if (s2) { const tr2 = mk('tr', 'bg-say'); const td2 = mk('td', '', s2); td2.colSpan = 9; tr2.appendChild(td2); tb.appendChild(tr2); } }
       });
       table.appendChild(tb);
-      el.appendChild(table);
-      el.appendChild(mk('p', 'st-note', shown.length + (shown.length === 1 ? ' trade' : ' trades') + (p ? ' in ' + (LABEL[p] || p) : ' in total') + '.'));
+      const tw = mk('div', 'st-wrap'); tw.appendChild(table); el.appendChild(tw);   // its own wrapper, so the page buttons sit right under the table
+      // every trade is kept; 5 a page, newest first, with Newer / Older (owner, Oct 29). The page survives data refreshes and
+      // goes back to the newest when the AI or the experiment changes.
+      if (shown.length) {
+        const key = (dash.model || 'claude') + '|' + (p || ''); if (el._tKey !== key) { el._tKey = key; el._tPg = 0; }
+        tb.dataset.pgNewest = '1'; tb._pgKey = ''; tb._pg = el._tPg || 0;
+        pagerFor(tb, 5, 'trades');
+        const bar = tw.nextElementSibling;
+        if (bar && bar.classList.contains('st-pager')) { const keep = () => { el._tPg = tb._pg || 0; }; bar.addEventListener('click', keep); bar.addEventListener('change', keep); }
+      }
+      el.appendChild(mk('p', 'st-note', shown.length + (shown.length === 1 ? ' trade' : ' trades') + (p ? ' in ' + (LABEL[p] || p) : ' in total') + '. The download below has all of them.'));
       { const dl = mk('button', 'lg-csv', '⬇ Download these trades (CSV)'); dl.type = 'button';
         dl.addEventListener('click', () => {
           const q = (x) => '"' + String(x == null ? '' : x).replace(/"/g, '""') + '"';
