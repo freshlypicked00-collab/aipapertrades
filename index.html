@@ -4951,7 +4951,7 @@ body { background:var(--color-bg); }
   let glT = null;
   new MutationObserver(() => { clearTimeout(glT); glT = setTimeout(() => gloss(document.getElementById('dash-root') || document.body), 250); }).observe(document.getElementById('dash-root') || document.body, { childList: true, subtree: true });
   // "Start here": a short guide at the top of the Overview, only in Beginner mode
-  const BG_MORE = 'Want to check it’s fair? How it works explains how prices, trades and scoring work. Rules & Audit shows every rule, the exact instructions each AI gets, its raw replies, and every correction.';
+  const BG_MORE = 'Want to look under the hood? How it works explains how prices, trades, check-ins and scoring work. Rules & Audit shows every rule, the exact instructions each AI gets, its raw replies, the price check and every correction.';
   const startHere = () => {
     const pg = document.querySelector('[data-page="overview"]'); if (!pg) return;
     const anchorEl = document.querySelector('.st-live-top') || pg.firstChild;
