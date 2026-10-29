@@ -69,7 +69,7 @@ def build(rivals, claude):
                     d['bets'].append({'bet': x['id'], 'placed': x['placed_at'][:10], 'sport': x['short'], 'event': x['event'],
                                       'pick': x['pick_team'] + ' moneyline', 'odds': x['odds'], 'stake_cad': x['stake'], 'to_win_cad': x['to_win'],
                                       'status': x['status'], 'result_cad': x['result'] if x['status'] != 'Open' else None, 'market': 'moneyline',
-                                      'line': None, 'closing_odds': None, 'closing_line': None, 'starts_at': x['starts_at'],
+                                      'line': None, 'closing_odds': x.get('closing_odds'), 'closing_line': None, 'starts_at': x['starts_at'],
                                       'placed_at': x['placed_at'], 'settled_at': x.get('settled_at'), 'note': x.get('reason', '')})
                 d['history'].append({'at': started[e].isoformat(), 'portfolio': e, 'value': 100000.0, 'close': False})
                 continue
@@ -160,6 +160,17 @@ def build(rivals, claude):
         d['review'] = [{'at': x['at'], 'portfolio': x['experiment'], 'grade': x['grade'], 'text': x['text']} for x in rivals.get('reviews', []) if x['model'] == mid]
         d['plans'] = list({(x.get('experiment'), x['horizon']): x for x in rivals.get('plans', []) if x['model'] == mid}.values())   # newest per race and card
         d['take'] = [{'at': x['at'], 'text': x['text']} for x in rivals.get('takes', []) if x['model'] == mid]
+        # its stops and targets (option B, the same for all three AIs) as price rules, so "Distance to the next trade" works for it too
+        for st in (rivals.get('stops') or {}).get(mid, []):
+            if st['experiment'] not in exps:
+                continue
+            nm = _clean(st.get('name') or st['symbol'], st['experiment'])
+            act = 'Sell' if st['direction'] == ('below' if st['kind'] == 'stop' else 'above') else 'Cover'
+            share = 'all' if st['fraction'] >= 1 else format(st['fraction'], '.0%') + ' of'
+            move = 'falls' if st['direction'] == 'below' else 'rises'
+            d['rules'].append({'portfolio': st['experiment'], 'rule': f"{act} {share} {nm} if it {move} to {st['level']:g} ({st['kind']}, checked at every run by the race runner).",
+                               'asset': nm, 'level': st['level'], 'direction': st['direction'], 'label': st['kind'].capitalize(), 'stop_id': st['id'],
+                               **({'watch': st['watch']} if st.get('watch') else {})})
         d['sources'] = [{'title': s['title'], 'url': s['url'], 'portfolios': exps} for s in lr.get('sources', [])]
 
         # daily ledger at 00:00 UTC, from the hourly check-ins

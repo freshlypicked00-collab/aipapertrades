@@ -434,6 +434,23 @@ for name in ('holdings', 'history', 'bets', 'log', 'rules', 'benchmark', 'indexe
 data['sources'] = json.load(open(os.path.join(SRC, 'sources.json')))
 rv = os.path.join(SRC, 'rivals.json')
 r = json.load(open(rv)) if os.path.exists(rv) else {'models': {}, 'trades': [], 'history': [], 'takes': []}
+# OPTION B (owner's go, Oct 29): from the switch, Claude's orders and stops are filled by the race runner. Claude's own price rules
+# became runner stops at the switch, so the site shows those (and keeps the plain policy rules from rules.json).
+try:
+    data['option_b'] = [json.load(open(os.path.join(SRC, 'option_b.json')))]
+except Exception:
+    data['option_b'] = []
+if (r.get('stops_migrated') or {}).get('claude'):
+    data['rules'] = [x for x in data['rules'] if not (x.get('label') in ('Stop', 'Target') or (x.get('asset') and x.get('level') is not None))]
+    for _st in (r.get('stops') or {}).get('claude', []):
+        _act = 'Sell' if _st['direction'] == ('below' if _st['kind'] == 'stop' else 'above') else 'Cover'
+        _share = 'all' if _st['fraction'] >= 1 else format(_st['fraction'], '.0%') + ' of'
+        _move = 'falls' if _st['direction'] == 'below' else 'rises'
+        _watch = ' (watching USD/CAD)' if _st.get('watch') == 'CAD=X' else ''
+        data['rules'].append({'portfolio': _st['experiment'], 'rule': f"{_act} {_share} {_st.get('name')} if it {_move} to {_st['level']:g}{_watch} ({_st['kind']}, checked at every run by the race runner).",
+                              'asset': _st.get('name'), 'level': _st['level'], 'direction': _st['direction'], 'label': _st['kind'].capitalize(), 'stop_id': _st['id'],
+                              **({'watch': _st['watch']} if _st.get('watch') else {})})
+data['stops_log'] = (r.get('stops_log') or [])[-60:]
 # Profit on every closed trade (average cost) and every settled bet, so every trade table can show what went in,
 # what came back and the profit. Buys and open bets are marked open. Sells carry "cost" (what that part cost) and "pnl".
 def _annotate_rivals(r):
@@ -743,6 +760,103 @@ for _e in _EXPS:
 data['exp_standings'] = _es
 
 
+# Biggest profits and losses in each race (owner, Oct 29), for all three AIs: each holding's profit so far (the part sold plus
+# what is still held, at the latest price) and each settled bet (repeat bets on the same pick added together). Each race on
+# its own, in its own currency; the "Races led" view lists the biggest single items across the ten races, never a total.
+def _big_moves():
+    fx = r.get('fx') or {'USDCAD': 1.4, 'USDCNY': 7.1}
+    def conv(amt, pcur, cur):
+        usd = amt if pcur == 'USD' else amt / fx.get('USDCNY', 7.1) if pcur == 'CNY' else amt / fx.get('USDCAD', 1.4)
+        return usd if cur == 'USD' else usd * fx.get('USDCAD', 1.4)
+    def realized(trades):   # {key: profit} at average cost, in the book's currency
+        out, cost, names = {}, {}, {}
+        for t in trades:
+            key = f"{t['symbol']}|{t['outcome']}" if t.get('outcome') else t['symbol']
+            names[key] = t.get('name') or t['symbol']
+            c = cost.setdefault(key, {'qty': 0.0, 'cost': 0.0})
+            q = abs(float(t.get('qty') or 0))
+            if t['action'] in ('Buy', 'Short'):
+                c['qty'] += q; c['cost'] += float(t['amount']) if t['action'] == 'Buy' else -float(t['amount'])
+            elif t['action'] in ('Sell', 'Cover', 'Settled', 'Expired') and c['qty'] > 1e-12:
+                f = min(1.0, (q or c['qty']) / c['qty']); part = c['cost'] * f
+                out[key] = out.get(key, 0.0) + (-float(t['amount']) if t['action'] == 'Cover' else float(t['amount'])) - part
+                c['cost'] -= part; c['qty'] -= c['qty'] * f
+        return out, names
+    big = {}
+    def add(race, mid, what, pnl, state, n=1):
+        if abs(pnl) >= 0.5:
+            big.setdefault(race, []).append({'id': mid, 'race': race, 'what': str(what)[:80], 'pnl': round(pnl, 2), 'state': state, 'n': n,
+                                             'cur': 'USD' if race == 'China' else 'CAD'})
+    def bets(race, mid, rows):   # rows: (pick, event, profit, status)
+        g = {}
+        for pick, ev, p, st in rows:
+            k = (pick, ev)
+            x = g.setdefault(k, [0.0, 0, set()]); x[0] += p; x[1] += 1; x[2].add(st)
+        for (pick, ev), (p, n, sts) in g.items():
+            add(race, mid, f'{pick} ({ev})', p, 'won' if p > 0 else 'lost', n)
+    def rival_book(race, mid, bk, trades):
+        cur = bk.get('cur', 'CAD')
+        if race in ('Sports', 'AllInSports'):
+            bets(race, mid, [(b.get('pick_team') or b.get('pick'), b.get('event', ''), float(b.get('result') or 0), b['status'])
+                             for b in bk.get('bets', []) if b.get('status') in ('Won', 'Lost')])
+            return
+        rz, names = realized(trades)
+        keys = set(rz) | {k for k, q in (bk.get('positions') or {}).items() if abs(float(q.get('qty') or 0)) > 1e-9}
+        for k in keys:
+            q = (bk.get('positions') or {}).get(k) or {}
+            held = abs(float(q.get('qty') or 0)) > 1e-9
+            un = conv(float(q['qty']) * (float(q.get('last', q['entry'])) - float(q['entry'])), q.get('pcur', 'USD'), cur) if held else 0.0
+            nm = (q.get('name') if held else None) or names.get(k) or k
+            add(race, mid, nm + (' (short)' if held and float(q['qty']) < 0 else ''), rz.get(k, 0.0) + un, 'held' if held else 'closed')
+    for e in _EXPS:
+        # Claude
+        if e == 'Sports':
+            bets(e, 'claude', [(re.sub(r' moneyline$', '', str(b.get('pick', ''))), re.sub(r'\s*\(.*\)$', '', str(b.get('event', ''))), float(b.get('result_cad') or 0), b['status'])
+                               for b in data['bets'] if b.get('status') in ('Won', 'Lost') and b.get('placed_at') and _when(b['placed_at']) >= _FS])
+        else:
+            rz = {}
+            for c in _closed_claude(e):
+                rz[c['name']] = rz.get(c['name'], 0.0) + c['pnl']
+            held = {}
+            for h in data['holdings']:
+                if h['portfolio'] != e or str(h['holding']).startswith('Cash') or h['holding'] == 'USDC' or abs(float(h.get('quantity') or 0)) < 1e-9:
+                    continue
+                v, c = (h.get('value_usd'), h.get('cost_usd')) if e == 'China' else (h.get('value_cad'), h.get('cost_cad'))
+                if v is None or c is None:
+                    continue
+                held[h['holding']] = (float(v) - float(c), float(v) < 0)
+            for nm in set(rz) | set(held):
+                un, short = held.get(nm, (0.0, False))
+                add(e, 'claude', nm + (' (short)' if short and '(short)' not in nm else ''), rz.get(nm, 0.0) + un, 'held' if nm in held else 'closed')
+        # Gemini and ChatGPT
+        for mid, m in (r.get('models') or {}).items():
+            bk = (m.get('books') or {}).get(e)
+            if bk:
+                rival_book(e, mid, bk, [t for t in r.get('trades', []) if t.get('model') == mid and t.get('experiment') == e])
+    # the All in side race (Claude's books are in claude_allin)
+    for am in data.get('allin_models') or []:
+        for e, bk in (am.get('books') or {}).items():
+            if e in ('AllInTrading', 'AllInSports') and isinstance(bk, dict):
+                rival_book(e, am['id'], bk, [t for t in data['allin_trades'] if t.get('model') == am['id'] and t.get('experiment') == e])
+    out = {}
+    for race, items in big.items():
+        ups = sorted([x for x in items if x['pnl'] > 0], key=lambda x: -x['pnl'])[:3]
+        downs = sorted([x for x in items if x['pnl'] < 0], key=lambda x: x['pnl'])[:3]
+        out[race] = {'up': ups, 'down': downs}
+    ten = [x for race in _EXPS for x in big.get(race, [])]
+    cad = lambda x: x['pnl'] * (fx.get('USDCAD', 1.4) if x['cur'] == 'USD' else 1)
+    out['Overall'] = {'up': sorted([x for x in ten if x['pnl'] > 0], key=lambda x: -cad(x))[:5],
+                      'down': sorted([x for x in ten if x['pnl'] < 0], key=cad)[:5]}
+    return out
+
+
+try:
+    data['big_moves'] = _big_moves()
+except Exception as _e:
+    print('biggest profits and losses not built:', _e)
+    data['big_moves'] = {}
+
+
 # Moments: each time the lead changes hands in a race (each race on its own, never totals), replayed from the value history (so it rebuilds the same
 # on either workflow). A new leader must be ahead by at least C$250 in a race (C$500 overall); at most one moment per race per 12 hours.
 def _moments():
@@ -985,6 +1099,82 @@ except Exception as _e:
 json.dump(_aud, open(os.path.join(OUT, 'audit.json'), 'w'), separators=(',', ':'), ensure_ascii=False)
 # data.ver: a tiny fingerprint of the data (also stored inside data.json as "ver"). Open pages check data.ver every minute
 # and download data.json only when it changed.
+# ---- peer grades (agreed by all three AIs, Oct 29): every grade, and how each graded decision has turned out so far (G6).
+# A bet: won or lost. A buy or short: the price move since (to the exit price once closed). A sale: whether the price is lower
+# now than where it was sold. Moves under 0.2% count as neither right nor wrong.
+def _peer():
+    try:
+        cg = json.load(open(os.path.join(SRC, 'claude_grades.json')))
+    except Exception:
+        cg = []
+    pg = (r.get('peer_grades') or []) + cg
+    def k_at(x):
+        return _when(x).astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+    c_last = {}
+    for _p in sorted(data.get('prices', []), key=lambda x: _when(x['at'])):
+        c_last[_p['asset']] = float(_p['price'])
+    for _h in data.get('holdings', []):
+        _v = _h.get('price_usd', _h.get('price_local'))
+        if _v is not None:
+            c_last[_h['holding']] = float(_v)
+    out = {}
+    for g in pg:
+        key = g.get('key')
+        if not key or key in out:
+            continue
+        try:
+            mid, at, exp, what, action = key.split('|', 4)
+            res = None
+            if action == 'Bet':
+                if mid == 'claude':
+                    b = next((x for x in data.get('bets', []) if x['bet'] == what), None)
+                    st = b and b.get('status')
+                else:
+                    b = next((x for bk in ((r.get('models') or {}).get(mid, {}).get('books') or {}).values() for x in bk.get('bets', []) if x.get('id') == what), None)
+                    st = b and b.get('status')
+                if st in ('Won', 'Lost'):
+                    res = {'state': 'closed', 'good': st == 'Won', 'what': st}
+                elif st:
+                    res = {'state': 'open' if st == 'Open' else 'closed', 'good': None, 'what': st}
+            else:
+                if mid == 'claude':
+                    trs = sorted([t for t in data.get('trades', []) if t.get('portfolio') == exp and t.get('holding') == what], key=lambda t: _when(t['at']))
+                    t0 = next((t for t in trs if k_at(t['at']) == at and t.get('action') == action), None)
+                    p0 = t0 and t0.get('price_usd', t0.get('price_local'))
+                    later = [t for t in trs if t0 and _when(t['at']) > _when(t0['at'])]
+                    p1 = c_last.get(what)
+                    held = any(h['portfolio'] == exp and h['holding'] == what and abs(float(h.get('quantity') or 0)) > 1e-9 for h in data.get('holdings', []))
+                    pxk = lambda t: t.get('price_usd', t.get('price_local'))
+                else:
+                    trs = sorted([t for t in r.get('trades', []) if t.get('model') == mid and t.get('experiment') == exp and t.get('symbol') == what], key=lambda t: _when(t['at']))
+                    t0 = next((t for t in trs if k_at(t['at']) == at and t.get('action') == action), None)
+                    p0 = t0 and t0.get('price')
+                    later = [t for t in trs if t0 and _when(t['at']) > _when(t0['at'])]
+                    pos = (((r.get('models') or {}).get(mid, {}).get('books') or {}).get(exp) or {}).get('positions', {})
+                    pp = next((q for kk, q in pos.items() if kk.split('|')[0] == what), None)
+                    held = bool(pp)
+                    p1 = pp.get('last') if pp else (later[-1].get('price') if later else None)
+                    pxk = lambda t: t.get('price')
+                if p0 and p1:
+                    p0, p1 = float(p0), float(p1)
+                    if action in ('Buy', 'Short'):
+                        exit_ = next((t for t in later if t.get('action') in (('Sell',) if action == 'Buy' else ('Cover',))), None)
+                        if exit_ and not held and pxk(exit_):
+                            p1 = float(pxk(exit_))
+                        mv = (p1 / p0 - 1) * (1 if action == 'Buy' else -1)
+                        res = {'state': 'open' if held else 'closed', 'pct': round(mv, 4)}
+                    else:
+                        mv = p0 / p1 - 1   # sold above today's price: a good sale
+                        res = {'state': 'closed', 'pct': round(mv, 4)}
+                    res['good'] = None if abs(res['pct']) < 0.002 else res['pct'] > 0
+            if res:
+                out[key] = res
+        except Exception as _e:
+            print('peer outcome skipped', key, _e)
+    return pg[-2000:], out
+
+
+data['peer_grades'], data['peer_outcomes'] = _peer()
 # A US dollar position is always worth US$1 in US dollars; what moves its C$ value is USD/CAD, so its price source is the
 # exchange rate and where it came from (Oct 29 review: it said only "fixed")
 try:

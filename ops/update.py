@@ -68,6 +68,18 @@ ledger = load('ledger', [])
 fxd = load('fx', {})
 take = load('take', [])
 
+# OPTION B (owner's go, Oct 29): from the switch, Claude's trades and bets are filled by the race runner (ops/claude_fill.py),
+# the same code and feed as Gemini's and ChatGPT's. A session's own input may still value holdings, settle Claude's older bets,
+# log, write takes and rules, but no longer trade or place bets: queue them with ops/orders.py.
+try:
+    _ob = json.load(open(os.path.join(SRC, 'option_b.json')))
+    _cut = datetime.fromisoformat(_ob['cutover'])
+except Exception:
+    _ob, _cut = {}, None
+if _cut and at_dt >= _cut and not inp.get('runner') and (inp.get('trades') or inp.get('bets_new')):
+    raise SystemExit('Option B is on: trades and bets are filled by the race runner now, at the same feed prices as Gemini and ChatGPT. '
+                     'Queue them with `python3 ops/orders.py queue \'{...}\'`, push, then dispatch rivals.yml with mode=fill (see ops/RUNBOOK.md). '
+                     'Nothing was saved.')
 # check the bet results before any file is written, so a bad status can't leave the data half-updated
 for _s in inp.get('bets_settle', []):
     if _s.get('status') not in ('Won', 'Lost', 'Push', 'Void'):
@@ -168,7 +180,8 @@ def china_trade(t):
     else:
         raise SystemExit(f'Unknown trade action {action}')
     trades.append({'at': AT, 'portfolio': 'China', 'holding': h, 'action': action, 'price_local': price,
-                   'currency': 'CNY', 'shares': sh, 'cny': round(amt, 2), 'usd': round(amt / cny, 2)})
+                   'currency': 'CNY', 'shares': sh, 'cny': round(amt, 2), 'usd': round(amt / cny, 2),
+                   **({'note': t['note']} if t.get('note') else {}), **({'filled_by': t['filled_by']} if t.get('filled_by') else {})})
 
 
 # ---- trades
@@ -200,6 +213,8 @@ for t in inp.get('trades', []):
         if r is None:
             r = {'portfolio': pf, 'holding': h, 'quantity': 0, 'entry_usd': price, 'price_usd': price,
                  'change_pct': 0, 'value_cad': 0, 'as_of': AT, 'cost_cad': 0, 'price_source': '', 'price_at': None}
+            if t.get('code'):
+                r['code'] = t['code']   # the feed symbol (option, prediction market slug, ...), so the runner can trade it later
             idx = max([i for i, x in enumerate(holdings) if x['portfolio'] == pf] or [len(holdings) - 1]) + 1
             holdings.insert(idx, r)
         q0 = r['quantity']
@@ -260,7 +275,8 @@ for t in inp.get('trades', []):
             fund['cost_cad'] = round(fund.get('cost_cad', 0) - cad, 2)
     else:
         raise SystemExit(f'Unknown trade action {action}')
-    trades.append({'at': t.get('fill_at') or AT, 'portfolio': pf, 'holding': h, 'action': action, 'price_usd': price, 'cad': round(cad, 2), **({'note': t['note']} if t.get('note') else {})})
+    trades.append({'at': t.get('fill_at') or AT, 'portfolio': pf, 'holding': h, 'action': action, 'price_usd': price, 'cad': round(cad, 2), **({'note': t['note']} if t.get('note') else {}),
+                   **({'filled_by': t['filled_by']} if t.get('filled_by') else {})})
     save('trades', trades)
 
 # ---- revalue every holding
@@ -320,6 +336,9 @@ for b in inp.get('bets_new', []):
           'odds': b['odds'], 'stake_cad': stake, 'to_win_cad': to_win(stake, b['odds']), 'status': 'Open',
           'result_cad': None, 'market': b.get('market', 'moneyline'), 'line': b.get('line'),
           'closing_odds': None, 'closing_line': None, 'starts_at': b.get('starts_at')}
+    for _k in ('game', 'league', 'espn_sport', 'side', 'legs', 'note', 'filled_by'):   # placed by the race runner (option B)
+        if b.get(_k) is not None:
+            nb[_k] = b[_k]
     if nb['bet'] in by_id:
         raise SystemExit(f'Bet id {nb["bet"]} already exists')
     bets.append(nb)
@@ -332,6 +351,10 @@ for s in inp.get('bets_settle', []):
     b = by_id[s['bet']]
     b['status'] = s['status']
     b['result_cad'] = {'Won': b['to_win_cad'], 'Lost': -b['stake_cad'], 'Push': 0, 'Void': 0}[s['status']]
+    if inp.get('runner') and s.get('result_cad') is not None:   # the runner's own result (a parlay with a pushed leg pays less)
+        b['result_cad'] = float(s['result_cad'])
+    if s.get('final'):
+        b['final'] = s['final']
     b['settled_at'] = AT
 if inp.get('bets_new') or inp.get('bets_closing') or inp.get('bets_settle'):
     save('bets', bets)
@@ -465,7 +488,7 @@ def value_at(pf, T):
 done = {r['day'] for r in ledger}
 first_points = [s[0][0] for s in series.values() if s]
 closed_now = []
-if first_points:
+if first_points and not inp.get('no_ledger_close'):
     d = min(first_points).date()
     now_utc = at_dt.astimezone(UTC)
     while True:

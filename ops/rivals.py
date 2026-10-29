@@ -680,7 +680,8 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         ' "sources": ["https://... the main pages you read this check-in", ...] (up to 5),',
         (' "day_report": {"title": "a short headline about YOUR day", "body": ["3 to 5 short paragraphs, first person, only about you"]},' if dr_due else ''),
         ' "watchlist": [{"at": "ISO date-time, ET", "when": "short human time, e.g. Thu Oct 29, 8:30 a.m. ET", "event": "what is coming up", "affects": ["experiment", ...], "why": "one sentence, in your own words, on why it matters to you"}] (up to 8 upcoming events you are watching),',
-        ' "orders": [{"experiment": ' + ' | '.join(f'"{e}"' for e in exps) + ', "action": "buy" | "sell" | "short" | "cover" | "bet", "symbol": "Yahoo symbol, currency code, OCC option symbol or Polymarket slug",',
+        ' "orders": [{"experiment": ' + ' | '.join(f'"{e}"' for e in exps) + ', "action": "buy" | "sell" | "short" | "cover" | "bet" | "stop" | "target" | "cancel_stop", "symbol": "Yahoo symbol, currency code, OCC option symbol or Polymarket slug",',
+        '             "level": 123.45 (stop or target only: the price that triggers it), "id": "..." (cancel_stop only),',
         '             "outcome": "Yes" | "No" (Predictions only), "game": "id" and "pick": "home" | "away" (Sports only), "contracts": 5 (Options, optional),',
         '             "amount": 25000 (buy, short or bet: money to use, in that experiment\'s currency), "fraction": 1.0 (sell or cover: share of the position, 0 to 1),',
         '             "reason": "one plain sentence", "wrong_if": "buys, shorts and bets: one plain sentence on what would prove this trade wrong (your exit signal), shown publicly"}]}',
@@ -1442,6 +1443,67 @@ def compact(state):
             print('thought archive failed; kept them', e)
 
 
+def record_closing(state):
+    """Closing odds for every AI's bets (owner's go, Oct 29): the last ESPN moneyline seen in the 75 minutes before the game starts,
+    overwritten at each run until the start. Claude's bets placed by the runner get theirs in ops/claude_fill.py."""
+    books = [b for m in (state.get('models') or {}).values() for e, b in (m.get('books') or {}).items() if BASE.get(e, e) == 'Sports']
+    books += [b for e, b in ((state.get('claude_allin') or {}).get('books') or {}).items() if e == 'AllInSports']
+    n = 0
+    for bk in books:
+        for b in bk.get('bets', []):
+            if b.get('status') != 'Open' or b.get('legs') or not b.get('game'):
+                continue
+            g = espn_games().get(str(b['game']))
+            if not g or g.get('state') != 'pre':
+                continue
+            st = datetime.fromisoformat(str(b['starts_at']).replace('Z', '+00:00'))
+            if timedelta(0) < st - NOW <= timedelta(minutes=75):
+                ml = g['home_ml'] if b.get('pick') == 'home' else g['away_ml']
+                if ml is not None:
+                    b['closing_odds'], b['closing_at'] = ml, iso()
+                    n += 1
+    return n
+
+
+def rival_books(state, mid):
+    m = state['models'][mid]
+    exps = list(RIVALS[mid]['exps'])
+    if m.get('eliminated'):
+        exps = [e for e in exps if e in ALLIN]
+    return exps, m['books']
+
+
+def save_state(state):
+    try:
+        compact(state)
+    except Exception as e:
+        print('compact failed', e)
+    tmp = STATE + '.tmp'
+    with open(tmp, 'w') as f:
+        json.dump(state, f, indent=1)
+    os.replace(tmp, STATE)
+
+
+def shared_steps(state, fx):
+    """At every run (check-ins and Claude's fill runs): Claude's queued orders and stops (option B), every rival's stops and
+    targets, and closing odds, all through the same code and feeds."""
+    import claude_fill as CF
+    import stops as ST
+    try:
+        CF.process(state, fx)
+    except Exception as e:
+        print('claude fills failed', e)
+    try:
+        ST.run_rivals(state, fx, lambda mid: rival_books(state, mid),
+                      post=lambda mid, t: tg_trade(RIVALS[mid]['label'], t))
+    except Exception as e:
+        print('rival stops failed', e)
+    try:
+        record_closing(state)
+    except Exception as e:
+        print('closing odds failed', e)
+
+
 # ---------------- main ----------------
 def main():
     if '--prices' in sys.argv:
@@ -1458,7 +1520,25 @@ def main():
         print('espn games', len(g), sum(1 for x in g.values() if x['home_ml']), 'with moneylines')
         assert g
         return
+    sys.modules.setdefault('rivals', sys.modules[__name__])
     state = load_state()
+    if os.environ.get('MODE') == 'fill':
+        # Claude's fill run (option B): fill Claude's queued orders, check every AI's stops and closing odds; no rival check-in
+        try:
+            fx = get_fx()
+        except Exception as e:
+            fx = state.get('fx')
+            if not fx:
+                raise
+            print('exchange rates unavailable; using the last known rates', e)
+        try:
+            claude_allin(state, fx)
+        except Exception as e:
+            print('claude all-in failed', e)
+        shared_steps(state, fx)
+        save_state(state)
+        print('fill run done')
+        return
     if os.environ.get('SCHEDULE') == WATCH_CRON:
         # the event watcher: runs every 15 minutes, but checks in only when an extra-run event (events.json, "extra_run": true)
         # happened 5 to 45 minutes ago and nobody has checked in since it. So a failed extra run of Claude's is still covered.
@@ -1503,6 +1583,9 @@ def main():
         claude_allin(state, fx)
     except Exception as e:
         print('claude all-in failed', e)
+    shared_steps(state, fx)
+    import peer_grades as PG
+    import stops as ST
     try:
         price_alerts(state)
     except Exception as e:
@@ -1617,6 +1700,13 @@ def main():
             except Exception as _e:
                 print('forecast round check failed:', _e)
                 fc_round = None
+            try:   # peer grades (agreed by all three AIs): grade the other AIs' new trades and bets, anonymously, on what was known then
+                pg_text, pg_map = PG.tasks(mid, state, NOW, fx['USDCAD'])
+            except Exception as _e:
+                print('peer grade tasks failed:', _e)
+                pg_text, pg_map = '', {}
+            if pg_text:
+                daily_note += pg_text + ' '
             plan_info = daily_note + 'Your public profile page now: ' + '; '.join(f'{k}: "{clip(v, 400)}"' if v else f'{k}: (not written yet, please write it)' for k, v in myprof.items()) + '. ' + 'Your published plans and feeling: ' + '; '.join(f"{k}: \"{v}\"" if v else f'{k}: (none yet)' for k, v in myplans.items()) + '. ' + board + fc_task
             take_info = plan_info + ('Your current take (shown at the top of the site): "' + mine[-1]['text'] + '" written ' + mine[-1]['at'] + '. ' if mine else 'You have no current take yet. ') + \
                 f'You have written {len(today)} new take(s) today (UTC). Aim for about 3 to 5 a day, at key moments (after the US open, midday, after the US close, at the daily close, at the Shanghai open) or after a trade or event that matters, and only when your view has really changed; otherwise send "" to keep it. Each new take is shown publicly on the site.'
@@ -1624,7 +1714,7 @@ def main():
             rc_due = not closed and (not last_rc or (NOW - datetime.fromisoformat(last_rc.replace('Z', '+00:00'))).total_seconds() >= 8 * 3600)
             _drs = [x['at'] for x in state.get('day_reports', []) if x.get('model') == mid]
             dr_due = bool(closed) or not _drs or (NOW - datetime.fromisoformat(max(_drs).replace('Z', '+00:00'))).total_seconds() >= 8 * 3600
-            prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed, refused, take_info, standings(state, fx, mid), rc_due,
+            prompt = build_prompt(r['label'], exps, m['books'], values, fx, recent, closed, refused, take_info, standings(state, fx, mid) + ST.prompt_lines(state, mid), rc_due,
                                   ' '.join([state.get('notices', {}).get(mid, '')] + [t for u, t in ANNOUNCEMENTS if NOW < datetime.fromisoformat(u)]).strip(), dr_due)
             import time as _time
             t0 = _time.time()
@@ -1658,6 +1748,12 @@ def main():
                 state['audit'][mid]['reply'] = str(text)[:40000]
                 reply = parse_reply(text)
             take = clip(reply.get('take', ''), 600) or None
+            try:
+                ng = PG.store(state, mid, reply.get('grades'), pg_map, iso())
+                if pg_map:
+                    print(f'{mid}: {ng} of {len(pg_map)} peer grades given')
+            except Exception as _e:
+                print('peer grades not stored:', _e)
             prof = reply.get('profile') if isinstance(reply.get('profile'), dict) else {}
             for k in ('about', 'looking_forward', 'not_looking_forward', 'strategy', 'plan'):
                 txt = clip(prof.get(k, ''), 1500)
@@ -1743,6 +1839,13 @@ def main():
                 day_posts.append((r, closed, rc))
             for o in (reply.get('orders') or [])[:MAX_ORDERS]:
                 try:
+                    act_ = str(o.get('action', '')).lower()
+                    if act_ in ('stop', 'target'):
+                        notes.append(ST.add(state, mid, o, m['books']))
+                        continue
+                    if act_ == 'cancel_stop':
+                        notes.append(ST.cancel(state, mid, o.get('id')))
+                        continue
                     made.append(execute(mid, exps, m['books'], o, fx, state))
                 except Exception as e:
                     what = o.get('symbol') or (f"game {o.get('game')} {o.get('pick')}" if o.get('game') else '')
@@ -1863,17 +1966,24 @@ def main():
                     pulse[RACE_OF[sym]] = row
             except Exception as e:
                 print(f'pulse {sym} failed: {str(e)[:80]}')
-        sports = []   # the headline line's SPORTS items: ESPN's top stories per league from the last day
-        for sp, lg, name in (('baseball', 'mlb', 'MLB'), ('football', 'nfl', 'NFL'), ('basketball', 'nba', 'NBA'), ('hockey', 'nhl', 'NHL')):
-            try:
-                arts = get_json(f'https://site.api.espn.com/apis/site/v2/sports/{sp}/{lg}/news?limit=4', timeout=15).get('articles') or []
-                for a in arts[:2]:
-                    pub = a.get('published') or ''
-                    if a.get('headline') and pub and (NOW - datetime.fromisoformat(pub.replace('Z', '+00:00'))).total_seconds() < 30 * 3600:
-                        sports.append({'league': name, 'headline': clip(a['headline'], 140), 'at': pub, 'link': ((a.get('links') or {}).get('web') or {}).get('href', '')})
-            except Exception as e:
-                print(f'sports news {lg} failed: {str(e)[:80]}')
-        state['pulse'] = {'at': iso(), 'moves': pulse, 'ticker': tick, 'sports': sports[:8]}
+        # the headline line: only relevant, good-quality news (owner's rule, Oct 29): each race's own market news from reputable
+        # outlets, and sports stories only about teams with an open bet, plus the finals of games bet on
+        import news as NEWS
+        try:
+            cb = json.load(open('ops/src/bets.json'))
+        except Exception:
+            cb = []
+        try:
+            sports = NEWS.sports_items(get_json, state, cb, NOW, [(sp, lg, sh) for sp, lg, sh in LEAGUES])
+        except Exception as e:
+            print('sports news failed', e)
+            sports = []
+        try:
+            rnews = NEWS.race_news(get_json, NOW)
+        except Exception as e:
+            print('race news failed', e)
+            rnews = (state.get('pulse') or {}).get('news') or {}
+        state['pulse'] = {'at': iso(), 'moves': pulse, 'ticker': tick, 'sports': sports[:8], 'news': rnews}
     except Exception as e:
         print('pulse failed', e)
     try:
