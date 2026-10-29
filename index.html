@@ -603,6 +603,10 @@
   @keyframes pt-tk { from { transform: translateX(0); } to { transform: translateX(-50%); } }
   .pt-tk-i { display: inline-flex; align-items: baseline; gap: 8px; padding: 7px 22px; font-family: var(--font-mono, monospace); font-size: 13px; border-right: 1px solid color-mix(in srgb, var(--accent, #ffb000) 30%, transparent); }
   .pt-tk-n { font-weight: 700; color: var(--accent, #ffb000); letter-spacing: .04em; text-transform: uppercase; font-size: 12px; }
+  a.pt-tk-i { color: inherit; text-decoration: none; cursor: pointer; }
+  a.pt-tk-i:hover { background: color-mix(in srgb, var(--accent, #ffb000) 12%, transparent); }
+  a.pt-tk-i:hover .pt-tk-n { text-decoration: underline; text-underline-offset: 3px; }
+  a.pt-tk-i:focus-visible { outline: 2px solid var(--color-fg); outline-offset: -2px; }
   .pt-tk-p { color: var(--color-fg); font-weight: 600; }
   .pt-tk-c { font-size: 12px; } .pt-tk-c.is-up { color: var(--color-ok, #3ddc84); } .pt-tk-c.is-down { color: var(--color-bad, #ff5a4e); }
   @media (prefers-reduced-motion: reduce) { .pt-tk-row { animation: none; } .pt-ticker { overflow-x: auto; } }
@@ -666,7 +670,7 @@
   .sp-list .sp-t small { display: block; font-size: 11.5px; opacity: .75; }
   .sp-list .sp-amt { font-variant-numeric: tabular-nums; font-weight: 700; }
   @media (min-width: 701px) {   /* the standings column scrolls inside itself so a long holdings list never leaves a big empty gap beside the page */
-    .st-hook .st-podium { position: sticky; top: 196px; max-height: calc(100vh - 212px); overflow-y: auto; scrollbar-width: thin; }
+    .st-hook .st-podium { position: sticky; top: calc(var(--stick-h, 196px) + 2px); max-height: calc(100vh - var(--stick-h, 196px) - 16px); overflow-y: auto; scrollbar-width: thin; }
   }
   .st-podium .pd-detail { margin-top: 10px; border: 1px solid var(--color-border-line); border-top: 3px solid var(--ai); border-radius: var(--cds-radius); padding: 10px; font-size: 12.5px; }
   .pd-pie { display: flex; gap: 10px; align-items: center; margin-top: 6px; }
@@ -742,6 +746,23 @@
     .st-tabs-tools .st-tt-brand:hover span { color: #4cc283; }
   }
   .st-tabs { position: sticky; top: 0; z-index: 40; background: var(--color-bg); margin: 8px 0 14px; padding-top: 2px; box-shadow: 0 6px 12px -10px rgba(0,0,0,.6); }
+  /* the headlines and the price ticker ride along at the bottom of the sticky bar (owner, Oct 29) */
+  .st-tabs > .pt-feed { flex: 0 0 100%; order: 99; min-width: 0; margin: 2px 0 0; }
+  .st-tabs > .pt-feed .pt-news { margin: 0; min-height: 30px; }
+  .st-tabs > .pt-feed .pt-n-t { font-size: 13px; }
+  .st-tabs > .pt-feed .pt-n-k { font-size: 11px; padding: 0 10px; }
+  .st-tabs > .pt-feed .pt-ticker { margin: 0; }
+  .st-tabs > .pt-feed .pt-tk-i { padding: 5px 20px; font-size: 12.5px; }
+  /* who leads overall (most races led), with a crown (owner, Oct 29) */
+  .st-crown-chip { display: inline-flex; align-items: center; gap: 7px; font: inherit; font-size: 13px; color: var(--color-fg); background: color-mix(in srgb, var(--ai, #ffb000) 12%, var(--color-panel)); border: 1px solid color-mix(in srgb, var(--ai, #ffb000) 60%, transparent); border-radius: 999px; padding: 4px 12px 4px 8px; cursor: pointer; white-space: nowrap; }
+  .st-crown-chip:hover { border-color: var(--ai, #ffb000); }
+  .st-crown-chip:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .st-crown-chip .cr-k { font-size: 15px; line-height: 1; }
+  .st-crown-chip .cr-n { font-weight: 700; color: var(--ai, #ffb000); }
+  .st-crown-chip .cr-s { color: var(--color-fg-muted); font-size: 12px; }
+  .st-tabs > .st-crown-chip { margin-left: auto; align-self: center; margin-right: 2px; }
+  .st-crown-line { display: none; margin: 6px 0 0; }
+  @media (max-width: 999px) { .st-tabs > .st-crown-chip { display: none; } .st-crown-line { display: block; } .st-crown-line .st-crown-chip { white-space: normal; } }   /* tablets and phones: at the top of the page */
   @media (min-width: 701px) { .st-tabs .st-tab { padding: 6px 10px; font-size: 13.5px; } .st-tabs .st-tabgroup { padding-top: 15px; } .st-tabs .st-tabgroup-l { font-size: 10px; } }
   @media (max-width: 700px) {   /* phones keep the original layout: tabs after the intro, wrapped, not sticky */
     .st { display: flex; flex-direction: column; }
@@ -942,7 +963,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'ed4b3197a1c8';</script>
+<script>window.PT_PAGE_VER = 'fedc484af395';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -1005,7 +1026,7 @@ body { background:var(--color-bg); }
   </header>
     <section class="st-live st-live-top" aria-labelledby="h-live">
       <div class="st-live-hook">
-        <h2 class="st-live-h" id="h-live"><span class="st-live-badge"><span class="st-live-dot" aria-hidden="true"></span>LIVE</span>Get every AI trade the second it happens. Free.</h2>
+        <h2 class="st-live-h" id="h-live"><span class="st-live-badge"><span class="st-live-dot" aria-hidden="true"></span>LIVE</span>Get every AI trade the second it happens.</h2>
         <p class="st-live-last" data-draw="livelast" data-source="exp_standings">Real-time updates from @PaperTradesAI</p>
       </div>
       <div class="st-follow">
@@ -2572,6 +2593,22 @@ body { background:var(--color-bg); }
     const cur = (document.querySelector('.st-tab[aria-selected="true"]') || {}).dataset || {};
     if (String(cur.tab || '').startsWith('ai-') && cur.tab !== 'ai-' + sel.value) goTab('ai-' + sel.value, false);
   }));
+  // the headlines and the price ticker stay with you as you scroll: on computers and tablets they move into the
+  // sticky bar (phones keep them at the top of the page, where they were) (owner, Oct 29)
+  (() => {
+    const nav = document.querySelector('nav.st-tabs'), head = document.querySelector('header.st-head');
+    const news = document.querySelector('.pt-news'), tk = document.querySelector('.pt-ticker');
+    if (!nav || !head || !news || !tk) return;
+    const feed = document.createElement('div'); feed.className = 'pt-feed'; feed.setAttribute('role', 'none');
+    const mq = window.matchMedia('(min-width: 701px)');
+    const place = () => {
+      if (mq.matches) { if (news.parentElement !== feed) { feed.append(news, tk); nav.appendChild(feed); } }
+      else if (news.parentElement !== head) { head.append(news, tk); feed.remove(); }
+    };
+    place(); try { mq.addEventListener('change', place); } catch (e) { try { mq.addListener(place); } catch (e2) {} }
+    const setH = () => { try { document.documentElement.style.setProperty('--stick-h', nav.offsetHeight + 'px'); } catch (e) {} };
+    setH(); try { if (window.ResizeObserver) new ResizeObserver(setH).observe(nav); } catch (e) {} window.addEventListener('resize', setH);
+  })();
   // phones: a floating Menu button that opens every section, so nobody has to scroll down to the tabs
   (() => {
     const nav = document.querySelector('.st-tabs'); if (!nav) return;
@@ -3683,8 +3720,8 @@ body { background:var(--color-bg); }
         b.addEventListener('click', () => { el._pick = h.holding; run(); });
         chips.appendChild(b);
       });
-      const box = mk('div', 'gx'); const note = mk('p', 'st-note');
-      el.append(chips, box, note);
+      const box = mk('div', 'gx'); const note = mk('p', 'st-note'); const srcP = mk('p', 'st-note gx-src');
+      el.append(chips, box, note, srcP);
       const h = hs.find((x) => x.holding === pick);
       const cny = h.currency === 'CNY';
       const cents = pf === 'Predictions';
@@ -3711,6 +3748,11 @@ body { background:var(--color-bg); }
         shortNote: ls ? ' (the earliest price on hand)' : window.ptPxLong && !window.ptPxLong.missing ? ' (no longer history for this one)' : window.ptPxLong ? ' (longer history not available yet)' : ' (longer history is loading)' });
       if (!window.ptPxLong && !window.ptPxLongLoading) { window.ptPxLongLoading = 1; fetch('px_long.json?v=' + Math.floor(Date.now() / 36e5), { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).then((j) => { window.ptPxLong = j || { missing: 1 }; window.ptPxLongLoading = 0; { document.querySelectorAll('[data-draw="price-chart"]').forEach((e) => { if (e._redraw) e._redraw(); }); } }).catch(() => { window.ptPxLongLoading = 0; }); }
       note.textContent = out.length ? 'Further away: ' + out.map((r) => r.label.toLowerCase() + ' at ' + f(Number(r.level))).join('; ') + '.' : '';
+      // where the price comes from, with a link to the live quote (owner, Oct 29)
+      { srcP.replaceChildren(); const qs = lsym || null;
+        if (h.price_source) srcP.append(document.createTextNode('Latest price from ' + h.price_source + (h.price_at ? ', ' + stFmt.when(h.price_at) : '') + '. '));
+        if (qs) { const a = mk('a', '', 'Live quote and chart on Yahoo Finance ↗'); a.href = 'https://finance.yahoo.com/quote/' + encodeURIComponent(qs) + '/'; a.target = '_blank'; a.rel = 'noopener'; srcP.appendChild(a); }
+        srcP.hidden = !srcP.childNodes.length; }
       // Beginner mode: what this investment is, and why the AI bought it, in its own words (owner, Oct 29)
       { const bx = mk('div', 'bg-only bg-plain'); bx.appendChild(mk('b', '', '🎓 In plain words: ' + h.holding));
         const what = whatIsIt(h, pf); bx.appendChild(mk('p', '', 'What it is: ' + what));
@@ -4356,6 +4398,37 @@ body { background:var(--color-bg); }
     document.querySelectorAll('.st-tab[data-tab^="ai-"]').forEach((b) => { const id = b.dataset.tab.slice(3); if (MODEL_CO[id]) b.title = aiModelCo(id); });
   };
   dash.onData(fillModelNames);
+  // 👑 who leads overall right now = the AI leading the most of the ten races (money is only added up at the final) (owner, Oct 29)
+  (() => {
+    const nav = document.querySelector('nav.st-tabs'), head = document.querySelector('header.st-head'); if (!nav || !head) return;
+    const make = () => { const b = mk('button', 'st-crown-chip'); b.type = 'button'; b.addEventListener('click', () => goTab('h2h')); return b; };
+    const navChip = make();
+    const firstGroup = nav.querySelector(':scope > .st-tabgroup'); if (firstGroup) nav.insertBefore(navChip, firstGroup); else nav.appendChild(navChip);
+    const line = mk('p', 'st-crown-line'); const headChip = make(); line.appendChild(headChip);
+    const t = head.querySelector('.st-title'); if (t) t.after(line); else head.prepend(line);
+    const fill = () => {
+      const st = dash.baseData('standings'); const rows = Array.isArray(st) ? st.filter((r) => AIS[r.id]) : [];
+      const all = dash.baseData('exp_standings'); const ES = Array.isArray(all) ? all[0] : all; const total = ES ? Object.keys(ES).length : 10;
+      if (!rows.length) { [navChip, headChip].forEach((c) => { c.hidden = true; }); return; }
+      const L = dash.baseData('leader'); const n = (id) => ((rows.find((r) => r.id === id) || {}).leads || []).length;
+      const best = Math.max(...rows.map((r) => n(r.id))), tied = rows.filter((r) => n(r.id) === best).map((r) => r.id);
+      [navChip, headChip].forEach((c) => {
+        c.hidden = false; c.replaceChildren();
+        if (L && AIS[L]) {
+          c.style.setProperty('--ai', AIS[L].color);
+          c.append(mk('span', 'cr-k', '👑'), aiBadge(L, 16), mk('span', 'cr-n', AIS[L].label), document.createTextNode(' leads overall'), mk('span', 'cr-s', '· ' + n(L) + ' of ' + total + ' races'));
+          c.title = AIS[L].label + ' is first in ' + n(L) + ' of the ' + total + ' races right now, more than any other AI. Each race is scored on its own; the money is only added up at the final on Nov 28. Tap to compare them in AI vs AI.';
+          c.setAttribute('aria-label', AIS[L].label + ' leads overall: first in ' + n(L) + ' of ' + total + ' races. Open AI vs AI.');
+        } else {
+          c.style.removeProperty('--ai');
+          c.append(mk('span', 'cr-k', '👑'), mk('span', 'cr-n', 'Tied'), document.createTextNode(' for the lead'), mk('span', 'cr-s', '· ' + tied.map((id) => AIS[id].label).join(' and ') + ', ' + best + ' race' + (best === 1 ? '' : 's') + ' each'));
+          c.title = 'No single AI leads the most races right now. Tap to compare them in AI vs AI.';
+          c.setAttribute('aria-label', 'Tied for the lead: ' + tied.map((id) => AIS[id].label).join(' and ') + ', ' + best + ' races each. Open AI vs AI.');
+        }
+      });
+    };
+    dash.onData(fill);
+  })();
   const H2H_EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'];
   const H2H_PLAN = { gemini: H2H_EXPS, chatgpt: H2H_EXPS };
   const H2H_START = (exp) => 100000;
@@ -5494,12 +5567,15 @@ body { background:var(--color-bg); }
       return (isIdx ? '' : s) + (v >= 1000 ? d3.format(',.0f')(v) : v >= 10 ? d3.format(',.2f')(v) : d3.format(',.4f')(v)); };
     const pct = (x, lab) => { const sp = mk('span', 'pt-tk-c ' + (x >= 0 ? 'is-up' : 'is-down'), (x >= 0 ? '▲ +' : '▼ −') + Math.abs(x * 100).toFixed(1) + '% ' + lab); return sp; };
     const row = mk('div', 'pt-tk-row');
-    const item = (q) => { const it = mk('span', 'pt-tk-i'); it.append(mk('b', 'pt-tk-n', q.name), mk('span', 'pt-tk-p', num(q)), pct(q.chg_24h || 0, '24h'), pct(q.chg_7d || 0, '7d')); return it; };
+    // each price opens its live quote on Yahoo Finance (where the ticker's prices come from), in a new tab (owner, Oct 29)
+    const item = (q) => { const it = mk('a', 'pt-tk-i'); it.href = 'https://finance.yahoo.com/quote/' + encodeURIComponent(q.sym) + '/'; it.target = '_blank'; it.rel = 'noopener';
+      it.title = q.name + ': live price and chart on Yahoo Finance, the source of this price (opens in a new tab)';
+      it.append(mk('b', 'pt-tk-n', q.name), mk('span', 'pt-tk-p', num(q)), pct(q.chg_24h || 0, '24h'), pct(q.chg_7d || 0, '7d')); return it; };
     T.forEach((q) => row.appendChild(item(q)));
-    T.forEach((q) => { const it = item(q); it.setAttribute('aria-hidden', 'true'); row.appendChild(it); });   // a second copy so the loop is seamless
+    T.forEach((q) => { const it = item(q); it.setAttribute('aria-hidden', 'true'); it.tabIndex = -1; row.appendChild(it); });   // a second copy so the loop is seamless
     el.appendChild(row);
     requestAnimationFrame(() => { const w = row.scrollWidth / 2; row.style.setProperty('--pt-tk-d', Math.max(30, w / 70) + 's'); });   // about 70 pixels a second
-    const when = T.map((q) => Date.parse(q.last_at)).filter(Boolean); el.title = 'Prices from Yahoo Finance, updated at every check-in' + (when.length ? ' (last ' + new Date(Math.max(...when)).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) + ' ET)' : '') + '. Hover to pause.';
+    const when = T.map((q) => Date.parse(q.last_at)).filter(Boolean); el.title = 'Prices from Yahoo Finance, updated at every check-in' + (when.length ? ' (last ' + new Date(Math.max(...when)).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) + ' ET)' : '') + '. Hover to pause; click a price to open its source.';
   });
   dash.draw('priceaudit', (el) => {
     el.replaceChildren();
