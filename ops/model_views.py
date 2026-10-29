@@ -124,6 +124,8 @@ def build(rivals, claude):
                 row.update(price_local=t['price'], currency='CNY', shares=t['qty'], cny=round(t['qty'] * t['price'], 2), usd=t['amount'])
             else:
                 row.update(price_usd=t['price'], cad=t['amount'], qty=t['qty'])
+            if t.get('pnl') is not None:
+                row.update(cost=t.get('cost'), pnl=t.get('pnl'))   # profit on this sale (average cost), added by build_site
             d['trades'].append(row)
             sym = {'CAD': 'C$', 'USD': 'US$'}[t['cur']]
             d['log'].append({'at': t['at'], 'portfolio': t['experiment'], 'action': row['action'],

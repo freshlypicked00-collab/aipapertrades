@@ -421,6 +421,61 @@ for name in ('holdings', 'history', 'bets', 'log', 'rules', 'benchmark', 'indexe
 data['sources'] = json.load(open(os.path.join(SRC, 'sources.json')))
 rv = os.path.join(SRC, 'rivals.json')
 r = json.load(open(rv)) if os.path.exists(rv) else {'models': {}, 'trades': [], 'history': [], 'takes': []}
+# Profit on every closed trade (average cost) and every settled bet, so every trade table can show what went in,
+# what came back and the profit. Buys and open bets are marked open. Sells carry "cost" (what that part cost) and "pnl".
+def _annotate_rivals(r):
+    lots = {}
+    bets = {(mid, b['id']): b for mid, m in (r.get('models') or {}).items() for e, bk in (m.get('books') or {}).items() for b in bk.get('bets', [])}
+    for t in sorted(r.get('trades', []), key=lambda t: t['at']):
+        a = t['action']
+        if a in ('Bet', 'Parlay'):
+            t['stake'] = round(float(t.get('amount') or 0), 2)
+            b = bets.get((t.get('model'), t.get('bet')))
+            if b:
+                t['to_win'] = b.get('to_win'); t['status'] = b.get('status')
+                if b.get('status') in ('Won', 'Lost', 'Push', 'Void'):
+                    t['result'] = float(b.get('result') or 0)
+            continue
+        if a in ('Won', 'Lost', 'Push', 'Void'):
+            b = bets.get((t.get('model'), t.get('bet')))
+            if b:
+                t['stake'] = b.get('stake'); t['pnl'] = round(float(b.get('result') or 0), 2)
+            continue
+        key = (t.get('model'), t['experiment'], f"{t['symbol']}|{t['outcome']}" if t.get('outcome') else t['symbol'])
+        L = lots.setdefault(key, {'qty': 0.0, 'cost': 0.0})
+        qty, amt = float(t.get('qty') or 0), float(t.get('amount') or 0)
+        if a in ('Buy', 'Short'):
+            L['qty'] += qty; L['cost'] += amt
+        elif a in ('Sell', 'Cover', 'Settled', 'Expired') and L['qty'] > 1e-12:
+            f = min(1.0, qty / L['qty']) if qty else 1.0
+            part = L['cost'] * f
+            pnl = (part - amt) if a == 'Cover' else (amt - part)   # a short made money if it cost less to buy back than it raised
+            t['cost'] = round(part, 2); t['pnl'] = round(pnl, 2)
+            L['qty'] -= L['qty'] * f; L['cost'] -= part
+
+
+def _annotate_claude(trades):
+    lots = {}
+    for t in sorted(trades, key=lambda t: datetime.fromisoformat(str(t['at']).replace('Z', '+00:00'))):
+        a, china = t['action'], t['portfolio'] == 'China'
+        val = float((t.get('usd') if china else t.get('cad')) or 0)
+        px = float((t.get('price_local') if china else t.get('price_usd')) or 0)
+        units = float(t.get('shares') or t.get('qty') or 0) or ((float(t.get('cny') or 0) if china else val) / px if px else 0)
+        L = lots.setdefault((t['portfolio'], t['holding'], 'short' if a in ('Short', 'Cover') else 'long'), {'u': 0.0, 'c': 0.0})
+        if a in ('Buy', 'Short'):
+            L['u'] += units; L['c'] += val
+        elif a in ('Sell', 'Cover', 'Settled', 'Expired') and L['u'] > 1e-12:
+            f = min(1.0, units / L['u']) if units else 1.0
+            part = L['c'] * f
+            t['cost'] = round(part, 2); t['pnl'] = round((part - val) if a == 'Cover' else (val - part), 2)
+            L['u'] -= L['u'] * f; L['c'] -= part
+
+
+try:
+    _annotate_rivals(r)
+    _annotate_claude(data['trades'])
+except Exception as _e:
+    print('trade profits not added:', _e)
 data['rivals_models'] = [{'id': k, **{x: v.get(x) for x in ('label', 'company', 'model', 'started', 'exps', 'last_run')}, 'books': v['books']} for k, v in r['models'].items()]
 for k in ('trades', 'history', 'takes'):
     data['rivals_' + k] = r[k]
