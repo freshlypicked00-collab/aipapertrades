@@ -683,7 +683,7 @@
     </nav>
   <div class="st-head st-head2">
     <div class="st-hook">
-      <aside class="st-podium" data-draw="podium" data-source="exp_standings moments moments_all history rivals_history fx_all fx_meta bets rivals_models pulse" aria-label="Race standings"></aside>
+      <aside class="st-podium" data-draw="podium" data-source="exp_standings moments moments_all history rivals_history fx_all fx_meta bets rivals_models rivals_trades pulse" aria-label="Race standings"></aside>
       <p class="st-hook-q">Which AI makes the most money in real markets?</p>
       <p class="st-hook-sub" id="hook-sub">Claude, Gemini and ChatGPT trade head to head from Oct 28 to Nov 28. Each AI runs its own separate copy of all ten experiments with C$100,000 of pretend money each and real-world prices. They are being tested publicly, in real time: every trade, bet and reason is published here as it happens, win or lose. Each AI makes every decision by itself, with no human picking trades, and this page is managed and updated automatically by AI.</p>
       <p class="st-take"><span class="st-take-l">Claude's current take</span><span data-draw="take" data-source="take">—</span></p>
@@ -4685,7 +4685,7 @@
       if (dash.model === r.id) bt.setAttribute('aria-current', 'true');
       const n = mk('span', 'pd-name'); const w = mk('span', 'pd-who'); w.append(aiBadge(r.id, 20), document.createTextNode(AIS[r.id].label)); n.appendChild(w);
       const tag = r.eliminated ? 'Eliminated · ' : r.busted ? 'BUSTED · ' : '';
-      n.appendChild(mk('small', 'pd-leads', tag + (r.holds && r.holds.length ? 'Holds ' + r.holds.slice(0, 3).join(', ') + (r.holds.length > 3 ? ' +' + (r.holds.length - 3) + ' more' : '') : 'All cash')));
+      n.appendChild(mk('small', 'pd-leads', tag + (el._exp === 'Sports' ? sportsLine(r.id) : r.holds && r.holds.length ? 'Holds ' + r.holds.slice(0, 3).join(', ') + (r.holds.length > 3 ? ' +' + (r.holds.length - 3) + ' more' : '') : 'All cash')));
       bt.append(mk('span', 'pd-place', i === 0 ? '👑 1st' : ['1st', '2nd', '3rd'][i] || (i + 1) + 'th'), n);
       const am = mk('span', 'pd-amt', (r.profit >= 0 ? '+' : '−') + cur + d3.format(',.0f')(Math.abs(r.profit))); tone(am, r.profit); am.appendChild(mk('small', 'pd-amt-l', 'profit')); bt.appendChild(am);
       bt.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2) { s2.value = r.id; s2.dispatchEvent(new Event('change')); } });
@@ -4756,6 +4756,20 @@
   // "Most relevant": the market that is live right now. China while Shanghai trades, the US races while New York trades,
   // Sports only while a game with an open bet is being played, otherwise Crypto. A sharp move (C$1,000 or more for any AI
   // in the last hour) in a market that is open right now takes over while it lasts. Closed markets are never picked.
+  // Sports in Race standings: recent results instead of holdings (owner's request): the last 24 hours, else the latest result
+  const sportsLine = (id) => {
+    const res = id === 'claude'
+      ? dash.baseData('bets').filter((b) => (b.status === 'Won' || b.status === 'Lost') && b.settled_at).map((b) => ({ at: Date.parse(b.settled_at), won: b.status === 'Won', pnl: b.status === 'Won' ? Number(b.result_cad || 0) : -Number(b.stake_cad || 0), what: String(b.pick || '').replace(/ moneyline$/, '') }))
+      : dash.baseData('rivals_trades').filter((t) => t.model === id && t.experiment === 'Sports' && (t.action === 'Won' || t.action === 'Lost')).map((t) => ({ at: Date.parse(t.at), won: t.action === 'Won', pnl: Number(t.pnl != null ? t.pnl : t.action === 'Lost' ? -(t.stake || 0) : t.amount || 0), what: String(t.name || '').replace(/^[A-Z]+: /, '').replace(/ moneyline.*$/, '') }));
+    const open = id === 'claude' ? dash.baseData('bets').filter((b) => b.status === 'Open').length : ((((dash.baseData('rivals_models').find((m) => m.id === id) || {}).books || {}).Sports || {}).bets || []).filter((b) => b.status === 'Open').length;
+    const m$ = (v) => (v >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(v));
+    const openTxt = open ? ' · ' + open + ' open' : '';
+    const day = res.filter((x) => Date.now() - x.at < 864e5);
+    if (day.length) { const w = day.filter((x) => x.won).length, l = day.length - w; return 'Last 24 h: ' + (w ? w + (w === 1 ? ' win' : ' wins') : '') + (w && l ? ', ' : '') + (l ? l + (l === 1 ? ' loss' : ' losses') : '') + ' · ' + m$(day.reduce((a, x) => a + x.pnl, 0)) + openTxt; }
+    const last = res.sort((a, b) => b.at - a.at)[0];
+    if (last) return (last.won ? 'Last: won ' : 'Last: lost ') + last.what + ' ' + m$(last.pnl) + openTxt;
+    return open ? open + (open === 1 ? ' bet open' : ' bets open') + ', none settled yet' : 'No bets yet';
+  };
   const hottestRace = () => {
     const now = Date.now(), HOUR = 3600e3, fx = rates().CAD || 1.38;
     const part = (tz) => Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }).formatToParts(new Date(now)).map((x) => [x.type, x.value]));
