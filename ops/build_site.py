@@ -680,6 +680,78 @@ def _moments():
     return out[::-1][:20]
 
 
+def _forecasts():
+    """Forecast rounds (sealed until all three AIs are in or the round closes) and the Best forecaster table."""
+    import forecasts as FC
+    now = datetime.fromisoformat(os.environ['PT_NOW']) if os.environ.get('PT_NOW') else datetime.now(timezone.utc)   # PT_NOW: tests only
+    allf = [x for x in r.get('forecasts', []) if x.get('model') in ('gemini', 'chatgpt')] + [x for x in FC.load_claude() if x.get('model') == 'claude']
+    ser = {}
+    for h in data['history']:
+        if h['portfolio'] in FC.RACES:
+            ser.setdefault(('claude', h['portfolio']), []).append((_when(h['at']), float(h['value'])))
+    for h in r.get('history', []):
+        if h.get('model') in ('gemini', 'chatgpt') and h['experiment'] in FC.RACES:
+            ser.setdefault((h['model'], h['experiment']), []).append((_when(h['at']), float(h['value'])))
+    base = {('claude', e): _lastv([(h['at'], float(h['value'])) for h in data['history'] if h['portfolio'] == e])[1] for e in FC.RACES}
+
+    def actual(race, at):
+        out = {}
+        for m in FC.AIS:
+            pts = sorted(ser.get((m, race), []), key=lambda p: p[0])
+            pts = [v for t, v in pts if t <= at]
+            if not pts:
+                return None
+            out[m] = max(pts[-1], 0) - base.get((m, race), 100000.0)
+        return out
+    rounds, table = [], {m: {'id': m, 'points': 0.0, 'calls': 0, 'rounds': 0, 'missed': 0, 'right': 0} for m in FC.AIS}
+    for rd in FC.ROUNDS:
+        if now < FC.t(rd['open']):
+            rounds.append({'id': rd['id'], 'open': rd['open'], 'due': rd['due'], 'week': rd['week'], 'week_label': rd['week_label'], 'state': 'upcoming', 'sent': []})
+            continue
+        got = {x['model']: x for x in allf if x['round'] == rd['id']}
+        closed = now >= FC.t(rd['due'])
+        sealed = not closed and len(got) < 3
+        row = {'id': rd['id'], 'open': rd['open'], 'due': rd['due'], 'week': rd['week'], 'week_label': rd['week_label'], 'final_label': FC.FINAL_LABEL,
+               'state': 'sealed' if sealed else 'shown', 'sent': sorted(got)}
+        if not sealed:
+            row['forecasts'] = {m: {'at': x['at'], 'races': x['races']} for m, x in got.items()}
+            res = {}
+            for tgt, at in (('week', FC.t(rd['week'])), ('final', FC.t(FC.FINAL))):
+                if now < at + timedelta(minutes=10):
+                    continue
+                for race in FC.RACES:
+                    a = actual(race, at)
+                    if not a:
+                        continue
+                    top = max(a.values())
+                    res.setdefault(race, {})[tgt] = {'winners': [m for m in FC.AIS if abs(a[m] - top) < 0.005], 'profit': {m: round(a[m], 2) for m in FC.AIS}, 'points': {}}
+                    for m, x in got.items():
+                        call = (x['races'].get(race) or {}).get(tgt)
+                        pts = FC.score_call(call, a) if call else None
+                        if pts is not None:
+                            res[race][tgt]['points'][m] = pts
+                            table[m]['points'] += pts; table[m]['calls'] += 1
+                            if max(call, key=call.get) in res[race][tgt]['winners']:
+                                table[m]['right'] += 1
+            row['results'] = res
+        for m in FC.AIS:
+            if m in got:
+                table[m]['rounds'] += 1
+            elif closed:
+                table[m]['missed'] += 1
+        rounds.append(row)
+    tb = sorted(table.values(), key=lambda x: (-x['points'], -x['calls']))
+    for x in tb:
+        x['points'] = round(x['points'], 1)
+        x['avg'] = round(x['points'] / x['calls'], 1) if x['calls'] else None
+    return {'rounds': rounds, 'table': tb}
+
+
+try:
+    data['forecasts'] = _forecasts()
+except Exception as _e:
+    print('forecasts not built:', _e)
+    data['forecasts'] = {'rounds': [], 'table': []}
 try:
     RACE_END_DT = datetime(2026, 11, 28, 21, 0, tzinfo=timezone.utc)
     data['moments'] = _moments()

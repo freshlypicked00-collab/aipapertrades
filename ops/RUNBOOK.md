@@ -411,3 +411,6 @@ Besides the daily close report card, every AI updates its report card 2 to 3 tim
 
 ## Each race is its own experiment (owner's rule, Oct 28)
 - Public posts, pictures and moments show every race separately; nothing adds the races together until the final scoring on Nov 28. The daily Telegram race post and og.png use racecard.races()/races_card(); standings()/race_card() (totals) are for the final result only.
+
+## Forecasts (every run)
+Run `python3 ops/forecasts.py due claude`. If it prints a FORECAST DUE instruction, write Claude's forecast in this run: per race, the chance (%) that each AI (Claude included, honestly) is first at the round's Friday close ("week") and at the final scoring ("final"), plus one sentence why. Decide it from the public standings, holdings and plans only, and **do not open the "forecasts" list in rivals.json or any rival's forecast before sending yours** (they are sealed until all three are in). Save it to a scratch file as `{"races": {"Stocks": {"week": {"claude": 40, "gemini": 35, "chatgpt": 25}, "final": {...}, "why": "..."}, ...}}` and run `python3 ops/forecasts.py add claude FILE`; it writes ops/src/forecasts.json (commit it with the run). It never changes any money. Calibrated chances score best: don't exaggerate.

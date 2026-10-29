@@ -5,9 +5,8 @@ None of this ever changes anyone's money: the Best forecaster table is separate 
 
 Rules (agreed with Gemini and ChatGPT, Oct 28):
 - Rounds open on fixed dates (Fri Oct 30, then every Monday) and close 14 hours later. A forecast sent outside a round is ignored.
-- Per race (the ten plus Overall): the chance in % that each AI is FIRST in that race at the round's Friday close ("week")
-  and at the final scoring on Nov 28 ("final"), plus one sentence why. Chances are normalised to 100.
-- Per AI: an overall profit range in C$ (low, high) for both dates. Self ranges are shown but never scored.
+- Per race (each of the ten on its own; nothing is added together): the chance in % that each AI is FIRST in that race at the
+  round's Friday close ("week") and at the final scoring on Nov 28 ("final"), plus one sentence why. Chances are normalised to 100.
 - Sealed: a round's forecasts are shown only once all three AIs have sent theirs, or the round has closed.
 - Scoring a winner call: 100 x (1 - Brier/2). 100 = all-in on the right AI, 67 = an even three-way guess, 0 = all-in on a wrong one.
   Ties for first share the win. A missed round scores nothing.
@@ -22,7 +21,7 @@ from datetime import datetime, timezone
 
 AIS = ('claude', 'gemini', 'chatgpt')
 NAMES = {'claude': 'Claude', 'gemini': 'Gemini', 'chatgpt': 'ChatGPT'}
-RACES = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions', 'Overall']
+RACES = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
 FINAL = '2026-11-28T21:00:00Z'
 ROUNDS = [
     {'id': 'R1', 'open': '2026-10-30T13:00:00Z', 'due': '2026-10-31T03:00:00Z', 'week': '2026-11-06T21:00:00Z', 'week_label': 'Fri Nov 6, 4:00 p.m. ET'},
@@ -34,7 +33,7 @@ ROUNDS = [
 FINAL_LABEL = 'Sat Nov 28, 4:00 p.m. ET (final scoring)'
 SRC_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src', 'forecasts.json')
 LABEL = {'Stocks': 'Stocks and anything', 'Crypto': 'Crypto', 'China': 'China stocks', 'Metals': 'Metals', 'Energy': 'Oil and energy',
-         'Options': 'Options', 'Currencies': 'Currencies', 'Safe': 'Play it safe', 'Sports': 'Sports betting', 'Predictions': 'Prediction markets', 'Overall': 'Overall (total profit)'}
+         'Options': 'Options', 'Currencies': 'Currencies', 'Safe': 'Play it safe', 'Sports': 'Sports betting', 'Predictions': 'Prediction markets'}
 
 
 def t(s):
@@ -79,23 +78,9 @@ def clean(raw, mid):
         wk, fn = _probs(x.get('week')), _probs(x.get('final'))
         if wk and fn:
             out_r[race] = {'week': wk, 'final': fn, 'why': str(x.get('why') or '').strip()[:240]}
-    if 'Overall' not in out_r or len(out_r) < 6:
-        raise ValueError('forecast needs "races" with "week" and "final" chances for Overall and most races')
-    rg, out_g = raw.get('ranges') or {}, {}
-    for a in AIS:
-        x = rg.get(a) if isinstance(rg, dict) else None
-        if not isinstance(x, dict):
-            continue
-        row = {}
-        for k in ('week', 'final'):
-            v = x.get(k)
-            if isinstance(v, (list, tuple)) and len(v) == 2 and None not in (_num(v[0]), _num(v[1])):
-                lo, hi = sorted([max(-200000.0, min(200000.0, _num(v[0]))), max(-200000.0, min(200000.0, _num(v[1])))])
-                row[k] = [round(lo), round(hi)]
-        if row:
-            row['why'] = str(x.get('why') or '').strip()[:240]
-            out_g[a] = row
-    return {'races': out_r, 'ranges': out_g}
+    if len(out_r) < 6:
+        raise ValueError('forecast needs "races" with "week" and "final" chances for at least 6 of the 10 races')
+    return {'races': out_r}
 
 
 def due_text(mid, rnd):
@@ -103,11 +88,9 @@ def due_text(mid, rnd):
     others = [NAMES[a] for a in AIS if a != mid]
     return ('FORECAST DUE NOW (round ' + rnd['id'] + ', open until ' + t(rnd['due']).strftime('%a %b %-d %H:%M UTC') + '): this is a separate public contest, "Best forecaster", '
             'that never changes anyone\'s money. Predict how the race will go for all three AIs (you, ' + ' and '.join(others) + '). '
-            'Add a top-level field "forecast" to your JSON reply: {"races": {"<race>": {"week": {"claude": 40, "gemini": 35, "chatgpt": 25}, "final": {...same...}, "why": "one sentence"}, ...}, '
-            '"ranges": {"claude": {"week": [low, high], "final": [low, high], "why": "one sentence"}, "gemini": {...}, "chatgpt": {...}}}. '
-            'Races: ' + ', '.join(RACES) + ' ("Overall" = total profit across the ten). '
-            '"week" = the chance in % that each AI is FIRST in that race at ' + rnd['week_label'] + '; "final" = first at ' + FINAL_LABEL + '. Chances for one race add up to 100. '
-            'Ranges = each AI\'s TOTAL profit since Oct 28 in C$ at those two times (e.g. [-2000, 3000]); your own range is shown but not scored. '
+            'Add a top-level field "forecast" to your JSON reply: {"races": {"<race>": {"week": {"claude": 40, "gemini": 35, "chatgpt": 25}, "final": {...same...}, "why": "one sentence"}, ...}}. '
+            'Races (each judged on its own, never added together): ' + ', '.join(RACES) + '. '
+            '"week" = the chance in % that each AI is FIRST in that race at ' + rnd['week_label'] + '; "final" = first at ' + FINAL_LABEL + '. Chances for one race add up to 100; include yourself honestly. '
             'Scoring: honest, calibrated chances score best (100 = all-in on the right AI, 67 = an even guess, 0 = all-in on a wrong one), so do not exaggerate. '
             'Forecasts stay sealed until all three are in, then are shown publicly next to what really happened. This is a game of judgment, not advice. ')
 
@@ -149,7 +132,7 @@ def main():
     f = clean(raw.get('forecast', raw), 'claude')
     mine.append({'round': rnd['id'], 'model': 'claude', 'at': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'), **f})
     json.dump(mine, open(SRC_FILE, 'w'), indent=1)
-    print(f"saved Claude's forecast for {rnd['id']}: {len(f['races'])} races, {len(f['ranges'])} ranges")
+    print(f"saved Claude's forecast for {rnd['id']}: {len(f['races'])} races")
 
 
 if __name__ == '__main__':

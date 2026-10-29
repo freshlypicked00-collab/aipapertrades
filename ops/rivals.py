@@ -566,7 +566,7 @@ def standings(state, fx, me):
     if not rows:
         return []
     rows.sort(key=lambda x: -x[0])
-    return ['', 'THE RACE RIGHT NOW (shown publicly in the Overall section of the AI vs AI tab). The overall winner is the AI with the most total profit in C$ since the Oct 28 1:45 p.m. ET restart across all ten experiments (China converted from US$; a busted experiment counts as losing at most its 100,000); each experiment is also compared on its own. Best first:'] + [r[1] for r in rows] + \
+    return ['', 'THE RACE RIGHT NOW. Each of the ten experiments is its own race, shown and compared separately on the site all month (nothing is added together publicly). Only at the final scoring on Nov 28 are the ten results converted to C$ (China from US$; a busted experiment counts as losing at most its 100,000) and added up to name the overall winner. Your total below is for your own planning and the elimination limit; when you talk publicly about the race, compare race by race. Best total first:'] + [r[1] for r in rows] + \
         ['This is information only. Do not copy another AI; make your own decisions.', '']
 
 def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refused=(), take_info='', race=(), rc_due=False, notice=''):
@@ -1561,6 +1561,16 @@ def main():
             race_due = missing + [e for e in race_due if e in have][:max(0, 4 - len(missing))]   # then a few stale ones (about every 8 hours)
             if race_due:
                 daily_note += 'RACE CARDS DUE NOW (refreshed at least every 8 hours): write "race_plans" for ' + ', '.join(race_due) + ' (all fields for each). '
+            try:   # Forecasts (separate public contest, never changes money): due once per round, sealed until all three are in
+                import forecasts as FC
+                fc_round = FC.open_round(NOW) if NOW < RACE_END else None
+                if fc_round and any(x['round'] == fc_round['id'] and x['model'] == mid for x in state.get('forecasts', [])):
+                    fc_round = None
+                if fc_round:
+                    daily_note += FC.due_text(mid, fc_round)
+            except Exception as _e:
+                print('forecast round check failed:', _e)
+                fc_round = None
             plan_info = daily_note + 'Your public profile page now: ' + '; '.join(f'{k}: "{clip(v, 400)}"' if v else f'{k}: (not written yet, please write it)' for k, v in myprof.items()) + '. ' + 'Your published plans and feeling: ' + '; '.join(f"{k}: \"{v}\"" if v else f'{k}: (none yet)' for k, v in myplans.items()) + '. ' + board + fc_task
             take_info = plan_info + ('Your current take (shown at the top of the site): "' + mine[-1]['text'] + '" written ' + mine[-1]['at'] + '. ' if mine else 'You have no current take yet. ') + \
                 f'You have written {len(today)} new take(s) today (UTC). Aim for about 3 to 5 a day, at key moments (after the US open, midday, after the US close, at the daily close, at the Shanghai open) or after a trade or event that matters, and only when your view has really changed; otherwise send "" to keep it. Each new take is shown publicly on the site.'
@@ -1628,6 +1638,14 @@ def main():
                 daily = k == 'feeling' or k.startswith('on_')   # refreshed at least every 8 hours, even if the view is the same
                 if txt and (not prev or prev['text'] != txt or (daily and prev['at'] < iso(NOW - timedelta(hours=8)))):
                     state['plans'].append({'at': iso(), 'model': mid, 'horizon': k, 'text': txt})
+            if fc_round and reply.get('forecast') is not None:
+                try:
+                    f = FC.clean(reply['forecast'], mid)
+                    state.setdefault('forecasts', []).append({'round': fc_round['id'], 'model': mid, 'at': iso(), **f})
+                    print(mid, 'forecast saved for', fc_round['id'], len(f['races']), 'races')
+                except Exception as _e:
+                    notes.append(f'order refused (forecast): {_e} (send it again; the round is still open)')
+                    print(mid, 'forecast refused:', _e)
             rp = reply.get('race_plans') if isinstance(reply.get('race_plans'), dict) else {}
             for e, card in rp.items():
                 if e not in exps or e not in ALL_EXPS or not isinstance(card, dict):

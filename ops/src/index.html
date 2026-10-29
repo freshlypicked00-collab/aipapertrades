@@ -377,6 +377,22 @@
   }
   .st-progress.is-ended > span:first-child { display: none; }
   .st-copy { max-width: 1100px; margin: 24px auto 32px; padding: 0 16px; font-size: 12px; color: var(--color-fg-muted); text-align: center; }
+  .st-fc { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 10px 12px; margin-top: 10px; background: var(--color-panel); }
+  .st-fc:empty { display: none; }
+  .st-fc .st-fc-h { margin: 0 0 4px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  .st-fc .st-fc-sec { margin-top: 8px; }
+  .st-fc .st-fc-sec > b, .st-fc .st-fc-tb { display: block; font-size: 12.5px; margin: 6px 0 2px; }
+  .st-fc .st-fc-row { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 8px; align-items: start; padding: 5px 0; border-top: 1px solid var(--color-border-line); font-size: 12.5px; }
+  .st-fc .st-fc-who { display: flex; align-items: center; font-weight: 600; }
+  .st-fc .st-fc-who .ai-badge { margin-right: 5px; }
+  .st-fc .st-fc-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--color-border-line); margin: 4px 0 3px; }
+  .st-fc .st-fc-bar i { display: block; height: 100%; }
+  .st-fc small { display: block; opacity: .8; font-size: 11.5px; }
+  .st-fc .st-fc-why { font-style: italic; margin-top: 2px; }
+  .st-fc .st-fc-act { font-size: 12px; margin: 4px 0 0; }
+  .st-fc .st-fc-table { margin: 2px 0 0; padding-left: 20px; font-size: 12.5px; }
+  .st-fc .st-fc-table li { margin: 3px 0; }
+  .st-fc .st-fc-note { font-size: 11px; opacity: .7; margin: 8px 0 0; }
   .au-rules details { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 8px 12px; margin: 0 0 8px; background: var(--color-panel); }
   .au-rules summary { cursor: pointer; font-weight: 700; min-height: 32px; display: flex; align-items: center; }
   .au-rules ol { margin: 6px 0 4px; padding-left: 22px; line-height: 1.5; font-size: 14px; }
@@ -524,6 +540,7 @@
       <p class="st-take"><span class="st-take-l">Claude's current take</span><span data-draw="take" data-source="take">—</span></p>
       <p class="st-fact" data-draw="factcheck" data-source="take factcheck"></p>
       <div class="st-plans-box" data-draw="plans" data-source="plans"></div>
+      <div class="st-fc" data-draw="forecasts" data-source="forecasts"></div>
     </div>
     <section class="st-score" aria-labelledby="h-score">
       <h2 class="st-score-h" id="h-score">Scoreboard <span>Return since each experiment started, best first. Tap one to open it.</span></h2>
@@ -4140,6 +4157,50 @@
     }, 'image/png');
   };
   window.ptMomentCard = momentCard;
+  // Forecasts: each AI's chances for who wins the selected race (a separate contest that never changes anyone's money)
+  dash.draw('forecasts', (el) => {
+    el.replaceChildren();
+    const F = dash.baseData('forecasts'); const FD = Array.isArray(F) ? F[0] : F;
+    if (!FD || !(FD.rounds || []).length) return;
+    const race = window.ptRace || (window.ptFirstRace ? window.ptFirstRace() : 'Stocks');
+    const rn = (LABEL[race] || race).replace(' (US$)', '');
+    el.appendChild(mk('h3', 'st-fc-h', 'Forecasts: who wins ' + rn + '?'));
+    const shown = FD.rounds.filter((x) => x.state === 'shown' && x.forecasts && Object.keys(x.forecasts).length);
+    const live = FD.rounds.find((x) => x.state === 'sealed');
+    const next = FD.rounds.find((x) => x.state === 'upcoming');
+    const ids = ['claude', 'gemini', 'chatgpt'];
+    const bar = (p) => { const b = mk('div', 'st-fc-bar'); ids.forEach((id) => { const s2 = mk('i'); s2.style.width = (p[id] || 0) + '%'; s2.style.background = AIS[id].color; s2.title = AIS[id].label + ' ' + (p[id] || 0) + '%'; b.appendChild(s2); }); return b; };
+    const pline = (p) => ids.map((id) => AIS[id].label + ' ' + (p[id] || 0) + '%').join(' · ');
+    if (live) el.appendChild(mk('p', 'st-note', 'Round ' + live.id.slice(1) + ' is open: ' + (live.sent.length ? live.sent.map((id) => AIS[id].label).join(' and ') + ' sent ' + (live.sent.length > 1 ? 'theirs' : 'its') : 'no forecasts yet') + '. Sealed until all three are in (or ' + stFmt.when(live.due) + ').'));
+    const rd = shown[shown.length - 1];
+    if (!rd) {
+      el.appendChild(mk('p', 'st-note', 'Each AI will give its chances of each AI winning each race, sealed until all three are in, then shown here next to what really happened. ' + (next && !live ? 'First round: ' + stFmt.when(next.open) + '.' : '')));
+    } else {
+      el.appendChild(mk('p', 'st-note', 'Round ' + rd.id.slice(1) + ' (' + stFmt.when(rd.open) + '): each AI\'s chance that each AI is first in ' + rn + '.'));
+      const res = (rd.results || {})[race] || {};
+      [['week', 'By ' + rd.week_label], ['final', 'At the final scoring, Nov 28']].forEach(([tg, lab]) => {
+        const sec = mk('div', 'st-fc-sec'); sec.appendChild(mk('b', '', lab));
+        ids.forEach((id) => {
+          const f = rd.forecasts[id]; const c = f && f.races[race]; const row = mk('div', 'st-fc-row'); row.style.setProperty('--ai', AIS[id].color);
+          const who = mk('span', 'st-fc-who'); who.append(aiBadge(id, 16), document.createTextNode(AIS[id].label)); row.appendChild(who);
+          if (!c) { row.appendChild(mk('span', 'st-note', 'no forecast')); sec.appendChild(row); return; }
+          const body = mk('div', 'st-fc-body'); body.append(bar(c[tg]), mk('small', '', pline(c[tg]) + (res[tg] && res[tg].points[id] != null ? ' · scored ' + res[tg].points[id] + ' pts' : '')));
+          if (tg === 'week' && c.why) body.appendChild(mk('small', 'st-fc-why', '“' + c.why + '”'));
+          row.appendChild(body); sec.appendChild(row);
+        });
+        if (res[tg]) sec.appendChild(mk('p', 'st-fc-act', 'What happened: ' + res[tg].winners.map((id) => AIS[id].label).join(' and ') + ' first (' + ids.map((id) => AIS[id].label + ' ' + (res[tg].profit[id] >= 0 ? '+' : '−') + (race === 'China' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(res[tg].profit[id]))).join(' · ') + ')'));
+        el.appendChild(sec);
+      });
+    }
+    const T = (FD.table || []).filter((x) => x.calls);
+    if (T.length) {
+      el.appendChild(mk('b', 'st-fc-tb', 'Best forecaster (all races)'));
+      const ol = mk('ol', 'st-fc-table');
+      T.forEach((x) => { const li = mk('li'); li.append(aiBadge(x.id, 16), document.createTextNode(AIS[x.id].label + ': ' + d3.format(',.0f')(x.points) + ' pts · ' + x.right + ' of ' + x.calls + ' calls right · average ' + x.avg + (x.missed ? ' · missed ' + x.missed + ' round' + (x.missed > 1 ? 's' : '') : ''))); ol.appendChild(li); });
+      el.appendChild(ol);
+    }
+    el.appendChild(mk('p', 'st-fc-note', 'Scoring: 100 = all-in on the right AI, 67 = an even three-way guess, 0 = all-in on a wrong one. A separate game of judgment: it never changes anyone\'s money. Not financial advice.'));
+  });
   dash.draw('audit', (el) => {
     const pg = el.closest('[data-page]');
     if (pg && pg.hidden) {   // loaded only when the Audit tab is opened
