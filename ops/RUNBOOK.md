@@ -19,9 +19,6 @@ the ledger, the self-assessment or anywhere else. The one exception: the overall
 An **UPDATE ALL** checks every portfolio: fresh prices, results, rules, trades,
 then publishes everything. It runs every hour.
 
-## OPEN ITEM (do at the first run while the US market is open, then delete this section)
-Position-cap breach found in the Oct 29 review: the Oct 28 2:03 p.m. ET buy of C$70,000 SGOV in Safe left SGOV at about 70% of the experiment, above the 50% cap (Claude's update tool did not check caps then; it does now). At the first run with the US market open, sell enough SGOV at the live price to bring it to about 48% of Safe, with the log reason "Bringing SGOV under the 50% position cap: the Oct 28 C$70,000 buy broke the rule (found in the Oct 29 review, corrected publicly)". Then delete this section in the same commit.
-
 ## Files
 
 - `ops/src/*.json`: the source of truth. Never edit `data.json` at the repo root; it is built.
