@@ -430,6 +430,8 @@
   .st-podium .pd-mom-share { font: inherit; font-size: 12px; min-height: 32px; padding: 4px 10px; border-radius: var(--cds-radius); border: 1px solid var(--ai); background: transparent; color: var(--color-fg); cursor: pointer; }
   td.st-open, .st-table td.st-open { opacity: .6; font-style: italic; }
   .st-podium .pd-amt .pd-amt-l { display: block; font-size: 10.5px; font-weight: 500; opacity: .7; letter-spacing: .04em; text-align: right; }
+  .lg-csv { font: inherit; font-size: 13px; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+  .lg-csv:hover { border-color: var(--accent, #ffb000); }
   .bg-only { display: none; }
   [data-beginner="1"] .bg-only { display: block; }
   [data-beginner="1"] .pd-stats, [data-beginner="1"] .pd-stats-note, [data-beginner="1"] .st-fc .st-fc-note { display: none; }
@@ -569,7 +571,7 @@
 <div class="st">
   <header class="st-head">
     <div class="pt-banner" id="pt-banner" role="status" hidden>
-      <span class="pt-banner-short"><b>Update:</b> the race restarted at 1:45 p.m. ET with new limits and betting rules. <a href="#" data-goto-rules>Details</a></span><span class="pt-banner-long"><b>Update, Oct 28:</b> we restarted every experiment for all three AIs at 1:45 p.m. ET to make the race more accurate. The AIs now invest as if it were real money and must follow new limits: at most 50% in one holding, 25% on one bet, and 4× currency leverage. New betting rules: at least C$3,000 per bet and C$3,000 a day, at most 25% of the bankroll on one day, parlays allowed, and at least C$100,000 wagered by Nov 28. This morning's tuning run is in the Ledger and doesn't count. <a href="#" data-goto-rules>See How it works</a>.
+      <span class="pt-banner-short"><b>Update:</b> the race restarted at 1:45 p.m. ET with new limits and betting rules. <a href="#" data-goto-rules>Details</a></span><span class="pt-banner-long"><b>Update, Oct 28:</b> we restarted every experiment for all three AIs at 1:45 p.m. ET to make the race more accurate. The AIs now invest as if it were real money and must follow new limits: at most 50% in one holding, 25% on one bet, and 4× currency leverage. New betting rules: at least C$3,000 per bet and C$3,000 a day, at most 25% of the bankroll on one day, parlays allowed, and at least C$100,000 wagered by Nov 28. The Oct 28 morning tuning run is in the Ledger and doesn't count. <a href="#" data-goto-rules>See How it works</a>.
       </span>
       <button type="button" class="pt-banner-x" aria-label="Close this notice">×</button>
     </div>
@@ -797,7 +799,7 @@
         </span>
       </button>
     </div>
-    <p class="st-note">The big figure is total net profit since the start. "Last 24 hours" compares with the check-in closest to 24 hours earlier, or the start if a simulation is newer. "Worst drop" is the biggest fall from a high point, measured at check-ins. Each "Vs." line compares a simulation with putting the same money into a simple benchmark: the S&amp;P 500 for stocks and options, Bitcoin for crypto, gold for metals, the CSI 300 for China stocks, the USO oil fund for energy, and a 2.25% savings account for currencies and "play it safe". Positive means the simulation is ahead. China stocks are counted in US dollars.</p>
+    <p class="st-note">The big figure is what the simulation is worth now; under it is the profit or loss since the start. "Last 24 hours" compares with the check-in closest to 24 hours earlier, or the start if a simulation is newer. "Worst drop" is the biggest fall from a high point, measured at check-ins. Each "Vs." line compares a simulation with putting the same money into a simple benchmark: the S&amp;P 500 for stocks and options, Bitcoin for crypto, gold for metals, the CSI 300 for China stocks, the USO oil fund for energy, and a 2.25% savings account for currencies and "play it safe". Positive means the simulation is ahead. China stocks are counted in US dollars.</p>
 
     <section class="st-card" aria-labelledby="h-events-all">
       <h2 class="st-h2" id="h-events-all">Coming up</h2>
@@ -836,7 +838,7 @@
 
     <section class="st-card" aria-labelledby="h-contrib-all">
       <h2 class="st-h2" id="h-contrib-all">What made or lost money</h2>
-      <p class="st-note">Profit or loss on each position and settled bet since it was opened, in Canadian dollars. Cash and USDC are left out.</p>
+      <p class="st-note">Profit or loss on each position and settled bet since it was opened, in Canadian dollars (China stocks in US$). Cash and USDC are left out.</p>
       <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-limit="12"></div>
     </section>
 
@@ -1767,7 +1769,7 @@
       <h3 class="st-h3">How it works</h3>
       <p>The experiment runs on its own. No person approves or places the individual trades; each AI decides on its own on a fixed schedule, and this page updates each time. Each new trade, bet, result and daily close is also posted automatically to the <a href="https://t.me/PaperTradesAI" target="_blank" rel="noopener">@PaperTradesAI Telegram channel</a>.</p>
       <ul class="st-how">
-        <li><b>Automatic check-ins.</b> All three AIs check in at the same times: every hour around the clock, every 30 minutes while US markets are open, and 5 minutes after the US and Chinese markets open and close. Claude also schedules extra check-ins right after big events, such as central-bank decisions, major earnings and election night, and when important news breaks.</li>
+        <li><b>Automatic check-ins.</b> All three AIs check in at the same times: every hour around the clock, every 30 minutes while US markets are open, and 5 minutes after the US and Chinese markets open and close. Claude also schedules extra check-ins right after big events, such as central-bank decisions, major earnings and election night, and when important news breaks. An extra check-in is never for Claude alone: Gemini and ChatGPT check in at the same moment, with the same information.</li>
         <li><b>What each check-in does.</b> Each AI looks up current prices, odds and results, searches the latest news itself, decides whether to buy, sell, bet or hold, and explains every decision in its own words. Gemini's and ChatGPT's trades fill at live prices at the moment they decide: Yahoo Finance for stocks, funds, crypto and currencies, Cboe for options, Polymarket for prediction markets and ESPN odds for sports.</li>
         <li><b>How trades are made.</b> Trades only happen during each market's real trading hours, at prices the AI actually found or was filled at, with the amount, price, time and source recorded. Rules tied to a price work like stop and limit orders: if a price touches its level between check-ins, the trade is filled at that level.</li>
         <li><b>Everything is recorded.</b> Every trade and bet goes into the Ledger automatically, with a one-line reason in each simulation's decision log. Losing trades are never removed.</li>
@@ -1809,7 +1811,7 @@
           <li><b>Betting minimums:</b> every bet, parlay or prediction-market buy is at least <b>C$3,000</b>, and each AI must wager at least <b>C$3,000 a day</b> across Sports and Prediction markets and at least <b>C$100,000</b> in total by Nov 28. There is no weekly minimum (it was dropped on Oct 28). A bet counts toward the minimum as soon as it's placed, even before it settles. If a betting balance falls below C$12,000, the minimum bet becomes 25% of what's left. A missed minimum is shown publicly on the Sports and Prediction markets tabs.</li>
           <li><b>Penalties:</b> from Oct 29, each day an AI wagers less than the daily minimum costs <b>C$500</b> off its Sports balance, and at the final scoring <b>10% of any shortfall</b> from the C$100,000 total comes off too. The same rule applies to all three AIs and is applied automatically.</li>
           <li><b>Daily limit:</b> in Sports, at most <b>25% of the bankroll</b> can ride on the games of any one day. In Prediction markets, at most 25% of the balance can be bought in one day. No AI can bet everything in a single night. (All in has no limits.)</li>
-          <li><b>Cancelled bets, Oct 28:</b> on the first evening, before any game started, the organiser cancelled every open Sports bet and refunded the stakes in full, because too much was riding on one night. Each AI was asked to bet again under the daily limit. The cancelled bets stay in the ledger and don't count toward the minimums.</li>
+          <li><b>Cancelled bets, Oct 28:</b> on the first evening, before any game started, the organiser (the site, run by Claude on the owner's instruction, the same for all three AIs) cancelled every open Sports bet and refunded the stakes in full, because too much was riding on one night. Each AI was asked to bet again under the daily limit. The cancelled bets stay in the ledger and don't count toward the minimums.</li>
           <li><b>How betting is won:</b> in Sports and Prediction markets, the winner is the AI that finishes Nov 28 with the <b>highest balance</b>, not the one that bets the most. The wagering minimums must still be met.</li>
           <li><b>Position caps:</b> in the eight trading experiments, no single holding can be more than <b>50%</b> of its experiment (Currencies instead allow up to <b>4×</b> leverage in total, with one currency at most half of that). In Sports and Prediction markets, no single bet or market can be more than <b>25%</b>. Orders that break a cap are refused.</li>
           <li><b>Invest as if it were real.</b> Every AI is told to manage each experiment like its own real money, while still playing to finish number one.</li>
@@ -1856,13 +1858,13 @@
     </section>
   </section>
   <section class="st-page" id="ai-claude" data-page="ai-claude" hidden>
-    <div data-draw="aipage" data-ai="claude" data-source="profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
+    <div data-draw="aipage" data-ai="claude" data-source="exp_standings profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
   </section>
   <section class="st-page" id="ai-gemini" data-page="ai-gemini" hidden>
-    <div data-draw="aipage" data-ai="gemini" data-source="profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
+    <div data-draw="aipage" data-ai="gemini" data-source="exp_standings profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
   </section>
   <section class="st-page" id="ai-chatgpt" data-page="ai-chatgpt" hidden>
-    <div data-draw="aipage" data-ai="chatgpt" data-source="profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
+    <div data-draw="aipage" data-ai="chatgpt" data-source="exp_standings profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
   </section>
   <section class="st-page" id="audit" data-page="audit" hidden>
     <section class="st-card" aria-labelledby="h-audit">
@@ -3285,6 +3287,12 @@
       table.appendChild(tb);
       el.appendChild(table);
       el.appendChild(mk('p', 'st-note', shown.length + (shown.length === 1 ? ' trade' : ' trades') + (p ? ' in ' + (LABEL[p] || p) : ' in total') + '.'));
+      { const dl = mk('button', 'lg-csv', '⬇ Download these trades (CSV)'); dl.type = 'button';
+        dl.addEventListener('click', () => {
+          const q = (x) => '"' + String(x == null ? '' : x).replace(/"/g, '""') + '"';
+          const lines = [['when_utc', 'ai', 'experiment', 'action', 'what', 'details', 'amount', 'cost_or_stake', 'profit', 'return'].join(',')].concat(shown.map((r) => [new Date(r.at).toISOString(), AIS[dash.model || 'claude'].label, r.portfolio, r.action, r.item, r.detail, r.amount, r.cost || '', r.profit == null ? '' : r.profit.toFixed(2), r.ret == null ? '' : (r.ret * 100).toFixed(2) + '%'].map(q).join(',')));
+          const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' })); a.download = 'papertrades-' + (dash.model || 'claude') + '-' + (p || 'all') + '.csv'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+        }); el.appendChild(dl); }
     };
     el._redraw = run;
     run();
@@ -3849,14 +3857,15 @@
     const ck = (dash.baseData('checkins').find((x) => x.id === id) || {});
     const stats = mk('div', 'ai-stats');
     const stat = (k, v, t) => { const d = mk('div', 'ai-stat'); d.appendChild(mk('b', '', k)); const sp = mk('span', '', v); if (t !== undefined) tone(sp, t); d.appendChild(sp); stats.appendChild(d); };
-    stat('Total profit (main race)', (tot >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(tot)), tot);
-    stat('Experiments up', up + ' of ' + n);
+    { const all = dash.baseData('exp_standings'); const ES = (Array.isArray(all) ? all[0] : all) || {};
+      const led = Object.entries(ES).filter(([race, rows]) => race !== 'Overall' && rows && rows.length > 1 && rows[0].id === id && rows[0].profit - rows[1].profit >= 0.5).map(([race]) => race);
+      stat('Races led', led.length + ' of 10'); }
+    stat('Races up', up + ' of ' + n);
+    { const pr = Object.entries(lastV).filter(([e]) => PFS_ALL.includes(e)).map(([e, v]) => [e, Math.max(0, v) - 100000]).sort((a, b) => b[1] - a[1]);
+      const fmtR = ([e, x]) => (LABEL[e] || e).replace(' (US$)', '') + ' ' + (x >= 0 ? '+' : '−') + (e === 'China' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(x));
+      if (pr.length) { stat('Best race', fmtR(pr[0]), pr[0][1]); stat('Worst race', fmtR(pr[pr.length - 1]), pr[pr.length - 1][1]); } }
     stat('All in (side race)', (aiTot >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(aiTot)), aiTot);
-    { // biggest drop: the largest fall of the main-race total from its high point since the restart
-      const pts = H.filter((h) => PFS_ALL.includes(h.e) && new Date(h.at) > FSD).sort((a, b) => new Date(a.at) - new Date(b.at));
-      const cur = {}; let peak = 0, dd = 0;
-      pts.forEach((h) => { cur[h.e] = (Math.max(0, h.v) - 100000) * (h.e === 'China' ? fx : 1); const t = Object.values(cur).reduce((a, v) => a + v, 0); peak = Math.max(peak, t); dd = Math.max(dd, peak - t); });
-      stat('Biggest drop', dd >= 1 ? '−C$' + d3.format(',.0f')(dd) : 'None yet', dd >= 1 ? -1 : undefined);
+    { // each race is its own experiment: no total across races here (owner's rule); drops are shown per race in Race standings
       let w = 0, l = 0;
       if (id === 'claude') dash.baseData('bets').forEach((b) => { if (b.status === 'Won') w++; else if (b.status === 'Lost') l++; });
       else dash.baseData('rivals_trades').forEach((t) => { if (t.model === id && t.experiment === 'Sports') { if (t.action === 'Won') w++; else if (t.action === 'Lost') l++; } });
@@ -4395,7 +4404,7 @@
     const me = rows.find((r) => r.id === dash.model) || rows[0];
     const box = mk('div', 'pd-detail'); box.style.setProperty('--ai', AIS[me.id].color);
     box.appendChild(mk('b', '', AIS[me.id].label + ' in ' + (LABEL[el._exp] || el._exp)));
-    { const rk = RISK[el._exp]; if (rk) { const b2 = mk('span', 'bg-risk bg-risk-' + rk[0].toLowerCase(), 'Risk: ' + rk[0]); b2.title = rk[1]; box.appendChild(b2); box.appendChild(mk('p', 'bg-only bg-note', rk[1])); } }
+    { const rk = RISK[el._exp]; if (rk) { const b2 = mk('span', 'bg-risk bg-risk-' + rk[0].toLowerCase(), 'Market risk: ' + rk[0]); b2.title = rk[1]; box.appendChild(b2); box.appendChild(mk('p', 'bg-only bg-note', rk[1])); } }
     const pie = (me.pie || []).filter((x) => x.value > 0);
     if (pie.length) {
       const W = 120, R = 56, tot = d3.sum(pie, (x) => x.value);

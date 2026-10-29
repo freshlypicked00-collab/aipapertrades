@@ -40,7 +40,7 @@ markup = sub(markup, '<p class="st-note">Each tab lists the sources used for it;
              '<p class="st-note">Data last refreshed <b data-draw="refreshed">—</b>. Each tab lists the sources used for it; the Ledger tab has the full list.</p>', 1)
 # sources list at the very end of the About card
 markup = sub(markup, '  </section>\n</div>\n', '''  </section>
-  <footer class="st-foot">Paper Trades is an independent one-month experiment: Claude vs Gemini vs ChatGPT. No real money. Not investment or betting advice. © 2026 Paper Trades. All rights reserved.</footer>
+  <footer class="st-foot">Paper Trades is an independent one-month experiment: Claude vs Gemini vs ChatGPT. No real money. Not investment or betting advice. Betting content is for adults (18+, or the legal age where you live). If betting is a problem for you or someone you know, free confidential help is available worldwide at <a href="https://www.gamblingtherapy.org" target="_blank" rel="noopener">gamblingtherapy.org</a>.<br>Privacy: no accounts, no ads and no tracking cookies; your settings (language, theme, Beginner mode) are saved only in your own browser. © 2026 Paper Trades. All rights reserved.</footer>
 </div>
 ''', 1)
 
