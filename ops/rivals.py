@@ -990,7 +990,7 @@ def settle_predictions(model_id, book, fx, state):
 
 
 # ---------------- telegram ----------------
-def tg_photo(text, photo, silent=True):
+def tg_photo(text, photo, silent=False):   # every trade, bet and result pings (owner's choice)
     tok, chat = os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID')
     if not (tok and chat and photo):
         return tg(text)
@@ -1051,7 +1051,7 @@ def chart(label, color, exp, state, mid):
         return None
 
 
-def tg(text, silent=True):
+def tg(text, silent=False):
     tok, chat = os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID')
     if not (tok and chat):
         print('--- telegram (not sent) ---\n' + text)

@@ -396,8 +396,7 @@ for i, (m, pic) in enumerate(msgs):
     else:
         photo = chart_section(pic, i) if pic else None
     m = '🟠 <b>CLAUDE</b> (Anthropic)\n' + m
-    loud = isinstance(pic, tuple) and pic[0] == 'close'   # only the daily close makes a sound; trades and takes arrive silently
-    send(m + ('' if SITE in m else f'\n{SITE}'), photo, silent=not loud)
+    send(m + ('' if SITE in m else f'\n{SITE}'), photo, silent=False)   # every trade, bet and result pings (owner's choice)
 # the race card: one shareable picture of the overall standings after each daily close
 for day, n in race_days[-1:]:
     try:
