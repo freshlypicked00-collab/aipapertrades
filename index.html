@@ -618,6 +618,29 @@
   .fp-hash { font-family: var(--font-mono, monospace); font-size: 11.5px; word-break: break-all; }
   .bm-audit { margin-top: 8px; font-size: 12.5px; } .bm-audit summary { cursor: pointer; color: var(--color-fg-muted); } .bm-audit table { font-size: 12px; margin-top: 6px; }
   .pt-mtick:empty { display: none; }
+  /* phones held sideways: the screen is too short for the sticky tab bar, headlines and ticker (they covered half of it), so the tabs
+     scroll away with the page and only a slim price ticker stays at the top, as on phones held upright (owner, Oct 29) */
+  @media (min-width: 701px) and (max-height: 520px) {
+    nav.st-tabs { position: static !important; box-shadow: none; }
+    .st-hook .st-podium { position: static !important; max-height: none !important; overflow: visible !important; }
+    .pt-mtick { position: sticky !important; top: 0; z-index: 45; background: var(--color-bg); }
+    .pt-mtick .pt-ticker { margin: 0; } .pt-mtick .pt-tk-i { padding: 4px 14px; font-size: 11.5px; }
+    /* the round ☰ menu button, as on phones held upright, since the tab bar scrolls away */
+    .m-menu-group .m-menu-app { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+    .m-menu-fab { display: flex; align-items: center; justify-content: center; position: fixed; right: 14px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 55; width: 48px; height: 48px; border-radius: 50%; font-size: 20px; line-height: 1; color: var(--color-fg); background: color-mix(in srgb, var(--color-panel) 92%, transparent); border: 1px solid var(--color-border-line); box-shadow: 0 6px 18px rgba(0,0,0,.35); backdrop-filter: blur(6px); cursor: pointer; opacity: 0; transform: translateY(80px); pointer-events: none; transition: opacity .2s, transform .2s; }
+    .m-menu-fab.is-on { opacity: 1; transform: none; pointer-events: auto; }
+    @media (prefers-reduced-motion: reduce) { .m-menu-fab { transition: none; } }
+    .m-menu-btn { display: block; flex-basis: 100%; max-width: max-content; margin-top: 8px; font: inherit; font-size: 14px; font-weight: 600; padding: 8px 14px; min-height: 40px; border-radius: 999px; border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); cursor: pointer; }
+    .m-menu:not([hidden]) { display: block; position: fixed; left: 8px; right: 8px; top: 12px; max-height: 80vh; overflow-y: auto; z-index: 61; background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 12px; padding: 10px 12px 12px; box-shadow: 0 8px 30px rgba(0,0,0,.45); }
+    .m-menu-head { display: flex; justify-content: space-between; align-items: center; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+    .m-menu-x { font: inherit; font-size: 16px; background: none; border: 0; color: var(--color-fg); min-width: 44px; min-height: 36px; cursor: pointer; }
+    .m-menu-group { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 8px; }
+    .m-menu-l { width: 100%; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); }
+    .m-menu-group button { font: inherit; font-size: 14px; padding: 8px 12px; min-height: 40px; border-radius: 999px; border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg); cursor: pointer; }
+    .m-menu-group button[aria-current="true"] { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+    .m-menu-group .m-menu-model { border-color: var(--mc); }
+    .m-menu-group .m-menu-model[aria-current="true"] { background: var(--mc); color: #111; border-color: var(--mc); }
+  }
   @media (max-width: 700px) { .pt-mtick { position: sticky; top: 0; z-index: 45; background: var(--color-bg); margin: 0 -16px; padding: 0; }
     .pt-mtick .pt-ticker { margin: 0; } .pt-mtick .pt-tk-i { padding: 4px 14px; font-size: 11.5px; } }
   .pg { margin-top: 6px; display: flex; flex-direction: column; gap: 4px; }
@@ -761,7 +784,7 @@
   .st-home { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-family: var(--font-mono, monospace); font-size: 13.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); background: none; border: 0; border-bottom: 2px solid transparent; padding: 6px 10px; cursor: pointer; align-self: flex-end; }
   .st-home:hover { color: var(--color-fg); }
   .st-home:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
-  @media (min-width: 701px) { .m-menu-fab { display: none !important; } }
+  @media (min-width: 701px) and (min-height: 521px) { .m-menu-fab { display: none !important; } }
   .st-tabs-tools { display: none; }
   @media (min-width: 1000px) {
     .st-tabs-tools { display: flex; order: -1; flex: 0 0 100%; justify-content: flex-end; gap: 12px; align-items: center; padding: 4px 0 2px; }   /* its own slim row at the top of the sticky bar */
@@ -1011,7 +1034,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'eaf0e9501a8e';</script>
+<script>window.PT_PAGE_VER = '65bc4e21b634';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -2699,7 +2722,7 @@ body { background:var(--color-bg); }
     const news = document.querySelector('.pt-news'), tk = document.querySelector('.pt-ticker');
     if (!nav || !head || !news || !tk) return;
     const feed = document.createElement('div'); feed.className = 'pt-feed'; feed.setAttribute('role', 'none');
-    const mq = window.matchMedia('(min-width: 701px)');
+    const mq = window.matchMedia('(min-width: 701px) and (min-height: 521px)');   // phones on their side (short screens) get the phone layout (owner, Oct 29)
     // phones have no tab bar at the top (the Menu button replaces it), so a slim ticker of its own sticks to the top of the screen (agreed item 5)
     const mt = document.createElement('div'); mt.className = 'pt-mtick'; mt.setAttribute('role', 'none');
     const root = document.getElementById('dash-root') || document.body; root.insertBefore(mt, root.firstChild);
