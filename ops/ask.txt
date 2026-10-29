@@ -1,17 +1,17 @@
 QUESTION FROM THE OWNER, NOT A TRADING TURN (nothing changes in your books; not published).
 
-Paper Trades (papertrades.ai) is a public one-month race between Claude, Gemini and ChatGPT (Oct 28 to Nov 28, 2026): ten separate C$100,000 experiments each (China in US$), never added together until the final scoring. You are one of the competitors, but here you are asked as a reviewer.
+Paper Trades (papertrades.ai): Claude vs Gemini vs ChatGPT, ten separate C$100,000 races, Oct 28 to Nov 28. Claude also runs the site.
 
-What exists now:
-- Website (one page with tabs): race standings per race with profit, holdings, risk label and stats; a live bar with the latest trade; each AI's current take, plans, feelings and opinions per race and overall; each AI's own Race Report about itself (2-3 a day); Ledger of every trade and bet with cost/stake, profit and return; AI vs AI head-to-head with a sports tracker; Rules & Audit with the full rulebook, the exact prompts and raw replies, fact checks (a loop: Gemini checks Claude, ChatGPT checks Gemini, Claude checks ChatGPT) and a corrections log; a forecasts contest (who will be first in each race, Brier-scored, first round Fri Oct 30); Moments (lead changes) with share cards; a Beginner mode (plain-English trade sentences, tap-to-explain glossary, a Start-here guide, risk labels); 16 languages; text-to-speech; light/dark; opening animation.
-- Automation: check-ins every hour (every 30 min in US market hours, plus 5 min after US and China opens/closes); Telegram channel posts every trade, bet and result with a push notification, a daily race post per race, and corrections; Instagram gets a daily 3-slide carousel, lead-change posts and stories (automatic); X is not automated yet (paid API); Discord planned.
-- Rules enforced in code: 50% cap per holding, 25% per bet, 4x currency leverage, C$3,000 minimum bet and daily minimum, penalties, bust and elimination, final cutoff Sat Nov 28 4 p.m. ET.
+How prices work today:
+- Gemini's and ChatGPT's orders and valuations are filled by the site's code on a GitHub Actions runner, at the live price from fixed feeds (Yahoo Finance for stocks, funds, crypto and currencies; Cboe for options; Polymarket; ESPN odds).
+- Claude's check-ins run in a separate environment that cannot reach those feeds directly. Claude looks up each price itself by web search (e.g. Kitco for gold, TradingView for the CSI 300, exchange pages) and writes the price, the time and the source URL into its update. The code then checks the rules (caps, cash, market hours) and records the trade. A daily accuracy check re-verifies Claude's last 24 hours, but that check is also done by Claude.
 
-Attached: a text snapshot of the site as a visitor sees it right now (some pages trimmed).
+So the three AIs' fills do not come from the same mechanism, and Claude's prices are self-reported (with sources).
 
-Please review it like a strict editor and product reviewer. Answer in under 450 words:
-1. Anything WRONG or inconsistent you can see in the snapshot (numbers that contradict each other, confusing or misleading wording, stale notices, rules stated two different ways, fairness problems between the three AIs). Quote the exact text.
-2. What is MISSING that a visitor, a journalist or a future sponsor would expect? Only things that clearly matter.
-3. Any risk (legal, trust, fairness, technical) we have not covered.
-4. Your top 5 fixes or additions, most important first, realistic for one person to do this week.
-If nothing important is missing, say so plainly; do not invent problems.
+The owner asks: should we build something, yes or no? Options:
+A) Automatic price check: after every Claude update, the runner fetches the same feed (Yahoo 1-minute bars etc.) at the time Claude stated and publishes "Claude's price vs the feed" for every fill and valuation, flagging any gap above a tolerance (for example 0.5% stocks and funds, 1% crypto, 2% options). Flags go to the Corrections log.
+B) Same fills for everyone: Claude sends only its orders (no prices) to the runner, and the same code fills Claude at the same feed price as Gemini and ChatGPT. Claude's own price lookups would then only be used for its research.
+C) Both: B for fills, A as a check on anything Claude still values itself.
+D) Neither; the current sources and daily check are enough.
+
+Answer in under 250 words: your choice (A, B, C or D) and why; what tolerance you would use; anything that could go wrong; and whether it should apply retroactively to Claude's trades since Oct 28 (checked and published, without changing results unless a fill was clearly wrong).
