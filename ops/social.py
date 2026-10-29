@@ -21,6 +21,7 @@ import urllib.request
 from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import postcard as pc   # the picture template, in the website's own look
 GRAPH = 'https://graph.facebook.com/v26.0'
 SITE = 'https://papertrades.ai'
 STATE = 'ops/src/social.json'
@@ -32,8 +33,12 @@ RACE_END = datetime(2026, 11, 28, 21, 0, tzinfo=timezone.utc)
 AIS = {'claude': ('Claude', '#d97757'), 'gemini': ('Gemini', '#4f8ff7'), 'chatgpt': ('ChatGPT', '#f2f2f2')}
 LABEL = {'Stocks': 'Stocks and anything', 'Crypto': 'Crypto', 'China': 'China stocks', 'Metals': 'Metals', 'Energy': 'Oil and energy',
          'Options': 'Options', 'Currencies': 'Currencies', 'Safe': 'Play it safe', 'Sports': 'Sports betting', 'Predictions': 'Prediction markets'}
-TAGS = '#AI #Claude #Gemini #ChatGPT #PaperTrading #Investing #Crypto #Stocks'
-FOOT = '\n\nTen separate live races, pretend money, real prices. Every trade and reason: papertrades.ai (link in bio). Not financial advice.\n\n' + TAGS
+TAGS = '#PaperTrades #AI #Claude #Gemini #ChatGPT'
+FOOT = ('\n\nThree AIs, ten separate races, one month (Oct 28 to Nov 28). Pretend money, real prices; every trade and the reasoning '
+        'behind it is published live at papertrades.ai (link in bio).\n\nSimulation only. Not financial advice.\n\n' + TAGS)
+MIN_LEAD = 500.0          # Instagram only gets lead changes that matter: ahead by C$500 or more (US$350 in China stocks)
+MOMENT_GAP_H = 24         # at most one lead-change post per race per day
+MOMENTS_PER_DAY = 3       # and at most three a day in total
 
 
 def load(p, default):
@@ -59,83 +64,7 @@ def api(path, params=None, method='GET'):
         raise RuntimeError(f'HTTP {e.code}: {e.read().decode()[:400]}')
 
 
-# ---------- pictures
-def moment_card(m, path):
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    plt.rcParams.update({'text.parse_math': False})
-    BG, FG, MUTED, UP, DOWN = '#14130f', '#f2f2f2', '#9b927f', '#3ddc84', '#ff6b6b'
-    who, over, race = m['who'], m['over'], m['race']
-    fig = plt.figure(figsize=(10.8, 10.8), dpi=100, facecolor=BG)
-    ax = fig.add_axes([0, 0, 1, 1]); ax.set_xlim(0, 1080); ax.set_ylim(1080, 0); ax.axis('off')
-    ax.add_patch(plt.Rectangle((0, 0), 1080, 14, color=AIS[who][1]))
-    ax.text(80, 110, 'PAPER TRADES · AI VS AI', color='#d97757', fontsize=22, fontweight='bold')
-    when = datetime.fromisoformat(m['at'].replace('Z', '+00:00')).astimezone(__import__('zoneinfo').ZoneInfo('America/New_York'))
-    ax.text(80, 160, f"{LABEL.get(race, race).upper()} · {when.strftime('%b %-d')}", color=MUTED, fontsize=22)
-    ax.text(80, 290, f"{AIS[who][0]} takes", color=AIS[who][1], fontsize=66, fontweight='bold')
-    ax.text(80, 385, 'the lead', color=AIS[who][1], fontsize=66, fontweight='bold')
-    ax.text(80, 480, f"Overtook {AIS[over][0]} in {LABEL.get(race, race)},", color=FG, fontsize=32)
-    ax.text(80, 535, f"ahead by {money(m['lead'], race).lstrip('+')}.", color=FG, fontsize=32)
-    prof = m.get('profit') or {}
-    ids = sorted(prof, key=lambda k: -prof[k])
-    pos = max([v for v in prof.values() if v > 0] + [0]); neg = max([-v for v in prof.values() if v < 0] + [0])
-    span = 440.0; tot = (pos + neg) or 1
-    x0 = 300 + span * neg / tot   # the zero line: profits grow right of it, losses left of it
-    ax.plot([x0, x0], [630, 640 + 76 * len(ids)], color=MUTED, lw=1.5)
-    y = 650
-    for i in ids:
-        v = prof[i]; w = max(4, span * abs(v) / tot)
-        ax.text(80, y + 26, AIS[i][0], color=FG, fontsize=26, fontweight='bold', va='center')
-        ax.add_patch(plt.Rectangle((x0 if v >= 0 else x0 - w, y + 6), w, 40, color=AIS[i][1], alpha=1 if v >= 0 else 0.5))
-        ax.text(max(x0 + (w if v >= 0 else 0), x0) + 16, y + 26, money(v, race), color=UP if v >= 0 else DOWN, fontsize=24, fontweight='bold', va='center')
-        y += 76
-    ax.text(80, 950, 'Profit in this race since Oct 28 · pretend money, real prices', color=MUTED, fontsize=19)
-    ax.text(80, 1004, 'papertrades.ai', color=FG, fontsize=25, fontweight='bold')
-    ax.text(1000, 1004, '@PaperTradesAI', color=MUTED, fontsize=20, ha='right')
-    fig.savefig(path, dpi=1440 / 10.8, facecolor=BG, format='jpg', pil_kwargs={'quality': 95, 'subsampling': 0})   # 1440x1440, the largest Instagram keeps
-    plt.close(fig)
-
-
-def daily_card(table, big, n, when, path):
-    """The ten races after a daily close, as a tall 4:5 picture (1440x1800) that fills a phone screen in the feed."""
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    import racecard
-    plt.rcParams.update({'text.parse_math': False})
-    BG, FG, MUTED, UP, DOWN = '#0b0b0a', '#f2e9d8', '#9b927f', '#3ddc84', '#ff5a4e'
-    fig = plt.figure(figsize=(10.8, 13.5), facecolor=BG)
-    ax = fig.add_axes([0, 0, 1, 1]); ax.set_xlim(0, 1080); ax.set_ylim(1350, 0); ax.axis('off')
-    ax.text(60, 80, 'PAPER TRADES', color='#ffb000', fontsize=30, fontweight='bold', family='monospace')
-    ax.text(60, 132, f"After Day {n} · {when.strftime('%a %b %-d')}", color=FG, fontsize=24)
-    ax.text(60, 174, 'Ten separate races · each on its own · profit since Oct 28', color=MUTED, fontsize=16)
-    y = 205
-    for i, e in enumerate(racecard.ORDER):
-        rows = table.get(e) or []
-        ax.add_patch(plt.Rectangle((40, y), 1000, 96, color='#16150f' if i % 2 == 0 else '#0f0e0b', zorder=0))
-        ax.text(60, y + 30, (racecard.LABEL.get(e, e) + (' (US$)' if e == 'China' else '')).upper(), color=MUTED, fontsize=15, fontweight='bold', va='center')
-        if not rows or max(r[1] for r in rows) - min(r[1] for r in rows) < 0.5:
-            ax.text(60, y + 70, 'All even so far' if rows else 'No results yet', color=MUTED, fontsize=20, va='center')
-        else:
-            for j, (mid, p) in enumerate(rows[:3]):
-                x = 60 + j * 335
-                lead = j == 0 and len(rows) > 1 and p - rows[1][1] >= 0.5
-                ax.add_patch(plt.Rectangle((x, y + 52), 7, 36, color=racecard.AIS[mid][2]))
-                ax.text(x + 18, y + 70, ('👑 ' if False else '') + racecard.AIS[mid][0], color=FG, fontsize=20, fontweight='bold' if lead else 'normal', va='center')
-                ax.text(x + 300, y + 70, racecard.money(p, e), color=UP if p >= 0 else DOWN, fontsize=19, ha='right', va='center', family='monospace', fontweight='bold')
-        y += 101
-    if big:
-        _, mid, e, d, pct = big
-        ax.text(60, 1262, f"Biggest move: {racecard.AIS[mid][0]} in {racecard.LABEL.get(e, e)}, {racecard.money(d, e)} ({pct * 100:+.1f}%)", color=UP if d >= 0 else DOWN, fontsize=19)
-    ax.text(60, 1322, 'papertrades.ai · @PaperTradesAI · pretend money, real prices', color=MUTED, fontsize=15)
-    fig.savefig(path, dpi=1440 / 10.8, facecolor=BG, format='jpg', pil_kwargs={'quality': 95, 'subsampling': 0})
-    plt.close(fig)
-
-
-def to_jpg(png, jpg):
-    from PIL import Image
-    Image.open(png).convert('RGB').save(jpg, 'JPEG', quality=90)
+# ---------- pictures: ops/postcard.py (the website's look, with a quality check)
 
 
 # ---------- what is due
@@ -143,14 +72,25 @@ def due_posts(state):
     done = set(state.get('posted', {}))
     out = []
     data = load('data.json', {})
+    posted = state.get('posted', {})
+    recent = [(k, datetime.fromisoformat(v['at'])) for k, v in posted.items() if k.startswith('moment-')]
     for m in reversed(data.get('moments', [])):   # oldest first
         pid = 'moment-' + m['id']
         at = datetime.fromisoformat(m['at'].replace('Z', '+00:00'))
-        if pid in done or NOW - at > timedelta(hours=6) or at > RACE_END:
+        need = MIN_LEAD / 1.4 if m['race'] == 'China' else MIN_LEAD
+        if pid in done or NOW - at > timedelta(hours=6) or at > RACE_END or float(m.get('lead') or 0) < need:
             continue
-        cap = (f"⚡ {AIS[m['who']][0]} just took the lead in {LABEL.get(m['race'], m['race'])} from {AIS[m['over']][0]}, "
-               f"ahead by {money(m['lead'], m['race']).lstrip('+')}." + FOOT)
+        if any(k.startswith('moment-' + m['race'] + '-') and NOW - t < timedelta(hours=MOMENT_GAP_H) for k, t in recent):
+            continue
+        if sum(1 for k, t in recent if NOW - t < timedelta(hours=24)) >= MOMENTS_PER_DAY:
+            break
+        prof = m.get('profit') or {}
+        order = sorted(prof, key=lambda k: -prof[k])
+        lines = '\n'.join(f"{i + 1}. {AIS[k][0]} {pc.money(prof[k], m['race'])}" for i, k in enumerate(order))
+        cap = (f"Lead change in {LABEL.get(m['race'], m['race'])}.\n\n{AIS[m['who']][0]} has moved ahead of {AIS[m['over']][0]} "
+               f"by {pc.money(m['lead'], m['race']).lstrip('+')}.\n\nStandings in this race (profit since Oct 28):\n{lines}" + FOOT)
         out.append({'id': pid, 'kind': 'moment', 'moment': m, 'caption': cap})
+        recent.append((pid, NOW))
     # the daily post after each 00:00 UTC close (Day N = the day that just ended)
     day_end = NOW.replace(hour=0, minute=0, second=0, microsecond=0)
     n = (day_end - START).days
@@ -169,27 +109,30 @@ def prepare():
         img = f"social/{p['id']}.jpg"
         try:
             if p['kind'] == 'moment':
-                moment_card(p['moment'], img)
+                pc.moment(p['moment'], img)
             else:
                 import racecard
                 table, big = racecard.races(datetime.fromisoformat(p['day_start']), 'ops/src')
                 when = datetime.fromisoformat(p['day_start'])
-                daily_card(table, big, p['day'], when, img)
-                medal = ['🥇', '🥈', '🥉']
+                pc.daily(table, p['day'], when, big, img)
                 lines = []
                 for e in racecard.ORDER:
                     rows = table.get(e) or []
                     if not rows:
                         continue
-                    if max(x[1] for x in rows) - min(x[1] for x in rows) < 0.5:
-                        lines.append(f"{LABEL[e]}: all even so far")
+                    if rows[0][1] - rows[1][1] < 0.5:
+                        tied = [AIS[m2][0] for m2, p2 in rows if rows[0][1] - p2 < 0.5]
+                        lines.append(f"{LABEL[e]}: tied, {' and '.join(tied)}")
                     else:
-                        lines.append(f"{LABEL[e]}: {medal[0]} {AIS[rows[0][0]][0]} {money(rows[0][1], e)}")
-                p['caption'] = f"🏁 After Day {p['day']}: who leads each of the ten races\n\n" + '\n'.join(lines) + FOOT
+                        lines.append(f"{LABEL[e]}: {AIS[rows[0][0]][0]} {pc.money(rows[0][1], e)}")
+                p['caption'] = (f"Day {p['day']} results. Who leads each of the ten races, each judged on its own "
+                                f"(profit since the Oct 28 restart):\n\n" + '\n'.join(lines) + FOOT)
             p['image'] = img
             ready.append({k: v for k, v in p.items() if k != 'moment'})
+        except pc.QualityError as e:   # below standard: never posted, flagged for a fix
+            print('::warning::not posted, failed the quality check: ' + p['id'] + ': ' + str(e))
         except Exception as e:
-            print('could not draw', p['id'], e)
+            print('::warning::could not draw ' + p['id'] + ': ' + str(e)[:200])
     json.dump(ready, open(PENDING, 'w'), indent=1)
     print(f'{len(ready)} post(s) ready:', [p['id'] for p in ready])
 

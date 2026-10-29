@@ -39,7 +39,10 @@ def font(kind, weight, size):
 def money(x, race):
     if x is None or not math.isfinite(float(x)):
         raise QualityError('a value is missing')
-    return ('+' if x >= 0 else '−') + ('US$' if race == 'China' else 'C$') + f'{abs(x):,.0f}'
+    sym = 'US$' if race == 'China' else 'C$'
+    if abs(x) < 0.5:
+        return sym + '0'
+    return ('+' if x > 0 else '−') + sym + f'{abs(x):,.0f}'
 
 
 def day_of(dt):
@@ -54,12 +57,14 @@ class Card:
     def text(self, xy, s, f, fill, anchor='la', tracking=0):
         x, y = xy
         if tracking:   # letter-spaced labels, like the site's small uppercase headings
+            w = self.width(s, f, tracking)
             if anchor[0] == 'r':
-                x -= self.width(s, f, tracking)
+                x -= w
+            start = x
             for ch in s:
                 self.d.text((x, y), ch, font=f, fill=fill, anchor='l' + anchor[1])
                 x += f.getlength(ch) + tracking
-            box = (xy[0] - (self.width(s, f, tracking) if anchor[0] == 'r' else 0), y - f.size, x, y + f.size)
+            box = (start, y - f.size // 2, start + w, y + f.size // 2)
         else:
             self.d.text((x, y), s, font=f, fill=fill, anchor=anchor)
             box = self.d.textbbox((x, y), s, font=f, anchor=anchor)
@@ -124,9 +129,15 @@ def moment(m, path):
     c.header(f'DAY {day_of(at)} OF 32')
     c.text((SAFE_X, 300), f'LEAD CHANGE · {LABEL[race].upper()}', font('mono', 'SemiBold', 34), AMBER, 'lm', tracking=4)
     hf = font('sans', 'Bold', 150)
-    lines = c.wrap(f'{AIS[who][0]} takes the lead', hf, W - 2 * SAFE_X)
-    if len(lines) > 2:
-        raise QualityError('headline too long')
+    head = f'{AIS[who][0]} takes the lead'
+    words = head.split()
+    if hf.getlength(head) <= W - 2 * SAFE_X:
+        lines = [head]
+    else:   # two balanced lines, never a single word left dangling
+        best = min(range(1, len(words)), key=lambda k: max(hf.getlength(' '.join(words[:k])), hf.getlength(' '.join(words[k:]))))
+        lines = [' '.join(words[:best]), ' '.join(words[best:])]
+        if max(hf.getlength(x) for x in lines) > W - 2 * SAFE_X:
+            raise QualityError('headline too long')
     y = 360
     for ln in lines:
         c.text((SAFE_X, y), ln, hf, AIS[who][1], 'lt'); y += 160
@@ -145,7 +156,7 @@ def moment(m, path):
         c.text((SAFE_X + 50, y + 75), ['1ST', '2ND', '3RD'][i], font('mono', 'SemiBold', 34), AMBER if i == 0 else MUTED, 'lm', tracking=2)
         c.text((SAFE_X + 190, y + 75), AIS[mid][0], font('sans', 'SemiBold', 68), FG, 'lm')
         v = prof[mid]
-        c.text((W - SAFE_X - 40, y + 75), money(v, race), font('mono', 'SemiBold', 60), UP if v >= 0 else DOWN, 'rm')
+        c.text((W - SAFE_X - 40, y + 75), money(v, race), font('mono', 'SemiBold', 60), UP if v > 0.5 else DOWN if v < -0.5 else MUTED, 'rm')
         y += 172
     c.footer()
     return c.save(path)
@@ -169,11 +180,18 @@ def daily(table, n, when, big, path):
         even = max(r[1] for r in rows) - min(r[1] for r in rows) < 0.5
         if even:
             c.text((SAFE_X, y + 70), 'All even so far', font('sans', 'Medium', 40), MUTED, 'lm')
+        elif rows[0][1] - rows[1][1] < 0.5:   # a tie at the top is shown as a tie, never as a lead
+            tied = [m2 for m2, p2 in rows if rows[0][1] - p2 < 0.5]
+            c.text((SAFE_X, y + 70), 'Tied: ' + ' and '.join(AIS[m2][0] for m2 in tied), font('sans', 'SemiBold', 44), FG, 'lm')
+            c.text((SAFE_X + 520, y + 70), money(rows[0][1], e), font('mono', 'SemiBold', 40), UP if rows[0][1] > 0.5 else DOWN if rows[0][1] < -0.5 else MUTED, 'lm')
+            rest = '   '.join(f'{AIS[m2][0]} {money(p2, e)}' for m2, p2 in rows if m2 not in tied)
+            if rest:
+                c.text((W - SAFE_X, y + 70), rest, c.fit(rest, 'mono', 'Regular', 26, 380, 20), MUTED, 'rm')
         else:
             mid, p = rows[0]
             c.d.rectangle([SAFE_X, y + 52, SAFE_X + 8, y + 88], fill=AIS[mid][1])
             c.text((SAFE_X + 24, y + 70), AIS[mid][0], font('sans', 'SemiBold', 44), FG, 'lm')
-            c.text((SAFE_X + 300, y + 70), money(p, e), font('mono', 'SemiBold', 40), UP if p >= 0 else DOWN, 'lm')
+            c.text((SAFE_X + 300, y + 70), money(p, e), font('mono', 'SemiBold', 40), UP if p > 0.5 else DOWN if p < -0.5 else MUTED, 'lm')
             rest = '   '.join(f'{k}  {AIS[m2][0]} {money(p2, e)}' for k, (m2, p2) in zip(('2nd', '3rd'), rows[1:3]))
             c.text((W - SAFE_X, y + 70), rest, c.fit(rest, 'mono', 'Regular', 26, 560, 20), MUTED, 'rm')
         y += rh
