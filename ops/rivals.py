@@ -346,6 +346,24 @@ def pos_key(symbol, outcome):
     return f'{symbol}|{outcome}' if outcome else symbol
 
 
+def seed_hist(exp, sym, p):
+    """Once per position: its price history from Yahoo 30-minute bars since it was opened, for the site's
+    per-holding chart (owner's request, Oct 29). Kept only if the last bar agrees with the price used now."""
+    if exp in ('Predictions', 'Options', 'Sports', 'AllInSports') or (exp == 'AllInTrading' and OCC.match(sym)):
+        return
+    ys = f'{sym.upper()}USD=X' if exp == 'Currencies' else sym
+    try:
+        j = get_json(f'https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(ys)}?range=5d&interval=30m', timeout=20)['chart']['result'][0]
+        ts, cl = j.get('timestamp') or [], (j['indicators']['quote'][0].get('close') or [])
+        t0 = datetime.fromisoformat(p['opened_at'].replace('Z', '+00:00')).timestamp() if p.get('opened_at') else 0
+        pts = [[int(t // 60), round(c, 6)] for t, c in zip(ts, cl) if c is not None and t >= t0 - 1800]
+        last = p.get('last') or p['entry']
+        if pts and last and abs(pts[-1][1] / last - 1) < 0.05:
+            p['hist'] = pts[-1500:]
+    except Exception:
+        pass
+
+
 def value_book(exp, book, fx, notes):
     if book.get('busted') and BASE.get(exp, exp) != 'Sports':
         return 0.0
@@ -358,6 +376,13 @@ def value_book(exp, book, fx, notes):
             px, cur, _ = quote(exp, sym, outcome or None)
             p['last'] = px
             p['priced_at'] = iso()
+            if 'hist' not in p:
+                seed_hist(exp, sym, p)
+            h = p.setdefault('hist', [])   # one price point per check-in (at most every 15 minutes), a month at most
+            m = int(datetime.now(timezone.utc).timestamp() // 60)
+            if not h or m - h[-1][0] >= 15:
+                h.append([m, round(px, 6)])
+                del h[:-1500]
         except Exception as e:
             notes.append(f'kept last price for {key}: {e}')
         total += to_book(p['qty'] * p.get('last', p['entry']), p['pcur'], book['cur'], fx)

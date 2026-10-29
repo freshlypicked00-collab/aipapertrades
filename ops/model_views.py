@@ -84,6 +84,8 @@ def build(rivals, claude):
                     row.update(entry_usd=p['entry'], price_usd=price, value_cad=round(p['qty'] * price * fx_now['USDCAD'], 2),
                                cost_cad=round(c['cost'], 2), realized_cad=round(c.get('realized', 0.0), 2))
                 d['holdings'].append(row)
+                for mm, px in p.get('hist', []):   # its own price at every check-in, for the per-holding chart
+                    d['prices'].append({'asset': row['holding'], 'at': datetime.fromtimestamp(mm * 60, UTC).strftime('%Y-%m-%dT%H:%M:%SZ'), 'price': px})
             for (ce, ck), c in cost.items():   # positions closed for good: kept as zero rows so their profit or loss still counts
                 if ce != e or c.get('shown') or ck in b['positions'] or abs(c.get('realized', 0.0)) < 0.005:
                     continue

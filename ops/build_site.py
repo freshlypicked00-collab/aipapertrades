@@ -489,14 +489,16 @@ try:
     _annotate_claude(data['trades'])
 except Exception as _e:
     print('trade profits not added:', _e)
-data['rivals_models'] = [{'id': k, **{x: v.get(x) for x in ('label', 'company', 'model', 'started', 'exps', 'last_run')}, 'books': v['books']} for k, v in r['models'].items()]
+def _nohist(books):   # price histories stay in rivals.json; the page gets them as each AI's 'prices'
+    return {e: {**bk, 'positions': {k: {x: y for x, y in p.items() if x != 'hist'} for k, p in (bk.get('positions') or {}).items()}} if isinstance(bk, dict) else bk for e, bk in (books or {}).items()}
+data['rivals_models'] = [{'id': k, **{x: v.get(x) for x in ('label', 'company', 'model', 'started', 'exps', 'last_run')}, 'books': _nohist(v['books'])} for k, v in r['models'].items()]
 for k in ('trades', 'history', 'takes'):
     data['rivals_' + k] = r[k]
 _cut = (min(datetime.now(timezone.utc), datetime(2026, 11, 28, 21, 0, tzinfo=timezone.utc)) - __import__('datetime').timedelta(days=2)).isoformat()   # stops moving after the race
 data['fx_all'] = [{'cur': k, 'per_usd': v} for k, v in (r.get('fx_all') or {}).items()]
 data['fx_meta'] = [json.load(open(os.path.join(SRC, 'fx.json')))]
 _ai = [{'id': 'claude', 'started': (r.get('claude_allin') or {}).get('started'), 'books': (r.get('claude_allin') or {}).get('books', {})}] if r.get('claude_allin') else []
-data['allin_models'] = _ai + [{'id': k, 'started': v.get('started'), 'books': {e: b for e, b in v['books'].items() if e.startswith('AllIn')}} for k, v in r['models'].items()]
+data['allin_models'] = _ai + [{'id': k, 'started': v.get('started'), 'books': _nohist({e: b for e, b in v['books'].items() if e.startswith('AllIn')})} for k, v in r['models'].items()]
 data['allin_trades'] = [t for t in r['trades'] if str(t.get('experiment', '')).startswith('AllIn')]
 data['allin_history'] = [h for h in r['history'] if str(h.get('experiment', '')).startswith('AllIn')]
 data['rivals_trades'] = [t for t in r['trades'] if not str(t.get('experiment', '')).startswith('AllIn') and t.get('model') != 'claude']

@@ -134,6 +134,8 @@
   }
   .gx-hold { margin-top: 18px; }
   .gx-hold:empty { display: none; }
+  .gx-px-wrap { margin-top: 22px; }
+  .gx-px-wrap .st-h3 { margin: 0 0 4px; }
   .gx-hold .st-h3 { margin: 0 0 8px; }
   .gx-hold .gx-sub { display: block; font-weight: 400; margin-top: 2px; }
   .gx-hold-t td { vertical-align: top; }
@@ -796,6 +798,8 @@
       </div>
       <div class="gx" id="perf-overview" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Stocks"></div>
       <div class="gx-hold" id="perf-overview-hold" aria-live="polite"></div>
+      <div class="gx-px-wrap" id="perf-overview-pxw"><h3 class="st-h3">How each holding is doing on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
+      <div class="gx" id="perf-overview-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Stocks"></div></div>
     </section>
 
 
@@ -3247,6 +3251,8 @@
       });
       const hb = el.id ? document.getElementById(el.id + '-hold') : null;
       if (hb) holdList(hb, p, TR, money);
+      { const px = el.id ? document.getElementById(el.id + '-px') : null, pw = el.id ? document.getElementById(el.id + '-pxw') : null;
+        if (px) { if (pw) pw.hidden = p === 'Sports'; if (px.dataset.portfolio !== p) { px.dataset.portfolio = p; px._pick = null; } if (px._redraw && p !== 'Sports') px._redraw(); } }
     };
     el._redraw = run;
     run();
@@ -3274,7 +3280,7 @@
       const cny = h.currency === 'CNY';
       const cents = pf === 'Predictions';
       const f = (v) => (cents ? d3.format('.1f')(v * 100) + '¢' : cny ? '¥' + d3.format(',.3f')(v) : v >= 1000 ? '$' + d3.format(',.0f')(v) : v >= 0.1 ? '$' + d3.format(',.2f')(v) : '$' + d3.format('.5~r')(v));
-      const fa = (v) => (v > 0 && v < 0.1 && !cents ? '$' + d3.format('.4~r')(v) : cents ? d3.format('.0f')(v * 100) + '¢' : cny ? '¥' + d3.format(',.2f')(v) : v >= 1000 ? '$' + d3.format(',.0f')(v) : '$' + d3.format(',.' + (v < 10 ? 2 : 0) + 'f')(v));
+      const fa = (v, step) => (v > 0 && v < 0.1 && !cents ? '$' + d3.format('.4~r')(v) : cents ? d3.format(step < 0.01 ? '.1f' : '.0f')(v * 100) + '¢' : cny ? '¥' + d3.format(',.' + (step < 0.01 ? 3 : 2) + 'f')(v) : '$' + d3.format(',.' + (step >= 1 || v >= 1000 && step >= 1 ? 0 : step >= 0.1 ? 1 : 2) + 'f')(v));   // enough decimals that no two labels repeat
       const firstBuy = T.data.find((t) => t.portfolio === pf && t.holding === h.holding);
       const since = firstBuy ? +new Date(firstBuy.at) - 5 * 60e3 : 0;
       const allPts = P.data.filter((r) => r.asset === h.holding).map((r) => ({ t: new Date(r.at), v: Number(r.price) })).sort((a, b) => a.t - b.t);
