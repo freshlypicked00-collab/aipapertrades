@@ -758,6 +758,8 @@
     .st-tabs-tools.fit-narrow select { max-width: 120px; }
     .st-tabs.st-tabs--min > :not(.st-tabs-tools) { display: none !important; }   /* folded: only the slim top row stays */
     .st-tabs-tools .st-tt-fold[aria-expanded="false"] { border-color: var(--accent, #ffb000); color: var(--accent, #ffb000); }
+    .st-tabs-tools .st-tt-fold[aria-expanded="true"] { background: #d93a2b; border-color: #d93a2b; color: #fff; font-weight: 600; }   /* red, so nobody misses it (owner, Oct 30) */
+    .st-tabs-tools .st-tt-fold[aria-expanded="true"]:hover { background: #b92e21; border-color: #b92e21; }
     .st-tabs-tools .st-tt-theme { font: inherit; font-family: var(--font-mono, monospace); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 6px 12px; min-height: 32px; cursor: pointer; white-space: nowrap; }
     .st-tabs-tools select { font: inherit; font-size: 13px; letter-spacing: 0; text-transform: none; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 5px 8px; min-height: 32px; max-width: 170px; }
     .st-tabs-tools .st-tt-brand { margin-right: auto; display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--color-fg); font-family: var(--font-mono, monospace); font-size: 15px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
@@ -2501,7 +2503,7 @@
     { // fold the menu away for more room, and bring it back (owner, Oct 30); opens again on the next visit
       const mb = mk('button', 'st-tt-theme st-tt-fold'); mb.type = 'button';
       const cur = () => { const t = nav.querySelector('.st-tab[aria-selected="true"]'); return t ? t.textContent.trim() : ''; };
-      const paint = () => { const min = nav.classList.contains('st-tabs--min'); mb.textContent = min ? '☰ Menu' : '▴ Menu';
+      const paint = () => { const min = nav.classList.contains('st-tabs--min'); mb.textContent = min ? '☰ Open menu' : '✕ Close menu';
         mb.setAttribute('aria-expanded', String(!min)); mb.title = min ? 'Show the menu again' + (cur() ? ' (you are on ' + cur() + ')' : '') : 'Hide the menu to see more of the page'; };
       const set = (min) => { nav.classList.toggle('st-tabs--min', min); paint(); };
       mb.addEventListener('click', () => set(!nav.classList.contains('st-tabs--min')));
