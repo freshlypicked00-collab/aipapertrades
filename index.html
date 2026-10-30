@@ -1042,7 +1042,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '313a41885535';</script>
+<script>window.PT_PAGE_VER = '93d681369495';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -3578,13 +3578,15 @@ body { background:var(--color-bg); }
       box.appendChild(mk('p', 'st-note', rows.length + ' move' + (rows.length === 1 ? '' : 's') + ', newest first, 10 a page.'));
       if (!rows.length) return;
       const w = mk('div', 'h2h-scroll st-wrap'); const tb = mk('table', 'h2h-table');
-      const hr = mk('tr'); ['When', 'AI', 'Part', 'Move', 'Amount', 'Cost / stake', 'Profit', 'Return', 'Why'].forEach((h) => hr.appendChild(mk('th', '', h))); { const th = mk('thead'); th.appendChild(hr); tb.appendChild(th); }
+      const hr = mk('tr'); ['When (placed, or settled for a result)', 'AI', 'Part', 'Move', 'Amount', 'Cost / stake', 'Profit', 'Return', 'Why'].forEach((h) => hr.appendChild(mk('th', '', h))); { const th = mk('thead'); th.appendChild(hr); tb.appendChild(th); }
       const body = mk('tbody'); tb.appendChild(body);
+      const BETS = {}; (dash.baseData('allin_models') || []).forEach((m) => Object.values(m.books || {}).forEach((bk) => ((bk || {}).bets || []).forEach((b) => { BETS[m.id + '|' + b.id] = b; })));
       rows.forEach((t) => {
         const r = mk('tr'); const ai = mk('td', '', AIS[t.model].label); ai.style.borderLeft = '3px solid ' + AIS[t.model].color; ai.style.paddingLeft = '6px';
+        const bt = t.action === 'Bet' ? BETS[t.model + '|' + t.bet] : null;   // a bet says when its game starts, so the bet time and the game time are never confused
         const pl = pnlOf(t); const why = mk('td', 'wrap', t.reason || '');
         { const n = /^(Buy|Sell|Short|Cover|Bet)$/.test(t.action) ? pgNode(PG_KEY(t)) : null; if (n) why.appendChild(n); }
-        r.append(mk('td', '', stFmt.when(t.at)), ai, mk('td', '', ALLIN[t.experiment].replace('All in: ', '')), mk('td', 'wrap', t.action + ' ' + String(t.name || t.symbol).replace(/^[A-Z]{2,5}: /, '')),
+        r.append(mk('td', '', stFmt.when(t.at)), ai, mk('td', '', ALLIN[t.experiment].replace('All in: ', '')), mk('td', 'wrap', t.action + ' ' + String(t.name || t.symbol).replace(/^[A-Z]{2,5}: /, '') + (bt && bt.starts_at ? ' · game starts ' + stFmt.whenET(bt.starts_at) + ' ET' : '')),
           mk('td', 'num', Number.isFinite(+t.amount) ? (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.0f')(Math.abs(t.amount)) : ''), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret || ''), why);
         body.appendChild(r);
       });
