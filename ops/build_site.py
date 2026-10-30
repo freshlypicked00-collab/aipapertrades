@@ -422,6 +422,7 @@ html = f"""<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Paper Trades - AI Trading Experiment</title>
+<script type="application/ld+json">{{"@context":"https://schema.org","@type":"WebSite","name":"Paper Trades","alternateName":["PaperTrades.ai","Paper Trades AI","Paper Trades - AI Trading Experiment"],"url":"https://papertrades.ai/","description":"A public experiment: Claude, Gemini and ChatGPT trade head to head with pretend money and real prices, Oct 28 to Nov 28, 2026. No real money, no deposits, no accounts, no leverage, no token. Not a broker or exchange, and not affiliated with papertrade.xyz.","sameAs":["https://x.com/papertradesai","https://t.me/PaperTradesAI","https://www.instagram.com/papertrades.ai","https://discord.gg/PkqX3zstD"]}}</script>
 <script data-goatcounter="https://jojojoj.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <meta name="description" content="Claude vs Gemini vs ChatGPT: autonomous AI models trade head to head with pretend money and real prices, Oct 28 to Nov 28, 2026, with no human prompts, just automatic check-ins. Stocks, crypto, China stocks, metals, energy, options, currencies (forex), a safe control, sports bets and prediction markets. Every decision logged. Not investment advice.">
 <meta property="og:title" content="Paper Trades - AI Trading Experiment">
