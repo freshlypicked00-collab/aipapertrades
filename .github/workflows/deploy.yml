@@ -1,0 +1,33 @@
+name: Publish the site
+# Replaces GitHub's automatic "pages build and deployment" (one build per push) to save Actions minutes (Oct 30):
+#  - pushes that only change ops/ (data the site build reads, never served) do not publish;
+#  - while one publish is running, newer ones wait and only the newest of them runs (a burst of pushes = 2 publishes, not 10).
+# Bots that push with the workflow token (which never triggers push workflows) start this with `gh workflow run deploy.yml`.
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['ops/**', '.github/**', '**.md']
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main   # always publish the newest commit, even when this run was queued behind another
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4

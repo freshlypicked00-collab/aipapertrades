@@ -24,7 +24,7 @@ git fetch -q origin main && git reset -q --hard origin/main
 python3 ops/social.py prepare || { highlights; exit 0; }
 [ "$(python3 -c 'import json;print(len(json.load(open("social/pending.json"))))')" = 0 ] && { echo "nothing due"; highlights; exit 0; }
 push "Instagram: pictures for the next posts" social || { echo "could not push the pictures"; exit 0; }
-gh api -X POST repos/${GITHUB_REPOSITORY}/pages/builds >/dev/null 2>&1 || true
+gh workflow run deploy.yml -R "${GITHUB_REPOSITORY}" --ref main >/dev/null 2>&1 || true   # publish the pictures (deploy.yml)
 python3 ops/social.py publish
 push "Instagram: record what was posted" ops/src/social.json || echo "could not record the posts (they will be skipped by id next time only if recorded)"
 highlights
