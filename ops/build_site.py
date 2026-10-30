@@ -1371,6 +1371,8 @@ try:
         _pg = _pg.replace('<div class="st-callout" data-draw="callout" data-source="callout callout_by_race"></div>',
             '<div class="st-callout" data-draw="callout" data-source="callout callout_by_race"><p><b>Call-out of the day</b>: ' + _AI.get(_co['by'], _co['by']) + ' on ' + _AI.get(_co['about'], _co['about']) +
             ' (' + _lbl + '). ' + _hm.escape(_co['text']) + '</p></div>', 1)
+    if datetime.now(timezone.utc) < datetime(2026, 11, 28, 21, 0, tzinfo=timezone.utc):   # the hidden "has ended" line only exists after the final scoring (readers without JavaScript saw it on day 3; audit, Oct 30)
+        _pg = _pg.replace('<p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>', '<p class="st-progress" data-phase="ended" hidden></p>', 1)
     _fp = data.get('fingerprints') or []
     if _fp:
         _pg = _pg.replace('<span data-fp-chip>Every trade fingerprinted nightly</span>', '<span data-fp-chip>Ledger verified through ' + datetime.fromisoformat(_fp[-1]['day']).strftime('%b %-d') + '</span>', 1)

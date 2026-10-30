@@ -115,15 +115,22 @@ for s in (r.get('stops_log') or [])[-15:]:
     w(f'- {json.dumps(s)[:300]}')
 
 # ---- trades in the last 48 hours
+sys.path.insert(0, 'ops')
 w('\n## 3. Every trade, bet and settlement in the last 48 hours (all AIs)')
 cut = NOW - timedelta(hours=48)
 rows = []
 for t in r.get('trades', []):
     if ts(t['at']) >= cut:
         rows.append((t['at'], AIS.get(t['model'], t['model']), t['experiment'], t['action'], t.get('name') or t.get('symbol'), f'qty {t.get("qty")} @ {t.get("price")} {t.get("pcur")}', f'{t.get("cur")} {t.get("amount")}', clip(t.get('reason')), clip(t.get('wrong_if'), 120), 'void' if t.get('void') else ''))
+try:   # Claude's reasons live in its log (one entry can explain a pair of trades); the same lookup the graders use
+    import peer_grades as _PG
+    _log = J('log', [])
+    _why = lambda t: t.get('note') or t.get('reason') or _PG._log_reason(_log, t)
+except Exception:
+    _why = lambda t: t.get('note') or t.get('reason')
 for t in J('trades', []):
     if ts(t['at']) >= cut:
-        rows.append((t['at'], 'Claude', t['portfolio'], t['action'], t['holding'], f'@ {t.get("price_usd", t.get("price_local"))}', f'C$ {t.get("cad")}' if t.get('cad') is not None else f'US$ {t.get("usd")}', clip(t.get('note') or t.get('reason')), '', t.get('filled_by', '')))
+        rows.append((t['at'], 'Claude', t['portfolio'], t['action'], t['holding'], f'@ {t.get("price_usd", t.get("price_local"))}', f'C$ {t.get("cad")}' if t.get('cad') is not None else f'US$ {t.get("usd")}', clip(_why(t)), '', t.get('filled_by', '')))
 for b in J('bets', []):
     for k in ('placed_at', 'settled_at'):
         if b.get(k) and ts(b[k]) >= cut:
