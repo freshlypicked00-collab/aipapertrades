@@ -6986,7 +6986,7 @@
   const liveBets = (el) => {
     const now = Date.now(), H = 3600e3, all = openBets();
     const group = (rows) => { const g = {}; rows.forEach((x) => { const k = x.ev + '|' + x.t; (g[k] = g[k] || { ev: x.ev, lg: x.lg, game: x.game, t: x.t, bets: [] }).bets.push(x); if (!g[k].game && x.game) g[k].game = x.game; }); return Object.values(g).sort((a, b) => a.t - b.t); };
-    const live = group(all.filter((x) => x.t <= now && now - x.t < (GAME_LEN[String(x.lg || '').toUpperCase()] || 3) * H));
+    const live = group(all.filter((x) => x.t <= now && now - x.t < ((GAME_LEN[String(x.lg || '').toUpperCase()] || 3) + 1.25) * H));   // +1h15 so overtime, delays and the final score stay on screen until the bet settles (owner, Oct 30)
     const soon = group(all.filter((x) => x.t > now && x.t - now <= 6 * H));
     const box = mk('div', 'pd-live');
     const head = (txt, cls) => box.appendChild(mk('b', 'pd-live-h ' + (cls || ''), txt));
