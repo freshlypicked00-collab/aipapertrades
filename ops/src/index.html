@@ -545,6 +545,14 @@
   .st-podium .pd-mom .ai-badge { margin-right: 0; }
   .st-podium .pd-mom-t { flex: 1; min-width: 0; }
   .st-podium .pd-mom-t small { display: block; opacity: .7; font-size: 11px; }
+  .st-podium .pd-mom-btns { display: flex; flex-direction: column; gap: 4px; }
+  .st-podium .pd-mom-find { font: inherit; font-size: 12px; min-height: 32px; padding: 4px 10px; border-radius: var(--cds-radius); border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg); cursor: pointer; white-space: nowrap; }
+  tr.lg-hit > td { background: color-mix(in srgb, var(--accent, #ffb000) 20%, transparent); }
+  tr.lg-hit > td:first-child { box-shadow: inset 4px 0 0 var(--accent, #ffb000); }
+  tr.lg-hit-soft > td { background: color-mix(in srgb, var(--accent, #ffb000) 8%, transparent); }
+  tr.lg-hit-soft > td:first-child { box-shadow: inset 4px 0 0 color-mix(in srgb, var(--accent, #ffb000) 55%, transparent); }
+  .lg-focus { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 6px 0 8px; padding: 8px 10px; border: 1px solid var(--accent, #ffb000); border-radius: var(--cds-radius); font-size: 13px; }
+  .lg-focus button { font: inherit; font-size: 12.5px; min-height: 32px; padding: 4px 12px; border-radius: var(--cds-radius); border: 1px solid var(--accent, #ffb000); background: transparent; color: var(--color-fg); cursor: pointer; }
   .st-podium .pd-mom-share { font: inherit; font-size: 12px; min-height: 32px; padding: 4px 10px; border-radius: var(--cds-radius); border: 1px solid var(--ai); background: transparent; color: var(--color-fg); cursor: pointer; }
   td.st-open, .st-table td.st-open { opacity: .6; font-style: italic; }
   .st-podium .pd-amt .pd-amt-l { display: block; font-size: 10.5px; font-weight: 500; opacity: .7; letter-spacing: .04em; text-align: right; }
@@ -2578,6 +2586,7 @@
   window.ptLiveBox = liveBox;
   const goTab = (name, jump) => {
     showTab(name); dash.setLink(name);
+    if (name !== 'ledger' && window.ptClearFind) window.ptClearFind();
     { const t = document.querySelector('.st-tab[aria-selected="true"]'); const bar = document.querySelector('.st-tabs'); if (t && bar && bar.scrollWidth > bar.clientWidth) bar.scrollTo({ left: t.offsetLeft - bar.clientWidth / 2 + t.offsetWidth / 2, behavior: 'smooth' }); }
     if (jump === false || !(window.matchMedia && window.matchMedia('(min-width: 701px)').matches)) return;
     // the tabs sit at the top now, so bring the chosen tab's content into view just under the sticky tab bar
@@ -2608,6 +2617,38 @@
     }), 120);   // after the page has redrawn for the AI that was just picked
   };
   window.ptGoAllin = goAllin;
+  // Find in Ledger from a moment (all three AIs agreed, owner, Oct 30): that AI, that race, only that holding, the trade highlighted.
+  // The view lives in the address (?find=...) so a shared link, and Back, work.
+  const FIND_KEY = 'find';
+  const setFindUrl = (F, push) => {
+    try {
+      const u = new URL(location.href);
+      if (F) u.searchParams.set(FIND_KEY, [F.model, F.race, F.at, F.item].join('~')); else u.searchParams.delete(FIND_KEY);
+      if (F) u.hash = 'ledger';
+      history[push ? 'pushState' : 'replaceState'](null, '', u.pathname + u.search + u.hash);
+    } catch (e) {}
+  };
+  const applyFind = (F) => {
+    const sel = document.getElementById('lg-trades-pick'), box = document.getElementById('lg-trades'); if (!box || !AIS[F.model]) return;
+    goTab('ledger', false);
+    { const mp = document.getElementById('model-pick'); if (mp && mp.value !== F.model) { mp.value = F.model; mp.dispatchEvent(new Event('change')); } }
+    if (sel) sel.value = F.race; box.dataset.portfolio = F.race; box.dataset.kind = '';
+    box.dataset.focus = JSON.stringify({ model: F.model, race: F.race, at: F.at, item: F.item });
+    if (box._redraw) box._redraw();
+  };
+  window.ptFindTrade = (model, race, at, item, action) => { const F = { model, race, at, item, action }; setFindUrl(F, true); applyFind(F); };
+  window.ptClearFind = () => {
+    const box = document.getElementById('lg-trades'); if (box && box.dataset.focus) { delete box.dataset.focus; if (box._redraw) box._redraw(); }
+    if (new URLSearchParams(location.search).has(FIND_KEY)) setFindUrl(null, false);
+  };
+  const findFromUrl = () => {
+    const v = new URLSearchParams(location.search).get(FIND_KEY); if (!v) return false;
+    const [model, race, at, ...rest] = v.split('~'); const item = rest.join('~');
+    if (!AIS[model] || !race || !at || !item) return false;
+    applyFind({ model, race, at, item }); return true;
+  };
+  window.addEventListener('popstate', () => { if (!findFromUrl()) { window.ptClearFind(); const h = (location.hash || '#overview').slice(1); if (document.querySelector('.st-tab[data-tab="' + h + '"]')) showTab(h); } });
+  setTimeout(findFromUrl, 0);
   // straight to one trade in the Ledger's "Every trade" table: the right race, the right page, highlighted (agreed item 7)
   window.ptGoLedgerTrade = (race, at, item) => {
     goTab('ledger', false);
@@ -4689,17 +4730,39 @@
       const rows = tradeRows();
       if (!rows) return;
       const p = el.dataset.portfolio;
-      const inRace = rows.filter((r) => !p || r.portfolio === p);
+      let inRace = rows.filter((r) => !p || r.portfolio === p);
+      // a moment's "Find in Ledger": only that holding's trades, the trade itself highlighted, its buys (or the bet) softly
+      let F = null; try { F = el.dataset.focus ? JSON.parse(el.dataset.focus) : null; } catch (e) { F = null; }
+      if (F && (F.model !== (dash.model || 'claude') || F.race !== p)) F = null;
+      const nrm = (x) => String(x || '').toLowerCase().replace(/ \(.*\)$/, '').replace(/^g\d+ /, '').trim();
+      const same = (a, b) => { a = nrm(a); b = nrm(b); return !!a && !!b && (a === b || a.includes(b) || b.includes(a)); };
+      let hit = null;
+      if (F) {
+        let mine = inRace.filter((r) => same(r.item, F.item));
+        const t0 = +new Date(F.at), closing = /^(Sell|Cover|Settled|Expired|Won|Lost)$/;
+        hit = mine.filter((r) => closing.test(r.action)).sort((a, b) => Math.abs(+new Date(a.at) - t0) - Math.abs(+new Date(b.at) - t0))[0] || null;
+        if (hit && Math.abs(+new Date(hit.at) - t0) > 6 * 3600e3) hit = null;
+        { const gid = hit && /^(G\d+) /.exec(String(hit.item)); if (gid) mine = mine.filter((r) => String(r.item).startsWith(gid[1] + ' ')); }   // a bet: just that bet and its result
+        if (mine.length) inRace = mine; else F.missing = true;
+      }
       // Show: one tap for every move, buys only, sells only, or bets and results (owner, Oct 30); the counts follow the experiment
       const kind = LG_KINDS[el.dataset.kind || ''] ? el.dataset.kind || '' : '';
       document.querySelectorAll('#lg-trades-kinds .lg-kind').forEach((b) => { const k = b.dataset.k; b.textContent = LG_KINDS[k].label + ' (' + inRace.filter((r) => lgOk(k, r)).length + ')'; b.setAttribute('aria-pressed', String(k === kind)); });
-      const shown = inRace.filter((r) => lgOk(kind, r));
+      const shown = F && !F.missing ? inRace : inRace.filter((r) => lgOk(kind, r));
+      if (F) {
+        const bn = mk('div', 'lg-focus'); bn.setAttribute('role', 'status');
+        bn.appendChild(mk('span', '', F.missing ? 'Could not find "' + F.item + '" in ' + AIS[F.model].label + "'s " + (LABEL[p] || p) + ' trades; showing all of them.'
+          : 'Showing only ' + F.item + ': ' + shown.length + (shown.length === 1 ? ' entry' : ' entries') + '. The highlighted row is the moment you picked' + (hit && shown.length > 1 ? '; the softer rows are the buys (or the bet) behind it.' : '.')));
+        const ab = mk('button', '', 'Show all trades'); ab.type = 'button';
+        ab.addEventListener('click', () => { window.ptClearFind(); });
+        bn.appendChild(ab); el.appendChild(bn);
+      }
       const table = mk('table', 'st-table');
       table.innerHTML = '<thead><tr><th>When</th><th>Experiment</th><th>Action</th><th>What</th><th>Details</th><th class="num">Amount</th><th class="num">Cost / stake</th><th class="num">Won / lost</th><th class="num">Return</th><th>Why</th></tr></thead>';
       const tb = mk('tbody');
       if (!shown.length) { const tr = mk('tr'); const td = mk('td', '', 'No trades yet.'); td.colSpan = 10; tr.appendChild(td); tb.appendChild(tr); }
       shown.forEach((r) => {
-        const tr = mk('tr');
+        const tr = mk('tr', F && !F.missing && hit ? (r === hit ? 'lg-hit' : (/^(Buy|Short|Bet)$/.test(r.action) && +new Date(r.at) <= +new Date(hit.at) ? 'lg-hit-soft' : '')) : '');
         const act = mk('span', 'st-pill' + (r.action === 'Buy' || r.action === 'Won' ? ' is-up' : r.action === 'Sell' || r.action === 'Lost' || r.action === 'Penalty' ? ' is-down' : ''), r.action);
         const cells = [[stFmt.when(r.at)], [LABEL[r.portfolio] || r.portfolio], [act], [r.item], [r.detail, 'wrap'], [r.amount, 'num'], [r.cost || '', 'num'],
           (() => { const v = r.profit !== null ? r.profit : r.outcome != null ? r.outcome : null, cur = r.portfolio === 'China' ? 'US$' : 'C$';
@@ -4720,7 +4783,19 @@
       if (shown.length) {
         const key = (dash.model || 'claude') + '|' + (p || '') + '|' + kind; if (el._tKey !== key) { el._tKey = key; el._tPg = 0; }
         tb.dataset.pgNewest = '1'; tb._pgKey = ''; tb._pg = el._tPg || 0;
+        if (F && hit && !F.paged) { const k = shown.indexOf(hit); if (k >= 0) { tb._pg = Math.floor(k / 5); el._tPg = tb._pg; } }
         pagerFor(tb, 5, 'trades');
+        if (F && !F.scrolled) {   // bring the Ledger into view, then a short pulse on the trade so the eye finds it
+          F.scrolled = 1; F.paged = 1; el.dataset.focus = JSON.stringify(F);
+          setTimeout(() => requestAnimationFrame(() => {
+            const row = tb.querySelector('tr.lg-hit') || el.querySelector('.lg-focus'); if (!row) return;
+            // clear whatever stays pinned at the top (tab bar, price ticker) so the box is not tucked under it
+            let off = 0; document.querySelectorAll('.st-tabs, .pt-ticker, .pt-mtick, header').forEach((x) => { const cs = getComputedStyle(x); if ((cs.position === 'sticky' || cs.position === 'fixed') && x.getBoundingClientRect().top < 40) off = Math.max(off, x.getBoundingClientRect().bottom); });
+            const top = (el.querySelector('.lg-focus') || row).getBoundingClientRect().top + window.scrollY - off - 12;
+            window.scrollTo({ top, behavior: 'smooth' });
+            if (row.tagName === 'TR') { row.classList.remove('pt-flash'); void row.offsetWidth; row.classList.add('pt-flash'); setTimeout(() => row.classList.remove('pt-flash'), 2200); }
+          }), 120);
+        }
         const bar = tw.nextElementSibling;
         if (bar && bar.classList.contains('st-pager')) { const keep = () => { el._tPg = tb._pg || 0; }; bar.addEventListener('click', keep); bar.addEventListener('change', keep); }
       }
@@ -6889,7 +6964,14 @@
       const t = mk('span', 'pd-mom-t'); const lab = mk('span', ''); lab.append(mk('i', 'pd-mom-k', MOM_ICON[m.type || 'lead'] || ''), document.createTextNode(momentText(m))); t.append(lab, mk('small', '', stFmt.when(m.at)));
       const b = mk('button', 'pd-mom-share', 'Share'); b.type = 'button'; b.setAttribute('aria-label', 'Share: ' + momentText(m));
       b.addEventListener('click', () => shareMoment(m, b));
-      r2.append(t, b); return r2;
+      // Find in Ledger: jump to this trade, showing only that holding with the trade highlighted (all three AIs agreed, owner, Oct 30)
+      const canFind = (m.type === 'win' || m.type === 'loss') && m.what && document.querySelector('#lg-trades-pick option[value="' + m.race + '"]');
+      if (canFind) {
+        const f = mk('button', 'pd-mom-find', '🔎 Ledger'); f.type = 'button'; f.title = 'Find this trade in the Ledger'; f.setAttribute('aria-label', 'Find in Ledger: ' + momentText(m));
+        f.addEventListener('click', () => window.ptFindTrade(m.who, m.race, m.at, String(m.what).replace(/ \(.*\)$/, ''), m.action));
+        const bx = mk('div', 'pd-mom-btns'); bx.append(f, b); r2.append(t, bx);
+      } else r2.append(t, b);
+      return r2;
     };
     all.slice(0, 5).forEach((m) => mb.appendChild(row(m)));
     if (all.length > 5) { const d = mk('details', 'pd-mom-more'); d.appendChild(mk('summary', '', 'More moments (' + (all.length - 5) + ')')); all.slice(5).forEach((m) => d.appendChild(row(m))); mb.appendChild(d); }
@@ -7647,14 +7729,14 @@
   { const g = document.getElementById('log-all-graded'), t = document.getElementById('log-all-body');
     if (g && t) g.addEventListener('change', () => { if (g.value) t.dataset.graded = '1'; else delete t.dataset.graded; t._pgKey = null; if (dash.redraw) dash.redraw(); }); }
   { const sel = document.getElementById('lg-trades-pick'), t = document.getElementById('lg-trades');
-    if (sel && t) sel.addEventListener('change', () => { t.dataset.portfolio = sel.value; if (t._redraw) t._redraw(); });
+    if (sel && t) sel.addEventListener('change', () => { delete t.dataset.focus; if (window.ptClearFind) window.ptClearFind(); t.dataset.portfolio = sel.value; if (t._redraw) t._redraw(); });
     // Show: Every move · Buys · Sells · Bets and results, one tap each (owner, Oct 30)
     const bar = sel && sel.closest('.lg-pick');
     if (bar && t && !document.getElementById('lg-trades-kinds')) {
       const sw = document.createElement('div'); sw.className = 'lg-kinds'; sw.id = 'lg-trades-kinds'; sw.setAttribute('role', 'group'); sw.setAttribute('aria-label', 'Show');
       const l = document.createElement('span'); l.className = 'lg-kinds-l'; l.textContent = 'Show:'; sw.appendChild(l);
       Object.keys(LG_KINDS).forEach((k) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'lg-kind'; b.dataset.k = k; b.textContent = LG_KINDS[k].label; b.title = LG_KINDS[k].tip; b.setAttribute('aria-pressed', String(k === (t.dataset.kind || '')));
-        b.addEventListener('click', () => { t.dataset.kind = k; if (t._redraw) t._redraw(); }); sw.appendChild(b); });
+        b.addEventListener('click', () => { delete t.dataset.focus; if (window.ptClearFind) window.ptClearFind(); t.dataset.kind = k; if (t._redraw) t._redraw(); }); sw.appendChild(b); });
       bar.appendChild(sw); if (t._redraw) t._redraw();
     } }
   document.querySelectorAll('[data-mode-for]').forEach((g) => {
