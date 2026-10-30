@@ -830,6 +830,20 @@
   button.gx-lead-go:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   @keyframes pt-flash { 0%, 30% { box-shadow: 0 0 0 2px var(--accent, #ffb000); } 100% { box-shadow: 0 0 0 2px transparent; } }
   @media (prefers-reduced-motion: reduce) { .pt-flash { animation: none; } }
+  /* All in: the Sports / Trading jump buttons at the top of the page (owner, Oct 30) */
+  .al-jump { display: grid; grid-template-columns: 1fr 1fr; gap: var(--cds-gap-sm); margin: 2px 0 4px; }
+  .al-jump-b { display: flex; align-items: center; gap: 12px; padding: 12px 14px; min-height: 76px; text-align: left; cursor: pointer;
+    background: var(--color-bg); color: var(--color-fg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius);
+    font: inherit; transition: border-color .15s, transform .15s, box-shadow .15s; }
+  .al-jump-b svg { flex: none; }
+  .al-jump-b:hover, .al-jump-b:focus-visible { transform: translateY(-1px); outline: none; }
+  .al-jump-sports:hover, .al-jump-sports:focus-visible { border-color: #f28c28; box-shadow: 0 0 0 1px #f28c28; }
+  .al-jump-trading:hover, .al-jump-trading:focus-visible { border-color: #3fb68b; box-shadow: 0 0 0 1px #3fb68b; }
+  .al-jump-t { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .al-jump-t b { font-size: 18px; line-height: 1.2; }
+  .al-jump-t small { font-size: 12px; color: var(--color-fg-muted); line-height: 1.3; }
+  @media (max-width: 520px) { .al-jump-b { flex-direction: column; align-items: flex-start; gap: 6px; } .al-jump-t small { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .al-jump-b { transition: none; } .al-jump-b:hover { transform: none; } }
   tr.pt-flash > td { animation: pt-flash-bg 2.2s ease-out; } @keyframes pt-flash-bg { 0%, 40% { background: color-mix(in srgb, var(--accent, #ffb000) 22%, transparent); } 100% { background: transparent; } }
   @media (max-width: 999px) { .st-tabs > .st-crowns { display: none; } .st-crown-line { display: flex; flex-direction: column; align-items: flex-start; } .st-crown-line .st-crown-chip { white-space: normal; } }   /* tablets and phones: at the top of the page */
   @media (min-width: 701px) { .st-tabs .st-tab { padding: 6px 10px; font-size: 13.5px; } .st-tabs .st-tabgroup { padding-top: 15px; } .st-tabs .st-tabgroup-l { font-size: 10px; } }
@@ -2011,6 +2025,32 @@
   <section class="st-page" id="allin" data-page="allin" hidden>
     <section class="st-card" aria-labelledby="h-allin">
       <h2 class="st-h2" id="h-allin">All in</h2>
+      <!-- two big buttons that jump to each part of the side race (owner, Oct 30) -->
+      <nav class="al-jump" aria-label="Jump to a part of All in">
+        <button type="button" class="al-jump-b al-jump-sports" onclick="window.ptGoAllin && window.ptGoAllin('AllInSports')">
+          <svg viewBox="0 0 64 64" width="52" height="52" aria-hidden="true">
+            <circle cx="36" cy="10" r="6" fill="currentColor"/>
+            <path d="M33 17 L27 36 L35 37 L39 19 Z" fill="currentColor"/>
+            <path d="M37 19 L49 27 L46 31 L36 25 Z" fill="currentColor"/>
+            <path d="M32 20 L21 29 L18 41 L22 42 L25 32 L33 26 Z" fill="currentColor"/>
+            <path d="M28 35 L22 47 L14 52 L16 56 L26 50 L33 38 Z" fill="currentColor"/>
+            <path d="M33 37 L37 49 L36 60 L41 60 L42 48 L38 36 Z" fill="currentColor"/>
+            <circle cx="19" cy="50" r="7" fill="#f28c28"/>
+            <path d="M12 50 H26 M19 43 V57 M14 45 Q19 50 14 55 M24 45 Q19 50 24 55" stroke="#4a2a0a" stroke-width="1.2" fill="none"/>
+          </svg>
+          <span class="al-jump-t"><b>Sports</b><small>All in: sports · bets on real games</small></span>
+        </button>
+        <button type="button" class="al-jump-b al-jump-trading" onclick="window.ptGoAllin && window.ptGoAllin('AllInTrading')">
+          <svg viewBox="0 0 64 64" width="52" height="52" aria-hidden="true">
+            <path d="M32 32 L32 6 A26 26 0 0 1 57.4 37.6 Z" fill="#3fb68b"/>
+            <path d="M32 32 L57.4 37.6 A26 26 0 0 1 20.2 55.2 Z" fill="#4c8dff"/>
+            <path d="M32 32 L20.2 55.2 A26 26 0 0 1 9.5 19 Z" fill="#ffb000"/>
+            <path d="M29 29 L6.5 16 A26 26 0 0 1 29 3 Z" fill="#e5484d"/>
+            <circle cx="32" cy="32" r="26" fill="none" stroke="currentColor" stroke-opacity=".25" stroke-width="1"/>
+          </svg>
+          <span class="al-jump-t"><b>Trading</b><small>All in: trading · stocks, crypto, options</small></span>
+        </button>
+      </nav>
       <p class="st-note">The fun side race, in two parts, <b>each with its own winner</b>: All in: trading and All in: sports. Each AI gets an extra C$100,000 in each, with <b>no limits</b>: no position caps, and it can bet the whole lot on one idea. Here the goal is simply the biggest number. All in is completely separate: it never counts toward the ten main races, the two parts are never added together, and busting here doesn't eliminate anyone. Same real prices and odds, same check-ins.</p>
       <div data-draw="allin" data-source="allin_models allin_history allin_trades"></div>
     </section>
