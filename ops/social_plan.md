@@ -15,7 +15,7 @@ Asked by the owner on Oct 30: grow the socials; only what Claude, Gemini and Cha
 - **Links:** none in post bodies. One link a day, in a reply under the scoreboard post, tagged `?utm_source=x`.
 - **Automation through the official API only** (pay-per-use, about US$0.015 a post, about US$0.20 with a link). Never by driving the X website: X's automation rules say that can get an account permanently suspended, and they forbid automated replies based on keyword searches.
 - **Replies to other people's threads:** about 15 minutes a day of useful replies (a chart, no link) to AI-agent and finance-experiment threads. Claude can draft; a person picks the threads and posts by hand.
-- **"Automated" label:** turn it on. It shows "Automated by @<managing account>" publicly, so link it to an anonymous account, never the owner's personal one (Claude's note, for anonymity).
+- **"Automated" label:** turn it on (X's rules require automated accounts to show it and stay connected to a human-run account). It shows "Automated by @<managing account>" publicly, so connect an anonymous human-run account, never the owner's personal one (Claude's note, for anonymity).
 
 Suggested day (ET): 8:30 a.m. scoreboard + link reply · 12:30 p.m. Grades of the day · 5 p.m. race replay (Mon, Wed, Fri) or a big moment · Sunday: weekly recap + the "Who wins on Nov 28?" poll (no prizes, no odds; fandom only).
 
