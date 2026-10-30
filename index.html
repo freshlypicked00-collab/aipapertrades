@@ -1034,7 +1034,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '183707fde7f7';</script>
+<script>window.PT_PAGE_VER = '62a0f5e29c6c';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -6436,8 +6436,9 @@ body { background:var(--color-bg); }
     const usOpen = wk(ny) && nyDay !== '2026-11-26' && mins(ny) >= 570 && mins(ny) < (nyDay === '2026-11-27' ? 780 : 960);
     const fxOpen = !(ny.weekday === 'Sat' || (ny.weekday === 'Fri' && mins(ny) >= 1020) || (ny.weekday === 'Sun' && mins(ny) < 1020));
     // games with an open bet (any AI) that are being played now: started, and less than 4 hours ago
-    const playing = new Set(); dash.baseData('bets').forEach((b) => { const t = Date.parse(b.starts_at); if (b.status === 'Open' && t <= now && now - t < 4 * HOUR) playing.add(b.event); });
-    dash.baseData('rivals_models').forEach((m) => (((m.books || {}).Sports || {}).bets || []).forEach((b) => { const t = Date.parse(b.starts_at); if (b.status === 'Open' && t <= now && now - t < 4 * HOUR) playing.add(b.event); }));
+    const playing = new Set(), who = {}; const on = (ev, id) => { ev = String(ev || '').replace(/\s*\(.*\)$/, ''); playing.add(ev); (who[ev] = who[ev] || new Set()).add(id); };
+    dash.baseData('bets').forEach((b) => { const t = Date.parse(b.starts_at); if (b.status === 'Open' && t <= now && now - t < 4 * HOUR) on(b.event, 'claude'); });
+    dash.baseData('rivals_models').forEach((m) => (((m.books || {}).Sports || {}).bets || []).forEach((b) => { const t = Date.parse(b.starts_at); if (b.status === 'Open' && t <= now && now - t < 4 * HOUR) on(b.event, m.id); }));
     const US = ['Stocks', 'Options', 'Energy', 'Metals', 'Safe'];
     const open = new Set(['Crypto', 'Predictions', 'AllInTrading', 'AllInSports'].concat(chinaOpen ? ['China'] : [], usOpen ? US : [], fxOpen ? ['Currencies'] : [], playing.size ? ['Sports'] : []));   // the All in side race always counts (crypto and games run around the clock)
     // each AI's move in the last hour, per race (China converted to C$)
@@ -6458,7 +6459,7 @@ body { background:var(--color-bg); }
     if (sharp) return { race: sharp[0], why: raceName(sharp[0]) + ': a sharp move right now.' + mv(sharp[0]) };
     if (chinaOpen) return { race: 'China', why: 'China stocks: Shanghai is trading now (until ' + (mins(bj) < 690 ? '11:30 a.m.' : '3:00 p.m.') + ' Beijing time).' + mv('China') };
     if (usOpen) { const r = US.filter((x) => moves[x]).sort((a, b) => Math.abs(moves[b].d) - Math.abs(moves[a].d))[0] || 'Stocks'; return { race: r, why: raceName(r) + ': New York is trading now (until 4:00 p.m. ET).' + mv(r) }; }
-    if (playing.size) return { race: 'Sports', why: 'Sports: ' + playing.size + (playing.size === 1 ? ' game' : ' games') + ' with an open bet being played now.' + mv('Sports') };
+    if (playing.size) { const g = [...playing]; return { race: 'Sports', why: 'Sports: ' + g.length + (g.length === 1 ? ' game' : ' games') + ' with an open bet being played right now: ' + g.slice(0, 3).map((ev) => ev + ' (' + [...who[ev]].map((id) => AIS[id] ? AIS[id].label : id).join(', ') + ')').join('; ') + (g.length > 3 ? ' and ' + (g.length - 3) + ' more' : '') + '.' + mv('Sports') }; }
     return { race: 'Crypto', why: 'Crypto: the stock markets are closed and no game with a bet is on, so the 24-hour crypto market is the live one.' + mv('Crypto') };
   };
   const raceName = (r) => r === 'Overall' ? 'the overall race' : ALLIN[r] ? ALLIN[r] + ' (side race)' : (LABEL[r] || r).replace(' (US$)', '');
