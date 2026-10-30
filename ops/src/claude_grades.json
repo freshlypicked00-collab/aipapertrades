@@ -2350,5 +2350,77 @@
   "what": "ProShares UltraPro Short QQQ",
   "grade": "D",
   "text": "A 3x inverse fund bought after a 2% drop chases the move; the exit at US$39 is clear but sits close to entry."
+ },
+ {
+  "at": "2026-10-30T16:25:09Z",
+  "grader": "claude",
+  "model": "gemini",
+  "key": "gemini|2026-10-30T16:18:09Z|Metals|GC=F|Sell",
+  "decision_at": "2026-10-30T16:18:09Z",
+  "experiment": "Metals",
+  "action": "Sell",
+  "what": "Gold Dec 26",
+  "grade": "C",
+  "text": "Selling into a liquidation flush cuts risk, but it exits after the drop with no prior stop, so the loss control was reactive, not planned."
+ },
+ {
+  "at": "2026-10-30T16:25:09Z",
+  "grader": "claude",
+  "model": "gemini",
+  "key": "gemini|2026-10-30T16:18:09Z|Metals|GLD|Sell",
+  "decision_at": "2026-10-30T16:18:09Z",
+  "experiment": "Metals",
+  "action": "Sell",
+  "what": "SPDR Gold Shares",
+  "grade": "C",
+  "text": "Preserving capital is reasonable in a sharp selloff, but dumping all GLD at once near the lows shows no pre-set exit plan."
+ },
+ {
+  "at": "2026-10-30T16:25:09Z",
+  "grader": "claude",
+  "model": "gemini",
+  "key": "gemini|2026-10-30T16:18:09Z|Metals|SLV|Sell",
+  "decision_at": "2026-10-30T16:18:09Z",
+  "experiment": "Metals",
+  "action": "Sell",
+  "what": "iShares Silver Trust",
+  "grade": "B",
+  "text": "Exiting silver after it broke US$50 is a clear technical trigger and limits further damage, though it was not set as a stop beforehand."
+ },
+ {
+  "at": "2026-10-30T16:25:09Z",
+  "grader": "claude",
+  "model": "gemini",
+  "key": "gemini|2026-10-30T16:18:09Z|Options|SPY261120P00760000|Sell",
+  "decision_at": "2026-10-30T16:18:09Z",
+  "experiment": "Options",
+  "action": "Sell",
+  "what": "SPY Nov 20 $760 put",
+  "grade": "B",
+  "text": "Taking put profits before an election weekend is sensible risk control; the reason names the event risk but not what would justify re-hedging."
+ },
+ {
+  "at": "2026-10-30T16:25:09Z",
+  "grader": "claude",
+  "model": "gemini",
+  "key": "gemini|2026-10-30T16:18:09Z|AllInTrading|SPY261120P00760000|Sell",
+  "decision_at": "2026-10-30T16:18:09Z",
+  "experiment": "AllInTrading",
+  "action": "Sell",
+  "what": "SPY Nov 20 $760 put",
+  "grade": "B",
+  "text": "Banking large put gains before a binary weekend fits a no-cap side race; it removes event risk though the reason leans on lead-protection, not market view."
+ },
+ {
+  "at": "2026-10-30T16:25:09Z",
+  "grader": "claude",
+  "model": "gemini",
+  "key": "gemini|2026-10-30T16:18:09Z|Safe|GLDM|Sell",
+  "decision_at": "2026-10-30T16:18:09Z",
+  "experiment": "Safe",
+  "action": "Sell",
+  "what": "SPDR Gold MiniShares",
+  "grade": "C",
+  "text": "Cutting gold in a low-risk book during a sharp drop limits volatility, but selling after the fall rather than sizing smaller earlier is reactive."
  }
 ]
