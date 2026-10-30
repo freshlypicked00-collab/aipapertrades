@@ -10,8 +10,8 @@ import urllib.parse
 from datetime import datetime, timedelta, timezone
 
 QUERIES = {
-    'Crypto': ['bitcoin', 'ethereum', 'crypto market'],
-    'Stocks': ['stock market today', 'S&P 500', 'Wall Street stocks'],
+    'Crypto': ['bitcoin', 'ethereum', 'crypto market', 'Binance', 'crypto exchange hack', 'Coinbase'],
+    'Stocks': ['stock market today', 'S&P 500', 'Wall Street stocks', 'stock market selloff'],
     'Energy': ['oil prices', 'crude oil', 'OPEC'],
     'Metals': ['gold price', 'silver price'],
     'China': ['China stocks', 'Shanghai stocks', 'Chinese economy'],
@@ -26,7 +26,7 @@ QUERIES = {
 }
 WINDOW = {'Claude': 48, 'Gemini': 48, 'ChatGPT': 48}   # hours; company news is slower than market news (24 h)
 TOPIC = {
-    'Crypto': r'bitcoin|ether(eum)?\b|crypto|solana|\bbtc\b|stablecoin|coinbase|blockchain|\bxrp\b',
+    'Crypto': r'bitcoin|ether(eum)?\b|crypto|solana|\bbtc\b|stablecoin|coinbase|blockchain|\bxrp\b|binance|\bbnb\b|tether|\busdc\b|kraken|\bokx\b|bybit|changpeng|\bcz\b',
     'Stocks': r'stocks?\b|s&p|nasdaq|\bdow\b|wall street|equities|earnings|shares',
     'Energy': r'\boil\b|crude|opec|brent|\bwti\b|natural gas|energy|hormuz|refin',
     'Metals': r'\bgold\b|silver|bullion|precious metal|platinum|copper',
@@ -44,7 +44,7 @@ GOOD = {'reuters', 'bloomberg', 'cnbc', 'associated press', 'ap', 'the wall stre
         'axios', 'the economist', 'bbc', 'cnn business', 'cointelegraph', 'south china morning post', 'nikkei asia', 'fxstreet',
         'oilprice.com', 'politico', 'the hill', 'the new york times', 'the washington post', 'bloomberg law', 'fox business',
         'techcrunch', 'the verge', 'wired', 'ars technica', 'venturebeat', 'engadget', 'zdnet', 'the information', 'semafor', 'business insider',
-        'cnet', 'the guardian', 'associated press finance', 'investopedia'}
+        'cnet', 'the guardian', 'associated press finance', 'investopedia', 'afp', 'agence france-presse', 'the block research', 'dl news'}
 BAD = re.compile(r'\?$|^(should you|is it time|is now|could|will .* (soar|crash)|here\'s why|this (stock|is why)|\d+ (stocks?|reasons))'
                  r'|prediction:|buy now|millionaire|billionaire|forever|dividend stocks?|best stocks?|top stocks?|i\'d buy|no-brainer|'
                  r'motley|zacks|price prediction|to the moon|you won\'t believe|smart money|bull run incoming|here\'?s how|how (you|to) (can )?invest|'
@@ -60,8 +60,15 @@ def yahoo_news(get_json, q, n=20):
         return []
 
 
+# market-moving events rank above routine market reports and stay up for 48 hours (owner, Oct 29: a US$2.5 billion Binance hack
+# must not be missed): hacks, frozen funds, collapses, halts, record moves, emergency central-bank action, war and sanctions
+BIG_NEWS = re.compile(r'\bhack(ed|s)?\b|breach|exploit|stolen|theft|frozen|freez|bankrupt|insolven|collapse|halt(s|ed)?\b|suspend|'
+                 r'\bplunge|\bcrash|\bsoar|\bsurge|record|biggest|largest|\bbillions?\b|emergency|default|\bwar\b|sanction|'
+                 r'rate (cut|hike)|cuts? rates|raises? rates|seized|charged|\bsec\b sues|lawsuit|resign', re.I)
+
+
 def race_news(get_json, now):
-    """{race: [{t, src, link, at}]}: up to 4 good, on-topic headlines from the last 24 hours, newest first."""
+    """{race: [{t, src, link, at, big?}]}: up to 5 good, on-topic headlines from the last 24 hours (48 for big market-moving events), big ones first."""
     out = {}
     for race, qs in QUERIES.items():
         seen, items, dropped = set(), [], []
@@ -73,7 +80,8 @@ def race_news(get_json, now):
                 if not t or not ts or not a.get('link'):
                     continue
                 at = datetime.fromtimestamp(int(ts), timezone.utc)
-                if now - at > timedelta(hours=WINDOW.get(race, 24)) or at > now + timedelta(minutes=5):
+                big = bool(BIG_NEWS.search(t))
+                if now - at > timedelta(hours=max(WINDOW.get(race, 24), 48 if big else 0)) or at > now + timedelta(minutes=5):
                     continue
                 if pub.lower() not in GOOD or BAD.search(t) or not re.search(TOPIC[race], t, re.I):
                     dropped.append(pub if pub.lower() not in GOOD else 'clickbait' if BAD.search(t) else 'off topic')
@@ -82,10 +90,15 @@ def race_news(get_json, now):
                 if k in seen:
                     continue
                 seen.add(k)
-                items.append({'t': t[:180], 'src': pub, 'link': a['link'], 'at': at.strftime('%Y-%m-%dT%H:%M:%SZ')})
+                it = {'t': t[:180], 'src': pub, 'link': a['link'], 'at': at.strftime('%Y-%m-%dT%H:%M:%SZ')}
+                if big:
+                    it['big'] = True
+                items.append(it)
+        # the big stories first (newest first among them), then the newest of the rest
         items.sort(key=lambda x: x['at'], reverse=True)
+        items.sort(key=lambda x: not x.get('big'))
         if items:
-            out[race] = items[:4]
+            out[race] = items[:5]
         from collections import Counter
         print(f'news {race}: kept {len(items)}, dropped {len(dropped)} ' + ', '.join(f'{k} {v}' for k, v in Counter(dropped).most_common(6)))
     return out
