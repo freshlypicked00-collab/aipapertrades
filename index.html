@@ -824,6 +824,8 @@
     .st-tabs-tools .st-tt-clock { gap: 5px; font-family: var(--font-mono, monospace); }
     .st-tabs-tools .st-tt-clock b { color: var(--accent, #ffb000); font-weight: 500; font-size: 13px; letter-spacing: .02em; margin-right: 6px; }
     .st-tabs-tools .st-tt-theme[hidden] { display: none; }
+    .st-tabs-tools.fit-clock .st-tt-clock, .st-tabs-tools.fit-live .pt-livebox-t, .st-tabs-tools.fit-labels .st-tt > span, .st-tabs-tools.fit-brand .st-tt-brand span { display: none; }
+    .st-tabs-tools.fit-narrow select { max-width: 120px; }
     .st-tabs.st-tabs--min > :not(.st-tabs-tools) { display: none !important; }   /* folded: only the slim top row stays */
     .st-tabs-tools .st-tt-fold[aria-expanded="false"] { border-color: var(--accent, #ffb000); color: var(--accent, #ffb000); }
     .st-tabs-tools .st-tt-theme { font: inherit; font-family: var(--font-mono, monospace); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 6px 12px; min-height: 32px; cursor: pointer; white-space: nowrap; }
@@ -834,10 +836,8 @@
     .st-tabs-tools .st-tt-live { margin-right: auto; }
     .st-tabs-tools .st-tt-brand span, .st-tabs-tools .st-tt-clock { white-space: nowrap; }
     .st-tabs-tools .st-tt-brand { font-size: 14px; letter-spacing: .12em; }
-    @media (max-width: 1899px) { .st-tabs-tools .st-tt-clock { display: none; } }
+    @media (max-width: 1499px) { .st-tabs-tools .st-tt-clock { display: none; } }
     @media (max-width: 1349px) { .st-tabs-tools .pt-livebox-t, .st-tabs-tools .st-tt > span { display: none; } }
-    @media (max-width: 1799px) { .st-tabs-tools .pt-livebox-t { display: none; } }   /* room for the Menu fold button (owner, Oct 30) */
-    @media (max-width: 1449px) { .st-tabs-tools .st-tt > span { display: none; } }
     @media (max-width: 1199px) { .st-tabs-tools .st-tt-brand span { display: none; } .st-tabs-tools select { max-width: 150px; } }
     .st-tabs-tools .st-tt-brand:hover span { color: #4cc283; }
   }
@@ -1103,7 +1103,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'd300f72a7d86';</script>
+<script>window.PT_PAGE_VER = '5b8417d28d10';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -2801,7 +2801,7 @@ body { background:var(--color-bg); }
     const onlyWhenGone = (orig, copy) => {
       if (!('IntersectionObserver' in window)) return;
       copy.hidden = true;
-      new IntersectionObserver((es) => { const e = es[es.length - 1]; copy.hidden = e.isIntersecting && e.intersectionRatio > 0; }, { rootMargin: '-70px 0px 0px 0px', threshold: [0, 0.01] }).observe(orig);
+      new IntersectionObserver((es) => { const e = es[es.length - 1]; const h = e.isIntersecting && e.intersectionRatio > 0; if (copy.hidden !== h) { copy.hidden = h; box.dispatchEvent(new Event('pt-fit')); } }, { rootMargin: '-70px 0px 0px 0px', threshold: [0, 0.01] }).observe(orig);
     };
     { const f0 = document.getElementById('fs-btn');   // full screen, computers only (the header button shows only there)
       if (f0 && document.fullscreenEnabled && window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) { const f2 = mk('button', 'st-tt-theme'); f2.type = 'button'; f2.title = 'Full screen (Esc to leave)';
@@ -2820,6 +2820,18 @@ body { background:var(--color-bg); }
       window.addEventListener('pt-tab', paint);
       let m0 = false; try { m0 = localStorage.getItem('pt-menu-min') === '1'; } catch (e) {}
       set(m0); box.appendChild(mb);
+    }
+    { // the bar fits the page at any width or zoom: the least important bits give way, one at a time, until nothing sticks out (owner, Oct 30)
+      const steps = ['fit-clock', 'fit-live', 'fit-labels', 'fit-brand', 'fit-narrow'];
+      const fit = () => {
+        box.classList.remove(...steps);
+        const over = () => { const r = nav.getBoundingClientRect().right - (parseFloat(getComputedStyle(nav).paddingRight) || 0); return [...box.children].some((k) => k.offsetParent && k.getBoundingClientRect().right > r + 1) || box.scrollWidth > box.clientWidth + 1; };
+        for (const c of steps) { if (!over()) break; box.classList.add(c); }
+      };
+      requestAnimationFrame(fit); window.addEventListener('resize', fit); try { if (document.fonts) document.fonts.ready.then(fit); } catch (e) {}
+      try { if (window.ResizeObserver) new ResizeObserver(() => requestAnimationFrame(fit)).observe(nav); } catch (e) {}
+      const fb = box.querySelector('.st-tt-fold'); if (fb) fb.addEventListener('click', () => requestAnimationFrame(fit));
+      box.addEventListener('pt-fit', () => requestAnimationFrame(fit));   // the Beginner and Full screen copies appearing or going
     }
     nav.appendChild(box);
   })();
