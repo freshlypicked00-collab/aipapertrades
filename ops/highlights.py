@@ -22,7 +22,9 @@ TITLE = '📌 Instagram highlights to add'
 # the highlights, in the order they should sit on the profile, and which stories go in each
 # the first daily stories showed only the races-led count (Day 1's remake only the sports bets); the ten-race versions replace them
 SKIP = {'story-daily-2026-10-29', 'story-daily-2026-10-30', 'story-day1-remake-v1'}
-HIGHLIGHTS = [('Start here', ('story-intro',)), ('Daily', ('story-daily', 'story-ten-')), ('Lead changes', ('story-moment',))]
+HIGHLIGHTS = [('Start here', ('story-intro',)), ('Daily', ('story-daily', 'story-ten-')), ('Lead changes', ('story-moment',)),
+              ('Big moments', ('story-feature-binance', 'story-big-')), ('Report cards', ('story-feature-grades', 'story-grades-')),
+              ('Meet the AIs', ('story-meet-',))]   # v2 covers (owner, Oct 30: more colour and drawings): ops/hl_covers.py
 NAMES = {'Crypto': 'Crypto', 'Stocks': 'Stocks', 'China': 'China stocks', 'Metals': 'Metals', 'Energy': 'Oil and energy', 'Options': 'Options',
          'Currencies': 'Currencies', 'Safe': 'Play it safe', 'Sports': 'Sports', 'Predictions': 'Prediction markets'}
 
@@ -44,6 +46,10 @@ def describe(sid):
     if sid.startswith('story-moment-'):
         who = {'claude': 'Claude', 'gemini': 'Gemini', 'chatgpt': 'ChatGPT'}.get(p[-1], p[-1])
         return f'Lead change story: {who} took the lead in {NAMES.get(p[2], p[2])}'
+    if sid.startswith('story-feature-binance'):
+        return 'Big moments story: Gemini sold its crypto 16 minutes before the Binance hack'
+    if sid.startswith('story-feature-grades'):
+        return 'Report cards story: the AIs grade each other'
     if sid.startswith('story-intro'):
         return '"Start here" story (how the race works)'
     if sid.startswith('story-day1'):
@@ -133,6 +139,14 @@ def sync():
 
 
 def covers():
+    import hl_covers   # v2: one bright colour and a hand-drawn icon per highlight
+    os.makedirs('social/highlights', exist_ok=True)
+    for i, (t, k, c1, c2, w, n) in enumerate(hl_covers.HL):
+        print('drew', hl_covers.cover(k, c1, c2, f'social/highlights/{k}.jpg', i + 3))
+    return
+
+
+def covers_v1():
     from PIL import Image, ImageDraw
     import postcard as pc
     os.makedirs('social/highlights', exist_ok=True)
