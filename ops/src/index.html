@@ -6026,13 +6026,14 @@
     const sel = mk('select', 'pd-pick'); sel.setAttribute('aria-label', 'Choose the race');
     const TITLE = (x) => x.replace(/\b([a-z])([a-z]*)/g, (m, a, b) => (['and', 'of', 'it'].includes(m) && m !== 'it' ? m : a.toUpperCase() + b)).replace(/^./, (c) => c.toUpperCase());   // Title Case for the menu
     EXPS.forEach((e) => { const o = mk('option', '', e === 'Overall' ? 'Overall: Ranked by Total Profit (Amounts Hidden Until Nov 28)' : ALLIN[e] ? TITLE(ALLIN[e]) + ' (Side Race)' : TITLE(LABEL[e] || e)); o.value = e; if (e === el._exp) o.selected = true; sel.appendChild(o); });
-    // picking a race here also takes you to that race's own section (owner, Oct 29): a race to its tab, All in to its part of the All in page,
-    // the overall view to the Overview
+    // picking a race here also switches the page to that race's own section (owner, Oct 29): a race to its tab, All in to the All in page,
+    // the overall view to the Overview; the page does not scroll
     sel.addEventListener('change', () => {
       const v = sel.value; el._exp = v; el._follow = false;
       const to = ALLIN[v] ? 'allin' : v === 'Overall' ? 'overview' : v.toLowerCase();
       el._tab = to; el._ctx = to !== 'overview';
-      if (ALLIN[v]) goAllin(v); else goTab(to);
+      const y = window.scrollY; goTab(to, false);   // switch the section without moving the page (owner, Oct 29)
+      requestAnimationFrame(() => window.scrollTo(0, y));
       if (dash.redraw) dash.redraw();
     });
     el.appendChild(sel);
