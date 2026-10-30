@@ -21271,6 +21271,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 113020.83
+  },
+  {
+   "at": "2026-10-30T16:25:38Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 96904.82
+  },
+  {
+   "at": "2026-10-30T16:25:38Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 100000.0
   }
  ],
  "takes": [
@@ -34124,8 +34136,8 @@
       "pcur": "USD",
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 692.225,
-      "priced_at": "2026-10-30T16:18:09Z",
+      "last": 692.07,
+      "priced_at": "2026-10-30T16:25:38Z",
       "hist": [
        [
         29886870,
@@ -34318,6 +34330,10 @@
        [
         29889604,
         692.54
+       ],
+       [
+        29889625,
+        692.07
        ]
       ]
      },
@@ -34327,8 +34343,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 77515.26,
-      "priced_at": "2026-10-30T16:18:09Z",
+      "last": 77420.85,
+      "priced_at": "2026-10-30T16:25:38Z",
       "hist": [
        [
         29886870,
@@ -34661,6 +34677,10 @@
        [
         29889604,
         77261.48
+       ],
+       [
+        29889625,
+        77420.85
        ]
       ]
      }
@@ -51313,34 +51333,6 @@
     "name": "Crude Oil Dec 26",
     "placed_at": "2026-10-30T15:24:41Z",
     "reason": "Securing partial profits on crude oil futures if prices spike to $110 following the Strait of Hormuz tanker attacks."
-   },
-   {
-    "id": "gemini-9",
-    "model": "gemini",
-    "experiment": "Metals",
-    "symbol": "GC=F",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 3880.0,
-    "fraction": 1.0,
-    "name": "Gold Dec 26",
-    "placed_at": "2026-10-30T15:24:41Z",
-    "reason": "Cutting losses on gold futures if the price breaks below $3880 due to rising Fed rate hike probabilities."
-   },
-   {
-    "id": "gemini-10",
-    "model": "gemini",
-    "experiment": "Metals",
-    "symbol": "SLV",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 42.0,
-    "fraction": 1.0,
-    "name": "iShares Silver Trust",
-    "placed_at": "2026-10-30T15:24:41Z",
-    "reason": "Exiting silver if it breaks critical support at $42, as high inflation data strengthens the dollar and pressures precious metals."
    }
   ],
   "chatgpt": [
@@ -51854,7 +51846,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-10-30T16:18:09Z",
+  "at": "2026-10-30T16:25:38Z",
   "games": [
    {
     "id": "401892611",
@@ -51934,8 +51926,8 @@
     "away": "Baylor Bears",
     "home": "UCF Knights",
     "start": "2026-10-30T23:30Z",
-    "away_ml": -130,
-    "home_ml": 110
+    "away_ml": -125,
+    "home_ml": 105
    },
    {
     "id": "401909282",
@@ -52555,8 +52547,8 @@
     "away": "Calgary Flames",
     "home": "Colorado Avalanche",
     "start": "2026-11-01T02:00Z",
-    "away_ml": 280,
-    "home_ml": -355
+    "away_ml": 270,
+    "home_ml": -340
    },
    {
     "id": "401860908",
@@ -52618,8 +52610,8 @@
     "away": "Tennessee Titans",
     "home": "Cincinnati Bengals",
     "start": "2026-11-01T18:00Z",
-    "away_ml": 490,
-    "home_ml": -675
+    "away_ml": 470,
+    "home_ml": -650
    },
    {
     "id": "401873024",
@@ -52763,6 +52755,26 @@
    "kind": "target",
    "level": 12.5,
    "result": "filled: Sell SPY Nov 27 $760 put C$5,278 at 12.6"
+  },
+  {
+   "at": "2026-10-30T16:25:38Z",
+   "model": "gemini",
+   "id": "gemini-9",
+   "experiment": "Metals",
+   "name": "Gold Dec 26",
+   "kind": "stop",
+   "level": 3880.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-10-30T16:25:38Z",
+   "model": "gemini",
+   "id": "gemini-10",
+   "experiment": "Metals",
+   "name": "iShares Silver Trust",
+   "kind": "stop",
+   "level": 42.0,
+   "result": "removed: the position is no longer held"
   }
  ],
  "forecasts": [
