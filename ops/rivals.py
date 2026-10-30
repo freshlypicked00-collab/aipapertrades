@@ -2171,6 +2171,10 @@ def main():
         t0 = state.get('telegram') or {}
         state['telegram'] = {'at': iso(), 'last_ok': iso() if TGSTAT['sent'] else t0.get('last_ok'), 'sent': TGSTAT['sent'], 'failed': TGSTAT['failed'],
                              'fail_streak': 0 if TGSTAT['sent'] else int(t0.get('fail_streak', 0)) + TGSTAT['failed'], 'error': TGSTAT['error'] or ('' if TGSTAT['sent'] else t0.get('error', ''))}
+    if discord.STAT['sent'] or discord.STAT['failed']:   # Discord health, like Telegram's: last success, last error (owner asked why posts stopped, Oct 30)
+        d0 = state.get('discord') or {}
+        state['discord'] = {'at': iso(), 'last_ok': iso() if discord.STAT['sent'] else d0.get('last_ok'), 'sent': discord.STAT['sent'], 'failed': discord.STAT['failed'],
+                            'fail_streak': 0 if discord.STAT['sent'] else int(d0.get('fail_streak', 0)) + discord.STAT['failed'], 'error': discord.STAT['error'] or ('' if discord.STAT['sent'] else d0.get('error', ''))}
     try:
         compact(state)
     except Exception as e:

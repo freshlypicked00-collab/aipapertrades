@@ -30,6 +30,9 @@ def to_md(text):
     return html.unescape(t).strip()
 
 
+STAT = {'sent': 0, 'failed': 0, 'error': ''}   # this run's Discord results (rivals.py saves them in rivals.json 'discord', so a failure is visible)
+
+
 def post(text, photo=None, url=None):
     """Send one message (with an optional PNG, or a list of PNGs sent together as one gallery, up to 10) to #live-trades,
     or to the webhook given. Returns True when Discord accepted it.
@@ -58,6 +61,7 @@ def post(text, photo=None, url=None):
             try:
                 urllib.request.urlopen(req, timeout=20).read()
                 time.sleep(0.5)   # stay under Discord's webhook limit (5 posts per 2 seconds)
+                STAT['sent'] += 1
                 return True
             except urllib.error.HTTPError as e:
                 if e.code == 429 and attempt == 1:   # rate limited: wait as asked, then try once more
@@ -67,8 +71,14 @@ def post(text, photo=None, url=None):
                         wait = 2
                     time.sleep(min(wait, 10) + 0.2)
                     continue
-                raise
+                try:   # keep Discord's own reason (e.g. 'Unknown Webhook', 'Request entity too large')
+                    detail = e.read().decode('utf-8', 'replace')[:200]
+                except Exception:
+                    detail = ''
+                raise RuntimeError(f'HTTP {e.code} {detail}'.strip())
         return False
     except Exception as e:
-        print('discord failed', str(e)[:160])
+        STAT['failed'] += 1
+        STAT['error'] = str(e)[:200]
+        print('discord failed', str(e)[:200])
         return False
