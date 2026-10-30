@@ -1316,9 +1316,18 @@ try:
             _co = max(_p, key=lambda c: (c['score'], _ts(c['at'])))
             break
     data['callout'] = [{k: v for k, v in _co.items() if k != 'score'}] if _co else []
+    _by = {}
+    for _race in sorted({c['race'] for c in _cand if c.get('race')}):   # each race's own call-out: last 24 hours, else the last 72
+        for _hrs in (24, 72):
+            _p = [c for c in _cand if c.get('race') == _race and _now - _ts(c['at']) <= timedelta(hours=_hrs)]
+            if _p:
+                _by[_race] = {k: v for k, v in max(_p, key=lambda c: (c['score'], _ts(c['at']))).items() if k != 'score'}
+                break
+    data['callout_by_race'] = [_by]
 except Exception as _e:
     print('call-out skipped:', _e)
     data['callout'] = []
+    data['callout_by_race'] = [{}]
 
 import hashlib as _hl
 data.pop('ver', None)
@@ -1359,8 +1368,8 @@ try:
     _co = (data.get('callout') or [None])[0]
     if _co:
         _lbl = ('FOUND WRONG' if _co.get('verdict') == 'wrong' else 'PARTLY WRONG') if _co['kind'] == 'fact' else 'GRADE ' + _co.get('grade', '')
-        _pg = _pg.replace('<div class="st-callout" data-draw="callout" data-source="callout callout_at"></div>',
-            '<div class="st-callout" data-draw="callout" data-source="callout callout_at"><p><b>Call-out of the day</b>: ' + _AI.get(_co['by'], _co['by']) + ' on ' + _AI.get(_co['about'], _co['about']) +
+        _pg = _pg.replace('<div class="st-callout" data-draw="callout" data-source="callout callout_by_race"></div>',
+            '<div class="st-callout" data-draw="callout" data-source="callout callout_by_race"><p><b>Call-out of the day</b>: ' + _AI.get(_co['by'], _co['by']) + ' on ' + _AI.get(_co['about'], _co['about']) +
             ' (' + _lbl + '). ' + _hm.escape(_co['text']) + '</p></div>', 1)
     _fp = data.get('fingerprints') or []
     if _fp:
