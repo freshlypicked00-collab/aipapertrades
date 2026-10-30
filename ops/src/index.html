@@ -855,7 +855,7 @@
   .st-crown-chip .cr-n { font-weight: 700; color: var(--ai, #ffb000); }
   .st-crown-chip .cr-s { color: var(--color-fg-muted); font-size: 12px; }
   .st-crown-chip .cr-p { font-weight: 700; font-variant-numeric: tabular-nums; } .st-crown-chip .cr-p.up { color: var(--color-ok, #3fb950); } .st-crown-chip .cr-p.down { color: var(--color-bad, #f85149); }
-  .st-crown-chip .cr-n2 { font-weight: 700; } .st-crown-chip .cr-g { display: inline-flex; align-items: center; gap: 6px; }
+  .st-crown-chip .cr-n2 { font-weight: 700; } .st-crown-chip .cr-g { display: inline-flex; align-items: center; gap: 4px; } .st-crown-chip .cr-p .cr-s { margin-left: 1px; }
   .st-tabs > .st-crowns { margin-left: auto; align-self: center; margin-right: 2px; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
   .st-crowns .st-crown-chip { padding: 2px 11px 2px 8px; }
   .st-allin-chip { font-size: 12px; } .st-allin-chip .cr-side { color: var(--color-fg-muted); margin-right: 2px; }
@@ -892,7 +892,7 @@
   @media (max-width: 520px) { .al-jump-b { flex-direction: column; align-items: flex-start; gap: 6px; } .al-jump-t small { display: none; } }
   @media (prefers-reduced-motion: reduce) { .al-jump-b { transition: none; } .al-jump-b:hover { transform: none; } }
   tr.pt-flash > td { animation: pt-flash-bg 2.2s ease-out; } @keyframes pt-flash-bg { 0%, 40% { background: color-mix(in srgb, var(--accent, #ffb000) 22%, transparent); } 100% { background: transparent; } }
-  @media (max-width: 999px) { .st-tabs > .st-crowns { display: none; } .st-crown-line { display: flex; flex-direction: column; align-items: flex-start; } .st-crown-line .st-crown-chip { white-space: normal; flex-wrap: wrap; row-gap: 2px; border-radius: 16px; } .st-crown-line .st-crown-chip > * { white-space: nowrap; } }   /* tablets and phones: at the top of the page */
+  @media (max-width: 999px) { .st-tabs > .st-crowns { display: none; } .st-crown-line { display: flex; flex-direction: column; align-items: flex-start; } .st-crown-line .st-crown-chip { white-space: normal; flex-wrap: wrap; row-gap: 2px; border-radius: 16px; } .st-crown-line .st-crown-chip > * { white-space: nowrap; } .st-crown-line .st-allin-chip .cr-part { flex-wrap: wrap; row-gap: 2px; } .st-crown-line .cr-g { white-space: nowrap; } .st-crown-line .cr-sep { display: none; } .st-crown-line .st-allin-chip .cr-part { flex-basis: 100%; } }   /* tablets and phones: at the top of the page */
   @media (min-width: 701px) { .st-tabs .st-tab { padding: 6px 10px; font-size: 13.5px; } .st-tabs .st-tabgroup { padding-top: 15px; } .st-tabs .st-tabgroup-l { font-size: 10px; } }
   @media (max-width: 700px) {   /* phones keep the original layout: tabs after the intro, wrapped, not sticky */
     .st { display: flex; flex-direction: column; }
@@ -4889,21 +4889,25 @@
     const fillAi = () => {   // each part of the side race has its own winner: trading and sports, never added together
       let rowsOf; try { rowsOf = allinRows; } catch (e) { setTimeout(fillAi, 250); return; }   // the helper is defined further down the script
       const parts = [['AllInTrading', 'trading'], ['AllInSports', 'sports']].map(([e, nm]) => { const rows = rowsOf(e).slice().sort((a, b) => b.profit - a.profit);
-        return { e, nm, lead: rows.length > 1 && rows[0].profit - rows[1].profit >= 0.5 ? rows[0] : null }; });
+        return { e, nm, rows, lead: rows.length > 1 && rows[0].profit - rows[1].profit >= 0.5 ? rows[0] : null }; });
       const one = parts[0].lead && parts[1].lead && parts[0].lead.id === parts[1].lead.id ? parts[0].lead.id : null;
       [navAi, headAi].forEach((c) => {
         c.replaceChildren(); c.hidden = !parts.some((x) => x.lead);
         if (c.hidden) return;
         const col = one || (parts.find((x) => x.lead) || {}).lead; if (col && AIS[col.id || col]) c.style.setProperty('--ai', AIS[col.id || col].color); else c.style.removeProperty('--ai');
         c.append(mk('span', 'cr-k', '🎲'), mk('span', 'cr-s cr-side', 'All in side race:'));
-        if (one) { c.append(aiBadge(one, 14), mk('span', 'cr-n', AIS[one].label), document.createTextNode(' leads both parts')); }
-        else parts.forEach((x, i) => { if (i) c.appendChild(mk('span', 'cr-s', '·'));
+        // each part shows its leader's profit and the runner-up with theirs, in C$ since the start (owner's request, Oct 30; same as the overall crown)
+        const money = (v) => { const sp = mk('span', 'cr-p ' + (v >= 0 ? 'up' : 'down'), (v >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(v))); return sp; };
+        parts.forEach((x, i) => { if (i) c.appendChild(mk('span', 'cr-s cr-sep', '·'));
           const part = mk('span', 'cr-part'); part.title = 'Open All in: ' + x.nm;   // each part opens its own section: trading → All in: trading, sports → All in: sports (owner, Oct 30)
           part.addEventListener('click', (ev) => { ev.stopPropagation(); (window.ptGoAllin || (() => goTab('allin')))(x.e); });
-          if (x.lead) { const n = mk('span', 'cr-n'); n.style.color = AIS[x.lead.id].color; n.textContent = AIS[x.lead.id].label; part.append(aiBadge(x.lead.id, 14), n, document.createTextNode(' leads ' + x.nm)); }
+          if (x.lead) { const n = mk('span', 'cr-n'); n.style.color = AIS[x.lead.id].color; n.textContent = AIS[x.lead.id].label; part.append(aiBadge(x.lead.id, 14), n, document.createTextNode(' leads ' + x.nm), money(x.lead.profit));
+            const sec = x.rows.find((r) => r.id !== x.lead.id);
+            if (sec && AIS[sec.id]) { const n2 = mk('span', 'cr-n2', AIS[sec.id].label); n2.style.color = AIS[sec.id].color; const g = mk('span', 'cr-g'); g.append(mk('span', 'cr-s', '(2nd'), n2, money(sec.profit)); g.lastChild.appendChild(mk('span', 'cr-s', ')')); part.append(g); } }
           else part.appendChild(document.createTextNode('no leader yet in ' + x.nm));
           c.appendChild(part); });
-        const tip = parts.map((x) => x.lead ? AIS[x.lead.id].label + ' leads All in: ' + x.nm + ' (' + (x.lead.profit >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(x.lead.profit)) + ')' : 'no leader yet in All in: ' + x.nm).join('; ');
+        const sgn = (v) => (v >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(v));
+        const tip = parts.map((x) => x.lead ? 'All in: ' + x.nm + ': ' + x.rows.map((r, i) => (i + 1) + '. ' + (AIS[r.id] || {}).label + ' ' + sgn(r.profit)).join(', ') : 'no leader yet in All in: ' + x.nm).join('; ');
         c.title = tip + '. A separate side race with no caps and its own winner in each part; it never counts in the ten races. Tap to open All in.';
         c.setAttribute('aria-label', 'All in side race: ' + tip + '. Open All in.');
       });
