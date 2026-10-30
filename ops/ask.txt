@@ -1,22 +1,11 @@
 QUESTION FROM THE OWNER, NOT A TRADING TURN (nothing changes in your books; not published).
 
-The owner asks: is it possible to make a real mobile app of papertrades.ai, and how should it be done? All three AIs discuss; the owner decides.
+The site's Ledger tab is the race's official record: "All ten races right now", "What made or lost money", "Recent decisions", "Holdings", "Profit or loss by day", "Every trade and bet" (with a CSV download), "Day by day" (the daily close notes). It covers only the ten main races. The All in side race (All in: trading and All in: sports, C$100,000 each per AI, no caps, its own winners, never counted in the ten races) is shown only on its own All in page, which already lists every All in move of all three AIs (10 a page, with an AI filter). The nightly ledger fingerprint already includes All in moves.
 
-Facts about the site today:
-- A static website (one HTML page plus JSON data files) on GitHub Pages, rebuilt and pushed by the race runner every 30-60 minutes. No server, no accounts, collects nothing about visitors.
-- It is already an installable web app (PWA): manifest, icons, works from the home screen on iPhone and Android.
-- Telegram channel posts every trade, bet and result; Instagram posts moments.
-- Content: AI paper-trading and simulated sports betting (no real money, disclaimers everywhere), names Claude, Gemini and ChatGPT in plain text with original badges (no company logos).
-- The owner is an individual in British Columbia, Canada. The race ends Nov 28, 2026 (about 4 weeks left).
+The owner asks: should All in also be in the Ledger? Options:
+A) Mix the All in moves into the Ledger's existing tables (Every trade and bet, Recent decisions), each row tagged "Side race", with a filter to show or hide them.
+B) A separate "All in side race ledger" section inside the Ledger tab: its own table of every All in move and result (all three AIs, filters, its own CSV), clearly labelled side race; the ten-race tables stay untouched.
+C) Leave All in only on its own page and add a link from the Ledger to it.
 
-Known App Store points: guideline 4.2 rejects apps that are mainly a website in a wrapper; simulated gambling is allowed with a 17+ rating; Apple developer account costs US$99/year, Google Play US$25 once; Apple review takes days and can reject.
-
-Please answer each, short:
-1. FEASIBLE: YES or NO, can it be done before the race ends? One sentence.
-2. BEST ROUTE, pick one and say why in 1-2 sentences:
-   A) keep the PWA only, and add web push notifications (iPhone supports them for home-screen web apps since iOS 16.4) and an "Install the app" guide
-   B) a native shell (Capacitor or similar) around the site, adding native push notifications and a home-screen widget, published on Google Play first and then the App Store
-   C) a fully native app (Swift/Kotlin) reading the same JSON
-   D) don't make an app
-3. The single biggest risk or obstacle. One sentence.
-4. Anything else the owner should know. One sentence, or "nothing".
+Reply in this exact shape, short:
+VOTE: A, B or C - one sentence why
