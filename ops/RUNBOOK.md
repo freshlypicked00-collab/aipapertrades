@@ -210,6 +210,12 @@ Best source for live option prices (the same one Gemini and ChatGPT are filled f
 - Prices are Polymarket (or Kalshi) share prices in US dollars, 0 to 1. Holding names say the
   outcome bought, e.g. `Republicans win the Senate (Yes)`. Get prices from the Polymarket event
   pages or FrenzyCap pages in `sources.json`; use the buy (ask) price when buying.
+- **Best source for valuing a held market (Oct 30, after a price hold):** WebFetch
+  `https://gamma-api.polymarket.com/markets?slug=<slug>` (the slug is in `ops/src/rivals.json` → `claude_main.codes`, e.g.
+  `will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections`) and value at `outcomePrices` for the outcome
+  held, with `updatedAt` as the quote time. This is the same market the price check and the price guard use. FrenzyCap only as a
+  backup, and only when it shows the exact same market: on Oct 30 its "Which party will win the Senate" page (68%) was a different
+  market from the one held (71.5%), so the guard held the publish.
 - Trades any time. Settle a resolved market as a `Sell` with `fraction` 1 at price 1.0 (won) or
   0.0 (lost), and log it. The Fed bet resolves at 2:00 p.m. ET Oct 28; the midterm bets once
   results are called (from Nov 4).
