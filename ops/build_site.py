@@ -587,6 +587,77 @@ for _p in r.get('plans', []):
     _lp[(_p.get('model'), _p.get('experiment'), _p.get('horizon'))] = _p   # the site shows only the newest plan per AI, race and card
 data['rivals_plans'] = list(_lp.values())
 data['plans'] = list({(x.get('experiment'), x.get('horizon')): x for x in data.get('plans', [])}.values())   # Claude's: newest per race and card
+# News that moved the race (owner's request, Oct 30; Claude, Gemini and ChatGPT all agreed: ops/review/news-r1-oct30.json). Each moment's
+# facts are written from named, dated sources in ops/src/news_moments.json; everything else is computed here at every build, so it stays
+# current and the same for all three AIs: what each AI did (its trades in the moment's races and window, with its own reason, from the race
+# record), what the market did (from the race's own price record) and each AI's latest plan for that race in its own words. A developing
+# story's live figures come from ops/src/story.json (one source of truth: a correction there shows everywhere at once).
+def _nmw(x):
+    return datetime.fromisoformat(str(x).replace('Z', '+00:00'))
+def _nm_trades(spec):
+    t0 = _nmw(spec['from']); t1 = _nmw(spec['to']) if spec.get('to') else None
+    races = set(spec.get('races') or [])
+    pats = [str(p).lower() for p in (spec.get('assets') or [])]
+    cites = re.compile(spec['cites'], re.I) if spec.get('cites') else None
+    def ok(at, race, names, reason):
+        w = _nmw(at)
+        if w < t0 or (t1 and w > t1) or (races and race not in races):
+            return False
+        if not pats and not cites:
+            return True
+        return bool(pats and any(p in str(n).lower() for p in pats for n in names if n)) or bool(cites and cites.search(reason or ''))
+    out = {'claude': [], 'gemini': [], 'chatgpt': []}
+    for t in data['trades']:   # Claude's ten races (its All in trades are in rivals.json, below)
+        if ok(t['at'], t.get('portfolio'), [t.get('holding')], t.get('note')):
+            px = t.get('price_usd') if t.get('price_usd') is not None else t.get('price_local')
+            out['claude'].append({'at': _nmw(t['at']).isoformat(), 'race': t.get('portfolio'), 'action': t.get('action'), 'what': t.get('holding'),
+                                  'cad': round(float(t.get('cad') or 0)) if t.get('cad') is not None else None, 'usd': None,
+                                  'price': px, 'pcur': 'CNY' if t.get('price_local') is not None and t.get('price_usd') is None else 'USD', 'reason': t.get('note') or ''})
+    for t in r.get('trades', []):
+        m = t.get('model')
+        if m not in out or (m == 'claude' and not str(t.get('experiment', '')).startswith('AllIn')):
+            continue
+        if ok(t['at'], t.get('experiment'), [t.get('name'), t.get('symbol')], t.get('reason')):
+            amt = float(t.get('amount') or 0)
+            out[m].append({'at': _nmw(t['at']).isoformat(), 'race': t.get('experiment'), 'action': t.get('action'), 'what': t.get('name') or t.get('symbol'),
+                           'cad': round(amt) if t.get('cur') == 'CAD' else None, 'usd': round(amt) if t.get('cur') == 'USD' else None,
+                           'price': t.get('price'), 'pcur': t.get('pcur') or 'USD', 'reason': t.get('reason') or ''})
+    for k in out:
+        out[k].sort(key=lambda x: x['at'])
+    return out
+def _nm_measure(spec):
+    a, t0 = spec['asset'], _nmw(spec['from'])
+    s = sorted(((_nmw(x['at']), float(x['price'])) for x in data['prices'] if x.get('asset') == a and x.get('price') is not None), key=lambda z: z[0])
+    pre, post = [z for z in s if z[0] <= t0], [z for z in s if z[0] > t0]
+    if not pre or not post or not pre[-1][1]:
+        return None
+    b, last = pre[-1], post[-1]
+    lo, hi = min(post, key=lambda z: z[1]), max(post, key=lambda z: z[1])
+    return {'label': spec.get('label') or a, 'before': b[1], 'before_at': b[0].isoformat(), 'last': last[1], 'last_at': last[0].isoformat(),
+            'low': lo[1], 'low_at': lo[0].isoformat(), 'high': hi[1], 'high_at': hi[0].isoformat(), 'chg': last[1] / b[1] - 1}
+def _nm_plans(race):
+    out = {}
+    for x in list(data.get('plans', [])) + list(data.get('rivals_plans', [])):
+        mid = x.get('model') or 'claude'
+        if x.get('experiment') == race and x.get('horizon') in ('day', 'week') and mid in ('claude', 'gemini', 'chatgpt'):
+            out.setdefault(mid, []).append({'horizon': x['horizon'], 'text': x.get('text', ''), 'at': x.get('at')})
+    for k in out:
+        out[k].sort(key=lambda x: 0 if x['horizon'] == 'day' else 1)
+    return out
+data['news_moments'] = []
+_nmp = os.path.join(SRC, 'news_moments.json')
+for _m in (json.load(open(_nmp)) if os.path.exists(_nmp) else []):
+    if _m.get('status') == 'hidden':
+        continue
+    try:
+        _m = dict(_m)
+        _m['ai_trades'] = _nm_trades(_m['trades']) if _m.get('trades') else {}
+        _m['measured'] = [x for x in (_nm_measure(sp) for sp in _m.get('measure', [])) if x]
+        _m['plans'] = _nm_plans(_m['plan_race']) if _m.get('plan_race') else {}
+        data['news_moments'].append(_m)
+    except Exception as _e:   # a broken entry is left out and named, never allowed to stop the build
+        print(f"news_moments: skipped {_m.get('id')}: {_e}")
+data['news_moments'].sort(key=lambda m: _nmw(m['at']), reverse=True)
 # Betting minimums (no weekly minimum since Oct 28, 5:30 p.m. ET): C$3,000 a day and C$100,000 in total by Nov 28 for every AI.
 # The daily minimum becomes 25% of the betting balance (Sports bankroll + Predictions value) once that is under C$12,000.
 from zoneinfo import ZoneInfo as _ZI
