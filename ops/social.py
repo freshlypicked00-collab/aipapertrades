@@ -119,6 +119,11 @@ def due_posts(state):
         out.insert(0, {'id': 'day1-ten-v1', 'kind': 'dayten', 'day': 1, 'day_start': '2026-10-28T00:00:00+00:00', 'cutoff': '2026-10-29T00:00:00+00:00'})
     if 'day2-ten-v1' not in done and NOW < datetime(2026, 10, 31, 12, 0, tzinfo=timezone.utc):   # owner, Oct 30: Day 2 in the same new format
         out.insert(1, {'id': 'day2-ten-v1', 'kind': 'dayten', 'day': 2, 'day_start': '2026-10-29T00:00:00+00:00', 'cutoff': '2026-10-30T00:00:00+00:00'})
+    for fid in ('feature-grades-v1', 'feature-binance-v1'):   # inserted at the front, so Binance goes first   # owner, Oct 30: "post what you think is best for today" (one time each)
+        if fid not in done and NOW < datetime(2026, 10, 31, 4, 0, tzinfo=timezone.utc):
+            out.insert(0, {'id': fid, 'kind': fid})
+        if 'story-' + fid not in done and NOW < datetime(2026, 10, 31, 4, 0, tzinfo=timezone.utc):
+            out.append({'id': 'story-' + fid, 'kind': 'story-' + fid})
     if 'intro-v1' not in done and NOW < RACE_END:
         out.insert(0, {'id': 'intro-v1', 'kind': 'intro'})
     if 'story-intro-v1' not in done and NOW < RACE_END:
@@ -169,6 +174,50 @@ def prepare():
                                     'Each of the ten races is scored on its own, so leading can also mean losing the least. Swipe for all ten.\n\n'
                                     'Three AIs, C$100,000 each, real prices, no human picking trades. Every trade live on Telegram @PaperTradesAI and at papertrades.ai.\n\n'
                                     'Simulation only. Not financial or betting advice.\n\n' + TAGS)
+            elif p['kind'].replace('story-', '') in ('feature-binance-v1', 'feature-grades-v1'):
+                import features as FT
+                fid = p['kind'].replace('story-', '')
+                if fid == 'feature-binance-v1':
+                    data = load('data.json', {}); ES = data.get('exp_standings'); ES = ES[0] if isinstance(ES, list) else ES
+                    st = [(r['id'], float(r['profit'])) for r in ES['Crypto']]
+                    rv = load('ops/src/rivals.json', {})
+                    sell = [t for t in rv.get('trades', []) if t.get('model') == 'gemini' and t.get('experiment') == 'Crypto' and t.get('action') == 'Sell' and t['at'].startswith('2026-10-29T20:08')]
+                    btc = next(t for t in sell if t['symbol'] == 'BTC-USD')
+                    paths = FT.binance(f"social/{fid}", st, float(btc['price']), btc['reason'])
+                    cap = ('Gemini sold every coin it had 16 minutes before the US$2.5 billion Binance hack. 🤯\n\n'
+                           '4:08 p.m. ET: Gemini sells all its Bitcoin and Ethereum.\n4:24 p.m.: the first hacked money leaves Binance.\n\n'
+                           'Did it know? No: its reason was inflation, the Fed and a tech selloff. Binance never came up. '
+                           'And it can\'t backdate anything: the race runner fills every trade at the live price at that moment.\n\n'
+                           'So: GENIUS or LUCK? Comment one word. 👇' + FOOT)
+                else:
+                    data = load('data.json', {}); G = [g for g in data.get('peer_grades', []) if not g.get('void')]
+                    latest = {}
+                    for g in G:
+                        k = (g['grader'], g['key'])
+                        if k not in latest or g['at'] > latest[k]['at']:
+                            latest[k] = g
+                    G = list(latest.values())
+                    from collections import Counter
+                    tally = {m: {'received': Counter(g['grade'][0] for g in G if g['model'] == m and g['grade'] != 'no view'),
+                                 'given': Counter(g['grade'][0] for g in G if g['grader'] == m and g['grade'] != 'no view')} for m in ('claude', 'gemini', 'chatgpt')}
+                    def pick(gr, gd, grade, frag):
+                        g = next(x for x in G if x['grader'] == gr and x['model'] == gd and x['grade'] == grade and frag in x['text'])
+                        return (gr, gd, grade, g['_what'] if '_what' in g else frag, g['text'])
+                    picks = [('gemini', 'claude', 'D', 'All in: Claude put 40% of its side-race money into QQQ right before two mega-cap earnings reports.',
+                              next(x for x in G if x['grader'] == 'gemini' and x['model'] == 'claude' and x['grade'] == 'D' and 'QQQ' in x['text'])['text']),
+                             ('chatgpt', 'gemini', 'F', 'All in: Gemini bet C$30,000 on Notre Dame at −6500 to win about C$460.',
+                              next(x for x in G if x['grader'] == 'chatgpt' and x['model'] == 'gemini' and x['grade'] == 'F' and 'C$30,000' in x['text'])['text']),
+                             ('claude', 'chatgpt', 'D', 'Play it safe: ChatGPT bought an S&P 500 fund in the low-risk race.',
+                              next(x for x in G if x['grader'] == 'claude' and x['model'] == 'chatgpt' and x['grade'] == 'D' and 'safe book' in x['text'])['text'])]
+                    paths = FT.grades(f"social/{fid}", picks, tally)
+                    cap = ('The AIs grade each other. 📝 Every trade and bet gets an A to F from the other two, anonymously, judged only on what was known at the time.\n\n'
+                           'Gemini gave Claude a D. ChatGPT gave Gemini an F. Claude gave ChatGPT a D. Swipe for the reasons and the full tally.\n\n'
+                           'Who grades fairest? 👇' + FOOT)
+                if p['kind'].startswith('story-'):
+                    pc.story(paths[0], img, top='NEW POST', bottom='Swipe through it on our page', glow_color=pc.AMBER)
+                    p['images'] = [img]; p['story'] = True; p['caption'] = ''
+                else:
+                    p['images'] = paths; img = paths[0]; p['caption'] = cap
             elif p['kind'] == 'dayten':
                 import racecard
                 cut = datetime.fromisoformat(p['cutoff']); ser = racecard._series('ops/src'); table = {}
