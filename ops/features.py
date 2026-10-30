@@ -82,21 +82,21 @@ def binance(prefix, standings, sell_px, reason):
     # 1. the hook
     c = Card(); pc._glow(c, gem); c.header('CRYPTO RACE · OCT 29')
     kicker(c, 330, 'GENIUS OR LUCK?')
-    f = font('sans', 'Bold', 300)
-    c.text((SAFE_X, 380), '16 min', f, FG, 'lt')
-    underline(c, SAFE_X + 10, SAFE_X + f.getlength('16 min') - 10, 700, amb, 9)
-    y = para(c, SAFE_X, 760, 'Gemini sold all its crypto 16 minutes before the US$2.5 billion Binance hack.', font('sans', 'SemiBold', 74), FG, W - 2 * SAFE_X)
-    para(c, SAFE_X, y + 30, 'Did it know something? We checked the timeline.', font('sans', 'Regular', 46), MUTED, W - 2 * SAFE_X)
+    f = font('sans', 'Bold', 280)
+    c.text((SAFE_X, 380), '4:08 p.m.', c.fit('4:08 p.m.', 'sans', 'Bold', 280, W - 2 * SAFE_X), FG, 'lt')
+    underline(c, SAFE_X + 10, W - SAFE_X - 40, 700, amb, 9)
+    y = para(c, SAFE_X, 760, 'Gemini sold all its crypto just as the biggest crypto hack ever was starting, before anyone knew.', font('sans', 'SemiBold', 70), FG, W - 2 * SAFE_X)
+    para(c, SAFE_X, y + 30, 'About US$6.3 billion stolen from Binance. Did Gemini know? We checked everything.', font('sans', 'Regular', 46), MUTED, W - 2 * SAFE_X)
     c.text((W - SAFE_X - 120, 1470), 'swipe', font('mono', 'SemiBold', 34), amb, 'rm')
     loop_arrow(c, (W - SAFE_X - 330, 1340), (W - SAFE_X - 40, 1470), amb, 7)
     c.footer(); paths.append(c.save(f'{prefix}-1.jpg'))
     # 2. the timeline
     c = Card(); pc._glow(c, gem, xy=(1200, 900)); c.header('THE TIMELINE · ET')
     kicker(c, 300, 'THURSDAY, OCT 29')
-    rows = [('4:08 p.m.', 'Gemini sells all its Bitcoin and Ethereum', f'Bitcoin filled at US${sell_px:,.0f}, a normal price', gem),
-            ('4:24 p.m.', 'The first hacked money leaves Binance', 'US$388M in Ethereum, the earliest on-chain sign', DOWN),
-            ('5:16 p.m.', 'Binance\'s ex-CEO: "It does look like a hack"', 'Changpeng Zhao, on X', MUTED),
-            ('By 9:30 p.m.', 'Binance confirms the hack; over US$2.5B frozen', 'Bitcoin fell about 5% and BNB about 10% that night', MUTED)]
+    rows = [('4:05 p.m.', 'The theft begins, silently', 'Attackers start draining Binance wallets (TRM Labs)', DOWN),
+            ('4:08 p.m.', 'Gemini sells all its Bitcoin and Ethereum', f'Bitcoin filled at US${sell_px:,.0f}; no news of a hack anywhere yet', gem),
+            ('4:24 p.m.', 'First big transfer spotted on-chain', 'US$388M in Ethereum leaves a Binance wallet', MUTED),
+            ('5:16 p.m.', 'Binance\'s ex-CEO: "It does look like a hack"', 'Changpeng Zhao, on X; about US$6.3B taken in all', MUTED)]
     y = 380
     tops = []
     for i, (t, a, b, col) in enumerate(rows):
@@ -109,8 +109,8 @@ def binance(prefix, standings, sell_px, reason):
             arrow(c, (SAFE_X + 15, yy + 8), (SAFE_X - 10, yy + 30), (SAFE_X + 30, yy + 40), (SAFE_X + 15, yy + 66), MUTED, 5, seed=10 + i)
         y = yy + 70
     # the 16 minutes, circled
-    t0, t1 = tops[0] + 22, tops[1] + 22   # the 16 minutes, bracketed between the sale and the first hacked transfer
-    c.text((W - SAFE_X, (t0 + t1) / 2 - 30), '16', font('sans', 'Bold', 110), amb, 'rm')
+    t0, t1 = tops[0] + 22, tops[1] + 22   # 3 minutes between the start of the theft and Gemini's check-in
+    c.text((W - SAFE_X, (t0 + t1) / 2 - 30), '3', font('sans', 'Bold', 110), amb, 'rm')
     c.text((W - SAFE_X, (t0 + t1) / 2 + 50), 'minutes', font('sans', 'Bold', 48), amb, 'rm')
     arrow(c, (W - SAFE_X - 150, t0 - 10), (W - SAFE_X - 330, t0 + 20), (W - SAFE_X - 330, t1 - 30), (W - SAFE_X - 200, t1), amb, 6, seed=21)
     if y > 1500:
@@ -127,7 +127,7 @@ def binance(prefix, standings, sell_px, reason):
     if y2 > y + 360:
         raise QualityError('quote too long')
     y = y + 400
-    y = para(c, SAFE_X, y, 'No mention of Binance. It sold for inflation, the Fed and a tech selloff, then got lucky.', font('sans', 'SemiBold', 50), amb, W - 2 * SAFE_X)
+    y = para(c, SAFE_X, y, 'No mention of Binance anywhere in what it read or wrote. It sold for inflation, the Fed and a tech selloff, and got lucky.', font('sans', 'SemiBold', 50), amb, W - 2 * SAFE_X)
     para(c, SAFE_X, y + 24, 'And it can\'t cheat: the race runner fills every trade at the live price, at that moment.', font('sans', 'Regular', 40), MUTED, W - 2 * SAFE_X)
     c.footer(); paths.append(c.save(f'{prefix}-3.jpg'))
     # 4. the crypto race now

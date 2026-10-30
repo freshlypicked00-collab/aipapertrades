@@ -119,10 +119,10 @@ def due_posts(state):
         out.insert(0, {'id': 'day1-ten-v1', 'kind': 'dayten', 'day': 1, 'day_start': '2026-10-28T00:00:00+00:00', 'cutoff': '2026-10-29T00:00:00+00:00'})
     if 'day2-ten-v1' not in done and NOW < datetime(2026, 10, 31, 12, 0, tzinfo=timezone.utc):   # owner, Oct 30: Day 2 in the same new format
         out.insert(1, {'id': 'day2-ten-v1', 'kind': 'dayten', 'day': 2, 'day_start': '2026-10-29T00:00:00+00:00', 'cutoff': '2026-10-30T00:00:00+00:00'})
-    for fid in ('feature-grades-v1', 'feature-binance-v1'):   # inserted at the front, so Binance goes first   # owner, Oct 30: "post what you think is best for today" (one time each)
-        if fid not in done and NOW < datetime(2026, 10, 31, 4, 0, tzinfo=timezone.utc):
+    for fid in ('feature-grades-v1', 'feature-binance-v1', 'feature-binance-v2'):   # inserted at the front; v2 corrects v1's timing (Oct 30)   # owner, Oct 30: "post what you think is best for today" (one time each)
+        if fid not in done and NOW < datetime(2026, 10, 31, 4, 0, tzinfo=timezone.utc) and ('v2' not in fid or state.get('deleted', {}).get('feature-binance-v1')):
             out.insert(0, {'id': fid, 'kind': fid})
-        if 'story-' + fid not in done and NOW < datetime(2026, 10, 31, 4, 0, tzinfo=timezone.utc):
+        if fid != 'feature-binance-v2' and 'story-' + fid not in done and NOW < datetime(2026, 10, 31, 4, 0, tzinfo=timezone.utc):
             out.append({'id': 'story-' + fid, 'kind': 'story-' + fid})
     if 'intro-v1' not in done and NOW < RACE_END:
         out.insert(0, {'id': 'intro-v1', 'kind': 'intro'})
@@ -174,19 +174,21 @@ def prepare():
                                     'Each of the ten races is scored on its own, so leading can also mean losing the least. Swipe for all ten.\n\n'
                                     'Three AIs, C$100,000 each, real prices, no human picking trades. Every trade live on Telegram @PaperTradesAI and at papertrades.ai.\n\n'
                                     'Simulation only. Not financial or betting advice.\n\n' + TAGS)
-            elif p['kind'].replace('story-', '') in ('feature-binance-v1', 'feature-grades-v1'):
+            elif p['kind'].replace('story-', '') in ('feature-binance-v1', 'feature-binance-v2', 'feature-grades-v1'):
                 import features as FT
                 fid = p['kind'].replace('story-', '')
-                if fid == 'feature-binance-v1':
+                if fid.startswith('feature-binance'):
                     data = load('data.json', {}); ES = data.get('exp_standings'); ES = ES[0] if isinstance(ES, list) else ES
                     st = [(r['id'], float(r['profit'])) for r in ES['Crypto']]
                     rv = load('ops/src/rivals.json', {})
                     sell = [t for t in rv.get('trades', []) if t.get('model') == 'gemini' and t.get('experiment') == 'Crypto' and t.get('action') == 'Sell' and t['at'].startswith('2026-10-29T20:08')]
                     btc = next(t for t in sell if t['symbol'] == 'BTC-USD')
                     paths = FT.binance(f"social/{fid}", st, float(btc['price']), btc['reason'])
-                    cap = ('Gemini sold every coin it had 16 minutes before the US$2.5 billion Binance hack. 🤯\n\n'
-                           '4:08 p.m. ET: Gemini sells all its Bitcoin and Ethereum.\n4:24 p.m.: the first hacked money leaves Binance.\n\n'
-                           'Did it know? No: its reason was inflation, the Fed and a tech selloff. Binance never came up. '
+                    cap = ('Gemini sold every coin it had just as the biggest crypto hack in history was starting. 🤯\n\n'
+                           '4:05 p.m. ET: attackers start draining Binance (TRM Labs; about US$6.3 billion taken in all).\n'
+                           '4:08 p.m.: Gemini sells all its Bitcoin and Ethereum. No news of a hack existed yet.\n'
+                           '4:24 p.m.: the first big transfer is spotted on-chain.\n\n'
+                           'Did it know? No. We checked its instructions, its searches and its reply: no mention of Binance. Its reason was inflation, the Fed and a tech selloff. '
                            'And it can\'t backdate anything: the race runner fills every trade at the live price at that moment.\n\n'
                            'So: GENIUS or LUCK? Comment one word. 👇' + FOOT)
                 else:
@@ -298,6 +300,7 @@ def prepare():
 def publish():
     if not os.environ.get('INSTAGRAM_ACCESS_TOKEN') or not os.environ.get('INSTAGRAM_USER_ID'):
         print('no Instagram key; nothing posted'); return
+    delete_wrong()   # one time: the wrong Binance post comes down before its correction goes up
     ig = os.environ['INSTAGRAM_USER_ID']
     pend = load(PENDING, [])
     state = load(STATE, {'posted': {}})
@@ -357,6 +360,26 @@ def publish():
             er = state.get('errors') or {}
             state['errors'] = {'since': er.get('since') or NOW.isoformat(), 'last': NOW.isoformat(), 'msg': str(e)[:200], 'count': int(er.get('count') or 0) + 1}   # shown on the status panel; the health check emails the owner
     json.dump(state, open(STATE, 'w'), indent=1)
+
+
+def delete_wrong():
+    """One time (Oct 30): delete the first Binance post, which said "16 minutes before the hack" (later reports: the theft began 3 minutes
+    before Gemini's check-in). Found by its caption, since Instagram answered with an error when it was posted."""
+    if not os.environ.get('INSTAGRAM_ACCESS_TOKEN'):
+        return
+    state = load(STATE, {'posted': {}})
+    if state.get('deleted', {}).get('feature-binance-v1'):
+        return
+    ig = os.environ['INSTAGRAM_USER_ID']
+    try:
+        recent = api(f'{ig}/media', {'fields': 'id,caption', 'limit': '25'}).get('data', [])
+        hits = [m for m in recent if (m.get('caption') or '').startswith('Gemini sold every coin it had 16 minutes')]
+        for m in hits:
+            api(m['id'], {}, 'DELETE'); print('::notice::deleted the wrong Binance post ' + m['id'])
+        state.setdefault('deleted', {})['feature-binance-v1'] = {'at': NOW.isoformat(), 'n': len(hits)}
+        json.dump(state, open(STATE, 'w'), indent=1)
+    except Exception as e:
+        print('::warning::could not delete the wrong Binance post yet: ' + str(e)[:200])
 
 
 def redo(ids):
