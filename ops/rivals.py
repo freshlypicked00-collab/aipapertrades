@@ -667,7 +667,10 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         lines.append(f'{EXP_LABEL[exp]}: value {money(values[exp], b["cur"])}, cash {money(b["cash"], b["cur"])}')
         for key, p in b['positions'].items():
             cs = CUR_SYM[p['pcur']]
-            lines.append(f'  - {key} ({p.get("name", key)}): {p["qty"]:,.4f} units, average cost {cs}{p["entry"]:,.4f}, now {cs}{p.get("last", p["entry"]):,.4f}')
+            if OCC.match(key.split('|')[0]):   # options: say shares AND contracts (Gemini read 5,200 shares as 5,200 contracts; audit, Oct 30)
+                lines.append(f'  - {key} ({p.get("name", key)}): {p["qty"]:,.0f} shares = {p["qty"] / 100:,.0f} contracts (100 shares each), average premium {cs}{p["entry"]:,.4f} per share, now {cs}{p.get("last", p["entry"]):,.4f} per share')
+            else:
+                lines.append(f'  - {key} ({p.get("name", key)}): {p["qty"]:,.4f} units, average cost {cs}{p["entry"]:,.4f}, now {cs}{p.get("last", p["entry"]):,.4f}')
     if rc_due and not closed_day:
         lines.append('\nREPORT CARD DUE (2 to 3 times a day): grade each experiment honestly in report_card, A to F. If nothing has happened yet in an experiment, use the neutral grade \u2014 and say why. Never leave it blank.')
     if closed_day:

@@ -1268,7 +1268,8 @@ def _peer():
                         res = {'state': 'open' if held else 'closed', 'pct': round(mv, 4)}
                     else:
                         mv = p0 / p1 - 1   # sold above today's price: a good sale
-                        res = {'state': 'closed', 'pct': round(mv, 4)}
+                        # "move" is the plain price change since the sale, shown as such (the audit found "Closed: +0.0%" read as a realized result; Oct 30)
+                        res = {'state': 'closed', 'kind': 'sale', 'pct': round(mv, 4), 'move': round(p1 / p0 - 1, 4)}
                     res['good'] = None if abs(res['pct']) < 0.002 else res['pct'] > 0
             if res:
                 out[key] = res

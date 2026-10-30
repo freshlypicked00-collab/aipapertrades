@@ -54,11 +54,24 @@ for mid in ('claude', 'gemini', 'chatgpt'):
                 continue
             cur = 'US$' if e == 'China' else 'C$'
             tot = sum(float(x.get('value_usd') if e == 'China' else x.get('value_cad') or 0) for x in rows)
+            if e == 'Sports':   # the bankroll is the start plus settled results (minus penalties), not the cash row
+                tot = START + sum(float(b.get('result_cad') or 0) for b in J('bets', []) if b.get('status') != 'Open' and b.get('placed_at') and ts(b['placed_at']) >= datetime(2026, 10, 28, 17, 45, tzinfo=timezone.utc)) - sum(float(x.get('amount') or 0) for x in (r.get('claude_penalties') or []))
             last = [h for h in hist if h['portfolio'] == e]
             hv = last[-1]['value'] if last else None
             w(f'- **{e}**: value {cur}{tot:,.2f} (history {cur}{hv:,.2f} at {last[-1]["at"] if last else "-"}), profit {cur}{tot - START:,.2f}')
             for x in rows:
                 w(f'  - {x["holding"]}: qty {x.get("quantity")}, entry {x.get("entry_usd", x.get("entry_local"))}, now {x.get("price_usd", x.get("price_local"))}, value {x.get("value_usd") if e == "China" else x.get("value_cad")}, priced {x.get("price_at") or x.get("as_of") or "?"}, source: {clip(x.get("price_source"), 120)}')
+        for e, b in ((r.get('claude_allin') or {}).get('books') or {}).items():   # the All in side race (audit, Oct 30: it was missing)
+            if e == 'AllInSports':
+                val = START + sum(x['result'] for x in b.get('bets', []) if x['status'] != 'Open')
+                w(f'- **{e}** (side race): value C${val:,.2f}')
+                for x in b.get('bets', []):
+                    w(f'  - {x["id"]}: {clip(x.get("event"), 80)} · {x.get("pick_team")} {x.get("odds")} · stake {x["stake"]} · {x["status"]} {x.get("result", "")} · final {clip(x.get("final"), 80)}')
+                continue
+            val = b['cash'] + sum(p['qty'] * p.get('last', p['entry']) * (usdcad if p['pcur'] == 'USD' else 1) for p in b['positions'].values())
+            w(f'- **{e}** (side race): value ≈ C${val:,.2f}, cash C${b["cash"]:,.2f}')
+            for k, p in b['positions'].items():
+                w(f'  - {p.get("name", k)} [{k}]: qty {p["qty"]:,.4f}, entry {p["entry"]}, now {p.get("last")} {p["pcur"]}, priced {p.get("priced_at")}')
         bets = J('bets', [])
         fresh = [b for b in bets if b.get('placed_at') and ts(b['placed_at']) >= datetime(2026, 10, 28, 17, 45, tzinfo=timezone.utc)]
         w(f'- **Sports bets since the restart** ({len(fresh)}):')
