@@ -1091,7 +1091,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '461201ad2fcc';</script>
+<script>window.PT_PAGE_VER = '80bacffb3ae5';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -3416,7 +3416,14 @@ body { background:var(--color-bg); }
     [r.price_usd === null ? '' : stFmt.pct(Number(r.change_pct)), 'num ' + upDown(Number(r.change_pct))],
     [num(r.portfolio === 'China' ? r.value_usd : r.value_cad, (v) => d3.format(',.0f')(v)), 'num'],
     [pxSrc(r), 'wrap src']
-  ])); pagerFor(el, 10, 'holdings'); });
+  ]));
+    // under each holding, the other AIs' grades on the latest buy (or short) that built it (owner, Oct 29)
+    { const T = dash.data('trades'), TT = T.status === 'ok' ? T.data : [];
+      [...el.children].forEach((tr) => { if (!tr.dataset.key) return; const [pf, h] = tr.dataset.key.split(',').map(decodeURIComponent);
+        const t = TT.filter((x) => x.portfolio === pf && x.holding === h && /^(Buy|Short)$/.test(x.action) && x.pg_key).sort((a, b) => new Date(b.at) - new Date(a.at))[0];
+        const gn = t ? pgNode(t.pg_key) : null; if (!gn) return;
+        const cell = [...tr.children].find((c) => c.textContent.startsWith(h)) || tr.children[0]; cell.appendChild(gn); }); }
+    pagerFor(el, 10, 'holdings'); });
   // "Show:" experiment menus on the overview tables
   const fillPf = () => document.querySelectorAll('select.pf-filter').forEach((sel) => {
     const t = document.getElementById(sel.dataset.target); let keep = '';
@@ -4601,7 +4608,7 @@ body { background:var(--color-bg); }
       const sell = /^(Sell|Cover|Settled|Expired)$/.test(t.action);
       const val = t.portfolio === 'China' ? Number(t.usd) : Number(t.cad);
       return {
-        at: t.at, portfolio: t.portfolio, action: t.action, item: t.holding, why: why(t),
+        at: t.at, portfolio: t.portfolio, action: t.action, item: t.holding, why: why(t), pg: t.pg_key,
         detail: qtyTxt(t) + px(t),
         amount: t.portfolio === 'China' ? '¥' + d3.format(',.0f')(t.cny) + ' (US$' + d3.format(',.0f')(t.usd) + ')' : 'C$' + d3.format(',.0f')(t.cad),
         cost: sell && t.cost != null ? C(t.cost, t.portfolio) : '', profit: sell && t.pnl != null ? Number(t.pnl) : null,
@@ -4611,7 +4618,7 @@ body { background:var(--color-bg); }
     B.data.forEach((b) => {
       const odds = (Number(b.odds) > 0 ? '+' : '') + b.odds, stake = Number(b.stake_cad);
       const res = b.status !== 'Open' ? Number(b.result_cad) : null;
-      rows.push({ at: b.placed_at || b.placed + 'T12:00:00-04:00', portfolio: 'Sports', action: 'Bet', item: b.bet + ' ' + b.pick, detail: b.event + ' at ' + odds + ' · to win C$' + d3.format(',.0f')(b.to_win_cad || 0), amount: 'C$' + d3.format(',.0f')(stake), cost: 'C$' + d3.format(',.0f')(stake), profit: null, ret: null, open: b.status === 'Open', outcome: res, void: b.status === 'Void', why: b.note || b.reason || ((lgRows.filter((l) => l.portfolio === 'Sports' && l.at === b.placed_at)[0] || {}).detail) || '' });
+      rows.push({ pg: b.placed_at ? dash.model + '|' + new Date(b.placed_at).toISOString().slice(0, 19) + 'Z|Sports|' + b.bet + '|Bet' : null, at: b.placed_at || b.placed + 'T12:00:00-04:00', portfolio: 'Sports', action: 'Bet', item: b.bet + ' ' + b.pick, detail: b.event + ' at ' + odds + ' · to win C$' + d3.format(',.0f')(b.to_win_cad || 0), amount: 'C$' + d3.format(',.0f')(stake), cost: 'C$' + d3.format(',.0f')(stake), profit: null, ret: null, open: b.status === 'Open', outcome: res, void: b.status === 'Void', why: b.note || b.reason || ((lgRows.filter((l) => l.portfolio === 'Sports' && l.at === b.placed_at)[0] || {}).detail) || '' });
       if (b.status !== 'Open') {
         const back = b.status === 'Won' ? stake + res : b.status === 'Lost' ? 0 : stake;
         rows.push({ at: b.settled_at || (b.starts_at ? new Date(new Date(b.starts_at).getTime() + 3 * 3600e3).toISOString() : b.placed + 'T23:00:00-04:00'), portfolio: 'Sports', action: b.status, item: b.bet + ' ' + b.pick, detail: b.event + (b.final ? ' · ' + b.final : '') + ' · paid back C$' + d3.format(',.0f')(back), amount: 'C$' + d3.format(',.0f')(back), cost: 'C$' + d3.format(',.0f')(stake), profit: res, ret: stake ? res / stake : null, open: false });
@@ -4652,6 +4659,7 @@ body { background:var(--color-bg); }
             return [txt + (r.profit === null ? (r.action === 'Bet' ? ' (game over)' : r.partly ? ' (partly sold)' : ' (sold)') : ''), 'num ' + upDown(v)]; })(),
           [r.ret === null || r.ret === undefined ? '' : d3.format('+.1%')(r.ret), 'num ' + (r.ret == null ? '' : upDown(r.ret * 1000))], [r.why || '', 'wrap lg-why']];
         cells.forEach(([v, c]) => { const td = mk('td', c || ''); if (v instanceof Node) td.appendChild(v); else td.textContent = v; tr.appendChild(td); });
+        { const gn = r.pg ? pgNode(r.pg) : null; if (gn) tr.lastElementChild.appendChild(gn); }   // the other AIs' grades (owner, Oct 29)
         tb.appendChild(tr);
         if (document.documentElement.dataset.beginner === '1') { const s2 = plainTrade(r); if (s2) { const tr2 = mk('tr', 'bg-say'); const td2 = mk('td', '', s2); td2.colSpan = 9; tr2.appendChild(td2); tb.appendChild(tr2); } }
       });
