@@ -6971,6 +6971,10 @@
       if (!e || !away || !home) { if (!sc._ok) { sc.replaceChildren(mk('span', 'wait', 'Live score not available here right now: tap the game for ESPN’s live score.')); } return; }
       sc._ok = true;
       const st = (e.status || {}).type || {}, A = Number(away.score || 0), Hm = Number(home.score || 0), prev = sc._prev || {};
+      // not started yet (ESPN "pre"): say so instead of a 0-0 that looks live (owner, Oct 30: "says the scores 0 0, is that realtime?")
+      if (st.state === 'pre') { sc.classList.remove('is-final'); sc.replaceChildren(mk('span', 'wait', 'Not started yet: ' + (st.shortDetail || st.detail || 'waiting for the start') + '. The live score appears here as soon as it begins (checked every 30 seconds).'));
+        if (sc._lab) sc._lab.textContent = sc._lab._base + ' · scheduled, not started yet'; return; }
+      if (sc._lab) sc._lab.textContent = sc._lab._base + ' · live' + (st.state === 'post' || st.completed ? ' (ended)' : '');
       const row = (t, n, side) => { const nm = mk('span', 't ' + (n > (side === 'a' ? Hm : A) ? 'lead' : n < (side === 'a' ? Hm : A) ? 'trail' : ''), (t.team || {}).shortDisplayName || (t.team || {}).abbreviation || '');
         const v = mk('span', 'n ' + (n > (side === 'a' ? Hm : A) ? 'lead' : n < (side === 'a' ? Hm : A) ? 'trail' : ''), String(n)); if (prev[side] != null && prev[side] !== n) v.classList.add('pd-flash'); return [nm, v]; };
       sc.replaceChildren(...row(away, A, 'a'), ...row(home, Hm, 'h'), mk('span', 'st', (st.completed ? 'FINAL' : st.shortDetail || st.detail || 'In progress') + (st.completed ? ' · the bets settle at the next check-in' : '')));
@@ -6989,8 +6993,9 @@
     const game = (g, isLive) => {
       const d = mk('div', 'pd-live-g');
       const a = mk('a', 'pd-live-ev', g.ev); a.href = espnGame(SPORT_OF[String(g.lg || '').toUpperCase()] ? SPORT_OF[String(g.lg).toUpperCase()][1] : '', g.game, g.ev); a.target = '_blank'; a.rel = 'noopener'; a.title = 'Open the game on ESPN';
-      d.append(mk('small', 'pd-live-lg', (g.lg || '').toUpperCase() + (isLive ? ' · started ' : ' · ') + stFmt.whenET(new Date(g.t).toISOString()) + ' ET'), a);
-      const sc = mk('div', 'pd-live-sc'); if (isLive) d.appendChild(sc);
+      const lab = mk('small', 'pd-live-lg', (g.lg || '').toUpperCase() + (isLive ? ' · start time ' : ' · ') + stFmt.whenET(new Date(g.t).toISOString()) + ' ET'); lab._base = lab.textContent;
+      d.append(lab, a);
+      const sc = mk('div', 'pd-live-sc'); sc._lab = isLive ? lab : null; if (isLive) d.appendChild(sc);
       g.bets.forEach((x) => { const r = mk('div', 'pd-live-b'); r.style.setProperty('--ai', AIS[x.id].color);
         r.append(aiBadge(x.id, 14), mk('span', '', AIS[x.id].label + ': C$' + d3.format(',.0f')(x.stake) + ' on ' + x.pick + ' at ' + betOdds(x.odds) + (x.win ? ' · to win C$' + d3.format(',.0f')(x.win) : ''))); d.appendChild(r); });
       if (isLive) { d.classList.add('is-live'); sc._g = g; sc.appendChild(mk('span', 'wait', 'Getting the live score…')); paintScore(sc); }
