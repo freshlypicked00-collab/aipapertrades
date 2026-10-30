@@ -823,6 +823,7 @@
     .st-tabs-tools .st-tt { display: flex; align-items: center; gap: 6px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-fg-muted); }
     .st-tabs-tools .st-tt-clock { gap: 5px; font-family: var(--font-mono, monospace); }
     .st-tabs-tools .st-tt-clock b { color: var(--accent, #ffb000); font-weight: 500; font-size: 13px; letter-spacing: .02em; margin-right: 6px; }
+    .st-tabs-tools .st-tt-theme[hidden] { display: none; }
     .st-tabs-tools .st-tt-theme { font: inherit; font-family: var(--font-mono, monospace); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 6px 12px; min-height: 32px; cursor: pointer; white-space: nowrap; }
     .st-tabs-tools select { font: inherit; font-size: 13px; letter-spacing: 0; text-transform: none; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 5px 8px; min-height: 32px; max-width: 170px; }
     .st-tabs-tools .st-tt-brand { margin-right: auto; display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--color-fg); font-family: var(--font-mono, monospace); font-size: 15px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
@@ -1098,7 +1099,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '1ddc5000b8f1';</script>
+<script>window.PT_PAGE_VER = 'ede350c0233a';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -2792,13 +2793,19 @@ body { background:var(--color-bg); }
     if (cp) box.appendChild(mirror(cp, 'Currency'));
     // the colour theme menu, the same as the header's (eight themes, owner Oct 29)
     { const tp = document.getElementById('theme-pick'); if (tp) { const l = mirror(tp, 'Colour theme'); l.title = 'Terminal on your first visit, then the one you pick is remembered in this browser'; box.appendChild(l); } }
+    // the bar's Beginner and Full screen copies show only once the header's own buttons have scrolled out of view, so the two are never on screen together (owner, Oct 30)
+    const onlyWhenGone = (orig, copy) => {
+      if (!('IntersectionObserver' in window)) return;
+      copy.hidden = true;
+      new IntersectionObserver((es) => { const e = es[es.length - 1]; copy.hidden = e.isIntersecting && e.intersectionRatio > 0; }, { rootMargin: '-70px 0px 0px 0px', threshold: [0, 0.01] }).observe(orig);
+    };
     { const f0 = document.getElementById('fs-btn');   // full screen, computers only (the header button shows only there)
       if (f0 && document.fullscreenEnabled && window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) { const f2 = mk('button', 'st-tt-theme'); f2.type = 'button'; f2.title = 'Full screen (Esc to leave)';
         const s2 = () => { f2.textContent = '⛶'; f2.setAttribute('aria-label', document.fullscreenElement ? 'Exit full screen' : 'Full screen'); f2.title = (document.fullscreenElement ? 'Exit full screen' : 'Full screen') + ' (Esc to leave)'; f2.setAttribute('aria-pressed', String(!!document.fullscreenElement)); };
-        s2(); document.addEventListener('fullscreenchange', s2); f2.addEventListener('click', () => f0.click()); box.appendChild(f2); } }
+        s2(); document.addEventListener('fullscreenchange', s2); f2.addEventListener('click', () => f0.click()); box.appendChild(f2); onlyWhenGone(f0, f2); } }
     { const b0 = document.getElementById('beginner-btn');
       if (b0) { const t3 = mk('button', 'st-tt-theme'); t3.type = 'button'; const same3 = () => { t3.textContent = b0.textContent; t3.setAttribute('aria-pressed', b0.getAttribute('aria-pressed') || 'false'); };
-        same3(); new MutationObserver(same3).observe(b0, { childList: true, characterData: true, subtree: true, attributes: true }); t3.addEventListener('click', () => b0.click()); box.insertBefore(t3, box.lastChild); } }
+        same3(); new MutationObserver(same3).observe(b0, { childList: true, characterData: true, subtree: true, attributes: true }); t3.addEventListener('click', () => b0.click()); box.insertBefore(t3, box.lastChild); onlyWhenGone(b0, t3); } }
     nav.appendChild(box);
   })();
   document.querySelectorAll('.model-pick').forEach((sel) => sel.addEventListener('change', () => {
