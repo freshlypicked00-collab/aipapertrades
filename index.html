@@ -890,7 +890,6 @@
   .st-tabs > .st-crowns { margin-left: auto; align-self: center; margin-right: 2px; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
   .st-crowns .st-crown-chip { padding: 2px 11px 2px 8px; }
   .st-allin-chip { font-size: 12px; } .st-allin-chip .cr-side { color: var(--color-fg-muted); margin-right: 2px; }
-  .st-allin-chip .cr-part { display: inline-flex; align-items: center; gap: 4px; border-radius: 4px; padding: 0 2px; } .st-allin-chip .cr-part:hover { text-decoration: underline; }
   .st-crown-line { display: none; margin: 6px 0 0; }
   .st-crown-line .st-allin-chip { margin-top: 5px; }
   .pt-flash { animation: pt-flash 1.6s ease-out; border-radius: var(--cds-radius); }
@@ -5063,7 +5062,7 @@ body { background:var(--color-bg); }
   (() => {
     const nav = document.querySelector('nav.st-tabs'), head = document.querySelector('header.st-head'); if (!nav || !head) return;
     const make = () => { const b = mk('button', 'st-crown-chip'); b.type = 'button'; b.addEventListener('click', () => goTab('h2h')); return b; };
-    const makeAi = () => { const b = mk('button', 'st-crown-chip st-allin-chip'); b.type = 'button'; b.addEventListener('click', () => goTab('allin')); return b; };   // a click on one part (trading or sports) goes straight to that part, see fillAi
+    const makeAi = () => { const b = mk('button', 'st-crown-chip st-allin-chip'); b.type = 'button'; b.addEventListener('click', () => goTab('allin')); return b; };
     const navChip = make(), navAi = makeAi(), stack = mk('div', 'st-crowns'); stack.append(navChip, navAi);   // who leads overall, and under it who leads the All in side race (owner, Oct 29)
     const firstGroup = nav.querySelector(':scope > .st-tabgroup'); if (firstGroup) nav.insertBefore(stack, firstGroup); else nav.appendChild(stack);
     const line = mk('div', 'st-crown-line'); const headChip = make(), headAi = makeAi(); line.append(headChip, headAi);
@@ -5080,11 +5079,8 @@ body { background:var(--color-bg); }
         c.append(mk('span', 'cr-k', '🎲'), mk('span', 'cr-s cr-side', 'All in side race:'));
         if (one) { c.append(aiBadge(one, 14), mk('span', 'cr-n', AIS[one].label), document.createTextNode(' leads both parts')); }
         else parts.forEach((x, i) => { if (i) c.appendChild(mk('span', 'cr-s', '·'));
-          const part = mk('span', 'cr-part'); part.title = 'Open All in: ' + x.nm;   // each part opens its own section: trading → All in: trading, sports → All in: sports (owner, Oct 30)
-          part.addEventListener('click', (ev) => { ev.stopPropagation(); (window.ptGoAllin || (() => goTab('allin')))(x.e); });
-          if (x.lead) { const n = mk('span', 'cr-n'); n.style.color = AIS[x.lead.id].color; n.textContent = AIS[x.lead.id].label; part.append(aiBadge(x.lead.id, 14), n, document.createTextNode(' leads ' + x.nm)); }
-          else part.appendChild(document.createTextNode('no leader yet in ' + x.nm));
-          c.appendChild(part); });
+          if (x.lead) { const n = mk('span', 'cr-n'); n.style.color = AIS[x.lead.id].color; n.textContent = AIS[x.lead.id].label; c.append(aiBadge(x.lead.id, 14), n, document.createTextNode(' leads ' + x.nm)); }
+          else c.appendChild(document.createTextNode('no leader yet in ' + x.nm)); });
         const tip = parts.map((x) => x.lead ? AIS[x.lead.id].label + ' leads All in: ' + x.nm + ' (' + (x.lead.profit >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(x.lead.profit)) + ')' : 'no leader yet in All in: ' + x.nm).join('; ');
         c.title = tip + '. A separate side race with no caps and its own winner in each part; it never counts in the ten races. Tap to open All in.';
         c.setAttribute('aria-label', 'All in side race: ' + tip + '. Open All in.');
