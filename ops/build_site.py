@@ -1300,6 +1300,45 @@ data['ver'] = _hl.sha1(json.dumps(data, separators=(',', ':'), sort_keys=True).e
 json.dump(data, open(os.path.join(OUT, 'data.json'), 'w'), separators=(',', ':'))  # compact: smaller and faster to load
 open(os.path.join(OUT, 'data.ver'), 'w').write(data['ver'])
 
+# What a reader without JavaScript sees (Google, link previews, AI assistants): the day, who leads each race and the latest take,
+# written straight into the page. The page's own code replaces it as it loads, so visitors see no difference (owner and Gemini, Oct 30).
+try:
+    import html as _hm
+    _ip = os.path.join(OUT, 'index.html'); _pg = open(_ip).read()
+    _AI = {'claude': 'Claude', 'gemini': 'Gemini', 'chatgpt': 'ChatGPT'}
+    _LB = {'Stocks': 'Stocks and anything', 'Crypto': 'Crypto', 'China': 'China stocks', 'Metals': 'Metals', 'Energy': 'Oil and energy', 'Options': 'Options',
+           'Currencies': 'Currencies (forex)', 'Safe': 'Play it safe', 'Sports': 'Sports betting', 'Predictions': 'Prediction markets'}
+    _et = datetime.now(timezone.utc) - timedelta(hours=4)
+    _day = max(1, min(32, (_et.date() - datetime(2026, 10, 28).date()).days + 1))
+    _lead = _AI.get(data.get('leader') or '', '')
+    _rows = []
+    for _e, _lab in _LB.items():
+        _r = (data.get('exp_standings') or {}).get(_e) or []
+        if not _r:
+            continue
+        _sym = 'US$' if _e == 'China' else 'C$'
+        _f = lambda v: ('+' if v >= 0 else '−') + _sym + f'{abs(v):,.0f}'
+        if max(x['profit'] for x in _r) - min(x['profit'] for x in _r) < 0.5:
+            _rows.append(f'<li><b>{_lab}</b>: all level so far</li>')
+        else:
+            _rows.append(f'<li><b>{_lab}</b>: ' + ', '.join(f"{i + 1}. {_AI.get(x['id'], x['id'])} {_f(x['profit'])}" for i, x in enumerate(_r[:3])) + '</li>')
+    _snap = (f'<h2>Race standings</h2><p>Day {_day} of 32' + (f'. {_lead} leads overall (ranked by total profit; amounts are hidden until Nov 28)' if _lead else '') +
+             '. Profit in each race since the Oct 28 restart:</p><ol>' + ''.join(_rows) + '</ol>')
+    _pg = _pg.replace('aria-label="Race standings"></aside>', 'aria-label="Race standings">' + _snap + '</aside>', 1)
+    _pg = _pg.replace('Day <b data-draw="day-num">—</b> of <b data-draw="day-total">—</b>', f'Day <b data-draw="day-num">{_day}</b> of <b data-draw="day-total">32</b>', 1)
+    _tk = [x for x in (data.get('take') or []) if x.get('text') and not x.get('experiment')] or [x for x in (data.get('take') or []) if x.get('text')]
+    if _tk:
+        _pg = _pg.replace('<span data-draw="take" data-source="take">—</span>', '<span data-draw="take" data-source="take">“' + _hm.escape(_tk[-1]['text']) + '” — Claude</span>', 1)
+    _fp = data.get('fingerprints') or []
+    if _fp:
+        _pg = _pg.replace('<span data-fp-chip>Every trade fingerprinted nightly</span>', '<span data-fp-chip>Ledger verified through ' + datetime.fromisoformat(_fp[-1]['day']).strftime('%b %-d') + '</span>', 1)
+    if _lead:   # link previews and search results say who is winning today
+        _d1 = f'Day {_day} of 32: {_lead} leads. '
+        _pg = _pg.replace('<meta name="description" content="', '<meta name="description" content="' + _d1, 1).replace('<meta property="og:description" content="', '<meta property="og:description" content="' + _d1, 1)
+    open(_ip, 'w').write(_pg)
+except Exception as _e:
+    print('static snapshot skipped:', _e)
+
 open(os.path.join(OUT, 'CNAME'), 'w').write('papertrades.ai\n')
 open(os.path.join(OUT, '.nojekyll'), 'w').write('')
 print('built', os.path.getsize(os.path.join(OUT, 'index.html')), 'bytes index,', os.path.getsize(os.path.join(OUT, 'data.json')), 'bytes data')

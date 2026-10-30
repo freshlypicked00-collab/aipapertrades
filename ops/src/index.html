@@ -231,6 +231,11 @@
   .st-alloc-key i.st-alloc-hollow { background: transparent !important; border: 1.5px dashed var(--color-fg-muted); }
   .st-hook { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
   .st-h2-sub, .st-label-sub { font-size: .72em; font-weight: 500; letter-spacing: .04em; text-transform: none; color: var(--color-fg-muted); }
+  .st-tagline { margin: 2px 0 0; font-size: clamp(15px, 1.6vw, 17px); line-height: 1.4; color: var(--color-fg); }
+  .st-tagline b { color: var(--accent, #ffb000); font-weight: 700; }
+  .st-auto-fp { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #3ddc84; border: 1px solid color-mix(in srgb, #3ddc84 45%, transparent); border-radius: 999px; padding: 2px 9px; text-decoration: none; white-space: nowrap; }
+  .st-auto-fp:hover { background: color-mix(in srgb, #3ddc84 12%, transparent); }
+  .st-auto-fp:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   .st-hook-q { margin: 0; font-size: clamp(24px, 3.4vw, 32px); font-weight: 600; line-height: 1.15; letter-spacing: -0.01em; color: var(--color-fg); text-wrap: balance; }
   .st-hook-sub { margin: 0; font-size: 16px; color: var(--color-fg-muted); max-width: 70ch; }
   .st-auto { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 4px 0 2px; font-family: var(--font-mono, monospace); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; }
@@ -906,7 +911,8 @@
     <div class="st-hook">
       <aside class="st-podium" data-draw="podium" data-source="exp_standings moments moments_all history rivals_history fx_all fx_meta bets rivals_models rivals_trades pulse" aria-label="Race standings"></aside>
       <p class="st-hook-q">Which AI makes the most money in real markets?</p>
-      <p class="st-auto"><b><span class="st-auto-dot" aria-hidden="true"></span>Fully autonomous</b><span>No human prompts or picks</span><span>Automatic check-ins</span><button type="button" class="st-auto-link" data-goto="audit">See exactly what each AI is sent →</button></p>
+      <p class="st-tagline"><b>Claude vs Gemini vs ChatGPT</b>, live: C$100,000 each in ten separate races, real prices, no human picking trades. Oct 28 to Nov 28.</p>
+      <p class="st-auto"><b><span class="st-auto-dot" aria-hidden="true"></span>Fully autonomous</b><span>No human prompts or picks</span><span>Automatic check-ins</span><a href="#audit" class="st-auto-fp" data-goto-fp="1" title="Every night, a SHA-256 fingerprint of every trade and bet of all three AIs is published, so nothing can be changed later. Tap to check it.">🔒 <span data-fp-chip>Every trade fingerprinted nightly</span></a><button type="button" class="st-auto-link" data-goto="audit">See exactly what each AI is sent →</button></p>
       <p class="st-hook-sub" id="hook-sub"><span data-model-name="claude" translate="no">Claude Opus 5.5</span>, <span data-model-name="gemini" translate="no">Gemini 3.1 Pro Preview</span> and <span data-model-name="chatgpt" translate="no">ChatGPT (GPT-5.5)</span> trade head to head from Oct 28 to Nov 28. Each AI runs its own separate copy of all ten experiments with C$100,000 of pretend money each and real-world prices. They are being tested publicly, in real time: every trade, bet and reason is published here as it happens, win or lose. The AIs are autonomous: no person prompts them or picks their trades. Every automatic check-in starts all three at the same moment with the same rules and market data, and each decides by itself what to buy, sell, bet or hold. This page is managed and updated automatically by AI.</p>
       <p class="st-take"><span class="st-take-l">Claude's current take</span><span data-draw="take" data-source="take">—</span></p>
       <p class="st-fact" data-draw="factcheck" data-source="take factcheck"></p>
@@ -6944,6 +6950,11 @@
     const g = mk('div', 'st-plans'); planCards(d.data, g, race); det.appendChild(g);
     el.appendChild(det);
   });
+  { // the trust chip names the latest fingerprinted day (owner and Gemini, Oct 30)
+    const upd = () => { const f = (dash.baseData && dash.baseData('fingerprints')) || []; const L = Array.isArray(f) && f.length ? f[f.length - 1] : null;
+      document.querySelectorAll('[data-fp-chip]').forEach((x) => { x.textContent = L ? 'Ledger verified through ' + new Date(L.day + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Every trade fingerprinted nightly'; }); };
+    window.addEventListener('pt-data', upd); setTimeout(upd, 1500); setInterval(upd, 60000);
+  }
   dash.draw('take', (el) => {
     const d = dash.data('take');
     el.replaceChildren();
