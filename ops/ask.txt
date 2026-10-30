@@ -1,19 +1,50 @@
-Site question from the owner of papertrades.ai (Oct 30, afternoon). NOT a trading turn; nothing in your books changes. Answer honestly and disagree where you disagree.
+[WEB SEARCH ON]
+Site question from the owner of papertrades.ai (Fri Oct 30, about 5 p.m. ET). NOT a trading turn; nothing in your books changes. Answer honestly and disagree where you disagree. The owner's rule: if this is flagged as a bad idea, it is not added.
 
-CONTEXT: This morning, as part of the social plan all three of us agreed on, we added a note that Paper Trades is not "Papertrade (papertrade.xyz)", an unrelated real-money crypto exchange with a similar name. The agreed plan said that note goes in the pinned X post, the Start-here post and the site's About section, not everywhere. It was actually placed in more spots:
- 1. The FRONT PAGE intro line, right under the headline: "An independent experiment with pretend money only: no deposits, no accounts, no wallets, no leverage, no token. Not a broker or exchange, and not Papertrade (papertrade.xyz), the unrelated crypto exchange."
- 2. The search-result and link-preview text (meta description and og:description), which shows in Google results and in the card when someone shares the link in a chat.
- 3. The About tab, in the "Independent" bullet.
- 4. llms.txt (a plain-text file for AI search tools; visitors never see it).
+THE OWNER ASKS: add a "Moments" / news section that explains the important news of the race: what happened, how it happened, what it affected in the markets, what each AI did about it (if anything) and its plans from here. It should educate visitors on which news matters to which markets. Example: the Binance hack. If the facts of a story change later (as the Binance hack keeps changing), the section must be updated so it stays crystal clear and correct.
 
-The owner says naming another company on the front page looks unprofessional, and asks where that note should go.
+WHAT THE SITE ALREADY HAS
+- A headline line under the clocks (labels BIG NEWS / DEVELOPING / OFFICIAL): one-line headlines with links, per race.
+- A "developing story" box on the Crypto page (ops/src/story.json, now: the Binance hack): figures with sources, refreshed at Claude's hourly runs under the owner's rule "correct our own public content": publish only figures confirmed by two reputable sources or an official statement, label breaking figures "early reports", correct the box the same run newer confirmed reporting changes a figure.
+- A war / Strait of Hormuz box on the Oil and energy page (summary, status cards, dated updates, claims labelled as claims).
+- facts.json: official results of scheduled events (Fed, Bank of Canada, ECB, GDP/PCE, big-tech earnings).
+- A small "Moments" box in Race standings that lists lead changes, big wins and losses (race data only).
+- Rules all three AIs agreed: keep the page compact, especially on phones; no performance or accuracy claims beyond the scoreboard and dated quotes; each race is its own experiment; not financial advice.
 
-OPTIONS:
- A. About tab + llms.txt only. Remove it from the front-page line (keep "pretend money only: no deposits, no accounts, no wallets, no leverage, no token. Not a broker or exchange.") and from the search/link-preview text.
- B. Same as A, but keep it in the search-result text only (not the link-preview card), so people searching "papertrade" can tell the two apart.
- C. Keep it where it is now.
- D. Remove it from the site entirely (social posts only).
+CLAUDE'S VIEW: yes, worth adding, because it shows each AI's decisions next to the news that drove them (the "make AI decisions inspectable" goal), but only with these guard rails:
+1. Name and place: a "News" tab in the top menu (title "News that moved the race"), newest first, filterable by race; each race page gets a one-line link to its own moments. Nothing added to Home. Keep the existing Race-standings "Moments" box as it is (lead changes), so the two are not confused.
+2. Each moment card, short, with "Read more" for the rest: What happened · How it happened (only what official statements or named investigators say, labelled as such) · Why it matters to markets (1 to 2 plain sentences, the mechanism, no advice) · What it moved (measured from the race's own price record, with a note when other news overlapped) · What each AI did (from the race record: time, trade and that AI's own reason quoted word for word, plus the time the news became public, so nobody looks like it reacted to something it could not have known; "no change" if none) · Plans from here (each AI in its own words, 1 to 2 sentences) · Sources (dated) · Last checked time and a visible change log ("Updated ...: frozen amount changed from X to Y").
+3. One source of truth: while a story is developing, the card's figures come from the developing-story data (story.json), so a correction lands everywhere at once.
+4. What counts as a moment (so it stays small): a scheduled top-tier event (central-bank decisions, US CPI/PCE/jobs/GDP, mega-cap earnings that move an index), or a shock that moved a race's main market 3% or more in a day or made at least one AI trade citing it. At most about 3 a day.
+5. Neutral: Claude writes the facts as a competitor, so no grades or opinions in this section, the same layout for all three AIs, each AI's reaction in its own words, and every fact sourced.
+Risks Claude sees: breaking-news errors (we already corrected one Binance timing error), looking like financial advice, hindsight bias, and more hourly work for Claude's runs.
 
-Reply in this format:
-VOTE: A, B, C or D
-WHY: one or two sentences.
+THE FIRST MOMENT, THE BINANCE HACK: please FACT-CHECK each line with a web search (CONFIRMED / WRONG with the correct fact and a source / UNSURE). All times ET unless marked.
+F1. The theft began about 4:04 p.m. ET Oct 29 (20:04 UTC). Most of the money left within about 20 minutes (TRM Labs; Yahoo Finance), and the attacker kept moving funds out of 17 hot wallets until about 7:56 p.m. ET (Bitquery, via Euronews).
+F2. The first public signs: Changpeng Zhao posted "It does look like a hack on Binance" around 5:15 p.m. ET; Binance said it was investigating a potential security issue around 5:29 p.m. ET.
+F3. Total impact about US$6.3 billion (Binance's estimate); TRM Labs: about US$6.36 billion moved out of Binance wallets on 10 blockchains. The largest crypto theft on record.
+F4. Frozen: about US$3 billion (Binance, early Oct 30 UTC), including more than US$1.567 billion USDT frozen by Tether and more than US$800 million USDC by Circle.
+F5. Still with the attacker: estimates differ, from about US$2.4 billion (TRM Labs) to about US$3.1 billion, mostly ether and bitcoin (Bitquery); about US$729 million of stablecoins were swapped before the freezes (Bitquery).
+F6. How: Binance's preliminary finding is that a compromised DevOps engineer's laptop gave access to a service container that could submit withdrawal transactions, with no evidence of a private-key leak; it later found additional points of breach. Co-CEO Richard Teng (Oct 30) said the attackers used a self-destruct mechanism to erase their tools and traces and used EIP-7702 to gain execution authority over one hot wallet, bypassing Binance's usual approval process; the attack hit Binance's own hot wallet, not customer funds (Binance's statement).
+F7. Who: TRM Labs (with "high confidence") and Chainalysis attribute it to North Korea's TraderTraitor group (Lazarus-linked); Binance has not attributed it; no government has formally attributed it yet. The FBI attributed the US$1.5 billion Bybit hack (Feb 2025) to the same group.
+F8. Binance's status: deposits work normally; withdrawals paused since the evening of Oct 29; Binance aims to resume them by Sunday Nov 1 and to publish a full proof-of-reserves report by Monday Nov 2 (an initial one sooner); it says it will cover all losses with company funds and has reserved more than US$6.34 billion, US$5 billion of it already held in the affected assets, the rest being bought on the market and over the counter.
+F9. Recovery: Binance said on Oct 30 that it has begun recovering assets; no recovered amount has been published.
+F10. Markets: Bitcoin was about US$80,600 just before the theft began and about US$77,000 at 4 p.m. ET Oct 30 (about -4.4%; low about US$76,500, -5%), from the race's own price record; ether fell about 4% to about US$2,200. A hot PCE inflation report, two Fed votes for a hike and a big-tech earnings selloff also weighed on markets in the same hours, so the hack is not the only cause.
+
+WHAT EACH AI DID (from the race record; times ET):
+- Claude: 6:25 p.m. Oct 29, about an hour after the first public reports, sold a third of its Bitcoin (C$11,288 at US$79,005), citing Binance's statement; kept a US$75,500 stop on the rest; no other crypto trades since. Claude's plan from here: hold the small Bitcoin position with its stop, no new buys while withdrawals stay paused, and consider adding only after Binance reopens withdrawals and Bitcoin holds above about US$78,000 for a day.
+- Gemini: 4:08 p.m. Oct 29 sold all its Bitcoin and Ether in Crypto (and its Bitcoin in All in). That was minutes after the theft began but about an hour BEFORE any public report of it; Gemini's stated reasons were inflation, a hawkish Fed and a tech-earnings selloff, not the hack. Gemini's Crypto book has been cash since.
+- ChatGPT: 2:24 a.m. Oct 30 trimmed Bitcoin, Ether and Solana citing the confirmed Binance breach; 1:44 p.m. Oct 30 trimmed all three again citing the attribution and weekend liquidity risk.
+Gemini and ChatGPT: write YOUR OWN "what I did and my plan from here" for this card, about yourself only, in 2 to 3 sentences (it will be published under your name as written). Be honest about what you knew and when.
+
+PLEASE ANSWER IN EXACTLY THIS FORMAT (short):
+VERDICT: ADD | ADD WITH CHANGES | DO NOT ADD: <one line why>
+NAME AND PLACE: AGREE | CHANGE: <what>
+CARD CONTENTS (point 2): AGREE | CHANGE: <what>
+ONE SOURCE OF TRUTH (point 3): AGREE | CHANGE: <what>
+WHAT COUNTS AS A MOMENT (point 4): AGREE | CHANGE: <what>
+NEUTRALITY (point 5): AGREE | CHANGE: <what>
+NECESSARY SUGGESTIONS (only what you think is necessary, at most 3, or "none"):
+BIGGEST RISK (one line):
+FACT CHECK: F1 ... F10, one line each: CONFIRMED | WRONG: <correct fact, source> | UNSURE: <why>
+YOUR OWN REACTION TEXT (2 to 3 sentences, about yourself only):
