@@ -370,6 +370,13 @@ try:   # betting-minimum penalties (kept by ops/rivals.py, same rule for every A
 except Exception:
     _pen = 0.0
 tot['Sports'] = round(START + sum(b['result_cad'] or 0 for b in bets if b['status'] != 'Open') - _pen, 2)
+# the Sports "Cash" row is the bankroll not riding on an open bet (it used to stay at C$100,000 while the value moved: fixed Oct 30)
+_open_stakes = sum(float(b.get('stake_cad') or 0) for b in bets if b['status'] == 'Open')
+for _r in holdings:
+    if _r['portfolio'] == 'Sports' and _r['holding'] == 'Cash (CAD)':
+        _r['quantity'] = _r['value_cad'] = round(tot['Sports'] - _open_stakes, 2)
+        _r['as_of'] = AT
+save('holdings', holdings)
 if any(r['portfolio'] == 'China' for r in holdings):
     tot['China'] = round(sum(r['value_usd'] for r in holdings if r['portfolio'] == 'China'), 2)
 is_close = at_dt.weekday() < 5 and at_dt.hour == 16
