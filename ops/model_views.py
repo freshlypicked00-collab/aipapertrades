@@ -139,6 +139,8 @@ def build(rivals, claude):
                 row.update(price_local=t['price'], currency='CNY', shares=t['qty'], cny=round(t['qty'] * t['price'], 2), usd=t['amount'])
             else:
                 row.update(price_usd=t['price'], cad=t['amount'], qty=t['qty'])
+            if t['action'] in ('Buy', 'Sell', 'Short', 'Cover'):
+                row['pg_key'] = _pgkey(mid, t)   # its peer grades show under it in the holdings tables too (owner, Oct 29)
             if t.get('pnl') is not None:
                 row.update(cost=t.get('cost'), pnl=t.get('pnl'))   # profit on this sale (average cost), added by build_site
             d['trades'].append(row)

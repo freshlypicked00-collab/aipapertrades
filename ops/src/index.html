@@ -509,7 +509,21 @@
   .st-podium .pd-live-h { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-top: 2px; } .st-podium .pd-live-h.is-live { color: #ff5a4e; }
   .st-podium .pd-live-g { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 6px 8px; font-size: 12.5px; display: flex; flex-direction: column; gap: 3px; }
   .st-podium .pd-live-lg { font-size: 11px; color: var(--color-fg-muted); } .st-podium .pd-live-ev { font-weight: 600; color: var(--color-fg); text-decoration: none; } .st-podium .pd-live-ev:hover { text-decoration: underline; }
-  .st-podium .pd-live-sc:not(.is-on) { display: none; } .st-podium .pd-live-sc { font-family: var(--font-mono, monospace); font-size: 12px; color: var(--color-fg); }
+  /* live games: a pulsing LIVE badge like the Real-time alerts one, and a small scoreboard per game that updates every 30 seconds (owner, Oct 29) */
+  .st-podium .pd-live-h.is-live { display: flex; align-items: center; gap: 8px; }
+  .pd-livebadge { display: inline-flex; align-items: center; gap: 5px; background: #e5383b; color: #fff; font-size: 11px; font-weight: 800; letter-spacing: .08em; padding: 2px 7px; border-radius: 4px; box-shadow: 0 0 0 0 rgba(229,56,59,.6); animation: pd-ring 2s ease-out infinite; }
+  .pd-livebadge i { width: 6px; height: 6px; border-radius: 50%; background: #fff; animation: pt-pulse 1.4s ease-in-out infinite; }
+  @keyframes pd-ring { 0% { box-shadow: 0 0 0 0 rgba(229,56,59,.55); } 70% { box-shadow: 0 0 0 8px rgba(229,56,59,0); } 100% { box-shadow: 0 0 0 0 rgba(229,56,59,0); } }
+  .st-podium .pd-live-g.is-live { border-color: color-mix(in srgb, #e5383b 55%, var(--color-border-line)); background: color-mix(in srgb, #e5383b 5%, transparent); }
+  .st-podium .pd-live-sc { display: grid; grid-template-columns: 1fr auto; gap: 1px 10px; font-family: var(--font-mono, monospace); font-size: 13px; color: var(--color-fg); padding: 4px 0 2px; }
+  .st-podium .pd-live-sc .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .st-podium .pd-live-sc .n { font-weight: 800; font-size: 15px; text-align: right; font-variant-numeric: tabular-nums; }
+  .st-podium .pd-live-sc .lead { color: var(--color-fg); } .st-podium .pd-live-sc .trail { color: var(--color-fg-muted); }
+  .st-podium .pd-live-sc .st { grid-column: 1 / -1; font-size: 11px; color: #ff5a4e; letter-spacing: .04em; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; text-align: left; gap: 6px; }
+  .st-podium .pd-live-sc .st::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #ff5a4e; animation: pt-pulse 1.4s ease-in-out infinite; }
+  .st-podium .pd-live-sc.is-final .st { color: var(--color-fg-muted); } .st-podium .pd-live-sc.is-final .st::before { animation: none; background: var(--color-fg-muted); }
+  .st-podium .pd-live-sc .wait { grid-column: 1 / -1; font-size: 11.5px; color: var(--color-fg-muted); }
+  .st-podium .pd-live-sc .n.pd-flash { animation: pd-flash 1.2s ease-out; } @keyframes pd-flash { 0% { color: #ffd166; transform: scale(1.35); } 100% { color: inherit; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .pd-livebadge, .pd-livebadge i, .st-podium .pd-live-sc .st::before, .st-podium .pd-live-sc .n.pd-flash { animation: none; } }
   .st-podium .pd-live-b { display: flex; align-items: center; gap: 6px; border-left: 2px solid var(--ai); padding-left: 6px; color: var(--color-fg-muted); } .st-podium .pd-live-b .ai-badge { margin-right: 0; }
   .st-podium .pd-big { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
   .st-podium .pd-big-col > b { display: block; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
@@ -3116,6 +3130,9 @@
     return groups;   // newest first, by each group's newest ticket
   };
   const oddsSpan = (items) => { const u = [...new Set(items.map((x) => Number(x.odds)))]; return u.length === 1 ? betOdds(u[0]) : u.length <= 3 ? u.map(betOdds).join(' / ') : betOdds(Math.min(...u)) + ' to ' + betOdds(Math.max(...u)); };
+  // the other AIs' grades under each bet (owner, Oct 29): key = model|placed time|Sports|bet id|Bet, the key ops/peer_grades.py gives it
+  const betPg = (cell, items) => { if (!cell) return; const seen = new Set(); items.forEach((y) => { if (!y.placed_at || !y.bet) return;
+    const k = dash.model + '|' + new Date(y.placed_at).toISOString().slice(0, 19) + 'Z|Sports|' + y.bet + '|Bet'; if (seen.has(k)) return; seen.add(k); const gn = pgNode(k); if (gn) cell.appendChild(gn); }); };
   dash.draw('bets-body', (el) => {
     el.replaceChildren();
     const d = dash.data('bets'); const list = d.status === 'ok' ? d.data : [];
@@ -3134,7 +3151,7 @@
       const tr = row([[sub ? '↳ ' + r.bet : r.bet], [placed], [sub ? mk('small', 'st-muted', 'same pick, ticket ' + r.bet) : gameOf(r), 'wrap'], [sub ? '' : r.pick], [betOdds(r.odds), 'num'],
         [d3.format(',.0f')(Number(r.stake_cad)), 'num'], [d3.format(',.0f')(Number(r.to_win_cad)), 'num'], [pillOf(r.status, r.settled_at)],
         [resOf(r.result_cad), 'num ' + upDown(Number(r.result_cad))], [closeOf(r), 'num'], [vd, vd === 'Beat' ? 'is-up' : vd === 'Missed' ? 'is-down' : '']], sub ? 'bet-ticket' : '');
-      tr.dataset.key = r.bet; return tr;
+      tr.dataset.key = r.bet; if (!sub) betPg(tr.children[3], [r]); return tr;
     };
     betGroups(list).forEach((g) => {
       if (g.items.length === 1) { const tr = ticket(g.items[0]); tr._top = true; el.appendChild(tr); return; }
@@ -3148,6 +3165,7 @@
       const settled = g.items.map((x) => x.settled_at).filter(Boolean).sort().pop();
       const tr = row([[tg], [placed], [gameOf(r0), 'wrap'], [pick], [oddsSpan(g.items), 'num'], [d3.format(',.0f')(sum('stake_cad')), 'num'], [d3.format(',.0f')(sum('to_win_cad')), 'num'],
         [pillOf(r0.status, settled)], [results.length ? resOf(sum('result_cad')) : '', 'num ' + (results.length ? upDown(sum('result_cad')) : '')], [closes.length === 1 ? closes[0] : 'varies', 'num'], [vds.length === 1 ? vds[0] : 'mixed', vds.length === 1 ? (vds[0] === 'Beat' ? 'is-up' : vds[0] === 'Missed' ? 'is-down' : '') : 'st-muted']], 'bet-group');
+      betPg(tr.children[3], g.items);
       tr._top = true; tr._key = g.key; tr._kids = g.items.map((x) => ticket(x, true));
       el.appendChild(tr); tr._kids.forEach((k) => el.appendChild(k));
       tg.addEventListener('click', () => { if (BET_OPEN.has(g.key)) BET_OPEN.delete(g.key); else BET_OPEN.add(g.key); const o = BET_OPEN.has(g.key); tg.textContent = n + ' bets ' + (o ? '▾' : '▸'); tg.setAttribute('aria-expanded', String(o)); tr._kids.forEach((k) => { k.hidden = tr.hidden || !o; }); });
@@ -3644,6 +3662,8 @@
         const groups = []; const at = {}; bets.forEach((x) => { const k = (x.pick_team || x.pick) + '|' + x.event + '|' + x.status; if (!at[k]) { at[k] = { items: [] }; groups.push(at[k]); } at[k].items.push(x); });
         groups.forEach((g) => { const x = g.items[0], n = g.items.length, sum = (f) => g.items.reduce((a, y) => a + Number(y[f] || 0), 0); const tr = mk('tr'); tr.className = 'gx-hold-last';
           const c = td(tr, '', 'wrap'); c.append(mk('b', '', x.pick_team || x.pick), mk('small', 'st-muted gx-sub', x.event || ''));
+          { const seen = new Set(); g.items.forEach((y) => { const t = TS.find((q) => q.action === 'Bet' && (q.symbol === (y.bet || y.id) || (y.placed_at && Math.abs(Date.parse(q.at) - Date.parse(y.placed_at)) < 120e3 && Math.abs(Number(q.amount) - Number(y.stake)) < 1)));
+              if (!t) return; const k = PG_KEY(t); if (seen.has(k)) return; seen.add(k); const gn = pgNode(k); if (gn) c.appendChild(gn); }); }   // the other AIs' grades (owner, Oct 29)
           if (n > 1) { const dt = mk('details', 'bet-list'); dt.appendChild(mk('summary', '', 'The same pick ' + n + ' times · see each bet'));
             g.items.forEach((y) => dt.appendChild(mk('span', '', (y.placed_at ? stFmt.whenET(y.placed_at) + ' ET' : '') + ' · ' + money(y.stake) + ' at ' + betOdds(y.odds)))); c.appendChild(dt); }
           td(tr, n > 1 ? n + ' times, latest ' + stFmt.when(x.placed_at) : x.placed_at ? stFmt.when(x.placed_at) : '—', 'wrap', 'Placed'); td(tr, money(sum('stake')), 'num', 'Stake');
@@ -3666,7 +3686,7 @@
           td(tr, buys.length ? buys.slice(0, 3).map((t) => (TRADE_VERB[t.action] || t.action) + ' ' + money(Math.abs(t.amount)) + ' at ' + (cs[t.pcur] || '') + d3.format(',.4~f')(t.price) + ' · ' + stFmt.when(t.at)).join('\n') : 'Paid ' + (cs[q.pcur] || '') + d3.format(',.4~f')(q.entry) + ' on average', 'wrap gx-pre', 'Bought');
           td(tr, money(v), 'num', 'Worth now');
           td(tr, (pl >= 0 ? '+' : '') + money(pl) + ' (' + stFmt.pct(cost ? pl / cost : 0) + ')', 'num ' + upDown(pl), 'Profit or loss');
-          td(tr, (buys[0] || {}).reason || '', 'wrap gx-why', 'Why'); tb.appendChild(tr);
+          { const w = td(tr, (buys[0] || {}).reason || '', 'wrap gx-why', 'Why'); if (buys[0]) { const gn = pgNode(PG_KEY(buys[0])); if (gn) w.appendChild(gn); } } tb.appendChild(tr);
         });
       }
       if (Number(bk.cash) > 0.5) box.appendChild(mk('p', 'st-note', 'Cash not invested: ' + money(bk.cash) + '.'));
@@ -3700,6 +3720,8 @@
         const x = g.items[0], n = g.items.length, sum = (f) => g.items.reduce((a, y) => a + Number(y[f] || 0), 0);
         const tr = mk('tr'); tr.className = 'gx-hold-last'; const od = oddsSpan(g.items);
         const c = td(tr, '', 'wrap'); c.append(mk('b', '', x.pick), mk('small', 'st-muted gx-sub', x.event || ''));
+        { const seen = new Set(); g.items.forEach((y) => { if (!y.placed_at || !y.bet) return; const k = dash.model + '|' + new Date(y.placed_at).toISOString().slice(0, 19) + 'Z|Sports|' + y.bet + '|Bet';
+            if (seen.has(k)) return; seen.add(k); const gn = pgNode(k); if (gn) c.appendChild(gn); }); }   // the other AIs' grades on each bet (owner, Oct 29)
         if (n > 1) { const dt = mk('details', 'bet-list'); dt.appendChild(mk('summary', '', 'The same pick ' + n + ' times · see each bet'));
           g.items.forEach((y) => dt.appendChild(mk('span', '', (y.placed_at ? etShort(y.placed_at) + ' ET' : y.placed) + ' · ' + money(y.stake_cad) + ' at ' + betOdds(y.odds)))); c.appendChild(dt); }
         td(tr, n > 1 ? n + ' times, latest ' + stFmt.when(x.placed_at || x.placed) : stFmt.when(x.placed_at || x.placed), 'wrap', 1, 'Placed');
@@ -3751,7 +3773,8 @@
             const pc = td(tr, isFinite(pl) && isFinite(c) ? (pl >= 0 ? '+' : '') + money(pl) + ' (' + stFmt.pct(c ? pl / Math.abs(c) : 0) + ')' : '—', 'num ' + upDown(pl), n, 'Profit or loss');
             pc.title = 'Worth now minus what it paid' + (short ? ' (for a short: what it got for selling minus what buying back would cost now)' : '');
           }
-          td(tr, t ? (t.note || t.reason || (logFor(lgRows, t) || {}).detail || '') : '', 'wrap gx-why', 1, 'Why');
+          { const w = td(tr, t ? (t.note || t.reason || (logFor(lgRows, t) || {}).detail || '') : '', 'wrap gx-why', 1, 'Why');
+            const g = t && t.pg_key ? pgNode(t.pg_key) : null; if (g) w.appendChild(g); }   // the other AIs' grades (owner, Oct 29)
           tb.appendChild(tr);
         });
       });
@@ -6038,7 +6061,11 @@
     });
     el.appendChild(sel);
     { const lab = mk('label', 'pd-follow'); const cb = mk('input'); cb.type = 'checkbox'; cb.checked = !!el._follow;
-      cb.addEventListener('change', () => { el._follow = cb.checked; if (!cb.checked) el._exp = null; dash.redraw ? dash.redraw() : null; });
+      cb.addEventListener('change', () => {
+        el._follow = cb.checked; if (!cb.checked) el._exp = null;
+        // back on Most relevant: back to Home, so the Scoreboard shows every race again (owner, Oct 29)
+        if (cb.checked) { el._tab = 'overview'; el._ctx = false; const y = window.scrollY; goTab('overview', false); requestAnimationFrame(() => window.scrollTo(0, y)); }
+        dash.redraw ? dash.redraw() : null; });
       lab.append(cb, document.createTextNode(' Most relevant: follow the market that’s live right now')); el.appendChild(lab);
       if (el._follow && hot) el.appendChild(mk('p', 'pd-note pd-follow-why', '📡 ' + hot.why + ' Switches by itself.')); }
     if (el._exp === 'Overall') {   // how many races each AI leads; the money is only added up at the final scoring
@@ -6152,9 +6179,9 @@
   const SPORT_OF = { NBA: ['basketball', 'nba'], NHL: ['hockey', 'nhl'], NFL: ['football', 'nfl'], MLB: ['baseball', 'mlb'], NCAAF: ['football', 'college-football'], NCAAB: ['basketball', 'mens-college-basketball'], EPL: ['soccer', 'eng.1'] };
   const GAME_LEN = { NHL: 2.75, NBA: 2.75, NCAAB: 2.5, MLB: 3.5, NFL: 3.5, NCAAF: 3.75, EPL: 2 };
   const scoreCache = {};
-  const leagueScores = (lg) => {   // ESPN's public scoreboard, at most once a minute per league; null when it can't be reached
+  const leagueScores = (lg, force) => {   // ESPN's public scoreboard, at most every 25 seconds per league; null when it can't be reached
     const k = String(lg || '').toUpperCase(), sl = SPORT_OF[k]; if (!sl) return Promise.resolve(null);
-    const c = scoreCache[k]; if (c && Date.now() - c.at < 60e3) return c.p;
+    const c = scoreCache[k]; if (c && Date.now() - c.at < (force ? 25e3 : 60e3)) return c.p;
     const ctl = window.AbortController ? new AbortController() : null; if (ctl) setTimeout(() => ctl.abort(), 5000);
     const p = fetch('https://site.api.espn.com/apis/site/v2/sports/' + sl[0] + '/' + sl[1] + '/scoreboard', ctl ? { signal: ctl.signal } : {}).then((r) => (r.ok ? r.json() : null)).then((j) => (j && j.events) || null).catch(() => null);
     scoreCache[k] = { at: Date.now(), p }; return p;
@@ -6167,6 +6194,26 @@
       pick: b.pick_team || b.pick, stake: Number(b.stake || 0), odds: b.odds, win: Number(b.to_win || 0), legs: b.legs })));
     return out.filter((x) => AIS[x.id] && !x.legs);
   };
+  // one live game's score from ESPN, drawn as a small scoreboard; a changed score flashes. Re-checked every 30 seconds while on screen.
+  const nickOf = (n) => String(n || '').toLowerCase().split(/\s+/).pop();
+  const paintScore = (sc, force) => {
+    const g = sc._g; if (!g) return;
+    leagueScores(g.lg, force).then((evs) => {
+      const want = String(g.ev).toLowerCase();
+      const e = evs && (evs.find((v) => g.game && String(v.id) === String(g.game)) || evs.find((v) => { const c = ((v.competitions || [])[0] || {}).competitors || [];
+        return c.length === 2 && c.every((t) => { const tm = t.team || {}; return want.includes(String(tm.displayName || '').toLowerCase()) || want.includes(String(tm.shortDisplayName || '').toLowerCase()) || want.split(/\s+/).includes(nickOf(tm.displayName)); }); }));
+      const c = e ? ((e.competitions || [])[0] || {}).competitors || [] : []; const away = c.find((t) => t.homeAway === 'away'), home = c.find((t) => t.homeAway === 'home');
+      if (!e || !away || !home) { if (!sc._ok) { sc.replaceChildren(mk('span', 'wait', 'Live score not available here right now: tap the game for ESPN’s live score.')); } return; }
+      sc._ok = true;
+      const st = (e.status || {}).type || {}, A = Number(away.score || 0), Hm = Number(home.score || 0), prev = sc._prev || {};
+      const row = (t, n, side) => { const nm = mk('span', 't ' + (n > (side === 'a' ? Hm : A) ? 'lead' : n < (side === 'a' ? Hm : A) ? 'trail' : ''), (t.team || {}).shortDisplayName || (t.team || {}).abbreviation || '');
+        const v = mk('span', 'n ' + (n > (side === 'a' ? Hm : A) ? 'lead' : n < (side === 'a' ? Hm : A) ? 'trail' : ''), String(n)); if (prev[side] != null && prev[side] !== n) v.classList.add('pd-flash'); return [nm, v]; };
+      sc.replaceChildren(...row(away, A, 'a'), ...row(home, Hm, 'h'), mk('span', 'st', (st.completed ? 'FINAL' : st.shortDetail || st.detail || 'In progress') + (st.completed ? ' · the bets settle at the next check-in' : '')));
+      sc.classList.toggle('is-final', !!st.completed);
+      sc._prev = { a: A, h: Hm };
+    });
+  };
+  if (!window._ptLiveTimer) window._ptLiveTimer = setInterval(() => { if (document.hidden) return; document.querySelectorAll('.pd-live-sc').forEach((sc) => { if (sc.offsetParent !== null) paintScore(sc, true); }); }, 30000);
   const liveBets = (el) => {
     const now = Date.now(), H = 3600e3, all = openBets();
     const group = (rows) => { const g = {}; rows.forEach((x) => { const k = x.ev + '|' + x.t; (g[k] = g[k] || { ev: x.ev, lg: x.lg, game: x.game, t: x.t, bets: [] }).bets.push(x); if (!g[k].game && x.game) g[k].game = x.game; }); return Object.values(g).sort((a, b) => a.t - b.t); };
@@ -6178,19 +6225,14 @@
       const d = mk('div', 'pd-live-g');
       const a = mk('a', 'pd-live-ev', g.ev); a.href = espnGame(SPORT_OF[String(g.lg || '').toUpperCase()] ? SPORT_OF[String(g.lg).toUpperCase()][1] : '', g.game, g.ev); a.target = '_blank'; a.rel = 'noopener'; a.title = 'Open the game on ESPN';
       d.append(mk('small', 'pd-live-lg', (g.lg || '').toUpperCase() + (isLive ? ' · started ' : ' · ') + stFmt.whenET(new Date(g.t).toISOString()) + ' ET'), a);
-      const sc = mk('span', 'pd-live-sc'); if (isLive) d.appendChild(sc);
+      const sc = mk('div', 'pd-live-sc'); if (isLive) d.appendChild(sc);
       g.bets.forEach((x) => { const r = mk('div', 'pd-live-b'); r.style.setProperty('--ai', AIS[x.id].color);
         r.append(aiBadge(x.id, 14), mk('span', '', AIS[x.id].label + ': C$' + d3.format(',.0f')(x.stake) + ' on ' + x.pick + ' at ' + betOdds(x.odds) + (x.win ? ' · to win C$' + d3.format(',.0f')(x.win) : ''))); d.appendChild(r); });
-      if (isLive) leagueScores(g.lg).then((evs) => {   // the live score, when ESPN can be reached from this browser
-        if (!evs) return; const want = String(g.ev).toLowerCase();
-        const e = evs.find((v) => g.game && String(v.id) === String(g.game)) || evs.find((v) => { const c = ((v.competitions || [])[0] || {}).competitors || []; return c.length === 2 && c.every((t) => want.includes(String((t.team || {}).displayName || '').toLowerCase())); });
-        if (!e) return; const c = ((e.competitions || [])[0] || {}).competitors || []; const away = c.find((t) => t.homeAway === 'away'), home = c.find((t) => t.homeAway === 'home'); if (!away || !home) return;
-        const st = (e.status || {}).type || {};
-        sc.textContent = (away.team.abbreviation || away.team.shortDisplayName) + ' ' + (away.score || 0) + ', ' + (home.team.abbreviation || home.team.shortDisplayName) + ' ' + (home.score || 0) + ' · ' + (st.shortDetail || st.detail || '') + (st.completed ? ' (the bets settle at the next check-in)' : '');
-        sc.classList.add('is-on'); });
+      if (isLive) { d.classList.add('is-live'); sc._g = g; sc.appendChild(mk('span', 'wait', 'Getting the live score…')); paintScore(sc); }
       box.appendChild(d);
     };
-    if (live.length) { head('🔴 Live now: ' + live.length + (live.length === 1 ? ' game' : ' games') + ' with a bet', 'is-live'); live.forEach((g) => game(g, true)); }
+    if (live.length) { const h = head('', 'is-live'); h.replaceChildren(); const bd = mk('span', 'pd-livebadge'); bd.append(mk('i'), document.createTextNode('LIVE'));
+      h.append(bd, document.createTextNode(live.length + (live.length === 1 ? ' game' : ' games') + ' with a bet')); live.forEach((g) => game(g, true)); }
     if (soon.length) { head('⏱ Next 6 hours'); soon.slice(0, 5).forEach((g) => game(g, false)); if (soon.length > 5) box.appendChild(mk('p', 'pd-note', '+' + (soon.length - 5) + ' more games later.')); }
     if (!live.length && !soon.length) box.appendChild(mk('p', 'pd-note', 'No game with a bet is being played now or in the next 6 hours.'));
     el.appendChild(box);

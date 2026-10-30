@@ -1140,6 +1140,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import model_views
 try:   # each of Claude's decisions carries its peer-grade key, so the other AIs' grades show under it (G7)
     import peer_grades as _PG
+    for _t in data['trades']:   # and each trade row, for the holdings tables (owner, Oct 29)
+        if _t.get('action') in ('Buy', 'Sell', 'Short', 'Cover') and not str(_t.get('holding', '')).startswith('['):
+            _t['pg_key'] = _PG.key_of('claude', _t['at'], _t['portfolio'], _t['holding'], _t['action'])
     for _row in data['log']:
         _k = _PG.claude_key_for_log(_row, data['trades'], data['bets'])
         if _k:

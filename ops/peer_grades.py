@@ -116,7 +116,7 @@ def decisions(model, state, fx_cad=1.38):
                         'reason': (b.get('note') or '')[:500], 'wrong_if': ''})
     # every AI's All in moves (Claude's are in rivals.json too) and Gemini's and ChatGPT's main-race moves
     for t in state.get('trades', []):
-        if t.get('model') != model or t.get('action') not in ('Buy', 'Sell', 'Short', 'Cover', 'Bet') or t.get('stop') or t.get('void'):
+        if t.get('model') != model or t.get('action') not in ('Buy', 'Sell', 'Short', 'Cover', 'Bet') or t.get('stop'):   # cancelled (void) bets were decisions too: graded (owner, Oct 29)
             continue
         if model == 'claude' and not str(t.get('experiment', '')).startswith('AllIn'):
             continue
