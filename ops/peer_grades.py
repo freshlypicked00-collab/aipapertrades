@@ -59,11 +59,19 @@ def _log_reason(log, t):
     name = str(t.get('holding', '')).lower()
     words = [w for w in re.findall(r'[a-z0-9]{3,}', name) if w not in ('etf', 'the', 'fund', 'shares', 'trust')]
     code = str(t.get('code') or '')
-    for x in near:
+    def named(x):
         d = str(x.get('detail', '')).lower()
-        if name and name in d or (code and code in d) or (words and all(w in d for w in words)):
+        return name and name in d or (code and code in d) or (words and all(w in d for w in words))
+    for x in near:
+        if named(x):
             return x['detail']
-    return near[0]['detail'] if len(near) == 1 else ''
+    if len(near) == 1:
+        return near[0]['detail']
+    # one entry can explain a paired trade under a different action, e.g. a "Buy" entry for "short US dollars and long yen":
+    # the short is named in it, so its reason is that entry (fix, Oct 30: the US dollar short was graded F for "no reason" when it had one)
+    pair = [x for x in log if x.get('portfolio') == t['portfolio'] and x.get('action') in ('Buy', 'Sell', 'Short', 'Cover')
+            and abs((_when(x['at']) - _when(t['at'])).total_seconds()) < 180 and named(x)]
+    return pair[0]['detail'] if len(pair) == 1 else ''
 
 
 def claude_key_for_log(row, trades, bets):
