@@ -1,0 +1,313 @@
+"""Instagram stories for the highlights (owner, Oct 30: "what goes in each highlight... really visual, pics, fun, more colour, more
+drawings"). 1080x1920 each, the site's dark look with each highlight's colour, hand-drawn doodles, and only checked facts: race rules
+from ops/TASK_PROMPT.md, numbers from the race data at the time of drawing, news from the sources in ops/src/post_checks.json.
+
+  python3 ops/hl_stories.py    ->  social/highlights/stories/*.jpg
+"""
+import json
+import math
+import os
+import random
+import sys
+
+from PIL import Image, ImageDraw, ImageFilter
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import postcard as pc  # noqa: E402
+from hl_covers import BG, CREAM, INK, icon, ring, sparkle, wobble  # noqa: E402
+
+W, H = 1080, 1920
+X0, X1 = 80, 1000            # side margins
+TOP, BOT = 250, 1640          # clear of Instagram's own buttons
+MUTED = (155, 146, 127)
+UP, DOWN, AMBER = (61, 220, 132), (255, 90, 78), (255, 176, 0)
+AIC = {'claude': (217, 119, 87), 'gemini': (79, 143, 247), 'chatgpt': (242, 242, 242)}
+NAME = {'claude': 'Claude', 'gemini': 'Gemini', 'chatgpt': 'ChatGPT'}
+MAKER = {'claude': 'by Anthropic', 'gemini': 'by Google', 'chatgpt': 'by OpenAI'}
+F = pc.font
+
+
+class S:
+    def __init__(self, col):
+        self.im = Image.new('RGB', (W, H), BG)
+        g = Image.new('RGB', (W, H), BG); gd = ImageDraw.Draw(g)
+        gd.ellipse([W - 700, -300, W + 300, 700], fill=tuple(int(v * .45) for v in col))
+        gd.ellipse([-400, H - 700, 500, H + 200], fill=tuple(int(v * .25) for v in col))
+        self.im = g.filter(ImageFilter.GaussianBlur(120))
+        self.d = ImageDraw.Draw(self.im)
+        self.col = col
+        rnd = random.Random(sum(col))
+        for _ in range(9):   # confetti doodles in the corners
+            x, y = rnd.choice([(rnd.uniform(40, 300), rnd.uniform(140, 300)), (rnd.uniform(780, 1040), rnd.uniform(1660, 1860))])
+            sparkle(self.d, x, y, rnd.uniform(10, 18), col, 5) if rnd.random() < .6 else self.d.ellipse([x - 6, y - 6, x + 6, y + 6], fill=col)
+
+    def t(self, xy, s, f, fill=CREAM, anchor='la'):
+        self.d.text(xy, s, font=f, fill=fill, anchor=anchor)
+        b = self.d.textbbox(xy, s, font=f, anchor=anchor)
+        if b[0] < X0 - 30 or b[2] > X1 + 30 or b[1] < 90 or b[3] > H - 90:
+            raise pc.QualityError(f'text out of bounds: {s!r}')
+        return b
+
+    def para(self, x, y, s, f, fill=CREAM, w=X1 - X0, gap=1.25):
+        line = ''
+        for wd in s.split():
+            tt = (line + ' ' + wd).strip()
+            if f.getlength(tt) > w and line:
+                self.t((x, y), line, f, fill); y += int(f.size * gap); line = wd
+            else:
+                line = tt
+        if line:
+            self.t((x, y), line, f, fill); y += int(f.size * gap)
+        return y
+
+    def kicker(self, y, s, fill=None):
+        self.t((X0, y), s, F('mono', 'SemiBold', 30), fill or self.col)
+
+    def brand(self, label):
+        self.t((X0, 150), 'PAPER TRADES', F('mono', 'SemiBold', 30), CREAM)
+        self.t((X1, 150), label, F('mono', 'Medium', 26), MUTED, 'ra')
+
+    def arrow(self, pts, fill=None, w=8, seed=1):
+        import features as FT
+        P = FT._bez(*pts)
+        wobble(self.d, P, fill or self.col, w, seed)
+        a = math.atan2(P[-1][1] - P[-6][1], P[-1][0] - P[-6][0])
+        for s in (-1, 1):
+            e = (P[-1][0] + 34 * math.cos(a + math.pi + s * .5), P[-1][1] + 34 * math.sin(a + math.pi + s * .5))
+            wobble(self.d, [P[-1], e], fill or self.col, w, seed + s, 1)
+
+    def underline(self, x0, x1, y, fill=None, seed=3):
+        wobble(self.d, [(x0 + (x1 - x0) * i / 30, y + math.sin(i / 3.0) * 4) for i in range(31)], fill or self.col, 9, seed)
+
+    def bubble(self, box, fill, outline=None, r=34):
+        self.d.rounded_rectangle(box, radius=r, fill=fill)
+        x0, y0, x1, y1 = box
+        wobble(self.d, [(x0 + r, y0), (x1 - r, y0)], outline or CREAM, 5, int(x0 + y0), 1)
+
+    def save(self, path):
+        self.im.save(path, quality=93)
+        return path
+
+
+def robot(d, x, y, col, s=1.0, seed=0):
+    wobble(d, [(x, y - 120 * s), (x, y - 175 * s)], CREAM, int(9 * s), 60 + seed, 1)
+    d.ellipse([x - 22 * s, y - 200 * s, x + 22 * s, y - 156 * s], fill=(255, 209, 102), outline=INK, width=max(3, int(6 * s)))
+    d.rounded_rectangle([x - 95 * s, y - 120 * s, x + 95 * s, y + 80 * s], radius=int(46 * s), fill=col, outline=INK, width=max(4, int(10 * s)))
+    for ex in (-38, 38):
+        d.ellipse([x + (ex - 20) * s, y - 60 * s, x + (ex + 20) * s, y - 20 * s], fill=INK)
+        d.ellipse([x + (ex - 6) * s, y - 52 * s, x + (ex + 4) * s, y - 42 * s], fill=CREAM)
+    wobble(d, [(x - 35 * s, y + 25 * s), (x, y + 45 * s), (x + 35 * s, y + 25 * s)], INK, max(4, int(9 * s)), 63 + seed, 1)
+
+
+def money(x, cur='CAD'):
+    return ('+' if x >= 0 else '−') + ('US$' if cur == 'USD' else 'C$') + f'{abs(x):,.0f}'
+
+
+# ---------- START HERE (green)
+def start_here(out):
+    G = (61, 220, 132); ps = []
+    s = S(G); s.brand('START HERE · 1/4')
+    for i, k in enumerate(('claude', 'gemini', 'chatgpt')):
+        robot(s.d, 300 + i * 240, 620 + (-40 if i == 1 else 30), AIC[k], 1.0, i)
+        s.t((300 + i * 240, 760), NAME[k], F('sans', 'Bold', 44), AIC[k], 'ma')
+    s.kicker(880, 'WHAT IS PAPER TRADES?')
+    s.t((X0, 930), 'Three AIs.', F('sans', 'Bold', 110))
+    s.t((X0, 1060), 'One money race.', F('sans', 'Bold', 110), G)
+    s.underline(X0 + 10, X0 + F('sans', 'Bold', 110).getlength('One money race.') - 10, 1200)
+    y = s.para(X0, 1250, 'Claude, Gemini and ChatGPT each got C$100,000 of pretend money in ten separate races, from Oct 28 to Nov 28.', F('sans', 'Regular', 44))
+    s.para(X0, y + 20, 'Real prices. No human picks a single trade.', F('sans', 'SemiBold', 46), G)
+    ps.append(s.save(f'{out}/start-here-1.jpg'))
+
+    s = S(G); s.brand('START HERE · 2/4')
+    s.kicker(280, 'THE 10 RACES')
+    s.t((X0, 320), 'Ten races at once', F('sans', 'Bold', 96))
+    races = [('Stocks and anything', (79, 143, 247), 'chart'), ('Crypto', AMBER, 'coin'), ('China stocks', (255, 90, 78), 'star'),
+             ('Metals', (255, 209, 102), 'bar'), ('Oil and energy', (120, 120, 120), 'drop'), ('Options', (167, 139, 250), 'updown'),
+             ('Currencies', (61, 220, 132), 'fx'), ('Play it safe', (110, 200, 220), 'shield'), ('Sports betting', (255, 140, 60), 'ball'),
+             ('Prediction markets', (200, 120, 230), 'orb')]
+    for i, (nm, c, ic) in enumerate(races):
+        cx, cy = X0 + (i % 2) * 470, 500 + (i // 2) * 205
+        s.bubble([cx, cy, cx + 450, cy + 180], tuple(int(v * .22) for v in c), c)
+        ix, iy = cx + 80, cy + 90; d = s.d
+        if ic == 'chart':
+            wobble(d, [(ix - 40, iy + 30), (ix - 10, iy), (ix + 10, iy + 15), (ix + 45, iy - 35)], c, 9, i); wobble(d, [(ix + 20, iy - 38), (ix + 47, iy - 37), (ix + 45, iy - 10)], c, 9, i + 1)
+        elif ic == 'coin':
+            d.ellipse([ix - 45, iy - 45, ix + 45, iy + 45], fill=c, outline=INK, width=6); s.t((ix, iy), 'B', F('sans', 'Bold', 56), INK, 'mm')
+        elif ic == 'star':
+            pts = [(ix + 45 * math.cos(-math.pi / 2 + k * math.pi / 5) * (1 if k % 2 == 0 else .45), iy + 45 * math.sin(-math.pi / 2 + k * math.pi / 5) * (1 if k % 2 == 0 else .45)) for k in range(10)]
+            d.polygon(pts, fill=(255, 209, 102), outline=INK)
+        elif ic == 'bar':
+            d.polygon([(ix - 50, iy + 30), (ix + 50, iy + 30), (ix + 32, iy - 25), (ix - 32, iy - 25)], fill=c, outline=INK, width=6)
+        elif ic == 'drop':
+            d.polygon([(ix, iy - 50), (ix + 35, iy + 10), (ix, iy + 45), (ix - 35, iy + 10)], fill=(40, 40, 40), outline=CREAM, width=5); d.ellipse([ix - 35, iy - 10, ix + 35, iy + 50], fill=(40, 40, 40), outline=CREAM, width=5)
+        elif ic == 'updown':
+            s.t((ix, iy), '+/−', F('sans', 'Bold', 54), c, 'mm')
+        elif ic == 'fx':
+            s.t((ix, iy), '$ € ¥', F('sans', 'Bold', 40), c, 'mm')
+        elif ic == 'shield':
+            d.polygon([(ix - 40, iy - 45), (ix + 40, iy - 45), (ix + 40, iy + 5), (ix, iy + 50), (ix - 40, iy + 5)], fill=c, outline=INK, width=6)
+        elif ic == 'ball':
+            d.ellipse([ix - 45, iy - 45, ix + 45, iy + 45], fill=c, outline=INK, width=6); wobble(d, [(ix - 45, iy), (ix + 45, iy)], INK, 5, i, 1); wobble(d, [(ix, iy - 45), (ix, iy + 45)], INK, 5, i + 2, 1)
+        elif ic == 'orb':
+            d.ellipse([ix - 42, iy - 52, ix + 42, iy + 32], fill=c, outline=INK, width=6); d.rectangle([ix - 34, iy + 30, ix + 34, iy + 48], fill=INK); sparkle(d, ix - 12, iy - 20, 12, CREAM, 4)
+        s.para(cx + 150, cy + 50 if len(nm) < 13 else cy + 34, nm, F('sans', 'SemiBold', 40), CREAM, 280, 1.15)
+    s.para(X0, 1540, 'Each race is scored on its own, against its own C$100,000 start.', F('sans', 'Regular', 40), MUTED)
+    ps.append(s.save(f'{out}/start-here-2.jpg'))
+
+    s = S(G); s.brand('START HERE · 3/4')
+    s.kicker(280, 'HOW TO WIN')
+    s.t((X0, 320), 'Most money', F('sans', 'Bold', 120)); s.t((X0, 450), 'wins.', F('sans', 'Bold', 120), G)
+    s.d.polygon([(700, 560), (690, 440), (760, 500), (820, 410), (880, 500), (950, 440), (940, 560)], fill=(255, 209, 102), outline=INK)
+    s.d.rounded_rectangle([700, 570, 940, 610], radius=10, fill=(255, 209, 102), outline=INK, width=6)
+    steps = [('Every day', 'Each race has its own leader, shown live on the site.', AMBER),
+             ('Nov 28, 4 p.m. ET', 'The ten results are added up in C$. Highest total profit wins the whole thing.', G),
+             ('Lose C$100,000', 'An AI that loses C$100,000 in total across its races is eliminated.', DOWN),
+             ('All in side race', 'Separate, no limits, its own winner. Never counted in the main race.', (167, 139, 250))]
+    y = 680
+    for i, (a, b, c) in enumerate(steps):
+        s.d.ellipse([X0, y + 8, X0 + 44, y + 52], fill=c)
+        s.t((X0 + 22, y + 30), str(i + 1), F('mono', 'SemiBold', 30), INK, 'mm')
+        s.t((X0 + 70, y), a, F('sans', 'Bold', 52), c)
+        y = s.para(X0 + 70, y + 66, b, F('sans', 'Regular', 40), CREAM, X1 - X0 - 70) + 30
+        if i < len(steps) - 1:
+            s.arrow([(X0 + 22, y - 24), (X0 - 10, y - 5), (X0 + 40, y + 5), (X0 + 22, y + 22)], MUTED, 5, 70 + i)
+            y += 30
+    ps.append(s.save(f'{out}/start-here-3.jpg'))
+
+    s = S(G); s.brand('START HERE · 4/4')
+    s.kicker(280, 'FOLLOW ALONG')
+    s.t((X0, 320), 'Never miss', F('sans', 'Bold', 120)); s.t((X0, 450), 'a trade.', F('sans', 'Bold', 120), G)
+    rows = [('telegram', 'Telegram', '@PaperTradesAI', 'every trade and bet, the second it happens', (42, 171, 238)),
+            ('ig', 'Instagram', '@papertrades.ai', 'daily results, lead changes, big moments', (225, 48, 108)),
+            ('x', 'X', '@papertradesai', 'the race, in short', CREAM),
+            ('web', 'The website', 'papertrades.ai', 'the full ledger, every reason, every grade', AMBER)]
+    y = 650
+    for k, (key, nm, handle, what, c) in enumerate(rows):
+        s.bubble([X0, y, X1, y + 190], tuple(int(v * .18) for v in c), c)
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'icons', {'telegram': 'telegram', 'x': 'x'}.get(key, '') + '.png')
+        cx, cy = X0 + 85, y + 95
+        if key in ('telegram', 'x') and os.path.exists(path):
+            ic = Image.open(path).convert('RGBA').resize((90, 90)); s.im.paste(ic, (cx - 45, cy - 45), ic)
+        elif key == 'ig':
+            s.d.rounded_rectangle([cx - 42, cy - 42, cx + 42, cy + 42], radius=24, outline=c, width=8); s.d.ellipse([cx - 18, cy - 18, cx + 18, cy + 18], outline=c, width=8); s.d.ellipse([cx + 20, cy - 32, cx + 30, cy - 22], fill=c)
+        else:
+            s.d.ellipse([cx - 42, cy - 42, cx + 42, cy + 42], outline=c, width=7); s.d.line([(cx - 42, cy), (cx + 42, cy)], fill=c, width=5); s.d.ellipse([cx - 18, cy - 42, cx + 18, cy + 42], outline=c, width=5)
+        s.t((X0 + 170, y + 40), nm, F('sans', 'Bold', 48), c)
+        s.t((X0 + 170 + F('sans', 'Bold', 48).getlength(nm) + 20, y + 54), handle, F('mono', 'Medium', 28), MUTED)
+        s.para(X0 + 170, y + 110, what, F('sans', 'Regular', 34), CREAM, X1 - X0 - 200)
+        y += 215
+    s.t((X1 - 40, 1560), 'link in bio', F('mono', 'SemiBold', 34), G, 'ra')
+    s.arrow([(X1 - 330, 1590), (X1 - 420, 1500), (X1 - 330, 1450), (X1 - 230, 1530)], G, 7, 90)
+    ps.append(s.save(f'{out}/start-here-4.jpg'))
+    return ps
+
+
+# ---------- MEET THE AIS (purple)
+def meet(out, data, profiles):
+    P = (167, 139, 250); ps = []
+    s = S(P); s.brand('MEET THE AIS · 1/4')
+    s.kicker(300, 'THE RACERS')
+    s.t((X0, 340), 'Meet the', F('sans', 'Bold', 130)); s.t((X0, 480), 'three AIs.', F('sans', 'Bold', 130), P)
+    for i, k in enumerate(('claude', 'gemini', 'chatgpt')):
+        x, y = 260 + i * 280, 900 + (-50 if i == 1 else 20)
+        robot(s.d, x, y, AIC[k], 1.25, i)
+        s.t((x, y + 150), NAME[k], F('sans', 'Bold', 54), AIC[k], 'ma'); s.t((x, y + 215), MAKER[k], F('mono', 'Medium', 26), MUTED, 'ma')
+    s.para(X0, 1360, 'Same money, same rules, same prices. Very different personalities. Swipe to meet each one.', F('sans', 'Regular', 44))
+    ps.append(s.save(f'{out}/meet-1.jpg'))
+    G = {}
+    for g in data.get('peer_grades', []):
+        if g.get('void') or g.get('grade') in (None, 'no view'):
+            continue
+        G[(g['grader'], g['key'])] = g
+    gpa = {m: [] for m in AIC}
+    for g in G.values():
+        if g['model'] in gpa:
+            gpa[g['model']].append({'A': 4, 'B': 3, 'C': 2, 'D': 1, 'F': 0}[g['grade'][0]])
+    leads = {x['id']: x['leads'] for x in data['standings']}
+    bm = data['big_moves']; bm = bm[0] if isinstance(bm, list) else bm
+    for i, k in enumerate(('claude', 'gemini', 'chatgpt'), 2):
+        s = S(AIC[k] if k != 'chatgpt' else (200, 200, 210)); s.brand(f'MEET THE AIS · {i}/4')
+        robot(s.d, 860, 470, AIC[k], 1.15, i)
+        s.kicker(300, MAKER[k].upper())
+        s.t((X0, 340), NAME[k], F('sans', 'Bold', 140), AIC[k])
+        s.underline(X0 + 10, X0 + F('sans', 'Bold', 140).getlength(NAME[k]), 510, AIC[k], 10 + i)
+        quote = profiles[k].split('. ')[0].rstrip('.') + '.'
+        s.t((X0, 580), 'IN ITS OWN WORDS', F('mono', 'SemiBold', 28), MUTED)
+        s.d.rectangle([X0, 630, X0 + 10, 630 + 270], fill=AIC[k])
+        y = s.para(X0 + 40, 630, '“' + quote + '”', F('sans', 'Regular', 46), CREAM, X1 - X0 - 40)
+        if y > 920:
+            raise pc.QualityError('quote too long')
+        y = 960
+        s.t((X0, y), 'SO FAR', F('mono', 'SemiBold', 28), MUTED); y += 50
+        best = next((x for x in bm['Overall']['up'] if x['id'] == k), None)
+        avg = sum(gpa[k]) / len(gpa[k]) if gpa[k] else None
+        stats = [(str(len(leads.get(k, []))), 'races it leads', ', '.join(leads.get(k, [])) or 'none yet'),
+                 (f'{avg:.1f}' if avg is not None else '—', 'average grade from the others', f'out of 4, from {len(gpa[k])} grades'),
+                 (money(best['pnl'], best['cur']) if best else '—', 'its biggest win', (best['what'].split(' (')[0] + (', still held' if best and best['state'] == 'held' else '')) if best else '')]
+        for n, a, b in stats:
+            s.bubble([X0, y, X1, y + 170], tuple(int(v * .14) for v in AIC[k]), AIC[k])
+            s.t((X0 + 40, y + 85), n, (F('mono', 'SemiBold', 64) if len(n) < 6 else F('mono', 'SemiBold', 50)), AIC[k], 'lm')
+            s.t((X0 + 380, y + 40), a, F('sans', 'Bold', 40))
+            s.para(X0 + 380, y + 95, b, F('sans', 'Regular', 30), MUTED, X1 - X0 - 410)
+            y += 195
+        ps.append(s.save(f'{out}/meet-{i}.jpg'))
+    return ps
+
+
+# ---------- BIG MOMENTS (red)
+def moments(out, data, sell_px):
+    R = (255, 90, 78); ps = []
+    s = S(R); s.brand('BIG MOMENTS · OCT 29')
+    s.kicker(300, 'LUCKY ESCAPE')
+    s.t((X0, 340), '4:08 p.m.', F('sans', 'Bold', 190))
+    s.underline(X0 + 10, X1 - 60, 560, AMBER, 21)
+    y = s.para(X0, 620, 'Gemini sold all its crypto just as the biggest crypto hack ever was starting, before anyone knew.', F('sans', 'SemiBold', 54))
+    tl = [('4:05', 'Attackers start draining Binance', R), ('4:08', f'Gemini sells everything (Bitcoin at US${sell_px:,.0f})', AIC['gemini']),
+          ('4:24', 'First big transfer spotted on-chain', MUTED), ('5:16', '"It does look like a hack" (ex-CEO)', MUTED)]
+    y += 40
+    for t, w, c in tl:
+        s.d.ellipse([X0, y + 10, X0 + 36, y + 46], fill=c)
+        s.t((X0 + 60, y + 28), t + ' p.m.', F('mono', 'SemiBold', 40), c, 'lm')
+        s.para(X0 + 300, y + 6, w, F('sans', 'Regular', 38), CREAM, X1 - X0 - 300)
+        y += 110
+    s.para(X0, y + 30, 'About US$6.3 billion taken. Gemini never mentioned Binance: it sold for the tech selloff. Luck, not a leak. We checked.', F('sans', 'SemiBold', 42), AMBER)
+    ps.append(s.save(f'{out}/moment-binance.jpg'))
+    bm = data['big_moves']; bm = bm[0] if isinstance(bm, list) else bm
+    for kind, x, title, col in (('up', bm['Overall']['up'][0], 'Biggest win so far', UP), ('down', bm['Overall']['down'][0], 'Biggest loss so far', DOWN)):
+        s = S(col); s.brand('BIG MOMENTS')
+        s.kicker(300, title.upper())
+        s.t((X0, 340), money(x['pnl'], x['cur']), F('mono', 'SemiBold', 170), col)
+        s.underline(X0 + 10, X0 + F('mono', 'SemiBold', 170).getlength(money(x['pnl'], x['cur'])), 560, col, 31)
+        robot(s.d, 840, 830, AIC[x['id']], 1.1, 5)
+        s.t((X0, 650), NAME[x['id']], F('sans', 'Bold', 96), AIC[x['id']])
+        y = s.para(X0, 780, x['what'].split(' (')[0], F('sans', 'SemiBold', 54), CREAM, 600)
+        ev = x['what'].split(' (')[1].rstrip(')') if ' (' in x['what'] else ''
+        if ev:
+            y = s.para(X0, y + 10, ev, F('sans', 'Regular', 38), MUTED, 600)
+        race = {'Sports': 'Sports betting', 'Options': 'Options'}.get(x['race'], x['race'])
+        note = f"{race} race · " + ({'held': 'still held, so it can still change', 'won': 'bet won', 'lost': 'bet lost', 'closed': 'sold'}.get(x['state'], x['state']))
+        s.para(X0, max(y, 1080) + 30, note, F('sans', 'Regular', 40), CREAM)
+        if kind == 'down':
+            n5 = sum(1 for z in bm['Overall']['down'] if z['id'] == x['id'] and abs(z['pnl'] - x['pnl']) < 1)
+            if n5 > 1:
+                s.para(X0, 1250, f"And not just once: {NAME[x['id']]} has lost C${abs(x['pnl']):,.0f} on a single bet {n5} times so far.", F('sans', 'SemiBold', 44), AMBER)
+        s.para(X0, 1480, 'As of Oct 30, 1 a.m. ET · every bet and trade at papertrades.ai', F('mono', 'Medium', 26), MUTED)
+        ps.append(s.save(f'{out}/moment-{kind}.jpg'))
+    return ps
+
+
+if __name__ == '__main__':
+    out = 'social/highlights/stories'
+    os.makedirs(out, exist_ok=True)
+    data = json.load(open('data.json'))
+    rv = json.load(open('ops/src/rivals.json'))
+    prof = {}
+    for x in rv.get('profiles', []):
+        if x.get('field') == 'about':
+            prof[x['model']] = x['text']
+    for x in json.load(open('ops/src/profile.json')):
+        if x.get('field') == 'about':
+            prof['claude'] = x['text']
+    btc = next(t for t in rv['trades'] if t['model'] == 'gemini' and t['experiment'] == 'Crypto' and t['symbol'] == 'BTC-USD' and t['at'].startswith('2026-10-29T20:08'))
+    ps = start_here(out) + meet(out, data, prof) + moments(out, data, float(btc['price']))
+    print('\n'.join(ps))
