@@ -26,6 +26,8 @@ GRAPH = 'https://graph.facebook.com/v26.0'
 SITE = 'https://papertrades.ai'
 STATE = 'ops/src/social.json'
 PENDING = 'social/pending.json'
+DAILY_BUDGET = 15   # posts (feed and stories) per rolling 24 hours, well under Instagram's limit (Oct 30 block)
+BLOCK_HOURS = 6   # after a block, no attempts for this long
 MAX_PER_RUN = 1   # one feed post per run (Instagram blocked the app for a while after several posts in a row, Oct 30)
 NOW = datetime.now(timezone.utc)
 START = datetime(2026, 10, 28, tzinfo=timezone.utc)
@@ -158,7 +160,7 @@ def due_posts(state):
     if 'story-intro-v1' not in done and NOW < RACE_END:
         out.append({'id': 'story-intro-v1', 'kind': 'story-intro'})
     feed = [p for p in out if not p['kind'].startswith('story')][:MAX_PER_RUN]
-    return feed + [p for p in out if p['kind'].startswith('story')][:4]
+    return feed + [p for p in out if p['kind'].startswith('story')][:2]   # at most two stories a run (Oct 30 block)
 
 
 def prepare():
@@ -404,9 +406,24 @@ def publish():
     ig = os.environ['INSTAGRAM_USER_ID']
     pend = load(PENDING, [])
     state = load(STATE, {'posted': {}})
+    # Oct 30: Instagram blocked the app ("Application request limit reached", action is blocked) after ~25 posts in 24 hours.
+    # Retrying while blocked makes the block longer, so: wait BLOCK_HOURS after a block, and keep under a rolling daily budget.
+    bu = state.get('blocked_until')
+    if bu and datetime.fromisoformat(bu) > NOW:
+        print('::notice::Instagram is cooling down after a block until ' + bu + '; nothing posted this run'); return
+    day = [v for v in state['posted'].values() if isinstance(v, dict) and v.get('at') and 'not posted again' not in str(v.get('note', ''))
+           and NOW - datetime.fromisoformat(v['at']) < timedelta(hours=24)]
+    used = len(day)
+    try:
+        q = (api(f'{ig}/content_publishing_limit', {'fields': 'quota_usage,config'}).get('data') or [{}])[0]
+        used = max(used, int(q.get('quota_usage') or 0))
+    except Exception as e:
+        print('::warning::could not read the publishing quota: ' + str(e)[:160])
     for p in pend:
         if p['id'] in state['posted']:
             continue
+        if used >= DAILY_BUDGET or (p.get('story') and used >= DAILY_BUDGET - 4):   # feed posts keep the last few slots
+            print(f'::notice::daily Instagram budget used ({used}/{DAILY_BUDGET} in 24 hours); {p["id"]} waits'); continue
         imgs = p.get('images') or [p['image']]
         urls = [f"{SITE}/{x}?v={p['id']}" for x in imgs]
         live = False
@@ -453,10 +470,16 @@ def publish():
             wait_ready(c['id'])
             r = api(f'{ig}/media_publish', {'creation_id': c['id']}, 'POST')
             state['posted'][p['id']] = {'at': NOW.isoformat(), 'media': r.get('id')}
-            state.pop('errors', None)   # posting works again
+            state.pop('errors', None); state.pop('blocked_until', None)   # posting works again
+            used += 1
             print('::notice::posted ' + p['id'] + ' ' + str(r.get('id')))
         except Exception as e:
             print('::warning::post failed ' + p['id'] + ': ' + str(e)[:300])
+            if 'action is blocked' in str(e) or 'request limit' in str(e) or '2207051' in str(e):
+                state['blocked_until'] = (NOW + timedelta(hours=BLOCK_HOURS)).isoformat()
+                er = state.get('errors') or {}
+                state['errors'] = {'since': er.get('since') or NOW.isoformat(), 'last': NOW.isoformat(), 'msg': str(e)[:200], 'count': int(er.get('count') or 0) + 1}
+                print('::warning::Instagram blocked posting; cooling down until ' + state['blocked_until']); break
             er = state.get('errors') or {}
             state['errors'] = {'since': er.get('since') or NOW.isoformat(), 'last': NOW.isoformat(), 'msg': str(e)[:200], 'count': int(er.get('count') or 0) + 1}   # shown on the status panel; the health check emails the owner
     json.dump(state, open(STATE, 'w'), indent=1)

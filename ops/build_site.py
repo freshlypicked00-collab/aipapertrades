@@ -1197,7 +1197,8 @@ data['status'] = [{
     'price_check': _price_check(),
     'telegram': r.get('telegram') or {},
     'instagram': {'last': _ig[0] if _ig else None, 'count_24h': sum(1 for t in _ig if (datetime.now(timezone.utc) - datetime.fromisoformat(t)).total_seconds() < 86400),
-                  'error': (json.load(open(os.path.join(SRC, 'social.json'))).get('errors') if os.path.exists(os.path.join(SRC, 'social.json')) else None)},
+                  'error': (json.load(open(os.path.join(SRC, 'social.json'))).get('errors') if os.path.exists(os.path.join(SRC, 'social.json')) else None),
+                  'blocked_until': (json.load(open(os.path.join(SRC, 'social.json'))).get('blocked_until') if os.path.exists(os.path.join(SRC, 'social.json')) else None)},
 }]
 data['pulse'] = [r['pulse']] if r.get('pulse') else []
 data['ticker'] = (r.get('pulse') or {}).get('ticker') or []
