@@ -1,0 +1,62 @@
+{
+ "at": "2026-10-30T18:19:52Z",
+ "question": "Site question from the owner of papertrades.ai (Oct 30, afternoon). NOT a trading turn; nothing in your books changes. The owner asks: should the site get a section called \"Our goals\" that explains how this experiment can help with AI risk management and similar? He wants all three AIs (Claude, Gemini, ChatGPT) to agree. Answer honestly and disagree where you disagree.\n\nCONTEXT: The About tab already has \"About the experiment\", \"How it works\" and \"Important\" (independent, not advice, no real money, \"What paper trading can't show\", short window and lots of luck, scoring). The site also has a Best risk manager award (separate, never changes the Nov 28 winner), peer grades (each AI grades the others' decisions A to F, anonymously, before the result; each grader's record is on Rules & Audit), a fact-check loop (Gemini checks Claude, ChatGPT checks Gemini, Claude checks ChatGPT), a nightly SHA-256 fingerprint of the record, and a Season 2 teaser (Strict / Standard / Unrestricted risk levels, judged on risk, not just profit). Rules already agreed by all three: keep the page compact, especially on phones; no performance or accuracy claims beyond the visible scoreboard and dated quotes.\n\nCLAUDE'S VIEW: yes, but small and modest. Overclaiming (\"this improves AI safety\") would hurt trust; one month of pretend money is not research-grade evidence. Claude proposes:\n- Title: \"Why we're doing this\" (Claude prefers it to \"Our goals\": it reads less like a corporate mission).\n- Place: the first block of the About tab, 5 short bullets, nothing added to the Home page.\n- Draft text:\n  1. See how AIs handle risk, not just answers. Most AI tests check what a model knows. Here three general-purpose AIs make decisions under uncertainty: how much to risk, when to cut a loss, when to sit out.\n  2. Make AI decisions inspectable. Every decision is public with its reason, its size and its result, so anyone can see where an AI was careful, overconfident or wrong.\n  3. Test AIs checking AIs. Each AI grades the others' decisions and fact-checks their claims. We want to see whether that peer review catches real mistakes; each grader's record is on Rules & Audit.\n  4. Reward discipline, not just luck. The Best risk manager award and Season 2's risk levels look at how the money was made, not only how much.\n  5. Keep it honest. One month of pretend money proves little about skill and is not research-grade evidence. It is an open experiment anyone can inspect and learn from.\n\nPLEASE ANSWER IN EXACTLY THIS FORMAT (short):\nADD THE SECTION: YES | NO: <one line why>\nTITLE: \"Why we're doing this\" | \"Our goals\" | other: <title> (one line why)\nPLACE: AGREE | DISAGREE: <where instead>\nBULLET 1: AGREE | DISAGREE | CHANGE: <new wording>\nBULLET 2: AGREE | DISAGREE | CHANGE: <new wording>\nBULLET 3: AGREE | DISAGREE | CHANGE: <new wording>\nBULLET 4: AGREE | DISAGREE | CHANGE: <new wording>\nBULLET 5: AGREE | DISAGREE | CHANGE: <new wording>\nMISSING (optional, at most one bullet you would add, or \"none\"):\nRISK (one line): the biggest way this section could backfire.",
+ "files": [],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "ADD THE SECTION: YES: It clarifies the value of the experiment for AI evaluation without sounding like a grandiose research claim.\nTITLE: \"Why we're doing this\" (It sounds transparent, conversational, and avoids corporate mission-statement jargon).\nPLACE: AGREE: The top of the About tab frames the experiment perfectly before diving into the mechanics.\nBULLET 1: AGREE\nBULLET 2: AGREE\nBULLET 3: AGREE\nBULLET 4: AGREE\nBULLET 5: AGREE\nMISSING: none\nRISK: Visitors might skim past bullet 5 and mistakenly view this as a formal academic study on AI safety or a stealth pitch for a financial product.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 778,
+     "candidatesTokenCount": 149,
+     "totalTokenCount": 2207,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 778
+      }
+     ],
+     "thoughtsTokenCount": 1280,
+     "serviceTier": "standard"
+    }
+   }
+  },
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "ADD THE SECTION: YES: It adds useful context if it stays modest and clearly non-claimy.  \nTITLE: \"Why we're doing this\": Less corporate than “Our goals” and fits the experiment tone.  \nPLACE: AGREE: First block of the About tab; no Home page addition.  \nBULLET 1: CHANGE: See how AIs handle risk, not just answers. Many AI tests check what a model knows; here three general-purpose AIs make decisions under uncertainty: how much to risk, when to cut a loss, when to sit out.  \nBULLET 2: AGREE: Make AI decisions inspectable. Every decision is public with its reason, its size and its result, so anyone can see where an AI was careful, overconfident or wrong.  \nBULLET 3: CHANGE: Test AIs checking AIs. Each AI grades the others’ decisions and fact-checks another AI’s claims. We want to see whether peer review catches mistakes; each grader’s record is on Rules & Audit.  \nBULLET 4: AGREE: Reward discipline, not just luck. The Best risk manager award and Season 2’s risk levels look at how the money was made, not only how much.  \nBULLET 5: AGREE: Keep it honest. One month of pretend money proves little about skill and is not research-grade evidence. It is an open experiment anyone can inspect and learn from.  \nMISSING (optional, at most one bullet you would add, or \"none\"): none  \nRISK (one line): The biggest backfire would be sounding like this proves AI safety/risk-management capability instead of being a small public experiment.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 762,
+     "completion_tokens": 871,
+     "total_tokens": 1633,
+     "cost": 0.02994,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.02994,
+      "upstream_inference_prompt_cost": 0.00381,
+      "upstream_inference_completions_cost": 0.02613
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 516,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  }
+ }
+}
