@@ -18,6 +18,7 @@ from datetime import datetime, timezone, timedelta
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import tgcharts  # noqa: E402
 import sharecard  # noqa: E402
+import discord  # noqa: E402
 
 STATE = 'ops/src/rivals.json'
 # the settle watcher (owner, Oct 29: "the Cavs result came an hour late"): every 15 minutes in the evening and night (ET), plus weekend
@@ -1036,8 +1037,11 @@ def settle_predictions(model_id, book, fx, state):
 # ---------------- telegram ----------------
 def tg_photo(text, photo, silent=False):   # every trade, bet and result pings (owner's choice)
     tok, chat = os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID')
-    if not (tok and chat and photo):
+    if not photo:
         return tg(text)
+    discord.post(text, photo)   # same post on Discord (does nothing until DISCORD_WEBHOOK_URL is set)
+    if not (tok and chat):
+        return tg(text, _dc=False)
     b = '----pt' + str(os.getpid())
     parts = [f'--{b}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode() for k, v in (('chat_id', chat), ('caption', text[:1020]), ('parse_mode', 'HTML'), ('disable_notification', 'true' if silent else 'false'))]
     parts.append(f'--{b}\r\nContent-Disposition: form-data; name="photo"; filename="c.png"\r\nContent-Type: image/png\r\n\r\n'.encode() + open(photo, 'rb').read() + f'\r\n--{b}--\r\n'.encode())
@@ -1047,7 +1051,7 @@ def tg_photo(text, photo, silent=False):   # every trade, bet and result pings (
         TGSTAT['sent'] += 1
     except Exception as e:
         print('telegram photo failed', e)
-        tg(text)
+        tg(text, _dc=False)
 
 
 def chart(label, color, exp, state, mid):
@@ -1099,7 +1103,9 @@ def chart(label, color, exp, state, mid):
 TGSTAT = {'sent': 0, 'failed': 0, 'error': ''}   # this run's Telegram results, saved in state['telegram'] for the status panel and health check
 
 
-def tg(text, silent=False):
+def tg(text, silent=False, _dc=True):
+    if _dc:
+        discord.post(text)   # same post on Discord (does nothing until DISCORD_WEBHOOK_URL is set)
     tok, chat = os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID')
     if not (tok and chat):
         print('--- telegram (not sent) ---\n' + text)

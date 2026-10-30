@@ -9,6 +9,7 @@ import json, os, subprocess, sys, urllib.parse, urllib.request
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import tgcharts  # noqa: E402
 import sharecard  # noqa: E402
+import discord  # noqa: E402
 from datetime import datetime, timezone, timedelta
 
 TOKEN, CHAT = os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID')
@@ -45,7 +46,9 @@ def money(v, pf):
     return ('+' if v >= 0 else '−') + sym + f'{abs(v):,.0f}'
 
 
-def send(text, photo=None, silent=False):
+def send(text, photo=None, silent=False, _dc=True):
+    if _dc:
+        discord.post(text, photo)   # same post on Discord (does nothing until DISCORD_WEBHOOK_URL is set)
     if not (TOKEN and CHAT):
         print('--- (no Telegram secrets; would send' + (f' with {photo}' if photo else '') + ') ---\n' + text)
         return
@@ -59,7 +62,7 @@ def send(text, photo=None, silent=False):
         with urllib.request.urlopen(req, timeout=30) as r:
             return json.loads(r.read())['result']['message_id']
     if photo:
-        send(f'<b>PAPER TRADES</b> · {SITE}', photo, silent)
+        send(f'<b>PAPER TRADES</b> · {SITE}', photo, silent, _dc=False)
     data = urllib.parse.urlencode({'chat_id': CHAT, 'text': text, 'parse_mode': 'HTML', 'disable_web_page_preview': 'true', 'disable_notification': 'true' if silent else 'false'}).encode()
     with urllib.request.urlopen(f'https://api.telegram.org/bot{TOKEN}/sendMessage', data, timeout=20) as r:
         return json.loads(r.read())['result']['message_id']

@@ -9,6 +9,9 @@ import sys
 import urllib.parse
 import urllib.request
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import discord  # noqa: E402
+
 path = sys.argv[1]
 name = os.path.basename(path)
 log = os.path.join(os.path.dirname(os.path.abspath(path)), 'sent.json')
@@ -21,6 +24,7 @@ data = urllib.parse.urlencode({'chat_id': chat, 'text': text[:4000], 'parse_mode
 r = json.load(urllib.request.urlopen(f'https://api.telegram.org/bot{tok}/sendMessage', data, timeout=30))
 if not r.get('ok'):
     print('::error::Telegram refused the notice:', str(r)[:300]); sys.exit(1)
+discord.post(text)   # the same notice on Discord (does nothing until DISCORD_WEBHOOK_URL is set)
 sent.append(name)
 json.dump(sent, open(log, 'w'), indent=1)
 print('::notice::posted ' + name)
