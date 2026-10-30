@@ -544,6 +544,8 @@
   .pt-since { border-left: 3px solid var(--model, var(--accent)); } .pt-since-h { display: flex; align-items: center; gap: 8px; } .pt-since-h b { font-size: 15px; }
   .pt-since-x { margin-left: auto; font: inherit; background: none; border: 0; color: var(--color-fg-muted); cursor: pointer; min-width: 36px; min-height: 32px; }
   .pt-since ul { margin: 8px 0 4px; padding-left: 18px; } .pt-since li { margin: 3px 0; }
+  .st-side-card { border-style: dashed; } .st-side-tag { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--color-fg-muted); border: 1px dashed var(--color-border-line); border-radius: 999px; padding: 1px 8px; margin-left: 8px; vertical-align: middle; }
+  .al-now { margin: 4px 0 8px; } .al-now-l { margin: 3px 0; font-size: 13.5px; }
   .px-age { color: var(--color-fg-muted); } .px-old { color: #e0a33a; }
   .fp-hash { font-family: var(--font-mono, monospace); font-size: 11.5px; word-break: break-all; }
   .bm-audit { margin-top: 8px; font-size: 12.5px; } .bm-audit summary { cursor: pointer; color: var(--color-fg-muted); } .bm-audit table { font-size: 12px; margin-top: 6px; }
@@ -2238,6 +2240,11 @@
       <p class="st-note">Newest first. Each experiment gets its own result, its total since the start and a write-up for the day, with general notes on the day underneath. Open "Decisions this day" for every trade, bet and note logged that day.</p>
       <div class="lg-days" data-draw="lg-days" data-source="ledger log trades bets review"></div>
     </section>
+    <section class="st-card st-side-card" id="allin-ledger" aria-labelledby="h-l-allin">
+      <h2 class="st-h2" id="h-l-allin">All in side race ledger <span class="st-side-tag">Side race</span></h2>
+      <p class="st-note">The side race's own record: every move and result of all three AIs in All in: trading and All in: sports, newest first. It is kept apart from the ten races: never counted in them or in anything above, each part has its own winner, and the two parts are never added together. Each AI started with C$100,000 in each part, with no caps. Times are Eastern (ET), with UTC and Hong Kong in brackets.</p>
+      <div data-draw="allin-ledger" data-source="allin_trades allin_models allin_history peer_grades"></div>
+    </section>
     <section class="st-card" aria-labelledby="h-src-ledger">
       <h2 class="st-h2" id="h-src-ledger">All sources</h2>
       <p class="st-note">Every source used across all ten simulations.</p>
@@ -3253,6 +3260,58 @@
       ov.insertBefore(box, ov.firstChild);
     });
   })();
+  // ---------- the All in side race ledger (owner's question, Oct 29; majority of the three AIs chose a separate section): every move and result
+  dash.draw('allin-ledger', (el) => {
+    el.replaceChildren();
+    const TS = (dash.baseData('allin_trades') || []).filter((t) => AIS[t.model] && ALLIN[t.experiment]);
+    const st = (el._f = el._f || { part: '', ai: '', kind: '' });
+    { // where each part stands now
+      const box = mk('div', 'al-now');
+      Object.keys(ALLIN).forEach((e) => { const rows = allinRows(e).slice().sort((a, b) => b.profit - a.profit); if (!rows.length) return;
+        const p = mk('p', 'al-now-l'); p.appendChild(mk('b', '', ALLIN[e] + ': '));
+        rows.forEach((r, i) => { if (i) p.appendChild(document.createTextNode(' · ')); const sp = mk('span', '', (i === 0 && rows.length > 1 && r.profit - rows[1].profit >= 0.5 ? '👑 ' : '') + AIS[r.id].label + ' ' + (r.profit >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(r.profit)) + (r.busted ? ' (busted)' : '')); sp.style.color = AIS[r.id].color; p.appendChild(sp); });
+        box.appendChild(p); });
+      el.appendChild(box);
+    }
+    const bar = mk('div', 'lg-pick');
+    const sel = (lab, key, opts) => { const l = mk('label', '', lab + ' '); const s2 = mk('select'); s2.setAttribute('aria-label', lab);
+      opts.forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; s2.appendChild(o); }); s2.value = st[key];
+      s2.addEventListener('change', () => { st[key] = s2.value; el._pg = 0; draw(); }); l.appendChild(s2); bar.appendChild(l); };
+    sel('Part:', 'part', [['', 'Both parts'], ['AllInTrading', 'All in: trading'], ['AllInSports', 'All in: sports']]);
+    sel('AI:', 'ai', [['', 'All three AIs']].concat(['claude', 'gemini', 'chatgpt'].map((id) => [id, aiModel(id)])));
+    sel('Show:', 'kind', [['', 'Every move'], ['trade', 'Buys and sells'], ['bet', 'Bets and results']]);
+    el.appendChild(bar);
+    const box = mk('div'); el.appendChild(box);
+    const draw = () => {
+      box.replaceChildren();
+      const rows = TS.filter((t) => (!st.part || t.experiment === st.part) && (!st.ai || t.model === st.ai) &&
+        (!st.kind || (st.kind === 'trade' ? /^(Buy|Sell|Short|Cover|Settled|Expired)$/.test(t.action) : /^(Bet|Parlay|Won|Lost|Push|Void)$/.test(t.action)))).sort((a, b) => new Date(b.at) - new Date(a.at));
+      box.appendChild(mk('p', 'st-note', rows.length + ' move' + (rows.length === 1 ? '' : 's') + ', newest first, 10 a page.'));
+      if (!rows.length) return;
+      const w = mk('div', 'h2h-scroll st-wrap'); const tb = mk('table', 'h2h-table');
+      const hr = mk('tr'); ['When', 'AI', 'Part', 'Move', 'Amount', 'Cost / stake', 'Profit', 'Return', 'Why'].forEach((h) => hr.appendChild(mk('th', '', h))); { const th = mk('thead'); th.appendChild(hr); tb.appendChild(th); }
+      const body = mk('tbody'); tb.appendChild(body);
+      rows.forEach((t) => {
+        const r = mk('tr'); const ai = mk('td', '', AIS[t.model].label); ai.style.borderLeft = '3px solid ' + AIS[t.model].color; ai.style.paddingLeft = '6px';
+        const pl = pnlOf(t); const why = mk('td', 'wrap', t.reason || '');
+        { const n = /^(Buy|Sell|Short|Cover|Bet)$/.test(t.action) ? pgNode(PG_KEY(t)) : null; if (n) why.appendChild(n); }
+        r.append(mk('td', '', stFmt.when(t.at)), ai, mk('td', '', ALLIN[t.experiment].replace('All in: ', '')), mk('td', 'wrap', t.action + ' ' + String(t.name || t.symbol).replace(/^[A-Z]{2,5}: /, '')),
+          mk('td', 'num', Number.isFinite(+t.amount) ? (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.0f')(Math.abs(t.amount)) : ''), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret || ''), why);
+        body.appendChild(r);
+      });
+      w.appendChild(tb); box.appendChild(w);
+      body.dataset.pgNewest = '1'; body._pgKey = ''; body._pg = el._pg || 0; pagerFor(body, 10, 'moves');
+      const pb = w.nextElementSibling; if (pb && pb.classList.contains('st-pager')) { const keep = () => { el._pg = body._pg || 0; }; pb.addEventListener('click', keep); pb.addEventListener('change', keep); }
+      const dl = mk('button', 'lg-csv', '⬇ Download this list (CSV)'); dl.type = 'button';
+      dl.addEventListener('click', () => {
+        const q = (x) => '"' + String(x == null ? '' : x).replace(/"/g, '""') + '"';
+        const lines = [['when_utc', 'ai', 'part', 'action', 'what', 'amount_cad', 'price', 'profit_cad', 'reason'].join(',')].concat(rows.map((t) => [new Date(t.at).toISOString(), AIS[t.model].label, ALLIN[t.experiment], t.action, t.name || t.symbol, t.amount, t.price, t.pnl != null ? t.pnl : t.result != null ? t.result : '', t.reason || ''].map(q).join(',')));
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' })); a.download = 'paper-trades-all-in-side-race.csv'; document.body.appendChild(a); a.click(); a.remove();
+      });
+      box.appendChild(dl);
+    };
+    draw();
+  });
   // ---------- ledger fingerprints (agreed item 3): the same lines and SHA-256 as ops/fingerprint.py, recomputed in the visitor's browser
   const fpLines = (close) => {
     const S = (x) => (x === null || x === undefined ? '' : String(x)), T = (x) => Date.parse(String(x));
