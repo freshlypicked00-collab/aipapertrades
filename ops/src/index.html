@@ -3842,9 +3842,15 @@
       const h = dash.data('history'), b = dash.data('bench_history');
       if (h.status !== 'ok') { el.replaceChildren(); return; }
       // the Overview chart opens on the race Race standings shows ("Most relevant"), until the visitor picks one (owner, Oct 29)
-      if (el.id === 'perf-overview' && !el._userPicked && window.ptRace && !window.ptOverall && TABOF[window.ptRace] && el.dataset.portfolio !== window.ptRace) {
-        el.dataset.portfolio = window.ptRace;
-        document.querySelectorAll('[data-chips-for="perf-overview"] button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === window.ptRace)));
+      // ...and whenever Race standings switches race (a pick, Most relevant moving, the All in side race), the chart switches with it,
+      // even after the visitor picked a chip; a chip pick holds only until Race standings changes again (owner, Oct 30). Overall leaves it as is.
+      if (el.id === 'perf-overview') {
+        const sr = window.ptStandRace || window.ptRace;
+        const ok = sr && sr !== 'Overall' && (TABOF[sr] || ALLIN[sr]);
+        if (ok && (el._followed !== sr || (!el._userPicked && el.dataset.portfolio !== sr))) {
+          el._followed = sr; el._userPicked = false; el.dataset.portfolio = sr;
+          document.querySelectorAll('[data-chips-for="perf-overview"] button').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === sr)));
+        } else if (sr) el._followed = sr;
       }
       const p = el.dataset.portfolio, AL = !!ALLIN[p], pc = AL ? 'Stocks' : p;   // the All in side race (C$, its own books) (owner, Oct 29)
       let pts = AL ? allinSeries(dash.model, p) : h.data.filter((r) => r.portfolio === p).map((r) => ({ t: new Date(r.at), v: Number(r.value) })).sort((a, c) => a.t - c.t);
@@ -6116,6 +6122,7 @@
     }
     const hot = el._follow ? hottestRace() : null;   // "Most relevant": the race with the biggest move in the last 2 hours, re-checked at every data update
     if (hot) el._exp = hot.race;   // every visit opens on the race whose market is open (China, then US, else Crypto); nothing is remembered
+    if (window.ptStandRace !== el._exp) { window.ptStandRace = el._exp; setTimeout(() => { if (dash.redraw) dash.redraw(); }, 0); }   // "How each simulation is doing" follows this pick (owner, Oct 30)
     const want = el._exp === 'Overall' ? null : el._exp;   // Overall: the take, plans, feelings and opinions across all races
     if (!ALLIN[el._exp] && ((window.ptRace || null) !== want || !!window.ptOverall !== (el._exp === 'Overall'))) { window.ptRace = want; window.ptOverall = el._exp === 'Overall'; setTimeout(() => { if (dash.redraw) dash.redraw(); }, 0); }   // the goals and feelings cards follow this race (the All in side race has none, so they stay put)
     el.appendChild(mk('h2', '', 'Race standings'));
