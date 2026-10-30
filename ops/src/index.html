@@ -3776,7 +3776,7 @@
       const diff = ref === undefined || ref === null ? null : last.v - ref;
       chg.className = 'gx-chg ' + (diff > 0 ? 'is-up' : diff < 0 ? 'is-down' : '');
       chg.textContent = diff === null ? '' : (diff >= 0 ? '▲ ' : '▼ ') + (cfg.fmtDiff ? cfg.fmtDiff(diff) : cfg.fmt(Math.abs(diff))) + ' (' + stFmt.pct(ref ? last.v / ref - 1 : 0) + ') ' + refName;
-      when.textContent = 'Latest check-in: ' + stFmt.when(last.t);
+      when.textContent = 'Latest check-in: ' + stFmt.when(last.t) + (cfg.source ? ' · Price from ' + cfg.source : '');   // the source right under the price (owner, Oct 30)
       const up = diff === null || diff >= 0;
       const color = up ? 'var(--color-ok)' : 'var(--color-bad)';
 
@@ -4200,7 +4200,7 @@
       if (pf === 'AllInTrading') {   // the All in side race: its own holdings and check-in prices (owner, Oct 30)
         const mid = dash.model || 'claude', A = (dash.baseData('allin_px') || []).filter((x) => x.model === mid);
         const opt = (sym) => /^[A-Z]{1,6}\d{6}[CP]\d{8}$/.test(sym);
-        H = { status: 'ok', data: A.map((x) => ({ portfolio: pf, holding: x.name, quantity: x.qty, entry_usd: x.entry, price_usd: x.last, price_at: x.priced_at, price_source: opt(x.sym) ? 'Cboe (15-min delayed)' : 'Yahoo Finance' })) };
+        H = { status: 'ok', data: A.map((x) => ({ portfolio: pf, holding: x.name, quantity: x.qty, entry_usd: x.entry, price_usd: x.last, price_at: x.priced_at, price_source: opt(x.sym) ? 'Cboe (15-min delayed, midpoint of bid and ask)' : 'Yahoo Finance' })) };
         P = { status: 'ok', data: [].concat(...A.map((x) => (x.hist || []).map(([m, v]) => ({ asset: x.name, at: new Date(m * 60e3).toISOString(), price: v })))) };
         T = { status: 'ok', data: (dash.baseData('allin_trades') || []).filter((t) => t.model === mid && t.experiment === pf).map((t) => ({ at: t.at, portfolio: pf, holding: t.name || t.symbol, action: t.action, price_usd: t.price })) };
         R = { status: 'ok', data: [] };
@@ -4237,7 +4237,7 @@
       const out = rules.filter((r) => Math.abs(r.level - cur) / cur > 0.15);
       const levels = inRange.map((r) => ({ v: Number(r.level), label: r.label + ' at ' + f(Number(r.level)), color: r.direction === 'above' ? 'var(--color-ok)' : 'var(--color-bad)' }));
       const markers = T.data.filter((t) => t.portfolio === pf && t.holding === h.holding).map((t) => ({ t: new Date(t.at), v: Number(t.price_local ?? t.price_usd), kind: t.action }));
-      gChart(box, { points: pts, name: h.holding + ' price', fmt: f, axis: fa, base: entry, baseLabel: 'Paid ' + f(entry) + ' on average', sinceLabel: 'since bought', levels, markers,
+      gChart(box, { points: pts, name: h.holding + ' price', source: h.price_source || '', fmt: f, axis: fa, base: entry, baseLabel: 'Paid ' + f(entry) + ' on average', sinceLabel: 'since bought', levels, markers,
         ranges: [['24 hours', 864e5], ['7 days', 7 * 864e5], ['30 days', 30 * 864e5], ['3 months', 91 * 864e5], ['1 year', 365 * 864e5], ['5 years', 1826 * 864e5], ['Since bought', 'since']], range: 'Since bought', sinceT: since || +pts[0].t,
         shortNote: ls ? ' (the earliest price on hand)' : window.ptPxLong && !window.ptPxLong.missing ? ' (no longer history for this one)' : window.ptPxLong ? ' (longer history not available yet)' : ' (longer history is loading)' });
       if (!window.ptPxLong && !window.ptPxLongLoading) { window.ptPxLongLoading = 1; fetch('px_long.json?v=' + Math.floor(Date.now() / 36e5), { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).then((j) => { window.ptPxLong = j || { missing: 1 }; window.ptPxLongLoading = 0; { document.querySelectorAll('[data-draw="price-chart"]').forEach((e) => { if (e._redraw) e._redraw(); }); } }).catch(() => { window.ptPxLongLoading = 0; }); }

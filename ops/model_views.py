@@ -84,7 +84,7 @@ def build(rivals, claude):
                 c = cost.get((e, key), {'cost': p['qty'] * p['entry']})
                 row = {'portfolio': e, 'holding': _clean(p.get('name') or key, e), 'code': key.split('|')[0], 'quantity': p['qty'],
                        'change_pct': price / p['entry'] - 1 if p['entry'] else 0, 'as_of': last_at, 'price_at': p.get('priced_at'),
-                       'price_source': {'Predictions': 'Polymarket', 'Options': 'Cboe (15-min delayed)'}.get(e, 'Yahoo Finance')}
+                       'price_source': {'Predictions': 'Polymarket', 'Options': 'Cboe (15-min delayed, midpoint of bid and ask)'}.get(e, 'Yahoo Finance')}
                 c['shown'] = True
                 if e == 'China':
                     usd = p['qty'] * price / fx_now['USDCNY']
