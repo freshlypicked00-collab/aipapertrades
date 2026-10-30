@@ -353,6 +353,8 @@
   .ra-list .ra-n { display: flex; align-items: center; gap: 6px; font-weight: 600; }
   .ra-list .ra-s { font-size: 1.05em; font-weight: 700; }
   .ra-list .ra-d { font-size: .82em; opacity: .8; }
+  .ra-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: 12px; }
+  .ra-h { font-size: .95em; margin: 0 0 2px; } .ra-sub { font-size: .8em; opacity: .8; margin: 0 0 6px; } .ra-both { margin-top: 8px; font-weight: 600; opacity: 1; }
   .ra-how { font-size: .82em; opacity: .8; margin: 6px 0 0; }
   .ra-how summary { cursor: pointer; }
   .ra-t { width: 100%; border-collapse: collapse; font-size: .82em; margin-top: 6px; } .ra-t th, .ra-t td { padding: 3px 6px; border-bottom: 1px solid var(--color-border-line); text-align: right; } .ra-t th:first-child, .ra-t td:first-child { text-align: left; }
@@ -1177,7 +1179,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'a74914e5cd77';</script>
+<script>window.PT_PAGE_VER = 'e2a5432b651e';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -7534,17 +7536,24 @@ body { background:var(--color-bg); }
     el.replaceChildren();
     const R = dash.baseData('risk')[0]; if (!R || !R.order) { el.appendChild(mk('p', 'st-note', 'Appears after the next update.')); return; }
     const races = Object.keys(R.races || {}), f = (v) => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(2);
-    const ul = mk('ol', 'ra-list');
-    R.order.forEach((id, i) => { if (!AIS[id]) return; const li = mk('li', i === 0 ? 'ra-top' : ''); li.style.setProperty('--ai', AIS[id].color);
-      const n = mk('span', 'ra-n'); n.appendChild(mk('b', '', i === 0 ? '🛡️ 1st' : (i === 1 ? '2nd' : '3rd'))); n.appendChild(whoNode(id, 16, 'pd-who')); li.appendChild(n);
-      li.appendChild(mk('span', 'ra-s', 'Risk score ' + f(R.avg[id])));
-      const best = races.filter((e) => R.order.every((o) => (R.races[e][o] || {}).score <= (R.races[e][id] || {}).score)).length;
-      const dds = races.map((e) => (R.races[e][id] || {}).dd || 0), worst = Math.max(...dds);
-      li.appendChild(mk('span', 'ra-d', 'Best risk score in ' + best + ' of ' + races.length + ' races · worst drop in any race −' + worst.toFixed(1) + '%'));
-      ul.appendChild(li); });
-    el.appendChild(ul);
+    // owner, Oct 30: BOTH ways of crowning it, side by side: the average score (Claude and ChatGPT) and races won on risk score (Gemini)
+    const wins = R.wins || {}, ordW = R.order_wins || R.order;
+    const col = (title, sub, order, main) => { const box = mk('div', 'ra-col'); box.appendChild(mk('h3', 'ra-h', title)); box.appendChild(mk('p', 'ra-sub', sub));
+      const ul = mk('ol', 'ra-list'); order.forEach((id, i) => { if (!AIS[id]) return; const li = mk('li', i === 0 ? 'ra-top' : '');
+        const n = mk('span', 'ra-n'); n.appendChild(mk('b', '', i === 0 ? '🛡️ 1st' : (i === 1 ? '2nd' : '3rd'))); n.appendChild(whoNode(id, 16, 'pd-who')); li.appendChild(n);
+        const dds = races.map((e) => (R.races[e][id] || {}).dd || 0), worst = Math.max(...dds);
+        li.appendChild(mk('span', 'ra-s', main(id)));
+        li.appendChild(mk('span', 'ra-d', (main === byAvg ? 'Best risk score in ' + (wins[id] || 0) + ' of ' + races.length + ' races' : 'Average risk score ' + f(R.avg[id])) + ' · worst drop in any race −' + worst.toFixed(1) + '%'));
+        ul.appendChild(li); }); box.appendChild(ul); return box; };
+    const byAvg = (id) => 'Average risk score ' + f(R.avg[id]), byWins = (id) => 'Best in ' + (wins[id] || 0) + ' of ' + races.length + ' races';
+    const two = mk('div', 'ra-two');
+    two.appendChild(col('By average score', 'The average of its ten race scores (Claude’s and ChatGPT’s pick: it keeps how big each result was).', R.order, byAvg));
+    two.appendChild(col('By races won', 'How many races it has the best risk score in (Gemini’s pick: one extreme race can’t swing it). Ties go to the higher average.', ordW, byWins));
+    el.appendChild(two);
+    if (R.order[0] === ordW[0] && AIS[R.order[0]]) el.appendChild(mk('p', 'ra-sub ra-both', '🛡️ ' + AIS[R.order[0]].label + ' leads both ways right now.'));
+    else el.appendChild(mk('p', 'ra-sub ra-both', 'The two ways disagree right now: ' + (AIS[R.order[0]] || {}).label + ' leads on average, ' + (AIS[ordW[0]] || {}).label + ' on races won.'));
     const d = mk('details', 'ra-how'); d.appendChild(mk('summary', '', 'How the risk score works, and every race'));
-    d.appendChild(mk('p', '', 'For each race: the return since the start divided by the worst drop (the biggest fall from a high point). A worst drop under ' + R.floor_pct + '% counts as ' + R.floor_pct + '%, so a tiny gain with almost no movement can’t look like genius. For a loss, a bigger drop makes the score worse. The award goes to the highest average over the ten races. Only percentages are shown: the total amounts stay hidden until Nov 28.'));
+    d.appendChild(mk('p', '', 'For each race: the return since the start divided by the worst drop (the biggest fall from a high point). A worst drop under ' + R.floor_pct + '% counts as ' + R.floor_pct + '%, so a tiny gain with almost no movement can’t look like genius. For a loss, a bigger drop makes the score worse. The award is shown two ways: the highest average over the ten races, and the most races with the best risk score. Only percentages are shown: the total amounts stay hidden until Nov 28.'));
     const t = mk('table', 'ra-t'); const hd = mk('tr'); hd.appendChild(mk('th', '', 'Race')); R.order.forEach((id) => hd.appendChild(mk('th', '', AIS[id] ? AIS[id].label : id))); const th = mk('thead'); th.appendChild(hd); t.appendChild(th);
     const tb = mk('tbody'); races.forEach((e) => { const tr = mk('tr'); tr.appendChild(mk('td', '', (LABEL[e] || e).replace(' (US$)', '')));
       R.order.forEach((id) => { const x = R.races[e][id] || {}; const td = mk('td', '', f(x.score || 0)); td.title = 'Return ' + (x.ret >= 0 ? '+' : '') + (x.ret || 0).toFixed(2) + '% · worst drop −' + (x.dd || 0).toFixed(2) + '%'; tr.appendChild(td); }); tb.appendChild(tr); });

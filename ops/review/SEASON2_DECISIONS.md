@@ -16,3 +16,7 @@ All agreed by Claude, Gemini and ChatGPT unless noted. Sources: ops/review/risk-
 - NOT applied to the current race (Season 1): changing fill rules mid-race would change the game the AIs planned for.
 - ChatGPT's condition: freeze and publish the cost model before Season 2's first trade; change it only between seasons.
 - Gemini's note: market impact on large orders in low-volume assets is the one remaining gap; the fixed costs mostly cover it at our sizes.
+
+# Season 1: Best risk manager (separate award, added Oct 30; never changes the Nov 28 profit winner)
+- Loss rule (a bigger drop always scores worse) and the 2% floor: Claude's choices, then accepted by Gemini and ChatGPT (all three).
+- How it is crowned: average score (Claude, ChatGPT) vs races won (Gemini). Owner's decision, Oct 30: show BOTH, side by side. Race-win ties broken by the average.

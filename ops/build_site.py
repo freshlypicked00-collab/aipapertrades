@@ -1090,7 +1090,12 @@ def _risk():
             sc.append(score)
         avg[m] = round(sum(sc) / len(sc), 3) if sc else 0.0
     order = sorted(avg, key=lambda k: -avg[k])
-    return {'floor_pct': RISK_FLOOR * 100, 'added': '2026-10-30', 'races': races, 'avg': avg, 'order': order}
+    # owner, Oct 30: show BOTH ways of crowning it: the average score (Claude and ChatGPT's choice) and races won on risk score
+    # (Gemini's choice, so one extreme race can't swing it). A race tied on score counts for each AI tied; ties in races won
+    # are broken by the average (ChatGPT: race wins as the tie-breaker's partner).
+    wins = {m: sum(1 for e in races if races[e][m]['score'] >= max(races[e][o]['score'] for o in races[e])) for m in avg}
+    order_wins = sorted(avg, key=lambda k: (-wins[k], -avg[k]))
+    return {'floor_pct': RISK_FLOOR * 100, 'added': '2026-10-30', 'races': races, 'avg': avg, 'order': order, 'wins': wins, 'order_wins': order_wins}
 
 
 RISK_FLOOR = 0.02   # a worst drop under 2% counts as 2%, so a tiny gain with almost no movement can't look like genius
