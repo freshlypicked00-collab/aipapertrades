@@ -78,6 +78,13 @@ def maybe_publish(state, now, post=None):
         return None
     ls = lines(_j('trades'), _j('bets'), state.get('trades', []), close)
     f = {'day': day, 'close_at': close.strftime('%Y-%m-%dT%H:%M:%SZ'), 'sha256': digest(ls), 'records': len(ls), 'at': now.strftime('%Y-%m-%dT%H:%M:%SZ')}
+    try:   # the search source ledger's day file gets its own SHA-256 beside it (all three AIs agreed, Oct 30); the rule above is unchanged
+        import searchlog as SL
+        h, n = SL.freeze(day, state)
+        if h:
+            f['search_sha256'], f['search_checkins'] = h, n
+    except Exception as e:
+        print('search ledger fingerprint failed', e)
     fps.append(f)
     if post:
         try:

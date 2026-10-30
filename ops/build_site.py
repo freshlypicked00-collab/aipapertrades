@@ -481,6 +481,12 @@ for name in ('holdings', 'history', 'bets', 'log', 'rules', 'benchmark', 'indexe
 data['sources'] = json.load(open(os.path.join(SRC, 'sources.json')))
 rv = os.path.join(SRC, 'rivals.json')
 r = json.load(open(rv)) if os.path.exists(rv) else {'models': {}, 'trades': [], 'history': [], 'takes': []}
+try:   # the search source ledger's public day files, searchlog/<UTC day>.json (all three AIs agreed, Oct 30)
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import searchlog as _SL
+    _SL.write_public(r)
+except Exception as _e:
+    print('search ledger files skipped:', _e)
 # OPTION B (owner's go, Oct 29): from the switch, Claude's orders and stops are filled by the race runner. Claude's own price rules
 # became runner stops at the switch, so the site shows those (and keeps the plain policy rules from rules.json).
 try:

@@ -77,6 +77,11 @@ then publishes everything. It runs every hour.
    as your newest price for that asset checks out. Never copy the feed's number without checking it yourself.
 6b. **Check the arithmetic:** run `python3 ops/check.py ops/src`. If it reports problems, fix them
    before publishing.
+6c. **Search source ledger (from Oct 31; all three AIs agreed, Oct 30):** record what you looked up this run, once:
+   `python3 ops/searchlog.py add '{"queries": ["<each search you ran>"], "links": [{"title": "...", "url": "<each page you used>"}], "searches": <how many>}'`
+   (up to 10 of each; links only, never page text). It goes in ops/src/claude_searches.json; build_site.py publishes searchlog/<UTC day>.json
+   and the nightly fingerprint hashes each closed day's file. Commit searchlog/ with the rest; if `git pull --rebase` conflicts on a
+   searchlog/*.json file, take origin's version and rebuild (like data.json).
 7. **Build and publish the site:** `python3 ops/build_site.py ops/src .`, then commit
    (`UPDATE ALL <Mon D, h:mm a.m./p.m. ET>`), `git pull --rebase`, and push to `main`. Then dispatch the ONE fill run
    for the orders you queued (Option B): `gh api -X POST repos/freshlypicked00-collab/aipapertrades/actions/workflows/rivals.yml/dispatches -f ref=main -f 'inputs[mode]=fill'`.

@@ -489,6 +489,8 @@ def ask_openai(key, model, prompt):
     global LAST_SEARCHES
     out, sources = [], []
     LAST_SEARCHES = sum(1 for item in j.get('output', []) if item.get('type') == 'web_search_call')
+    SEARCH_LOG.append({'model': model, 'web_searches': LAST_SEARCHES,   # the queries it searched, for the search source ledger
+                       'queries': [((item.get('action') or {}).get('query')) for item in j.get('output', []) if item.get('type') == 'web_search_call' and (item.get('action') or {}).get('query')][:10]})
     for item in j.get('output', []):
         for c in item.get('content', []) or []:
             if c.get('type') == 'output_text':
@@ -1610,7 +1612,8 @@ def shared_steps(state, fx, games=True):
         FP.maybe_publish(state, NOW, post=lambda f: tg(f"🔒 <b>Ledger fingerprint, race day {datetime.fromisoformat(f['day']).strftime('%b %-d')}</b>\n"
                                                        f"Every trade and bet of all three AIs up to the daily close: {f['records']} records.\n"
                                                        f"SHA-256: <code>{f['sha256']}</code>\n"
-                                                       f"Anyone can re-check it on papertrades.ai (Rules &amp; Audit): if an earlier record were edited, it would no longer match.", silent=True))
+                                                       + (f"Search source ledger ({f['search_checkins']} check-ins, queries and links): <code>{f['search_sha256']}</code>\n" if f.get('search_sha256') else '')
+                                                       + f"Anyone can re-check it on papertrades.ai (Rules &amp; Audit): if an earlier record were edited, it would no longer match.", silent=True))
     except Exception as e:
         print('fingerprint failed', e)
     try:   # the games open for betting, the same list Gemini and ChatGPT see, for Claude's sessions (`python3 ops/orders.py games`)
@@ -2043,6 +2046,11 @@ def main():
         if status == 'ok':
             state.get('notices', {}).pop(mid, None)   # a one-time notice is delivered once it has been read in a successful check-in
         m['last_run'] = {'at': iso(), 'status': status, 'notes': notes[-12:], 'sources': sources[:8], 'orders': len(made), 'search': SEARCH_LOG[s0:][-2:], 'searches': searched}
+        try:   # the search source ledger: every check-in's queries and links, kept for good (all three AIs agreed, Oct 30)
+            import searchlog as SL
+            SL.add_rival(state, mid, m['last_run']['at'], SEARCH_LOG[s0:], sources, searched, status)
+        except Exception as e:
+            print('search ledger failed', e)
         m['fail_streak'] = 0 if status == 'ok' else m.get('fail_streak', 0) + 1   # the workflow opens a GitHub issue at 3
         for rr, cl, rc in day_posts:
             n = (datetime.fromisoformat(cl[0]) - datetime(2026, 10, 28)).days + 1

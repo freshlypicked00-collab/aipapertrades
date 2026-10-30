@@ -147,6 +147,7 @@ jobs:
             python3 ops/build_site.py ops/src .
             python3 ops/discord_leads.py pick || true   # new lead changes for Discord #lead-changes, posted after the push
             git add ops/src/rivals.json index.html data.json data.ver audit.json og.png ops/src/og.json
+            [ -d searchlog ] && git add searchlog   # the search source ledger's public day files (all three AIs agreed, Oct 30)
             [ -f ops/src/discord_sent.json ] && git add ops/src/discord_sent.json
             [ -f ops/src/price_audit.json ] && git add ops/src/price_audit.json
             [ -f ops/src/px_long.json ] && git add ops/src/px_long.json px_long.json

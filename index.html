@@ -322,6 +322,10 @@
   .st-callout .co-text { margin: 6px 0 0; font-size: 15px; line-height: 1.45; color: var(--color-fg); }
   .st-callout .co-foot { margin: 6px 0 0; font-size: 12px; color: var(--color-fg-muted); }
   .st-callout .co-foot a { color: inherit; }
+  .lg-look { margin-top: 6px; font-size: 12.5px; } .lg-look summary { cursor: pointer; color: var(--color-fg-muted); list-style: none; } .lg-look summary::-webkit-details-marker { display: none; }
+  .lg-look[open] summary { color: var(--color-fg); } .lg-look-b { padding: 4px 0 2px 2px; } .lg-look-b p { margin: 2px 0; }
+  .lg-look-b ul { margin: 2px 0 4px; padding-left: 1.1em; } .lg-look-q li { font-style: italic; } .lg-look-l a { word-break: break-word; }
+  .fp-search { margin-top: 4px; font-size: 11.5px; color: var(--color-fg-muted); word-break: break-all; }
   .st-callout.gr { padding: 8px 12px; border-left-width: 1px; background: var(--color-panel); }
   .st-callout .gr-h { margin: 0 0 4px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); }
   .st-callout .gr-row + .gr-row { border-top: 1px solid var(--color-border-line); }
@@ -1236,7 +1240,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '5240c99edebd';</script>
+<script>window.PT_PAGE_VER = '8084640ffb2c';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -2503,6 +2507,7 @@ body { background:var(--color-bg); }
     <section class="st-card" id="fingerprints" aria-labelledby="h-fp">
       <h2 class="st-h2" id="h-fp">Ledger fingerprints: proof nothing was changed later</h2>
       <p class="st-note">Agreed by all three AIs on Oct 29. After each daily close (8 p.m. ET until Nov 1, 7 p.m. ET after), the race runner takes a SHA-256 fingerprint of every trade and bet of all three AIs up to that close and publishes it here and on Telegram, once. Your browser recomputes each one right now from the data on this page: if any earlier trade or bet had been edited since, its fingerprint would no longer match. Corrections, when there are any, are listed below with their reasons.</p>
+      <p class="st-note"><b>Search source ledger</b> (all three AIs agreed, Oct 30): from Oct 30, 8 p.m. ET (Oct 31, 00:00 UTC), every check-in of every AI records its search queries and the links it used (links only, never page text), in a public file for each day. Each closed day's file gets its own SHA-256 below, next to that night's fingerprint. Earlier check-ins can't be rebuilt. It is for transparency, not scoring. Open "What it looked up" under any trade in the Ledger.</p>
       <div data-draw="fingerprints" data-source="fingerprints trades bets rivals_trades allin_trades"></div>
     </section>
     <section class="st-card" aria-labelledby="h-pa">
@@ -4047,6 +4052,13 @@ body { background:var(--color-bg); }
       if (!(window.crypto && crypto.subtle)) { chk.textContent = 'your browser can’t check it'; return; }
       const ls = fpLines(Date.parse(f.close_at));
       fpHash(ls).then((h) => { const ok = h === f.sha256; chk.className = ok ? 'is-up' : 'is-down'; chk.textContent = ok ? '✓ matches (' + ls.length + ' records)' : '✗ changed since: see the corrections'; }).catch(() => { chk.textContent = 'could not check'; });
+      if (f.search_sha256) {   // the search source ledger's day file, its own SHA-256 (all three AIs agreed, Oct 30)
+        const hc = tr.children[3], sh = mk('div', 'fp-search'); sh.append(mk('b', '', 'Searches (' + (f.search_checkins || 0) + ' check-ins): '), document.createTextNode(f.search_sha256)); hc.appendChild(sh);
+        const sc = mk('span', 'st-muted', ' · checking…'); sh.appendChild(sc);
+        fetch('searchlog/' + f.day + '.json', { cache: 'no-cache' }).then((r) => r.arrayBuffer()).then((b) => crypto.subtle.digest('SHA-256', b))
+          .then((d) => { const h = Array.from(new Uint8Array(d)).map((x) => x.toString(16).padStart(2, '0')).join(''); const ok = h === f.search_sha256; sc.className = ok ? 'is-up' : 'is-down'; sc.textContent = ok ? ' · ✓ matches' : ' · ✗ changed since'; })
+          .catch(() => { sc.textContent = ' · could not check'; });
+      }
     });
     w.appendChild(t); el.appendChild(w);
   });
@@ -5064,6 +5076,34 @@ body { background:var(--color-bg); }
     hold: { label: 'Holding now', test: (r) => !!r.holding, noun: ['buy or bet still open', 'buys and bets still open'], tip: 'Only what it holds right now: the buys behind each position still open, and bets not settled yet' },
   };
   const lgOk = (k, r) => (LG_KINDS[k].test ? LG_KINDS[k].test(r) : LG_KINDS[k].re.test(r.action));
+  // ---------- search source ledger (owner's proposal; all three AIs agreed, Oct 30): what an AI looked up at the check-in behind a trade.
+  // searchlog/<UTC day>.json, fetched only when a visitor opens one. Links only. Recorded from Oct 31, 2026 (00:00 UTC).
+  const SL_START = Date.parse('2026-10-31T00:00:00Z'), SLC = {};
+  const slDay = (day) => SLC[day] || (SLC[day] = fetch('searchlog/' + day + '.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).then((j) => (j && j.checkins) || []).catch(() => []));
+  const lookedUp = (model, at) => {
+    const d = mk('details', 'lg-look'); d.appendChild(mk('summary', '', '🔎 What it looked up'));
+    const body = mk('div', 'lg-look-b'); d.appendChild(body);
+    d.addEventListener('toggle', () => {
+      if (!d.open || d._done) return; d._done = 1;
+      const t = Date.parse(at);
+      if (t < SL_START) { body.appendChild(mk('p', 'st-muted', 'Not recorded: the search source ledger starts Oct 30, 8 p.m. ET (Oct 31, 00:00 UTC).')); return; }
+      body.appendChild(mk('p', 'st-muted', 'Loading…'));
+      const day = (x) => new Date(x).toISOString().slice(0, 10);
+      Promise.all([...new Set([day(t - 3 * 3600e3), day(t), day(t + 20 * 60e3)])].map(slDay)).then((all) => {
+        body.replaceChildren();
+        // the check-in behind this trade: the AI's latest record from 3 hours before to 20 minutes after it (the record is written as its check-in ends)
+        const c = [].concat(...all).filter((x) => x.model === model && Date.parse(x.at) <= t + 20 * 60e3 && Date.parse(x.at) >= t - 3 * 3600e3)
+          .sort((a, b) => Math.abs(Date.parse(a.at) - t) - Math.abs(Date.parse(b.at) - t))[0];
+        if (!c) { body.appendChild(mk('p', 'st-muted', 'No search was recorded for this check-in.')); return; }
+        body.appendChild(mk('p', 'st-muted', 'Check-in of ' + stFmt.when(c.at) + ' · ' + (c.searches || 0) + (c.searches === 1 ? ' search' : ' searches')));
+        if (c.queries && c.queries.length) { const ul = mk('ul', 'lg-look-q'); c.queries.forEach((q) => ul.appendChild(mk('li', '', q))); body.appendChild(ul); }
+        else if (c.links && c.links.length) body.appendChild(mk('p', 'st-muted', 'Its search tool reports the links it used, not the words it searched.'));
+        if (c.links && c.links.length) { const ul = mk('ul', 'lg-look-l'); c.links.forEach((l) => { const li = mk('li'); const a = mk('a', '', l.title || l.url); a.href = l.url; a.target = '_blank'; a.rel = 'noopener nofollow'; li.appendChild(a); li.appendChild(mk('span', 'st-muted', ' · ' + (() => { try { return new URL(l.url).hostname.replace(/^www\./, ''); } catch (e) { return ''; } })())); ul.appendChild(li); }); body.appendChild(ul); }
+        body.appendChild(mk('p', 'st-muted lg-look-n', 'Links as recorded at the time; a page may have changed since.'));
+      });
+    });
+    return d;
+  };
   dash.draw('lg-trades', (el) => {
     const run = () => {
       el.replaceChildren();
@@ -5113,6 +5153,7 @@ body { background:var(--color-bg); }
           [r.ret === null || r.ret === undefined ? '' : d3.format('+.1%')(r.ret), 'num ' + (r.ret == null ? '' : upDown(r.ret * 1000))], [r.why || '', 'wrap lg-why']];
         cells.forEach(([v, c]) => { const td = mk('td', c || ''); if (v instanceof Node) td.appendChild(v); else td.textContent = v; tr.appendChild(td); });
         { const gn = r.pg ? pgNode(r.pg) : null; if (gn) tr.lastElementChild.appendChild(gn); }   // the other AIs' grades (owner, Oct 29)
+        if (/^(Buy|Sell|Short|Cover|Bet|Parlay)$/.test(r.action)) tr.lastElementChild.appendChild(lookedUp(dash.model || 'claude', r.at));   // the search source ledger (Oct 30)
         tb.appendChild(tr);
         if (document.documentElement.dataset.beginner === '1') { const s2 = plainTrade(r); if (s2) { const tr2 = mk('tr', 'bg-say'); const td2 = mk('td', '', s2); td2.colSpan = 9; tr2.appendChild(td2); tb.appendChild(tr2); } }
       });
