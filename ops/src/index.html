@@ -203,6 +203,11 @@
   .lg-pick label { font-size: var(--cds-font-size-body); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; max-width: 100%; }
   .lg-pick select { min-width: 0; width: auto; max-width: 100%; text-overflow: ellipsis; }
   .lg-pick > * { min-width: 0; }
+  .lg-kinds { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }   /* Show: one-tap buttons (owner, Oct 30) */
+  .lg-kinds-l { font-size: var(--cds-font-size-body); margin-right: 2px; }
+  .lg-kind { font: inherit; font-size: 13.5px; padding: 6px 12px; min-height: 36px; border-radius: 999px; border: 1px solid var(--color-border-line); background: var(--color-bg); color: var(--color-fg); cursor: pointer; }
+  .lg-kind:hover { border-color: var(--color-fg-muted); }
+  .lg-kind[aria-pressed="true"] { border-color: var(--accent, #ffb000); color: var(--accent, #ffb000); font-weight: 600; }
   .lg-pick select { font: inherit; font-size: 14px; padding: 6px 8px; background: var(--color-bg); color: var(--color-fg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); max-width: 100%; }
   .lg-pick select:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   .lg-review-box { display: flex; flex-direction: column; gap: 10px; }
@@ -3541,13 +3546,23 @@
       s2.addEventListener('change', () => { st[key] = s2.value; el._pg = 0; draw(); }); l.appendChild(s2); bar.appendChild(l); };
     sel('Part:', 'part', [['', 'Both parts'], ['AllInTrading', 'All in: trading'], ['AllInSports', 'All in: sports']]);
     sel('AI:', 'ai', [['', 'All three AIs']].concat(['claude', 'gemini', 'chatgpt'].map((id) => [id, aiModel(id)])));
-    sel('Show:', 'kind', [['', 'Every move'], ['trade', 'Buys and sells'], ['bet', 'Bets and results']]);
+    // Show: one tap to switch between every move, buys only, sells only, and bets (owner, Oct 30: "see everything he bought, then quickly switch to sells")
+    const KIND = { buy: /^(Buy|Cover)$/, sell: /^(Sell|Short|Settled|Expired)$/, bet: /^(Bet|Parlay|Won|Lost|Push|Void)$/ };
+    if (st.kind === 'trade') st.kind = 'buy';   // the old "Buys and sells" choice
+    const sw = mk('div', 'lg-kinds'); sw.setAttribute('role', 'group'); sw.setAttribute('aria-label', 'Show');
+    sw.appendChild(mk('span', 'lg-kinds-l', 'Show:'));
+    const pills = [['', 'Every move'], ['buy', 'Buys'], ['sell', 'Sells'], ['bet', 'Bets and results']].map(([v, t]) => {
+      const b = mk('button', 'lg-kind'); b.type = 'button'; b.dataset.k = v; b._t = t;
+      b.addEventListener('click', () => { st.kind = v; el._pg = 0; draw(); });
+      sw.appendChild(b); return b; });
+    bar.appendChild(sw);
     el.appendChild(bar);
     const box = mk('div'); el.appendChild(box);
     const draw = () => {
       box.replaceChildren();
-      const rows = TS.filter((t) => (!st.part || t.experiment === st.part) && (!st.ai || t.model === st.ai) &&
-        (!st.kind || (st.kind === 'trade' ? /^(Buy|Sell|Short|Cover|Settled|Expired)$/.test(t.action) : /^(Bet|Parlay|Won|Lost|Push|Void)$/.test(t.action)))).sort((a, b) => new Date(b.at) - new Date(a.at));
+      const base = TS.filter((t) => (!st.part || t.experiment === st.part) && (!st.ai || t.model === st.ai));
+      pills.forEach((b) => { const k = b.dataset.k; const n = k ? base.filter((t) => KIND[k].test(t.action)).length : base.length; b.textContent = b._t + ' (' + n + ')'; b.setAttribute('aria-pressed', String((st.kind || '') === k)); });
+      const rows = base.filter((t) => !st.kind || (KIND[st.kind] || /./).test(t.action)).sort((a, b) => new Date(b.at) - new Date(a.at));
       box.appendChild(mk('p', 'st-note', rows.length + ' move' + (rows.length === 1 ? '' : 's') + ', newest first, 10 a page.'));
       if (!rows.length) return;
       const w = mk('div', 'h2h-scroll st-wrap'); const tb = mk('table', 'h2h-table');
