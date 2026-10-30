@@ -3,6 +3,10 @@ on:
   schedule:
     # Same moments as Claude's runs (times in UTC; GitHub may start them a few minutes late)
     - cron: '13 * * * *'          # hourly, like Claude's hourly run
+    # the settle watcher: bets on finished games settle within about 15 minutes, not at the next hourly check-in (owner, Oct 29).
+    # 7 p.m. to 3 a.m. ET every day, and weekend afternoons; no model is called, and it stops at once when no game can have ended.
+    - cron: '3,18,33,48 0-6,23 * * *'
+    - cron: '3,18,33,48 16-22 * * 0,6'
     - cron: '43 13-20 * * 1-5'    # half-hour runs during US market hours (EDT and EST)
     - cron: '35 13,14 * * 1-5'    # US open, 9:35 a.m. ET (EDT / EST)
     - cron: '5 20,21 * * 1-5'     # US close, 4:05 p.m. ET (EDT / EST)
@@ -79,7 +83,7 @@ jobs:
             sleep $((i * 7))
           done
       - run: pip install -q matplotlib
-        if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' }}
+        if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' && !startsWith(github.event.schedule, '3,18,33,48') }}
       - name: Let each rival model decide and trade
         if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' }}
         env:
@@ -95,12 +99,12 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python3 ops/rivals.py
       - name: Check Claude's prices against the same feeds (ops/price_audit.py)
-        if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' }}
+        if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' && !startsWith(github.event.schedule, '3,18,33,48') }}
         continue-on-error: true
         timeout-minutes: 5
         run: python3 ops/price_audit.py
       - name: Long price history for every holding (ops/px_long.py; the site's 30-day to 5-year holding charts)
-        if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' }}
+        if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' && !startsWith(github.event.schedule, '3,18,33,48') }}
         continue-on-error: true
         timeout-minutes: 4
         run: python3 ops/px_long.py

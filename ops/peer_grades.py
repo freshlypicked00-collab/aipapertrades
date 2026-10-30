@@ -26,7 +26,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 SRC = 'ops/src'
 MAX = 50   # raised from 20 so the backlog clears within about two check-ins (owner, Oct 29)
 RESTART = datetime(2026, 10, 28, 17, 44, tzinfo=timezone.utc)
-RUBRIC = ('PEER GRADES (agreed by all three AIs): grade every one of the other AIs\' trades and bets as a strict, fair chief risk officer, using only '
+RUBRIC = ('PEER GRADES (agreed by all three AIs): grade every one of the other AIs\' trades, bets and holds (a hold: its latest decision not to trade in a race on a day) as a strict, fair chief risk officer, using only '
           'what was known when each decision was made (never how it turned out): (1) thesis quality: is the reason specific, sourced and '
           'sensible? (2) sizing: does the size fit the conviction and the caps? (3) risk control: is there a clear exit or "what would prove it '
           'wrong"? (4) use of the information available at the time. Grades: A excellent, B good, C acceptable, D poor, F reckless; or '
@@ -124,8 +124,42 @@ def decisions(model, state, fx_cad=1.38):
         out.append({'key': key_of(model, t['at'], t['experiment'], t.get('symbol', ''), t['action']), 'model': model, 'at': t['at'],
                     'experiment': t['experiment'], 'action': t['action'], 'what': t.get('name') or t.get('symbol'), 'amount': round(amt, 2),
                     'price': t.get('price'), 'reason': (t.get('reason') or '')[:500], 'wrong_if': (t.get('wrong_if') or '')[:300]})
+    out.extend(_holds(model, state, out))
     out.sort(key=lambda d: _when(d['at']))
     return out
+
+
+ACTING = re.compile(r'\b(initiat\w*|buying|selling|adding|shorting|covering|placing|trimming|exiting|opening a|closing out|taking a|entering)\b', re.I)
+
+
+def _holds(model, state, acted):
+    """HOLDS (owner's request, Oct 29; all three AIs voted yes): the decision NOT to trade in a race, graded as "was waiting the right call?".
+    One per AI, race and race day: its latest note on that race (Claude's race take; Gemini's and ChatGPT's per-race note) written at a
+    check-in where it made no trade or bet in that race (none within 15 minutes), for race days that have closed (00:00 UTC). Routine
+    record-keeping (accuracy checks, closing odds, daily close lines) is never a note, so it is never graded."""
+    notes = [x for x in _j('take', []) if x.get('experiment')] if model == 'claude' else \
+        [x for x in state.get('thoughts', []) if x.get('model') == model and x.get('experiment')]
+    today = datetime.now(timezone.utc).date()
+    moves = {}
+    for d in acted:
+        moves.setdefault(d['experiment'], []).append(_when(d['at']))
+    last = {}
+    for x in notes:
+        try:
+            at = _when(x['at'])
+        except Exception:
+            continue
+        e = x['experiment']
+        if at < RESTART or at.date() >= today or not str(x.get('text', '')).strip():
+            continue
+        if any(-900 < (m - at).total_seconds() < 3 * 3600 for m in moves.get(e, [])) or ACTING.search(str(x.get('text', ''))):
+            continue   # a note written with a trade, or about one it was placing (filled within 3 hours), is not a hold
+        k = (e, at.date())
+        if k not in last or at > _when(last[k]['at']):
+            last[k] = x
+    return [{'key': key_of(model, x['at'], x['experiment'], 'hold', 'Hold'), 'model': model, 'at': _when(x['at']).strftime('%Y-%m-%dT%H:%M:%SZ'),
+             'experiment': x['experiment'], 'action': 'Hold', 'what': '(no trade in this race)', 'amount': 0.0, 'price': None,
+             'reason': str(x['text'])[:500], 'wrong_if': ''} for x in last.values()]
 
 
 def _voids(grader):
@@ -166,6 +200,10 @@ def tasks(grader, state, now, fx_cad=1.38):
         mapping[gid] = d
         px = d['price']
         pxs = (f'{int(px):+d} (American odds)' if d['action'] == 'Bet' and px is not None else f'{float(px):,.6g}' if px is not None else 'n/a')
+        if d['action'] == 'Hold':
+            lines.append(f"  - {gid}: {alias[d['model']]}, {d['at'][:16].replace('T', ' ')} UTC, {d['experiment']}: HOLD (it chose not to trade in this race "
+                         f"that day; judge whether waiting was the right call given what was known). Its view then: \"{d['reason']}\"")
+            continue
         lines.append(f"  - {gid}: {alias[d['model']]}, {d['at'][:16].replace('T', ' ')} UTC, {d['experiment']}: {d['action']} {d['what']}, "
                      f"about C${d['amount']:,.0f} at {pxs}. Its reason then: \"{d['reason'] or '(none given)'}\""
                      + (f" What it said would prove it wrong: \"{d['wrong_if']}\"" if d['wrong_if'] else ''))

@@ -20,6 +20,10 @@ import tgcharts  # noqa: E402
 import sharecard  # noqa: E402
 
 STATE = 'ops/src/rivals.json'
+# the settle watcher (owner, Oct 29: "the Cavs result came an hour late"): every 15 minutes in the evening and night (ET), plus weekend
+# afternoons, it settles any bet whose game has ended, for every AI, without a check-in and without calling any model. It stops at once
+# (nothing saved, nothing published) when no bet's game could have ended yet. Must match the crons in rivals.yml exactly.
+SETTLE_CRONS = ('3,18,33,48 0-6,23 * * *', '3,18,33,48 16-22 * * 0,6')
 WATCH_CRON = '7,22,37,52 * * * *'   # the event watcher's schedule in rivals.yml (must match it exactly)
 ALL_EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
 ALLIN = ['AllInTrading', 'AllInSports']   # High risk, high reward: no caps, separate, never counted in the race
@@ -1390,6 +1394,46 @@ def apply_penalties(state, fx):
             tg(f"⚖️ <b>{ {'claude': 'CLAUDE', 'gemini': 'GEMINI', 'chatgpt': 'CHATGPT'}.get(mid, mid) }: −C${amt:,.0f} penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
 
 
+def settle_watch(state):
+    """Settle every finished game's bets now (all three AIs, main races and All in), instead of waiting for the next check-in."""
+    def due(b):
+        try:
+            return b.get('status') == 'Open' and datetime.fromisoformat(str(b.get('starts_at')).replace('Z', '+00:00')) <= NOW - timedelta(minutes=100)
+        except Exception:
+            return False
+    books = [(mid, e, (m.get('books') or {}).get(e)) for mid, m in state.get('models', {}).items() for e in ('Sports', 'AllInSports')]
+    books.append(('claude', 'AllInSports', ((state.get('claude_allin') or {}).get('books') or {}).get('AllInSports')))
+    try:
+        mine = [b for b in json.load(open('ops/src/bets.json')) if due(b)]
+    except Exception:
+        mine = []
+    waiting = [(mid, e, bk) for mid, e, bk in books if bk and any(due(b) for b in bk.get('bets', []))]
+    if not waiting and not mine:
+        print('settle watcher: no bet on a game that could have ended yet; nothing to do')
+        return
+    fx = state.get('fx') or get_fx()
+    n = 0
+    for mid, e, bk in waiting:
+        if mid == 'claude':
+            continue   # Claude's All in bets settle inside claude_allin below
+        done = settle_bets(mid, bk, state, e)
+        for t in done:
+            try:
+                tg_trade(RIVALS[mid]['label'], t)
+            except Exception as ex:
+                print('telegram failed', ex)
+        if done:
+            state['history'].append({'at': iso(), 'model': mid, 'experiment': e, 'value': value_book(e, bk, fx, [])})
+        n += len(done)
+    try:
+        claude_allin(state, fx)   # Claude's All in bets (and any All in orders waiting)
+    except Exception as ex:
+        print('claude all-in failed', ex)
+    shared_steps(state, fx, games=False)   # Claude's main-race bets settle in its fill step
+    save_state(state)
+    print(f'settle watcher: settled {n} rival bet(s); Claude\'s checked too')
+
+
 def frozen_values(state, mid, books, exps, fx, notes):
     """Current values; after the final snapshot, the frozen ones (only Sports, whose late bets may still settle, is
     recomputed). Valuing a book updates its positions' last prices, so frozen books are not touched at all."""
@@ -1603,6 +1647,9 @@ def main():
         shared_steps(state, fx)
         save_state(state)
         print('fill run done')
+        return
+    if os.environ.get('SCHEDULE') in SETTLE_CRONS:
+        settle_watch(state)
         return
     if os.environ.get('SCHEDULE') == WATCH_CRON:
         # the event watcher: runs every 15 minutes, but checks in only when an extra-run event (events.json, "extra_run": true)

@@ -1157,6 +1157,18 @@ for _b in data.get('benchmark') or []:
     if _fx0 and _b.get('btc_start_usd') and _b.get('start_at') and _when(_b['start_at']) < _RST:
         _b.update(start_at=_RST.isoformat(), fx_start=_fx0)
 data['models'] = model_views.build(r, {k: data[k] for k in ('indexes', 'bench_history', 'benchmark', 'prices', 'events')} | {'fx': json.load(open(os.path.join(SRC, 'fx.json')))})
+try:   # graded holds (the latest note per race per closed race day where the AI did not trade) go into each AI's Decision log, with their grades
+    import peer_grades as _PG2
+    for _mid in ('claude', 'gemini', 'chatgpt'):
+        _lg = data['log'] if _mid == 'claude' else ((data['models'].get(_mid) or {}).get('log'))
+        if _lg is None:
+            continue
+        _acted = [d for d in _PG2.decisions(_mid, r) if d['action'] != 'Hold']
+        for _h in _PG2._holds(_mid, r, _acted):
+            _lg.append({'at': _h['at'], 'portfolio': _h['experiment'], 'action': 'Hold', 'detail': 'Held (no trade in this race that day): ' + _h['reason'], 'pg_key': _h['key']})
+        _lg.sort(key=lambda x: _when(x['at']))
+except Exception as _e:
+    print('graded holds not added to the logs:', _e)
 times = [r['at'] for r in data['log'] + data['history']]
 data['meta'] = [{'refreshed_at': max(times, key=lambda t: datetime.fromisoformat(t))}]
 # audit.json: the exact instructions each AI gets and its latest raw reply, plus the corrections log (loaded only by the Audit tab)
