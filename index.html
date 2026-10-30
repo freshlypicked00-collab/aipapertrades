@@ -662,6 +662,9 @@
   .pt-n-in { animation: pt-n-in .45s ease-out; } @keyframes pt-n-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   .pt-n-n { flex: none; display: flex; align-items: center; padding: 0 10px; font-size: 11px; color: var(--color-fg-muted); font-family: var(--font-mono, monospace); }
   .pt-news + .pt-ticker { margin-top: 0; }
+  /* the headline line keeps the Terminal look in every colour theme, so it always reads the same (owner, Oct 29) */
+  .pt-news { --color-panel: #121210; --color-fg: #f2e9d8; --color-fg-muted: #9b927f; --accent: #ffb000; background: #121210; color: #f2e9d8; }
+  :root[data-model="gemini"] .pt-news { --accent: #4f8ff7; } :root[data-model="chatgpt"] .pt-news { --accent: #f2f2f2; }
   @media (max-width: 700px) { .pt-n-t { white-space: normal; font-size: 12.5px; padding: 6px 10px; line-height: 1.3; } .pt-n-n { display: none; } }
   @media (prefers-reduced-motion: reduce) { .pt-n-in { animation: none; } }
   .pt-ticker { position: relative; overflow: hidden; margin: 10px 0 0; border-top: 1px solid color-mix(in srgb, var(--accent, #ffb000) 55%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--accent, #ffb000) 55%, transparent); background: var(--accent-bg, rgba(255,176,0,.06)); transition: border-color .3s, background .3s; -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent); }
@@ -1074,7 +1077,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'a31ed461454d';</script>
+<script>window.PT_PAGE_VER = 'e1acdf5044d8';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -6111,9 +6114,15 @@ body { background:var(--color-bg); }
       out.push({ k: 'BREAKING', cls: 'pt-n-break', t: (nm[q.sym] || q.name) + ' is ' + (ch >= 0 ? 'up ' : 'down ') + Math.abs(ch * 100).toFixed(1) + '% in the last ' + (h1 ? 'hour' : '3 hours'), href: 'https://finance.yahoo.com/quote/' + encodeURIComponent(q.sym) + '/' }); });
     // 2) headlines from reputable outlets, picked by the race runner for each race
     const NW = P.news || {};
-    if (race && race !== 'Sports') (NW[race] || []).forEach((x) => out.push({ k: NEWS_K[race], cls: 'pt-n-news', t: x.t + (x.src ? ' (' + x.src + ')' : ''), href: x.link, at: x.at }));
-    else if (general || allin) RACES.filter((r) => general || r === 'Stocks' || r === 'Crypto').map((r) => (NW[r] || [])[0] ? Object.assign({ r }, NW[r][0]) : null).filter(Boolean)
-      .sort((a, b) => Date.parse(b.at) - Date.parse(a.at)).slice(0, 5).forEach((x) => out.push({ k: NEWS_K[x.r], cls: 'pt-n-news', t: x.t + (x.src ? ' (' + x.src + ')' : ''), href: x.link, at: x.at }));
+    // big market-moving stories (a hack, frozen funds, a collapse, a record move...) come first, marked BIG NEWS in red (owner, Oct 29)
+    const nItem = (r, x) => ({ k: x.big ? 'BIG NEWS · ' + NEWS_K[r] : NEWS_K[r], cls: x.big ? 'pt-n-break' : 'pt-n-news', t: x.t + (x.src ? ' (' + x.src + ')' : ''), href: x.link, at: x.at });
+    if (race && race !== 'Sports') (NW[race] || []).forEach((x) => out.push(nItem(race, x)));
+    else if (general || allin) {
+      const pool = RACES.filter((r) => general || r === 'Stocks' || r === 'Crypto');
+      const bigs = pool.flatMap((r) => (NW[r] || []).filter((x) => x.big).map((x) => Object.assign({ r }, x))).sort((a, b) => Date.parse(b.at) - Date.parse(a.at)).slice(0, 3);
+      const firsts = pool.map((r) => (NW[r] || []).find((x) => !x.big) ? Object.assign({ r }, (NW[r] || []).find((x) => !x.big)) : null).filter(Boolean).sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+      bigs.concat(firsts).slice(0, 6).forEach((x) => out.push(nItem(x.r, x)));
+    }
     // 3) the market itself, always current: a race's price line (so the line is never empty or off-topic)
     { const mk1 = race ? (race in NEWS_MKT ? NEWS_MKT[race] : race) : null; const q = mk1 && mv[mk1];
       if (q && now - Date.parse(q.last_at) < 26 * 3600e3) { const ch = q.chg_24h || 0, SYM = { USD: 'US$', CAD: 'C$', CNY: '¥', JPY: '¥' };
