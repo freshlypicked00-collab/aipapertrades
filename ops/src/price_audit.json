@@ -1,11 +1,13 @@
 {
- "at": "2026-10-30T07:34:34Z",
+ "at": "2026-10-30T08:30:07Z",
  "since": "2026-10-28T17:45:00Z",
  "summary": {
-  "ok": 295,
+  "ok": 297,
   "flag": 2,
   "no_data": 0,
-  "no_feed": 0
+  "no_feed": 0,
+  "backup_pending": 0,
+  "backup_wrong": 1
  },
  "rows": [
   {
@@ -3693,7 +3695,19 @@
    "gap_pct": 0.64,
    "gap_abs": null,
    "tolerance": "0.5%",
-   "status": "flag"
+   "status": "flag",
+   "backup": {
+    "gemini": {
+     "verdict": "cannot_tell",
+     "note": "I found a daily range of 163.35 to 168.48 for October 29, but cannot verify the exact minute's price to resolve the discrepancy.",
+     "at": "2026-10-30T08:27:58Z"
+    },
+    "chatgpt": {
+     "verdict": "cannot_tell",
+     "note": "I found only daily/delayed USO quotes, not an independent 14:30 one-minute price to verify Claude against the feed.",
+     "at": "2026-10-30T08:29:13Z"
+    }
+   }
   },
   {
    "kind": "value",
@@ -4520,7 +4534,20 @@
    "gap_pct": 1.808,
    "gap_abs": null,
    "tolerance": "1.0%",
-   "status": "flag"
+   "status": "flag",
+   "backup": {
+    "gemini": {
+     "verdict": "feed_wrong",
+     "note": "Multiple sources confirm BTC crashed into the $76k-$77k range following a major exchange hack, meaning Claude's price is accurate and the feed data is lagging.",
+     "at": "2026-10-30T08:29:47Z"
+    },
+    "chatgpt": {
+     "verdict": "claude_wrong",
+     "note": "Independent sources around 06:30 UTC show BTC near $78.5k, within the feed range and well above Claude's $76,997.",
+     "at": "2026-10-30T08:30:07Z",
+     "price": 78543.45
+    }
+   }
   },
   {
    "kind": "value",
@@ -4629,6 +4656,37 @@
    "tolerance": "0.5%",
    "status": "ok",
    "note": "US$ per yen (the feed quotes yen per US$)"
+  },
+  {
+   "kind": "value",
+   "at": "2026-10-30T03:18:48-04:00",
+   "holding": "Bitcoin",
+   "action": "",
+   "claude": 78313.5,
+   "feed": "BTC-USD",
+   "feed_low": 78233.921875,
+   "feed_high": 78351.578125,
+   "basis": "1-minute bars within 5 minutes",
+   "gap_pct": 0.0,
+   "gap_abs": null,
+   "tolerance": "1.0%",
+   "status": "ok"
+  },
+  {
+   "kind": "value",
+   "at": "2026-10-30T03:25:00-04:00",
+   "holding": "Democrats win the Senate (Yes)",
+   "action": "",
+   "claude": 0.68,
+   "feed": "Polymarket",
+   "feed_low": 0.685,
+   "feed_high": 0.685,
+   "basis": "Polymarket price history within 30 minutes",
+   "gap_pct": null,
+   "gap_abs": 0.005,
+   "tolerance": "3 cents",
+   "status": "ok",
+   "note": "tolerance 3 cents"
   }
  ]
 }
