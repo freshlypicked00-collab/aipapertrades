@@ -1,0 +1,36 @@
+name: Season 2 private test (daily, not published)
+# Owner, Oct 30; Claude, Gemini and ChatGPT all agreed: the three Season 2 levels run quietly Nov 1 to Nov 28, once a day,
+# with a spending cap, never shown on the site or social media (state in ops/src/s2test.json; ops/ is never published).
+on:
+  schedule:
+    - cron: '20 16 1-28 11 *'   # 11:20 a.m. ET, US market open
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: rivals
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - run: pip install -q matplotlib
+      - name: One daily turn for each AI
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+        run: python3 ops/s2test.py
+      - name: Save (ops/ only, so nothing is published)
+        run: |
+          git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
+          git add ops/src/s2test.json 2>/dev/null || true
+          git diff --cached --quiet && exit 0
+          git commit -qm "Season 2 private test: daily turn"
+          for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 5; done

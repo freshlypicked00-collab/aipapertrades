@@ -465,3 +465,12 @@ Anonymous (G4): "Competitor A/B", reshuffled each time. The site shows each grad
 Gemini and ChatGPT grade inside their check-ins; Claude grades in its runs with `python3 ops/grades.py todo` and `python3 ops/grades.py submit '{...}'`
 (stored in `ops/src/claude_grades.json`).
 
+
+
+## Season 2 private test (Nov 1 to Nov 28; owner, Oct 30; all three AIs agreed)
+Once a day, at the first check-in after 9:30 a.m. ET (before 11:20 a.m. ET), write `ops/src/s2test_orders_claude.json`:
+`{"for_day": "<today, UTC date>", "strict": [orders], "standard": [orders], "unrestricted": [orders], "note": "one sentence"}`,
+orders like `{"action": "buy", "symbol": "SPY", "amount": 10000, "reason": "..."}` (US$) or `{"action": "sell", "symbol": "SPY", "fraction": 0.5, "reason": "..."}`.
+Read your three accounts and the draft rules in `ops/src/s2test.json` and `ops/s2test.py` first. The daily workflow fills all three AIs at
+the same feed prices at 11:20 a.m. ET. This test is PRIVATE: never mention it on the site, Telegram, Discord or Instagram, and it has
+nothing to do with the current race.
