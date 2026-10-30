@@ -181,7 +181,9 @@ def china_trade(t):
         raise SystemExit(f'Unknown trade action {action}')
     trades.append({'at': AT, 'portfolio': 'China', 'holding': h, 'action': action, 'price_local': price,
                    'currency': 'CNY', 'shares': sh, 'cny': round(amt, 2), 'usd': round(amt / cny, 2),
-                   **({'note': t['note']} if t.get('note') else {}), **({'filled_by': t['filled_by']} if t.get('filled_by') else {})})
+                   **({'note': t['note']} if t.get('note') else {}), **({'filled_by': t['filled_by']} if t.get('filled_by') else {}),
+                   'held_before': q0, 'held_after': r['quantity'],   # exact numbers for the trade pictures (owner, Oct 30)
+                   **({'entry_local': r['entry_local'], 'pnl_usd': round(amt / cny - cost_out, 2)} if action == 'Sell' else {})})
 
 
 # ---- trades
@@ -275,8 +277,14 @@ for t in inp.get('trades', []):
             fund['cost_cad'] = round(fund.get('cost_cad', 0) - cad, 2)
     else:
         raise SystemExit(f'Unknown trade action {action}')
+    # exact numbers for the trade pictures (owner, Oct 30): units traded, the position before and after, the average entry,
+    # and on sells and covers the realized profit on the part closed
+    extra = {'qty': round(qty, 6), 'held_before': round(abs(q0), 6), 'held_after': round(abs(r['quantity']), 6), 'fx': round(fx, 6)}
+    if action in ('Sell', 'Cover'):
+        extra['entry_usd'] = r['entry_usd']
+        extra['pnl_cad'] = round((cad - cost_out) if action == 'Sell' else (-cost_back - cad), 2)
     trades.append({'at': t.get('fill_at') or AT, 'portfolio': pf, 'holding': h, 'action': action, 'price_usd': price, 'cad': round(cad, 2), **({'note': t['note']} if t.get('note') else {}),
-                   **({'filled_by': t['filled_by']} if t.get('filled_by') else {})})
+                   **({'filled_by': t['filled_by']} if t.get('filled_by') else {}), **extra})
     save('trades', trades)
 
 # ---- revalue every holding

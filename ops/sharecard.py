@@ -273,6 +273,42 @@ def _unit(t):
     return UNIT.get(base, ''), QTY.get(base, '')
 
 
+def qty_txt(q, t):
+    """'0.0552 BTC', '12,600 shares', '69.2 barrels' (the unit from the asset)."""
+    q = abs(float(q))
+    n = f'{q:,.0f}' if q >= 1000 else f'{q:,.1f}' if q >= 100 else f'{q:,.2f}' if q >= 1 else f'{q:.4f}'
+    sym = str(t.get('symbol') or '')
+    if sym.endswith('-USD') and len(sym) <= 9:
+        return n + ' ' + sym[:-4]
+    u = _unit(t)[1]
+    return n + (' ' + u if u else '')
+
+
+def exit_info(t, trades):
+    """Everything about a sell or cover: the exact numbers recorded with the trade when present (Claude's trades from Oct 30),
+    else worked out from the same AI's earlier trades. Keys: avg, since, pct, pnl, n, short, held (before), sold, left."""
+    bi = buy_in(trades or [], t) or {}
+    if t.get('entry') is not None:
+        px = float(t['price']); e = float(t['entry'])
+        short = t.get('action') == 'Cover'
+        bi.update({'avg': e, 'pct': (e / px - 1) if short else (px / e - 1), 'short': short})
+        bi.setdefault('n', 2)
+    if t.get('pnl') is not None and t.get('action') in ('Sell', 'Cover'):
+        bi['pnl'] = float(t['pnl'])
+    if not bi.get('avg'):
+        return None
+    if t.get('held_before') is not None:
+        bi['held'] = float(t['held_before'])
+    sold = t.get('qty')
+    if sold:
+        bi['sold'] = abs(float(sold))
+    if t.get('held_after') is not None:
+        bi['left'] = float(t['held_after'])
+    elif bi.get('held') and bi.get('sold'):
+        bi['left'] = max(0.0, bi['held'] - bi['sold'])
+    return bi
+
+
 def race_value(history, model, exp, at):
     """The race's value just before a move, from rivals.json history (model, experiment, value) or Claude's history.json (portfolio, value)."""
     best = None
@@ -312,7 +348,7 @@ def buy_in(trades, t):
         pct = -move if opener == 'Short' else move
         amt = float(t.get('amount') or 0)
         pnl = (amt * pct / (1 + move)) if amt else None   # amount is the exit value; profit on the part closed
-        return {'avg': avg, 'since': first, 'pct': pct, 'pnl': pnl, 'n': n, 'short': opener == 'Short'}
+        return {'avg': avg, 'since': first, 'pct': pct, 'pnl': pnl, 'n': n, 'short': opener == 'Short', 'held': q}
     except Exception:
         return None
 
@@ -398,7 +434,7 @@ def move_card(who, t, path='/tmp/move_card.png', buyin=None, race_val=None, spar
             q = t.get('qty')
             if q and units and base != 'Predictions':
                 q = float(q)
-                sub.append((f'{q:,.0f}' if q >= 100 else f'{q:,.2f}' if q >= 1 else f'{q:.4f}') + ' ' + units)
+                sub.append(qty_txt(q, t))
         if sub:
             y = _wrap(g, ' · '.join(sub), _font('med', 32), 80, y + 4, S - 160, 40, MUTED, max_lines=2)
         y += 26
@@ -433,15 +469,26 @@ def move_card(who, t, path='/tmp/move_card.png', buyin=None, race_val=None, spar
             vc = (UP if v.startswith('+') else DOWN if v.startswith('−') else FG) if lb == 'RESULT' else FG
             _box(g, 80 + i * (bw + gap), y, bw, 146, lb, v, sb, vc)
         y += 176
-        # entry for exits (ChatGPT: "avg entry"; "shorted at" / "covered at")
+        # the exit (owner: "for sure you need to show the buy-in price, when you bought in, how many sold"):
+        # units sold of units held and what's left, the average entry and its date, the exit price, and the result on that part
         if buyin and act in ('Sell', 'Cover'):
-            since = _et(buyin.get('since'))[2]
-            lab = ('Avg short entry' if buyin['short'] else 'Avg entry') if buyin.get('n', 1) > 1 else ('Shorted at' if buyin['short'] else 'Bought at')
-            line1 = f"{lab} {price(buyin['avg'], pc)}" + (f' (since {since})' if since else '') + f" → {'covered' if buyin['short'] else 'sold'} at {price(px, pc)}"
-            y = _wrap(g, line1, _font('med', 34), 80, y, S - 160, 44, FG, max_lines=2)
-            res = f"{buyin['pct'] * 100:+.1f}%" + (f"  ({'+' if buyin['pnl'] >= 0 else '−'}{money(buyin['pnl'], cur)} on this sale)" if buyin.get('pnl') is not None else '')
-            g.text((80, y + 4), res, font=_font('bold', 50), fill=UP if buyin['pct'] >= 0 else DOWN)
-            y += 86
+            short = buyin.get('short')
+            g.text((80, y), 'THE ' + ('COVER' if short else 'SALE'), font=_font('semi', 26), fill=MUTED)
+            y += 40
+            if buyin.get('sold'):
+                held = buyin.get('held')
+                part = f" of {qty_txt(held, t)} held ({buyin['sold'] / held * 100:.0f}%)" if held and held >= buyin['sold'] * 0.999 else ''
+                left = buyin.get('left')
+                tail = (' · all of it' if left is not None and left <= 1e-9 else f" · {qty_txt(left, t)} left" if left else '')
+                y = _wrap(g, f"{'Covered' if short else 'Sold'} {qty_txt(buyin['sold'], t)}{part}{tail}", _font('semi', 36), 80, y, S - 160, 46, FG, max_lines=2)
+            w0, hm0, d0 = _et(buyin.get('since'))
+            lab = ('Shorted' if short else 'Bought') + (' at an average of ' if buyin.get('n', 1) > 1 else ' at ')
+            when0 = (f', first on {d0} at {hm0}' if buyin.get('n', 1) > 1 else f' on {d0} at {hm0}') if d0 else ''
+            y = _wrap(g, f"{lab}{price(buyin['avg'], pc)}{unit1}{when0}", _font('med', 34), 80, y + 4, S - 160, 44, FG, max_lines=2)
+            y = _wrap(g, f"{'Covered' if short else 'Sold'} at {price(px, pc)}{unit1} on {_et(t.get('at'))[2]} at {_et(t.get('at'))[1]}", _font('med', 34), 80, y, S - 160, 44, FG, max_lines=2)
+            res = f"{buyin['pct'] * 100:+.1f}%".replace('-', '−') + (f"   {'+' if buyin['pnl'] >= 0 else '−'}{money(buyin['pnl'], cur)} on this {'cover' if short else 'sale'}" if buyin.get('pnl') is not None else '')
+            g.text((80, y + 6), res, font=_font('bold', 54), fill=UP if buyin['pct'] >= 0 else DOWN)
+            y += 92
         why = _clip(t.get('reason'), WHY_MAX)
         if why:
             g.text((80, y + 6), f'WHY · IN {nm_ai.upper()}’S OWN WORDS', font=_font('semi', 26), fill=MUTED)
@@ -459,7 +506,7 @@ def move_card(who, t, path='/tmp/move_card.png', buyin=None, race_val=None, spar
         return None
 
 
-def cover_card(who, moves, path='/tmp/cover_card.png', more=0):
+def cover_card(who, moves, path='/tmp/cover_card.png', more=0, exits=None):
     """The album's first picture: the headline and one row per move with its price (each move's details follow)."""
     try:
         from PIL import Image, ImageDraw
@@ -483,11 +530,28 @@ def cover_card(who, moves, path='/tmp/cover_card.png', more=0):
                 line = line[:-2].rstrip() + '…'
             g.text((80, y), line, font=f, fill=col)
             g.text((S - 80 - g.textlength(a, font=f), y), a, font=f, fill=col)
+            race = '  ' + LABEL.get(t.get('experiment', ''), t.get('experiment', ''))   # the race, next to the name on every row
+            x2 = 80 + g.textlength(line, font=f)
+            if x2 + g.textlength(race, font=_font('med', 28)) < S - 110 - g.textlength(a, font=f):
+                g.text((x2, y + 10), race, font=_font('med', 28), fill=MUTED)
             px = t.get('price')
-            det = LABEL.get(t.get('experiment', ''), t.get('experiment', ''))
-            if isinstance(px, (int, float)):
-                det += ' · ' + (f'odds {int(px):+d}' if act == 'Bet' else 'at ' + price(px, t.get('pcur') or 'USD') + _unit(t)[0])
-            g.text((80, y + 50), det, font=fs, fill=MUTED)
+            pc = t.get('pcur') or 'USD'
+            ex = (exits or [None] * len(moves))[moves.index(t)] if exits else None
+            det = ''
+            if ex and isinstance(px, (int, float)):
+                # a sell on the cover: how much, the buy-in, the exit, the result
+                pct = f"{ex['pct'] * 100:+.1f}%".replace('-', '−')
+                room = S - 200 - g.textlength(pct, font=_font('bold', 30))
+                core = (qty_txt(ex['sold'], t) + ' · ' if ex.get('sold') else '') + f"bought {price(ex['avg'], pc)}" + (f" {_et(ex.get('since'))[2]}" if ex.get('since') else '') + f" → sold {price(px, pc)}"
+                det = core
+                while g.textlength(det, font=fs) > room and len(det) > 10:
+                    det = det[:-2].rstrip() + '…'
+                g.text((80, y + 50), det, font=fs, fill=MUTED)
+                g.text((S - 80 - g.textlength(pct, font=_font('bold', 30)), y + 50), pct, font=_font('bold', 30), fill=UP if ex['pct'] >= 0 else DOWN)
+            else:
+                if isinstance(px, (int, float)):
+                    det += (f'odds {int(px):+d}' if act == 'Bet' else (qty_txt(t['qty'], t) + ' ' if t.get('qty') and act != 'Bet' and t.get('experiment') != 'Predictions' else '') + 'at ' + price(px, pc) + _unit(t)[0])
+                g.text((80, y + 50), det, font=fs, fill=MUTED)
             y += 112
             shown += 1
         if shown < len(moves) or more:
@@ -508,12 +572,13 @@ def album(who, moves, trades=None, history=None, prefix='/tmp/album', series=Non
         mv = sorted(moves, key=lambda t: str(t.get('at', '')))
         out = []
         if len(mv) > 1:
-            c = cover_card(who, mv, f'{prefix}-0.png', more=max(0, len(mv) - limit))
+            ex = [exit_info(t, trades) if t.get('action') in ('Sell', 'Cover') else None for t in mv]
+            c = cover_card(who, mv, f'{prefix}-0.png', more=max(0, len(mv) - limit), exits=ex)
             if c:
                 out.append(c)
         for i, t in enumerate(mv[:limit], 1):
             base = str(t.get('experiment', '')).replace('AllIn', '')
-            bi = buy_in(trades or [], t) if t.get('action') in ('Sell', 'Cover') else None
+            bi = exit_info(t, trades) if t.get('action') in ('Sell', 'Cover') else None
             rv = race_value(history, _who(who) if t.get('model') is None else t.get('model'), t.get('experiment'), t.get('at')) if history else None
             sp = None
             if series and t.get('symbol') and base not in ('Predictions', 'Sports'):

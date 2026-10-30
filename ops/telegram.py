@@ -338,8 +338,9 @@ for t in load(S + 'trades.json'):
     msgs.append((f"{ICON.get(a, '•')} <b>{esc(LABEL.get(pf, pf))}: {a} {esc(h)}</b>\n{price}\n{when(t['at'])}" + (f"\n<i>{esc(why[:400])}</i>" if why else '') + source_for(pf, h),
                  ('trade', pf, tgcharts.symbol_for(pf, h, t.get('code')), t.get('price_local') or t.get('price_usd'), a,
                   {'experiment': pf, 'action': a, 'name': h, 'symbol': tgcharts.symbol_for(pf, h, t.get('code')), 'amount': (t.get('usd') if pf == 'China' else t.get('cad')) or 0,
-                   'cur': 'USD' if pf == 'China' else 'CAD', 'price': t.get('price_local') or t.get('price_usd'), 'pcur': 'CNY' if pf == 'China' else 'USD', 'pnl': t.get('pnl'), 'at': t['at'],
-                   'model': 'claude', 'qty': t.get('shares'), 'reason': sharecard.just_reason(why.split('What would prove it wrong:')[0]),
+                   'cur': 'USD' if pf == 'China' else 'CAD', 'price': t.get('price_local') or t.get('price_usd'), 'pcur': 'CNY' if pf == 'China' else 'USD', 'pnl': t.get('pnl', t.get('pnl_cad', t.get('pnl_usd'))), 'at': t['at'],
+                   'model': 'claude', 'qty': t.get('qty') or t.get('shares'), 'held_before': t.get('held_before'), 'held_after': t.get('held_after'),
+                   'entry': t.get('entry_usd') if pf != 'China' else t.get('entry_local'), 'reason': sharecard.just_reason(why.split('What would prove it wrong:')[0]),
                    'wrong_if': why.split('What would prove it wrong:', 1)[1].strip() if 'What would prove it wrong:' in why else ''})))
 if TEST:
     msgs = [('🧪 <b>TEST POST</b> (a replay of the latest trade, not a new one)\n\n' + m, p) for m, p in msgs[-1:]]
