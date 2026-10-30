@@ -454,6 +454,7 @@ html = f"""<!doctype html>
 {TERMINAL}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>window.d3 || document.write('<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"><\\/script>');   /* the same d3 from a second CDN if cdnjs is down (all three AIs agreed, Oct 30) */</script>
 <script>{SHIM}</script>
 </head>
 <body>
@@ -1157,6 +1158,29 @@ try:
     _soc = json.load(open(os.path.join(SRC, 'social.json'))).get('posted', {})
 except Exception:
     _soc = {}
+def _price_check():
+    """The price check for the status board: its time and totals, plus the flags Claude confirmed wrong and has corrected
+    (a corrections.json entry lists the row in "price_rows"), so a corrected flag no longer reads as "Delayed" (all three AIs agreed, Oct 30)."""
+    pa = (data.get('price_audit') or [{}])[0]
+    if not pa:
+        return {}
+    out = {k: v for k, v in pa.items() if k in ('at', 'summary')}
+    try:
+        corr = json.load(open(os.path.join(SRC, 'corrections.json')))
+    except Exception:
+        corr = []
+    fixed = {}
+    for c in corr:
+        for h, at in (c.get('price_rows') or []):
+            fixed[(h, at)] = c.get('at')
+    rows = []
+    for r in pa.get('rows') or []:
+        if r.get('status') == 'flag' and any((b or {}).get('verdict') == 'claude_wrong' for b in (r.get('backup') or {}).values()) and (r.get('holding'), r.get('at')) in fixed:
+            rows.append({'holding': r['holding'], 'at': r['at'], 'correction_at': fixed[(r['holding'], r['at'])]})
+    out['corrected'] = rows
+    return out
+
+
 _ig = sorted((v.get('at') for v in _soc.values() if v.get('at')), reverse=True)
 _notes = [n for _m in (r.get('models') or {}).values() for n in ((_m.get('last_run') or {}).get('notes') or [])]
 data['status'] = [{
@@ -1165,7 +1189,7 @@ data['status'] = [{
     'rivals': {mid: {'at': (m.get('last_run') or {}).get('at'), 'status': (m.get('last_run') or {}).get('status'), 'fail_streak': m.get('fail_streak', 0)} for mid, m in (r.get('models') or {}).items()},
     'odds': r.get('feeds') or {},
     'prices_missing': [n for n in _notes if 'no price' in n.lower() or 'price unavailable' in n.lower()][:5],
-    'price_check': {k: v for k, v in (data.get('price_audit') or [{}])[0].items() if k in ('at', 'summary')} if data.get('price_audit') else {},
+    'price_check': _price_check(),
     'telegram': r.get('telegram') or {},
     'instagram': {'last': _ig[0] if _ig else None, 'count_24h': sum(1 for t in _ig if (datetime.now(timezone.utc) - datetime.fromisoformat(t)).total_seconds() < 86400),
                   'error': (json.load(open(os.path.join(SRC, 'social.json'))).get('errors') if os.path.exists(os.path.join(SRC, 'social.json')) else None)},
