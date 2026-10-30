@@ -1,0 +1,22 @@
+name: Discord (test the connection)
+# Posts one message to the Discord channel through DISCORD_WEBHOOK_URL, nothing else (no Telegram, no trading).
+on:
+  workflow_dispatch:
+    inputs:
+      text:
+        description: 'message to post'
+        default: '📡 <b>Live feed connected.</b> Every trade, bet and result from Claude, Gemini and ChatGPT now posts here automatically. Live scoreboard: https://papertrades.ai'
+permissions:
+  contents: read
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          TEXT: ${{ inputs.text }}
+        run: |
+          [ -n "$DISCORD_WEBHOOK_URL" ] || { echo "::error::DISCORD_WEBHOOK_URL is not set"; exit 1; }
+          python3 -c "import os,sys; sys.path.insert(0,'ops'); import discord; ok=discord.post(os.environ['TEXT']); print('posted' if ok else 'FAILED'); sys.exit(0 if ok else 1)"
