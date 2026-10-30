@@ -119,6 +119,12 @@ def due_posts(state):
         out.insert(0, {'id': 'day1-ten-v1', 'kind': 'dayten', 'day': 1, 'day_start': '2026-10-28T00:00:00+00:00', 'cutoff': '2026-10-29T00:00:00+00:00'})
     if 'day2-ten-v1' not in done and NOW < datetime(2026, 10, 31, 12, 0, tzinfo=timezone.utc):   # owner, Oct 30: Day 2 in the same new format
         out.insert(1, {'id': 'day2-ten-v1', 'kind': 'dayten', 'day': 2, 'day_start': '2026-10-29T00:00:00+00:00', 'cutoff': '2026-10-30T00:00:00+00:00'})
+    # every Monday: fresh "Meet the AIs" stories (their stats change), for the owner to swap into that highlight (owner, Oct 30)
+    if NOW.weekday() == 0 and NOW.hour >= 15 and NOW < RACE_END:
+        wk = NOW.date().isoformat()
+        for i in range(1, 5):
+            if f'story-meet-{wk}-{i}' not in done:
+                out.append({'id': f'story-meet-{wk}-{i}', 'kind': 'story-meet', 'n': i})
     for fid in ('feature-grades-v1', 'feature-binance-v1', 'feature-binance-v2'):   # inserted at the front; v2 corrects v1's timing (Oct 30)   # owner, Oct 30: "post what you think is best for today" (one time each)
         if fid not in done and NOW < datetime(2026, 10, 31, 4, 0, tzinfo=timezone.utc) and ('v2' not in fid or state.get('deleted', {}).get('feature-binance-v1')):
             out.insert(0, {'id': fid, 'kind': fid})
@@ -140,21 +146,27 @@ def prepare():
     for p in posts:
         img = f"social/{p['id']}.jpg"
         try:
-            if p['kind'] == 'story-moment':
-                pc.moment_cover(p['moment'], '/tmp/pt_cover.jpg', glow=False)
-                pc.story('/tmp/pt_cover.jpg', img, top='LEAD CHANGE', glow_color=pc.AIS[p['moment']['who']][1])
+            if p['kind'] == 'story-moment':   # the colourful highlight style (owner, Oct 30): goes straight into "Lead changes"
+                import hl_stories, shutil
+                shutil.move(hl_stories.lead_change('/tmp', p['moment'], 0), img)
+                p['images'] = [img]; p['story'] = True; p['caption'] = ''
+            elif p['kind'] == 'story-meet':
+                import hl_stories, shutil
+                data = load('data.json', {}); rv = load('ops/src/rivals.json', {})
+                prof = {x['model']: x['text'] for x in rv.get('profiles', []) if x.get('field') == 'about'}
+                prof.update({'claude': x['text'] for x in load('ops/src/profile.json', []) if x.get('field') == 'about'})
+                paths = hl_stories.meet('/tmp', data, prof)
+                shutil.copy(paths[p['n'] - 1], img)
                 p['images'] = [img]; p['story'] = True; p['caption'] = ''
             elif p['kind'] == 'story-daily':
                 import racecard
                 table, big = racecard.races(datetime.fromisoformat(p['day_start']), 'ops/src')
                 # every race on the story itself, who leads each and by how much (owner, Oct 29: the Day 1 story showed only the sports bets)
                 old = ({'story-ten-2026-10-29': 'social/day1-remake-v1-3.jpg'}.get(p['id']) or f"social/daily-{p['id'][-10:]}-races.jpg") if p['id'].startswith('story-ten-') else None   # a past day: the picture made at its close (Day 1: the corrected remake)
-                if old and os.path.exists(old):
-                    import shutil; shutil.copy(old, '/tmp/pt_cover.jpg')
-                else:
-                    pc.daily(table, p['day'], datetime.fromisoformat(p['day_start']), big, '/tmp/pt_cover.jpg')
-                led = pc.races_led(table); best = max(led, key=lambda k: len(led[k]))
-                pc.story('/tmp/pt_cover.jpg', img, top=f"DAY {p['day']} RESULTS · ALL TEN RACES", bottom='Every trade, live: papertrades.ai', glow_color=pc.AIS[best][1] if sum(len(v) == len(led[best]) for v in led.values()) == 1 else pc.AMBER)
+                # the colourful highlight style (owner, Oct 30): goes straight into "Daily"; the day's results at its close
+                import hl_stories, shutil
+                ds = datetime.fromisoformat(p['day_start'])
+                shutil.move(hl_stories.daily('/tmp', p['day'], ds + timedelta(days=1), (ds + timedelta(hours=12)).strftime('%A, %b %-d')), img)
                 p['images'] = [img]; p['story'] = True; p['caption'] = ''
             elif p['kind'] in ('day1', 'story-day1'):
                 import racecard

@@ -46,6 +46,8 @@ def describe(sid):
     if sid.startswith('story-moment-'):
         who = {'claude': 'Claude', 'gemini': 'Gemini', 'chatgpt': 'ChatGPT'}.get(p[-1], p[-1])
         return f'Lead change story: {who} took the lead in {NAMES.get(p[2], p[2])}'
+    if sid.startswith('story-meet-'):
+        return 'Meet the AIs story ' + p[-1] + ' of 4, refreshed ' + '-'.join(p[2:5]) + ' (replace last week\'s four)'
     if sid.startswith('story-feature-binance'):
         return 'Big moments story: Gemini sold its crypto 16 minutes before the Binance hack'
     if sid.startswith('story-feature-grades'):
