@@ -1194,7 +1194,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'bc56d4413424';</script>
+<script>window.PT_PAGE_VER = '548d4ecdcc54';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -2861,7 +2861,9 @@ body { background:var(--color-bg); }
     setTimeout(() => requestAnimationFrame(() => {
       const t = document.getElementById('allin-' + exp); if (!t) return;
       const bar = document.querySelector('.st-tabs'); const sticky = bar && getComputedStyle(bar).position === 'sticky' ? bar.offsetHeight : 0;
-      window.scrollTo({ top: t.getBoundingClientRect().top + window.scrollY - sticky - 10, behavior: 'smooth' });
+      // land on the switch button, not past it, so the way back to the other part always stays on screen (owner, Oct 30)
+      const sw = document.querySelector('#allin .al-jump') || t;
+      window.scrollTo({ top: sw.getBoundingClientRect().top + window.scrollY - sticky - 10, behavior: 'smooth' });
       t.classList.remove('pt-flash'); void t.offsetWidth; t.classList.add('pt-flash'); setTimeout(() => t.classList.remove('pt-flash'), 1800);
     }), 120);   // after the page has redrawn for the AI that was just picked
   };
