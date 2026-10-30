@@ -177,6 +177,9 @@ def prepare():
             elif p['kind'].replace('story-', '') in ('feature-binance-v1', 'feature-binance-v2', 'feature-grades-v1'):
                 import features as FT
                 fid = p['kind'].replace('story-', '')
+                chk = (load('ops/src/post_checks.json', {}).get('checks') or {}).get(fid)
+                if not chk or not chk.get('claims') or any(not c.get('sources') for c in chk['claims']):   # the fact gate (owner, Oct 30)
+                    raise pc.QualityError('not fact-checked yet (ops/src/post_checks.json)')
                 if fid.startswith('feature-binance'):
                     data = load('data.json', {}); ES = data.get('exp_standings'); ES = ES[0] if isinstance(ES, list) else ES
                     st = [(r['id'], float(r['profit'])) for r in ES['Crypto']]

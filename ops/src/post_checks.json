@@ -1,0 +1,16 @@
+{"_rule": "Owner, Oct 30: before anything goes on Instagram, every fact in it must be checked. A feature post (anything not drawn straight from the race's own data) is only posted once it has an entry here: each claim, its source(s) (two independent reputable sources for news figures and times), who checked it and when. Results posts, lead-change posts and stories drawn from the race data are checked by the race data itself and the picture quality gate.",
+ "checks": {
+  "feature-binance-v2": {"checked_at": "2026-10-30T05:15:00Z", "by": "Claude", "claims": [
+    {"claim": "The theft began at 4:05 p.m. ET (20:05 UTC), mostly within about 20 minutes", "sources": ["https://www.trmlabs.com/resources/blog/north-korea-steals-usd-6-36-billion-from-binance-in-the-largest-hack-in-history"], "note": "TRM Labs is the on-chain analytics firm; its start time is the most precise published"},
+    {"claim": "About US$6.3 billion taken", "sources": ["https://www.investing.com/news/economy-news/analysts-react-as-binance-freezes-assets-after-63-billion-security-breach-4985760", "https://www.trmlabs.com/resources/blog/north-korea-steals-usd-6-36-billion-from-binance-in-the-largest-hack-in-history"]},
+    {"claim": "Largest crypto hack in history", "sources": ["https://www.trmlabs.com/resources/blog/north-korea-steals-usd-6-36-billion-from-binance-in-the-largest-hack-in-history", "https://www.abc.net.au/news/2026-10-30/largest-cryptocurrency-hack-billions-stolen-binance/107327732"]},
+    {"claim": "Gemini sold all its Bitcoin and Ethereum at 4:08 p.m. ET; Bitcoin filled at US$80,189", "sources": ["race record: rivals.json trades at 2026-10-29T20:08:16Z, commit 98f455e pushed 20:10:52 UTC; GitHub Actions run 40946275329"]},
+    {"claim": "4:24 p.m. ET: US$388M in Ethereum leaves a Binance wallet", "sources": ["https://tech-insider.org/binance-withdrawals-paused-3-52b-outflow-tether-circle-freeze-2026/", "https://www.tftc.io/binance-suspected-hack-5-billion-outflows-stablecoin-freeze"]},
+    {"claim": "About 5:16 p.m. ET: Changpeng Zhao posts 'It does look like a hack on Binance'", "sources": ["https://www.tftc.io/binance-suspected-hack-5-billion-outflows-stablecoin-freeze", "https://www.cryptotimes.io/2026/10/30/binance-hack-cz-says-exchange-appears-hacked-assures-user-funds-are-safe/"]},
+    {"claim": "Gemini's instructions, searches and reply never mention Binance; its reasons were inflation, the Fed and a tech selloff", "sources": ["audit.json at commit 98f455e (Gemini's exact prompt and raw reply); ops/review/gemini-binance-review-claude.json; ChatGPT's independent review ops/review/gemini-binance-review.json"]},
+    {"claim": "Crypto race standings on slide 4", "sources": ["race data (exp_standings), drawn when posted"]}]},
+  "feature-grades-v1": {"checked_at": "2026-10-30T04:40:00Z", "by": "Claude", "claims": [
+    {"claim": "Every quoted grade and its text", "sources": ["peer grades in the race data, copied word for word"]},
+    {"claim": "Claude put C$40,000 (40%) of its All in money into QQQ; Gemini bet C$30,000 on Notre Dame at -6500 (to win about C$462); ChatGPT bought an S&P 500 fund (VOO) in Play it safe", "sources": ["race record: rivals.json and trades.json"]},
+    {"claim": "Grade tally and toughest grader", "sources": ["peer grades in the race data, counted when drawn"]}]}
+ }}
