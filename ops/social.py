@@ -96,7 +96,7 @@ def due_posts(state):
     n = (day_end - START).days
     pid = 'daily-' + day_end.date().isoformat()
     if 1 <= n <= 31 and pid not in done and NOW - day_end < timedelta(hours=8) and day_end <= RACE_END + timedelta(hours=4):
-        out.append({'id': pid, 'kind': 'daily', 'day': n, 'day_start': (day_end - timedelta(days=1)).isoformat()})
+        out.append({'id': pid, 'kind': 'dayten', 'day': n, 'day_start': (day_end - timedelta(days=1)).isoformat(), 'cutoff': day_end.isoformat()})   # one slide per race (owner, Oct 30)
     # stories (they vanish after 24 hours, so they can carry every lead change the site shows, at most one per race per 12 hours)
     srec = [(k, datetime.fromisoformat(v['at'])) for k, v in posted.items() if k.startswith('story-moment-')]
     for m in reversed(data.get('moments', [])):
@@ -117,6 +117,8 @@ def due_posts(state):
         out.append({'id': 'story-day1-remake-v1', 'kind': 'story-day1'})
     if 'day1-ten-v1' not in done and NOW < datetime(2026, 10, 31, 12, 0, tzinfo=timezone.utc):   # owner, Oct 30: Day 1 again, "Day 1 results" then one slide per race
         out.insert(0, {'id': 'day1-ten-v1', 'kind': 'dayten', 'day': 1, 'day_start': '2026-10-28T00:00:00+00:00', 'cutoff': '2026-10-29T00:00:00+00:00'})
+    if 'day2-ten-v1' not in done and NOW < datetime(2026, 10, 31, 12, 0, tzinfo=timezone.utc):   # owner, Oct 30: Day 2 in the same new format
+        out.insert(1, {'id': 'day2-ten-v1', 'kind': 'dayten', 'day': 2, 'day_start': '2026-10-29T00:00:00+00:00', 'cutoff': '2026-10-30T00:00:00+00:00'})
     if 'intro-v1' not in done and NOW < RACE_END:
         out.insert(0, {'id': 'intro-v1', 'kind': 'intro'})
     if 'story-intro-v1' not in done and NOW < RACE_END:
@@ -192,7 +194,7 @@ def prepare():
                     else:
                         lines.append(f"{LABEL[e]}: {AIS[rows[0][0]][0]} {pc.money(rows[0][1], e)}")
                 p['caption'] = (f"Day {p['day']} results 🏁 All ten races (the two betting races share the last slide). Who led each race at the close of Day {p['day']} "
-                                f"(8 p.m. ET, Oct 28), each judged on its own (profit since the Oct 28 restart):\n\n" + '\n'.join(lines) + FOOT)
+                                f"({cut.astimezone(pc.NY).strftime('%-I %p').replace('PM', 'p.m.').replace('AM', 'a.m.')} ET, {(cut - timedelta(hours=1)).astimezone(pc.NY).strftime('%b %-d')}), each judged on its own (profit since the Oct 28 restart):\n\n" + '\n'.join(lines) + FOOT)
             elif p['kind'] in ('intro', 'story-intro'):
                 import racecard
                 table, _ = racecard.races(None, 'ops/src')
