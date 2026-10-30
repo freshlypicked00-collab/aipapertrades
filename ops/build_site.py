@@ -664,12 +664,12 @@ for _e, _lab in _LBL.items():
 _led = sorted(((len(x['leads']), x['id']) for x in STANDINGS), reverse=True)
 LEADER_RACES = _led[0][1] if len(_led) > 1 and _led[0][0] > _led[1][0] else None
 # the crown follows the official win rule: the highest total profit across the ten races (C$, China converted), agreed by all
-# three AIs and the owner (Oct 29). Only the ORDER is published; the amounts stay hidden until the final scoring on Nov 28.
+# three AIs and the owner (Oct 29). From Oct 30 the owner asked for the total profit of each AI to be shown with the crown.
 _byp = sorted(STANDINGS, key=lambda x: -x['total'])
 LEADER = _byp[0]['id'] if len(_byp) > 1 and _byp[0]['total'] - _byp[1]['total'] >= 1 else None
 data['leader_races'] = LEADER_RACES
 data['overall_order'] = [x['id'] for x in _byp]
-data['standings'] = [{'id': x['id'], 'leads': x['leads'], 'rank': i + 1} for i, x in enumerate(_byp)]
+data['standings'] = [{'id': x['id'], 'leads': x['leads'], 'rank': i + 1, 'profit': round(x['total'])} for i, x in enumerate(_byp)]   # total profit in C$ now shown with the crown (owner's request, Oct 30)
 # Race standings per experiment (each race is separate): value now, profit since the restart, and what each AI holds
 _FS = datetime(2026, 10, 28, 17, 45, tzinfo=timezone.utc)
 _EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
@@ -1484,7 +1484,7 @@ try:
             _rows.append(f'<li><b>{_lab}</b>: all level so far</li>')
         else:
             _rows.append(f'<li><b>{_lab}</b>: ' + ', '.join(f"{i + 1}. {_AI.get(x['id'], x['id'])} {_f(x['profit'])}" for i, x in enumerate(_r[:3])) + '</li>')
-    _snap = (f'<h2>Race standings</h2><p>Day {_day} of 32' + (f'. {_lead} leads overall (ranked by total profit; amounts are hidden until Nov 28)' if _lead else '') +
+    _snap = (f'<h2>Race standings</h2><p>Day {_day} of 32' + (f'. {_lead} leads overall (ranked by total profit since the Oct 28 restart, ' + ', '.join(f"{i + 1}. {_AI.get(x['id'], x['id'])} " + ('+' if x['profit'] >= 0 else '−') + f"C${abs(x['profit']):,.0f}" for i, x in enumerate(data.get('standings') or [])) + ')' if _lead else '') +
              '. Profit in each race since the Oct 28 restart:</p><ol>' + ''.join(_rows) + '</ol>')
     _pg = _pg.replace('aria-label="Race standings"></aside>', 'aria-label="Race standings">' + _snap + '</aside>', 1)
     _pg = _pg.replace('Day <b data-draw="day-num">—</b> of <b data-draw="day-total">—</b>', f'Day <b data-draw="day-num">{_day}</b> of <b data-draw="day-total">32</b>', 1)
