@@ -69,6 +69,11 @@ def send(text, photo=None, silent=False, _dc=True):
 
 
 HIST = load('ops/src/history.json')
+# Claude's trades in the shape sharecard.buy_in() reads (for the average entry on sells): China counts shares; elsewhere each buy is
+# weighted by its C$ cost / price (proportional to the quantity bought; Claude's trades.json has no quantity field)
+CLAUDE_TRADES = [{'at': x['at'], 'model': 'claude', 'experiment': x['portfolio'], 'action': x['action'], 'symbol': tgcharts.symbol_for(x['portfolio'], x['holding'], x.get('code')),
+                  'price': x.get('price_local') or x.get('price_usd'), 'qty': x.get('shares') or ((x.get('cad') or 0) / (x.get('price_usd') or 1) if x.get('price_usd') else None)}
+                 for x in load('ops/src/trades.json')]
 BG, FG, MUTED, LINE, UP, DOWN, AMBER = '#0b0b0a', '#f2e9d8', '#9b927f', '#2b2923', '#3ddc84', '#ff5a4e', '#ffb000'
 
 
@@ -333,7 +338,9 @@ for t in load(S + 'trades.json'):
     msgs.append((f"{ICON.get(a, '•')} <b>{esc(LABEL.get(pf, pf))}: {a} {esc(h)}</b>\n{price}\n{when(t['at'])}" + (f"\n<i>{esc(why[:400])}</i>" if why else '') + source_for(pf, h),
                  ('trade', pf, tgcharts.symbol_for(pf, h, t.get('code')), t.get('price_local') or t.get('price_usd'), a,
                   {'experiment': pf, 'action': a, 'name': h, 'symbol': tgcharts.symbol_for(pf, h, t.get('code')), 'amount': (t.get('usd') if pf == 'China' else t.get('cad')) or 0,
-                   'cur': 'USD' if pf == 'China' else 'CAD', 'price': t.get('price_local') or t.get('price_usd'), 'pcur': 'CNY' if pf == 'China' else 'USD', 'pnl': t.get('pnl'), 'at': t['at']})))
+                   'cur': 'USD' if pf == 'China' else 'CAD', 'price': t.get('price_local') or t.get('price_usd'), 'pcur': 'CNY' if pf == 'China' else 'USD', 'pnl': t.get('pnl'), 'at': t['at'],
+                   'model': 'claude', 'qty': t.get('shares'), 'reason': why.split('What would prove it wrong:')[0].strip(),
+                   'wrong_if': why.split('What would prove it wrong:', 1)[1].strip() if 'What would prove it wrong:' in why else ''})))
 if TEST:
     msgs = [('🧪 <b>TEST POST</b> (a replay of the latest trade, not a new one)\n\n' + m, p) for m, p in msgs[-1:]]
 
@@ -398,11 +405,20 @@ if len(activity) > 1:
     activity = [(body, first_chart)]
 msgs = activity + others
 for i, (m, pic) in enumerate(msgs):
-    if isinstance(pic, tuple) and pic[0] == 'moves':   # several moves: one card in the site's Share-card design
-        photo = sharecard.moves_card('claude', pic[1], f'/tmp/pt_moves_{i}.png') or chart_section(pic[1][0]['experiment'], i)
+    if isinstance(pic, tuple) and pic[0] == 'moves':   # several moves: a cover and one picture per move, as one album (agreed by all three AIs, Oct 30)
+        pics = sharecard.album('claude', pic[1], CLAUDE_TRADES, HIST, f'/tmp/pt_album_{i}', series=lambda s, _m={c.get('symbol'): c['experiment'] for c in pic[1]}: sharecard.chart_points(s, _m.get(s)))
+        if len(pics) >= 2:
+            mm = '🟠 <b>CLAUDE</b> (Anthropic)\n' + m + ('' if SITE in m else f'\n{SITE}')
+            discord.post(mm, pics[0])
+            if sharecard.tg_album(TOKEN, CHAT, pics, mm):
+                continue
+            send(mm, pics[0], silent=False, _dc=False)
+            continue
+        photo = (pics[0] if pics else None) or sharecard.moves_card('claude', pic[1], f'/tmp/pt_moves_{i}.png') or chart_section(pic[1][0]['experiment'], i)
     elif isinstance(pic, tuple) and pic[0] == 'trade':
         _, pf_, sym_, px_, act_ = pic[:5]
-        photo = (sharecard.trade_card('claude', pic[5], f'/tmp/pt_card_{i}.png', symbol=sym_) if len(pic) > 5 else None) or \
+        photo = ((sharecard.album('claude', [pic[5]], CLAUDE_TRADES, HIST, f'/tmp/pt_one_{i}', series=lambda s, _e=pf_: sharecard.chart_points(s, _e)) or [None])[0] if len(pic) > 5 else None) or \
+                (sharecard.trade_card('claude', pic[5], f'/tmp/pt_card_{i}.png', symbol=sym_) if len(pic) > 5 else None) or \
                 (tgcharts.price_chart(sym_, 'Claude · ' + LABEL.get(pf_, pf_), '#d97757', px_, act_, f'/tmp/pt_trade_{i}.png') if sym_ else None) or chart_section(pf_, i)
     elif isinstance(pic, tuple):
         photo = chart_scoreboard(pic[1], pic[2])

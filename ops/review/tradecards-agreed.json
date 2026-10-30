@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-30T05:20:00-04:00",
+  "topic": "Clearer trade pictures on Telegram (owner: 'they don't show when you bought in, the price, or why'). The owner asked the three AIs to agree; he did not choose.",
+  "agreed_by": ["claude", "gemini", "chatgpt"],
+  "answers": "ops/review/tradecards-oct30.json",
+  "design": [
+    "One check-in = one Telegram album: a cover (headline + one row per move with its price) then one card per move, chronological; at most 9 move cards, the cover says how many more.",
+    "Each move card: race, date and fill time (ET); headline '<AI> buys/sells/shorts <asset>'; ticker and quantity when known (ChatGPT); boxes for price (with unit), size (with % of the race, from the race's value just before the move) and fill time.",
+    "Sells and covers: 'Bought at' / 'Shorted at', or 'Avg entry' when several buys are combined (ChatGPT), with the date of the first buy, the exit price and the result in % and money on that sale.",
+    "WHY in the AI's own words, cut at 260 characters with '…', never reworded (Gemini: fixed limit so the chart is not crowded out); WHAT WOULD PROVE IT WRONG (150 characters) on buys, shorts and bets, or 'Not given.'",
+    "24-hour price line only when the feed has it; no empty space reserved (ChatGPT). Cards are 1080 wide and 1080 to 1350 tall.",
+    "Bets: odds, stake (% of the race), to win; results: stake, result, settled time.",
+    "Identical layout, limits, order and data rules for all three AIs, Claude included; a missing number is left out, never estimated."
+  ],
+  "code": "ops/sharecard.py (album, move_card, cover_card, buy_in, race_value, tg_album); used by ops/rivals.py (Gemini, ChatGPT) and ops/telegram.py (Claude)"
+}

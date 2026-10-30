@@ -234,3 +234,340 @@ def moves_card(who, moves, path='/tmp/moves_card.png'):
     except Exception as e:
         print('sharecard failed:', e)
         return None
+
+
+# ---------------- detailed move cards (owner, Oct 30; agreed by Claude, Gemini and ChatGPT: ops/review/tradecards-oct30.json) ----------------
+# Owner: "they don't show when you bought in, the price, or why". One card per move, sent as an album after a cover card:
+# what (with ticker and quantity), price, size (and % of the race), fill time, the average entry for exits, the AI's own reason
+# ("why", at most WHY_MAX characters, cut with "…", never reworded), its "what would prove it wrong", and the 24-hour price line
+# only when the feed has it (no empty space reserved). The same layout, limits and order (chronological) for all three AIs.
+# Never invents a number: a missing field is left out. 1080 wide, 1080 to 1350 tall (fits the content; 1350 with a chart).
+H2 = 1350
+WHY_MAX, WRONG_MAX = 260, 150
+UNIT = {'Crypto': ' a coin', 'Metals': ' an ounce', 'Stocks': ' a share', 'Safe': ' a share', 'China': ' a share', 'Energy': ' a share'}
+QTY = {'Crypto': 'coins', 'Metals': 'oz', 'Stocks': 'shares', 'Safe': 'shares', 'China': 'shares', 'Energy': 'shares', 'Currencies': 'units', 'AllInTrading': 'shares'}
+BARREL = ('CL=F', 'BZ=F')
+
+
+def _et(at):
+    try:
+        w = datetime.fromisoformat(str(at).replace('Z', '+00:00')).astimezone(__import__('zoneinfo').ZoneInfo('America/New_York'))
+        return w, w.strftime('%-I:%M %p ET').replace('AM', 'a.m.').replace('PM', 'p.m.'), w.strftime('%b %-d')
+    except Exception:
+        return None, '', ''
+
+
+def _clip(text, n):
+    text = ' '.join(str(text or '').split())
+    return text if len(text) <= n else text[:n].rsplit(' ', 1)[0].rstrip(',;:.') + '…'
+
+
+def _unit(t):
+    base = str(t.get('experiment', '')).replace('AllIn', '')
+    if str(t.get('symbol')) in BARREL:
+        return ' a barrel', 'barrels'
+    if base == 'Metals' and str(t.get('symbol', '')).endswith('=F'):
+        return ' an ounce', 'oz'
+    if base == 'Trading':
+        return ('', '') if len(str(t.get('symbol', ''))) > 12 else ((' a coin', 'coins') if str(t.get('symbol', '')).endswith('-USD') else (' a share', 'shares'))
+    return UNIT.get(base, ''), QTY.get(base, '')
+
+
+def race_value(history, model, exp, at):
+    """The race's value just before a move, from rivals.json history (model, experiment, value) or Claude's history.json (portfolio, value)."""
+    best = None
+    for h in history or []:
+        e = h.get('experiment') or h.get('portfolio')
+        if e != exp or (h.get('model') or 'claude') != model or str(h.get('at')) >= str(at):
+            continue
+        if best is None or str(h['at']) > str(best['at']):
+            best = h
+    try:
+        return float(best['value']) if best else None
+    except Exception:
+        return None
+
+
+def buy_in(trades, t):
+    """Average entry and first entry date of the position a Sell/Cover closes, from the same AI's earlier trades in that race."""
+    try:
+        opener = 'Short' if t.get('action') == 'Cover' else 'Buy'
+        q = cost = 0.0
+        first, n = None, 0
+        for x in trades:
+            if x is t or str(x.get('at')) > str(t.get('at')) or x == t or (x.get('at') == t.get('at') and x.get('action') == t.get('action')):
+                continue   # later trades and the move itself
+            if x.get('model') != t.get('model') or x.get('experiment') != t.get('experiment') or x.get('symbol') != t.get('symbol') or x.get('outcome') != t.get('outcome'):
+                continue
+            if x.get('action') == opener and x.get('qty') and x.get('price') is not None:
+                q += float(x['qty']); cost += float(x['qty']) * float(x['price']); first = first or x.get('at'); n += 1
+            elif x.get('action') == t.get('action') and x.get('qty') and q > 0:
+                k = min(1.0, float(x['qty']) / q); q -= q * k; cost -= cost * k
+                if q <= 1e-9:
+                    q = cost = 0.0; first, n = None, 0
+        if q <= 0 or t.get('price') is None:
+            return None
+        avg = cost / q
+        move = float(t['price']) / avg - 1
+        pct = -move if opener == 'Short' else move
+        amt = float(t.get('amount') or 0)
+        pnl = (amt * pct / (1 + move)) if amt else None   # amount is the exit value; profit on the part closed
+        return {'avg': avg, 'since': first, 'pct': pct, 'pnl': pnl, 'n': n, 'short': opener == 'Short'}
+    except Exception:
+        return None
+
+
+def _box(g, x, y, w, h, label, value, sub=None, col=FG):
+    g.rounded_rectangle([x, y, x + w, y + h], radius=14, fill=(28, 27, 22), outline=LINE, width=2)
+    g.text((x + 22, y + 16), label, font=_font('semi', 24), fill=MUTED)
+    f = _font('bold', 40)
+    while g.textlength(value, font=f) > w - 44 and f.size > 26:
+        f = _font('bold', f.size - 2)
+    g.text((x + 22, y + 52), value, font=f, fill=col)
+    if sub:
+        g.text((x + 22, y + 104), sub, font=_font('med', 26), fill=MUTED)
+
+
+def _quote(g, text, x, y, maxw, color_bar):
+    y0 = y
+    y = _wrap(g, '“' + text + '”', _font('med', 40), x + 28, y, maxw - 28, 52, FG, max_lines=5)
+    g.rectangle([x, y0 + 6, x + 6, y - 10], fill=color_bar)
+    return y
+
+
+def _head(g, who, exp, at, idx=None, total=None, top=None):
+    nm_ai, col_ai = AIS[who]
+    g.rectangle([0, 0, S, 14], fill=col_ai)
+    g.text((80, 70), 'PAPER TRADES · AI VS AI', font=_font('bold', 30), fill=ORANGE)
+    w, hm, day = _et(at)
+    sub = (top or LABEL.get(exp, exp).upper()) + (f' · {day}, {hm}' if hm else '')
+    g.text((80, 116), sub, font=_font('med', 30), fill=MUTED)
+    if idx and total and total > 1:
+        s = f'{idx} / {total}'
+        g.text((S - 80 - g.textlength(s, font=_font('semi', 30)), 116), s, font=_font('semi', 30), fill=MUTED)
+
+
+def _finish(im, g, y, path, line='Pretend money, real prices · every move on papertrades.ai'):
+    H = int(min(H2, max(1080, y + 200)))   # fits the content: square when it fits, up to 4:5 (no empty space reserved)
+    im = im.crop((0, 0, S, H))
+    from PIL import ImageDraw
+    g = ImageDraw.Draw(im)
+    g.text((80, H - 150), line, font=_font('med', 28), fill=MUTED)
+    g.text((80, H - 100), 'papertrades.ai', font=_font('bold', 36), fill=FG)
+    h = '@PaperTradesAI'
+    g.text((S - 80 - g.textlength(h, font=_font('med', 30)), H - 96), h, font=_font('med', 30), fill=MUTED)
+    im.save(path, optimize=True)
+    return path
+
+
+def move_card(who, t, path='/tmp/move_card.png', buyin=None, race_val=None, spark=None, idx=None, total=None):
+    """One move in full. t: a rivals.py-style trade dict. buyin: buy_in(). race_val: race_value() before the move (same currency as amount)."""
+    try:
+        from PIL import Image, ImageDraw
+        who = _who(who)
+        nm_ai, col_ai = AIS[who]
+        bar = col_ai if who != 'chatgpt' else MUTED
+        act, exp = t.get('action', ''), t.get('experiment', '')
+        base = exp.replace('AllIn', '')
+        im = Image.new('RGB', (S, H2), BG)
+        g = ImageDraw.Draw(im)
+        _head(g, who, exp, t.get('at'), idx, total)
+        nm = str(t.get('name') or t.get('symbol') or '')
+        is_bet = base == 'Sports' or act == 'Bet'
+        if is_bet and act == 'Bet':
+            head = f"{nm_ai} bets on the {short_name(nm)}"
+        elif act in ('Won', 'Lost', 'Push', 'Void', 'Settled'):
+            head = f"{nm_ai} {VERB.get(act, act.lower())}"
+        else:
+            head = f"{nm_ai} {VERB.get(act, act.lower())} {short_name(nm)}"
+        y = _wrap(g, head, _font('bold', 76), 80, 176, S - 160, 84, DOWN if act == 'Lost' else col_ai if who != 'chatgpt' else FG, max_lines=2)
+        cur, pc = t.get('cur', 'CAD'), t.get('pcur') or 'USD'
+        px, amt = t.get('price'), t.get('amount')
+        unit1, units = _unit(t)
+        # ticker and quantity (ChatGPT's must-have)
+        sub = []
+        if is_bet and ' (' in nm:
+            sub.append(nm.split(' (', 1)[1].rstrip(')'))
+        elif act in ('Won', 'Lost', 'Push', 'Void', 'Settled'):
+            sub.append(short_name(nm))
+        else:
+            sym = str(t.get('symbol') or '')
+            if sym and sym.upper() != short_name(nm).upper():
+                sub.append(sym + (f" ({t['outcome']})" if t.get('outcome') else ''))
+            q = t.get('qty')
+            if q and units and base != 'Predictions':
+                q = float(q)
+                sub.append((f'{q:,.0f}' if q >= 100 else f'{q:,.2f}' if q >= 1 else f'{q:.4f}') + ' ' + units)
+        if sub:
+            y = _wrap(g, ' · '.join(sub), _font('med', 32), 80, y + 4, S - 160, 40, MUTED, max_lines=2)
+        y += 26
+        # fact strip
+        facts = []
+        pct_race = f'{amt / race_val * 100:.0f}% of the race' if (amt and race_val) else None
+        if is_bet and act == 'Bet':
+            if isinstance(px, (int, float)):
+                facts.append(('ODDS', f'{int(px):+d}', None))
+            if amt:
+                facts.append(('STAKE', money(amt, cur), pct_race))
+            win = t.get('to_win')
+            if win is None and isinstance(px, (int, float)) and px and amt:
+                win = amt * (100 / -px if px < 0 else px / 100)
+            if win:
+                facts.append(('TO WIN', money(win, cur), None))
+        elif act in ('Won', 'Lost', 'Push', 'Void'):
+            if t.get('stake'):
+                facts.append(('STAKE', money(t['stake'], cur), None))
+            p = t.get('pnl')
+            if p is not None:
+                facts.append(('RESULT', ('+' if p >= 0 else '−') + money(p, cur), None))
+            facts.append(('SETTLED', _et(t.get('at'))[1] or '—', None))
+        else:
+            if isinstance(px, (int, float)):
+                facts.append(('PRICE', price(px, pc), unit1.strip() or None))
+            if amt:
+                facts.append(('SIZE', money(amt, cur), pct_race))
+            facts.append(('FILLED', _et(t.get('at'))[1] or '—', _et(t.get('at'))[2] or None))
+        bw, gap = (S - 160 - 40) // 3, 20
+        for i, (lb, v, sb) in enumerate(facts[:3]):
+            vc = (UP if v.startswith('+') else DOWN if v.startswith('−') else FG) if lb == 'RESULT' else FG
+            _box(g, 80 + i * (bw + gap), y, bw, 146, lb, v, sb, vc)
+        y += 176
+        # entry for exits (ChatGPT: "avg entry"; "shorted at" / "covered at")
+        if buyin and act in ('Sell', 'Cover'):
+            since = _et(buyin.get('since'))[2]
+            lab = ('Avg short entry' if buyin['short'] else 'Avg entry') if buyin.get('n', 1) > 1 else ('Shorted at' if buyin['short'] else 'Bought at')
+            line1 = f"{lab} {price(buyin['avg'], pc)}" + (f' (since {since})' if since else '') + f" → {'covered' if buyin['short'] else 'sold'} at {price(px, pc)}"
+            y = _wrap(g, line1, _font('med', 34), 80, y, S - 160, 44, FG, max_lines=2)
+            res = f"{buyin['pct'] * 100:+.1f}%" + (f"  ({'+' if buyin['pnl'] >= 0 else '−'}{money(buyin['pnl'], cur)} on this sale)" if buyin.get('pnl') is not None else '')
+            g.text((80, y + 4), res, font=_font('bold', 50), fill=UP if buyin['pct'] >= 0 else DOWN)
+            y += 86
+        why = _clip(t.get('reason'), WHY_MAX)
+        if why:
+            g.text((80, y + 6), f'WHY · IN {nm_ai.upper()}’S OWN WORDS', font=_font('semi', 26), fill=MUTED)
+            y = _quote(g, why, 80, y + 50, S - 160, bar) + 14
+        if act in ('Buy', 'Short', 'Bet'):
+            wrong = _clip(t.get('wrong_if'), WRONG_MAX)
+            g.text((80, y + 6), 'WHAT WOULD PROVE IT WRONG', font=_font('semi', 26), fill=MUTED)
+            y = _wrap(g, wrong or 'Not given.', _font('reg', 34), 80, y + 46, S - 160, 44, FG if wrong else MUTED, max_lines=3) + 10
+        if spark and len(spark) >= 2 and y < H2 - 470:
+            _spark(g, spark, (80, y + 40, S - 230, H2 - 250), col_ai if who != 'chatgpt' else (200, 200, 200), px if isinstance(px, (int, float)) else None, pc)
+            y = H2
+        return _finish(im, g, y, path)
+    except Exception as e:
+        print('sharecard move_card failed:', e)
+        return None
+
+
+def cover_card(who, moves, path='/tmp/cover_card.png', more=0):
+    """The album's first picture: the headline and one row per move with its price (each move's details follow)."""
+    try:
+        from PIL import Image, ImageDraw
+        who = _who(who)
+        nm_ai, col_ai = AIS[who]
+        im = Image.new('RGB', (S, H2), BG)
+        g = ImageDraw.Draw(im)
+        _head(g, who, None, moves[0].get('at'), top='ONE CHECK-IN')
+        y = _wrap(g, f"{nm_ai} makes {len(moves)} move{'s' if len(moves) != 1 else ''}", _font('bold', 86), 80, 176, S - 160, 96, col_ai if who != 'chatgpt' else FG, max_lines=2) + 30
+        f, fs = _font('semi', 40), _font('med', 30)
+        shown = 0
+        for t in moves:
+            if y > H2 - 340:
+                break
+            act = t.get('action', '')
+            col = UP if act in ('Buy', 'Won', 'Cover') else DOWN if act in ('Sell', 'Lost', 'Short') else FG
+            amt = t.get('pnl') if act in ('Won', 'Lost') and t.get('pnl') is not None else t.get('amount', 0)
+            a = (('+' if amt >= 0 else '−') if act in ('Won', 'Lost') else '') + money(amt or 0, t.get('cur', 'CAD'))
+            line = f"{act} {short_name(t.get('name') or t.get('symbol'))}"
+            while g.textlength(line, font=f) > S - 200 - g.textlength(a, font=f) and len(line) > 8:
+                line = line[:-2].rstrip() + '…'
+            g.text((80, y), line, font=f, fill=col)
+            g.text((S - 80 - g.textlength(a, font=f), y), a, font=f, fill=col)
+            px = t.get('price')
+            det = LABEL.get(t.get('experiment', ''), t.get('experiment', ''))
+            if isinstance(px, (int, float)):
+                det += ' · ' + (f'odds {int(px):+d}' if act == 'Bet' else 'at ' + price(px, t.get('pcur') or 'USD') + _unit(t)[0])
+            g.text((80, y + 50), det, font=fs, fill=MUTED)
+            y += 112
+            shown += 1
+        if shown < len(moves) or more:
+            g.text((80, y), f'+{len(moves) - shown + more} more on papertrades.ai', font=fs, fill=MUTED)
+            y += 50
+        g.text((80, y + 30), 'Swipe for each move: price, size, time and why →', font=_font('semi', 32), fill=FG)
+        return _finish(im, g, y + 80, path, 'Pretend money, real prices')
+    except Exception as e:
+        print('sharecard cover_card failed:', e)
+        return None
+
+
+def album(who, moves, trades=None, history=None, prefix='/tmp/album', series=None, limit=9):
+    """Pictures for one check-in, in order: [cover] + one card per move (chronological, at most `limit` cards; the cover says how many more).
+    A single move gets just its card. trades: the full trade list (for entries); history: value history (for % of the race);
+    series: function(symbol) -> 24h points or None. Returns a list of PNG paths (empty on failure)."""
+    try:
+        mv = sorted(moves, key=lambda t: str(t.get('at', '')))
+        out = []
+        if len(mv) > 1:
+            c = cover_card(who, mv, f'{prefix}-0.png', more=max(0, len(mv) - limit))
+            if c:
+                out.append(c)
+        for i, t in enumerate(mv[:limit], 1):
+            base = str(t.get('experiment', '')).replace('AllIn', '')
+            bi = buy_in(trades or [], t) if t.get('action') in ('Sell', 'Cover') else None
+            rv = race_value(history, _who(who) if t.get('model') is None else t.get('model'), t.get('experiment'), t.get('at')) if history else None
+            sp = None
+            if series and t.get('symbol') and base not in ('Predictions', 'Sports'):
+                try:
+                    sp = series(t['symbol'])
+                except Exception:
+                    sp = None
+            p = move_card(who, t, f'{prefix}-{i}.png', bi, rv, sp, i if len(mv) > 1 else None, min(len(mv), limit) if len(mv) > 1 else None)
+            if p:
+                out.append(p)
+        return out
+    except Exception as e:
+        print('sharecard album failed:', e)
+        return []
+
+
+def tg_album(token, chat, photos, caption='', silent=False):
+    """Send pictures as ONE Telegram album (sendMediaGroup, 2 to 10), the caption on the first. Returns True when sent.
+    A caption over 1,020 characters is sent as a text message right after the album."""
+    import json as _j, urllib.request, urllib.parse
+    photos = [p for p in photos if p][:10]
+    if not (token and chat) or len(photos) < 2:
+        return False
+    short = caption if len(caption) <= 1020 else ''
+    media = [dict({'type': 'photo', 'media': f'attach://p{i}'}, **({'caption': short, 'parse_mode': 'HTML'} if i == 0 and short else {})) for i in range(len(photos))]
+    b = '----ptalbum'
+    parts = [f'--{b}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode() for k, v in
+             (('chat_id', chat), ('media', _j.dumps(media)), ('disable_notification', 'true' if silent else 'false'))]
+    for i, p in enumerate(photos):
+        parts.append(f'--{b}\r\nContent-Disposition: form-data; name="p{i}"; filename="p{i}.png"\r\nContent-Type: image/png\r\n\r\n'.encode() + open(p, 'rb').read() + b'\r\n')
+    parts.append(f'--{b}--\r\n'.encode())
+    try:
+        req = urllib.request.Request(f'https://api.telegram.org/bot{token}/sendMediaGroup', b''.join(parts), {'Content-Type': f'multipart/form-data; boundary={b}'})
+        urllib.request.urlopen(req, timeout=60).read()
+    except Exception as e:
+        print('telegram album failed:', e)
+        return False
+    if caption and not short:
+        try:
+            data = urllib.parse.urlencode({'chat_id': chat, 'text': caption, 'parse_mode': 'HTML', 'disable_web_page_preview': 'true', 'disable_notification': 'true'}).encode()
+            urllib.request.urlopen(f'https://api.telegram.org/bot{token}/sendMessage', data, timeout=20).read()
+        except Exception as e:
+            print('telegram album caption failed:', e)
+    return True
+
+
+def chart_points(symbol, experiment):
+    """24-hour points for a move's price line, or None (no chart for options, bets and prediction markets)."""
+    base = str(experiment or '').replace('AllIn', '')
+    if base in ('Sports', 'Predictions', 'Options') or len(str(symbol)) > 12:
+        return None
+    sym = str(symbol)
+    if base == 'Currencies':
+        sym = 'CAD=X' if sym == 'USD' else ('JPY=X' if sym == 'JPY' else f'{sym}USD=X')
+    pts, _ = _series(sym)
+    if base == 'Currencies' and sym == 'JPY=X' and pts:
+        return None   # the card shows the yen in US$; JPY=X is yen per dollar, so no line rather than an upside-down one
+    return pts

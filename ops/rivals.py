@@ -2069,14 +2069,29 @@ def main():
                 body = body[:3650].rsplit('\n\n', 1)[0] + '\n\n…and more on the site'
             body += f'\n⚔️ AI vs AI: Claude vs Gemini vs ChatGPT · {SITE}'
             big = max((t for t in made if t['experiment'] not in ('Predictions', 'Sports', 'AllInSports')), key=lambda t: abs(t['amount']), default=None)
-            pic = (sharecard.moves_card(r['label'], made, f"/tmp/rm_{mid}_{len(state['trades'])}.png") if len(made) > 1 else
-                   sharecard.trade_card(r['label'], made[0], f"/tmp/rm_{mid}_{len(state['trades'])}.png"))   # the same design as the site's Share cards
-            if not pic and big:
+            # one picture per move as an album after a cover (owner, Oct 30; design agreed by all three AIs: ops/review/tradecards-oct30.json)
+            pics = sharecard.album(r['label'], made, state['trades'], state['history'], f"/tmp/rm_{mid}_{len(state['trades'])}",
+                                   series=lambda s, _m={t['symbol']: t['experiment'] for t in made}: sharecard.chart_points(s, _m.get(s)))
+            if len(pics) >= 2:
+                discord.post(body, pics[0])
+                if sharecard.tg_album(os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID'), pics, body):
+                    TGSTAT['sent'] += 1
+                else:
+                    tg_photo(body, pics[0]) if len(body) <= 1020 else tg(body)
+                pics, made_sent = [], True
+            else:
+                made_sent = False
+            pic = (pics[0] if pics else None) if not made_sent else None
+            if made_sent:
+                pass
+            elif not pic and big:
                 csym = {'Currencies': f"{big['symbol']}USD=X" if big['symbol'] != 'USD' else 'CAD=X'}.get(big['experiment'], big['symbol'])
                 if big['experiment'] == 'Options':
                     csym = option_parts(big['symbol'])[0]
                 pic = tgcharts.price_chart(csym, f"{r['label']} · {EXP_LABEL[big['experiment']]}", r['color'], None if big['experiment'] == 'Options' else big['price'], big['action'], f"/tmp/rp_{mid}_{len(state['trades'])}.png")
-            if pic and len(body) <= 1020:
+            if made_sent:
+                pass
+            elif pic and len(body) <= 1020:
                 tg_photo(body, pic)
             else:
                 if pic:
