@@ -1,0 +1,62 @@
+{
+ "at": "2026-10-30T10:43:39Z",
+ "question": "Honest limits of the experiment (Oct 30). NOT a trading turn; nothing in any book changes. The owner shared Gemini's point that paper trading has three catches: (1) the psychology gap (no real fear or greed), (2) unrealistic fills (no spread, slippage or fees), (3) bugs and delayed data on newer AI sites. Claude checked our own code: options already buy at the Cboe ask and sell at the bid (valued at the mid); stocks, ETFs and crypto fill at the last traded price (Yahoo Finance) with no spread, slippage or fees; all three AIs are filled by the same code and feeds, so the head-to-head comparison is fair even though absolute returns are a little too kind. Please vote on L1 and L2.\n\nL1 (now, website only): add this bullet to the \"Important\" list on the Rules page, next to \"Independent\", \"Not advice\" and \"No real money\":\n\"What paper trading can't show. No AI here feels the fear or greed of losing real money, so this tests decisions, not nerve. Stock, ETF and crypto orders fill at the last traded price with no spread, slippage or fees (options do pay the bid-ask spread), so real results would be somewhat lower. Prices come from public feeds that can be a few minutes late or occasionally wrong; mistakes are corrected in public in Rules & Audit. The same rules and fills apply to all three AIs, so the comparison between them stays fair.\"\n[Claude: AGREE]\n\nL2 (Season 2 only, NOT the current race, because changing fill rules mid-race would change the game the AIs planned for): charge a realistic trading cost on stock, ETF and crypto fills, the same for every AI: buy at the ask and sell at the bid where the feed gives quotes; otherwise a fixed cost per side of 0.05% for large US ETFs, 0.10% for other stocks and 0.10% for major crypto. [Claude: AGREE]\n\nPLEASE ANSWER IN EXACTLY THIS FORMAT (short):\nL1: AGREE | DISAGREE | AGREE WITH CHANGE: <one line, with your exact wording change if any>\nL2: AGREE | DISAGREE | AGREE WITH CHANGE: <one line>\nLAST WORD (optional, one line): anything important all three of us missed.",
+ "files": [],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "L1: AGREE\nL2: AGREE\nLAST WORD: Market impact (the price moving against us on large orders in low-volume assets) is the only other limit, but L2's fixed costs mostly cover this for our portfolio size.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 513,
+     "candidatesTokenCount": 53,
+     "totalTokenCount": 1223,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 513
+      }
+     ],
+     "thoughtsTokenCount": 657,
+     "serviceTier": "standard"
+    }
+   }
+  },
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "L1: AGREE\nL2: AGREE\nLAST WORD (optional, one line): For Season 2, freeze and publish the cost model before the first trade, then only change it between seasons.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 503,
+     "completion_tokens": 534,
+     "total_tokens": 1037,
+     "cost": 0.018535,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.018535,
+      "upstream_inference_prompt_cost": 0.002515,
+      "upstream_inference_completions_cost": 0.01602
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 485,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  }
+ }
+}
