@@ -1176,7 +1176,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'bf7a831fb97a';</script>
+<script>window.PT_PAGE_VER = 'b5512ac05c30';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -1225,8 +1225,8 @@ body { background:var(--color-bg); }
     <p class="st-progress" data-phase="live">
       <span>Day <b data-draw="day-num">3</b> of <b data-draw="day-total">32</b></span>
       <span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 28</span>
-      <span class="st-clock">New York <b class="st-count" data-draw="clock">—</b></span>
-      <span class="st-clock">Hong Kong <b class="st-count" data-draw="clock-hk">—</b></span>
+      <span class="st-clock st-clock-ny">New York <b class="st-count" data-draw="clock">—</b></span>
+      <span class="st-clock st-clock-hk">Hong Kong <b class="st-count" data-draw="clock-hk">—</b></span>
       <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b></span>
       <span class="st-clock st-since"><span class="st-since-who">Last update</span> <b class="st-count" data-draw="since-update">—</b></span>
       <button type="button" class="st-status-dot" data-draw="statusdot" data-source="status" title="System status">—</button>
@@ -6286,16 +6286,30 @@ body { background:var(--color-bg); }
     // a flag Claude confirmed wrong and corrected (Corrections lists it) reads as corrected, not "Delayed" (all three AIs agreed, Oct 30)
     const pcFixed = (pc.corrected || []).length, pcOpen = Math.max(0, (pcs.backup_wrong || 0) - pcFixed);
     const pcSt = pcs.flag ? (pcs.backup_pending ? 'backup' : pcOpen ? 'late' : 'ok') : by(age(pc.at), 180, 720);
-    rows.push(['Price check of Claude’s prices', pcSt, (pcs.flag ? pcs.flag + ' flagged · ' + (pcs.backup_pending ? 'being checked by Gemini and ChatGPT as a backup · ' : (pcOpen ? pcOpen + ' confirmed off by the backup check, for Claude to correct · ' : '') + (pcFixed ? pcFixed + ' confirmed off and corrected (see Corrections) · ' : '') + 'backup check by Gemini and ChatGPT done · ') : '') + ((pcs.ok || 0) + ' passed') + ' · last new check ' + ago(pc.at) + '.']);
+    const pcLink = pcFixed ? (pc.corrected || []).map((x) => x.correction_at).filter(Boolean)[0] : null;   // "View correction" (ChatGPT's P1, all three agreed)
+    rows.push(['Price check of Claude’s prices', pcSt, (pcs.flag ? pcs.flag + ' flagged · ' + (pcs.backup_pending ? 'being checked by Gemini and ChatGPT as a backup · ' : (pcOpen ? pcOpen + ' confirmed off by the backup check, for Claude to correct · ' : '') + (pcFixed ? pcFixed + ' confirmed off and corrected (see Corrections) · ' : '') + 'backup check by Gemini and ChatGPT done · ') : '') + ((pcs.ok || 0) + ' passed') + ' · last new check ' + ago(pc.at) + '.', pcLink]);
     const tg = S.telegram || {}; rows.push(['Telegram posts', tg.fail_streak >= 3 ? 'down' : tg.fail_streak ? 'late' : 'ok', tg.last_ok ? 'Last post sent ' + ago(tg.last_ok) + (tg.fail_streak ? ' · ' + tg.fail_streak + ' failed since' : '') + '.' : 'Every trade, bet and result is posted as it happens; send times are recorded from the next check-in.']);
     const ig = S.instagram || {}; rows.push(['Instagram posts', ig.error ? 'down' : by(age(ig.last), 30 * 60, 54 * 60), (ig.error ? 'Posting paused since ' + ago(ig.error.since) + ': Instagram turned down the posting key, which the owner is renewing. ' : '') + 'Last post ' + ago(ig.last) + ' · ' + (ig.count_24h || 0) + ' in the last 24 hours (a daily post, plus lead changes).']);
     return rows;
+  };
+  window.ptGoCorrection = (at) => {
+    const tab = document.querySelector('.st-tab[data-tab="audit"]'); if (tab) tab.click();
+    let n = 0; const find = () => {
+      const li = [...document.querySelectorAll('#au-corr-list li')].find((x) => x.dataset.at === at);
+      if (!li) { if (++n < 40) setTimeout(find, 150); return; }
+      const bar = document.querySelector('.st-tabs'); const sticky = bar && getComputedStyle(bar).position === 'sticky' ? bar.offsetHeight : 0;
+      window.scrollTo({ top: li.getBoundingClientRect().top + window.scrollY - sticky - 10, behavior: 'smooth' });
+      li.classList.remove('pt-flash'); void li.offsetWidth; li.classList.add('pt-flash'); setTimeout(() => li.classList.remove('pt-flash'), 1800);
+    };
+    setTimeout(find, 200);
   };
   const ST_LABEL = { ok: ['● Working', 'is-up'], backup: ['● Backup check running', 'st-warn'], late: ['● Delayed', 'st-warn'], down: ['● Not working', 'is-down'] };
   dash.draw('status', {
     mount: (el) => { const paint = () => { el.replaceChildren(); const rows = statusRows(); if (!rows) { el.appendChild(mk('p', 'st-note', 'Status appears after the next update.')); return; }
       const t = mk('table', 'st-table st-status-t'); t.innerHTML = '<thead><tr><th>Part</th><th>Status</th><th>Details</th></tr></thead>'; const tb = mk('tbody');
-      rows.forEach(([k, st, d]) => { const tr = mk('tr'); tr.append(mk('td', '', k), mk('td', ST_LABEL[st][1], ST_LABEL[st][0]), mk('td', 'wrap', d)); tb.appendChild(tr); }); t.appendChild(tb); const w = mk('div', 'st-wrap'); w.appendChild(t); el.appendChild(w); };
+      rows.forEach(([k, st, d, corrAt]) => { const tr = mk('tr'); const dd = mk('td', 'wrap', d);
+        if (corrAt) { const a = mk('a', 'st-corr-link', ' View correction ›'); a.href = '#audit'; a.addEventListener('click', (ev) => { ev.preventDefault(); window.ptGoCorrection(corrAt); }); dd.appendChild(a); }
+        tr.append(mk('td', '', k), mk('td', ST_LABEL[st][1], ST_LABEL[st][0]), dd); tb.appendChild(tr); }); t.appendChild(tb); const w = mk('div', 'st-wrap'); w.appendChild(t); el.appendChild(w); };
       el._paint = paint; paint(); return setInterval(paint, 60000); },
     update: (el) => { if (el._paint) el._paint(); },
   });
@@ -7275,8 +7289,8 @@ body { background:var(--color-bg); }
       });
       el.appendChild(grid);
       el.appendChild(mk('h3', 'st-h3', 'Corrections made by hand'));
-      const ul = mk('ul', 'au-corr');
-      (a.corrections || []).slice().sort((p, q) => new Date(q.at) - new Date(p.at)).forEach((x) => { const li = mk('li'); li.append(mk('b', '', x.what + ' · ' + stFmt.when(x.at) + ': '), document.createTextNode(x.text)); ul.appendChild(li); });
+      const ul = mk('ul', 'au-corr'); ul.id = 'au-corr-list';
+      (a.corrections || []).slice().sort((p, q) => new Date(q.at) - new Date(p.at)).forEach((x) => { const li = mk('li'); li.dataset.at = x.at || ''; li.append(mk('b', '', x.what + ' · ' + stFmt.when(x.at) + ': '), document.createTextNode(x.text)); ul.appendChild(li); });
       if (!(a.corrections || []).length) ul.appendChild(mk('li', '', 'None so far.'));
       el.appendChild(ul);
     }).catch(() => { el._busy = false; });
@@ -7631,6 +7645,128 @@ body { background:var(--color-bg); }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', later); else later();
     new MutationObserver((ms) => { if (ms.some((m) => m.target.nodeName === 'SELECT' || m.target.nodeName === 'OPTGROUP' || [...m.addedNodes].some((n) => n.nodeType === 1 && (n.matches('select, option') || n.querySelector && n.querySelector('select'))))) later(); })
       .observe(document.documentElement, { childList: true, subtree: true });
+  })();
+</script>
+<!-- Phone improvements agreed by Claude, Gemini and ChatGPT on Oct 30 (ops/review/agreed-site-oct30.md): W3b compact header,
+     W4b folded sections on long pages, G1 back to top, P2 jump chips. Phones only (700px and narrower); desktop unchanged. -->
+<style>
+  @media (max-width: 700px) {
+    .st-clock-ny, .st-clock-hk, .st-lang:not(.st-themepick), .st-themepick, #sound-btn, #beginner-btn { display: none !important; }
+    .pt-fold > :not(.pt-fold-keep) { display: none !important; }
+    .pt-fold-btn { display: inline-flex; align-items: center; margin: 4px 0 0; padding: 6px 14px; min-height: 36px; font: inherit; font-size: 13px; color: var(--accent, #ffb000); background: transparent; border: 1px solid var(--color-border-line); border-radius: 999px; cursor: pointer; }
+    .pt-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 4px; }
+    .pt-chips button { font: inherit; font-size: 13px; padding: 6px 14px; min-height: 36px; border-radius: 999px; border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); cursor: pointer; }
+    .pt-top { position: fixed; left: 14px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); z-index: 55; height: 44px; padding: 0 16px; border-radius: 999px; font: inherit; font-size: 14px; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); box-shadow: 0 4px 14px rgba(0, 0, 0, .35); opacity: 0; pointer-events: none; transform: translateY(8px); transition: opacity .2s, transform .2s; }
+    .pt-top.is-on { opacity: 1; pointer-events: auto; transform: none; }
+    .m-menu-set { display: flex; flex-direction: column; gap: 8px; }
+    .m-menu-set .m-menu-clocks { font-size: 14px; color: var(--color-fg-muted); }
+    .m-menu-set .m-menu-clocks b { color: var(--color-fg); font-weight: 600; margin: 0 10px 0 4px; }
+    .m-menu-set label { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+    .m-menu-set select { flex: 1 1 auto; min-height: 40px; font: inherit; font-size: 14px; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: 10px; padding: 6px 10px; }
+  }
+  @media (min-width: 701px) { .pt-fold-btn, .pt-chips, .pt-top, .m-menu-set { display: none !important; } }
+  @media (prefers-reduced-motion: reduce) { .pt-top { transition: none; } }
+</style>
+<div data-draw="pt-phone" style="display:none" aria-hidden="true"></div>
+<script>
+  (() => {
+    const PHONE = window.matchMedia('(max-width: 700px)');
+    const phone = () => PHONE.matches;
+    const head = (b) => b.querySelector('h2, h3, .lg-head');
+    const titleOf = (b) => { const h = head(b); return h ? h.textContent.trim().slice(0, 60) : ''; };
+    const topCards = (pg) => [...pg.querySelectorAll('.st-card')].filter((c) => !c.parentElement.closest('.st-card'));
+
+    // ---- W4b: on long phone pages, sections after the first two start folded to their title with "Show more" (nothing removed)
+    const opened = new Set();   // sections this visitor opened during this visit
+    const blocksOf = (pg) => {
+      if (pg.id === 'sports' || /^ai-/.test(pg.id)) return topCards(pg).slice(2);
+      if (pg.id === 'h2h') return [...pg.querySelectorAll('[data-draw="h2h"] > .h2h-exp')].slice(2);
+      if (pg.id === 'ledger') return [...pg.querySelectorAll('[data-draw="lg-days"] > .lg-day')];   // the day shown (days before today)
+      return [];
+    };
+    const keepChild = (b) => { const h = head(b); if (!h) return b.firstElementChild; let c = h; while (c.parentElement && c.parentElement !== b) c = c.parentElement; return c; };
+    const fold = (b, key, shut) => {
+      const k = keepChild(b); if (k) k.classList.add('pt-fold-keep');
+      let btn = [...b.children].find((c) => c.classList.contains('pt-fold-btn'));
+      if (!btn) {
+        btn = document.createElement('button'); btn.type = 'button'; btn.className = 'pt-fold-btn pt-fold-keep';
+        btn.addEventListener('click', () => { if (opened.has(btn._key)) opened.delete(btn._key); else opened.add(btn._key); apply(); if (dash.redraw) dash.redraw(); });
+        if (k) k.after(btn); else b.prepend(btn);
+      }
+      btn._key = key; b.classList.toggle('pt-fold', shut);
+      btn.textContent = shut ? 'Show more ▾' : 'Show less ▴'; btn.setAttribute('aria-expanded', String(!shut));
+    };
+
+    // ---- P2: one row of jump chips under the first card on each race page (phones)
+    const RACES = ['stocks', 'crypto', 'china', 'metals', 'energy', 'options', 'currencies', 'safe', 'sports', 'predictions'];
+    const findCard = (pg, re) => topCards(pg).find((c) => re.test(titleOf(c)));
+    const scrollToEl = (el) => {
+      const bar = document.querySelector('.st-tabs'); const sticky = bar && getComputedStyle(bar).position === 'sticky' ? bar.offsetHeight : 0;
+      requestAnimationFrame(() => window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - sticky - 10, behavior: 'smooth' }));
+    };
+    const chips = (pg) => {
+      if (pg.querySelector('.pt-chips')) return;
+      const first = topCards(pg)[0]; if (!first) return;
+      const nav = document.createElement('nav'); nav.className = 'pt-chips'; nav.setAttribute('aria-label', 'Jump to');
+      const sp = pg.id === 'sports';
+      [[sp ? 'Bets' : 'Holdings', /^(Holdings|Bets)$/], ['Chart', /^(Value over time|Bankroll over time)$/], ['Ledger', null], ['Rules', /^Rules in force$/]].forEach(([t, re]) => {
+        if (re && !findCard(pg, re)) return;
+        const b = document.createElement('button'); b.type = 'button'; b.textContent = t;
+        b.addEventListener('click', () => {
+          if (!re) { const tab = document.querySelector('.st-tab[data-tab="ledger"]'); if (tab) tab.click(); return; }
+          const c = findCard(pg, re); if (!c) return; window.ptUnfold(c); scrollToEl(c);
+        });
+        nav.appendChild(b);
+      });
+      first.after(nav);
+    };
+
+    const apply = () => {
+      document.querySelectorAll('.st-page').forEach((pg) => {
+        if (RACES.includes(pg.id)) chips(pg);
+        blocksOf(pg).forEach((b) => { const key = pg.id + '|' + titleOf(b); if (!phone()) { b.classList.remove('pt-fold'); return; } fold(b, key, !opened.has(key)); });
+      });
+    };
+    // a section reached by a direct link opens by itself (ChatGPT's change)
+    window.ptUnfold = (el) => { const b = el && el.closest && el.closest('.pt-fold'); if (!b) return; const pg = b.closest('.st-page'); if (!pg) return; opened.add(pg.id + '|' + titleOf(b)); apply(); if (dash.redraw) dash.redraw(); };
+    const fromHash = () => { const id = decodeURIComponent(location.hash.slice(1)); if (!id || document.querySelector('.st-tab[data-tab="' + id + '"]')) return; const t = document.getElementById(id); if (t) { window.ptUnfold(t); setTimeout(() => scrollToEl(t), 50); } };
+    window.addEventListener('hashchange', fromHash);
+    dash.draw('pt-phone', () => { apply(); });   // registered last, so it runs after every other part has drawn
+    if (PHONE.addEventListener) PHONE.addEventListener('change', () => { apply(); if (dash.redraw) dash.redraw(); });
+    window.addEventListener('load', () => setTimeout(fromHash, 800));
+
+    // ---- G1 (Gemini): back to the top, on phones, after two screens of scrolling
+    const top = document.createElement('button'); top.type = 'button'; top.className = 'pt-top'; top.textContent = '↑ Top'; top.setAttribute('aria-label', 'Back to the top');
+    top.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    document.body.appendChild(top);
+    window.addEventListener('scroll', () => top.classList.toggle('is-on', phone() && window.scrollY > 2 * window.innerHeight), { passive: true });
+
+    // ---- W3b: the header's New York and Hong Kong clocks, language, sound and colour theme live in the Menu on phones
+    // (Beginner is already in the Menu; the UTC clock stays on the first screen, Gemini's change)
+    const sheet = document.getElementById('m-menu');
+    const mirrorSel = (src, label) => {
+      const l = document.createElement('label'); l.appendChild(document.createTextNode(label));
+      const s = src.cloneNode(true); s.removeAttribute('id'); s.value = src.value;
+      s.addEventListener('change', () => { src.value = s.value; src.dispatchEvent(new Event('change', { bubbles: true })); });
+      l.appendChild(s); return l;
+    };
+    const settings = () => {
+      if (!sheet || sheet.hidden || !phone() || sheet.querySelector('.m-menu-set')) return;
+      const g = document.createElement('div'); g.className = 'm-menu-group m-menu-set';
+      const h = document.createElement('span'); h.className = 'm-menu-l'; h.textContent = 'Settings'; g.appendChild(h);
+      const clk = document.createElement('div'); clk.className = 'm-menu-clocks';
+      const tick = () => { const d = new Date(), f = (tz) => new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit' }).format(d);
+        clk.replaceChildren(document.createTextNode('New York'), Object.assign(document.createElement('b'), { textContent: f('America/New_York') }), document.createTextNode('Hong Kong'), Object.assign(document.createElement('b'), { textContent: f('Asia/Hong_Kong') })); };
+      tick(); const iv = setInterval(() => { if (sheet.hidden) clearInterval(iv); else tick(); }, 15000);
+      g.appendChild(clk);
+      const lang = document.getElementById('lang-pick'); if (lang) g.appendChild(mirrorSel(lang, '🌐 Language'));
+      const snd = document.getElementById('sound-btn');
+      if (snd) { const b = document.createElement('button'); b.type = 'button'; b.textContent = snd.textContent.trim(); b.addEventListener('click', () => { snd.click(); setTimeout(() => { b.textContent = snd.textContent.trim(); }, 60); }); g.appendChild(b); }
+      const th = document.getElementById('theme-pick'); if (th) g.appendChild(mirrorSel(th, '🎨 Colour theme'));
+      const model = [...sheet.querySelectorAll('.m-menu-group')].find((x) => x.querySelector('.m-menu-model'));
+      if (model) model.after(g); else sheet.appendChild(g);
+    };
+    if (sheet) new MutationObserver(settings).observe(sheet, { attributes: true, attributeFilter: ['hidden'], childList: true });
   })();
 
   dash.draw('refreshed', (el) => {
