@@ -2,8 +2,9 @@
 each AI grades the OTHER AIs' trades and bets, A to F plus one sentence, shown under each decision as a competitor's opinion.
 
 G1 a fixed public rubric (thesis, sizing, risk control, use of what was known); strict risk-officer tone; no generic filler.
-G2 neutral selection: every new trade and bet since the grader's last grading; if more than 5, the 5 largest by amount.
-   "no view" is allowed and shown.
+G2 every decision (owner, Oct 29: "make sure all decisions are graded by the two opposite models"): every trade and bet of the other
+   two AIs since the Oct 28 restart, until all are graded; up to 20 per check-in, the newest first so new decisions are graded at the
+   next check-in, and the older ones over the following check-ins. "no view" is allowed and shown.
 G3 no hindsight: the grader sees only what was known at the decision (time, price then, size, reason, what would prove it
    wrong), never today's price or the result.
 G4 anonymous: "Competitor A" and "Competitor B", reshuffled at every grading.
@@ -23,8 +24,9 @@ from datetime import datetime, timedelta, timezone
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 SRC = 'ops/src'
-MAX = 5
-RUBRIC = ('PEER GRADES (agreed by all three AIs): grade the other AIs\' new trades and bets as a strict, fair chief risk officer, using only '
+MAX = 20
+RESTART = datetime(2026, 10, 28, 17, 44, tzinfo=timezone.utc)
+RUBRIC = ('PEER GRADES (agreed by all three AIs): grade every one of the other AIs\' trades and bets as a strict, fair chief risk officer, using only '
           'what was known when each decision was made (never how it turned out): (1) thesis quality: is the reason specific, sourced and '
           'sensible? (2) sizing: does the size fit the conviction and the caps? (3) risk control: is there a clear exit or "what would prove it '
           'wrong"? (4) use of the information available at the time. Grades: A excellent, B good, C acceptable, D poor, F reckless; or '
@@ -148,15 +150,11 @@ def last_graded(grader, state):
 def tasks(grader, state, now, fx_cad=1.38):
     """(text for the grader, {gid: decision}) or ('', {}) when nothing is new. G2 selection, G3 no hindsight, G4 anonymous."""
     others = [m for m in ('claude', 'gemini', 'chatgpt') if m != grader]
-    since = last_graded(grader, state)
-    floor = now - timedelta(hours=24)
-    since_t = max(_when(since), floor) if since else floor
     done = graded_keys(grader, state)
-    vo = _voids(grader)
-    pool = [d for m in others for d in decisions(m, state, fx_cad) if (_when(d['at']) > since_t or d['key'] in vo) and d['key'] not in done and _when(d['at']) <= now]
+    pool = [d for m in others for d in decisions(m, state, fx_cad) if d['key'] not in done and RESTART <= _when(d['at']) <= now]
     if not pool:
         return '', {}
-    pick = sorted(pool, key=lambda d: -d['amount'])[:MAX] if len(pool) > MAX else pool
+    pick = sorted(pool, key=lambda d: _when(d['at']), reverse=True)[:MAX]   # every decision gets graded: the newest first, the rest over the next check-ins
     pick.sort(key=lambda d: _when(d['at']))
     letters = ['Competitor A', 'Competitor B']
     rnd = random.Random(f'{grader}|{now.isoformat()}')
@@ -171,7 +169,7 @@ def tasks(grader, state, now, fx_cad=1.38):
         lines.append(f"  - {gid}: {alias[d['model']]}, {d['at'][:16].replace('T', ' ')} UTC, {d['experiment']}: {d['action']} {d['what']}, "
                      f"about C${d['amount']:,.0f} at {pxs}. Its reason then: \"{d['reason'] or '(none given)'}\""
                      + (f" What it said would prove it wrong: \"{d['wrong_if']}\"" if d['wrong_if'] else ''))
-    text = (RUBRIC + f' Decisions to grade now ({len(pick)}' + (f' largest of {len(pool)} new' if len(pool) > MAX else ' new') + '; the competitors are anonymous and reshuffled each time):\n'
+    text = (RUBRIC + f' Decisions to grade now ({len(pick)}' + (f' newest of {len(pool)} not yet graded by you; the rest come at your next check-ins' if len(pool) > MAX else ' not yet graded by you') + '; the competitors are anonymous and reshuffled each time; grade each only on what was known when it was made, even if it was made a while ago):\n'
             + '\n'.join(lines) + '\nAdd a top-level field "grades": {"g1": {"grade": "A" | "B" | "C" | "D" | "F" | "no view", "text": "one sentence, 25 words or fewer"}, ...} covering every id above.')
     return text, mapping
 

@@ -1457,9 +1457,10 @@ CHECKABLE = re.compile(r'\d|\b(fed|fomc|ecb|boj|bank of|central bank|earnings|re
                        r'hack|halt|war|ceasefire|strike|opec|election|polls?|injur\w*|final|won|beat|missed|resign\w*|announc\w*|reported|record)\b', re.I)
 
 
-def race_takes_to_check(state, target, n=3):
-    """The target's newest race take per race, written in the last 12 hours, that states something checkable and has not been checked
-    yet; the newest n of them. Race takes with nothing checkable (plans, opinions, its own holdings) are never sent for checking."""
+def race_takes_to_check(state, target, n=12):
+    """The target's newest race take per race (the one the site shows under that race), written in the last 12 hours, that states
+    something checkable and has not been checked yet: all of them (up to the 12 races), so every take that needs a check gets one (owner,
+    Oct 29). Race takes with nothing checkable (plans, opinions, its own holdings) are never sent for checking."""
     if target == 'claude':
         try:
             pool = [x for x in json.load(open('ops/src/take.json')) if x.get('experiment')]
@@ -1759,7 +1760,7 @@ def main():
                                     '{"verdict": "ok" | "partly" | "wrong" | "unverified" | "none", "text": "1-2 neutral sentences: what is right or wrong, with the correct fact", "source": "one URL you checked"}. ')
                         fc_take = ct
                     if fc_races:
-                        fc_task += (f'Also {tname}\'s newest race takes (each shown on the site under that race): '
+                        fc_task += (f'Also every one of {tname}\'s newest race takes that states a fact (each shown on the site under that race; check each claim on its own, one source per race is enough): '
                                     + ' '.join(f'[{e}] (written {x["at"]}): "{x["text"]}"' for e, x in fc_races)
                                     + ' Add a top-level field "fact_check_' + fc_target + '_races": {"<race name in the brackets>": {"verdict": ..., "text": ..., "source": ...}, ...} covering each one. ')
                     fc_task += f'This is shown on the website only; it is not sent to {tname}. '

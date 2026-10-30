@@ -1,8 +1,8 @@
 """Claude's fact checks of ChatGPT (the loop: Gemini checks Claude, ChatGPT checks Gemini, Claude checks ChatGPT).
 
   python3 ops/fcheck.py todo
-      lists what to check now: ChatGPT's newest overall take if it is not checked yet, and up to 3 of its newest race takes (the
-      one-sentence take per race shown on the site under that race) that state a checkable fact and are not checked yet.
+      lists what to check now: ChatGPT's newest overall take if it is not checked yet, and every one of its newest race takes (the
+      one-sentence take per race shown on the site under that race) that states a checkable fact and is not checked yet.
 
 For each one, append an entry to ops/src/factcheck.json: at (ET ISO, now), model "chatgpt", take_at (the take's exact "at" as listed),
 experiment (only for a race take: the race name as listed), take (its text, may be shortened), verdict ("ok", "partly", "wrong",
