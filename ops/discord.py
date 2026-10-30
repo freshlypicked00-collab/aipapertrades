@@ -12,7 +12,9 @@ import time
 import urllib.error
 import urllib.request
 
-URL = os.environ.get('DISCORD_WEBHOOK_URL', '').strip()
+URL = os.environ.get('DISCORD_WEBHOOK_URL', '').strip()                # #live-trades: everything Telegram gets
+DAILY = os.environ.get('DISCORD_WEBHOOK_DAILY', '').strip()           # #daily-results: the race card after each daily close
+LEADS = os.environ.get('DISCORD_WEBHOOK_LEADS', '').strip()           # #lead-changes: each time an AI takes the lead in a race
 UA = 'PaperTradesBot (https://papertrades.ai, 1.0)'   # Discord rejects requests with no User-Agent
 
 
@@ -28,8 +30,9 @@ def to_md(text):
     return html.unescape(t).strip()
 
 
-def post(text, photo=None):
-    """Send one message (with an optional PNG). Returns True when Discord accepted it."""
+def post(text, photo=None, url=None):
+    """Send one message (with an optional PNG) to #live-trades, or to the webhook given. Returns True when Discord accepted it."""
+    URL = (url if url is not None else globals()['URL']) or ''
     if not URL:
         return False
     try:

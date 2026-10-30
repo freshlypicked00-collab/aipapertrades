@@ -436,6 +436,7 @@ for day, n in race_days[-1:]:
                 txt.append(f"\nBiggest move today: {racecard.AIS[mid][0]} in {racecard.LABEL.get(e, e)}, {racecard.money(d, e)} ({pct * 100:+.1f}%)")
             txt.append(f"\nThe races are only added together at the final scoring on Nov 28.\nShare it 👉 {SITE}")
             send('\n'.join(txt), pic, silent=False)
+            discord.post('\n'.join(txt), pic, url=discord.DAILY)   # also in #daily-results (owner, Oct 30)
     except Exception as e:
         print('race card failed', e)
 print(f'{len(msgs)} message(s)')
