@@ -53,7 +53,7 @@ script += """
 
 # --- live New York clock, market status, and a per-second countdown
 markup = sub(markup, '<span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 28</span>',
-  '<span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 28</span>\n      <span class="st-clock">New York <b class="st-count" data-draw="clock">—</b></span>\n      <span class="st-clock">Hong Kong <b class="st-count" data-draw="clock-hk">—</b></span>\n      <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b></span>\n      <span class="st-clock st-since"><span class="st-since-who">Last update</span> <b class="st-count" data-draw="since-update">—</b></span>\n      <button type="button" class="st-status-dot" data-draw="statusdot" data-source="status" title="System status">—</button>\n      <span class="st-clock"><span class="st-mkt" data-draw="market">—</span> <span class="st-mkt" data-draw="market-cn">—</span></span>\n      <label class="st-lang notranslate" translate="no" title="Language"><span aria-hidden="true">🌐</span><select id="lang-pick" aria-label="Language"><option value="en">English</option><option value="zh-CN">中文 (简体)</option><option value="zh-TW">中文 (繁體)</option><option value="hi">हिन्दी</option><option value="es">Español</option><option value="fr">Français</option><option value="ar">العربية</option><option value="bn">বাংলা</option><option value="pt">Português</option><option value="ru">Русский</option><option value="id">Bahasa Indonesia</option><option value="ur">اردو</option><option value="de">Deutsch</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="tr">Türkçe</option></select></label> <button type="button" class="st-theme" id="sound-btn" aria-pressed="false" title="Play a cha-ching when an AI makes C$100 or more">🔈 Sound off</button> <button type="button" class="st-theme" id="beginner-btn" aria-pressed="false" title="Plain-English explanations for people new to markets and betting">🎓 Beginner</button> <button type="button" class="st-theme" id="theme-btn">Light mode</button>', 1)
+  '<span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 28</span>\n      <span class="st-clock">New York <b class="st-count" data-draw="clock">—</b></span>\n      <span class="st-clock">Hong Kong <b class="st-count" data-draw="clock-hk">—</b></span>\n      <span class="st-clock">UTC <b class="st-count" data-draw="clock-utc">—</b></span>\n      <span class="st-clock st-since"><span class="st-since-who">Last update</span> <b class="st-count" data-draw="since-update">—</b></span>\n      <button type="button" class="st-status-dot" data-draw="statusdot" data-source="status" title="System status">—</button>\n      <span class="st-clock"><span class="st-mkt" data-draw="market">—</span> <span class="st-mkt" data-draw="market-cn">—</span></span>\n      <label class="st-lang notranslate" translate="no" title="Language"><span aria-hidden="true">🌐</span><select id="lang-pick" aria-label="Language"><option value="en">English</option><option value="zh-CN">中文 (简体)</option><option value="zh-TW">中文 (繁體)</option><option value="hi">हिन्दी</option><option value="es">Español</option><option value="fr">Français</option><option value="ar">العربية</option><option value="bn">বাংলা</option><option value="pt">Português</option><option value="ru">Русский</option><option value="id">Bahasa Indonesia</option><option value="ur">اردو</option><option value="de">Deutsch</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="tr">Türkçe</option></select></label> <button type="button" class="st-theme" id="sound-btn" aria-pressed="false" title="Play a cha-ching when an AI makes C$100 or more">🔈 Sound off</button> <button type="button" class="st-theme" id="beginner-btn" aria-pressed="false" title="Plain-English explanations for people new to markets and betting">🎓 Beginner</button> <label class="st-lang st-themepick notranslate" translate="no" title="Colour theme"><span aria-hidden="true">🎨</span><select id="theme-pick" aria-label="Colour theme"><optgroup label="Dark"><option value="dark" data-short="Terminal">Terminal (dark)</option><option value="midnight" data-short="Midnight">Midnight (dark)</option><option value="evergreen" data-short="Evergreen">Evergreen (dark)</option><option value="contrast" data-short="High contrast">High contrast (dark)</option></optgroup><optgroup label="Light"><option value="light" data-short="Paper">Paper (light)</option><option value="reader" data-short="Reader">Reader (light)</option><option value="cloud" data-short="Cloud">Cloud (light)</option><option value="sage" data-short="Sage">Sage (light)</option></optgroup></select></label> <button type="button" class="st-theme" id="fs-btn" hidden title="Full screen (Esc to leave)">⛶ Full screen</button>', 1)
 script = sub(script, """el.textContent = d + (d === 1 ? ' day, ' : ' days, ') + h + (h === 1 ? ' hour' : ' hours');
       };
       tick();
@@ -66,19 +66,32 @@ script = sub(script, """el.textContent = d + (d === 1 ? ' day, ' : ' days, ') + 
       return setInterval(tick, 1000);""", 1)
 script += """
   (function () {
-    const btn = document.getElementById('theme-btn');
-    if (!btn) return;
-    const MODES = ['dark', 'light', 'reader'], NAME = { dark: 'Dark mode', light: 'Light mode', reader: 'Reader mode' };
-    const cur = () => document.documentElement.dataset.theme || 'dark';
-    const show = () => { const n = MODES[(MODES.indexOf(cur()) + 1) % 3]; btn.textContent = NAME[n]; btn.title = 'Now: ' + NAME[cur()] + '. Click for ' + NAME[n] + '.'; btn.setAttribute('aria-label', 'Switch to ' + NAME[n] + ' (now ' + NAME[cur()] + ')'); };
-    btn.addEventListener('click', () => {
-      const n = MODES[(MODES.indexOf(cur()) + 1) % 3];
-      if (n === 'dark') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = n;
-      try { localStorage.setItem('pt-theme', n); } catch (e) {}
-      show();
+    // colour themes: four dark and four light (owner, Oct 29); the choice is remembered in this browser only
+    const pick = document.getElementById('theme-pick');
+    if (!pick) return;
+    const LIGHT = ['light', 'reader', 'cloud', 'sage'];
+    const meta = document.querySelector('meta[name="theme-color"]');
+    const apply = (n, save) => {
+      const R = document.documentElement;
+      if (!pick.querySelector('option[value="' + n + '"]')) n = 'dark';
+      if (n === 'dark') delete R.dataset.theme; else R.dataset.theme = n;
+      R.dataset.tone = LIGHT.includes(n) ? 'light' : 'dark';
+      pick.value = n;
+      if (save) { try { localStorage.setItem('pt-theme', n); } catch (e) {} }
+      if (meta) requestAnimationFrame(() => { const c = getComputedStyle(R).getPropertyValue('--color-bg').trim(); if (c) meta.setAttribute('content', c); });
       if (dash.redraw) dash.redraw();
-    });
-    show();
+    };
+    pick.addEventListener('change', () => apply(pick.value, true));
+    apply(document.documentElement.dataset.theme || 'dark', false);
+    // full screen, on computers only (phones and tablets already use the whole screen)
+    const fs = document.getElementById('fs-btn');
+    const pc = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    if (fs && pc && document.fullscreenEnabled && document.documentElement.requestFullscreen) {
+      fs.hidden = false;
+      const label = () => { const on = !!document.fullscreenElement; fs.textContent = on ? '⛶ Exit full screen' : '⛶ Full screen'; fs.setAttribute('aria-pressed', String(on)); };
+      fs.addEventListener('click', () => { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); else document.documentElement.requestFullscreen().catch(() => {}); });
+      document.addEventListener('fullscreenchange', label); label();
+    }
   })();
   dash.draw('clock', {
     mount: (el) => {
@@ -173,7 +186,39 @@ TERMINAL = """
 :root[data-theme="reader"] body { font-size: 17px; line-height: 1.65; letter-spacing: .005em; }
 :root[data-theme="reader"] .st-note, :root[data-theme="reader"] p { line-height: 1.7; }
 :root:not(#pt-a):not(#pt-b) { --ai-chatgpt:#f2f2f2; }   /* ChatGPT: white on dark, near-black on light */
-:root[data-theme="light"]:not(#pt-a):not(#pt-b), :root[data-theme="reader"]:not(#pt-a):not(#pt-b) { --ai-chatgpt:#3a3125; }
+:root[data-tone="light"]:not(#pt-a):not(#pt-b) { --ai-chatgpt:#3a3125; }
+
+:root[data-theme="midnight"] {
+ --color-bg:#0b1020; --color-panel:#121a2e; --color-fg:#e8edf7; --color-fg-muted:#93a0ba; --color-border-line:#263150;
+ --color-ok:#3ddc97; --color-warn:#ffb547; --color-bad:#ff6b6b; --cds-text-secondary:#93a0ba; --cds-surface-popover:#18213a; --cds-border:#33406a;
+ --cds-chart-grid:#182038; --cds-chart-axis:#33406a; --cds-chart-reference:#6b7899;
+ --series-1:#ffb547; --series-2:#6cb6ff; --series-3:#3ddc97; --series-4:#c9b6ff; color-scheme:dark;
+ --accent:#ffb547; --accent-bg:rgba(255,181,71,.07); --card-inset:#1a2440; --title:#ffffff; }
+:root[data-theme="evergreen"] {
+ --color-bg:#0c1410; --color-panel:#121c17; --color-fg:#e7efe9; --color-fg-muted:#97a99e; --color-border-line:#24342b;
+ --color-ok:#5fd38d; --color-warn:#f2b84b; --color-bad:#ff6f61; --cds-text-secondary:#97a99e; --cds-surface-popover:#17241d; --cds-border:#2f4237;
+ --cds-chart-grid:#18241e; --cds-chart-axis:#2f4237; --cds-chart-reference:#6c8275;
+ --series-1:#f2b84b; --series-2:#64b5f6; --series-3:#5fd38d; --series-4:#d9c77a; color-scheme:dark;
+ --accent:#f2b84b; --accent-bg:rgba(242,184,75,.07); --card-inset:#1a2a21; --title:#ffffff; }
+:root[data-theme="contrast"] {
+ --color-bg:#000000; --color-panel:#0a0a0a; --color-fg:#ffffff; --color-fg-muted:#cfcfcf; --color-border-line:#5a5a5a;
+ --color-ok:#4dff88; --color-warn:#ffd000; --color-bad:#ff6b6b; --cds-text-secondary:#cfcfcf; --cds-surface-popover:#111111; --cds-border:#777777;
+ --cds-chart-grid:#262626; --cds-chart-axis:#777777; --cds-chart-reference:#aaaaaa;
+ --series-1:#ffd000; --series-2:#5cc8ff; --series-3:#4dff88; --series-4:#ff9ad5; color-scheme:dark;
+ --accent:#ffd000; --accent-bg:rgba(255,208,0,.08); --card-inset:#161616; --title:#ffffff; }
+:root[data-theme="cloud"] {
+ --color-bg:#eef1f5; --color-panel:#f8fafc; --color-fg:#1b2230; --color-fg-muted:#566174; --color-border-line:#d3d9e2;
+ --color-ok:#0f7a47; --color-warn:#9a5800; --color-bad:#b8322a; --cds-text-secondary:#566174; --cds-surface-popover:#ffffff; --cds-border:#c5ccd8;
+ --cds-chart-grid:#e3e8ef; --cds-chart-axis:#c0c8d4; --cds-chart-reference:#7d889a;
+ --series-1:#b35c00; --series-2:#1f6fb2; --series-3:#0f7a47; --series-4:#7a5fb5; color-scheme:light;
+ --accent:#a85500; --accent-bg:rgba(168,85,0,.07); --card-inset:#ffffff; --title:#1b2230; }
+:root[data-theme="sage"] {
+ --color-bg:#e8eee6; --color-panel:#f2f6f0; --color-fg:#1f2a22; --color-fg-muted:#56655a; --color-border-line:#cbd6c8;
+ --color-ok:#1d7a3e; --color-warn:#8f5a00; --color-bad:#b03a2e; --cds-text-secondary:#56655a; --cds-surface-popover:#f6f9f4; --cds-border:#bccab8;
+ --cds-chart-grid:#dde6da; --cds-chart-axis:#b7c4b3; --cds-chart-reference:#7b8b7e;
+ --series-1:#9a5c00; --series-2:#2a6f97; --series-3:#1d7a3e; --series-4:#7d6a2a; color-scheme:light;
+ --accent:#8f5a00; --accent-bg:rgba(143,90,0,.07); --card-inset:#f7faf5; --title:#1f2a22; }
+
 body { background:var(--color-bg); }
 .st-title { font-family: var(--font-serif); text-transform: uppercase; letter-spacing: .08em; color: var(--accent); font-size: 26px; }
 .st-title::before { content: "▮ "; color:var(--accent); }
@@ -373,7 +418,7 @@ SPLASH = '<div id="pt-splash" aria-hidden="true">\n  <style>\n    #pt-splash { p
 html = f"""<!doctype html>
 <html lang="en">
 <head>
-<script>try {{ const t = localStorage.getItem('pt-theme'); if (t === 'light' || t === 'reader') document.documentElement.dataset.theme = t; }} catch (e) {{}}</script>
+<script>try {{ const t = localStorage.getItem('pt-theme'); if (['light', 'reader', 'cloud', 'sage', 'midnight', 'evergreen', 'contrast'].includes(t)) document.documentElement.dataset.theme = t; document.documentElement.dataset.tone = ['light', 'reader', 'cloud', 'sage'].includes(t) ? 'light' : 'dark'; }} catch (e) {{}}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Paper Trades - AI Trading Experiment</title>

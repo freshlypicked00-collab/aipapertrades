@@ -414,13 +414,13 @@
   }
   .st-rank-1 { color: #ffc93c; }
   .st-score-top { border-color: rgba(255, 201, 60, .55) !important; box-shadow: inset 0 0 0 1px rgba(255, 201, 60, .25); }
-  :root[data-theme="light"] .st-rank-1, :root[data-theme="reader"] .st-rank-1 { color: #9a6a00; }
+  :root[data-tone="light"] .st-rank-1 { color: #9a6a00; }
   .st-viewing .st-crown { margin-left: 6px; color: #ffc93c; }
   .ai-badge { --bs: 20px; display: inline-flex; width: var(--bs); height: var(--bs); flex: 0 0 auto; vertical-align: middle; margin-right: 7px; }
   .ai-badge svg { width: 100%; height: 100%; overflow: visible; }
   .ai-badge .ab-ring { fill: none; stroke: var(--ab, currentColor); stroke-width: 1.5; }
   .ai-badge .ab-g { fill: none; stroke: #fff; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-  :root[data-theme="light"] .ai-badge .ab-g, :root[data-theme="reader"] .ai-badge .ab-g { stroke: var(--color-fg); }
+  :root[data-tone="light"] .ai-badge .ab-g { stroke: var(--color-fg); }
   .pd-who { display: flex; align-items: center; }
   .ai-mdl { margin-left: 6px; font-size: 11px; font-weight: 500; color: var(--color-fg-muted); white-space: nowrap; letter-spacing: .01em; }
   .ai-hero h2 { display: flex; align-items: center; }
@@ -683,7 +683,7 @@
   .st-podium li button:hover, .st-podium li button[aria-current="true"] { background: var(--card-inset, #1d1c18); }
   .st-podium .pd-place { font-weight: 700; font-size: 13px; }
   .st-podium li:first-child .pd-place { color: #ffc93c; }
-  :root[data-theme="light"] .st-podium li:first-child .pd-place, :root[data-theme="reader"] .st-podium li:first-child .pd-place { color: #9a6a00; }
+  :root[data-tone="light"] .st-podium li:first-child .pd-place { color: #9a6a00; }
   .st-podium .pd-name { font-weight: 600; display: flex; flex-direction: column; min-width: 0; }
   .st-podium .pd-who { flex-wrap: wrap; row-gap: 0; }
   .st-podium .pd-leads { font-weight: 400; font-size: 11.5px; color: var(--color-fg-muted); line-height: 1.35; margin-top: 2px; }
@@ -715,8 +715,8 @@
   /* titles follow the AI being viewed: Claude keeps the gold, Gemini blue, ChatGPT white (near-black in light modes) */
   :root[data-model="gemini"]:not(#pt-a):not(#pt-b) { --accent: #4f8ff7; --accent-bg: rgba(79,143,247,.08); }
   :root[data-model="chatgpt"]:not(#pt-a):not(#pt-b) { --accent: #f2f2f2; --accent-bg: rgba(242,242,242,.06); }
-  :root[data-theme="light"][data-model="gemini"]:not(#pt-a):not(#pt-b), :root[data-theme="reader"][data-model="gemini"]:not(#pt-a):not(#pt-b) { --accent: #1f5fc4; --accent-bg: rgba(31,95,196,.07); }
-  :root[data-theme="light"][data-model="chatgpt"]:not(#pt-a):not(#pt-b), :root[data-theme="reader"][data-model="chatgpt"]:not(#pt-a):not(#pt-b) { --accent: #2a2a2a; --accent-bg: rgba(0,0,0,.05); }
+  :root[data-tone="light"][data-model="gemini"]:not(#pt-a):not(#pt-b) { --accent: #1f5fc4; --accent-bg: rgba(31,95,196,.07); }
+  :root[data-tone="light"][data-model="chatgpt"]:not(#pt-a):not(#pt-b) { --accent: #2a2a2a; --accent-bg: rgba(0,0,0,.05); }
   :root[data-model] .st-score-h, :root[data-model] .st-tabgroup-l { color: var(--accent); }
   /* tab bar at the top: sticky while scrolling; one swipeable row on phones */
   .st-home { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-family: var(--font-mono, monospace); font-size: 13.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); background: none; border: 0; border-bottom: 2px solid transparent; padding: 6px 10px; cursor: pointer; align-self: flex-end; }
@@ -782,7 +782,7 @@
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
-  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --ai-chatgpt: #262626; } }
+  @media (prefers-color-scheme: light) { :root:not([data-tone="dark"]):not([data-theme]) { --ai-chatgpt: #262626; } }
   .st-report-t { margin: 4px 0 0; font-size: 16px; }
   .st-report-when { margin: 0; font-size: 12.5px; color: var(--color-fg-muted); }
   .st-report-p { margin: 8px 0 0; max-width: 75ch; line-height: 1.55; }
@@ -2413,15 +2413,12 @@
     box.appendChild(clk);
     box.appendChild(mirror(mp, 'Model'));
     if (cp) box.appendChild(mirror(cp, 'Currency'));
-    // light / dark mode, the same as the header button
-    const tb = document.getElementById('theme-btn');
-    if (tb) {
-      const t2 = mk('button', 'st-tt-theme'); t2.type = 'button';
-      const same = () => { t2.textContent = tb.textContent; t2.setAttribute('aria-label', tb.textContent); };
-      same(); new MutationObserver(same).observe(tb, { childList: true, characterData: true, subtree: true });
-      t2.addEventListener('click', () => tb.click());
-      box.appendChild(t2);
-    }
+    // the colour theme menu, the same as the header's (eight themes, owner Oct 29)
+    { const tp = document.getElementById('theme-pick'); if (tp) box.appendChild(mirror(tp, 'Theme')); }
+    { const f0 = document.getElementById('fs-btn');   // full screen, computers only (the header button shows only there)
+      if (f0 && document.fullscreenEnabled && window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) { const f2 = mk('button', 'st-tt-theme'); f2.type = 'button'; f2.title = 'Full screen (Esc to leave)';
+        const s2 = () => { f2.textContent = '⛶'; f2.setAttribute('aria-label', document.fullscreenElement ? 'Exit full screen' : 'Full screen'); f2.title = (document.fullscreenElement ? 'Exit full screen' : 'Full screen') + ' (Esc to leave)'; f2.setAttribute('aria-pressed', String(!!document.fullscreenElement)); };
+        s2(); document.addEventListener('fullscreenchange', s2); f2.addEventListener('click', () => f0.click()); box.appendChild(f2); } }
     { const b0 = document.getElementById('beginner-btn');
       if (b0) { const t3 = mk('button', 'st-tt-theme'); t3.type = 'button'; const same3 = () => { t3.textContent = b0.textContent; t3.setAttribute('aria-pressed', b0.getAttribute('aria-pressed') || 'false'); };
         same3(); new MutationObserver(same3).observe(b0, { childList: true, characterData: true, subtree: true, attributes: true }); t3.addEventListener('click', () => b0.click()); box.insertBefore(t3, box.lastChild); } }
@@ -5063,7 +5060,7 @@
     };
     const scan = () => {
       document.querySelectorAll('#dash-root p, #dash-root li, #dash-root td, #dash-root .st-plan, #dash-root blockquote').forEach((el) => {
-        if (el.dataset.say || el.dataset.sayChecked === (el.textContent.length + '') || el.closest(SKIP) || el.offsetParent === null || el.querySelector('#theme-btn, #lang-pick, .st-count')) return;
+        if (el.dataset.say || el.dataset.sayChecked === (el.textContent.length + '') || el.closest(SKIP) || el.offsetParent === null || el.querySelector('#theme-pick, #fs-btn, #lang-pick, .st-count')) return;
         if (!el.closest(SAY_ONLY) && !el.querySelector('q')) return;   // only the AIs' own words and the reports get a ▶ button, never labels, helper notes or tables
         el.dataset.sayChecked = el.textContent.length + '';   // don't re-check unchanged text
         const own = !!el.querySelector(NESTED);   // inner paragraphs carry their own buttons; this one reads only its own text
@@ -5995,6 +5992,17 @@
     if (el._first !== first) { el._first = first; el._exp = null; }   // a market opening or closing moves the page to that race
     if (!el._exp) el._exp = first;
     if (el._follow == null) el._follow = true;   // owner's choice: Most relevant is on at every visit
+    { // Race standings follow the tab you are on: a race's tab shows that race, All in shows the side race, other pages go back to Most relevant (owner, Oct 29)
+      const tab = (document.querySelector('.st-tab[aria-selected="true"]') || {}).dataset; const t = (tab && tab.tab) || 'overview';
+      if (el._tab !== t) {
+        el._tab = t;
+        const race = PFS_ALL.find((k) => k.toLowerCase() === t);
+        if (race) { el._exp = race; el._follow = false; el._ctx = true; }
+        else if (t === 'allin') { if (!ALLIN[el._exp]) el._exp = 'AllInTrading'; el._follow = false; el._ctx = true; }
+        else if (el._ctx) { el._ctx = false; el._follow = true; el._exp = first; }
+      }
+      if (!el._tabHook) { el._tabHook = true; window.addEventListener('pt-tab', () => { if (dash.redraw) dash.redraw(); }); }
+    }
     const hot = el._follow ? hottestRace() : null;   // "Most relevant": the race with the biggest move in the last 2 hours, re-checked at every data update
     if (hot) el._exp = hot.race;   // every visit opens on the race whose market is open (China, then US, else Crypto); nothing is remembered
     const want = el._exp === 'Overall' ? null : el._exp;   // Overall: the take, plans, feelings and opinions across all races
