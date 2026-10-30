@@ -317,6 +317,18 @@ def publish():
             time.sleep(10)
         if not live:
             print('::warning::pictures not live yet, will retry next run: ' + p['id']); continue
+        # never twice (Oct 30: Instagram published a post while answering with an error, and the retry posted it again): if a post with
+        # the same opening words went up in the last 24 hours, record it and move on
+        if not p.get('story'):
+            try:
+                recent = api(f'{ig}/media', {'fields': 'id,caption,timestamp', 'limit': '15'}).get('data', [])
+                head = (p.get('caption') or '')[:80]
+                dup = next((m for m in recent if head and (m.get('caption') or '')[:80] == head), None)
+                if dup:
+                    state['posted'][p['id']] = {'at': NOW.isoformat(), 'media': dup.get('id'), 'note': 'already on Instagram; not posted again'}
+                    print('::notice::already posted, skipped: ' + p['id']); continue
+            except Exception as e:
+                print('::warning::could not check for a duplicate, not posting ' + p['id'] + ' this run: ' + str(e)[:200]); continue
         try:
             def wait_ready(cid):
                 for _ in range(24):   # Instagram processes each picture before it can be used
