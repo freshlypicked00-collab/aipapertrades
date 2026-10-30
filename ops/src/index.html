@@ -828,7 +828,7 @@
     .st > nav.st-tabs { order: 1; position: static; box-shadow: none; margin: 4px 0 8px; }
   }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
-  [data-model-hidden] { display: none !important; }
+  [data-model-hidden], [data-risk-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
   @media (prefers-color-scheme: light) { :root:not([data-tone="dark"]):not([data-theme]) { --ai-chatgpt: #262626; } }
   .st-report-t { margin: 4px 0 0; font-size: 16px; }
@@ -956,6 +956,13 @@
           <option value="HKD">Hong Kong dollars (HK$)</option><option value="AUD">Australian dollars (A$)</option><option value="INR">Indian rupees (₹)</option>
           <option value="MXN">Mexican pesos (MX$)</option><option value="CHF">Swiss francs (CHF)</option><option value="KRW">South Korean won (₩)</option>
           <option value="BRL">Brazilian reais (R$)</option><option value="SGD">Singapore dollars (S$)</option>
+        </select>
+        <label class="st-model-l" for="risk-pick">Risk profile</label>
+        <select id="risk-pick" class="risk-pick" title="Show only the races with this level of rules (owner, Oct 30; labels agreed with Gemini and ChatGPT)">
+          <option value="" data-short="Risk: all levels">All risk levels</option>
+          <option value="strict" data-short="Risk: Strict">Strict: Play it safe (low-risk funds, no leverage)</option>
+          <option value="standard" data-short="Risk: Standard">Standard: the main races (normal limits)</option>
+          <option value="unrestricted" data-short="Risk: Unrestricted">Unrestricted: All in (no limits, side race)</option>
         </select>
         <p class="st-model-note" id="cur-note" hidden>Converted at the latest exchange rates for viewing only. Each experiment still runs in its own currency.</p>
         <button type="button" class="st-model-cmp" data-goto="h2h">Compare all models in AI vs AI →</button>
@@ -2509,6 +2516,7 @@
     box.appendChild(clk);
     box.appendChild(mirror(mp, 'Model'));
     if (cp) box.appendChild(mirror(cp, 'Currency'));
+    { const rp = document.getElementById('risk-pick'); if (rp) { const l = mirror(rp, 'Risk'); l.title = 'Risk profile: show only Strict, Standard or Unrestricted races'; box.appendChild(l); } }
     // the colour theme menu, the same as the header's (eight themes, owner Oct 29)
     { const tp = document.getElementById('theme-pick'); if (tp) { const l = mirror(tp, 'Colour theme'); l.title = 'Terminal on your first visit, then the one you pick is remembered in this browser'; box.appendChild(l); } }
     // the bar's Beginner and Full screen copies show only once the header's own buttons have scrolled out of view, so the two are never on screen together (owner, Oct 30)
@@ -7040,11 +7048,31 @@
       const best = Math.max(...Object.values(n)), tied = Object.keys(n).filter((k) => n[k] === best);
       return tied.length === 1 ? tied[0] : (top.find((r) => tied.includes(r.id)) || {}).id || null; } catch (e) { return null; }
   };
+  // ---------- Risk profile menu (owner, Oct 30; Gemini and ChatGPT agreed, with these labels rather than Low/Medium/High,
+  // so nothing reads as a promise of low risk). It only filters what is shown: no rule, trade or scoring changes.
+  const RISK_TABS = { strict: ['safe'], standard: ['stocks', 'crypto', 'china', 'metals', 'energy', 'options', 'currencies', 'sports', 'predictions'], unrestricted: ['allin', 'allinledger'] };
+  const riskOf = (race) => race === 'Safe' ? 'strict' : ALLIN[race] ? 'unrestricted' : 'standard';
+  const applyRisk = (jump) => {
+    const rk = window.ptRisk || '', all = [].concat(...Object.values(RISK_TABS));
+    all.forEach((t) => { const hide = !!rk && !RISK_TABS[rk].includes(t);
+      document.querySelectorAll('.st-tab[data-tab="' + t + '"], .st-card[data-goto="' + t + '"]').forEach((el) => { if (hide) el.setAttribute('data-risk-hidden', ''); else el.removeAttribute('data-risk-hidden'); }); });
+    const vis = (el) => !el.hasAttribute('data-risk-hidden') && !el.hasAttribute('data-model-hidden');
+    document.querySelectorAll('.st-tabgroup').forEach((g) => { const tabs = [...g.querySelectorAll('.st-tab')]; if (rk && tabs.length && !tabs.some(vis)) g.setAttribute('data-risk-hidden', ''); else g.removeAttribute('data-risk-hidden'); });
+    document.querySelectorAll('.st-group-h').forEach((h) => { const grid = h.nextElementSibling; if (!grid) return; const cards = [...grid.querySelectorAll('.st-card[data-goto]')]; if (!cards.length) return;
+      [h, grid].forEach((el) => { if (rk && !cards.some(vis)) el.setAttribute('data-risk-hidden', ''); else el.removeAttribute('data-risk-hidden'); }); });
+    if (jump && rk) goTab(rk === 'strict' ? 'safe' : rk === 'unrestricted' ? 'allin' : 'overview');
+    else if (rk) { const cur = (location.hash || '#overview').slice(1); if (all.includes(cur) && !RISK_TABS[rk].includes(cur)) goTab('overview'); }
+    dash.redraw();
+  };
+  { const rp = document.getElementById('risk-pick');
+    if (rp) rp.addEventListener('change', () => { window.ptRisk = rp.value; applyRisk(true); }); }
   dash.draw('scoreboard', (el) => {
     // the best results across all three AIs, each race on its own (owner, Oct 29): tap one to switch to that AI and open that race
     el.replaceChildren();
-    const sr = scoreRows();
-    if (!sr.rows.length) return;
+    const sr0 = scoreRows();
+    if (!sr0.rows.length) return;
+    const rk = window.ptRisk || '', inRisk = (r) => !rk || riskOf(r.race) === rk;   // the Risk profile menu (owner, Oct 30)
+    const sr = rk ? { rows: sr0.rows.filter(inRisk), live: sr0.live.filter(inRisk), idle: sr0.idle.filter(inRisk) } : sr0;
     // on a race's tab or All in, only that section: the three AIs ranked in it (owner; all three AIs agreed, Oct 29). Home and every
     // other page keep the full Scoreboard; "Show all races" brings it back on the section too.
     const tab = ((document.querySelector('.st-tab[aria-selected="true"]') || {}).dataset || {}).tab || 'overview';
