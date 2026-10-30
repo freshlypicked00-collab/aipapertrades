@@ -1,7 +1,11 @@
 {
   "at": "2026-10-30T05:20:00-04:00",
   "topic": "Clearer trade pictures on Telegram (owner: 'they don't show when you bought in, the price, or why'). The owner asked the three AIs to agree; he did not choose.",
-  "agreed_by": ["claude", "gemini", "chatgpt"],
+  "agreed_by": [
+    "claude",
+    "gemini",
+    "chatgpt"
+  ],
   "answers": "ops/review/tradecards-oct30.json",
   "design": [
     "One check-in = one Telegram album: a cover (headline + one row per move with its price) then one card per move, chronological; at most 9 move cards, the cover says how many more.",
@@ -12,5 +16,9 @@
     "Bets: odds, stake (% of the race), to win; results: stake, result, settled time.",
     "Identical layout, limits, order and data rules for all three AIs, Claude included; a missing number is left out, never estimated."
   ],
-  "code": "ops/sharecard.py (album, move_card, cover_card, buy_in, race_value, tg_album); used by ops/rivals.py (Gemini, ChatGPT) and ops/telegram.py (Claude)"
+  "code": "ops/sharecard.py (album, move_card, cover_card, buy_in, race_value, tg_album); used by ops/rivals.py (Gemini, ChatGPT) and ops/telegram.py (Claude)",
+  "owner_change": {
+    "at": "2026-10-30T05:05:00-04:00",
+    "text": "Owner: 'make sure descriptive, I like where it explains why'. The why limit went from 260 to 480 characters (wrong-if 150 to 220), long reasons in smaller type; the 24-hour chart is drawn only where it still fits, so the reason always comes first. Same for all three AIs."
+  }
 }
