@@ -862,7 +862,7 @@
   .st-home:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   @media (min-width: 701px) and (min-height: 521px) { .m-menu-fab { display: none !important; } }
   .st-tabs-tools { display: none; }
-  @media (min-width: 1000px) {
+  @media (min-width: 701px) {   /* was 1000px: windows 701 to 999px wide (a half-screen browser, tablets) get Close / Shrink too (owner, Oct 30) */
     .st-tabs-tools { display: flex; order: -1; flex: 0 0 100%; justify-content: flex-end; gap: 12px; align-items: center; padding: 4px 0 2px; }   /* its own slim row at the top of the sticky bar */
     .st-tabs-tools .st-tt { display: flex; align-items: center; gap: 6px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-fg-muted); }
     .st-tabs-tools .st-tt-clock { gap: 5px; font-family: var(--font-mono, monospace); }
@@ -892,6 +892,21 @@
   }
   .st-tabs { position: sticky; top: 0; z-index: 40; background: var(--color-bg); margin: 8px 0 14px; padding-top: 2px; box-shadow: 0 6px 12px -10px rgba(0,0,0,.6); }
   /* the headlines and the price ticker ride along at the bottom of the sticky bar (owner, Oct 29) */
+  /* the Shrink button (owner, Oct 30): every tab, group label and headline stays, in a few slim rows instead of tall groups */
+  @media (min-width: 701px) {
+    .st-tabs.st-tabs--compact { row-gap: 2px; column-gap: 2px; }
+    .st-tabs.st-tabs--compact .st-tabgroup { display: contents; }
+    .st-tabs.st-tabs--compact .st-tabgroup-l { position: static; align-self: center; margin: 0 2px 0 12px; font-size: 9.5px; }
+    .st-tabs.st-tabs--compact .st-tab { padding: 3px 7px; font-size: 12px; }
+    .st-tabs.st-tabs--compact .st-home { padding: 3px 6px; font-size: 12px; }
+    .st-tabs.st-tabs--compact > .pt-feed .pt-news { min-height: 22px; }
+    .st-tabs.st-tabs--compact > .pt-feed .pt-n-t { font-size: 12px; }
+    .st-tabs.st-tabs--compact > .pt-feed .pt-tk-i { padding: 2px 14px; font-size: 11.5px; }
+  }
+  @media (min-width: 701px) and (max-width: 999px) {   /* narrower windows: the slim row holds the logo and the menu buttons only */
+    .st-tabs-tools > :not(.st-tt-brand):not(.st-tt-fold):not(.st-tt-size) { display: none !important; }
+    .st-tabs-tools .st-tt-brand span { display: none; }
+  }
   .st-tabs > .pt-feed { flex: 0 0 100%; order: 99; min-width: 0; margin: 2px 0 0; }
   .st-tabs > .pt-feed .pt-news { margin: 0; min-height: 30px; }
   .st-tabs > .pt-feed .pt-n-t { font-size: 13px; }
@@ -1179,7 +1194,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'e2a5432b651e';</script>
+<script>window.PT_PAGE_VER = 'bc56d4413424';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -2948,6 +2963,19 @@ body { background:var(--color-bg); }
       mb.addEventListener('click', () => set(!nav.classList.contains('st-tabs--min')));
       window.addEventListener('pt-tab', paint);
       set(true); box.appendChild(mb);   // every visit starts with the menu closed; tap Open menu to show it (owner, Oct 30, changed from open)
+    }
+    { // shrink the open menu: every tab, label and headline stays, in a few slim rows (owner, Oct 30); the size is remembered in this browser
+      const sb = mk('button', 'st-tt-theme st-tt-size'); sb.type = 'button';
+      let small = false; try { small = localStorage.getItem('pt-menu-size') === 'small'; } catch (e) {}
+      const paintS = () => {
+        sb.hidden = nav.classList.contains('st-tabs--min');   // shows only while the menu is open
+        if (nav.classList.contains('st-tabs--compact') !== small) nav.classList.toggle('st-tabs--compact', small);
+        sb.textContent = small ? '⤢ Full size' : '⤡ Shrink'; sb.setAttribute('aria-pressed', String(small));
+        sb.title = small ? 'Show the menu at full size' : 'Make the menu smaller: every tab stays, in less space';
+      };
+      sb.addEventListener('click', () => { small = !small; try { localStorage.setItem('pt-menu-size', small ? 'small' : 'full'); } catch (e) {} paintS(); box.dispatchEvent(new Event('pt-fit')); });
+      new MutationObserver(paintS).observe(nav, { attributes: true, attributeFilter: ['class'] });
+      paintS(); box.insertBefore(sb, box.querySelector('.st-tt-fold'));
     }
     { // the bar fits the page at any width or zoom: the least important bits give way, one at a time, until nothing sticks out (owner, Oct 30)
       const steps = ['fit-clock', 'fit-live', 'fit-labels', 'fit-brand', 'fit-narrow'];
