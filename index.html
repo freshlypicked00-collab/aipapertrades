@@ -1201,7 +1201,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '0a9b60924f66';</script>
+<script>window.PT_PAGE_VER = 'af9735666b0f';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -4451,7 +4451,9 @@ body { background:var(--color-bg); }
       const hb = el.id ? document.getElementById(el.id + '-hold') : null;
       if (hb) { if (AL) allinHold(hb, p, money); else holdList(hb, p, TR, money); }
       { const px = el.id ? document.getElementById(el.id + '-px') : null, pw = el.id ? document.getElementById(el.id + '-pxw') : null;
-        if (px) { if (pw) pw.hidden = p === 'Sports' || AL; if (!AL && px.dataset.portfolio !== p) { px.dataset.portfolio = p; px._pick = null; } if (px._redraw && p !== 'Sports' && !AL) px._redraw(); } }
+        // All in: trading has holdings too, so its price chart shows (owner, Oct 30: "where did the market prices chart go?"); sports bets have none
+        const pxOk = p !== 'Sports' && p !== 'AllInSports';
+        if (px) { if (pw) pw.hidden = !pxOk; if (pxOk && px.dataset.portfolio !== p) { px.dataset.portfolio = p; px._pick = null; } if (px._redraw && pxOk) px._redraw(); } }
     };
     el._redraw = run;
     run();
@@ -4507,10 +4509,19 @@ body { background:var(--color-bg); }
   // ---------- one holding's price, picked with chips
   dash.draw('price-chart', (el) => {
     const run = () => {
-      const P = dash.data('prices'), H = dash.data('holdings'), R = dash.data('rules'), T = dash.data('trades');
+      const P0 = dash.data('prices'), H0 = dash.data('holdings'), R0 = dash.data('rules'), T0 = dash.data('trades');
       el.replaceChildren();
-      if ([P, H, R, T].some((x) => x.status !== 'ok')) return;
+      if ([P0, H0, R0, T0].some((x) => x.status !== 'ok')) return;
       const pf = el.dataset.portfolio;
+      let P = P0, H = H0, R = R0, T = T0;
+      if (pf === 'AllInTrading') {   // the All in side race: its own holdings and check-in prices (owner, Oct 30)
+        const mid = dash.model || 'claude', A = (dash.baseData('allin_px') || []).filter((x) => x.model === mid);
+        const opt = (sym) => /^[A-Z]{1,6}\d{6}[CP]\d{8}$/.test(sym);
+        H = { status: 'ok', data: A.map((x) => ({ portfolio: pf, holding: x.name, quantity: x.qty, entry_usd: x.entry, price_usd: x.last, price_at: x.priced_at, price_source: opt(x.sym) ? 'Cboe (15-min delayed)' : 'Yahoo Finance' })) };
+        P = { status: 'ok', data: [].concat(...A.map((x) => (x.hist || []).map(([m, v]) => ({ asset: x.name, at: new Date(m * 60e3).toISOString(), price: v })))) };
+        T = { status: 'ok', data: (dash.baseData('allin_trades') || []).filter((t) => t.model === mid && t.experiment === pf).map((t) => ({ at: t.at, portfolio: pf, holding: t.name || t.symbol, action: t.action, price_usd: t.price })) };
+        R = { status: 'ok', data: [] };
+      }
       const hs = H.data.filter((h) => h.portfolio === pf && h.holding !== 'USDC' && !/^Cash/.test(h.holding) && Math.abs(Number(h.quantity)) > 1e-9 && (h.price_local ?? h.price_usd) !== null && (h.price_local ?? h.price_usd) !== undefined);
       if (!hs.length) { el.appendChild(mk('div', 'gx-empty', 'Nothing held yet.')); return; }
       const pick = el._pick && hs.some((h) => h.holding === el._pick) ? el._pick : hs[0].holding;

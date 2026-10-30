@@ -566,6 +566,11 @@ data['fx_meta'] = [json.load(open(os.path.join(SRC, 'fx.json')))]
 _ai = [{'id': 'claude', 'started': (r.get('claude_allin') or {}).get('started'), 'books': (r.get('claude_allin') or {}).get('books', {})}] if r.get('claude_allin') else []
 data['allin_models'] = _ai + [{'id': k, 'started': v.get('started'), 'books': _nohist({e: b for e, b in v['books'].items() if e.startswith('AllIn')})} for k, v in r['models'].items()]
 data['allin_trades'] = [t for t in r['trades'] if str(t.get('experiment', '')).startswith('AllIn')]
+# All in: trading holdings with their own price at every check-in, so the per-holding price chart also works for the side race (owner, Oct 30)
+data['allin_px'] = [{'model': k, 'exp': e, 'sym': sym, 'name': x.get('name') or sym, 'qty': x.get('qty'), 'entry': x.get('entry'), 'last': x.get('last'),
+                     'priced_at': x.get('priced_at'), 'hist': x.get('hist') or []}
+                    for k, v in r['models'].items() for e, b in (v.get('books') or {}).items() if e == 'AllInTrading'
+                    for sym, x in (b.get('positions') or {}).items() if abs(float(x.get('qty') or 0)) > 1e-9]
 data['allin_history'] = [h for h in r['history'] if str(h.get('experiment', '')).startswith('AllIn')]
 data['rivals_trades'] = [t for t in r['trades'] if not str(t.get('experiment', '')).startswith('AllIn') and t.get('model') != 'claude']
 data['rivals_history'] = [h for h in r['history'] if not str(h.get('experiment', '')).startswith('AllIn') and h.get('model') != 'claude']
