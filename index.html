@@ -1072,6 +1072,7 @@ body { background:var(--color-bg); }
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>window.d3 || document.write('<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"><\/script>');   /* the same d3 from a second CDN if cdnjs is down (all three AIs agreed, Oct 30) */</script>
 <script>
   // Minimal data layer: loads data.json, runs calculations and draws the page.
   window.dash = (() => {
@@ -1175,7 +1176,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'a8000ad76ff3';</script>
+<script>window.PT_PAGE_VER = 'bf7a831fb97a';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -6282,8 +6283,10 @@ body { background:var(--color-bg); }
     const od = S.odds || {}; rows.push(['Sports odds feed (ESPN)', od.error ? 'down' : by(age(od.at), 80, 180), od.error ? 'Last attempt failed: ' + String(od.error).slice(0, 80) : 'Checked ' + ago(od.at) + (od.open_with_moneylines != null ? ' · ' + od.open_with_moneylines + ' games open for betting' : '') + '.']);
     rows.push(['Prices (Yahoo Finance, Cboe, Polymarket)', (S.prices_missing || []).length ? 'late' : 'ok', (S.prices_missing || []).length ? 'Some prices were missing at the last check-in; the last known price was kept: ' + S.prices_missing[0].slice(0, 90) : 'Every price was found at the last check-in.']);
     const pc = S.price_check || {}, pcs = pc.summary || {};   // flagged prices get a backup check by Gemini and ChatGPT (owner, Oct 30)
-    const pcSt = pcs.flag ? (pcs.backup_pending ? 'backup' : pcs.backup_wrong ? 'late' : 'ok') : by(age(pc.at), 180, 720);
-    rows.push(['Price check of Claude’s prices', pcSt, (pcs.flag ? pcs.flag + ' flagged · ' + (pcs.backup_pending ? 'being checked by Gemini and ChatGPT as a backup · ' : pcs.backup_wrong ? pcs.backup_wrong + ' confirmed off by the backup check, for Claude to correct · ' : 'backup check by Gemini and ChatGPT done · ') : '') + ((pcs.ok || 0) + ' passed') + ' · last new check ' + ago(pc.at) + '.']);
+    // a flag Claude confirmed wrong and corrected (Corrections lists it) reads as corrected, not "Delayed" (all three AIs agreed, Oct 30)
+    const pcFixed = (pc.corrected || []).length, pcOpen = Math.max(0, (pcs.backup_wrong || 0) - pcFixed);
+    const pcSt = pcs.flag ? (pcs.backup_pending ? 'backup' : pcOpen ? 'late' : 'ok') : by(age(pc.at), 180, 720);
+    rows.push(['Price check of Claude’s prices', pcSt, (pcs.flag ? pcs.flag + ' flagged · ' + (pcs.backup_pending ? 'being checked by Gemini and ChatGPT as a backup · ' : (pcOpen ? pcOpen + ' confirmed off by the backup check, for Claude to correct · ' : '') + (pcFixed ? pcFixed + ' confirmed off and corrected (see Corrections) · ' : '') + 'backup check by Gemini and ChatGPT done · ') : '') + ((pcs.ok || 0) + ' passed') + ' · last new check ' + ago(pc.at) + '.']);
     const tg = S.telegram || {}; rows.push(['Telegram posts', tg.fail_streak >= 3 ? 'down' : tg.fail_streak ? 'late' : 'ok', tg.last_ok ? 'Last post sent ' + ago(tg.last_ok) + (tg.fail_streak ? ' · ' + tg.fail_streak + ' failed since' : '') + '.' : 'Every trade, bet and result is posted as it happens; send times are recorded from the next check-in.']);
     const ig = S.instagram || {}; rows.push(['Instagram posts', ig.error ? 'down' : by(age(ig.last), 30 * 60, 54 * 60), (ig.error ? 'Posting paused since ' + ago(ig.error.since) + ': Instagram turned down the posting key, which the owner is renewing. ' : '') + 'Last post ' + ago(ig.last) + ' · ' + (ig.count_24h || 0) + ' in the last 24 hours (a daily post, plus lead changes).']);
     return rows;
