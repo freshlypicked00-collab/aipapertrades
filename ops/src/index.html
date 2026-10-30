@@ -6284,7 +6284,7 @@
     if (!ES) return;
     const first = window.ptFirstRace();
     const EXPS = [first, 'Overall'].concat(['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'].filter((e) => e !== first), ['AllInTrading', 'AllInSports']);   // plus the All in side race (owner, Oct 29)
-    if (el._first !== first) { el._first = first; el._exp = null; }   // a market opening or closing moves the page to that race
+    if (el._first !== first) { el._first = first; if (el._follow !== false) el._exp = null; }   // a market opening or closing moves the page to that race (only while Most relevant is on)
     if (!el._exp) el._exp = first;
     if (el._follow == null) el._follow = true;   // owner's choice: Most relevant is on at every visit
     { // Race standings follow the tab you are on: a race's tab shows that race, All in shows the side race, other pages go back to Most relevant (owner, Oct 29)
@@ -6320,7 +6320,9 @@
     el.appendChild(sel);
     { const lab = mk('label', 'pd-follow'); const cb = mk('input'); cb.type = 'checkbox'; cb.checked = !!el._follow;
       cb.addEventListener('change', () => {
-        el._follow = cb.checked; if (!cb.checked) el._exp = null;
+        el._follow = cb.checked;
+        // Most relevant off: straight to Overall; the visitor then picks where to go from the menu (owner, Oct 30)
+        if (!cb.checked) { el._exp = 'Overall'; window.ptRace = null; window.ptOverall = true; el._tab = 'overview'; el._ctx = false; const y = window.scrollY; goTab('overview', false); requestAnimationFrame(() => window.scrollTo(0, y)); }
         // back on Most relevant: back to Home, so the Scoreboard shows every race again (owner, Oct 29)
         if (cb.checked) { el._tab = 'overview'; el._ctx = false; const y = window.scrollY; goTab('overview', false); requestAnimationFrame(() => window.scrollTo(0, y)); }
         dash.redraw ? dash.redraw() : null; });
