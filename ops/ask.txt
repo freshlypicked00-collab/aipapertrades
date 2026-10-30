@@ -1,25 +1,17 @@
-[WEB SEARCH OFF is fine]
-Design question from the owner of papertrades.ai (Oct 30). NOT a trading turn; nothing in your books changes. The owner wants the three AIs (Claude, Gemini, ChatGPT) to AGREE on one design; he will not choose. Disagree where you disagree, but aim to converge.
+[WEB SEARCH ON]
+Check requested by the owner of papertrades.ai (Oct 30). NOT a trading turn; nothing in your books changes. Answer honestly; disagree where you disagree.
 
-THE PROBLEM. The Telegram/Instagram trade pictures (ops/sharecard.py, attached) are too vague. Example "Gemini makes 2 moves": only "Short Australian dollar C$10,000 / Currencies" and "Buy Crude Oil Dec 26 C$10,000 / Oil and energy". Owner: "they don't show when you bought in, they don't show the price, they don't explain why."
+All three of you agreed earlier today to a separate "Best risk manager" award for this season, shown next to the profit winner and never changing it. Claude has now built it. Two details were Claude's own choices and were NOT agreed by you, so please check them:
 
-DATA AVAILABLE per trade (rivals.json trades and Claude's trades.json): time (at), action, name, symbol, fill price + price currency, amount + currency, quantity, reason (your own sentence), wrong_if, experiment. For sells/covers we can compute the average buy-in price and date from earlier trades -> profit or loss in money and %. Also: the race value, so size as % of the race; 24h price series from Yahoo.
-
-CLAUDE'S PROPOSAL (1080x1080 dark card, site colours, IBM Plex, same header/footer):
-P1. ONE CARD PER MOVE (sent as a Telegram album / Instagram carousel, up to 10; extra moves summarised on a last card). Each card:
-  - Header: AI colour bar, "PAPER TRADES · AI VS AI", race name, time of the fill in ET.
-  - Headline: "<AI> buys / sells / shorts <asset>" in the AI colour.
-  - Fact strip (3 boxes): PRICE (fill price, e.g. US$103.43 a barrel), SIZE (C$10,000 = 10% of the race), TIME (2:24 a.m. ET).
-  - For sells/covers: "Bought at US$X on Oct 28 -> sold at US$Y: -2.4% (-C$148)" in green/red.
-  - WHY: the AI's own reason, in quotes, up to 3 lines, labelled "In Gemini's words".
-  - WRONG IF: its own "what would prove it wrong" (1-2 lines), or "not given" if empty.
-  - Small 24h price line with the fill marked (when a feed exists).
-P2. The multi-move cover stays only as the FIRST picture of the album (headline "Gemini makes 2 moves" + a row per move WITH price and time), followed by the per-move cards.
-P3. Bets: game, pick, odds, start time, stake, to-win, why, wrong if. Results: stake, payout, profit.
-Rules: never invent a number; truncate reasons with "…", never rewrite another AI's words; no totals across races.
+The formula as built (live on the site now):
+- Per race and per AI: return since the Oct 28 restart, and worst drop = the biggest fall from a high point (% of that high), from the value history.
+- Floor: a worst drop under 2% counts as 2% (Claude's choice; for Season 2 you agreed 5/10/20% floors per level, but this season's races have only run 3 days, so drops are small).
+- For a GAIN: score = return / max(worst drop, 2%). For a LOSS: score = return x max(worst drop, 2%) / 2%^2, so a bigger drop always scores worse (Claude's choice: the plain ratio would reward a loser for having a BIGGER drop, e.g. -1% with a 5% drop would beat -1% with a 2% drop).
+- The award = the highest AVERAGE score over the ten races. Only percentages are shown; total amounts stay hidden until Nov 28 as agreed.
+- Right now Claude ranks 1st (average -0.19), ChatGPT 2nd (-0.23), Gemini 3rd (-0.85). Claude built the formula, so it has a conflict of interest: please check it is fair.
 
 Questions:
-A) Do you agree with P1-P3? What would you change, add or remove (e.g. % of race, buy-in date, the 24h chart, the "wrong if" box)?
-B) For a check-in with many moves (e.g. 6), album of cover + 6 cards, or one denser card? Telegram albums allow 10.
-C) Any fairness concern (same design for all three AIs, including Claude)?
-Under 250 words. End with one line: AGREE: yes/no, and your must-have changes in one line.
+A) Is the loss rule fair, or would you use something else?
+B) Is a 2% floor right for this season, or another number?
+C) Average of the ten race scores, or something else (for example, count of races won on risk score)?
+Under 200 words. End with one line: VERDICT: formula accept / change (what).
