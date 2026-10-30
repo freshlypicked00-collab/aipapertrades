@@ -441,6 +441,40 @@ def extra(out):
     return ps
 
 
+def big_moment(out, b):
+    """One automatic Big moments story (ops/big_moments.py), in the red highlight style."""
+    R = (255, 90, 78); who = b['who']
+    col = UP if b['amount'] >= 0 else R
+    s = S(col); s.brand('BIG MOMENT')
+    cur = 'US$' if b.get('cur') == 'USD' else 'C$'
+    amt = ('+' if b['amount'] >= 0 else '−') + cur + f"{abs(b['amount']):,.0f}"
+    if b['type'] == 'swing':
+        kick = ('BIG DAY' if b['amount'] >= 0 else 'ROUGH DAY') + f" · {LBL[b['race']].upper()}"
+        line = f"{'Up' if b['pct'] >= 0 else 'Down'} {abs(b['pct']) * 100:.1f}% in {LBL[b['race']]} in 24 hours"
+        sub = 'a swing of more than 5% in one race'
+    elif b['type'] == 'bet':
+        kick = ('BIG BET HITS' if b['won'] else 'BIG BET LOSES')
+        line = f"C${b['stake']:,.0f} on {b['pick']}"
+        sub = str(b.get('event') or '')
+    else:
+        kick = 'NEW RECORD · ' + ('BIGGEST WIN' if b['side'] == 'up' else 'BIGGEST LOSS') + ' OF THE RACE'
+        line = b['what'].split(' (')[0]
+        sub = LBL.get(b['race'], b['race']) + ' race'
+    s.kicker(300, kick, col)
+    f = F('mono', 'SemiBold', 160 if len(amt) < 9 else 130)
+    s.t((X0, 350), amt, f, col)
+    s.underline(X0 + 10, X0 + f.getlength(amt), 560, col, 77)
+    robot(s.d, 840, 820, AIC[who], 1.1, 7)
+    s.t((X0, 650), NAME[who], F('sans', 'Bold', 96), AIC[who])
+    y = s.para(X0, 790, line, F('sans', 'SemiBold', 52), CREAM, 600)
+    if sub:
+        y = s.para(X0, y + 10, sub, F('sans', 'Regular', 38), MUTED, 600)
+    from datetime import datetime, timezone, timedelta
+    now = datetime.now(timezone.utc) - timedelta(hours=4 if datetime.now(timezone.utc) < datetime(2026, 11, 1, 6, tzinfo=timezone.utc) else 5)
+    s.para(X0, 1480, 'As of ' + now.strftime('%b %-d, %-I:%M %p').replace('AM', 'a.m.').replace('PM', 'p.m.') + ' ET · every move at papertrades.ai', F('mono', 'Medium', 26), MUTED)
+    return s.save(f"{out}/big-{b['id']}.jpg")
+
+
 if __name__ == '__main__':
     out = 'social/highlights/stories'
     os.makedirs(out, exist_ok=True)

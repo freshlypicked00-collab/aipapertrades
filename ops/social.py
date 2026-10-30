@@ -96,7 +96,7 @@ def due_posts(state):
     day_end = NOW.replace(hour=0, minute=0, second=0, microsecond=0)
     n = (day_end - START).days
     pid = 'daily-' + day_end.date().isoformat()
-    if 1 <= n <= 31 and pid not in done and NOW - day_end < timedelta(hours=8) and day_end <= RACE_END + timedelta(hours=4):
+    if 1 <= n <= 32 and pid not in done and NOW - day_end < timedelta(hours=8) and day_end <= RACE_END + timedelta(hours=4):
         out.append({'id': pid, 'kind': 'dayten', 'day': n, 'day_start': (day_end - timedelta(days=1)).isoformat(), 'cutoff': day_end.isoformat()})   # one slide per race (owner, Oct 30)
     # stories (they vanish after 24 hours, so they can carry every lead change the site shows, at most one per race per 12 hours)
     srec = [(k, datetime.fromisoformat(v['at'])) for k, v in posted.items() if k.startswith('story-moment-')]
@@ -105,10 +105,8 @@ def due_posts(state):
         at = datetime.fromisoformat(m['at'].replace('Z', '+00:00'))
         if sid in done or NOW - at > timedelta(hours=6) or at > RACE_END:
             continue
-        if any(k.startswith('story-moment-' + m['race'] + '-') and NOW - t < timedelta(hours=12) for k, t in srec):
-            continue
         out.append({'id': sid, 'kind': 'story-moment', 'moment': m}); srec.append((sid, NOW))
-    if 1 <= n <= 31 and ('story-' + pid) not in done and NOW - day_end < timedelta(hours=8) and day_end <= RACE_END + timedelta(hours=4):
+    if 1 <= n <= 32 and ('story-' + pid) not in done and NOW - day_end < timedelta(hours=8) and day_end <= RACE_END + timedelta(hours=4):
         out.append({'id': 'story-' + pid, 'kind': 'story-daily', 'day': n, 'day_start': (day_end - timedelta(days=1)).isoformat()})
     for k, ds in (('story-ten-2026-10-29', '2026-10-28T00:00:00+00:00'), ('story-ten-2026-10-30', '2026-10-29T00:00:00+00:00')):   # one time: Day 1 and Day 2 with all ten races, for the Daily highlight
         if k not in done:
@@ -120,6 +118,21 @@ def due_posts(state):
         out.insert(0, {'id': 'day1-ten-v1', 'kind': 'dayten', 'day': 1, 'day_start': '2026-10-28T00:00:00+00:00', 'cutoff': '2026-10-29T00:00:00+00:00'})
     if 'day2-ten-v1' not in done and NOW < datetime(2026, 10, 31, 12, 0, tzinfo=timezone.utc):   # owner, Oct 30: Day 2 in the same new format
         out.insert(1, {'id': 'day2-ten-v1', 'kind': 'dayten', 'day': 2, 'day_start': '2026-10-29T00:00:00+00:00', 'cutoff': '2026-10-30T00:00:00+00:00'})
+    # Big moments, automatically (owner, Oct 30): a swing of 5% or more in a race within 24 hours, a big bet won or lost
+    # (C$10,000 or more staked, or C$5,000 or more won or lost), and a new record biggest win or loss of the whole race
+    try:
+        import big_moments as BMx
+        for b in BMx.find(NOW, data):
+            if 'story-big-' + b['id'] not in done:
+                out.append({'id': 'story-big-' + b['id'], 'kind': 'story-big', 'big': b})
+    except Exception as e:
+        print('::warning::big moments not checked: ' + str(e)[:200])
+    # Report cards every Sunday afternoon, and the final ones on Nov 28 (owner, Oct 30)
+    if (NOW.weekday() == 6 and NOW.hour >= 18 and NOW < RACE_END) or (NOW.date() == RACE_END.date() and NOW >= RACE_END):
+        rd = NOW.date().isoformat()
+        for i in range(1, 4):
+            if f'story-grades-{rd}-{i}' not in done:
+                out.append({'id': f'story-grades-{rd}-{i}', 'kind': 'story-grades', 'n': i})
     # every Monday: fresh "Meet the AIs" stories (their stats change), for the owner to swap into that highlight (owner, Oct 30)
     if NOW.weekday() == 0 and NOW.hour >= 15 and NOW < RACE_END:
         wk = NOW.date().isoformat()
@@ -136,7 +149,7 @@ def due_posts(state):
     if 'story-intro-v1' not in done and NOW < RACE_END:
         out.append({'id': 'story-intro-v1', 'kind': 'story-intro'})
     feed = [p for p in out if not p['kind'].startswith('story')][:MAX_PER_RUN]
-    return feed + [p for p in out if p['kind'].startswith('story')][:3]
+    return feed + [p for p in out if p['kind'].startswith('story')][:4]
 
 
 def prepare():
@@ -150,6 +163,15 @@ def prepare():
             if p['kind'] == 'story-moment':   # the colourful highlight style (owner, Oct 30): goes straight into "Lead changes"
                 import hl_stories, shutil
                 shutil.move(hl_stories.lead_change('/tmp', p['moment'], 0), img)
+                p['images'] = [img]; p['story'] = True; p['caption'] = ''
+            elif p['kind'] == 'story-big':
+                import hl_stories, shutil
+                shutil.move(hl_stories.big_moment('/tmp', p['big']), img)
+                p['images'] = [img]; p['story'] = True; p['caption'] = ''
+            elif p['kind'] == 'story-grades':
+                import hl_stories, shutil
+                paths = hl_stories.report_cards('/tmp', load('data.json', {}))
+                shutil.copy(paths[p['n'] - 1], img)
                 p['images'] = [img]; p['story'] = True; p['caption'] = ''
             elif p['kind'] == 'story-meet':
                 import hl_stories, shutil

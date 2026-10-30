@@ -48,6 +48,10 @@ def describe(sid):
     if sid.startswith('story-moment-'):
         who = {'claude': 'Claude', 'gemini': 'Gemini', 'chatgpt': 'ChatGPT'}.get(p[-1], p[-1])
         return f'Lead change story: {who} took the lead in {NAMES.get(p[2], p[2])}'
+    if sid.startswith('story-big-'):
+        return 'Big moment story: ' + ' '.join(p[2:]).replace('swing', 'a big swing in').replace('bet', 'a big bet by')
+    if sid.startswith('story-grades-'):
+        return 'Report cards story ' + p[-1] + ' of 3 (' + '-'.join(p[2:5]) + ')'
     if sid.startswith('story-meet-'):
         return 'Meet the AIs story ' + p[-1] + ' of 4, refreshed ' + '-'.join(p[2:5]) + ' (replace last week\'s four)'
     if sid.startswith('story-feature-binance'):
