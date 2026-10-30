@@ -575,6 +575,12 @@
   .pd-follow { display: flex; align-items: center; gap: 8px; margin: 8px 0 2px; font-size: 13px; cursor: pointer; } .pd-follow input { width: 16px; height: 16px; accent-color: var(--accent, #ffb000); }
   .pd-follow-why { margin: 4px 0 8px; }
   .pd-mom-k { font-style: normal; margin-right: 6px; } .pd-mom-win .pd-mom-k { color: var(--color-ok, #3ddc84); } .pd-mom-loss .pd-mom-k, .pd-mom-penalty .pd-mom-k, .pd-mom-factcheck .pd-mom-k, .pd-mom-busted .pd-mom-k { color: var(--color-bad, #ff5a4e); }
+  .st-podium .pd-live { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .st-podium .pd-live-h { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-top: 2px; } .st-podium .pd-live-h.is-live { color: #ff5a4e; }
+  .st-podium .pd-live-g { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 6px 8px; font-size: 12.5px; display: flex; flex-direction: column; gap: 3px; }
+  .st-podium .pd-live-lg { font-size: 11px; color: var(--color-fg-muted); } .st-podium .pd-live-ev { font-weight: 600; color: var(--color-fg); text-decoration: none; } .st-podium .pd-live-ev:hover { text-decoration: underline; }
+  .st-podium .pd-live-sc:not(.is-on) { display: none; } .st-podium .pd-live-sc { font-family: var(--font-mono, monospace); font-size: 12px; color: var(--color-fg); }
+  .st-podium .pd-live-b { display: flex; align-items: center; gap: 6px; border-left: 2px solid var(--ai); padding-left: 6px; color: var(--color-fg-muted); } .st-podium .pd-live-b .ai-badge { margin-right: 0; }
   .st-podium .pd-big { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
   .st-podium .pd-big-col > b { display: block; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
   .st-podium .pd-big ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
@@ -1036,7 +1042,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '6ef2e7543be0';</script>
+<script>window.PT_PAGE_VER = '313a41885535';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -6357,6 +6363,7 @@ body { background:var(--color-bg); }
       li.appendChild(bt); ol.appendChild(li);
     });
     el.appendChild(ol);
+    if (el._exp === 'Sports') liveBets(el);   // the bets on games being played now, and the next ones (owner, Oct 29)
     bigBox(el, el._exp);
     { const st = el._exp === 'China' ? 100000 : 100000, f = (x) => cur + d3.format(',.0f')(Math.abs(x));
       const bx = mk('div', 'bg-only bg-plain'); bx.appendChild(mk('b', '', '🎓 In plain words'));
@@ -6396,6 +6403,53 @@ body { background:var(--color-bg); }
     el.appendChild(box);
     momentsBox(el);
   });
+  // ---------- Race standings, Sports: the bets riding on games being played right now (with the live score when ESPN gives it) and the next ones
+  const SPORT_OF = { NBA: ['basketball', 'nba'], NHL: ['hockey', 'nhl'], NFL: ['football', 'nfl'], MLB: ['baseball', 'mlb'], NCAAF: ['football', 'college-football'], NCAAB: ['basketball', 'mens-college-basketball'], EPL: ['soccer', 'eng.1'] };
+  const GAME_LEN = { NHL: 2.75, NBA: 2.75, NCAAB: 2.5, MLB: 3.5, NFL: 3.5, NCAAF: 3.75, EPL: 2 };
+  const scoreCache = {};
+  const leagueScores = (lg) => {   // ESPN's public scoreboard, at most once a minute per league; null when it can't be reached
+    const k = String(lg || '').toUpperCase(), sl = SPORT_OF[k]; if (!sl) return Promise.resolve(null);
+    const c = scoreCache[k]; if (c && Date.now() - c.at < 60e3) return c.p;
+    const ctl = window.AbortController ? new AbortController() : null; if (ctl) setTimeout(() => ctl.abort(), 5000);
+    const p = fetch('https://site.api.espn.com/apis/site/v2/sports/' + sl[0] + '/' + sl[1] + '/scoreboard', ctl ? { signal: ctl.signal } : {}).then((r) => (r.ok ? r.json() : null)).then((j) => (j && j.events) || null).catch(() => null);
+    scoreCache[k] = { at: Date.now(), p }; return p;
+  };
+  const openBets = () => {
+    const out = [];
+    (dash.baseData('bets') || []).filter((b) => b.status === 'Open' && b.starts_at).forEach((b) => out.push({ id: 'claude', ev: String(b.event || '').replace(/\s*\(.*\)$/, ''), lg: b.sport, game: b.game, t: Date.parse(b.starts_at),
+      pick: String(b.pick || '').replace(/ moneyline$/, ''), stake: Number(b.stake_cad || 0), odds: b.odds, win: Number(b.to_win_cad || 0), legs: b.legs }));
+    (dash.baseData('rivals_models') || []).forEach((m) => ((((m.books || {}).Sports || {}).bets) || []).filter((b) => b.status === 'Open' && b.starts_at).forEach((b) => out.push({ id: m.id, ev: b.event, lg: b.short, game: b.game, t: Date.parse(b.starts_at),
+      pick: b.pick_team || b.pick, stake: Number(b.stake || 0), odds: b.odds, win: Number(b.to_win || 0), legs: b.legs })));
+    return out.filter((x) => AIS[x.id] && !x.legs);
+  };
+  const liveBets = (el) => {
+    const now = Date.now(), H = 3600e3, all = openBets();
+    const group = (rows) => { const g = {}; rows.forEach((x) => { const k = x.ev + '|' + x.t; (g[k] = g[k] || { ev: x.ev, lg: x.lg, game: x.game, t: x.t, bets: [] }).bets.push(x); if (!g[k].game && x.game) g[k].game = x.game; }); return Object.values(g).sort((a, b) => a.t - b.t); };
+    const live = group(all.filter((x) => x.t <= now && now - x.t < (GAME_LEN[String(x.lg || '').toUpperCase()] || 3) * H));
+    const soon = group(all.filter((x) => x.t > now && x.t - now <= 6 * H));
+    const box = mk('div', 'pd-live');
+    const head = (txt, cls) => box.appendChild(mk('b', 'pd-live-h ' + (cls || ''), txt));
+    const game = (g, isLive) => {
+      const d = mk('div', 'pd-live-g');
+      const a = mk('a', 'pd-live-ev', g.ev); a.href = espnGame(SPORT_OF[String(g.lg || '').toUpperCase()] ? SPORT_OF[String(g.lg).toUpperCase()][1] : '', g.game, g.ev); a.target = '_blank'; a.rel = 'noopener'; a.title = 'Open the game on ESPN';
+      d.append(mk('small', 'pd-live-lg', (g.lg || '').toUpperCase() + (isLive ? ' · started ' : ' · ') + stFmt.whenET(new Date(g.t).toISOString()) + ' ET'), a);
+      const sc = mk('span', 'pd-live-sc'); if (isLive) d.appendChild(sc);
+      g.bets.forEach((x) => { const r = mk('div', 'pd-live-b'); r.style.setProperty('--ai', AIS[x.id].color);
+        r.append(aiBadge(x.id, 14), mk('span', '', AIS[x.id].label + ': C$' + d3.format(',.0f')(x.stake) + ' on ' + x.pick + ' at ' + betOdds(x.odds) + (x.win ? ' · to win C$' + d3.format(',.0f')(x.win) : ''))); d.appendChild(r); });
+      if (isLive) leagueScores(g.lg).then((evs) => {   // the live score, when ESPN can be reached from this browser
+        if (!evs) return; const want = String(g.ev).toLowerCase();
+        const e = evs.find((v) => g.game && String(v.id) === String(g.game)) || evs.find((v) => { const c = ((v.competitions || [])[0] || {}).competitors || []; return c.length === 2 && c.every((t) => want.includes(String((t.team || {}).displayName || '').toLowerCase())); });
+        if (!e) return; const c = ((e.competitions || [])[0] || {}).competitors || []; const away = c.find((t) => t.homeAway === 'away'), home = c.find((t) => t.homeAway === 'home'); if (!away || !home) return;
+        const st = (e.status || {}).type || {};
+        sc.textContent = (away.team.abbreviation || away.team.shortDisplayName) + ' ' + (away.score || 0) + ', ' + (home.team.abbreviation || home.team.shortDisplayName) + ' ' + (home.score || 0) + ' · ' + (st.shortDetail || st.detail || '') + (st.completed ? ' (the bets settle at the next check-in)' : '');
+        sc.classList.add('is-on'); });
+      box.appendChild(d);
+    };
+    if (live.length) { head('🔴 Live now: ' + live.length + (live.length === 1 ? ' game' : ' games') + ' with a bet', 'is-live'); live.forEach((g) => game(g, true)); }
+    if (soon.length) { head('⏱ Next 6 hours'); soon.slice(0, 5).forEach((g) => game(g, false)); if (soon.length > 5) box.appendChild(mk('p', 'pd-note', '+' + (soon.length - 5) + ' more games later.')); }
+    if (!live.length && !soon.length) box.appendChild(mk('p', 'pd-note', 'No game with a bet is being played now or in the next 6 hours.'));
+    el.appendChild(box);
+  };
   // Biggest profits and losses in this race, all three AIs (owner, Oct 29): each holding's profit so far (the part sold plus what
   // is still held, at the latest price) and each settled bet. "Races led" lists the biggest single items across the ten races (never a total).
   const bigBox = (el, race) => {
