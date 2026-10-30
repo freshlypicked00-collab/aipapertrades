@@ -1091,7 +1091,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'fb7979b6769d';</script>
+<script>window.PT_PAGE_VER = '461201ad2fcc';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -6218,12 +6218,13 @@ body { background:var(--color-bg); }
         else if (it.go) { const a = mk('a', '', it.t); a.href = '#'; a.title = 'Open it on the site'; a.addEventListener('click', (ev) => { ev.preventDefault(); it.go(); }); a.appendChild(mk('span', 'pt-n-ext', ' →')); t.appendChild(a); }
         else t.textContent = it.t;
         n.textContent = (L.indexOf(it) + 1) + '/' + L.length; el._at = Date.now();
+        el._dwell = it.cls === 'pt-n-break' ? 14000 : 7000;   // big news (red) stays up twice as long (owner, Oct 29)
       };
       el._paint = paint; paint(true);
       window.addEventListener('pt-tab', () => paint(true));   // switch with the tab, no waiting for the next turn
-      return setInterval(() => { if (!el.matches(':hover')) paint(); }, 7000);
+      return setInterval(() => { if (!el.matches(':hover') && Date.now() - (el._at || 0) >= (el._dwell || 7000) - 200) paint(); }, 1000);
     },
-    update: (el) => { if (el._paint && Date.now() - (el._at || 0) > 6500) el._paint(); },   // a data refresh never cuts the item just shown short
+    update: (el) => { if (el._paint && Date.now() - (el._at || 0) > (el._dwell || 7000) - 500) el._paint(); },   // a data refresh never cuts the item just shown short
   });
   // ---------- the price ticker under the clocks (like a TV business channel): each asset slides by with its price and its 24-hour and 7-day change
   dash.draw('ticker', (el) => {
@@ -7156,7 +7157,10 @@ body { background:var(--color-bg); }
       if (pool.length) r = pool.reduce((a, b) => (new Date(b.at) > new Date(a.at) ? b : a));
     }
     if (lab) lab.textContent = who + '’s current take' + (race ? ' on ' + rn : ' overall');
-    if (r) { el.append(mk('q', '', r.text), document.createTextNode(' '), mk('span', 'st-by', '— ' + who), document.createTextNode(' '), mk('span', 'st-take-when', stFmt.when(r.at))); return; }
+    if (r) { el.append(mk('q', '', r.text), document.createTextNode(' '), mk('span', 'st-by', '— ' + who), document.createTextNode(' '), mk('span', 'st-take-when', stFmt.when(r.at)));
+      // a hold (the latest note of a day on a race where it did not trade) is graded by the other two AIs (owner; all three AIs agreed, Oct 29)
+      { const gn = pgNode(dash.model + '|' + new Date(r.at).toISOString().slice(0, 19) + 'Z|' + race + '|hold|Hold'); if (gn) el.appendChild(gn); }
+      return; }
     // no take for this race yet: say so, and show the AI's overall take meanwhile
     const all = d.status === 'ok' ? d.data.filter((x) => !x.experiment) : [];
     if (race) el.appendChild(mk('span', 'st-take-wait', who + '’s take on ' + rn + ' comes with its next check-in. Its latest overall take: '));
