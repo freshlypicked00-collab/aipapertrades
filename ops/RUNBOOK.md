@@ -70,6 +70,11 @@ then publishes everything. It runs every hour.
 6. **Write the input file** (format below; from option B without `trades` or `bets_new`) to a temp path and run
    `python3 ops/update.py ops/src <input.json>`. Read the warnings. Fix and re-run from a
    fresh `git checkout ops/src` if something is wrong.
+6a. **Price hold (from Oct 30).** Before step 1 of every check-in, look for an open issue labelled `price-hold`
+   (`gh api 'repos/freshlypicked00-collab/aipapertrades/issues?labels=price-hold&state=open'`). If there is one, the publish
+   workflow's price guard (ops/price_guard.py) found a price you wrote outside the feed's range: look each one up again from
+   a primary source and include the correct price (with source and time) in this update. The guard lifts the hold as soon
+   as your newest price for that asset checks out. Never copy the feed's number without checking it yourself.
 6b. **Check the arithmetic:** run `python3 ops/check.py ops/src`. If it reports problems, fix them
    before publishing.
 7. **Build and publish the site:** `python3 ops/build_site.py ops/src .`, then commit
