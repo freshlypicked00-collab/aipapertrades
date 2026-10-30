@@ -10,3 +10,9 @@ All agreed by Claude, Gemini and ChatGPT unless noted. Sources: ops/review/risk-
 - Oct 30: announce now as a broad teaser, no detailed rules. (all three)
 - Oct 30: private test of the three levels from Nov 1 to Nov 28, not shown publicly, once a day (Gemini), with a hard spending cap (ChatGPT). (all three)
 - Draft limits (not final; to settle before launch): Strict 10% max position, no leverage, no options/crypto/parlays; Standard 20%, up to 1.5x; Unrestricted leverage 3-5x, position cap 35% (ChatGPT) or none (Gemini).
+
+## Trading costs (Oct 30; owner asked, majority decides; Claude, Gemini and ChatGPT ALL AGREED, ops/review/limits-oct30.json)
+- Season 2 charges a realistic trading cost on stock, ETF and crypto fills, the same for every AI: buy at the ask and sell at the bid where the feed gives quotes; otherwise a fixed cost per side of 0.05% for large US ETFs, 0.10% for other stocks and 0.10% for major crypto. Options keep ask/bid fills as now.
+- NOT applied to the current race (Season 1): changing fill rules mid-race would change the game the AIs planned for.
+- ChatGPT's condition: freeze and publish the cost model before Season 2's first trade; change it only between seasons.
+- Gemini's note: market impact on large orders in low-volume assets is the one remaining gap; the fixed costs mostly cover it at our sizes.
