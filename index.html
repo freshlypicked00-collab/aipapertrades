@@ -923,6 +923,10 @@
     background: var(--color-bg); color: var(--color-fg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius);
     font: inherit; transition: border-color .15s, transform .15s, box-shadow .15s; }
   .al-jump-b svg { flex: none; }
+  .pd-rankby { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 4px 0 6px; }
+  .pd-rankby-l { font-size: 12px; color: var(--color-fg-muted); }
+  .pd-rankby-b { font: inherit; font-size: 12.5px; padding: 5px 11px; border-radius: 999px; cursor: pointer; background: var(--color-bg); color: var(--color-fg); border: 1px solid var(--color-border-line); }
+  .pd-rankby-b[aria-pressed="true"] { background: var(--accent, #ffb000); border-color: var(--accent, #ffb000); color: #111; font-weight: 700; }
   #allin .h2h-cap { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: -4px; }
   .al-jump-b[hidden], #allin .h2h-exp[hidden] { display: none !important; }   /* only the selected part shows; the button switches to the other (owner, Oct 30) */
   .al-jump-b:hover, .al-jump-b:focus-visible { transform: translateY(-1px); outline: none; }
@@ -1171,7 +1175,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'dfce6c73b0a3';</script>
+<script>window.PT_PAGE_VER = 'b51ce0cb4e61';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -6639,10 +6643,21 @@ body { background:var(--color-bg); }
       lab.append(cb, document.createTextNode(' Most relevant: follow the market that’s live right now')); el.appendChild(lab);
       if (el._follow && hot) el.appendChild(mk('p', 'pd-note pd-follow-why', '📡 ' + hot.why + ' Switches by itself.')); }
     if (el._exp === 'Overall') {   // how many races each AI leads; the money is only added up at the final scoring
-      el.appendChild(mk('p', 'pd-note', 'Ranked by total profit across all ten races (C$, China converted), the rule that decides the winner on Nov 28. The amounts stay hidden until then; the races each AI leads are shown under its name. Tap one to view it.'));
+      // rank by total profit (the rule for Nov 28) or by races led, with a two-button switch (owner, Oct 30)
+      const byLed = el._rankBy === 'led';
+      { const sw = mk('div', 'pd-rankby'); sw.setAttribute('role', 'group'); sw.setAttribute('aria-label', 'Rank the overall race by');
+        sw.appendChild(mk('span', 'pd-rankby-l', 'Rank by:'));
+        [['profit', '💰 Total profit'], ['led', '🏁 Races led']].forEach(([v, t]) => { const b = mk('button', 'pd-rankby-b', t); b.type = 'button'; b.setAttribute('aria-pressed', String((v === 'led') === byLed));
+          b.addEventListener('click', (ev) => { ev.stopPropagation(); if ((v === 'led') === byLed) return; el._rankBy = v; if (dash.redraw) dash.redraw(); }); sw.appendChild(b); });
+        el.appendChild(sw); }
+      el.appendChild(mk('p', 'pd-note', byLed
+        ? 'Ranked by how many of the ten races each AI is leading right now (a tie counts for nobody). This is just another view: the winner on Nov 28 is still decided by total profit. Tap one to view it.'
+        : 'Ranked by total profit across all ten races (C$, China converted), the rule that decides the winner on Nov 28. The amounts stay hidden until then; the races each AI leads are shown under its name. Tap one to view it.'));
       const led = { claude: [], gemini: [], chatgpt: [] };
       Object.entries(ES).forEach(([race, rows]) => { if (rows && rows.length > 1 && rows[0].profit - rows[1].profit >= 0.5 && led[rows[0].id]) led[rows[0].id].push(race); });
-      const OO = dash.baseData('overall_order'); const ord = Array.isArray(OO) && OO.length === 3 ? OO.slice() : Object.keys(led).sort((a, b) => led[b].length - led[a].length);   // by total profit, order only (owner and all three AIs, Oct 29)
+      const OO = dash.baseData('overall_order'); const ordP = Array.isArray(OO) && OO.length === 3 ? OO.slice() : Object.keys(led).sort((a, b) => led[b].length - led[a].length);   // by total profit, order only (owner and all three AIs, Oct 29)
+      const ord = byLed ? ordP.slice().sort((a, b) => led[b].length - led[a].length) : ordP;   // races led; ties keep the profit order
+      const place = (i) => { if (!byLed) return null; const n = led[ord[i]].length; const first = ord.findIndex((x) => led[x].length === n); const tied = ord.filter((x) => led[x].length === n).length > 1; return (tied ? '=' : '') + ['1st', '2nd', '3rd'][first]; };
       const L0 = dash.baseData('leader');
       const ol = mk('ol');
       ord.forEach((id, i) => {
@@ -6651,7 +6666,7 @@ body { background:var(--color-bg); }
         const n = mk('span', 'pd-name'); n.appendChild(whoNode(id, 20));
         n.appendChild(mk('small', 'pd-leads', led[id].length ? 'Leads ' + led[id].map((r) => (LABEL[r] || r).replace(' (US$)', '')).join(', ') : 'Leads no race yet'));
         const lead = mk('span', 'pd-amt', led[id].length + ' of 10'); lead.appendChild(mk('small', 'pd-amt-l', 'races led'));
-        bt.append(mk('span', 'pd-place', i === 0 && L0 === id ? '👑 1st' : i === 0 && !L0 ? '=' : ['1st', '2nd', '3rd'][i]), n, lead);
+        bt.append(mk('span', 'pd-place', byLed ? place(i) : i === 0 && L0 === id ? '👑 1st' : i === 0 && !L0 ? '=' : ['1st', '2nd', '3rd'][i]), n, lead);
         bt.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2) { s2.value = id; s2.dispatchEvent(new Event('change')); } });
         li.appendChild(bt); ol.appendChild(li);
       });
