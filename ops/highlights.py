@@ -20,7 +20,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 STATE = 'ops/src/social.json'
 TITLE = '📌 Instagram highlights to add'
 # the highlights, in the order they should sit on the profile, and which stories go in each
-HIGHLIGHTS = [('Start here', ('story-intro',)), ('Daily', ('story-daily', 'story-day1')), ('Lead changes', ('story-moment',))]
+# the first daily stories showed only the races-led count (Day 1's remake only the sports bets); the ten-race versions replace them
+SKIP = {'story-daily-2026-10-29', 'story-daily-2026-10-30', 'story-day1-remake-v1'}
+HIGHLIGHTS = [('Start here', ('story-intro',)), ('Daily', ('story-daily', 'story-ten-')), ('Lead changes', ('story-moment',))]
 NAMES = {'Crypto': 'Crypto', 'Stocks': 'Stocks', 'China': 'China stocks', 'Metals': 'Metals', 'Energy': 'Oil and energy', 'Options': 'Options',
          'Currencies': 'Currencies', 'Safe': 'Play it safe', 'Sports': 'Sports', 'Predictions': 'Prediction markets'}
 
@@ -35,6 +37,8 @@ def highlight_of(sid):
 def describe(sid):
     """A plain description of the story, so the owner can find it in the archive."""
     p = sid.split('-')
+    if sid.startswith('story-ten-'):
+        return 'Day ' + str((datetime.fromisoformat('-'.join(p[2:5])) - datetime(2026, 10, 28)).days) + ' results story, all ten races'
     if sid.startswith('story-daily-'):
         return 'Daily results story for ' + datetime.fromisoformat('-'.join(p[2:5])).strftime('%b %-d') + ' (the day that closed at 8 p.m. ET the evening before)'
     if sid.startswith('story-moment-'):
@@ -67,7 +71,7 @@ def sync():
     now = datetime.now(timezone.utc)
     new = []
     for sid, v in sorted(st.get('posted', {}).items(), key=lambda kv: kv[1]['at']):
-        h = highlight_of(sid) if sid.startswith('story-') else None
+        h = highlight_of(sid) if sid.startswith('story-') and sid not in SKIP else None
         if h and sid not in hl:
             hl[sid] = {'h': h, 'at': v['at'], 'added': False}
             new.append(sid)
@@ -86,6 +90,8 @@ def sync():
             sid = line.split('`')[1]
             if sid in hl:
                 hl[sid]['added'] = True
+    for sid in SKIP:
+        hl.pop(sid, None)
     todo = sorted([s for s, v in hl.items() if not v['added']], key=lambda s: hl[s]['at'])
     lines = ['Meta does not let apps add stories to highlights, so Claude sorts each story here and you add it in the Instagram app '
              '(the story → **Highlight** at the bottom → pick the highlight; older stories: open the highlight → ⋯ → Edit highlight → Stories). '

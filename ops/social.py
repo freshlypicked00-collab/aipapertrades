@@ -109,6 +109,9 @@ def due_posts(state):
         out.append({'id': sid, 'kind': 'story-moment', 'moment': m}); srec.append((sid, NOW))
     if 1 <= n <= 31 and ('story-' + pid) not in done and NOW - day_end < timedelta(hours=8) and day_end <= RACE_END + timedelta(hours=4):
         out.append({'id': 'story-' + pid, 'kind': 'story-daily', 'day': n, 'day_start': (day_end - timedelta(days=1)).isoformat()})
+    for k, ds in (('story-ten-2026-10-29', '2026-10-28T00:00:00+00:00'), ('story-ten-2026-10-30', '2026-10-29T00:00:00+00:00')):   # one time: Day 1 and Day 2 with all ten races, for the Daily highlight
+        if k not in done:
+            out.append({'id': k, 'kind': 'story-daily', 'day': (datetime.fromisoformat(ds) + timedelta(days=1) - START).days, 'day_start': ds})
     if 'day1-remake-v1' not in done and NOW < datetime(2026, 10, 30, 12, 0, tzinfo=timezone.utc):   # the owner's remade Day 1 post (one time)
         out.insert(0, {'id': 'day1-remake-v1', 'kind': 'day1'})
         out.append({'id': 'story-day1-remake-v1', 'kind': 'story-day1'})
@@ -117,7 +120,7 @@ def due_posts(state):
     if 'story-intro-v1' not in done and NOW < RACE_END:
         out.append({'id': 'story-intro-v1', 'kind': 'story-intro'})
     feed = [p for p in out if not p['kind'].startswith('story')][:MAX_PER_RUN]
-    return feed + [p for p in out if p['kind'].startswith('story')][:2]
+    return feed + [p for p in out if p['kind'].startswith('story')][:3]
 
 
 def prepare():
@@ -135,9 +138,14 @@ def prepare():
             elif p['kind'] == 'story-daily':
                 import racecard
                 table, big = racecard.races(datetime.fromisoformat(p['day_start']), 'ops/src')
-                pc.daily_cover(table, p['day'], datetime.fromisoformat(p['day_start']), big, '/tmp/pt_cover.jpg', glow=False, swipe=False)
+                # every race on the story itself, who leads each and by how much (owner, Oct 29: the Day 1 story showed only the sports bets)
+                old = ({'story-ten-2026-10-29': 'social/day1-remake-v1-3.jpg'}.get(p['id']) or f"social/daily-{p['id'][-10:]}-races.jpg") if p['id'].startswith('story-ten-') else None   # a past day: the picture made at its close (Day 1: the corrected remake)
+                if old and os.path.exists(old):
+                    import shutil; shutil.copy(old, '/tmp/pt_cover.jpg')
+                else:
+                    pc.daily(table, p['day'], datetime.fromisoformat(p['day_start']), big, '/tmp/pt_cover.jpg')
                 led = pc.races_led(table); best = max(led, key=lambda k: len(led[k]))
-                pc.story('/tmp/pt_cover.jpg', img, top=f"DAY {p['day']} RESULTS", bottom='All ten races in our latest post', glow_color=pc.AIS[best][1] if sum(len(v) == len(led[best]) for v in led.values()) == 1 else pc.AMBER)
+                pc.story('/tmp/pt_cover.jpg', img, top=f"DAY {p['day']} RESULTS · ALL TEN RACES", bottom='Every trade, live: papertrades.ai', glow_color=pc.AIS[best][1] if sum(len(v) == len(led[best]) for v in led.values()) == 1 else pc.AMBER)
                 p['images'] = [img]; p['story'] = True; p['caption'] = ''
             elif p['kind'] in ('day1', 'story-day1'):
                 import racecard
