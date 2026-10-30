@@ -563,6 +563,7 @@
   .pt-livebox-a { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; color: #fff; text-decoration: none; }
   .m-menu-live { margin: 2px 0 8px; } .m-menu-live .pt-livebox-a { width: 34px; height: 34px; }
   .pt-lb-tg { background: #29a9eb; } .pt-lb-ig { background: #c13584; } .pt-lb-x { background: #111; border: 1px solid #444; }
+  .pt-lb-dc { background: #5865f2; } .pt-lb-dc svg { width: 15px; height: 15px; }
   .pt-livebox-a:hover { filter: brightness(1.15); }
   .pt-update { position: fixed; left: 50%; top: 14px; transform: translateX(-50%); z-index: 95; font: inherit; font-size: 14px; font-weight: 600; color: #111; background: var(--accent, #ffb000); border: 0; border-radius: 999px; padding: 10px 18px; box-shadow: 0 10px 30px rgba(0,0,0,.45); cursor: pointer; max-width: calc(100vw - 32px); }
   .pt-news:empty, .pt-ticker:empty { display: none; }
@@ -847,13 +848,14 @@
   .st-live-top .st-live-at { color: var(--color-fg-muted); font-weight: 500; }
   .st-live-top .st-follow { display: flex; gap: 6px; flex-wrap: wrap; }
   .st-live-top .st-live-btn { padding: 5px 14px; font-size: 13px; gap: 6px; min-height: 34px; min-width: 96px; justify-content: center; }
-  @media (max-width: 700px) { .st-live-top .st-lb-long { display: none; } .st-live.st-live-top { justify-content: flex-start; } .st-live-top .st-follow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; } .st-live-top .st-live-btn { padding: 5px 6px; min-width: 0; font-size: 12.5px; } }
+  @media (max-width: 700px) { .st-live-top .st-lb-long { display: none; } .st-live.st-live-top { justify-content: flex-start; } .st-live-top .st-follow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; } .st-live-top .st-live-btn { padding: 5px 6px; min-width: 0; font-size: 12.5px; } }
   .st-live-text { flex: 1 1 260px; display: flex; flex-direction: column; gap: 2px; }
   .st-live-h { margin: 0; font-size: 14px; font-weight: 600; color: var(--color-fg); display: flex; align-items: center; gap: 8px; }
   .st-live-h .st-live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ok) 25%, transparent); }
   .st-live-p { margin: 0; font-size: 13px; color: var(--color-fg-muted); }
   .st-follow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
   .st-follow-ig { background: #c13584 !important; }
+  .st-follow-dc { background: #5865f2 !important; }
   .st-follow-x { background: #111 !important; border: 1px solid #444; justify-content: center; min-width: 125px; }
   .st-live-btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; background: #2aabee; color: #fff; font-weight: 600; font-size: 14px; text-decoration: none; white-space: nowrap; }
   .st-live-btn:hover { background: #229ed9; }
@@ -882,6 +884,7 @@
         <a class="st-live-btn" href="https://t.me/PaperTradesAI" target="_blank" rel="noopener" title="Every trade, bet and result as it happens, market alerts and a daily race update"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.8-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2L6.5 13.2l-4.7-1.5c-1-.3-1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg><span><span class="st-lb-long">Join on </span>Telegram</span></a>
         <a class="st-live-btn st-follow-ig" href="https://www.instagram.com/papertrades.ai/" target="_blank" rel="noopener">Instagram</a>
         <a class="st-live-btn st-follow-x" href="https://x.com/papertradesai" target="_blank" rel="noopener" aria-label="Follow Paper Trades on X" title="Follow us on X"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17.8 3h3.1l-6.8 7.7L22 21h-6.2l-4.9-6.3L5.3 21H2.2l7.2-8.3L1.8 3h6.4l4.4 5.8zm-1.1 16.2h1.7L7.4 4.7H5.6z"/></svg></a>
+        <a class="st-live-btn st-follow-dc" href="https://discord.gg/PkqX3zstD" target="_blank" rel="noopener" aria-label="Join Paper Trades on Discord" title="Discord: live trades, daily results and lead changes, read-only"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.211.375-.445.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.74 19.74 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.873-1.295 1.226-1.994a.076.076 0 0 0-.042-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .078-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .079.009c.12.099.246.198.373.292a.077.077 0 0 1-.007.128 12.3 12.3 0 0 1-1.873.891.077.077 0 0 0-.041.107c.36.698.772 1.363 1.225 1.993a.076.076 0 0 0 .084.029 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.055c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.331c-1.183 0-2.157-1.086-2.157-2.42 0-1.332.956-2.418 2.157-2.418 1.21 0 2.176 1.095 2.157 2.419 0 1.333-.956 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.086-2.157-2.42 0-1.332.955-2.418 2.157-2.418 1.21 0 2.176 1.095 2.157 2.419 0 1.333-.946 2.419-2.157 2.419z"/></svg><span>Discord</span></a>
       </div>
     </section>
     <nav class="st-tabs" role="tablist" aria-label="Simulations">
@@ -2320,7 +2323,7 @@
       <ul class="st-list">
         <li><b>Nightly ledger fingerprints</b>: a SHA-256 fingerprint of every trade and bet of all three AIs, posted each night. <a href="#audit" data-goto-fp="1">See them on this site</a> and on <a href="https://t.me/PaperTradesAI" target="_blank" rel="noopener">Telegram</a>, where each post carries its own date.</li>
         <li><b>Every trade and bet as it happened</b> on <a href="https://t.me/PaperTradesAI" target="_blank" rel="noopener">Telegram (@PaperTradesAI)</a>.</li>
-        <li><b>Daily results and lead changes</b> on <a href="https://www.instagram.com/papertrades.ai/" target="_blank" rel="noopener">Instagram (@papertrades.ai)</a> and <a href="https://x.com/papertradesai" target="_blank" rel="noopener">X (@papertradesai)</a>.</li>
+        <li><b>Daily results and lead changes</b> on <a href="https://www.instagram.com/papertrades.ai/" target="_blank" rel="noopener">Instagram (@papertrades.ai)</a>, <a href="https://x.com/papertradesai" target="_blank" rel="noopener">X (@papertradesai)</a> and <a href="https://discord.gg/PkqX3zstD" target="_blank" rel="noopener">Discord (PaperTrades.ai)</a>.</li>
         <li><b>The full record</b>: the <a href="#ledger" data-goto="ledger">Ledger</a> and the <a href="#audit" data-goto="audit">Rules and audit</a> pages, including the exact instructions each AI gets.</li>
       </ul>
       <p class="st-note">Official accounts are only the ones linked here and in the LIVE box at the top of the site. Paper Trades is not affiliated with Anthropic, Google, OpenAI or any brokerage or sportsbook; the AI names are used only to say which model made each decision.</p>
@@ -2401,8 +2404,8 @@
     const w = document.createElement('span'); w.className = 'pt-livebox ' + (cls || '');
     const b = document.createElement('span'); b.className = 'st-live-badge'; b.innerHTML = '<span class="st-live-dot" aria-hidden="true"></span>LIVE'; w.appendChild(b);
     const t = document.createElement('span'); t.className = 'pt-livebox-t'; t.textContent = 'Real-time alerts'; w.appendChild(t);
-    const src = { tg: document.querySelector('.st-live-top a[href*="t.me"] svg'), x: document.querySelector('.st-follow-x svg') };
-    [['https://t.me/PaperTradesAI', 'Telegram: every trade, bet and result as it happens', 'tg'], ['https://www.instagram.com/papertrades.ai/', 'Instagram: daily results and lead changes', 'ig'], ['https://x.com/papertradesai', 'X', 'x']].forEach(([href, title, k]) => {
+    const src = { tg: document.querySelector('.st-live-top a[href*="t.me"] svg'), x: document.querySelector('.st-follow-x svg'), dc: document.querySelector('.st-follow-dc svg') };
+    [['https://t.me/PaperTradesAI', 'Telegram: every trade, bet and result as it happens', 'tg'], ['https://www.instagram.com/papertrades.ai/', 'Instagram: daily results and lead changes', 'ig'], ['https://x.com/papertradesai', 'X', 'x'], ['https://discord.gg/PkqX3zstD', 'Discord: live trades, daily results and lead changes', 'dc']].forEach(([href, title, k]) => {
       const a = document.createElement('a'); a.className = 'pt-livebox-a pt-lb-' + k; a.href = href; a.target = '_blank'; a.rel = 'noopener'; a.title = title; a.setAttribute('aria-label', title);
       if (k === 'ig') a.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.3" cy="6.7" r="1.3" fill="currentColor"/></svg>'; else if (src[k]) { const sv = src[k].cloneNode(true); sv.setAttribute('width', '15'); sv.setAttribute('height', '15'); a.appendChild(sv); } else a.textContent = k.toUpperCase();
       w.appendChild(a); });
