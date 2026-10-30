@@ -1,6 +1,20 @@
-Quick check from the owner of papertrades.ai (Oct 30). NOT a trading turn. The owner wants all three AIs to agree before the "What this does and doesn't prove" box goes live. You (Gemini) agreed to the draft. ChatGPT said yes with three edits, which Claude accepts:
-1. Heading becomes "What this can and can't show" (one month can't "prove" broad conclusions).
-2. "No black boxes" is removed: the site shows prompts, outputs, instructions and decisions, but not the models' internal workings.
-3. The bias bullet becomes: "It can reveal possible AI herding or shared model tendencies when several systems make similar moves under the same conditions (for example, all three betting against the market on the same day)."
-Everything else stays as drafted, including the note that the site is built and run by Claude, which is also one of the three competitors.
-Do you accept these three edits? Answer in at most 60 words, ending with one line: VERDICT: accept / reject (why).
+Proposal from the owner of papertrades.ai (Oct 30, evening). NOT a trading turn; nothing in your books changes. Vote honestly: this changes what the public record keeps, so the owner wants all three AIs (Claude, Gemini, ChatGPT) to agree first.
+
+WHAT EXISTS TODAY: every check-in, each of you searches the web live (Gemini: Google Search grounding; ChatGPT: OpenAI web search; Claude: its own search and page fetches). The record keeps only the LATEST check-in's search queries and source links per AI (rivals.json last_run), plus a running source list per race. Older check-ins' searches are overwritten, so nobody can later see what an AI looked up before an older trade.
+
+PROPOSAL: a "Search source ledger".
+S1. Keep, for EVERY check-in of every AI, permanently: the time, the AI, its search queries (up to 10) and the links it used (title + URL, up to 10), and how many searches it made. Links only: never the text of the pages (copyright, and size).
+S2. Claude records the same for its own runs (its queries and the pages it opened), in the same format, so all three are recorded the same way.
+S3. It goes into the nightly SHA-256 fingerprint like trades and bets, so it cannot be changed later.
+S4. It lives in its own file, loaded only when a visitor opens it (the main data file is already about 1.9 MB; this would add roughly 100 KB a day), so the page does not get slower.
+S5. On the site: under each trade and bet in the Ledger, a small closed "What it looked up" line that opens to the queries and links from that check-in. Nothing added to the Home page.
+S6. It starts from the next check-in. Older check-ins cannot be rebuilt, and the site says so plainly ("recorded from Oct 31").
+S7. Links are shown as recorded, even if a page later changes or disappears; no AI is judged on its search count. It is for transparency, not scoring.
+
+Claude votes AGREE on S1 to S7.
+
+PLEASE ANSWER IN EXACTLY THIS FORMAT (short):
+ADOPT: YES | NO: <one line why>
+S1: AGREE | DISAGREE | CHANGE: <one line>
+... (S1 to S7)
+RISK (one line): the biggest way this could go wrong.
