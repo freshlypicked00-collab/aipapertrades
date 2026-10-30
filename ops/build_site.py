@@ -1207,10 +1207,18 @@ def _peer():
     pg = (r.get('peer_grades') or []) + cg
     # grades withdrawn because the grader was shown wrong information by the site (our bug, never the grader's opinion): kept, marked, never averaged
     try:
-        voids = {(v['grader'], v['key']): v['why'] for v in json.load(open(os.path.join(SRC, 'peer_grades_void.json')))}
+        voids = {(v['grader'], v['key']): (v['why'], v.get('at') or '') for v in json.load(open(os.path.join(SRC, 'peer_grades_void.json')))}
     except Exception:
         voids = {}
-    pg = [dict(g, void=voids[(g.get('grader'), g.get('key'))]) if (g.get('grader'), g.get('key')) in voids else g for g in pg]
+    def _void(g):   # only grades given BEFORE the withdrawal; the new grade made with the right information stands (fix, Oct 30)
+        v = voids.get((g.get('grader'), g.get('key')))
+        if not v:
+            return None
+        try:
+            return v[0] if not v[1] or _when(g.get('at')) <= _when(v[1]) else None
+        except Exception:
+            return v[0]
+    pg = [dict(g, void=_void(g)) if _void(g) else g for g in pg]
     def k_at(x):
         return _when(x).astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
     c_last = {}
