@@ -2414,7 +2414,7 @@
     box.appendChild(mirror(mp, 'Model'));
     if (cp) box.appendChild(mirror(cp, 'Currency'));
     // the colour theme menu, the same as the header's (eight themes, owner Oct 29)
-    { const tp = document.getElementById('theme-pick'); if (tp) box.appendChild(mirror(tp, 'Theme')); }
+    { const tp = document.getElementById('theme-pick'); if (tp) { const l = mirror(tp, 'Colour theme'); l.title = 'Terminal on your first visit, then the one you pick is remembered in this browser'; box.appendChild(l); } }
     { const f0 = document.getElementById('fs-btn');   // full screen, computers only (the header button shows only there)
       if (f0 && document.fullscreenEnabled && window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) { const f2 = mk('button', 'st-tt-theme'); f2.type = 'button'; f2.title = 'Full screen (Esc to leave)';
         const s2 = () => { f2.textContent = '⛶'; f2.setAttribute('aria-label', document.fullscreenElement ? 'Exit full screen' : 'Full screen'); f2.title = (document.fullscreenElement ? 'Exit full screen' : 'Full screen') + ' (Esc to leave)'; f2.setAttribute('aria-pressed', String(!!document.fullscreenElement)); };
