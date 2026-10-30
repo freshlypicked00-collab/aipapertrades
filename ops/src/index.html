@@ -4840,7 +4840,7 @@
     const tbox = mk('div', 'h2h-exp');
     tbox.appendChild(mk('h3', '', 'What each AI is thinking'));
     const ul = mk('ul', 'h2h-takes');
-    const addTake = (id, text, at) => { if (!SEL.includes(id)) return; const li = mk('li'); li.style.setProperty('--ai', AIS[id].color); li.appendChild(mk('b', '', AIS[id].label + (at ? ' · ' + stFmt.when(at) : ''))); li.appendChild(document.createTextNode(text)); if (at) { const f = dash.baseData('factcheck').filter((x) => x.model === id && new Date(x.take_at).getTime() === new Date(at).getTime()).pop(); if (f) { const p = mk('p', 'st-fact'); p.appendChild(fcNode(f)); li.appendChild(p); } } ul.appendChild(li); };
+    const addTake = (id, text, at) => { if (!SEL.includes(id)) return; const li = mk('li'); li.style.setProperty('--ai', AIS[id].color); li.appendChild(mk('b', '', AIS[id].label + (at ? ' · ' + stFmt.when(at) : ''))); li.appendChild(document.createTextNode(text)); if (at) { const f0 = fcFor(id, at, EXP_SEL || null), f = f0 && f0.verdict !== 'none' ? f0 : null; if (f) { const p = mk('p', 'st-fact'); p.appendChild(fcNode(f)); li.appendChild(p); } } ul.appendChild(li); };
     if (TK.status === 'ok' && TK.data.length) { const t = TK.data[TK.data.length - 1]; addTake('claude', t.text, t.at); }
     const latest = {};
     if (EXP_SEL) {
@@ -4864,12 +4864,12 @@
       pp.list.forEach((id) => { const rows = (all[id] || []).filter((x) => !x.model || x.model === id); any = true; if (!rows.length) { const h = mk('h4', '', AIS[id].label); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px'; h.style.margin = '10px 0 6px'; pb.append(h, mk('p', 'st-note', AIS[id].label + ' writes its plans, feelings and opinions at its next check-in.')); return; } const h = mk('h4', '', AIS[id].label); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px'; h.style.margin = '10px 0 6px'; const g = mk('div', 'st-plans'); planCards(rows, g, EXP_SEL || null); pb.append(h, g); });
       // high up, right under the race picker (and the overview), not below every chart
       if (any) { const anchor = el.querySelector('.h2h-exp'); if (anchor) anchor.after(tbox, pb); else el.append(tbox, pb); } }
-    const fcs = dash.baseData('factcheck').filter((x) => SEL.includes(x.model)).slice().sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 6);
+    const fcs = fcShown().filter((x) => SEL.includes(x.model)).slice().sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 6);
     if (fcs.length) {
       const fb = mk('div', 'h2h-exp'); fb.appendChild(mk('h3', '', 'Fact checks'));
       fb.appendChild(mk('p', 'st-note', 'Nobody checks itself. It is a loop: Gemini fact-checks Claude’s takes, ChatGPT fact-checks Gemini’s, and Claude fact-checks ChatGPT’s, against official and reputable sources. Fact checks are shown here only; no AI is corrected.'));
       const fl = mk('ul', 'h2h-takes');
-      fcs.forEach((f) => { const li = mk('li'); li.style.setProperty('--ai', AIS[f.model].color); li.appendChild(mk('b', '', AIS[f.model].label + ' · ' + stFmt.when(f.at))); if (f.take) li.appendChild(mk('q', '', f.take)); const p = mk('p', 'st-fact'); p.appendChild(fcNode(f)); li.appendChild(p); fl.appendChild(li); });
+      fcs.forEach((f) => { const li = mk('li'); li.style.setProperty('--ai', AIS[f.model].color); li.appendChild(mk('b', '', AIS[f.model].label + (f.experiment ? ' · ' + (ALLIN[f.experiment] || LABEL[f.experiment] || f.experiment) + ' take' : '') + ' · ' + stFmt.when(f.at))); if (f.take) li.appendChild(mk('q', '', f.take)); const p = mk('p', 'st-fact'); p.appendChild(fcNode(f)); li.appendChild(p); fl.appendChild(li); });
       fb.appendChild(fl); el.appendChild(fb);
     }
     // recent trades for each AI shown, 10 each, with an experiment menu
@@ -5198,12 +5198,12 @@
     };
     draw();
     // fact checks about this AI
-    const fcs = dash.baseData('factcheck').filter((x) => x.model === id).sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 8);
+    const fcs = fcShown().filter((x) => x.model === id).sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 8);
     const fcc = card();
     fcc.appendChild(mk('h2', 'st-h2', 'Fact checks of ' + nm));
     fcc.appendChild(mk('p', 'st-note', id === 'claude' ? 'Claude’s takes are fact-checked by Gemini, so Claude never grades its own homework.' : id === 'gemini' ? 'Gemini’s takes are fact-checked by ChatGPT against official and reputable sources.' : 'ChatGPT’s takes are fact-checked by Claude against official and reputable sources.'));
     if (!fcs.length) fcc.appendChild(mk('p', 'st-note', 'No fact checks yet.'));
-    fcs.forEach((f) => { const p = mk('p', 'st-fact'); if (f.take) p.appendChild(mk('q', '', f.take)); p.appendChild(document.createElement('br')); p.appendChild(fcNode(f)); fcc.appendChild(p); });
+    fcs.forEach((f) => { const p = mk('p', 'st-fact'); if (f.experiment) p.appendChild(mk('b', 'fc-race', (ALLIN[f.experiment] || LABEL[f.experiment] || f.experiment) + ' take: ')); if (f.take) p.appendChild(mk('q', '', f.take)); p.appendChild(document.createElement('br')); p.appendChild(fcNode(f)); fcc.appendChild(p); });
   });
 
   const PIE_COL = ['#d97757', '#4f8ff7', '#3ddc84', '#ffc93c', '#b07cff', '#ff7aa8', '#4fd1c5', '#9b927f', '#f2f2f2'];
@@ -5913,6 +5913,11 @@
     const d = mk('details'); d.appendChild(mk('summary', '', 'Every checked price (' + A.rows.length + '), newest first')); d.appendChild(table(A.rows.slice().reverse().slice(0, 400))); el.appendChild(d);
   });
   const FC = { ok: ['✓ Checks out', 'fc-ok'], partly: ['⚠ Partly wrong', 'fc-mid'], wrong: ['✗ Wrong', 'fc-bad'], unverified: ['? Can’t confirm yet', 'fc-mid'] };
+  // the fact check of one take: same AI, same take time, same race (race takes and the overall take are written at the same moment)
+  const FC_CHECKABLE = /\d|\b(fed|fomc|ecb|boj|bank of|central bank|earnings|revenue|guidance|gdp|cpi|pce|inflation|payrolls?|jobs report|tariffs?|hack|halt|war|ceasefire|strike|opec|election|polls?|injur\w*|final|won|beat|missed|resign\w*|announc\w*|reported|record)\b/i;
+  const fcFor = (model, at, exp) => (dash.baseData('factcheck') || []).filter((x) => x.model === model && new Date(x.take_at).getTime() === new Date(at).getTime() && (x.experiment || null) === (exp || null))
+    .sort((a, b) => new Date(a.at) - new Date(b.at)).pop() || null;
+  const fcShown = () => (dash.baseData('factcheck') || []).filter((x) => x.verdict !== 'none');
   const fcNode = (f) => {
     const p = document.createDocumentFragment();
     const v = FC[f.verdict] || FC.unverified;
@@ -6664,11 +6669,10 @@
     if (race) { const pool = dash.model === 'claude' ? t.data.filter((x) => x.experiment === race) : (dash.baseData('rivals_thoughts') || []).filter((x) => x.model === dash.model && x.experiment === race); if (pool.length) r = pool.reduce((a, b) => (new Date(b.at) > new Date(a.at) ? b : a)); }
     const overall = t.data.filter((x) => !x.experiment); if (!r && overall.length) r = overall.reduce((a, b) => (new Date(b.at) > new Date(a.at) ? b : a));
     if (!r) return;
-    const mineFc = fc.filter((x) => x.model === dash.model).sort((a, b) => new Date(a.at) - new Date(b.at));
-    const f = mineFc.filter((x) => new Date(x.take_at).getTime() === new Date(r.at).getTime()).pop();
-    if (f) el.appendChild(fcNode(f));
-    else if (r.experiment && mineFc.length) { el.appendChild(mk('span', 'fc-note', 'Race takes are not fact-checked; the latest check of ' + (AIS[dash.model] || {}).label + '’s overall take (' + stFmt.when(mineFc[mineFc.length - 1].take_at) + '): ')); el.appendChild(fcNode(mineFc[mineFc.length - 1])); }
-    else { el.appendChild(mk('b', 'fc-mid', 'Fact check · pending')); el.appendChild(document.createTextNode(dash.model === 'claude' ? 'Gemini fact-checks Claude’s takes at its next check-in, so Claude never grades its own homework.' : dash.model === 'gemini' ? 'ChatGPT fact-checks Gemini’s takes against official and reputable sources at its next check-in.' : 'Claude fact-checks ChatGPT’s takes against official and reputable sources at its next check-in.')); }
+    // only the check of this exact take: same AI, same take, same race (a race take never borrows the overall take's check) (owner, Oct 29)
+    const f = fcFor(dash.model, r.at, r.experiment);
+    if (f) { if (f.verdict !== 'none') el.appendChild(fcNode(f)); return; }   // "none": it states nothing checkable, so nothing is shown
+    if (!r.experiment && FC_CHECKABLE.test(r.text || '')) { el.appendChild(mk('b', 'fc-mid', 'Fact check · pending')); el.appendChild(document.createTextNode(dash.model === 'claude' ? 'Gemini fact-checks Claude’s takes at its next check-in, so Claude never grades its own homework.' : dash.model === 'gemini' ? 'ChatGPT fact-checks Gemini’s takes against official and reputable sources at its next check-in.' : 'Claude fact-checks ChatGPT’s takes against official and reputable sources at its next check-in.')); }
   });
   const PLAN_H = [['day', 'Next 24 hours'], ['week', 'Next 7 days'], ['month', 'Rest of the month'], ['feeling', 'How I’m feeling'], ['on_claude', 'On Claude'], ['on_gemini', 'On Gemini'], ['on_chatgpt', 'On ChatGPT']];
   const planCards = (rows, el, exp) => {

@@ -1453,6 +1453,36 @@ def compact(state):
             print('thought archive failed; kept them', e)
 
 
+CHECKABLE = re.compile(r'\d|\b(fed|fomc|ecb|boj|bank of|central bank|earnings|revenue|guidance|gdp|cpi|pce|inflation|payrolls?|jobs report|tariffs?|'
+                       r'hack|halt|war|ceasefire|strike|opec|election|polls?|injur\w*|final|won|beat|missed|resign\w*|announc\w*|reported|record)\b', re.I)
+
+
+def race_takes_to_check(state, target, n=3):
+    """The target's newest race take per race, written in the last 12 hours, that states something checkable and has not been checked
+    yet; the newest n of them. Race takes with nothing checkable (plans, opinions, its own holdings) are never sent for checking."""
+    if target == 'claude':
+        try:
+            pool = [x for x in json.load(open('ops/src/take.json')) if x.get('experiment')]
+        except Exception:
+            pool = []
+    else:
+        pool = [x for x in state.get('thoughts', []) if x.get('model') == target and x.get('experiment')]
+    done = {(x.get('experiment'), x.get('take_at')) for x in state.get('factchecks', []) if x.get('model') == target and x.get('experiment')}
+    latest = {}
+    for x in pool:
+        try:
+            t = datetime.fromisoformat(str(x['at']).replace('Z', '+00:00'))
+        except Exception:
+            continue
+        if NOW - t > timedelta(hours=12):
+            continue
+        if x['experiment'] not in latest or t > latest[x['experiment']][0]:
+            latest[x['experiment']] = (t, x)
+    out = [(e, x) for e, (t, x) in latest.items() if (e, x['at']) not in done and CHECKABLE.search(x.get('text', ''))]
+    out.sort(key=lambda p: datetime.fromisoformat(str(p[1]['at']).replace('Z', '+00:00')), reverse=True)
+    return out[:n]
+
+
 def record_closing(state):
     """Closing odds for every AI's bets (owner's go, Oct 29): the last ESPN moneyline seen in the 75 minutes before the game starts,
     overwritten at each run until the start. Claude's bets placed by the runner get theirs in ops/claude_fill.py."""
@@ -1705,6 +1735,7 @@ def main():
             today = [x for x in mine if x['at'][:10] == NOW.date().isoformat()]
             myplans = {k: next((x['text'] for x in reversed(state.get('plans', [])) if x['model'] == mid and x['horizon'] == k and not x.get('experiment')), '') for k in ('day', 'week', 'month', 'feeling')}
             board, fc_task = public_board(state, mid) + betting_rule_line(state, mid, fx) + ' ', ''
+            fc_races, fc_take = [], None
             # the fact-check loop (each AI checks exactly one other, nobody checks itself): Gemini checks Claude, ChatGPT checks Gemini
             # (Claude checks ChatGPT in its own runs)
             fc_target = {'gemini': 'claude', 'chatgpt': 'gemini'}.get(mid)
@@ -1716,14 +1747,22 @@ def main():
                         ct = max([x for x in state.get('takes', []) if x.get('model') == fc_target], key=lambda x: datetime.fromisoformat(x['at'].replace('Z', '+00:00')))
                 except Exception:
                     ct = None
-                done = {x['take_at'] for x in state.get('factchecks', []) if x.get('model') == fc_target}
+                done = {x['take_at'] for x in state.get('factchecks', []) if x.get('model') == fc_target and not x.get('experiment')}
                 tname = {'claude': 'Claude', 'gemini': 'Gemini'}[fc_target]
-                if ct and ct['at'] not in done:
-                    fc_task = (f'INDEPENDENT FACT-CHECK TASK: you are the public fact-checker for {tname}\'s takes. {tname}\'s newest take (written ' + ct['at'] + '): "' + ct['text'] + '". '
-                               f'Use web search to check every factual claim in it (prices, rate decisions, events; what {tname} says it holds is not checkable, skip that). Be fair and strict. '
-                               f'Add a top-level field to your JSON reply: "fact_check_{fc_target}": ' + '{"verdict": "ok" | "partly" | "wrong" | "unverified", "text": "1-2 neutral sentences: what is right or wrong, with the correct fact", "source": "one URL you checked"}. '
-                               f'This is shown on the website only; it is not sent to {tname}. ')
-                    fc_take = ct
+                fc_races = race_takes_to_check(state, fc_target)   # its race takes that state a checkable fact (owner, Oct 29)
+                if (ct and ct['at'] not in done) or fc_races:
+                    fc_task = (f'INDEPENDENT FACT-CHECK TASK: you are the public fact-checker for {tname}\'s takes. Use web search to check every factual claim '
+                               f'(prices, levels, rate decisions, data, earnings, events, game results); what {tname} says it holds, plans or thinks is not checkable, skip that. Be fair and strict. '
+                               f'Verdicts: "ok" (checks out), "partly" (partly wrong), "wrong", "unverified" (can\'t confirm yet), or "none" when it states no checkable fact at all (only plans, opinions or its own holdings): "none" is not published. ')
+                    if ct and ct['at'] not in done:
+                        fc_task += (f'{tname}\'s newest overall take (written ' + ct['at'] + '): "' + ct['text'] + '". Add a top-level field to your JSON reply: "fact_check_' + fc_target + '": '
+                                    '{"verdict": "ok" | "partly" | "wrong" | "unverified" | "none", "text": "1-2 neutral sentences: what is right or wrong, with the correct fact", "source": "one URL you checked"}. ')
+                        fc_take = ct
+                    if fc_races:
+                        fc_task += (f'Also {tname}\'s newest race takes (each shown on the site under that race): '
+                                    + ' '.join(f'[{e}] (written {x["at"]}): "{x["text"]}"' for e, x in fc_races)
+                                    + ' Add a top-level field "fact_check_' + fc_target + '_races": {"<race name in the brackets>": {"verdict": ..., "text": ..., "source": ...}, ...} covering each one. ')
+                    fc_task += f'This is shown on the website only; it is not sent to {tname}. '
             myprof = {k: next((x['text'] for x in reversed(state.get('profiles', [])) if x['model'] == mid and x['field'] == k), '') for k in ('about', 'looking_forward', 'not_looking_forward', 'strategy', 'plan')}
             fresh = iso(NOW - timedelta(hours=8))
             due = [k for k in ['feeling'] + ['on_' + o for o in ('claude', 'gemini', 'chatgpt') if o != mid]
@@ -1806,8 +1845,25 @@ def main():
                 prev = next((x for x in reversed(state.setdefault('profiles', [])) if x['model'] == mid and x['field'] == k), None)
                 if txt and (not prev or prev['text'] != txt) and (not prev or prev['at'][:10] != NOW.date().isoformat() or len(txt) > 0 and prev['text'] == ''):
                     state['profiles'].append({'at': iso(), 'model': mid, 'field': k, 'text': txt})
-            fcr = reply.get(f'fact_check_{fc_target}') if fc_target else None
-            if fc_task and isinstance(fcr, dict) and fcr.get('text'):
+            try:   # race takes: each check is stored with its race, so the site shows it only under that race's take
+                rr = reply.get(f'fact_check_{fc_target}_races') if fc_target and fc_task else None
+                for e, x in (fc_races if isinstance(rr, dict) else []):
+                    g = rr.get(e)
+                    if not isinstance(g, dict):
+                        continue
+                    v = str(g.get('verdict', '')).lower().strip()
+                    src = str(g.get('source', '')).strip()
+                    if v != 'none' and (v not in ('ok', 'partly', 'wrong', 'unverified') or not src.startswith('http') or searched == 0):
+                        v = 'unverified'
+                    state.setdefault('factchecks', []).append({'at': iso(), 'model': fc_target, 'checker': mid, 'experiment': e, 'take_at': x['at'], 'take': clip(x['text'], 300),
+                                                               'verdict': v, 'text': '' if v == 'none' else clip(re.sub(r'\s*\[\d+(?:,\s*\d+)*\]', '', str(g.get('text', ''))), 500),
+                                                               'source': src if src.startswith('http') and v != 'none' else ''})
+            except Exception as _e:
+                print('race fact checks not stored:', _e)
+            fcr = reply.get(f'fact_check_{fc_target}') if fc_target and fc_take else None
+            if fc_task and isinstance(fcr, dict) and str(fcr.get('verdict', '')).lower().strip() == 'none':   # nothing to check: stored, never shown
+                state.setdefault('factchecks', []).append({'at': iso(), 'model': fc_target, 'checker': mid, 'take_at': fc_take['at'], 'take': clip(fc_take['text'], 300), 'verdict': 'none', 'text': '', 'source': ''})
+            elif fc_task and isinstance(fcr, dict) and fcr.get('text'):
                 v = str(fcr.get('verdict', 'unverified')).lower().strip()
                 src = str(fcr.get('source', '')).strip()
                 if v not in ('ok', 'partly', 'wrong', 'unverified') or not src.startswith('http'):
