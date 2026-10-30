@@ -1201,7 +1201,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'edf9a9121916';</script>
+<script>window.PT_PAGE_VER = 'eb7898816b29';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -1323,7 +1323,7 @@ body { background:var(--color-bg); }
     </div>
     <section class="st-score" aria-labelledby="h-score">
       <h2 class="st-score-h" id="h-score">Scoreboard <span>The best results across all three AIs, each race on its own (the ten races and the two All in side races), best first. Tap one to open that race as that AI.</span></h2>
-      <ol class="st-score-list" data-draw="scoreboard" data-source="totals trades bets risk"></ol>
+      <ol class="st-score-list" data-draw="scoreboard" data-source="totals trades bets risk history rivals_history allin_history"></ol>
     </section>
     <section class="st-score st-riskaward" aria-labelledby="h-risk">
       <h2 class="st-score-h" id="h-risk">Best risk manager <span>A separate award, added Oct 30 with all three AIs’ agreement. It never changes the winner, who is still decided on total profit on Nov 28.</span></h2>
@@ -7692,6 +7692,13 @@ body { background:var(--color-bg); }
       R.order.forEach((id) => { const x = R.races[e][id] || {}; const td = mk('td', '', f(x.score || 0)); td.title = 'Return ' + (x.ret >= 0 ? '+' : '') + (x.ret || 0).toFixed(2) + '% · worst drop −' + (x.dd || 0).toFixed(2) + '%'; tr.appendChild(td); }); tb.appendChild(tr); });
     t.appendChild(tb); const w = mk('div', 'st-wrap'); w.appendChild(t); d.appendChild(w); el.appendChild(d);
   });
+  // each AI's value history in one race, [[time ms, value]...] in time order (for the Scoreboard's 24-hour change and All in worst drop)
+  const scoreSeries = (id, race) => {
+    const RS = new Date('2026-10-28T17:45:00Z').getTime();
+    const src = ALLIN[race] ? (dash.baseData('allin_history') || []).filter((h) => h.model === id && h.experiment === race)
+      : id === 'claude' ? (dash.baseData('history') || []).filter((h) => h.portfolio === race) : (dash.baseData('rivals_history') || []).filter((h) => h.model === id && h.experiment === race);
+    return src.map((h) => [Date.parse(h.at), Number(h.value)]).filter((p) => p[0] >= RS && isFinite(p[1])).sort((a, b) => a[0] - b[0]);
+  };
   dash.draw('scoreboard', (el) => {
     // the best results across all three AIs, each race on its own (owner, Oct 29): tap one to switch to that AI and open that race
     el.replaceChildren();
@@ -7725,7 +7732,19 @@ body { background:var(--color-bg); }
       b.appendChild(whoNode(r.id, 16, 'pd-who st-score-who'));
       const pc = mk('span', 'st-score-pct', stFmt.pct(r.pct)); tone(pc, r.profit); b.appendChild(pc);
       b.appendChild(mk('span', 'st-score-amt', stFmt.signed(r.profit, cp) + ' · now ' + stFmt.money(r.value, cp)));
-      { const RK = (dash.baseData('risk')[0] || {}).races || {}, x = (RK[r.race] || {})[r.id]; if (x) { const w = mk('span', 'st-score-amt st-score-dd', 'Worst drop −' + x.dd.toFixed(1) + '%'); w.title = 'The biggest fall from a high point in this race since the start (shown next to profit, owner and all three AIs, Oct 30)'; b.appendChild(w); } }
+      { // the last 24 hours and the worst drop, on every card including the All in side races (owner, Oct 30)
+        const ser = scoreSeries(r.id, r.race), now = Date.now(), v = Number(r.value);
+        const before = ser.filter((p) => p[0] <= now - 864e5), then = before.length ? before[before.length - 1][1] : 100000;
+        const d24 = then > 0 ? v / then - 1 : 0;
+        const RK = (dash.baseData('risk')[0] || {}).races || {}, x = (RK[r.race] || {})[r.id];
+        let dd = x ? x.dd : null;
+        if (dd == null && ser.length) { let pk = 100000, m = 0; ser.concat([[now, v]]).forEach((p) => { pk = Math.max(pk, p[1]); if (pk > 0) m = Math.max(m, (pk - p[1]) / pk); }); dd = m * 100; }
+        const w = mk('span', 'st-score-amt st-score-dd');
+        const c24 = mk('span', d24 > 0.00005 ? 'is-up' : d24 < -0.00005 ? 'is-down' : '', '24h ' + (d24 >= 0 ? '+' : '−') + Math.abs(d24 * 100).toFixed(1) + '%');
+        c24.title = 'Change in the last 24 hours' + (before.length ? '' : ' (since this race started, less than 24 hours ago)');
+        w.appendChild(c24);
+        if (dd != null) { w.appendChild(document.createTextNode(' · Worst drop −' + dd.toFixed(1) + '%')); w.title = 'Worst drop: the biggest fall from a high point in this race since the start (owner and all three AIs, Oct 30)'; }
+        b.appendChild(w); }
       b.setAttribute('aria-label', 'Rank ' + rank + ': ' + AIS[r.id].label + ' in ' + rn + ', ' + stFmt.pct(r.pct) + '. Opens it as ' + AIS[r.id].label + '.');
       b.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2 && s2.value !== r.id) { s2.value = r.id; s2.dispatchEvent(new Event('change')); } if (ALLIN[r.race]) goAllin(r.race); else goTab(TABOF[r.race]); });
       li.appendChild(b); el.appendChild(li);
