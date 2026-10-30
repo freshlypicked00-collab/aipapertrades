@@ -55007,20 +55007,6 @@
     "reason": "Sell all SPY if it falls to $735 (stop)."
    },
    {
-    "id": "claude-2",
-    "model": "claude",
-    "experiment": "Stocks",
-    "symbol": "QQQ",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 685.0,
-    "fraction": 1.0,
-    "name": "QQQ",
-    "placed_at": "2026-10-29T22:01:02Z",
-    "reason": "Sell all QQQ if it falls to $685 (stop)."
-   },
-   {
     "id": "claude-3",
     "model": "claude",
     "experiment": "Crypto",
@@ -55135,7 +55121,8 @@
    "c20261029222314-0: filled Sell Bitcoin C$11,288 at 79,005.5",
    "claude-5: stop filled Sell Silver C$13,886 at 49.825",
    "c20261030143035-1: filled Buy USO C$10,000 at 170.77",
-   "claude-4: stop filled Sell Gold C$28,697 at 3,887.7"
+   "claude-4: stop filled Sell Gold C$28,697 at 3,887.7",
+   "claude-2: stop filled Sell QQQ C$18,859 at 684.97"
   ],
   "codes": {
    "Democrats win the Senate (Yes)": "will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections|Yes"
@@ -56133,6 +56120,16 @@
    "kind": "stop",
    "level": 3887.75,
    "result": "filled: Sell Gold C$28,697 at 3,887.7"
+  },
+  {
+   "at": "2026-10-30T18:36:02Z",
+   "model": "claude",
+   "id": "claude-2",
+   "experiment": "Stocks",
+   "name": "QQQ",
+   "kind": "stop",
+   "level": 685.0,
+   "result": "filled: Sell QQQ C$18,859 at 684.97"
   }
  ],
  "forecasts": [
