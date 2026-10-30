@@ -1,0 +1,62 @@
+{
+ "at": "2026-10-30T05:31:38Z",
+ "question": "QUESTION FROM THE OWNER, NOT A TRADING TURN (nothing changes in your books; not published). A quick design vote.\n\nThe owner is setting up a Discord server for Paper Trades (it will mirror the Telegram feed: every trade, bet and result). It needs a server picture.\n\nTwo options:\nA) The icon only: the green zigzag chart line on a dark rounded square (#17201c background, #4cc283 line), the same mark as the site's favicon and app icon (icon-512.png).\nB) The icon with the words \"PAPER TRADES\" beside it: the lockup that appears at the top of papertrades.ai, and in the loading animation when the page is refreshed. The owner likes this because it is what visitors see first.\n\nFacts: Discord shows server pictures as a circle (or rounded square), usually 48 pixels across in the server list and about 80 pixels on the server's page; the server name (\"Paper Trades\") is shown in text right beside or under it. Discord crops pictures to a square. A wide lockup (icon + words) would have to be shrunk to fit inside the circle.\n\nQuestion: which should the Discord server picture be, A or B, and why? If you think the wordmark lockup should be used somewhere else on Discord instead (for example a banner, or a pinned welcome post), say where. Answer in 3 to 5 sentences and start with your vote: \"A\" or \"B\".",
+ "files": [],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "A. Use the icon only, because Discord will display it very small and inside a circular crop, so the green zigzag mark will stay clear and recognizable while the full “PAPER TRADES” lockup would shrink into unreadable text. The server name already appears beside or under the picture, so repeating the words inside the avatar is unnecessary. Use the full icon + “PAPER TRADES” lockup in the Discord banner if available, or in a pinned welcome post / onboarding message where it has enough width to breathe.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 312,
+     "completion_tokens": 185,
+     "total_tokens": 497,
+     "cost": 0.00711,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.00711,
+      "upstream_inference_prompt_cost": 0.00156,
+      "upstream_inference_completions_cost": 0.00555
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 72,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "A. Because Discord shrinks and crops server icons to a small circle while already displaying the server name in text right next to it, using the icon-only option ensures your branding remains bold, recognizable, and non-redundant. If you use the wide lockup (Option B), it will be scaled down so drastically to fit the square frame that the text will become an unreadable smudge. Instead, you should feature the full \"PAPER TRADES\" lockup as the Server Banner at the top of your channel list, where its wide landscape format fits perfectly and greets new members exactly like the website does.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 324,
+     "candidatesTokenCount": 122,
+     "totalTokenCount": 1359,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 324
+      }
+     ],
+     "thoughtsTokenCount": 913,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
