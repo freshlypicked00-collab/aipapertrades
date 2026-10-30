@@ -1103,7 +1103,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '5b8417d28d10';</script>
+<script>window.PT_PAGE_VER = '46d130ed3be6';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -5782,11 +5782,12 @@ body { background:var(--color-bg); }
   // ---- Model menu: Claude, Gemini, ChatGPT (a model is selectable once it has data) ----
   const MODEL_LABEL = { claude: 'Claude', gemini: 'Gemini', chatgpt: 'ChatGPT' };
   const modelExps = () => { const v = dash.model !== 'claude' && dash.models()[dash.model]; return v ? v._meta.exps : null; };
-  (() => {   // phones: fold the intro to three lines with a "Read more"
+  (() => {   // phones: the intro shows in full; "Show less" folds it to three lines, and that choice is remembered (owner, Oct 30)
     const p = document.getElementById('hook-sub'); if (!p) return;
-    p.classList.add('is-folded');
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'hook-more'; b.textContent = 'Read more';
-    b.addEventListener('click', () => { const f = p.classList.toggle('is-folded'); b.textContent = f ? 'Read more' : 'Show less'; });
+    let f0 = false; try { f0 = localStorage.getItem('pt-hook-folded') === '1'; } catch (e) {}
+    p.classList.toggle('is-folded', f0);
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'hook-more'; b.textContent = f0 ? 'Read more' : 'Show less';
+    b.addEventListener('click', () => { const f = p.classList.toggle('is-folded'); b.textContent = f ? 'Read more' : 'Show less'; try { localStorage.setItem('pt-hook-folded', f ? '1' : '0'); } catch (e) {} });
     p.insertAdjacentElement('afterend', b);
   })();
   (() => {
