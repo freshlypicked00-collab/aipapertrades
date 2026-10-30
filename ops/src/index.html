@@ -251,6 +251,17 @@
   .st-callout .co-text { margin: 6px 0 0; font-size: 15px; line-height: 1.45; color: var(--color-fg); }
   .st-callout .co-foot { margin: 6px 0 0; font-size: 12px; color: var(--color-fg-muted); }
   .st-callout .co-foot a { color: inherit; }
+  .mkt:empty { display: none; } .mkt { margin: 10px 0 4px; }
+  .mkt-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0 0 6px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+  .mkt-h .pd-livebadge { letter-spacing: .08em; } .mkt-h small { letter-spacing: 0; text-transform: none; color: var(--color-fg-muted); font-size: 12px; }
+  .mkt-g { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px; }
+  .mkt-i { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 6px 9px; display: flex; flex-direction: column; gap: 1px; font-size: 12.5px; min-width: 0; }
+  .mkt-i.is-held { border-color: color-mix(in srgb, var(--accent) 45%, var(--color-border-line)); }
+  .mkt-n { display: flex; justify-content: space-between; gap: 6px; color: var(--color-fg-muted); white-space: nowrap; overflow: hidden; } .mkt-n b { color: var(--color-fg); overflow: hidden; text-overflow: ellipsis; }
+  .mkt-p { font-family: var(--font-mono, monospace); font-size: 15px; font-weight: 700; color: var(--color-fg); font-variant-numeric: tabular-nums; }
+  .mkt-p .is-up, .mkt-p .is-down { font-size: 12px; font-weight: 600; }
+  .mkt-w { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--color-fg-muted); } .mkt-note { margin: 6px 0 0; font-size: 11.5px; color: var(--color-fg-muted); }
+  @media (max-width: 700px) { .mkt-g { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   .lg-look { margin-top: 6px; font-size: 12.5px; } .lg-look summary { cursor: pointer; color: var(--color-fg-muted); list-style: none; } .lg-look summary::-webkit-details-marker { display: none; }
   .lg-look[open] summary { color: var(--color-fg); } .lg-look-b { padding: 4px 0 2px 2px; } .lg-look-b p { margin: 2px 0; }
   .lg-look-b ul { margin: 2px 0 4px; padding-left: 1.1em; } .lg-look-q li { font-style: italic; } .lg-look-l a { word-break: break-word; }
@@ -1118,6 +1129,7 @@
       </div>
       <div class="gx" id="perf-overview" data-draw="perf-chart" data-source="history bench_history allin_history allin_trades allin_models" data-portfolio="Stocks"></div>
       <div class="gx-hold" id="perf-overview-hold" aria-live="polite"></div>
+      <div class="mkt" data-draw="mktprices" data-source="holdings rivals_models ticker" aria-live="off"></div>
       <div class="gx-px-wrap" id="perf-overview-pxw"><h3 class="st-h3">How each holding is doing on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
       <div class="gx" id="perf-overview-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Stocks"></div></div>
     </section>
@@ -4788,6 +4800,84 @@
     });
     return d;
   };
+  // ---------- market prices under "How each simulation is doing" (owner, Oct 30). Crypto: the biggest coins, live from CoinGecko in the
+  // visitor's browser (every 60 s), whether or not an AI holds any. Other trading races: only when an AI holds something, each holding's
+  // latest price from the last check-in (not live; it says so). Betting races: nothing (Sports has its live games box).
+  const MKT_SKIP = new Set(['usdt', 'usdc', 'usde', 'dai', 'fdusd', 'usds', 'pyusd', 'tusd', 'busd', 'usd1', 'rlusd', 'susde', 'usdtb', 'usd0', 'buidl', 'steth', 'wsteth', 'weth', 'wbtc', 'cbbtc', 'weeth', 'wbeth', 'reth', 'bsc-usd', 'xaut', 'paxg']);
+  let mktCoins = null, mktAt = 0, mktBusy = false, mktErr = false;
+  const mktFetch = () => {
+    if (mktBusy || Date.now() - mktAt < 55e3) return;
+    mktBusy = true;
+    fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=25&page=1&price_change_percentage=24h')
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then((j) => { mktCoins = (j || []).filter((c) => c && c.current_price != null && !MKT_SKIP.has(String(c.symbol).toLowerCase()) && !(/usd/i.test(c.symbol) && Math.abs(c.current_price - 1) < 0.05)).slice(0, 8); mktAt = Date.now(); mktErr = false; })
+      .catch(() => { mktErr = true; mktAt = Date.now() - 30e3; })
+      .finally(() => { mktBusy = false; document.querySelectorAll('[data-draw="mktprices"]').forEach((el) => { if (el._paint) el._paint(); }); });
+  };
+  if (!window._ptMktTimer) window._ptMktTimer = setInterval(() => { if (document.hidden) return; const el = document.querySelector('[data-draw="mktprices"]'); if (el && el.offsetParent !== null && el._race === 'Crypto') mktFetch(); }, 60e3);
+  const mktHolders = (race) => {   // every AI's current holdings in this race: {key: {name, code, price, cur, at, ids:[]}}
+    const out = {};
+    const put = (id, key, name, code, price, cur, at) => { if (price == null || !isFinite(price)) return; const k = String(key || name).toUpperCase(); const o = out[k] || (out[k] = { name, code, price, cur, at, ids: [] });
+      if (at && (!o.at || Date.parse(at) > Date.parse(o.at))) { o.price = price; o.cur = cur; o.at = at; } if (!o.ids.includes(id)) o.ids.push(id); };
+    const CL = { Bitcoin: 'BTC-USD', Ethereum: 'ETH-USD', Solana: 'SOL-USD' };   // Claude's book names its coins in words; the rivals use the symbol
+    (dash.baseData('holdings') || []).forEach((h) => { if (h.portfolio !== race || /^(Cash|US dollar)|\(closed\)/.test(h.holding) || h.price_usd == null || !(Number(h.quantity) > 0 || Number(h.value_cad) > 0)) return;
+      put('claude', h.code || CL[h.holding] || h.holding, h.holding, h.code || '', Number(h.price_usd), 'USD', h.price_at); });
+    (dash.baseData('rivals_models') || []).forEach((m) => { const b = ((m.books || {})[race] || {}).positions || {};
+      Object.entries(b).forEach(([sym, x]) => { if (!x || sym === 'USD' || !(Math.abs(Number(x.qty)) > 0)) return; put(m.id, sym, String(x.name || sym).replace(/ USD$/, ''), sym, Number(x.last), x.pcur || 'USD', x.priced_at); }); });
+    return out;
+  };
+  const mktSym = (c) => ({ USD: 'US$', CAD: 'C$', CNY: 'CN¥', HKD: 'HK$', EUR: '€', GBP: '£', JPY: '¥' }[c] || '');
+  const mktNum = (v) => (v >= 1000 ? d3.format(',.0f')(v) : v >= 1 ? d3.format(',.2f')(v) : d3.format(',.4~f')(v));
+  const mktBadges = (ids) => { const w = mk('span', 'mkt-w'); ids.forEach((id) => { if (AIS[id]) w.appendChild(aiBadge(id, 12)); }); if (ids.length) w.appendChild(document.createTextNode('held by ' + ids.map((id) => (AIS[id] || {}).label || id).join(', '))); return w; };
+  const mktTile = (name, sym, price, ch, ids) => {
+    const it = mk('div', 'mkt-i' + (ids.length ? ' is-held' : ''));
+    const n = mk('span', 'mkt-n'); n.append(mk('b', '', name), mk('span', '', sym || ''));
+    const pr = mk('span', 'mkt-p', price);
+    if (ch != null && isFinite(ch)) pr.appendChild(mk('span', ch >= 0 ? 'is-up' : 'is-down', ' ' + (ch >= 0 ? '▲ ' : '▼ ') + d3.format('.1%')(Math.abs(ch))));
+    it.append(n, pr); if (ids.length) it.appendChild(mktBadges(ids)); return it;
+  };
+  dash.draw('mktprices', (el) => {
+    const host = document.getElementById('perf-overview'); const race = host && host.dataset.portfolio;
+    el._race = race;
+    el._paint = () => {
+      el.replaceChildren();
+      if (!race || /^(Sports|Predictions|AllInSports)$/.test(race)) return;
+      const held = mktHolders(race);
+      if (race === 'Crypto') {
+        mktFetch();
+        const heldBy = (sym) => (held[String(sym).toUpperCase() + '-USD'] || {}).ids || [];
+        const live = !!(mktCoins && mktCoins.length);   // the LIVE badge only when the prices really are live
+        const h = mk('p', 'mkt-h');
+        if (live) { const bd = mk('span', 'pd-livebadge'); bd.append(mk('i'), document.createTextNode('LIVE')); h.append(bd, document.createTextNode('Live market prices')); h.appendChild(mk('small', '', 'the biggest coins by market value, in US$ · 24-hour change')); }
+        else { h.append(document.createTextNode('Market prices')); h.appendChild(mk('small', '', 'in US$ · 24-hour change')); }
+        el.appendChild(h);
+        const g = mk('div', 'mkt-g');
+        if (live) {
+          mktCoins.slice(0, window.innerWidth < 700 ? 6 : 8).forEach((c, i) => { const ch = Number(c.price_change_percentage_24h_in_currency != null ? c.price_change_percentage_24h_in_currency : c.price_change_percentage_24h) / 100;
+            g.appendChild(mktTile((i + 1) + '. ' + c.name, String(c.symbol).toUpperCase(), 'US$' + mktNum(Number(c.current_price)), ch, heldBy(c.symbol))); });
+          el.appendChild(g);
+          el.appendChild(mk('p', 'mkt-note', 'Live from CoinGecko, refreshed every minute while this page is open (last ' + new Date(mktAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + '). The race itself values holdings at the race runner’s feed price at each check-in.'));
+        } else {   // CoinGecko unreachable: the prices from the last check-in instead, and it says so
+          const T = (dash.baseData('ticker') || []).filter((x) => /-USD$/.test(x.sym));
+          T.forEach((x) => g.appendChild(mktTile(x.name, x.sym.replace(/-USD$/, ''), 'US$' + mktNum(Number(x.price)), Number(x.chg_24h), heldBy(x.sym.replace(/-USD$/, '')))));
+          el.appendChild(g);
+          el.appendChild(mk('p', 'mkt-note', mktErr ? 'The live feed is not answering right now, so these are the prices from the last check-in' + (T[0] ? ' (' + stFmt.when(T[0].last_at) + ')' : '') + '.' : 'Loading live prices…'));
+        }
+        return;
+      }
+      const rows = Object.values(held);
+      if (!rows.length) return;   // nobody holds anything in this race: no box
+      const h = mk('p', 'mkt-h'); h.append(document.createTextNode('Market prices')); h.appendChild(mk('small', '', 'what the AIs hold in this race, at the latest price'));
+      el.appendChild(h);
+      const g = mk('div', 'mkt-g');
+      rows.sort((a, b) => b.ids.length - a.ids.length || String(a.name).localeCompare(String(b.name))).slice(0, 8)
+        .forEach((x) => g.appendChild(mktTile(x.name, /^[A-Z0-9.=^-]{1,12}$/.test(x.code || '') ? x.code : '', mktSym(x.cur) + mktNum(x.price), null, x.ids)));
+      el.appendChild(g);
+      const last = rows.map((x) => x.at).filter(Boolean).sort((a, b) => Date.parse(a) - Date.parse(b)).pop();
+      el.appendChild(mk('p', 'mkt-note', 'Not live: the latest price from the last check-in' + (last ? ' (' + stFmt.when(last) + ')' : '') + '. Prices update at every check-in, about every 30 to 60 minutes while markets are open.'));
+    };
+    el._paint();
+  });
   dash.draw('lg-trades', (el) => {
     const run = () => {
       el.replaceChildren();
@@ -7815,6 +7905,7 @@
       if (g.dataset.chipsFor === 'perf-overview') {   // picking a race here moves Race standings to it too, as if its tab were opened (owner, Oct 30)
         const pd = document.querySelector('aside.st-podium');
         if (pd && pd._exp !== b.dataset.v) { pd._exp = b.dataset.v; pd._follow = false; pd._ctx = false; if (dash.redraw) { dash.redraw(); return; } }
+        if (dash.redraw) { dash.redraw(); return; }   // the market price box follows the pick too
       }
       if (t._redraw) t._redraw();
     }));
