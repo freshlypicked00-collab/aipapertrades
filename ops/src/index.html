@@ -6154,8 +6154,11 @@
     const fxOpen = !(ny.weekday === 'Sat' || (ny.weekday === 'Fri' && mins(ny) >= 1020) || (ny.weekday === 'Sun' && mins(ny) < 1020));
     // games with an open bet (any AI) that are being played now: started, and less than 4 hours ago
     const playing = new Set(), who = {}; const on = (ev, id) => { ev = String(ev || '').replace(/\s*\(.*\)$/, ''); playing.add(ev); (who[ev] = who[ev] || new Set()).add(id); };
-    dash.baseData('bets').forEach((b) => { const t = Date.parse(b.starts_at); if (b.status === 'Open' && t <= now && now - t < 4 * HOUR) on(b.event, 'claude'); });
-    dash.baseData('rivals_models').forEach((m) => (((m.books || {}).Sports || {}).bets || []).forEach((b) => { const t = Date.parse(b.starts_at); if (b.status === 'Open' && t <= now && now - t < 4 * HOUR) on(b.event, m.id); }));
+    // how long a game usually lasts, so a game that is surely over (but not settled until the next check-in) stops counting
+    const LEN = { NHL: 2.75, NBA: 2.75, NCAAB: 2.5, MLB: 3.5, NFL: 3.5, NCAAF: 3.75, EPL: 2 };
+    const live = (t, lg) => t <= now && now - t < (LEN[String(lg || '').toUpperCase()] || 3) * HOUR;
+    dash.baseData('bets').forEach((b) => { if (b.status === 'Open' && live(Date.parse(b.starts_at), b.sport)) on(b.event, 'claude'); });
+    dash.baseData('rivals_models').forEach((m) => (((m.books || {}).Sports || {}).bets || []).forEach((b) => { if (b.status === 'Open' && live(Date.parse(b.starts_at), b.short)) on(b.event, m.id); }));
     const US = ['Stocks', 'Options', 'Energy', 'Metals', 'Safe'];
     const open = new Set(['Crypto', 'Predictions', 'AllInTrading', 'AllInSports'].concat(chinaOpen ? ['China'] : [], usOpen ? US : [], fxOpen ? ['Currencies'] : [], playing.size ? ['Sports'] : []));   // the All in side race always counts (crypto and games run around the clock)
     // each AI's move in the last hour, per race (China converted to C$)
