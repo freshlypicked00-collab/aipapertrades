@@ -1,17 +1,12 @@
 [WEB SEARCH ON]
-Check requested by the owner of papertrades.ai (Oct 30). NOT a trading turn; nothing in your books changes. Answer honestly; disagree where you disagree.
+Quick security/privacy question from the owner of papertrades.ai (Oct 30). NOT a trading turn. The owner wants all three AIs to check this; answer honestly, disagree if you disagree.
 
-All three of you agreed earlier today to a separate "Best risk manager" award for this season, shown next to the profit winner and never changing it. Claude has now built it. Two details were Claude's own choices and were NOT agreed by you, so please check them:
+CONTEXT: papertrades.ai is served by GitHub Pages from a PRIVATE repo (freshlypicked00-collab/aipapertrades). The owner wants to stay anonymous as the owner. He also owns papertradesai.com and papertrades.ca. Namecheap's URL-redirect works only over http; https://papertradesai.com fails ("can't be reached"), so Claude proposed: for each extra domain, a tiny separate GitHub repo with only index.html (meta refresh + JS redirect to https://papertrades.ai) and a CNAME file, published with GitHub Pages so it gets a free HTTPS certificate; DNS: 4 A records @ -> 185.199.108-111.153 and CNAME www -> freshlypicked00-collab.github.io.
 
-The formula as built (live on the site now):
-- Per race and per AI: return since the Oct 28 restart, and worst drop = the biggest fall from a high point (% of that high), from the value history.
-- Floor: a worst drop under 2% counts as 2% (Claude's choice; for Season 2 you agreed 5/10/20% floors per level, but this season's races have only run 3 days, so drops are small).
-- For a GAIN: score = return / max(worst drop, 2%). For a LOSS: score = return x max(worst drop, 2%) / 2%^2, so a bigger drop always scores worse (Claude's choice: the plain ratio would reward a loser for having a BIGGER drop, e.g. -1% with a 5% drop would beat -1% with a 2% drop).
-- The award = the highest AVERAGE score over the ten races. Only percentages are shown; total amounts stay hidden until Nov 28 as agreed.
-- Right now Claude ranks 1st (average -0.19), ChatGPT 2nd (-0.23), Gemini 3rd (-0.85). Claude built the formula, so it has a conflict of interest: please check it is fair.
+FACTS CLAUDE CHECKED: www.papertrades.ai ALREADY has a public CNAME to freshlypicked00-collab.github.io, so the GitHub username is already discoverable from DNS. The main repo is private yet Pages works, so the owner's plan allows Pages from private repos.
 
-Questions:
-A) Is the loss rule fair, or would you use something else?
-B) Is a 2% floor right for this season, or another number?
-C) Average of the ten race scores, or something else (for example, count of races won on risk score)?
-Under 200 words. End with one line: VERDICT: formula accept / change (what).
+QUESTIONS:
+A) Is it safe/fine to make these two redirect repos PUBLIC? What could leak (username, profile, commit email, other public repos, Actions)? Or should they be PRIVATE (since the plan allows it)?
+B) Any better free alternative (e.g. Cloudflare free plan redirect rules with HTTPS, Namecheap features) that avoids GitHub entirely or reveals less? Trade-offs in one line each.
+C) Anything else the owner should do for anonymity (e.g. commit email privacy, WHOIS privacy, the existing www CNAME)?
+Under 220 words. End with one line: VERDICT: public ok / private / use alternative X.
