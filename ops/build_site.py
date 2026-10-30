@@ -572,6 +572,8 @@ _cl = max((datetime.fromisoformat(h['at'].replace('Z', '+00:00')) for h in data[
 data['checkins'] = ([{'id': 'claude', 'at': _cl.isoformat() if _cl else None, 'status': 'ok'}] +
                     [{'id': k, 'at': (v.get('last_run') or {}).get('at'), 'status': (v.get('last_run') or {}).get('status', '')} for k, v in r['models'].items()])
 data['geo'] = [json.load(open(os.path.join(SRC, 'geo.json')))] if os.path.exists(os.path.join(SRC, 'geo.json')) else []
+# a developing story that matters to a race (ops/src/story.json, refreshed at Claude's runs while it is active; owner, Oct 30)
+data['story'] = [json.load(open(os.path.join(SRC, 'story.json')))] if os.path.exists(os.path.join(SRC, 'story.json')) else []
 data['profiles'] = data['profile'] + r.get('profiles', [])
 _lp = {}
 for _p in r.get('plans', []):

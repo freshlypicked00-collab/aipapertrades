@@ -606,6 +606,13 @@
   .pt-n-in { animation: pt-n-in .45s ease-out; } @keyframes pt-n-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   .pt-n-n { flex: none; display: flex; align-items: center; padding: 0 10px; font-size: 11px; color: var(--color-fg-muted); font-family: var(--font-mono, monospace); }
   .pt-news + .pt-ticker { margin-top: 0; }
+  .pt-story:empty { display: none; } .pt-story { border-left: 4px solid #e5383b; }
+  .pt-story-h { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; } .pt-story-h .pd-livebadge { font-size: 10.5px; }
+  .pt-story-up { font-size: 12px; color: var(--color-fg-muted); }
+  .pt-story-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 10px; }
+  .pt-story-f { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 8px 10px; background: color-mix(in srgb, #e5383b 4%, transparent); }
+  .pt-story-f b { display: block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); }
+  .pt-story-f span { display: block; font-size: 17px; font-weight: 700; margin: 2px 0; } .pt-story-f small { color: var(--color-fg-muted); font-size: 12px; }
   /* the headline line keeps the Terminal look in every colour theme, so it always reads the same (owner, Oct 29) */
   .pt-news { --color-panel: #121210; --color-fg: #f2e9d8; --color-fg-muted: #9b927f; --accent: #ffb000; background: #121210; color: #f2e9d8; }
   :root[data-model="gemini"] .pt-news { --accent: #4f8ff7; } :root[data-model="chatgpt"] .pt-news { --accent: #f2f2f2; }
@@ -1054,6 +1061,7 @@
 
   <!-- Crypto -->
   <section class="st-page" id="crypto" data-page="crypto" hidden>
+    <section class="st-card pt-story" aria-labelledby="h-c-story" data-draw="devstory" data-source="story" data-race="Crypto"></section>
     <section class="st-card" aria-labelledby="h-c-bench">
       <h2 class="st-h2" id="h-c-bench">Crypto vs. just holding Bitcoin</h2>
       <p class="st-note" data-claude-only>Coins chosen by Claude. Restart Oct 28 with C$100,000, first trades at 1:45 p.m. ET (17:45 UTC · 1:45 a.m. HKT).</p>
@@ -5871,6 +5879,8 @@
       out.push({ k: 'BREAKING', cls: 'pt-n-break', t: (nm[q.sym] || q.name) + ' is ' + (ch >= 0 ? 'up ' : 'down ') + Math.abs(ch * 100).toFixed(1) + '% in the last ' + (h1 ? 'hour' : '3 hours'), href: 'https://finance.yahoo.com/quote/' + encodeURIComponent(q.sym) + '/' }); });
     // 2) headlines from reputable outlets, picked by the race runner for each race
     const NW = P.news || {};
+    { const S = (dash.baseData('story') || [])[0];   // the developing story, first, with its latest figure (owner, Oct 30)
+      if (S && S.active && (race === S.race || general) && S.facts && S.facts[0]) out.push({ k: 'DEVELOPING · ' + (NEWS_K[S.race] || S.race), cls: 'pt-n-break', t: S.title.replace(/: developing story$/i, '') + ': ' + S.facts[0].label.toLowerCase() + ' ' + S.facts[0].value + (S.facts[1] ? '; ' + S.facts[1].label.toLowerCase() + ' ' + S.facts[1].value : ''), href: S.facts[0].url }); }
     // big market-moving stories (a hack, frozen funds, a collapse, a record move...) come first, marked BIG NEWS in red (owner, Oct 29)
     const nItem = (r, x) => ({ k: x.big ? 'BIG NEWS · ' + NEWS_K[r] : NEWS_K[r], cls: x.big ? 'pt-n-break' : 'pt-n-news', t: x.t + (x.src ? ' (' + x.src + ')' : ''), href: x.link, at: x.at });
     if (race && race !== 'Sports') (NW[race] || []).forEach((x) => out.push(nItem(race, x)));
@@ -5936,6 +5946,19 @@
     if (!out.length && race) out.push({ k: NEWS_K[race], cls: 'pt-n-news', t: race === 'Sports' ? 'No news on the teams bet on right now. Finals show here as soon as a game ends.' : 'No fresh ' + (LABEL[race] || race).replace(' (US$)', '').toLowerCase() + ' headlines from the outlets we trust in the last 24 hours.' });
     return out;
   };
+  // a developing story on a race's page (ops/src/story.json), with its latest figures and sources; refreshed at Claude's runs (owner, Oct 30)
+  dash.draw('devstory', (el) => {
+    el.replaceChildren();
+    const S = (dash.baseData('story') || [])[0]; if (!S || !S.active || (el.dataset.race && S.race !== el.dataset.race)) return;
+    const h = mk('h2', 'st-h2 pt-story-h'); h.id = 'h-c-story'; const bd = mk('span', 'pd-livebadge'); bd.append(mk('i'), document.createTextNode('DEVELOPING'));
+    h.append(bd, document.createTextNode(S.title));
+    el.append(h, mk('p', 'pt-story-up', 'Updated ' + stFmt.when(S.updated_at) + ' · figures change as new reports come in'), mk('p', '', S.summary));
+    const g = mk('div', 'pt-story-grid');
+    (S.facts || []).forEach((f) => { const c = mk('div', 'pt-story-f'); c.append(mk('b', '', f.label), mk('span', '', f.value));
+      const sm = mk('small', '', (f.note ? f.note + ' · ' : '')); if (f.url) { const a = mk('a', '', f.source || 'source'); a.href = f.url; a.target = '_blank'; a.rel = 'noopener'; sm.appendChild(a); } else if (f.source) sm.appendChild(document.createTextNode(f.source));
+      c.appendChild(sm); g.appendChild(c); });
+    el.appendChild(g);
+  });
   dash.draw('newsline', {
     mount: (el) => {
       let i = 0;
