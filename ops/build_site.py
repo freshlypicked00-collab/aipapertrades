@@ -1353,7 +1353,7 @@ try:
     def _ts(x):
         return datetime.fromisoformat(str(x).replace('Z', '+00:00'))
     _cand = []
-    for x in data.get('factcheck') or []:
+    for x in []:   # owner, Oct 30: the call-out is the worst GRADE only (fact-checks keep their own line under each take); Praise of the day sits under it
         if x.get('verdict') in ('wrong', 'partly') and x.get('text') and x.get('checker') and x.get('checker') != x.get('model'):
             _cand.append({'kind': 'fact', 'at': x['at'], 'by': x['checker'], 'about': x.get('model') or 'claude', 'race': x.get('experiment'),
                           'verdict': x['verdict'], 'said': x.get('take', ''), 'text': x['text'], 'source': x.get('source'), 'score': 3 if x['verdict'] == 'wrong' else 2})
@@ -1380,6 +1380,50 @@ except Exception as _e:
     print('call-out skipped:', _e)
     data['callout'] = []
     data['callout_by_race'] = [{}]
+
+# Praise of the day (owner, Oct 30): the opposite of the call-out. A decision that BOTH of the other two AIs graded A (A+, A or A-),
+# graded anonymously and before the result was known. The newest in the last 24 hours, else 72; each race has its own.
+try:
+    _now = datetime.now(timezone.utc)
+    def _ts2(x):
+        return datetime.fromisoformat(str(x).replace('Z', '+00:00'))
+    _gk = {}
+    for x in data.get('peer_grades') or []:
+        if x.get('void') or not x.get('text') or x.get('grader') == x.get('model') or not x.get('key'):
+            continue
+        _k = (x['key'], x['grader'])
+        if _k not in _gk or str(x['at']) > str(_gk[_k]['at']):   # each grader's latest grade on that decision
+            _gk[_k] = x
+    _byk = {}
+    for (_key, _gr), x in _gk.items():
+        _byk.setdefault(_key, []).append(x)
+    _PTS = {'A+': 4.3, 'A': 4, 'A-': 3.7}
+    _pc = []
+    for _key, gs in _byk.items():
+        if len({g['grader'] for g in gs}) >= 2 and all(g.get('grade') in _PTS for g in gs):
+            gs = sorted(gs, key=lambda g: g['grader'])
+            x = gs[0]
+            _pc.append({'kind': 'praise', 'at': x.get('decision_at') or x['at'], 'graded_at': max(g['at'] for g in gs), 'about': x['model'], 'race': x.get('experiment'),
+                        'said': f"{x.get('action', '')} {x.get('what', '')}".strip(), 'grades': [{'by': g['grader'], 'grade': g['grade'], 'text': g['text']} for g in gs],
+                        'score': sum(_PTS[g['grade']] for g in gs)})
+    def _pick(pool):
+        for _hrs in (24, 72):
+            _p = [c for c in pool if _now - _ts2(c['graded_at']) <= timedelta(hours=_hrs)]
+            if _p:
+                return {k: v for k, v in max(_p, key=lambda c: (c['score'], _ts2(c['graded_at']))).items() if k != 'score'}
+        return None
+    _pr = _pick(_pc)
+    data['praise'] = [_pr] if _pr else []
+    _pby = {}
+    for _race in sorted({c['race'] for c in _pc if c.get('race')}):
+        _v = _pick([c for c in _pc if c.get('race') == _race])
+        if _v:
+            _pby[_race] = _v
+    data['praise_by_race'] = [_pby]
+except Exception as _e:
+    print('praise skipped:', _e)
+    data['praise'] = []
+    data['praise_by_race'] = [{}]
 
 import hashlib as _hl
 data.pop('ver', None)

@@ -316,6 +316,11 @@
   .st-callout .co-text { margin: 6px 0 0; font-size: 15px; line-height: 1.45; color: var(--color-fg); }
   .st-callout .co-foot { margin: 6px 0 0; font-size: 12px; color: var(--color-fg-muted); }
   .st-callout .co-foot a { color: inherit; }
+  .st-praise:empty { display: none; }
+  .st-praise { margin: 8px 0 2px; padding: 12px 14px; border: 1px solid var(--color-border-line); border-left: 4px solid var(--color-good, #2f9e5b); border-radius: var(--cds-radius); background: color-mix(in srgb, var(--color-good, #2f9e5b) 7%, var(--color-panel)); max-width: 90ch; }
+  .st-praise .co-tag { background: var(--color-good, #2f9e5b); }
+  .st-praise .pr-q { margin: 6px 0 0; font-size: 14.5px; line-height: 1.45; color: var(--color-fg); }
+  .st-praise .pr-q b { color: var(--ai, inherit); }
   .st-hook-q { margin: 0; font-size: clamp(24px, 3.4vw, 32px); font-weight: 600; line-height: 1.15; letter-spacing: -0.01em; color: var(--color-fg); text-wrap: balance; }
   .st-hook-sub { margin: 0; font-size: 16px; color: var(--color-fg-muted); max-width: 70ch; }
   .st-auto { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 4px 0 2px; font-family: var(--font-mono, monospace); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; }
@@ -890,6 +895,7 @@
   .st-tabs > .st-crowns { margin-left: auto; align-self: center; margin-right: 2px; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
   .st-crowns .st-crown-chip { padding: 2px 11px 2px 8px; }
   .st-allin-chip { font-size: 12px; } .st-allin-chip .cr-side { color: var(--color-fg-muted); margin-right: 2px; }
+  .st-allin-chip .cr-part { display: inline-flex; align-items: center; gap: 4px; border-radius: 4px; padding: 0 2px; } .st-allin-chip .cr-part:hover { text-decoration: underline; }
   .st-crown-line { display: none; margin: 6px 0 0; }
   .st-crown-line .st-allin-chip { margin-top: 5px; }
   .pt-flash { animation: pt-flash 1.6s ease-out; border-radius: var(--cds-radius); }
@@ -1152,7 +1158,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '32771738d9bd';</script>
+<script>window.PT_PAGE_VER = 'f64b7324b468';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -1268,6 +1274,7 @@ body { background:var(--color-bg); }
       <p class="st-take"><span class="st-take-l">Claude's current take</span><span data-draw="take" data-source="take">“Day 3: the Hawks beat the Cavaliers, so Sports slipped just below its start; Currencies is the best experiment after the Bank of Japan held, and Crypto the worst with Bitcoin near US$77,000.” — Claude</span></p>
       <p class="st-fact" data-draw="factcheck" data-source="take factcheck"></p>
       <div class="st-callout" data-draw="callout" data-source="callout callout_by_race"><p><b>Call-out of the day</b>: ChatGPT on Gemini (GRADE F). Maxing the main-book cap on a -650 favorite was poor expected-risk discipline for limited upside.</p></div>
+      <div class="st-callout st-praise" data-draw="praise" data-source="praise praise_by_race"></div>
       <p class="st-s2" title="Announced Oct 30; all three AIs agreed. Season 1 and its rules are unchanged until Nov 28."><b>📣 Season 2, after Nov 28:</b> the same three AIs, three completely different rulebooks: <b>Strict</b>, <b>Standard</b> and <b>Unrestricted</b>, judged on risk, not just profit. Exact rules come before the launch.</p>
     </div>
     <section class="st-score" aria-labelledby="h-score">
@@ -5119,8 +5126,11 @@ body { background:var(--color-bg); }
         c.append(mk('span', 'cr-k', '🎲'), mk('span', 'cr-s cr-side', 'All in side race:'));
         if (one) { c.append(aiBadge(one, 14), mk('span', 'cr-n', AIS[one].label), document.createTextNode(' leads both parts')); }
         else parts.forEach((x, i) => { if (i) c.appendChild(mk('span', 'cr-s', '·'));
-          if (x.lead) { const n = mk('span', 'cr-n'); n.style.color = AIS[x.lead.id].color; n.textContent = AIS[x.lead.id].label; c.append(aiBadge(x.lead.id, 14), n, document.createTextNode(' leads ' + x.nm)); }
-          else c.appendChild(document.createTextNode('no leader yet in ' + x.nm)); });
+          const part = mk('span', 'cr-part'); part.title = 'Open All in: ' + x.nm;   // each part opens its own section: trading → All in: trading, sports → All in: sports (owner, Oct 30)
+          part.addEventListener('click', (ev) => { ev.stopPropagation(); (window.ptGoAllin || (() => goTab('allin')))(x.e); });
+          if (x.lead) { const n = mk('span', 'cr-n'); n.style.color = AIS[x.lead.id].color; n.textContent = AIS[x.lead.id].label; part.append(aiBadge(x.lead.id, 14), n, document.createTextNode(' leads ' + x.nm)); }
+          else part.appendChild(document.createTextNode('no leader yet in ' + x.nm));
+          c.appendChild(part); });
         const tip = parts.map((x) => x.lead ? AIS[x.lead.id].label + ' leads All in: ' + x.nm + ' (' + (x.lead.profit >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(x.lead.profit)) + ')' : 'no leader yet in All in: ' + x.nm).join('; ');
         c.title = tip + '. A separate side race with no caps and its own winner in each part; it never counts in the ten races. Tap to open All in.';
         c.setAttribute('aria-label', 'All in side race: ' + tip + '. Open All in.');
@@ -7309,6 +7319,21 @@ body { background:var(--color-bg); }
     el.appendChild(ul);
     if (d.background) { el.appendChild(mk('h3', '', 'Background')); const bp = mk('p', 'st-geo-sum', d.background); if (canSay) { bp.appendChild(document.createTextNode(' ')); bp.appendChild(playBtn(() => d.background, bp)); } el.appendChild(bp); if (d.background_sources) el.appendChild(src(d.background_sources.map(([t, url]) => ({ title: t, url })))); }
     if (d.factcheck) { const p = mk('p', 'st-fact'); p.appendChild(mk('b', 'fc-ok', 'Fact check')); p.appendChild(document.createTextNode(d.factcheck)); el.appendChild(p); }
+  });
+  dash.draw('praise', (el) => {   // Praise of the day: the opposite of the call-out, a decision BOTH rival AIs graded A (owner, Oct 30)
+    el.replaceChildren();
+    const sr = window.ptStandRace || window.ptRace; const BY = (dash.baseData('praise_by_race') || [])[0] || {};
+    const own = sr && sr !== 'Overall' ? BY[sr] : null;
+    const c = own || (dash.baseData('praise') || [])[0]; if (!c || !c.grades || c.grades.length < 2) return;
+    const A = { claude: ['Claude', '#d97757'], gemini: ['Gemini', '#4f8ff7'], chatgpt: ['ChatGPT', 'var(--ai-chatgpt, #f2f2f2)'] };
+    const ab = A[c.about] || [c.about, '#ffb000'];
+    el.style.setProperty('--ai', ab[1]);
+    const h = mk('p', 'co-h'); h.appendChild(mk('span', '', '👏 Praise of the day' + (own ? '' : sr && sr !== 'Overall' ? ' (none in ' + (LABEL[sr] || ALLIN[sr] || sr) + ' yet; across every race)' : ' · all races')));
+    const who = mk('span'); who.append(mk('b', '', (A[c.grades[0].by] || [c.grades[0].by])[0]), document.createTextNode(' and '), mk('b', '', (A[c.grades[1].by] || [c.grades[1].by])[0]), document.createTextNode(' both graded '), mk('b', '', ab[0]), document.createTextNode(c.race ? ' · ' + (LABEL[c.race] || ALLIN[c.race] || c.race) : ''));
+    h.append(who, mk('span', 'co-tag', 'Both gave ' + c.grades.map((g) => g.grade).join(' & '))); el.appendChild(h);
+    if (c.said) el.appendChild(mk('p', 'co-said', ab[0] + '’s trade: ' + c.said));
+    c.grades.forEach((g) => { const q = mk('p', 'pr-q'); const gb = A[g.by] || [g.by, '#ffb000']; const n = mk('b', '', gb[0] + ': '); n.style.color = gb[1]; q.append(n, document.createTextNode('“' + g.text + '”')); el.appendChild(q); });
+    el.appendChild(mk('p', 'co-foot', 'Decision made ' + new Date(c.at).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' ET · graded anonymously, before the result was known · opinions only, never a score'));
   });
   dash.draw('callout', (el) => {   // Call-out of the day: the sharpest thing one AI said about another (owner and Gemini, Oct 30)
     el.replaceChildren();
