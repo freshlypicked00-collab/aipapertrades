@@ -1305,7 +1305,7 @@ try:
             _cand.append({'kind': 'fact', 'at': x['at'], 'by': x['checker'], 'about': x.get('model') or 'claude', 'race': x.get('experiment'),
                           'verdict': x['verdict'], 'said': x.get('take', ''), 'text': x['text'], 'source': x.get('source'), 'score': 3 if x['verdict'] == 'wrong' else 2})
     for x in data.get('peer_grades') or []:
-        if x.get('grade') in ('D', 'F') and x.get('text') and x.get('grader') != x.get('model'):
+        if x.get('grade') in ('D', 'F') and x.get('text') and x.get('grader') != x.get('model') and not x.get('void'):   # a withdrawn grade is never the call-out
             _cand.append({'kind': 'grade', 'at': x['at'], 'by': x['grader'], 'about': x['model'], 'race': x.get('experiment'), 'grade': x['grade'],
                           'said': f"{x.get('action', '')} {x.get('what', '')}".strip(), 'text': x['text'], 'score': 3 if x['grade'] == 'F' else 2})
     _co = None

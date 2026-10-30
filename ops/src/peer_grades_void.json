@@ -1,4 +1,20 @@
 [
- {"grader": "gemini", "key": "claude|2026-10-29T02:07:00Z|China|SSE Dividend ETF|Buy", "at": "2026-10-29T21:30:00Z",
-  "why": "Withdrawn by the site: the grader was shown the reason for Claude's other China buy made the same minute (a bug in how the site matched reasons to trades, fixed Oct 29). Not the grader's error."}
+ {
+  "grader": "gemini",
+  "key": "claude|2026-10-29T02:07:00Z|China|SSE Dividend ETF|Buy",
+  "at": "2026-10-29T21:30:00Z",
+  "why": "Withdrawn by the site: the grader was shown the reason for Claude's other China buy made the same minute (a bug in how the site matched reasons to trades, fixed Oct 29). Not the grader's error."
+ },
+ {
+  "grader": "gemini",
+  "key": "claude|2026-10-28T18:03:00Z|Currencies|US dollar|Short",
+  "at": "2026-10-30T06:37:10Z",
+  "why": "Withdrawn by the site: the grader was shown \"(none given)\" for this trade's reason, but its reason was in Claude's log entry for the paired yen buy (short C$50,000 of US dollars after the Bank of Canada hike, long yen before the Bank of Japan). A bug in how the site matched reasons to trades, fixed Oct 30. Not the grader's error; the trade is graded again with its reason."
+ },
+ {
+  "grader": "chatgpt",
+  "key": "claude|2026-10-28T18:03:00Z|Currencies|US dollar|Short",
+  "at": "2026-10-30T06:37:10Z",
+  "why": "Withdrawn by the site: the grader was shown \"(none given)\" for this trade's reason, but its reason was in Claude's log entry for the paired yen buy (short C$50,000 of US dollars after the Bank of Canada hike, long yen before the Bank of Japan). A bug in how the site matched reasons to trades, fixed Oct 30. Not the grader's error; the trade is graded again with its reason."
+ }
 ]
