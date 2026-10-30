@@ -296,6 +296,151 @@ def moments(out, data, sell_px):
     return ps
 
 
+LBL = {'Stocks': 'Stocks and anything', 'Crypto': 'Crypto', 'China': 'China stocks', 'Metals': 'Metals', 'Energy': 'Oil and energy', 'Options': 'Options',
+       'Currencies': 'Currencies', 'Safe': 'Play it safe', 'Sports': 'Sports betting', 'Predictions': 'Prediction markets'}
+
+
+def day_table(cut):
+    import racecard
+    ser = racecard._series('ops/src'); table = {}
+    for e in racecard.ORDER:
+        rows = []
+        for mid in ('claude', 'gemini', 'chatgpt'):
+            allp = ser.get((mid, e), []); pts = [v for t, v in allp if t <= cut]; pre = [v for t, v in allp if t <= racecard.FS]
+            base = pre[-1] if (mid == 'claude' and pre) else 100000.0
+            rows.append((mid, (pts[-1] if pts else base) - base))
+        table[e] = sorted(rows, key=lambda x: -x[1])
+    return table
+
+
+# ---------- DAILY (orange)
+def daily(out, n, cut, when):
+    O = AMBER; s = S(O); s.brand(f'DAILY · DAY {n} OF 32')
+    s.kicker(280, when.upper())
+    s.t((X0, 320), f'Day {n}', F('sans', 'Bold', 150)); s.t((X0 + F('sans', 'Bold', 150).getlength(f'Day {n}') + 30, 345), 'results', F('sans', 'Bold', 100), O)
+    s.underline(X0 + 10, X1 - 80, 500, O, 40 + n)
+    tab = day_table(cut)
+    led = {m: 0 for m in AIC}
+    y = 560
+    for e in ('Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'):
+        rows = tab[e]; even = max(r[1] for r in rows) - min(r[1] for r in rows) < 0.5; lead = rows[0][1] - rows[1][1] >= 0.5
+        s.bubble([X0, y, X1, y + 92], (24, 22, 18), MUTED, 22)
+        s.t((X0 + 26, y + 46), LBL[e], F('sans', 'SemiBold', 38), CREAM, 'lm')
+        if even:
+            s.t((X1 - 26, y + 46), 'all even', F('sans', 'Regular', 34), MUTED, 'rm')
+        else:
+            who = rows[0][0] if lead else None
+            if lead:
+                led[who] += 1
+            nm = NAME[who] if lead else 'tied'
+            amt = ('+' if rows[0][1] >= 0 else '−') + ('US$' if e == 'China' else 'C$') + f'{abs(rows[0][1]):,.0f}'
+            s.t((X1 - 26, y + 46), amt, F('mono', 'SemiBold', 36), UP if rows[0][1] > 0.5 else DOWN if rows[0][1] < -0.5 else CREAM, 'rm')
+            x = X1 - 26 - F('mono', 'SemiBold', 36).getlength(amt) - 30
+            s.t((x, y + 46), nm, F('sans', 'Bold', 38), AIC[who] if lead else MUTED, 'rm')
+            if lead:
+                s.d.ellipse([x - F('sans', 'Bold', 38).getlength(nm) - 46, y + 32, x - F('sans', 'Bold', 38).getlength(nm) - 18, y + 60], fill=AIC[who])
+        y += 104
+    s.para(X0, y + 20, 'Who led each race at the day\'s close (8 p.m. ET), profit since the Oct 28 restart.', F('sans', 'Regular', 32), MUTED)
+    return s.save(f'{out}/daily-day{n}.jpg')
+
+
+# ---------- LEAD CHANGES (gold)
+def lead_change(out, m, i):
+    Y = (255, 209, 102); who, over = m['who'], m.get('over')
+    s = S(AIC[who] if who != 'chatgpt' else (200, 200, 210)); s.brand('LEAD CHANGE')
+    from datetime import datetime, timedelta
+    t = datetime.fromisoformat(m['at'].replace('Z', '+00:00')) - timedelta(hours=4)
+    s.kicker(280, t.strftime('%a %b %-d · %-I:%M %p').replace('AM', 'a.m.').replace('PM', 'p.m.').upper() + ' ET', Y)
+    s.d.polygon([(X0 + 10, 470), (X0, 360), (X0 + 60, 410), (X0 + 115, 330), (X0 + 170, 410), (X0 + 230, 360), (X0 + 220, 470)], fill=Y, outline=INK)
+    s.d.rounded_rectangle([X0 + 10, 478, X0 + 220, 510], radius=8, fill=Y, outline=INK, width=5)
+    robot(s.d, 840, 470, AIC[who], 1.1, i)
+    s.t((X0, 560), NAME[who], F('sans', 'Bold', 130), AIC[who])
+    s.t((X0, 710), 'takes the lead in', F('sans', 'Regular', 54), CREAM)
+    s.t((X0, 780), LBL[m['race']], F('sans', 'Bold', 96), Y)
+    cur = 'US$' if m['race'] == 'China' else 'C$'
+    if over:
+        s.para(X0, 920, f"passing {NAME[over]}, now ahead by {cur}{m['lead']:,.0f}", F('sans', 'SemiBold', 46), CREAM)
+    prof = m.get('profit') or {}
+    y = 1060
+    s.t((X0, y), 'THIS RACE AT THAT MOMENT', F('mono', 'SemiBold', 28), MUTED); y += 50
+    for j, k in enumerate(sorted(prof, key=lambda k: -prof[k])):
+        p = prof[k]
+        s.bubble([X0, y, X1, y + 110], tuple(int(v * .15) for v in AIC[k]), AIC[k], 26)
+        s.t((X0 + 30, y + 55), ['1st', '2nd', '3rd'][j], F('mono', 'SemiBold', 40), Y if j == 0 else MUTED, 'lm')
+        s.t((X0 + 170, y + 55), NAME[k], F('sans', 'Bold', 48), AIC[k], 'lm')
+        s.t((X1 - 30, y + 55), ('+' if p >= 0 else '−') + cur + f'{abs(p):,.0f}', F('mono', 'SemiBold', 44), UP if p > 0.5 else DOWN if p < -0.5 else CREAM, 'rm')
+        y += 130
+    s.para(X0, y + 20, 'Profit since the Oct 28 restart, this race only.', F('sans', 'Regular', 32), MUTED)
+    return s.save(f'{out}/lead-{i}-{m["race"].lower()}-{who}.jpg')
+
+
+# ---------- REPORT CARDS (blue)
+def report_cards(out, data):
+    B = (79, 143, 247); ps = []
+    G = {}
+    for g in data.get('peer_grades', []):
+        if not g.get('void'):
+            G[(g['grader'], g['key'])] = g
+    G = list(G.values())
+    s = S(B); s.brand('REPORT CARDS · 1/3')
+    s.kicker(280, 'AI VS AI')
+    s.t((X0, 320), 'They grade', F('sans', 'Bold', 130)); s.t((X0, 460), 'each other.', F('sans', 'Bold', 130), B)
+    s.underline(X0 + 10, X0 + F('sans', 'Bold', 130).getlength('each other.'), 610, B, 51)
+    y = s.para(X0, 660, 'Every trade, bet and hold gets an A to F from the other two AIs, anonymously, judged only on what was known at the time.', F('sans', 'Regular', 44))
+    COL = {'A': (61, 220, 132), 'B': (166, 227, 111), 'C': (255, 209, 102), 'D': (255, 159, 90), 'F': (255, 90, 78)}
+    y += 40
+    for k in sorted(AIC, key=lambda m: -(sum({'A': 4, 'B': 3, 'C': 2, 'D': 1, 'F': 0}.get(g['grade'][0], 0) for g in G if g['model'] == m and g['grade'] != 'no view') / max(1, sum(1 for g in G if g['model'] == m and g['grade'] != 'no view')))):
+        rec = [g['grade'][0] for g in G if g['model'] == k and g['grade'] != 'no view']
+        n = len(rec); avg = sum({'A': 4, 'B': 3, 'C': 2, 'D': 1, 'F': 0}[x] for x in rec) / n
+        s.t((X0, y + 30), NAME[k], F('sans', 'Bold', 52), AIC[k], 'lm'); s.t((X1, y + 30), f'average {avg:.1f} of 4', F('mono', 'Medium', 30), MUTED, 'rm')
+        x = X0
+        for L in 'ABCDF':
+            w = (X1 - X0) * rec.count(L) / n
+            if w:
+                s.d.rectangle([x, y + 70, x + w, y + 130], fill=COL[L])
+                if w > 50:
+                    s.t((x + w / 2, y + 100), L, F('sans', 'Bold', 36), INK, 'mm')
+            x += w
+        y += 175
+    tough = max(AIC, key=lambda m: sum(1 for g in G if g['grader'] == m and g['grade'][0] == 'F'))
+    s.para(X0, y + 10, f"Toughest grader: {NAME[tough]}, with {sum(1 for g in G if g['grader'] == tough and g['grade'][0] == 'F')} F's handed out.", F('sans', 'SemiBold', 44), B)
+    ps.append(s.save(f'{out}/report-1.jpg'))
+    for idx, (title, want, col) in enumerate((('The harshest marks', 'F', (255, 90, 78)), ('Top of the class', 'A', (61, 220, 132))), 2):
+        s = S(col); s.brand(f'REPORT CARDS · {idx}/3')
+        s.kicker(280, title.upper(), col)
+        s.t((X0, 320), title + ('' if want == 'A' else ''), F('sans', 'Bold', 100))
+        picks, seen = [], set()
+        for g in sorted(G, key=lambda g: g['at'], reverse=True):
+            if g['grade'][0] == want and (g['grader'], g['model']) not in seen and len(g['text']) < 150:
+                picks.append(g); seen.add((g['grader'], g['model']))
+            if len(picks) == 3:
+                break
+        y = 480
+        for g in picks:
+            s.bubble([X0, y, X1, y + 330], tuple(int(v * .14) for v in col), col)
+            s.t((X0 + 30, y + 50), NAME[g['grader']], F('sans', 'Bold', 44), AIC[g['grader']], 'lm')
+            wgr = F('sans', 'Bold', 44).getlength(NAME[g['grader']])
+            s.arrow([(X0 + 50 + wgr, y + 50), (X0 + 100 + wgr, y + 25), (X0 + 150 + wgr, y + 75), (X0 + 200 + wgr, y + 50)], CREAM, 5, idx * 10 + len(picks))
+            s.t((X0 + 230 + wgr, y + 50), NAME[g['model']], F('sans', 'Bold', 44), AIC[g['model']], 'lm')
+            s.t((X1 - 40, y + 60), g['grade'], F('sans', 'Bold', 110), col, 'rm')
+            what = LBL.get(g['experiment'], g['experiment'].replace('AllInSports', 'All in: sports').replace('AllInTrading', 'All in: trading')) + ': ' + (g['action'] if g['action'] != 'Hold' else 'holding')
+            s.t((X0 + 30, y + 115), what, F('mono', 'Medium', 26), MUTED, 'lm')
+            s.para(X0 + 30, y + 150, '“' + g['text'].rstrip('.') + '.”', F('sans', 'Regular', 36), CREAM, X1 - X0 - 60)
+            y += 360
+        ps.append(s.save(f'{out}/report-{idx}.jpg'))
+    return ps
+
+
+def extra(out):
+    from datetime import datetime, timezone
+    data = json.load(open('data.json'))
+    ps = [daily(out, 1, datetime(2026, 10, 29, tzinfo=timezone.utc), 'Wednesday, Oct 28'), daily(out, 2, datetime(2026, 10, 30, tzinfo=timezone.utc), 'Thursday, Oct 29')]
+    for i, m in enumerate(reversed(data['moments']), 1):
+        ps.append(lead_change(out, m, i))
+    ps += report_cards(out, data)
+    return ps
+
+
 if __name__ == '__main__':
     out = 'social/highlights/stories'
     os.makedirs(out, exist_ok=True)
@@ -309,5 +454,6 @@ if __name__ == '__main__':
         if x.get('field') == 'about':
             prof['claude'] = x['text']
     btc = next(t for t in rv['trades'] if t['model'] == 'gemini' and t['experiment'] == 'Crypto' and t['symbol'] == 'BTC-USD' and t['at'].startswith('2026-10-29T20:08'))
-    ps = start_here(out) + meet(out, data, prof) + moments(out, data, float(btc['price']))
+    ps = start_here(out) + meet(out, data, prof) + moments(out, data, float(btc['price'])) + extra(out)
     print('\n'.join(ps))
+
