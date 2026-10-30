@@ -384,3 +384,83 @@ def chatgpt_oilers(prefix, bet):
     paths.append(_timeline(prefix, 2, gpt, 'THE BET', 'HOW IT WENT', rows, 'It risked a quarter of its side-race bankroll and kept the rest.'))
     paths.append(_ask(prefix, 3, gpt, 'YOUR CALL', 'COMMENT ONE WORD', 'SMART', 'LUCKY?', 'A favourite at −192 wins about 2 times in 3. Would you have made this bet?'))
     return paths
+
+
+# ---------- Oct 30: "Winning the race, flunking the class?" (Gemini's idea; the owner said make it). Grades from data.json peer_grades
+# (the latest grade per grader and decision, withdrawn ones left out), the leader from the site's public crown (order only, no amounts).
+def grade_matrix(data):
+    G = [g for g in data.get('peer_grades', []) if not g.get('void') and g.get('grade') != 'no view']
+    latest = {}
+    for g in G:
+        k = (g['grader'], g['key'])
+        if k not in latest or g['at'] > latest[k]['at']:
+            latest[k] = g
+    pts = {'A': 4, 'B': 3, 'C': 2, 'D': 1, 'F': 0}
+    out = {}
+    for g in latest.values():
+        v = pts.get(str(g['grade'])[:1])
+        if v is not None:
+            out.setdefault((g['grader'], g['model']), []).append(v)
+    return {k: (sum(v) / len(v), len(v)) for k, v in out.items()}
+
+
+def _letter(x):
+    return 'A' if x >= 3.5 else 'B' if x >= 2.5 else 'C' if x >= 1.5 else 'D' if x >= 0.5 else 'F'
+
+
+def grades_paradox(prefix, data):
+    gem = AIS['gemini'][1]
+    M = grade_matrix(data)
+    leader = data.get('leader')
+    if leader != 'gemini':
+        raise QualityError('Gemini no longer leads overall; the post would be wrong')
+    g_by = {m: M.get((m, 'gemini')) for m in ('claude', 'chatgpt')}
+    if not all(g_by.values()) or any(v[0] >= 2.5 for v in g_by.values()):
+        raise QualityError('the grades no longer show the paradox')
+    others = {m: [M[(g, m)][0] for g in ('claude', 'gemini', 'chatgpt') if g != m and (g, m) in M] for m in ('claude', 'chatgpt')}
+    if any(not v or min(v) < max(x[0] for x in g_by.values()) for v in others.values()):
+        raise QualityError('Gemini is not clearly the lowest graded')
+    paths = []
+    # 1. the hook
+    c = Card(); pc._glow(c, gem); c.header('AI VS AI · REPORT CARDS')
+    kicker(c, 330, 'THE PARADOX', gem)
+    c.text((SAFE_X, 380), 'Winning the race.', c.fit('Winning the race.', 'sans', 'Bold', 150, W - 2 * SAFE_X), UP, 'lt')
+    c.text((SAFE_X, 560), 'Flunking the class?', c.fit('Flunking the class?', 'sans', 'Bold', 150, W - 2 * SAFE_X), DOWN, 'lt')
+    underline(c, SAFE_X + 10, W - SAFE_X - 60, 740, AMBER, 9)
+    y = para(c, SAFE_X, 800, 'Gemini leads the race on total profit. The other two AIs give its decisions the worst grades on the site.', font('sans', 'SemiBold', 62), FG, W - 2 * SAFE_X)
+    para(c, SAFE_X, y + 30, 'Every trade and bet gets an A to F from the other two, anonymously.', font('sans', 'Regular', 44), MUTED, W - 2 * SAFE_X)
+    c.text((W - SAFE_X - 120, 1470), 'swipe', font('mono', 'SemiBold', 34), AMBER, 'rm')
+    loop_arrow(c, (W - SAFE_X - 330, 1340), (W - SAFE_X - 40, 1470), AMBER, 7)
+    c.footer(); paths.append(c.save(f'{prefix}-1.jpg'))
+    # 2. the report cards
+    c = Card(); pc._glow(c, AMBER, xy=(1150, 600)); c.header('THE GRADES')
+    kicker(c, 300, 'AVERAGE GRADE GIVEN · A=4 TO F=0', AMBER)
+    y = 380
+    for mid in ('gemini', 'claude', 'chatgpt'):
+        rows = [(g, M[(g, mid)]) for g in ('claude', 'gemini', 'chatgpt') if g != mid and (g, mid) in M]
+        hi = mid == 'gemini'
+        c.d.rounded_rectangle([SAFE_X, y, W - SAFE_X, y + 300], radius=18, fill=PANEL, outline=AMBER if hi else LINE, width=4 if hi else 2)
+        c.d.rectangle([SAFE_X, y, SAFE_X + 14, y + 300], fill=AIS[mid][1])
+        c.text((SAFE_X + 50, y + 62), AIS[mid][0] + "'s decisions", font('sans', 'Bold', 64), FG, 'lm')
+        yy = y + 140
+        for g, (avg, n) in rows:
+            c.text((SAFE_X + 50, yy), 'graded by ' + AIS[g][0], font('sans', 'Regular', 44), MUTED, 'lm')
+            col = DOWN if avg < 2.5 else UP if avg >= 3 else FG
+            c.text((W - SAFE_X - 40, yy), f'{_letter(avg)}  {avg:.2f}  ({n})', font('mono', 'SemiBold', 50), col, 'rm')
+            yy += 76
+        y += 330
+    if y > 1500:
+        raise QualityError('grades overflow')
+    c.text((SAFE_X, 1400), 'In brackets: decisions graded. Graders never know whose decision it is.', font('sans', 'Regular', 36), MUTED, 'lm')
+    c.footer(); paths.append(c.save(f'{prefix}-2.jpg'))
+    # 3. luck or skill
+    c = Card(); pc._glow(c, AMBER, xy=(700, 900), r=600); c.header('YOUR CALL')
+    kicker(c, 330, 'COMMENT ONE WORD', AMBER)
+    c.text((SAFE_X, 400), 'SKILL', font('sans', 'Bold', 200), UP, 'lt')
+    c.text((SAFE_X + 40, 640), 'or', font('sans', 'Regular', 90), MUTED, 'lt')
+    c.text((SAFE_X, 750), 'LUCK?', font('sans', 'Bold', 200), DOWN, 'lt')
+    arrow(c, (W - SAFE_X - 40, 480), (W - SAFE_X + 10, 700), (W - SAFE_X - 60, 900), (W - SAFE_X - 260, 1060), AMBER, 8, seed=41)
+    y = para(c, SAFE_X, 1090, '“A 30-day race is highly exposed to short-term luck.” From our new box, written by all three AIs.', font('sans', 'SemiBold', 44), FG, W - 2 * SAFE_X)
+    c.text((SAFE_X, min(y + 50, 1480)), 'Maybe the graders are wrong. Maybe Gemini got lucky.', font('mono', 'SemiBold', 30), AMBER, 'lm')
+    c.footer(); paths.append(c.save(f'{prefix}-3.jpg'))
+    return paths, M

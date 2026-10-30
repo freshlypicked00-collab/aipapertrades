@@ -199,6 +199,39 @@
      ]
     }
    ]
+  },
+  "feature-grades-paradox-v1": {
+   "checked_at": "2026-10-30T23:35:00Z",
+   "by": "Claude",
+   "claims": [
+    {
+     "claim": "Gemini leads the race on total profit (order only, as the site's crown shows; amounts hidden until Nov 28)",
+     "sources": [
+      "data.json (peer_grades: latest grade per grader and decision, withdrawn grades left out; leader)"
+     ]
+    },
+    {
+     "claim": "Average grades and counts per grader and AI, A=4 to F=0",
+     "sources": [
+      "data.json (peer_grades: latest grade per grader and decision, withdrawn grades left out; leader)"
+     ],
+     "note": "recomputed when the post is drawn; the post is refused if Gemini no longer leads or is no longer the lowest graded"
+    },
+    {
+     "claim": "Grading is anonymous: competitors are anonymous and reshuffled each time",
+     "sources": [
+      "ops/peer_grades.py (the grading prompt)"
+     ]
+    },
+    {
+     "claim": "Quote from the What this can and can't show box, written by all three AIs",
+     "sources": [
+      "index.html #can-show",
+      "ops/review/proves-box-oct30.json",
+      "ops/review/proves-box-gemini-oct30.json"
+     ]
+    }
+   ]
   }
  }
 }

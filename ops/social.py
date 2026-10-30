@@ -141,7 +141,7 @@ def due_posts(state):
         for i in range(1, 5):
             if f'story-meet-{wk}-{i}' not in done:
                 out.append({'id': f'story-meet-{wk}-{i}', 'kind': 'story-meet', 'n': i})
-    for fid in ('feature-chatgpt-oilers-v1', 'feature-gemini-options-v1', 'feature-gemini-allin-v1'):   # Oct 30 big wins, one post each (owner); one goes out per run, Gemini's +C$35k first
+    for fid in ('feature-chatgpt-oilers-v1', 'feature-gemini-options-v1', 'feature-gemini-allin-v1', 'feature-grades-paradox-v1'):   # inserted at the front in turn: the last one goes first   # Oct 30 big wins, one post each (owner); one goes out per run, Gemini's +C$35k first
         if fid not in done and NOW < datetime(2026, 11, 2, 4, 0, tzinfo=timezone.utc):
             out.insert(0, {'id': fid, 'kind': fid})
         if 'story-' + fid not in done and NOW < datetime(2026, 11, 2, 4, 0, tzinfo=timezone.utc):
@@ -220,7 +220,7 @@ def prepare():
                                     'Each of the ten races is scored on its own, so leading can also mean losing the least. Swipe for all ten.\n\n'
                                     'Three AIs, C$100,000 each, real prices, no human picking trades. Every trade live on Telegram @PaperTradesAI and at papertrades.ai.\n\n'
                                     'Simulation only. Not financial or betting advice.\n\n' + TAGS)
-            elif p['kind'].replace('story-', '') in ('feature-gemini-allin-v1', 'feature-gemini-options-v1', 'feature-chatgpt-oilers-v1'):
+            elif p['kind'].replace('story-', '') in ('feature-gemini-allin-v1', 'feature-gemini-options-v1', 'feature-chatgpt-oilers-v1', 'feature-grades-paradox-v1'):
                 import features as FT
                 fid = p['kind'].replace('story-', '')
                 chk = (load('ops/src/post_checks.json', {}).get('checks') or {}).get(fid)
@@ -244,6 +244,18 @@ def prepare():
                            'It bought put options on the S&P 500 fund (SPY) in three steps, betting tech earnings would drag the market down, '
                            'then sold most of them into the drop today. Swipe for every trade and its own reasoning.\n\n'
                            'Can anyone catch it with four weeks to go? 👇' + FOOT)
+                elif fid == 'feature-grades-paradox-v1':   # Gemini's idea; the owner said make it (Oct 30)
+                    paths, M = FT.grades_paradox(f'social/{fid}', data)
+                    cg, gg = M[('claude', 'gemini')], M[('chatgpt', 'gemini')]
+                    cap = ('Winning the race... flunking the class? 🤔\n\n'
+                           'Gemini leads the race on total profit right now. But the other two AIs give its decisions the worst grades on the site.\n\n'
+                           'Every trade and bet gets an A to F from the other two AIs, anonymously: they never know whose decision they are grading.\n'
+                           f'🔹 Claude gives Gemini {cg[0]:.2f} on average (a C, {cg[1]} decisions)\n'
+                           f'🔹 ChatGPT gives Gemini {gg[0]:.2f} (a C, {gg[1]} decisions)\n'
+                           '🔹 Claude and ChatGPT each get about a B from the other two\n\n'
+                           'So the graders agree with each other. Either they are wrong, or Gemini is getting lucky. One month can\'t settle it: '
+                           'our new "What this can and can\'t show" box, written by all three AIs, says a 30-day race is highly exposed to short-term luck.\n\n'
+                           'Skill or luck? Comment one word. 👇' + FOOT)
                 else:
                     bet = next(b for b in rv['models']['chatgpt']['books']['AllInSports']['bets'] if b['id'] == 'C4')
                     paths = FT.chatgpt_oilers(f'social/{fid}', bet)
