@@ -351,6 +351,7 @@
   .st-score-h span { margin-left: 8px; letter-spacing: 0; text-transform: none; color: var(--color-fg-muted); font-weight: 400; font-size: 13px; }
   .st-riskaward { margin-top: 10px; }
   .gx-partly { color: #ffb000; }
+  .pd-follow-list summary { cursor: pointer; } .pd-follow-list ul { margin: 4px 0; padding-left: 0; list-style: none; } .pd-follow-list li { margin: 2px 0; } .pd-follow-list li.is-live { font-weight: 600; }
   .st-s2 { margin: 8px 0 0; padding: 7px 10px; border: 1px dashed #ffb000; border-radius: var(--cds-radius); font-size: .88em; line-height: 1.4; }
   .st-s2 b:first-child { color: #ffb000; }
   .ra-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); gap: 8px; }
@@ -1225,7 +1226,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'cad9975323fb';</script>
+<script>window.PT_PAGE_VER = '1f7065ef014d';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -6976,7 +6977,10 @@ body { background:var(--color-bg); }
         if (cb.checked) { el._tab = 'overview'; el._ctx = false; const y = window.scrollY; goTab('overview', false); requestAnimationFrame(() => window.scrollTo(0, y)); }
         dash.redraw ? dash.redraw() : null; });
       lab.append(cb, document.createTextNode(' Most relevant: follow the market that’s live right now')); el.appendChild(lab);
-      if (el._follow && hot) el.appendChild(mk('p', 'pd-note pd-follow-why', '📡 ' + hot.why + ' Switches by itself.')); }
+      if (el._follow && hot) { el.appendChild(mk('p', 'pd-note pd-follow-why', '📡 ' + hot.why + ' Switches by itself.'));
+        if (hot.checks) { const d = mk('details', 'pd-note pd-follow-list'); d.appendChild(mk('summary', '', 'Why this one: what was checked'));
+          const ul = mk('ul'); hot.checks.forEach(([t, on]) => ul.appendChild(mk('li', on ? 'is-live' : '', (on ? '🟢 ' : '⚪ ') + t))); d.appendChild(ul);
+          d.appendChild(mk('small', '', 'Order: big news first, then a sharp swing, then Shanghai, New York, games being played, and crypto when everything else is closed.')); el.appendChild(d); } } }
     if (el._exp === 'Overall') {   // how many races each AI leads; the money is only added up at the final scoring
       // rank by total profit (the rule for Nov 28) or by races led, with a two-button switch (owner, Oct 30)
       const byLed = el._rankBy === 'led';
@@ -7281,14 +7285,30 @@ body { background:var(--color-bg); }
     const PU = (dash.baseData('pulse')[0] || {}).moves || {};
     const news = Object.entries(PU).map(([race, q]) => { const live = now - Date.parse(q.last_at) < 45 * 60000, k = NEWS[race] || 1;
       const sc = Math.max(Math.abs(q.chg_1h || 0) / k, Math.abs(q.chg_3h || 0) / (1.5 * k)); return { race, q, sc, live }; }).filter((x) => x.live && x.sc >= 1).sort((a, b) => b.sc - a.sc)[0];
+    // the checklist behind the choice, shown under it (owner, Oct 30: "list why it's the most relevant")
+    const nextStart = (() => { const ts = []; dash.baseData('bets').forEach((b) => { if (b.status === 'Open' && Date.parse(b.starts_at) > now) ts.push(Date.parse(b.starts_at)); });
+      dash.baseData('rivals_models').forEach((m) => (((m.books || {}).Sports || {}).bets || []).forEach((b) => { if (b.status === 'Open' && Date.parse(b.starts_at) > now) ts.push(Date.parse(b.starts_at)); })); return ts.length ? Math.min(...ts) : null; })();
+    const usNext = (() => { if (usOpen) return null; const d = new Date(now); for (let i = 0; i < 8; i++) { const t = new Date(d.getTime() + i * 864e5); const wd = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short' }).format(t);
+        const dd = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(t); if (['Sat', 'Sun'].includes(wd) || dd === '2026-11-26') continue; if (i === 0 && mins(ny) >= 570) continue; return (i === 0 ? 'today' : wd) + ' 9:30 a.m. ET'; } return null; })();
+    const top = Object.entries(moves).sort((x, y) => Math.abs(y[1].d) - Math.abs(x[1].d))[0];
+    const checks = [
+      ['News: ' + (news ? 'a big move in ' + raceName(news.race) : 'no big price move in any market right now'), !!news],
+      ['Sharp swings: ' + (sharp ? raceName(sharp[0]) + ' moved ' + (sharp[1].d >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(sharp[1].d)) + ' in the last hour' : 'none of C$1,000 or more in the last hour' + (top ? ' (largest: ' + AIS[top[1].id].label + ' ' + (top[1].d >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(top[1].d)) + ' in ' + raceName(top[0]) + ')' : '')), !!sharp],
+      ['China stocks: ' + (chinaOpen ? 'Shanghai is trading' : 'Shanghai is closed'), chinaOpen],
+      ['US stocks, options, oil, metals, Play it safe: ' + (usOpen ? 'New York is trading' : 'New York is closed' + (usNext ? ' (opens ' + usNext + ')' : '')), usOpen],
+      ['Currencies: ' + (fxOpen ? 'forex is trading' : 'forex is closed for the weekend'), fxOpen],
+      ['Sports: ' + (playing.size ? playing.size + (playing.size === 1 ? ' game' : ' games') + ' with a bet on now' : 'no game with a bet on right now' + (nextStart ? ' (next starts ' + stFmt.whenET(new Date(nextStart).toISOString()) + ' ET)' : '')), playing.size > 0],
+      ['Crypto: trades 24 hours a day, 7 days a week', true],
+    ];
+    const withChecks = (o) => Object.assign(o, { checks });
     if (news) { const q = news.q, h1 = Math.abs(q.chg_1h || 0) / (NEWS[news.race]) >= Math.abs(q.chg_3h || 0) / (1.5 * NEWS[news.race]), ch = h1 ? q.chg_1h : q.chg_3h;
       const nm = { 'BTC-USD': 'Bitcoin', '^GSPC': 'The S&P 500', 'CL=F': 'Oil', 'GC=F': 'Gold', '000300.SS': 'The CSI 300', 'JPY=X': 'USD/JPY' }[q.sym] || q.name;
-      return { race: news.race, why: raceName(news.race) + ': news. ' + nm + ' is ' + (ch >= 0 ? 'up ' : 'down ') + Math.abs(ch * 100).toFixed(1) + '% in the last ' + (h1 ? 'hour' : '3 hours') + ', so it comes first.' + mv(news.race) }; }
-    if (sharp) return { race: sharp[0], why: raceName(sharp[0]) + ': a sharp move right now.' + mv(sharp[0]) };
-    if (chinaOpen) return { race: 'China', why: 'China stocks: Shanghai is trading now (until ' + (mins(bj) < 690 ? '11:30 a.m.' : '3:00 p.m.') + ' Beijing time).' + mv('China') };
-    if (usOpen) { const r = US.filter((x) => moves[x]).sort((a, b) => Math.abs(moves[b].d) - Math.abs(moves[a].d))[0] || 'Stocks'; return { race: r, why: raceName(r) + ': New York is trading now (until 4:00 p.m. ET).' + mv(r) }; }
-    if (playing.size) { const g = [...playing]; return { race: 'Sports', why: 'Sports: ' + g.length + (g.length === 1 ? ' game' : ' games') + ' with an open bet being played right now: ' + g.slice(0, 3).map((ev) => ev + ' (' + [...who[ev]].map((id) => AIS[id] ? AIS[id].label : id).join(', ') + ')').join('; ') + (g.length > 3 ? ' and ' + (g.length - 3) + ' more' : '') + '.' + mv('Sports') }; }
-    return { race: 'Crypto', why: 'Crypto: the stock markets are closed and no game with a bet is on, so the 24-hour crypto market is the live one.' + mv('Crypto') };
+      return withChecks({ race: news.race, why: raceName(news.race) + ': news. ' + nm + ' is ' + (ch >= 0 ? 'up ' : 'down ') + Math.abs(ch * 100).toFixed(1) + '% in the last ' + (h1 ? 'hour' : '3 hours') + ', so it comes first.' + mv(news.race) }); }
+    if (sharp) return withChecks({ race: sharp[0], why: raceName(sharp[0]) + ': a sharp move right now.' + mv(sharp[0]) });
+    if (chinaOpen) return withChecks({ race: 'China', why: 'China stocks: Shanghai is trading now (until ' + (mins(bj) < 690 ? '11:30 a.m.' : '3:00 p.m.') + ' Beijing time).' + mv('China') });
+    if (usOpen) { const r = US.filter((x) => moves[x]).sort((a, b) => Math.abs(moves[b].d) - Math.abs(moves[a].d))[0] || 'Stocks'; return withChecks({ race: r, why: raceName(r) + ': New York is trading now (until 4:00 p.m. ET).' + mv(r) }); }
+    if (playing.size) { const g = [...playing]; return withChecks({ race: 'Sports', why: 'Sports: ' + g.length + (g.length === 1 ? ' game' : ' games') + ' with an open bet being played right now: ' + g.slice(0, 3).map((ev) => ev + ' (' + [...who[ev]].map((id) => AIS[id] ? AIS[id].label : id).join(', ') + ')').join('; ') + (g.length > 3 ? ' and ' + (g.length - 3) + ' more' : '') + '.' + mv('Sports') }); }
+    return withChecks({ race: 'Crypto', why: 'Crypto: the stock markets are closed and no game with a bet is on, so the 24-hour crypto market is the live one.' + mv('Crypto') });
   };
   const raceName = (r) => r === 'Overall' ? 'the overall race' : ALLIN[r] ? ALLIN[r] + ' (side race)' : (LABEL[r] || r).replace(' (US$)', '');
   const MOM_ICON = { lead: '🏁', win: '▲', loss: '▼', penalty: '⚠', factcheck: '✗', busted: '💥' };
