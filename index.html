@@ -1091,7 +1091,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '80bacffb3ae5';</script>
+<script>window.PT_PAGE_VER = '50ca7f42b790';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -1191,6 +1191,7 @@ body { background:var(--color-bg); }
       </div>
       <div class="st-tabgroup st-tabgroup-hr" role="presentation"><span class="st-tabgroup-l">High risk, high reward</span>
         <button class="st-tab" role="tab" data-tab="allin" aria-selected="false">All in</button>
+        <button class="st-tab" role="tab" data-tab="allinledger" aria-selected="false">All in ledger</button>
       </div>
       <button class="st-tab st-tab-support" role="tab" data-tab="support" aria-selected="false">Support</button>
     </nav>
@@ -2554,11 +2555,6 @@ body { background:var(--color-bg); }
       <p class="st-note">Newest first. Each experiment gets its own result, its total since the start and a write-up for the day, with general notes on the day underneath. Open "Decisions this day" for every trade, bet and note logged that day.</p>
       <div class="lg-days" data-draw="lg-days" data-source="ledger log trades bets review"></div>
     </section>
-    <section class="st-card st-side-card" id="allin-ledger" aria-labelledby="h-l-allin">
-      <h2 class="st-h2" id="h-l-allin">All in side race ledger <span class="st-side-tag">Side race</span></h2>
-      <p class="st-note">The side race's own record: every move and result of all three AIs in All in: trading and All in: sports, newest first. It is kept apart from the ten races: never counted in them or in anything above, each part has its own winner, and the two parts are never added together. Each AI started with C$100,000 in each part, with no caps. Times are Eastern (ET), with UTC and Hong Kong in brackets.</p>
-      <div data-draw="allin-ledger" data-source="allin_trades allin_models allin_history peer_grades"></div>
-    </section>
     <section class="st-card" aria-labelledby="h-src-ledger">
       <h2 class="st-h2" id="h-src-ledger">All sources</h2>
       <p class="st-note">Every source used across all ten simulations.</p>
@@ -2566,6 +2562,14 @@ body { background:var(--color-bg); }
     </section>
   </section>
   <!-- Support -->
+  <!-- the All in side race's own ledger, in the High risk, high reward group (owner; all three AIs voted for it, Oct 29) -->
+  <section class="st-page" id="allinledger" data-page="allinledger" hidden>
+    <section class="st-card st-side-card" id="allin-ledger" aria-labelledby="h-l-allin">
+      <h2 class="st-h2" id="h-l-allin">All in side race ledger <span class="st-side-tag">Side race</span></h2>
+      <p class="st-note">The side race's own record: every move and result of all three AIs in All in: trading and All in: sports, newest first. It is kept apart from the ten races: never counted in them or in anything above, each part has its own winner, and the two parts are never added together. Each AI started with C$100,000 in each part, with no caps. Times are Eastern (ET), with UTC and Hong Kong in brackets.</p>
+      <div data-draw="allin-ledger" data-source="allin_trades allin_models allin_history peer_grades"></div>
+    </section>
+  </section>
   <section class="st-page" id="support" data-page="support" hidden>
     <section class="st-card st-tip-box" aria-labelledby="h-tip">
       <h2 class="st-h2" id="h-tip">Support Paper Trades</h2>
@@ -2631,7 +2635,7 @@ body { background:var(--color-bg); }
   };
 
   // Tabs
-  const TABS = ['h2h', 'rules', 'audit', 'allin', 'ai-claude', 'ai-gemini', 'ai-chatgpt', 'overview', 'stocks', 'crypto', 'metals', 'sports', 'china', 'energy', 'options', 'predictions', 'safe', 'currencies', 'support', 'ledger'];
+  const TABS = ['h2h', 'rules', 'audit', 'allin', 'allinledger', 'ai-claude', 'ai-gemini', 'ai-chatgpt', 'overview', 'stocks', 'crypto', 'metals', 'sports', 'china', 'energy', 'options', 'predictions', 'safe', 'currencies', 'support', 'ledger'];
   const showTab = (name) => {
     if (!TABS.includes(name)) name = 'overview';
     document.querySelectorAll('[data-page]').forEach((s) => { s.hidden = s.dataset.page !== name; });
@@ -4487,15 +4491,16 @@ body { background:var(--color-bg); }
     const bar = mk('div', 'lg-pick');
     const lab = mk('label', '', 'Show: ');
     const sel = mk('select'); sel.id = 'lg-day-pick';
-    const oAll = mk('option', '', 'All days, newest first (' + days.length + ')'); oAll.value = ''; sel.appendChild(oAll);
+    // one day at a time, the newest closed day picked at first; the other days are in the menu (owner, Oct 29)
     days.slice().reverse().forEach((x) => { const o = mk('option', '', dayTitle(x)); o.value = x.day; sel.appendChild(o); });
-    sel.value = el._day && days.some((x) => x.day === el._day) ? el._day : '';
+    const newest = (days.slice().reverse().find((x) => !/tuning|practice/i.test(dayTitle(x))) || days[days.length - 1]).day;
+    sel.value = el._day && days.some((x) => x.day === el._day) ? el._day : newest;
     sel.addEventListener('change', () => { el._day = sel.value; el._redraw && el._redraw(); });
     lab.appendChild(sel); bar.appendChild(lab);
-    bar.appendChild(mk('span', 'st-note', 'Every closed day stays here for good, with its results, write-ups, report card, trades and decisions.'));
+    bar.appendChild(mk('span', 'st-note', 'Pick a day to see it. Every closed day stays here for good, with its results, write-ups, report card, trades and decisions.'));
     el.appendChild(bar);
     const RV = reviewVersions() || [];
-    days.slice().reverse().filter((x) => !sel.value || x.day === sel.value).forEach((x) => {
+    days.slice().reverse().filter((x) => x.day === sel.value).forEach((x) => {
       const card = mk('article', 'lg-day');
       const head = mk('div', 'lg-head');
       const h3 = mk('h3', '', dayTitle(x));
@@ -6089,7 +6094,7 @@ body { background:var(--color-bg); }
   const NEWS_K = { Crypto: 'CRYPTO', Stocks: 'STOCKS', Energy: 'OIL & ENERGY', Metals: 'METALS', China: 'CHINA', Currencies: 'CURRENCIES', Options: 'OPTIONS', Safe: 'PLAY IT SAFE', Predictions: 'PREDICTIONS', Sports: 'SPORTS' };
   const NEWS_MKT = { Options: 'Stocks', Safe: null, Predictions: null, Sports: null };   // the market a race's price line follows (Options: the S&P 500)
   const newsCtx = () => { const t = document.querySelector('.st-tab[aria-selected="true"]'); const tab = (t && t.dataset.tab) || 'overview';
-    if (tab === 'allin') return 'AllIn'; if (/^ai-/.test(tab)) return 'AI:' + tab.slice(3); return Object.keys(TABOF).find((r) => TABOF[r] === tab) || 'general'; };
+    if (tab === 'allin' || tab === 'allinledger') return 'AllIn'; if (/^ai-/.test(tab)) return 'AI:' + tab.slice(3); return Object.keys(TABOF).find((r) => TABOF[r] === tab) || 'general'; };
   // an AI's own page (owner, Oct 29): news about that AI's race (its moves, the races it leads, its moments, its take) and its company's news
   const aiNews = (id, P) => {
     const out = [], now = Date.now(), A = AIS[id]; if (!A) return out;
@@ -6360,7 +6365,7 @@ body { background:var(--color-bg); }
         el._tab = t;
         const race = PFS_ALL.find((k) => k.toLowerCase() === t);
         if (race) { el._exp = race; el._follow = false; el._ctx = true; }
-        else if (t === 'allin') { if (!ALLIN[el._exp]) el._exp = 'AllInTrading'; el._follow = false; el._ctx = true; }
+        else if (t === 'allin' || t === 'allinledger') { if (!ALLIN[el._exp]) el._exp = 'AllInTrading'; el._follow = false; el._ctx = true; }
         else if (el._ctx) { el._ctx = false; el._follow = true; el._exp = first; }
       }
       if (!el._tabHook) { el._tabHook = true; window.addEventListener('pt-tab', () => { if (dash.redraw) dash.redraw(); }); }
@@ -7201,7 +7206,7 @@ body { background:var(--color-bg); }
     // on a race's tab or All in, only that section: the three AIs ranked in it (owner; all three AIs agreed, Oct 29). Home and every
     // other page keep the full Scoreboard; "Show all races" brings it back on the section too.
     const tab = ((document.querySelector('.st-tab[aria-selected="true"]') || {}).dataset || {}).tab || 'overview';
-    const sec = tab === 'allin' ? 'allin' : Object.keys(TABOF).find((k) => TABOF[k] === tab) || null;
+    const sec = tab === 'allin' || tab === 'allinledger' ? 'allin' : Object.keys(TABOF).find((k) => TABOF[k] === tab) || null;
     if (el._tab !== tab) { el._tab = tab; el._full = false; }
     const inSec = (r) => (sec === 'allin' ? !!ALLIN[r.race] : r.race === sec);
     const narrow = sec && !el._full;
