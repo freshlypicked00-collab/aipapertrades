@@ -969,6 +969,7 @@
   .st-crown-line .st-allin-chip { margin-top: 5px; }
   .pt-flash { animation: pt-flash 1.6s ease-out; border-radius: var(--cds-radius); }
   .st-geo-say { margin-top: 6px; }
+  .pt-story-listen, .nm-listen, .st-sec-listen { margin: 4px 0 8px; }
   .gx-lead { display: inline-flex; align-items: center; gap: 4px; font: inherit; font-size: 12.5px; color: var(--color-fg); background: color-mix(in srgb, var(--ai, #ffb000) 14%, transparent); border: 1px solid color-mix(in srgb, var(--ai, #ffb000) 55%, transparent); border-radius: 999px; padding: 2px 10px; margin-left: 4px; white-space: nowrap; }
   .gx-lead b { color: var(--ai, #ffb000); font-weight: 700; }
   button.gx-lead-go { cursor: pointer; } button.gx-lead-go:hover { border-color: var(--ai, #ffb000); }
@@ -1235,7 +1236,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'c900f94d5f0b';</script>
+<script>window.PT_PAGE_VER = '5240c99edebd';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -5871,11 +5872,23 @@ body { background:var(--color-bg); }
     });
     return w;
   };
+  // How it works and About: each section can be read aloud in one tap (owner, Oct 30: "anything that would be way more helpful with audio")
+  (() => {
+    if (!('speechSynthesis' in window)) return;
+    const read = (card) => { const c = card.cloneNode(true); c.querySelectorAll('button, select, svg, table, .listen-pair, .say-pair, .st-sources').forEach((x) => x.remove());
+      c.querySelectorAll('li, p, h2, h3').forEach((x) => x.append('. ')); return c.textContent.replace(/\s+/g, ' ').replace(/\.\s*\./g, '.').replace(/\s+([,.;:!?)])/g, '$1').trim(); };
+    const add = () => document.querySelectorAll('#rules .st-card > h2, #about-pt .st-card > h2').forEach((h) => {
+      const card = h.closest('.st-card'); if (!card || card.dataset.listen) return; card.dataset.listen = '1';
+      if ((card.textContent.match(/\S+/g) || []).length < 40) return;
+      const w = mk('div', 'st-sec-listen'); w.appendChild(listenBtn(() => read(card), 'Listen to this section')); h.insertAdjacentElement('afterend', w); });
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', add); else add();
+  })();
   // The AIs' own words (takes, plans, feelings, opinions, notes, profiles, report cards and Race Reports) get ▶ buttons,
   // added automatically wherever they are drawn. Labels, helper notes, tables and rules don't (owner's request, Oct 29).
   (() => {
     if (!('speechSynthesis' in window)) return;
-    const SAY_ONLY = '#hook-sub, .st-hook-sub, .h2h-takes, .st-plan, .st-take, .ai-words, .lg-review-box, .lg-review, .st-report-body, .st-report-old, .st-fc-why';   // where the AIs' words are shown
+    const SAY_ONLY = '#hook-sub, .st-hook-sub, .h2h-takes, .st-plan, .st-take, .ai-words, .lg-review-box, .lg-review, .st-report-body, .st-report-old, .st-fc-why'
+      + ', .gr-more, .nm-lede, .st-show, .st-why, .pt-story-sum, .st-geo-sum';   // also today's grades, news cards, the can/can't-show box, why we do this, the developing story (owner, Oct 30)   // where the AIs' words are shown
     const SKIP = '.st-note, .st-model-note, .pd-note, .st-sources, table, .st-live, .bg-start, .bg-plain, .bg-toast, .bg-pop, tr.bg-say, .au-pre, .au-ai, .h2h-holds, .pd-detail, .st-plans-wide, nav, button, select, label, header .st-meta, .st-sub, .st-dates, .st-podium, .st-tabs, .st-score-list, .ai-stats, .st-health, .pt-toast, .say-btn, .say-pair, .listen-pair, .sp-track, script, style, .st-bench, .lg-pick, .h2h-pick, svg, .st-clock';
     const words = (t) => (t.trim().match(/\S+/g) || []).length;
     const NESTED = 'p, li, .st-plan, table, ul, ol';
@@ -6746,9 +6759,13 @@ body { background:var(--color-bg); }
     const S = (dash.baseData('story') || [])[0]; if (!S || !S.active || (el.dataset.race && S.race !== el.dataset.race)) return;
     const h = mk('h2', 'st-h2 pt-story-h'); h.id = 'h-c-story'; const bd = mk('span', 'pd-livebadge'); bd.append(mk('i'), document.createTextNode('DEVELOPING'));
     h.append(bd, document.createTextNode(S.title));
-    el.append(h, mk('p', 'pt-story-up', 'Updated ' + stFmt.when(S.updated_at) + ' · figures change as new reports come in'), mk('p', '', S.summary));
+    el.append(h, mk('p', 'pt-story-up', 'Updated ' + stFmt.when(S.updated_at) + ' · figures change as new reports come in'));
+    const canSay = 'speechSynthesis' in window;   // every card can be read aloud on its own, or the whole story at once (owner, Oct 30)
+    if (canSay) { const top = mk('div', 'pt-story-listen'); top.appendChild(listenBtn(() => S.title + '. ' + S.summary + ' ' + (S.facts || []).map((f) => f.label + ': ' + f.value + '. ' + (f.note || '')).join(' '), 'Listen to the whole story')); el.appendChild(top); }
+    el.appendChild(mk('p', 'pt-story-sum', S.summary));
     const g = mk('div', 'pt-story-grid');
     (S.facts || []).forEach((f) => { const c = mk('div', 'pt-story-f'); c.append(mk('b', '', f.label), mk('span', '', f.value));
+      if (canSay) { const w = mk('div', 'st-geo-say'); w.appendChild(playBtn(() => f.label + ': ' + f.value + '. ' + (f.note || ''), c)); c.appendChild(w); }
       const sm = mk('small', '', (f.note ? f.note + ' · ' : '')); if (f.url) { const a = mk('a', '', f.source || 'source'); a.href = f.url; a.target = '_blank'; a.rel = 'noopener'; sm.appendChild(a); } else if (f.source) sm.appendChild(document.createTextNode(f.source));
       c.appendChild(sm); g.appendChild(c); });
     el.appendChild(g);
@@ -6792,6 +6809,9 @@ body { background:var(--color-bg); }
     const h = mk('h3', 'nm-h');
     if (m.status === 'developing') { const bd = mk('span', 'pd-livebadge'); bd.append(mk('i'), document.createTextNode('DEVELOPING')); h.appendChild(bd); }
     h.appendChild(document.createTextNode(m.title)); c.appendChild(h);
+    if ('speechSynthesis' in window) { const lw = mk('div', 'nm-listen'); lw.appendChild(listenBtn(() => {   // the card read aloud (owner, Oct 30)
+      const did = NM_AIS.map((id) => { const r = (m.ai_trades || {})[id] || []; return AIS[id].label + (r.length ? ': ' + r.slice(0, 3).map((x) => (NM_VERB[x.action] || x.action) + ' ' + String(x.what || '').replace(/ USD$/, '') + ' in ' + nmRace(x.race) + ' at ' + nmET(x.at)).join('; ') : ': no trade in these races in this window'); }).join('. ');
+      return m.title + '. ' + (m.headline || '') + ' ' + ((m.moved || [])[0] ? (m.moved[0].text + '. ') : '') + (m.public_at ? 'The news became public ' + stFmt.when(m.public_at) + '. ' : '') + 'What each AI did. ' + did + '.' + (m.what ? ' What happened. ' + m.what : ''); }, 'Listen to this story')); c.appendChild(lw); }
     c.appendChild(mk('p', 'nm-meta', (m.when_text || stFmt.when(m.at)) + ' · ' + (m.races || []).map(nmRace).join(', ') + ' · last checked ' + nmET(m.checked_at)));
     c.appendChild(mk('p', 'nm-lede', m.headline || ''));
     const sec = (parent, k, nodes) => { const s = mk('div', 'nm-sec'); s.appendChild(mk('b', 'nm-k', k)); nodes.filter(Boolean).forEach((n) => s.appendChild(typeof n === 'string' ? mk('p', '', n) : n)); parent.appendChild(s); return s; };
