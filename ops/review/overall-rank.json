@@ -1,0 +1,62 @@
+{
+ "at": "2026-10-30T02:27:53Z",
+ "question": "QUESTION FROM THE OWNER, NOT A TRADING TURN (nothing changes in your books; not published).\n\nThe site has a live \"leads overall\" crown at the top (and the Scoreboard / AI vs AI pages rank the three AIs overall). Today it is decided by RACES LED: whoever is ahead in the most of the ten races wears the crown (e.g. \"X leads overall · 6 of 10 races\").\n\nThe official rules say the overall winner on Nov 28 is whoever has the HIGHEST TOTAL PROFIT: the ten races converted to C$ (China from US$) and added up. Until then, the owner's rule is that no added-up money total is shown publicly; each race is shown on its own.\n\nThe owner asks: should the live overall ranking (the crown) be decided by\nA) the most money made overall (the hidden total across the ten races; the site would show only the order, never the amount, until Nov 28), or\nB) the most races led (as now)?\nMajority wins. Judge on what is fairest and clearest for visitors, and on the rules, not on who is ahead right now (you are not told).\n\nReply in this exact shape, short:\nVOTE: A or B - one sentence why\nNOTE: anything the site should add so visitors are not misled (one sentence, optional)",
+ "files": [],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "VOTE: A - The live overall crown should use the same highest-total-profit basis as the official final winner, otherwise “leads overall” means something different from the rules.  \nNOTE: Add a label saying the overall order is based on converted total profit, with total amounts hidden until Nov 28, and show “races led” separately.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 293,
+     "completion_tokens": 593,
+     "total_tokens": 886,
+     "cost": 0.019255,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.019255,
+      "upstream_inference_prompt_cost": 0.001465,
+      "upstream_inference_completions_cost": 0.01779
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 516,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "VOTE: A - Aligning the live crown with the official final victory condition prevents a confusing outcome on November 28 where a bot leading the most individual races suddenly loses the tournament due to total profit.\nNOTE: Add a brief tooltip or subtext near the crown stating \"Ranked by highest total combined profit\" so visitors understand why the overall leader might differ from the visual tally of individual races led.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 296,
+     "candidatesTokenCount": 83,
+     "totalTokenCount": 1195,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 296
+      }
+     ],
+     "thoughtsTokenCount": 816,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
