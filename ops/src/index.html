@@ -230,6 +230,7 @@
   .st-alloc-more summary { cursor: pointer; color: var(--color-fg-muted); text-decoration: underline dotted; }
   .st-alloc-key i.st-alloc-hollow { background: transparent !important; border: 1.5px dashed var(--color-fg-muted); }
   .st-hook { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+  .st-h2-sub, .st-label-sub { font-size: .72em; font-weight: 500; letter-spacing: .04em; text-transform: none; color: var(--color-fg-muted); }
   .st-hook-q { margin: 0; font-size: clamp(24px, 3.4vw, 32px); font-weight: 600; line-height: 1.15; letter-spacing: -0.01em; color: var(--color-fg); text-wrap: balance; }
   .st-hook-sub { margin: 0; font-size: 16px; color: var(--color-fg-muted); max-width: 70ch; }
   .st-auto { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 4px 0 2px; font-family: var(--font-mono, monospace); font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; }
@@ -882,7 +883,7 @@
         <button class="st-tab" role="tab" data-tab="metals" aria-selected="false">Metals</button>
         <button class="st-tab" role="tab" data-tab="energy" aria-selected="false">Oil and energy</button>
         <button class="st-tab" role="tab" data-tab="options" aria-selected="false">Options</button>
-        <button class="st-tab" role="tab" data-tab="currencies" aria-selected="false">Currencies</button>
+        <button class="st-tab" role="tab" data-tab="currencies" aria-selected="false" title="Currencies (forex): currency pairs with leverage">Currencies</button>
         <button class="st-tab" role="tab" data-tab="safe" aria-selected="false">Play it safe</button>
       </div>
       <div class="st-tabgroup" role="presentation"><span class="st-tabgroup-l">Betting</span>
@@ -1413,7 +1414,7 @@
   <!-- Currencies -->
   <section class="st-page" id="currencies" data-page="currencies" hidden>
     <section class="st-card" aria-labelledby="h-x-bench">
-      <h2 class="st-h2" id="h-x-bench">Currencies</h2>
+      <h2 class="st-h2" id="h-x-bench">Currencies <span class="st-h2-sub">· forex (currency pairs, with leverage)</span></h2>
       <p class="st-note">Currency trading with leverage, like a forex account: positions can be several times the account value, and borrowing shows as cash. A negative amount is a short (borrowed and sold). High risk, high reward. Restart Oct 28 with C$100,000 at 1:45 p.m. ET (17:45 UTC · 1:45 a.m. HKT); currency markets trade around the clock on weekdays.</p>
       <div class="st-bench">
         <div><span class="st-label">Value</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Currencies">—</span></div>
@@ -2111,7 +2112,7 @@
         </span>
       </button>
       <button class="st-card" data-goto="currencies">
-        <span class="st-label">Currencies</span>
+        <span class="st-label">Currencies <span class="st-label-sub">· forex</span></span>
         <span class="st-big" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Currencies">—</span>
         <span class="st-delta" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Currencies">—</span>
         <span class="st-stats">
@@ -6564,7 +6565,7 @@
     Metals: ['Medium', 'Gold, silver and other metals: they move with fear, interest rates and the dollar.'],
     Energy: ['High', 'Oil and gas swing hard on wars, weather and supply news.'],
     China: ['High', 'Chinese shares: big swings on government policy, with special trading rules.'],
-    Currencies: ['High', 'Uses borrowed money (leverage), so gains and losses are bigger than the money put in.'],
+    Currencies: ['High', 'Forex: trading one currency against another (like the US dollar against the Japanese yen). Uses borrowed money (leverage), so gains and losses are bigger than the money put in.'],
     Crypto: ['High', 'Bitcoin and other coins can rise or fall 10% in a day.'],
     Options: ['Very high', 'Options can lose all their value by their end date.'],
     Sports: ['Very high', 'Each bet is won or lost in full on one game.'],

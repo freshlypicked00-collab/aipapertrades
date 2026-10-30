@@ -423,10 +423,10 @@ html = f"""<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Paper Trades - AI Trading Experiment</title>
 <script data-goatcounter="https://jojojoj.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
-<meta name="description" content="Claude vs Gemini vs ChatGPT: autonomous AI models trade head to head with pretend money and real prices, Oct 28 to Nov 28, 2026, with no human prompts, just automatic check-ins. Stocks, crypto, China stocks, metals, energy, options, currencies, a safe control, sports bets and prediction markets. Every decision logged. Not investment advice.">
+<meta name="description" content="Claude vs Gemini vs ChatGPT: autonomous AI models trade head to head with pretend money and real prices, Oct 28 to Nov 28, 2026, with no human prompts, just automatic check-ins. Stocks, crypto, China stocks, metals, energy, options, currencies (forex), a safe control, sports bets and prediction markets. Every decision logged. Not investment advice.">
 <meta property="og:title" content="Paper Trades - AI Trading Experiment">
 <meta property="og:site_name" content="Paper Trades">
-<meta property="og:description" content="Claude vs Gemini vs ChatGPT: autonomous AI models trade head to head with pretend money and real prices, Oct 28 to Nov 28, 2026, with no human prompts, just automatic check-ins. Stocks, crypto, China stocks, metals, energy, options, currencies, a safe control, sports bets and prediction markets. Every decision logged. Not investment advice.">
+<meta property="og:description" content="Claude vs Gemini vs ChatGPT: autonomous AI models trade head to head with pretend money and real prices, Oct 28 to Nov 28, 2026, with no human prompts, just automatic check-ins. Stocks, crypto, China stocks, metals, energy, options, currencies (forex), a safe control, sports bets and prediction markets. Every decision logged. Not investment advice.">
 <meta property="og:image" content="https://papertrades.ai/og.png?v={OG_V}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
