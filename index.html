@@ -1152,7 +1152,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'fa111d4241bc';</script>
+<script>window.PT_PAGE_VER = '32771738d9bd';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -7425,7 +7425,7 @@ body { background:var(--color-bg); }
   const RISK_TABS = { strict: ['safe'], standard: ['stocks', 'crypto', 'china', 'metals', 'energy', 'options', 'currencies', 'sports', 'predictions'], unrestricted: ['allin', 'allinledger'] };
   const riskOf = (race) => race === 'Safe' ? 'strict' : ALLIN[race] ? 'unrestricted' : 'standard';
   const applyRisk = (jump) => {
-    const rk = window.ptRisk || '', all = [].concat(...Object.values(RISK_TABS));
+    const rk = window.ptRiskSel || '', all = [].concat(...Object.values(RISK_TABS));
     all.forEach((t) => { const hide = !!rk && !RISK_TABS[rk].includes(t);
       document.querySelectorAll('.st-tab[data-tab="' + t + '"], .st-card[data-goto="' + t + '"]').forEach((el) => { if (hide) el.setAttribute('data-risk-hidden', ''); else el.removeAttribute('data-risk-hidden'); }); });
     const vis = (el) => !el.hasAttribute('data-risk-hidden') && !el.hasAttribute('data-model-hidden');
@@ -7437,7 +7437,7 @@ body { background:var(--color-bg); }
     dash.redraw();
   };
   { const rp = document.getElementById('risk-pick');
-    if (rp) rp.addEventListener('change', () => { window.ptRisk = rp.value; applyRisk(true); }); }
+    if (rp) rp.addEventListener('change', () => { window.ptRiskSel = rp.value; applyRisk(true); }); }
   // ---------- Best risk manager: a separate award (owner, Oct 30; all three AIs agreed it is shown next to the profit winner and never changes it)
   dash.draw('riskaward', (el) => {
     el.replaceChildren();
@@ -7464,7 +7464,7 @@ body { background:var(--color-bg); }
     el.replaceChildren();
     const sr0 = scoreRows();
     if (!sr0.rows.length) return;
-    const rk = window.ptRisk || '', inRisk = (r) => !rk || riskOf(r.race) === rk;   // the Risk profile menu (owner, Oct 30)
+    const rk = window.ptRiskSel || '', inRisk = (r) => !rk || riskOf(r.race) === rk;   // the Risk profile menu (owner, Oct 30)
     const sr = rk ? { rows: sr0.rows.filter(inRisk), live: sr0.live.filter(inRisk), idle: sr0.idle.filter(inRisk) } : sr0;
     // on a race's tab or All in, only that section: the three AIs ranked in it (owner; all three AIs agreed, Oct 29). Home and every
     // other page keep the full Scoreboard; "Show all races" brings it back on the section too.
