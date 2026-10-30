@@ -983,17 +983,15 @@
     <section class="st-card" aria-labelledby="h-s-chart">
       <h2 class="st-h2" id="h-s-chart">Value over time</h2>
       <p class="st-note">The grey dashed line is the same C$100,000 left in the S&amp;P 500. Hover or drag along the chart for exact values.</p>
-      <div class="gx" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Stocks"></div>
+      <div class="gx" id="perf-stocks" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Stocks"></div>
+      <div class="gx-hold" id="perf-stocks-hold" aria-live="polite"></div>
+      <div class="gx-px-wrap" id="perf-stocks-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
+      <div class="gx" id="perf-stocks-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Stocks"></div></div>
     </section>
     <section class="st-card" aria-labelledby="h-s-trig">
       <h2 class="st-h2" id="h-s-trig">Distance to the next trade</h2>
       <p class="st-note">This portfolio's price rules, closest first.</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Stocks"></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-s-px">
-      <h2 class="st-h2" id="h-s-px">Prices</h2>
-      <p class="st-note">Pick a holding to see its price (US dollars) at each check-in since it was bought. The dotted line is the price paid; dashed lines are the prices that would trigger a trade. Hover for exact prices.</p>
-      <div class="gx" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Stocks"></div>
     </section>
     <section class="st-card" aria-labelledby="h-s-contrib">
       <h2 class="st-h2" id="h-s-contrib">What made or lost money</h2>
@@ -1068,17 +1066,15 @@
     <section class="st-card" aria-labelledby="h-c-chart">
       <h2 class="st-h2" id="h-c-chart">Value over time</h2>
       <p class="st-note">The grey dashed line is the same C$100,000 left in Bitcoin. Hover or drag along the chart for exact values.</p>
-      <div class="gx" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Crypto"></div>
+      <div class="gx" id="perf-crypto" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Crypto"></div>
+      <div class="gx-hold" id="perf-crypto-hold" aria-live="polite"></div>
+      <div class="gx-px-wrap" id="perf-crypto-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
+      <div class="gx" id="perf-crypto-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Crypto"></div></div>
     </section>
     <section class="st-card" aria-labelledby="h-c-trig">
       <h2 class="st-h2" id="h-c-trig">Distance to the next trade</h2>
       <p class="st-note">This portfolio's price rules, closest first.</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Crypto"></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-c-px">
-      <h2 class="st-h2" id="h-c-px">Prices</h2>
-      <p class="st-note">Pick a holding to see its price (US dollars) at each check-in since it was bought. The dotted line is the price paid; dashed lines are the prices that would trigger a trade. Hover for exact prices.</p>
-      <div class="gx" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Crypto"></div>
     </section>
     <section class="st-card" aria-labelledby="h-c-contrib">
       <h2 class="st-h2" id="h-c-contrib">What made or lost money</h2>
@@ -1154,17 +1150,15 @@
     <section class="st-card" aria-labelledby="h-m-chart">
       <h2 class="st-h2" id="h-m-chart">Value over time</h2>
       <p class="st-note">The grey dashed line is the same C$100,000 put into gold. Hover or drag along the chart for exact values.</p>
-      <div class="gx" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Metals"></div>
+      <div class="gx" id="perf-metals" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Metals"></div>
+      <div class="gx-hold" id="perf-metals-hold" aria-live="polite"></div>
+      <div class="gx-px-wrap" id="perf-metals-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
+      <div class="gx" id="perf-metals-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Metals"></div></div>
     </section>
     <section class="st-card" aria-labelledby="h-m-trig">
       <h2 class="st-h2" id="h-m-trig">Distance to the next trade</h2>
       <p class="st-note">This portfolio's price rules, closest first.</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Metals"></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-m-px">
-      <h2 class="st-h2" id="h-m-px">Prices</h2>
-      <p class="st-note">Pick a holding to see its price (US dollars) at each check-in since it was bought. The dotted line is the price paid; dashed lines are the prices that would trigger a trade. Hover for exact prices.</p>
-      <div class="gx" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Metals"></div>
     </section>
     <section class="st-card" aria-labelledby="h-m-contrib">
       <h2 class="st-h2" id="h-m-contrib">What made or lost money</h2>
@@ -1250,17 +1244,15 @@
     <section class="st-card" aria-labelledby="h-e-chart">
       <h2 class="st-h2" id="h-e-chart">Value over time</h2>
       <p class="st-note">The grey dashed line is the same C$100,000 put into the USO oil fund. Hover or drag along the chart for exact values.</p>
-      <div class="gx" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Energy"></div>
+      <div class="gx" id="perf-energy" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Energy"></div>
+      <div class="gx-hold" id="perf-energy-hold" aria-live="polite"></div>
+      <div class="gx-px-wrap" id="perf-energy-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
+      <div class="gx" id="perf-energy-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Energy"></div></div>
     </section>
     <section class="st-card" aria-labelledby="h-e-trig">
       <h2 class="st-h2" id="h-e-trig">Distance to the next trade</h2>
       <p class="st-note">This experiment's price rules, closest first.</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Energy"></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-e-px">
-      <h2 class="st-h2" id="h-e-px">Prices</h2>
-      <p class="st-note">Pick a holding to see its price at each check-in since it was bought. The dotted line is the price paid; dashed lines are the prices that would trigger a trade.</p>
-      <div class="gx" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Energy"></div>
     </section>
     <section class="st-card" aria-labelledby="h-e-contrib">
       <h2 class="st-h2" id="h-e-contrib">What made or lost money</h2>
@@ -1334,17 +1326,15 @@
     <section class="st-card" aria-labelledby="h-o-chart">
       <h2 class="st-h2" id="h-o-chart">Value over time</h2>
       <p class="st-note">The grey dashed line is the same C$100,000 put into the S&amp;P 500. Hover or drag along the chart for exact values.</p>
-      <div class="gx" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Options"></div>
+      <div class="gx" id="perf-options" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Options"></div>
+      <div class="gx-hold" id="perf-options-hold" aria-live="polite"></div>
+      <div class="gx-px-wrap" id="perf-options-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
+      <div class="gx" id="perf-options-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Options"></div></div>
     </section>
     <section class="st-card" aria-labelledby="h-o-trig">
       <h2 class="st-h2" id="h-o-trig">Distance to the next trade</h2>
       <p class="st-note">This experiment's price rules, closest first.</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Options"></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-o-px">
-      <h2 class="st-h2" id="h-o-px">Prices</h2>
-      <p class="st-note">Pick a holding to see its price at each check-in since it was bought. The dotted line is the price paid; dashed lines are the prices that would trigger a trade.</p>
-      <div class="gx" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Options"></div>
     </section>
     <section class="st-card" aria-labelledby="h-o-contrib">
       <h2 class="st-h2" id="h-o-contrib">What made or lost money</h2>
@@ -1413,17 +1403,15 @@
     <section class="st-card" aria-labelledby="h-x-chart">
       <h2 class="st-h2" id="h-x-chart">Value over time</h2>
       <p class="st-note">The grey dashed line is the same C$100,000 in a savings account paying 2.25% a year. Hover or drag along the chart for exact values.</p>
-      <div class="gx" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Currencies"></div>
+      <div class="gx" id="perf-currencies" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Currencies"></div>
+      <div class="gx-hold" id="perf-currencies-hold" aria-live="polite"></div>
+      <div class="gx-px-wrap" id="perf-currencies-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
+      <div class="gx" id="perf-currencies-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Currencies"></div></div>
     </section>
     <section class="st-card" aria-labelledby="h-x-trig">
       <h2 class="st-h2" id="h-x-trig">Distance to the next trade</h2>
       <p class="st-note">This experiment's price rules, closest first.</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Currencies"></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-x-px">
-      <h2 class="st-h2" id="h-x-px">Prices</h2>
-      <p class="st-note">Pick a holding to see its price at each check-in since it was bought. The dotted line is the price paid; dashed lines are the prices that would trigger a trade.</p>
-      <div class="gx" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Currencies"></div>
     </section>
     <section class="st-card" aria-labelledby="h-x-contrib">
       <h2 class="st-h2" id="h-x-contrib">What made or lost money</h2>
@@ -1499,17 +1487,15 @@
     <section class="st-card" aria-labelledby="h-p-chart">
       <h2 class="st-h2" id="h-p-chart">Value over time</h2>
       <p class="st-note">The dotted line is the C$100,000 start. Hover or drag along the chart for exact values.</p>
-      <div class="gx" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Predictions"></div>
+      <div class="gx" id="perf-predictions" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Predictions"></div>
+      <div class="gx-hold" id="perf-predictions-hold" aria-live="polite"></div>
+      <div class="gx-px-wrap" id="perf-predictions-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
+      <div class="gx" id="perf-predictions-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Predictions"></div></div>
     </section>
     <section class="st-card" aria-labelledby="h-p-trig">
       <h2 class="st-h2" id="h-p-trig">Distance to the next trade</h2>
       <p class="st-note">This experiment's price rules, closest first.</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Predictions"></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-p-px">
-      <h2 class="st-h2" id="h-p-px">Prices</h2>
-      <p class="st-note">Pick a holding to see its price at each check-in since it was bought. The dotted line is the price paid; dashed lines are the prices that would trigger a trade.</p>
-      <div class="gx" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Predictions"></div>
     </section>
     <section class="st-card" aria-labelledby="h-p-contrib">
       <h2 class="st-h2" id="h-p-contrib">What made or lost money</h2>
@@ -1583,17 +1569,15 @@
     <section class="st-card" aria-labelledby="h-f-chart">
       <h2 class="st-h2" id="h-f-chart">Value over time</h2>
       <p class="st-note">The grey dashed line is the same C$100,000 in a savings account paying 2.25% a year. Hover or drag along the chart for exact values.</p>
-      <div class="gx" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Safe"></div>
+      <div class="gx" id="perf-safe" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Safe"></div>
+      <div class="gx-hold" id="perf-safe-hold" aria-live="polite"></div>
+      <div class="gx-px-wrap" id="perf-safe-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
+      <div class="gx" id="perf-safe-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Safe"></div></div>
     </section>
     <section class="st-card" aria-labelledby="h-f-trig">
       <h2 class="st-h2" id="h-f-trig">Distance to the next trade</h2>
       <p class="st-note">This experiment's price rules, closest first.</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Safe"></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-f-px">
-      <h2 class="st-h2" id="h-f-px">Prices</h2>
-      <p class="st-note">Pick a holding to see its price at each check-in since it was bought. The dotted line is the price paid; dashed lines are the prices that would trigger a trade.</p>
-      <div class="gx" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Safe"></div>
     </section>
     <section class="st-card" aria-labelledby="h-f-contrib">
       <h2 class="st-h2" id="h-f-contrib">What made or lost money</h2>
@@ -1778,17 +1762,15 @@
     <section class="st-card" aria-labelledby="h-z-chart">
       <h2 class="st-h2" id="h-z-chart">Value over time</h2>
       <p class="st-note">In US dollars. The grey dashed line is the same US$100,000 put into the CSI 300 index (China's 300 largest companies). Hover or drag along the chart for exact values.</p>
-      <div class="gx" data-draw="perf-chart" data-source="history bench_history" data-portfolio="China"></div>
+      <div class="gx" id="perf-china" data-draw="perf-chart" data-source="history bench_history" data-portfolio="China"></div>
+      <div class="gx-hold" id="perf-china-hold" aria-live="polite"></div>
+      <div class="gx-px-wrap" id="perf-china-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
+      <div class="gx" id="perf-china-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="China"></div></div>
     </section>
     <section class="st-card" aria-labelledby="h-z-trig">
       <h2 class="st-h2" id="h-z-trig">Distance to the next trade</h2>
       <p class="st-note">This portfolio's price rules, closest first. Prices in yuan (¥).</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="China"></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-z-px">
-      <h2 class="st-h2" id="h-z-px">Prices</h2>
-      <p class="st-note">Pick a holding to see its price in yuan at each check-in since it was bought. The dotted line is the price paid; dashed lines are the prices that would trigger a trade.</p>
-      <div class="gx" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="China"></div>
     </section>
     <section class="st-card" aria-labelledby="h-z-contrib">
       <h2 class="st-h2" id="h-z-contrib">What made or lost money</h2>
@@ -3692,6 +3674,16 @@
     box.appendChild(mk('p', 'st-note', 'All in is a side race: C$100,000 each, no caps, its own winner, and never counted in the ten races. Prices are converted to C$ at the latest rate.'));
     box.appendChild(go);
   };
+  // how much of a holding there is, in the unit that fits it, and the average price paid (owner, Oct 29)
+  const qtyText = (r, p) => {
+    const q = Math.abs(Number(r.quantity)); if (!isFinite(q) || q < 1e-9) return '';
+    const nm = String(r.holding), opt = p === 'Options' || /\b(call|put)\b/i.test(nm);
+    const unit = opt ? null : p === 'Crypto' || /Bitcoin|Ethereum|Solana|XRP|Dogecoin/.test(nm) ? 'coins' : p === 'Currencies' ? 'units' : p === 'Metals' && /^(Gold|Silver|Platinum|Palladium)$/.test(nm) ? 'oz' : 'shares';
+    const f = (x) => x >= 1000 ? d3.format(',.0f')(x) : x >= 10 ? d3.format(',.2f')(x) : d3.format(',.4~f')(x);
+    const cur = p === 'China' ? '¥' : 'US$', entry = r.entry_local != null ? r.entry_local : r.entry_usd;
+    const paid = entry != null && isFinite(Number(entry)) ? ' · paid ' + (p === 'Predictions' ? d3.format('.1f')(Number(entry) * 100) + '¢' : cur + f(Number(entry))) + ' on average' : '';
+    return (opt ? f(q / 100) + ' contracts (' + f(q) + ' shares)' : f(q) + ' ' + unit) + paid;
+  };
   const holdList = (box, p, trades, money) => {
     box.replaceChildren();
     const nm = aiModel(dash.model), race = LABEL[p] || p, cn = p === 'China';
@@ -3744,7 +3736,8 @@
         const v = valOf(r), c = costOf(r), pl = v - c, short = Number(r.quantity) < 0;
         lines.forEach((t, i) => {
           const tr = mk('tr'); if (i === n - 1) tr.className = 'gx-hold-last';
-          if (i === 0) { const h = td(tr, '', 'wrap', n); h.appendChild(mk('b', '', r.holding)); if (short) h.appendChild(mk('small', 'st-muted gx-sub', 'short: it gains if the price falls')); else if (r.code && r.code !== r.holding) h.appendChild(mk('small', 'st-muted gx-sub', r.code)); }
+          if (i === 0) { const h = td(tr, '', 'wrap', n); h.appendChild(mk('b', '', r.holding)); if (short) h.appendChild(mk('small', 'st-muted gx-sub', 'short: it gains if the price falls')); else if (r.code && r.code !== r.holding) h.appendChild(mk('small', 'st-muted gx-sub', r.code));
+            h.appendChild(mk('small', 'st-muted gx-sub gx-qty', qtyText(r, p))); }
           td(tr, t ? (TRADE_VERB[t.action] || t.action) + ' ' + money(Math.abs(tradeAmt(t, p))) : (isFinite(c) ? 'Paid ' + money(Math.abs(c)) : '—'), 'num');
           { const c = td(tr, t ? stFmt.when(t.at) : '—', 'wrap', 1, 'When');
             if (t) { const a = mk('a', 'gx-led', 'Ledger ›'); a.href = '#ledger'; a.title = 'See this trade in the Ledger'; a.addEventListener('click', (ev) => { ev.preventDefault(); window.ptGoLedgerTrade(p, t.at, r.holding); }); c.appendChild(a); } }
