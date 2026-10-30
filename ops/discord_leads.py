@@ -9,6 +9,7 @@ Does nothing without DISCORD_WEBHOOK_LEADS.
 """
 import json, os, sys
 from datetime import datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import discord  # noqa: E402
 
@@ -30,7 +31,7 @@ def text(m):
     prof = m.get('profit') or {}
     order = sorted(prof, key=lambda k: -prof[k])
     medal = ['🥇', '🥈', '🥉']
-    at = datetime.fromisoformat(m['at'].replace('Z', '+00:00')).astimezone(timezone(timedelta(hours=-4)))
+    at = datetime.fromisoformat(m['at'].replace('Z', '+00:00')).astimezone(ZoneInfo('America/New_York'))   # EDT, then EST from Nov 1
     lines = [f"👑 <b>{who} takes the lead in {race}</b>"]
     if m.get('over'):
         lines.append(f"Passed {AIS.get(m['over'], m['over'])}" + (f", now ahead by {money(m['lead'], cur)[1:]}" if m.get('lead') is not None else '') + '.')

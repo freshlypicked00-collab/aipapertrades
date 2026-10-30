@@ -349,7 +349,7 @@ def lead_change(out, m, i):
     Y = (255, 209, 102); who, over = m['who'], m.get('over')
     s = S(AIC[who] if who != 'chatgpt' else (200, 200, 210)); s.brand('LEAD CHANGE')
     from datetime import datetime, timedelta
-    t = datetime.fromisoformat(m['at'].replace('Z', '+00:00')) - timedelta(hours=4)
+    t = datetime.fromisoformat(m['at'].replace('Z', '+00:00')).astimezone(__import__('zoneinfo').ZoneInfo('America/New_York'))   # EDT, then EST from Nov 1
     s.kicker(280, t.strftime('%a %b %-d · %-I:%M %p').replace('AM', 'a.m.').replace('PM', 'p.m.').upper() + ' ET', Y)
     s.d.polygon([(X0 + 10, 470), (X0, 360), (X0 + 60, 410), (X0 + 115, 330), (X0 + 170, 410), (X0 + 230, 360), (X0 + 220, 470)], fill=Y, outline=INK)
     s.d.rounded_rectangle([X0 + 10, 478, X0 + 220, 510], radius=8, fill=Y, outline=INK, width=5)

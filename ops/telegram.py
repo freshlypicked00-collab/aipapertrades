@@ -439,7 +439,7 @@ for day, n in race_days[-1:]:
                 if co:
                     nm = {'claude': 'Claude', 'gemini': 'Gemini', 'chatgpt': 'ChatGPT'}
                     tag = ('found it wrong' if co.get('verdict') == 'wrong' else 'found it partly wrong') if co['kind'] == 'fact' else f"gave it an {co.get('grade')}" if co.get('grade') == 'F' else f"gave it a {co.get('grade')}"
-                    txt.append(f"\n🎯 <b>Call-out of the day</b>: {nm.get(co['by'], co['by'])} on {nm.get(co['about'], co['about'])}" + (f" ({esc(LABEL.get(co['race'], co['race']))})" if co.get('race') else '') + f", {tag}:\n“{esc(co['text'])}”")
+                    txt.append(f"\n🎯 <b>Call-out of the day</b>: {nm.get(co['by'], co['by'])} on {nm.get(co['about'], co['about'])}" + (f" ({esc({'AllInTrading': 'All in: trading', 'AllInSports': 'All in: sports'}.get(co['race']) or LABEL.get(co['race'], co['race']))})" if co.get('race') else '') + f", {tag}:\n“{esc(co['text'])}”")
             except Exception as e:
                 print('call-out failed', e)
             txt.append(f"\nThe races are only added together at the final scoring on Nov 28.\nShare it 👉 {SITE}")

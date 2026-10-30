@@ -1334,7 +1334,7 @@ try:
     _AI = {'claude': 'Claude', 'gemini': 'Gemini', 'chatgpt': 'ChatGPT'}
     _LB = {'Stocks': 'Stocks and anything', 'Crypto': 'Crypto', 'China': 'China stocks', 'Metals': 'Metals', 'Energy': 'Oil and energy', 'Options': 'Options',
            'Currencies': 'Currencies (forex)', 'Safe': 'Play it safe', 'Sports': 'Sports betting', 'Predictions': 'Prediction markets'}
-    _et = datetime.now(timezone.utc) - timedelta(hours=4)
+    _et = datetime.now(timezone.utc).astimezone(__import__('zoneinfo').ZoneInfo('America/New_York'))   # EDT, then EST from Nov 1
     _day = max(1, min(32, (_et.date() - datetime(2026, 10, 28).date()).days + 1))
     _lead = _AI.get(data.get('leader') or '', '')
     _rows = []

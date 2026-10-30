@@ -22,7 +22,7 @@ def ts(x):
 
 def et(x):
     try:
-        return (ts(x) - timedelta(hours=4)).strftime('%b %d %H:%M ET')
+        return ts(x).astimezone(__import__('zoneinfo').ZoneInfo('America/New_York')).strftime('%b %d %H:%M ET')
     except Exception:
         return str(x)
 
