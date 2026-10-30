@@ -115,6 +115,8 @@ def due_posts(state):
     if 'day1-remake-v1' not in done and NOW < datetime(2026, 10, 30, 12, 0, tzinfo=timezone.utc):   # the owner's remade Day 1 post (one time)
         out.insert(0, {'id': 'day1-remake-v1', 'kind': 'day1'})
         out.append({'id': 'story-day1-remake-v1', 'kind': 'story-day1'})
+    if 'day1-ten-v1' not in done and NOW < datetime(2026, 10, 31, 12, 0, tzinfo=timezone.utc):   # owner, Oct 30: Day 1 again, "Day 1 results" then one slide per race
+        out.insert(0, {'id': 'day1-ten-v1', 'kind': 'dayten', 'day': 1, 'day_start': '2026-10-28T00:00:00+00:00', 'cutoff': '2026-10-29T00:00:00+00:00'})
     if 'intro-v1' not in done and NOW < RACE_END:
         out.insert(0, {'id': 'intro-v1', 'kind': 'intro'})
     if 'story-intro-v1' not in done and NOW < RACE_END:
@@ -165,6 +167,32 @@ def prepare():
                                     'Each of the ten races is scored on its own, so leading can also mean losing the least. Swipe for all ten.\n\n'
                                     'Three AIs, C$100,000 each, real prices, no human picking trades. Every trade live on Telegram @PaperTradesAI and at papertrades.ai.\n\n'
                                     'Simulation only. Not financial or betting advice.\n\n' + TAGS)
+            elif p['kind'] == 'dayten':
+                import racecard
+                cut = datetime.fromisoformat(p['cutoff']); ser = racecard._series('ops/src'); table = {}
+                for e in racecard.ORDER:   # each race at the day's close (00:00 UTC), profit since the Oct 28 restart
+                    rows = []
+                    for mid in ('claude', 'gemini', 'chatgpt'):
+                        allp = ser.get((mid, e), []); pts = [v for t, v in allp if t <= cut]; pre = [v for t, v in allp if t <= racecard.FS]
+                        base = pre[-1] if (mid == 'claude' and pre) else 100000.0
+                        rows.append((mid, (pts[-1] if pts else base) - base))
+                    table[e] = sorted(rows, key=lambda x: -x[1])
+                when = datetime.fromisoformat(p['day_start'])
+                paths = [pc.title_slide(p['day'], when, f"social/{p['id']}-0.jpg")]
+                paths += [pc.race_slide(e, table[e], p['day'], when, i, f"social/{p['id']}-{i}.jpg") for i, e in enumerate(racecard.ORDER[:8], 1)]
+                paths.append(pc.betting_slide(table, p['day'], when, f"social/{p['id']}-9.jpg"))   # Instagram's API allows at most 10 pictures
+                p['images'] = paths; img = paths[0]
+                lines = []
+                for e in racecard.ORDER:
+                    rows = table[e]
+                    if max(r[1] for r in rows) - min(r[1] for r in rows) < 0.5:
+                        lines.append(f"{LABEL[e]}: all even" + (' (first bets still in play)' if e == 'Sports' else ''))
+                    elif rows[0][1] - rows[1][1] < 0.5:
+                        lines.append(f"{LABEL[e]}: tied, {' and '.join(AIS[m][0] for m, q in rows if rows[0][1] - q < 0.5)}")
+                    else:
+                        lines.append(f"{LABEL[e]}: {AIS[rows[0][0]][0]} {pc.money(rows[0][1], e)}")
+                p['caption'] = (f"Day {p['day']} results 🏁 All ten races (the two betting races share the last slide). Who led each race at the close of Day {p['day']} "
+                                f"(8 p.m. ET, Oct 28), each judged on its own (profit since the Oct 28 restart):\n\n" + '\n'.join(lines) + FOOT)
             elif p['kind'] in ('intro', 'story-intro'):
                 import racecard
                 table, _ = racecard.races(None, 'ops/src')

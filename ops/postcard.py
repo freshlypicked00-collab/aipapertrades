@@ -592,3 +592,85 @@ def day1_remake(table, swings, when_label, prefix):
         raise QualityError('day 1 follow slide overflows')
     c.footer(); paths.append(c.save(prefix + '-5.jpg'))
     return paths
+
+
+def race_slide(race, rows, n, when, idx, path):
+    """One race on its own slide (owner, Oct 30: the daily carousel as "Day N results" then one card per race): who is 1st, 2nd and 3rd
+    in that race and each AI's profit since the Oct 28 restart, in the race's own currency."""
+    if race not in ORDER or not rows or len(rows) != 3:
+        raise QualityError(f'race data incomplete: {race}')
+    c = Card()
+    lead = rows[0][1] - rows[1][1] >= 0.5
+    even = max(r[1] for r in rows) - min(r[1] for r in rows) < 0.5
+    _glow(c, AIS[rows[0][0]][1] if lead else AMBER)
+    c.header(f'DAY {n} · RACE {idx} OF 10')
+    c.text((SAFE_X, 330), f'DAY {n} RESULTS · {when.strftime("%a %b %-d").upper()}', font('mono', 'SemiBold', 32), UP, 'lm', tracking=5)
+    name = LABEL[race] + (' (US$)' if race == 'China' else '')
+    c.text((SAFE_X, 380), name, c.fit(name, 'sans', 'Bold', 150, W - 2 * SAFE_X, 70), FG, 'lt')
+    if even:
+        title = 'Even: the first bets were still being played' if race == 'Sports' else 'All three even so far'
+    elif lead:
+        title = f'{AIS[rows[0][0]][0]} leads'
+    else:
+        tied = [AIS[m][0] for m, p in rows if rows[0][1] - p < 0.5]
+        title = ' and '.join(tied) + ' tied for 1st'
+    c.text((SAFE_X, 600), title, c.fit(title, 'sans', 'SemiBold', 84, W - 2 * SAFE_X, 40), AIS[rows[0][0]][1] if lead else AMBER, 'lt')
+    y = 760
+    for i, (mid, p) in enumerate(rows):
+        c.d.rounded_rectangle([SAFE_X, y, W - SAFE_X, y + 170], radius=18, fill=PANEL, outline=LINE, width=2)
+        c.d.rectangle([SAFE_X, y, SAFE_X + 12, y + 170], fill=AIS[mid][1])
+        place = '1st' if i == 0 or abs(p - rows[0][1]) < 0.5 else ('2nd' if i == 1 or abs(p - rows[1][1]) < 0.5 else '3rd')
+        c.text((SAFE_X + 50, y + 85), place, font('mono', 'SemiBold', 54), MUTED if place != '1st' else AMBER, 'lm')
+        c.text((SAFE_X + 230, y + 85), AIS[mid][0], font('sans', 'Bold', 70), FG, 'lm')
+        c.text((W - SAFE_X - 40, y + 85), money(p, race), font('mono', 'SemiBold', 66), UP if p > 0.5 else DOWN if p < -0.5 else FG, 'rm')
+        y += 196
+    c.text((SAFE_X, y + 30), 'Profit since the Oct 28 restart, this race on its own', font('sans', 'Regular', 34), MUTED, 'lm')
+    if idx < 10:
+        c.text((W - SAFE_X, 1528), 'Swipe for the next race  →', font('mono', 'SemiBold', 30), AMBER, 'rm')
+    else:
+        c.text((W - SAFE_X, 1528), 'Every trade, live: papertrades.ai', font('mono', 'SemiBold', 30), AMBER, 'rm')
+    if y + 60 > 1500:
+        raise QualityError('race slide overflows')
+    c.footer()
+    return c.save(path)
+
+
+def betting_slide(tables, n, when, path):
+    """The two betting races together on one slide (Instagram's API allows at most 10 pictures in a carousel: "Day N results",
+    the eight trading races, then this one)."""
+    c = Card()
+    _glow(c, AMBER)
+    c.header(f'DAY {n} · RACES 9 AND 10 OF 10')
+    c.text((SAFE_X, 330), f'DAY {n} RESULTS · {when.strftime("%a %b %-d").upper()}', font('mono', 'SemiBold', 32), UP, 'lm', tracking=5)
+    c.text((SAFE_X, 380), 'The betting races', font('sans', 'Bold', 120), FG, 'lt')
+    y = 540
+    for race in ('Sports', 'Predictions'):
+        rows = tables.get(race)
+        if not rows or len(rows) != 3:
+            raise QualityError(f'race data incomplete: {race}')
+        even = max(r[1] for r in rows) - min(r[1] for r in rows) < 0.5
+        lead = rows[0][1] - rows[1][1] >= 0.5
+        if even:
+            sub = 'even: the first bets were still being played' if race == 'Sports' else 'all three even'
+        elif lead:
+            sub = f'{AIS[rows[0][0]][0]} leads'
+        else:
+            sub = ' and '.join(AIS[m][0] for m, p in rows if rows[0][1] - p < 0.5) + ' tied for 1st'
+        c.text((SAFE_X, y + 30), LABEL[race], font('sans', 'Bold', 64), FG, 'lm')
+        c.text((W - SAFE_X, y + 34), sub, c.fit(sub, 'sans', 'SemiBold', 40, 640, 26), AIS[rows[0][0]][1] if lead else AMBER, 'rm')
+        y += 80
+        for i, (mid, p) in enumerate(rows):
+            c.d.rounded_rectangle([SAFE_X, y, W - SAFE_X, y + 92], radius=14, fill=PANEL, outline=LINE, width=2)
+            c.d.rectangle([SAFE_X, y, SAFE_X + 10, y + 92], fill=AIS[mid][1])
+            place = '1st' if abs(p - rows[0][1]) < 0.5 else ('2nd' if i == 1 or abs(p - rows[1][1]) < 0.5 else '3rd')
+            c.text((SAFE_X + 44, y + 46), place, font('mono', 'SemiBold', 40), AMBER if place == '1st' else MUTED, 'lm')
+            c.text((SAFE_X + 190, y + 46), AIS[mid][0], font('sans', 'Bold', 48), FG, 'lm')
+            c.text((W - SAFE_X - 36, y + 46), money(p, race), font('mono', 'SemiBold', 46), UP if p > 0.5 else DOWN if p < -0.5 else FG, 'rm')
+            y += 102
+        y += 30
+    c.text((SAFE_X, y + 10), 'Profit since the Oct 28 restart, each race on its own', font('sans', 'Regular', 32), MUTED, 'lm')
+    c.text((W - SAFE_X, 1528), 'Every trade, live: papertrades.ai', font('mono', 'SemiBold', 30), AMBER, 'rm')
+    if y + 40 > 1500:
+        raise QualityError('betting slide overflows')
+    c.footer()
+    return c.save(path)
