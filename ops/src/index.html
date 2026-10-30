@@ -3690,11 +3690,10 @@
     if (p === 'Sports') {
       // every bet, newest first, 5 a page; Newer / Older to step back through the old ones (owner's request, Oct 29)
       const B = dash.data('bets'); const all = (B.status === 'ok' ? B.data : []).filter((x) => x.placed_at || x.placed).slice().sort((a, b) => new Date(b.placed_at || b.placed) - new Date(a.placed_at || a.placed));
-      box.appendChild(mk('h3', 'st-h3', nm + '’s bets, newest first'));
-      if (!all.length) { box.appendChild(mk('p', 'st-note', 'No bets yet.')); return; }
-      const tb = table([['Bet'], ['Placed'], ['Stake', 'num'], ['Odds', 'num'], ['Result', 'num'], ['Game']]);
-      // repeats of the same pick on the same game are one row with the totals, each ticket listed inside (owner, Oct 29)
-      betGroups(all).forEach((g) => {
+      if (!all.length) { box.appendChild(mk('h3', 'st-h3', nm + '’s bets')); box.appendChild(mk('p', 'st-note', 'No bets yet.')); return; }
+      // two lists: the bets still riding, then every earlier bet with its result, so the past ones are never pushed out of sight (owner, Oct 29)
+      const openB = all.filter((x) => x.status === 'Open'), pastB = all.filter((x) => x.status !== 'Open');
+      const betRows = (tb, list) => betGroups(list).forEach((g) => {
         const x = g.items[0], n = g.items.length, sum = (f) => g.items.reduce((a, y) => a + Number(y[f] || 0), 0);
         const tr = mk('tr'); tr.className = 'gx-hold-last'; const od = oddsSpan(g.items);
         const c = td(tr, '', 'wrap'); c.append(mk('b', '', x.pick), mk('small', 'st-muted gx-sub', x.event || ''));
@@ -3709,6 +3708,12 @@
         td(tr, settled && x.status !== 'Open' ? 'Settled ' + stFmt.when(settled) : x.starts_at ? 'Starts ' + stFmt.when(x.starts_at) : '—', 'wrap', 1, 'Game');
         tb.appendChild(tr);
       });
+      const heads = [['Bet'], ['Placed'], ['Stake', 'num'], ['Odds', 'num'], ['Result', 'num'], ['Game']];
+      box.appendChild(mk('h3', 'st-h3', nm + '’s open bets (' + openB.length + ')'));
+      if (openB.length) betRows(table(heads), openB); else box.appendChild(mk('p', 'st-note', 'No open bets right now.'));
+      box.appendChild(mk('h3', 'st-h3', nm + '’s earlier bets, newest first (' + pastB.length + ')'));
+      if (!pastB.length) { box.appendChild(mk('p', 'st-note', 'No bet has been settled yet.')); return; }
+      const tb = table(heads); betRows(tb, pastB);
       // keep the page while the data refreshes; back to the newest when the AI or the simulation changes
       const key = dash.model + '|' + p; if (box._betKey !== key) { box._betKey = key; box._betPg = 0; }
       tb.dataset.pgNewest = '1'; tb._pgKey = ''; tb._pg = box._betPg || 0;
@@ -6803,10 +6808,25 @@
   dash.draw('scoreboard', (el) => {
     // the best results across all three AIs, each race on its own (owner, Oct 29): tap one to switch to that AI and open that race
     el.replaceChildren();
-    const { rows, live, idle } = scoreRows();
-    if (!rows.length) return;
+    const sr = scoreRows();
+    if (!sr.rows.length) return;
+    // on a race's tab or All in, only that section: the three AIs ranked in it (owner; all three AIs agreed, Oct 29). Home and every
+    // other page keep the full Scoreboard; "Show all races" brings it back on the section too.
+    const tab = ((document.querySelector('.st-tab[aria-selected="true"]') || {}).dataset || {}).tab || 'overview';
+    const sec = tab === 'allin' ? 'allin' : Object.keys(TABOF).find((k) => TABOF[k] === tab) || null;
+    if (el._tab !== tab) { el._tab = tab; el._full = false; }
+    const inSec = (r) => (sec === 'allin' ? !!ALLIN[r.race] : r.race === sec);
+    const narrow = sec && !el._full;
+    const rows = narrow ? sr.rows.filter(inSec) : sr.rows;
+    const live = narrow ? rows.slice().sort((a, b) => b.pct - a.pct) : sr.live, idle = narrow ? [] : sr.idle;
+    { const h = document.getElementById('h-score');
+      if (h) { const nmS = sec === 'allin' ? 'All in' : (LABEL[sec] || sec || '').replace(' (US$)', '');
+        h.replaceChildren(document.createTextNode(narrow ? nmS + ' scoreboard' : 'Scoreboard'), mk('span', '', narrow ? 'Only ' + (sec === 'allin' ? 'the All in side race (trading and sports)' : nmS) + ': the three AIs ranked in this section, best first. ' : 'The best results across all three AIs, each race on its own (the ten races and the two All in side races), best first. Tap one to open that race as that AI. '));
+        if (sec) { const t = mk('button', 'st-score-more st-score-scope', narrow ? 'Show all races ▾' : 'Only ' + nmS + ' ▴'); t.type = 'button';
+          t.addEventListener('click', () => { el._full = !el._full; dash.redraw(); }); h.appendChild(t); } } }
+
     const ORD = (n) => n + (['th', 'st', 'nd', 'rd'][(n % 100 - 20) % 10] || ['th', 'st', 'nd', 'rd'][n % 100] || 'th');
-    const shown = el._all ? live : live.slice(0, 10);
+    const shown = narrow ? live : el._all ? live : live.slice(0, 10);
     shown.forEach((r, i) => {
       const li = mk('li'); const rank = i + 1;
       const b = mk('button', 'st-score-ai' + (rank === 1 ? ' st-score-top' : '')); b.type = 'button'; b.style.setProperty('--ai', AIS[r.id].color);
@@ -6821,7 +6841,7 @@
       li.appendChild(b); el.appendChild(li);
     });
     const foot = mk('li', 'st-score-foot');
-    if (live.length > 10) { const t = mk('button', 'st-score-more', el._all ? 'Show the top 10 ▴' : 'Show all ' + live.length + ' ▾'); t.type = 'button'; t.addEventListener('click', () => { el._all = !el._all; if (el._redraw) el._redraw(); else dash.redraw(); }); foot.appendChild(t); }
+    if (!narrow && live.length > 10) { const t = mk('button', 'st-score-more', el._all ? 'Show the top 10 ▴' : 'Show all ' + live.length + ' ▾'); t.type = 'button'; t.addEventListener('click', () => { el._all = !el._all; if (el._redraw) el._redraw(); else dash.redraw(); }); foot.appendChild(t); }
     if (idle.length) foot.appendChild(mk('span', 'st-score-idle', idle.length + ' not started yet (still all in cash): ' + idle.map((r) => AIS[r.id].label + ' in ' + (ALLIN[r.race] || LABEL[r.race] || r.race)).join(', ') + '.'));
     if (foot.childNodes.length) el.appendChild(foot);
   });
