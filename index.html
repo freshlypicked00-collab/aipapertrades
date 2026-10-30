@@ -923,6 +923,7 @@
     background: var(--color-bg); color: var(--color-fg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius);
     font: inherit; transition: border-color .15s, transform .15s, box-shadow .15s; }
   .al-jump-b svg { flex: none; }
+  #allin .h2h-cap { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: -4px; }
   .al-jump-b[hidden], #allin .h2h-exp[hidden] { display: none !important; }   /* only the selected part shows; the button switches to the other (owner, Oct 30) */
   .al-jump-b:hover, .al-jump-b:focus-visible { transform: translateY(-1px); outline: none; }
   .al-jump-sports:hover, .al-jump-sports:focus-visible { border-color: #f28c28; box-shadow: 0 0 0 1px #f28c28; }
@@ -1170,7 +1171,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'ba488918d4f8';</script>
+<script>window.PT_PAGE_VER = 'dfce6c73b0a3';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -5820,13 +5821,26 @@ body { background:var(--color-bg); }
         else if (i === 0 && ranked.length > 1 && x.last !== ranked[1].last) nm.appendChild(mk('span', 'h2h-lead', 'Leading'));
         li.appendChild(nm);
         const g = Math.max(0, x.last) - 100000;
+        li.appendChild(mk('span', 'h2h-sub h2h-cap', 'Overall profit since the start'));   // labelled so nobody mistakes it for one bet (owner, Oct 30)
         const pc = mk('span', 'h2h-pct', (g >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(g))); tone(pc, g); li.appendChild(pc);
-        li.appendChild(mk('span', 'h2h-sub', 'Now C$' + d3.format(',.0f')(Math.max(0, x.last)) + ' · ' + stFmt.pct(x.last / 100000 - 1)));
+        { const ob = mk('span', 'h2h-sub'); ob.appendChild(mk('b', '', 'Overall balance: ')); ob.appendChild(document.createTextNode('C$' + d3.format(',.0f')(Math.max(0, x.last)) + ' · ' + stFmt.pct(x.last / 100000 - 1) + ' (started with C$100,000)')); li.appendChild(ob); }
         const hold = [];
         Object.entries(x.book.positions || {}).forEach(([k, p]) => { const v = Number(p.qty) * Number(p.last != null ? p.last : p.entry) * (p.pcur === 'USD' ? usdcad : 1); hold.push((p.name || k) + ' C$' + d3.format(',.0f')(v)); });
         (x.book.bets || []).filter((b) => b.status === 'Open').forEach((b) => hold.push(b.pick_team + ' (' + b.event + ') ' + (b.odds > 0 ? '+' : '') + b.odds + ', C$' + d3.format(',.0f')(b.stake)));
         if (Number(x.book.cash) > 1 && exp === 'AllInTrading') hold.push('Cash C$' + d3.format(',.0f')(x.book.cash));
         li.appendChild(mk('span', 'h2h-sub', hold.length ? 'Holding: ' + hold.join(' · ') : 'Holding: all cash, no bets yet'));
+        { // the most recent win and the most recent loss (owner, Oct 30): settled bets, or closed trades with their profit
+          const res = (t) => (t.action === 'Won' || t.action === 'Lost') ? Number(t.amount) : (t.action === 'Sell' || t.action === 'Cover') && t.pnl != null ? Number(t.pnl) : null;
+          const done = (TS || []).filter((t) => t.model === x.id && t.experiment === exp && res(t) != null && Math.abs(res(t)) >= 0.5).sort((a, b) => new Date(b.at) - new Date(a.at));
+          const what = (t) => { const n = String(t.name || t.symbol || ''); const m = n.match(/^([A-Z]{2,6}): (.+?) moneyline/); return m ? m[2] + ' (' + m[1] + ')' : n; };
+          const best = done.filter((t) => res(t) > 0).sort((a, b) => res(b) - res(a))[0];
+          [[exp === 'AllInSports' ? 'Best bet' : 'Best trade', best], ['Last win', done.find((t) => res(t) > 0)], ['Last loss', done.find((t) => res(t) < 0)]].forEach(([lab, t]) => {
+            const ln = mk('span', 'h2h-sub h2h-wl'); ln.appendChild(mk('b', '', lab + ': '));
+            if (!t) { ln.appendChild(document.createTextNode('none yet')); }
+            else { const v = res(t); const amt = mk('span', '', (v >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(v))); tone(amt, v); ln.append(amt, document.createTextNode(' · ' + what(t) + ' · ' + stFmt.whenET(t.at) + ' ET')); }
+            li.appendChild(ln);
+          });
+        }
         { const pie = pieOf(x.book, x.last); if (pie.length) { const pn = pieNode(pie, colorOf, 110); pn.classList.add('h2h-pie'); li.appendChild(pn); } }
         rows.appendChild(li);
       });
