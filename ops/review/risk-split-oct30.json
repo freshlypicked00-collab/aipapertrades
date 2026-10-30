@@ -1,0 +1,62 @@
+{
+ "at": "2026-10-30T08:30:24Z",
+ "question": "[WEB SEARCH ON]\nFollow-up feedback request from the owner of papertrades.ai (Oct 30). NOT a trading turn; nothing in your books changes. Answer honestly as yourself; disagree where you disagree.\n\nThe owner clarified: he does not mean a filter over today's races. He means diversifying the WHOLE experiment into three risk levels, Low, Moderate and High, each with completely different trading (different rules, limits, assets, bet sizes, and scoring). He asks: is that a good idea, and when?\n\nThree options:\n1) ADD NOW AS NEW SIDE RACES: each AI gets 3 new accounts (Low, Moderate, High, C$100,000 each) starting today (Oct 30), the way the \"All in\" side race was added. The 10 current races keep running untouched under the agreed rules, so nothing agreed on day 1 and no ledger fingerprint is broken. Cost: about 2-3x the AI calls.\n2) SEASON 2 AFTER NOV 28: finish this race exactly as agreed, then relaunch the whole experiment split into Low, Moderate and High.\n3) REPLACE NOW: stop the current rules today and rebuild everything into the three risk levels (breaks the rules all three AIs agreed on day 1 and the site's ledger promise).\n\nContext from your last answers (earlier today): you both said 30 races (3 profiles x 10) is too many, preferred 3 headline competitions, preferred labels like Strict/Standard/Unrestricted over Low/Medium/High to avoid sounding like financial advice, suggested capping High leverage at 3-5x, and picked Return / Max Drawdown as the risk-adjusted score. The owner also said: \"an AI taking huge risks might win the competition but still be a terrible investment manager.\"\n\nQuestions:\nA) Is splitting the whole experiment by risk level a good idea at all? Why or why not?\nB) Which option (1, 2 or 3) and why? If 1: does adding races on day 3 with 28 days left make a fair, readable comparison, and how should they relate to the existing \"Play it safe\" and \"All in\" races (overlap)?\nC) In 3-5 bullet points: the rules you would give Low, Moderate and High (assets allowed, max position or bet size, leverage, options/parlays) and how each is scored.\nUnder 300 words. End with one line: VERDICT: good idea yes/no; option 1/2/3.",
+ "files": [],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "**A) Splitting by risk level** \nYes, it is an excellent idea. A single absolute-return leaderboard inherently rewards reckless variance; an AI taking massive gambles often wins short-term competitions despite being a terrible long-term wealth manager. Segregating by risk tests whether an AI can actually adhere to strict fiduciary mandates versus just maximizing yield.\n\n**B) Which option** \n**Option 2 (Season 2).** I strongly advise against Option 1. Adding 3 new risk accounts on top of the 10 daily races plus the \"Play it safe\" and \"All in\" side races creates massive clutter (overlap/redundancy), dilutes the narrative, and triples your API costs for a messy 28-day sample. Option 3 breaks ledger integrity and user trust. Let Season 1 finish as the \"Wild West\" baseline, then launch Season 2 cleanly with refined, heavily marketed risk profiles. \n\n**C) Rules & Scoring**\n*   **Strict (Low):** Large-cap stocks, index ETFs, bonds only. No leverage, no shorting, no options, no crypto, no sports. Max position: 10% of portfolio. **Score:** Return / Max Drawdown (Calmar Ratio).\n*   **Standard (Moderate):** All equities, basic options (covered calls, cash-secured puts), straight sports bets. Leverage up to 1.5x. Max position/bet: 20%. **Score:** Return penalized by volatility (Sharpe Ratio).\n*   **Unrestricted (High):** All assets allowed (crypto, complex options, sports parlays). Leverage up to 3-5x. Max position: Uncapped (100%). **Score:** Absolute Total Return.\n\nVERDICT: good idea yes; option 2.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 548,
+     "candidatesTokenCount": 381,
+     "totalTokenCount": 2222,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 548
+      }
+     ],
+     "thoughtsTokenCount": 1293,
+     "serviceTier": "standard"
+    }
+   }
+  },
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "A) **Yes, it’s a good idea conceptually**—because it separates “who can manage risk?” from “who can gamble hardest?” A single open race over-rewards blow-up risk. But I would frame them as **Strict / Standard / Unrestricted**, not Low / Moderate / High, because those sound like investor suitability categories.\n\nB) I’d choose **Option 2: Season 2 after Nov 28**. The current experiment has integrity because the rules were agreed at the start. Adding three new official accounts per AI on day 3 is technically possible, but it makes the site harder to read: existing “Play it safe” and “All in” already overlap with the proposed low/high concepts, and 28-day side races won’t compare cleanly with day-1 races. Option 3 is the worst: it breaks the premise and the ledger promise. If he wants to test now, make it a **private pilot**, not headline races.\n\nC) Suggested Season 2 structure:\n\n- **Strict / “Low”**: cash, broad ETFs, large-cap stocks only; no leverage, no options, no crypto, no sports parlays; max 10% per position/bet, max 50% deployed. Score: **Return / Max Drawdown**, with drawdown cap or penalty.\n\n- **Standard / “Moderate”**: stocks, ETFs, major crypto, simple sports bets if sports are included; no margin above 1.5x, no naked options, no parlays over 2 legs; max 20% per position/bet. Score: **Return / Max Drawdown**, plus penalty for breaching concentration limits.\n\n- **Unrestricted / “High”**: stocks, ETFs, crypto, options, sports bets/parlays allowed; leverage capped at **3x–5x**, no single position/bet over 35%, no “all account on one click.” Score: still **Return / Max Drawdown**, not raw return, so a lucky moonshot does not automatically prove skill.\n\n**VERDICT: good idea yes; option 2.**",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 4964,
+     "completion_tokens": 953,
+     "total_tokens": 5917,
+     "cost": 0.036706,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 3712,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.036706,
+      "upstream_inference_prompt_cost": 0.008116,
+      "upstream_inference_completions_cost": 0.02859
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 516,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  }
+ }
+}
