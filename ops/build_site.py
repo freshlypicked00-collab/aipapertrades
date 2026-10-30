@@ -1053,6 +1053,50 @@ try:
 except Exception as _e:
     print('moments not built:', _e)
     data['moments'] = []
+def _risk():
+    """Best risk manager (owner, Oct 30; all three AIs agreed to a separate award that never changes the Nov 28 profit winner).
+    Per race and AI: return since the restart, worst drop (largest fall from a high point, % of that high), and
+    score = return / max(worst drop, RISK_FLOOR) for a gain; for a loss, return x max(worst drop, floor) / floor^2, so a
+    bigger drop always scores worse. The award = the highest average score over the ten races. Only percentages
+    are published: the total amounts stay hidden until Nov 28, as agreed."""
+    ser = {}
+    for h in data['history']:
+        if h['portfolio'] in _EXPS:
+            ser.setdefault(('claude', h['portfolio']), []).append((_when(h['at']), float(h['value'])))
+    for h in r.get('history', []):
+        if h.get('model') in ('gemini', 'chatgpt') and h.get('experiment') in _EXPS:
+            ser.setdefault((h['model'], h['experiment']), []).append((_when(h['at']), float(h['value'])))
+    races, avg = {}, {}
+    for m in ('claude', 'gemini', 'chatgpt'):
+        sc = []
+        for e in _EXPS:
+            pts = sorted(ser.get((m, e), []), key=lambda p: p[0])
+            if m == 'claude':
+                b0 = _lastv([(t.isoformat(), v) for t, v in pts])[1]
+            else:
+                b0 = 100000.0
+            vals = [b0] + [max(v, 0.0) for t, v in pts if _FS < t <= RACE_END_DT]
+            peak, dd = vals[0], 0.0
+            for v in vals:
+                peak = max(peak, v)
+                if peak > 0:
+                    dd = max(dd, (peak - v) / peak)
+            ret = vals[-1] / b0 - 1 if b0 else 0.0
+            d = max(dd, RISK_FLOOR)
+            score = ret / d if ret >= 0 else ret * d / RISK_FLOOR ** 2   # for a loss a bigger drop must score worse, not better (the usual ratio would reward it)
+            races.setdefault(e, {})[m] = {'ret': round(ret * 100, 3), 'dd': round(dd * 100, 3), 'score': round(score, 3)}
+            sc.append(score)
+        avg[m] = round(sum(sc) / len(sc), 3) if sc else 0.0
+    order = sorted(avg, key=lambda k: -avg[k])
+    return {'floor_pct': RISK_FLOOR * 100, 'added': '2026-10-30', 'races': races, 'avg': avg, 'order': order}
+
+
+RISK_FLOOR = 0.02   # a worst drop under 2% counts as 2%, so a tiny gain with almost no movement can't look like genius
+try:
+    data['risk'] = [_risk()]
+except Exception as _e:
+    print('risk scores not built:', _e)
+    data['risk'] = []
 data['penalties'] = [dict(x, model='claude') for x in r.get('claude_penalties', [])] + \
     [dict(x, model=_mid) for _mid, _m in (r.get('models') or {}).items() for x in ((_m.get('books') or {}).get('Sports') or {}).get('penalties', [])]
 data['leader'] = LEADER   # the AI with the highest total profit (None when tied; the amount is never published before Nov 28); the page opens on the leader of the first race unless the viewer picked one

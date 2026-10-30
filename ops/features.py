@@ -223,3 +223,49 @@ def grades(prefix, picks, tally):
     c.text((W - SAFE_X, 1528), 'Who grades fairest? Comment  →', font('mono', 'SemiBold', 30), AMBER, 'rm')
     c.footer(); paths.append(c.save(f'{prefix}-{len(picks) + 2}.jpg'))
     return paths
+
+
+# ---------- post 3: Season 2 teaser (owner, Oct 30; all three AIs agreed: announce now, keep it broad, no detailed rules yet)
+def season2(prefix):
+    paths = []
+    W2 = W - 2 * SAFE_X
+    # 1. the hook
+    c = Card(); pc._glow(c, AMBER); c.header('COMING AFTER NOV 28')
+    kicker(c, 330, 'ANNOUNCEMENT', AMBER)
+    f = font('sans', 'Bold', 240)
+    c.text((SAFE_X, 380), 'Season 2', c.fit('Season 2', 'sans', 'Bold', 240, W2), FG, 'lt')
+    underline(c, SAFE_X + 10, SAFE_X + min(f.getlength('Season 2'), W2) - 10, 650, AMBER, 9)
+    y = para(c, SAFE_X, 720, 'Same three AIs. Three completely different rulebooks.', font('sans', 'SemiBold', 74), FG, W2)
+    para(c, SAFE_X, y + 30, 'Because the AI that gambles the hardest shouldn’t automatically win.', font('sans', 'Regular', 50), MUTED, W2)
+    c.text((W - SAFE_X - 120, 1470), 'swipe', font('mono', 'SemiBold', 34), AMBER, 'rm')
+    loop_arrow(c, (W - SAFE_X - 330, 1340), (W - SAFE_X - 40, 1470), AMBER, 7)
+    c.footer(); paths.append(c.save(f'{prefix}-1.jpg'))
+    # 2. the three levels
+    c = Card(); pc._glow(c, UP, xy=(1150, 500)); c.header('THREE LEVELS')
+    kicker(c, 300, 'EACH AI PLAYS ALL THREE')
+    rows = [('STRICT', 'Careful money', 'Low-risk funds, no leverage, small positions.', UP),
+            ('STANDARD', 'Normal limits', 'A real portfolio, with sensible caps.', AMBER),
+            ('UNRESTRICTED', 'Almost anything goes', 'Crypto, options, parlays, leverage.', DOWN)]
+    y = 380
+    for name, a, b, col in rows:
+        c.d.rounded_rectangle([SAFE_X, y, W - SAFE_X, y + 300], radius=18, fill=PANEL, outline=LINE, width=2)
+        c.d.rectangle([SAFE_X, y, SAFE_X + 14, y + 300], fill=col)
+        c.text((SAFE_X + 50, y + 60), name, font('mono', 'SemiBold', 46), col, 'lm', tracking=4)
+        c.text((SAFE_X + 50, y + 135), a, font('sans', 'Bold', 70), FG, 'lm')
+        para(c, SAFE_X + 50, y + 190, b, font('sans', 'Regular', 42), MUTED, W2 - 80)
+        y += 330
+    if y > 1480:
+        raise QualityError('levels overflow')
+    c.footer(); paths.append(c.save(f'{prefix}-2.jpg'))
+    # 3. judged on risk, not just profit
+    c = Card(); pc._glow(c, AMBER, xy=(700, 900), r=600); c.header('HOW THEY WIN')
+    kicker(c, 330, 'NOT JUST PROFIT', AMBER)
+    f = font('sans', 'Bold', 200)
+    c.text((SAFE_X, 380), 'Risk', f, FG, 'lt')
+    c.text((SAFE_X, 590), 'counts.', f, AMBER, 'lt')
+    circle(c, (SAFE_X, 610, SAFE_X + f.getlength('counts.'), 800), AMBER, 7)
+    y = para(c, SAFE_X, 900, 'Winners are judged on how they handle risk, not just on profit. Steady gains beat one lucky moonshot. Exact rules come before the launch.', font('sans', 'SemiBold', 52), FG, W2)
+    y = para(c, SAFE_X, y + 40, 'Season 1 keeps going until Nov 28, and from today it also names a Best risk manager.', font('sans', 'Regular', 44), MUTED, W2)
+    c.text((SAFE_X, min(y + 70, 1450)), 'Follow @papertrades.ai', font('mono', 'SemiBold', 38), AMBER, 'lm')
+    c.footer(); paths.append(c.save(f'{prefix}-3.jpg'))
+    return paths

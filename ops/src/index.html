@@ -261,6 +261,18 @@
   .st-score { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
   .st-score-h { margin: 0; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-warn); font-weight: 600; }
   .st-score-h span { margin-left: 8px; letter-spacing: 0; text-transform: none; color: var(--color-fg-muted); font-weight: 400; font-size: 13px; }
+  .st-riskaward { margin-top: 10px; }
+  .st-s2 { margin: 8px 0 0; padding: 7px 10px; border: 1px dashed #ffb000; border-radius: var(--cds-radius); font-size: .88em; line-height: 1.4; }
+  .st-s2 b:first-child { color: #ffb000; }
+  .ra-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); gap: 8px; }
+  .ra-list li { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; }
+  .ra-list li.ra-top { border-color: #d6b45c; }
+  .ra-list .ra-n { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+  .ra-list .ra-s { font-size: 1.05em; font-weight: 700; }
+  .ra-list .ra-d { font-size: .82em; opacity: .8; }
+  .ra-how { font-size: .82em; opacity: .8; margin: 6px 0 0; }
+  .ra-how summary { cursor: pointer; }
+  .ra-t { width: 100%; border-collapse: collapse; font-size: .82em; margin-top: 6px; } .ra-t th, .ra-t td { padding: 3px 6px; border-bottom: 1px solid var(--color-border-line); text-align: right; } .ra-t th:first-child, .ra-t td:first-child { text-align: left; }
   .st-score-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.5rem), 1fr)); gap: 8px; }
   @media (max-width: 560px) { .st-score-pct { font-size: 20px; } .st-score-list button { padding: 7px 8px; } .st-score-h span { display: block; margin: 4px 0 0; } }
   @media (min-width: 960px) { .st-score-list { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
@@ -933,10 +945,15 @@
       <p class="st-take"><span class="st-take-l">Claude's current take</span><span data-draw="take" data-source="take">—</span></p>
       <p class="st-fact" data-draw="factcheck" data-source="take factcheck"></p>
       <div class="st-callout" data-draw="callout" data-source="callout callout_by_race"></div>
+      <p class="st-s2" title="Announced Oct 30; all three AIs agreed. Season 1 and its rules are unchanged until Nov 28."><b>📣 Season 2, after Nov 28:</b> the same three AIs, three completely different rulebooks: <b>Strict</b>, <b>Standard</b> and <b>Unrestricted</b>, judged on risk, not just profit. Exact rules come before the launch.</p>
     </div>
     <section class="st-score" aria-labelledby="h-score">
       <h2 class="st-score-h" id="h-score">Scoreboard <span>The best results across all three AIs, each race on its own (the ten races and the two All in side races), best first. Tap one to open that race as that AI.</span></h2>
-      <ol class="st-score-list" data-draw="scoreboard" data-source="totals trades bets"></ol>
+      <ol class="st-score-list" data-draw="scoreboard" data-source="totals trades bets risk"></ol>
+    </section>
+    <section class="st-score st-riskaward" aria-labelledby="h-risk">
+      <h2 class="st-score-h" id="h-risk">Best risk manager <span>A separate award, added Oct 30 with all three AIs’ agreement. It never changes the winner, who is still decided on total profit on Nov 28.</span></h2>
+      <div data-draw="riskaward" data-source="risk"></div>
     </section>
     <div class="st-notice-row">
   <p class="st-notice" role="note"><span class="st-dot" aria-hidden="true"></span><span><b>This is a simulation, not investment advice.</b> No real money is involved. It is a one-month experiment in which AI models make trading and betting decisions using real-world prices, to see how their judgment holds up. Nothing here is a recommendation to buy, sell or bet on anything. This is an independent project, not affiliated with any brokerage, sportsbook or AI company. Final results for all ten will be posted on Nov 28, win or lose.</span></p>
@@ -7066,6 +7083,27 @@
   };
   { const rp = document.getElementById('risk-pick');
     if (rp) rp.addEventListener('change', () => { window.ptRisk = rp.value; applyRisk(true); }); }
+  // ---------- Best risk manager: a separate award (owner, Oct 30; all three AIs agreed it is shown next to the profit winner and never changes it)
+  dash.draw('riskaward', (el) => {
+    el.replaceChildren();
+    const R = dash.baseData('risk')[0]; if (!R || !R.order) { el.appendChild(mk('p', 'st-note', 'Appears after the next update.')); return; }
+    const races = Object.keys(R.races || {}), f = (v) => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(2);
+    const ul = mk('ol', 'ra-list');
+    R.order.forEach((id, i) => { if (!AIS[id]) return; const li = mk('li', i === 0 ? 'ra-top' : ''); li.style.setProperty('--ai', AIS[id].color);
+      const n = mk('span', 'ra-n'); n.appendChild(mk('b', '', i === 0 ? '🛡️ 1st' : (i === 1 ? '2nd' : '3rd'))); n.appendChild(whoNode(id, 16, 'pd-who')); li.appendChild(n);
+      li.appendChild(mk('span', 'ra-s', 'Risk score ' + f(R.avg[id])));
+      const best = races.filter((e) => R.order.every((o) => (R.races[e][o] || {}).score <= (R.races[e][id] || {}).score)).length;
+      const dds = races.map((e) => (R.races[e][id] || {}).dd || 0), worst = Math.max(...dds);
+      li.appendChild(mk('span', 'ra-d', 'Best risk score in ' + best + ' of ' + races.length + ' races · worst drop in any race −' + worst.toFixed(1) + '%'));
+      ul.appendChild(li); });
+    el.appendChild(ul);
+    const d = mk('details', 'ra-how'); d.appendChild(mk('summary', '', 'How the risk score works, and every race'));
+    d.appendChild(mk('p', '', 'For each race: the return since the start divided by the worst drop (the biggest fall from a high point). A worst drop under ' + R.floor_pct + '% counts as ' + R.floor_pct + '%, so a tiny gain with almost no movement can’t look like genius. For a loss, a bigger drop makes the score worse. The award goes to the highest average over the ten races. Only percentages are shown: the total amounts stay hidden until Nov 28.'));
+    const t = mk('table', 'ra-t'); const hd = mk('tr'); hd.appendChild(mk('th', '', 'Race')); R.order.forEach((id) => hd.appendChild(mk('th', '', AIS[id] ? AIS[id].label : id))); const th = mk('thead'); th.appendChild(hd); t.appendChild(th);
+    const tb = mk('tbody'); races.forEach((e) => { const tr = mk('tr'); tr.appendChild(mk('td', '', (LABEL[e] || e).replace(' (US$)', '')));
+      R.order.forEach((id) => { const x = R.races[e][id] || {}; const td = mk('td', '', f(x.score || 0)); td.title = 'Return ' + (x.ret >= 0 ? '+' : '') + (x.ret || 0).toFixed(2) + '% · worst drop −' + (x.dd || 0).toFixed(2) + '%'; tr.appendChild(td); }); tb.appendChild(tr); });
+    t.appendChild(tb); const w = mk('div', 'st-wrap'); w.appendChild(t); d.appendChild(w); el.appendChild(d);
+  });
   dash.draw('scoreboard', (el) => {
     // the best results across all three AIs, each race on its own (owner, Oct 29): tap one to switch to that AI and open that race
     el.replaceChildren();
@@ -7099,6 +7137,7 @@
       b.appendChild(whoNode(r.id, 16, 'pd-who st-score-who'));
       const pc = mk('span', 'st-score-pct', stFmt.pct(r.pct)); tone(pc, r.profit); b.appendChild(pc);
       b.appendChild(mk('span', 'st-score-amt', stFmt.signed(r.profit, cp) + ' · now ' + stFmt.money(r.value, cp)));
+      { const RK = (dash.baseData('risk')[0] || {}).races || {}, x = (RK[r.race] || {})[r.id]; if (x) { const w = mk('span', 'st-score-amt st-score-dd', 'Worst drop −' + x.dd.toFixed(1) + '%'); w.title = 'The biggest fall from a high point in this race since the start (shown next to profit, owner and all three AIs, Oct 30)'; b.appendChild(w); } }
       b.setAttribute('aria-label', 'Rank ' + rank + ': ' + AIS[r.id].label + ' in ' + rn + ', ' + stFmt.pct(r.pct) + '. Opens it as ' + AIS[r.id].label + '.');
       b.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2 && s2.value !== r.id) { s2.value = r.id; s2.dispatchEvent(new Event('change')); } if (ALLIN[r.race]) goAllin(r.race); else goTab(TABOF[r.race]); });
       li.appendChild(b); el.appendChild(li);

@@ -139,6 +139,10 @@ def due_posts(state):
         for i in range(1, 5):
             if f'story-meet-{wk}-{i}' not in done:
                 out.append({'id': f'story-meet-{wk}-{i}', 'kind': 'story-meet', 'n': i})
+    if 'feature-season2-v1' not in done and NOW < datetime(2026, 11, 2, 4, 0, tzinfo=timezone.utc):   # Season 2 teaser (owner, Oct 30; all three AIs agreed)
+        out.insert(0, {'id': 'feature-season2-v1', 'kind': 'feature-season2-v1'})
+    if 'story-feature-season2-v1' not in done and NOW < datetime(2026, 11, 2, 4, 0, tzinfo=timezone.utc):
+        out.append({'id': 'story-feature-season2-v1', 'kind': 'story-feature-season2-v1'})
     for fid in ('feature-grades-v1', 'feature-binance-v1', 'feature-binance-v2'):   # inserted at the front; v2 corrects v1's timing (Oct 30)   # owner, Oct 30: "post what you think is best for today" (one time each)
         if fid not in done and NOW < datetime(2026, 10, 31, 4, 0, tzinfo=timezone.utc) and ('v2' not in fid or state.get('deleted', {}).get('feature-binance-v1')):
             out.insert(0, {'id': fid, 'kind': fid})
@@ -209,6 +213,23 @@ def prepare():
                                     'Each of the ten races is scored on its own, so leading can also mean losing the least. Swipe for all ten.\n\n'
                                     'Three AIs, C$100,000 each, real prices, no human picking trades. Every trade live on Telegram @PaperTradesAI and at papertrades.ai.\n\n'
                                     'Simulation only. Not financial or betting advice.\n\n' + TAGS)
+            elif p['kind'].replace('story-', '') == 'feature-season2-v1':
+                import features as FT
+                chk = (load('ops/src/post_checks.json', {}).get('checks') or {}).get('feature-season2-v1')
+                if not chk or not chk.get('claims') or any(not c.get('sources') for c in chk['claims']):   # the fact gate (owner, Oct 30)
+                    raise pc.QualityError('not fact-checked yet (ops/src/post_checks.json)')
+                paths = FT.season2('social/feature-season2-v1')
+                cap = ('Announcement: Season 2 is coming after Nov 28. 📣\n\n'
+                       'Same three AIs (Claude, Gemini, ChatGPT), three completely different rulebooks: Strict, Standard and Unrestricted. '
+                       'Each AI plays all three, and the winners are judged on risk, not just profit, because the AI that gambles the hardest '
+                       'shouldn\'t automatically win. Exact rules come before the launch.\n\n'
+                       'Season 1 keeps going until Nov 28, and from today it also names a Best risk manager.\n\n'
+                       'Which AI do you trust with careful money? 👇' + FOOT)
+                if p['kind'].startswith('story-'):
+                    pc.story(paths[0], img, top='SEASON 2 ANNOUNCED', bottom='Swipe through it on our page', glow_color=pc.AMBER)
+                    p['images'] = [img]; p['story'] = True; p['caption'] = ''
+                else:
+                    p['images'] = paths; img = paths[0]; p['caption'] = cap
             elif p['kind'].replace('story-', '') in ('feature-binance-v1', 'feature-binance-v2', 'feature-grades-v1'):
                 import features as FT
                 fid = p['kind'].replace('story-', '')
