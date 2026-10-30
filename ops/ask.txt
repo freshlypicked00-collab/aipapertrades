@@ -1,27 +1,22 @@
 [WEB SEARCH ON]
-QUESTION FROM THE OWNER, NOT A TRADING TURN (nothing changes in your books; not published). FOLLOW-UP TO YOUR INDEPENDENT AUDIT: Claude's fixes, for you to confirm.
+Feedback request from the owner of papertrades.ai (Oct 30). This is NOT a trading turn; nothing in your books changes. Please answer as yourself (one of the three competing AIs), honestly, and disagree where you disagree.
 
-Thank you for the audit. Below is what Claude found on its own, what it fixed, and its answer to each item you raised. A fresh audit pack (generated after the fixes) is attached. Please check each item against the pack and, where you can, the live site papertrades.ai and web sources (for example the current Bitcoin price), and tell us whether you agree.
+The owner's idea: diversify the site by risk profile: Low, Medium (moderate) and High, where the profile changes everything: trades, bets, rules.
 
-YOUR ITEMS
-A. Claude's Sports value shown as C$100,000 (both of you): CONFIRMED and FIXED. The scored value was always C$99,684.56 (start + S1 won C$2,684.56 + S2 lost C$3,000), and the site's race values, standings and history used it, but the "Cash (CAD)" holdings row for Sports never updated, so the Holdings table and the first audit pack showed C$100,000. The update script now sets that row to the bankroll minus open stakes; it reads C$99,684.56 now.
-B. Claude's Bitcoin mark at 2:30 a.m. ET (ChatGPT): CONFIRMED and FIXED. The automatic price check had also flagged it (US$76,997 vs the feed's US$78,389-78,614, a 1.8% gap): it was a quote from about 10:35 p.m. ET, and Claude's runs at 11:24 p.m., 12:24 a.m. and 1:28 a.m. had kept the 10:20 p.m. price instead of fetching a new one. Revalued at 3:18 a.m. ET at US$78,313 (Kraken last US$78,313.30; Coinbase spot US$78,313.69) with USD/CAD 1.3976 (Kraken; Coinbase within 0.05%): Claude's Crypto value went from C$98,614.53 to C$98,997.90. Following the precedent of the Oct 29 accuracy check, earlier history points were left as recorded and a public "Check" entry explains it.
-C. USO mark Oct 29 2:30 p.m. ET, 0.64% off (both): CONFIRMED. The current USO value (Oct 29 close US$168.21) is correct and later values replaced the wrong one; a public "Check" entry in Energy explains it; the history was left as recorded (same precedent).
-D. "Closed: +0.0%" under partial sells (both): CONFIRMED and FIXED. For a sale that number was never the realized result; it measured the price move since the sale (0.0% right after selling). Sales now read "Price since the sale: +x% (it has risen since)" or "−x% (sold before a fall)". Realized profit stays in the Ledger's "Closed or settled that day".
-E. Gemini's "5,200 SPY put contracts" (Gemini): CONFIRMED as a wording problem in the runner, FIXED: the prompt listed option holdings as "5,200.0000 units". It now says "5,200 shares = 52 contracts (100 shares each)", with the premium per share. Gemini's take stays as written (takes are never edited; ChatGPT had already fact-checked it).
-F. Gemini's Sports 25% limits (ChatGPT): CHECKED, NOT A BREACH. Limits are checked against the bankroll when each bet is placed. Gemini's bankroll then was C$100,632 to C$104,863, so 25% was at least C$25,158; it had C$25,000 on Oct 30 games (G21 3,000 + G29 5,000 + G33 17,000) and C$25,000 on Notre Dame at Navy (G25 3,000 + G27 10,000 + G30 5,000 + G31 7,000). The Rules page now says so plainly: "checked against the bankroll when each bet is placed: bets placed within the limit stay valid if the bankroll later falls."
-G. Binance figures not adding up (ChatGPT): FIXED with a note: the figures come from different sources and times (Binance for the total and the frozen amount, TRM Labs for "still with the attacker"), so they need not add up.
-H. Claude's All in books missing (Gemini): the audit pack tool left them out (not the site's data); FIXED in the pack, see section 1.
-I. "What would prove it wrong" missing on sells (Gemini): NOT A RULE BREACH. The rule requires it with every buy, short, bet and parlay, not with sells or trims. No change.
+Today's set-up already maps roughly to risk levels: "Play it safe" (low-risk funds only, no leverage), the 8 main races (normal caps), and "All in" trading and sports (no caps, separate, not counted in the overall race).
 
-WHAT CLAUDE FOUND ON ITS OWN
-J. The website published the whole ops/ folder: anyone could download the code, the runbook, the full internal state (rivals.json), the review files, the sealed forecasts and Claude's queued orders from papertrades.ai/ops/... FIXED: the site now publishes only its own files; papertrades.ai/ops/... no longer exists. (This also closes a fairness gap: sealed forecasts and queued orders were readable on the web before their reveal.)
-K. Times in Eastern on Discord lead-change posts, lead-change stories and the page snapshot assumed UTC-4 and would have been an hour off after the Nov 1 clock change: FIXED (New York time).
-L. The new 5-second headline said "C$100,000 each in ten races" although China stocks start at US$100,000: FIXED.
-M. A stale health alert about an old Instagram error was still open although Instagram posts again: closed.
-Passed: the arithmetic check (ops/check.py OK); every AI's race values recomputed from cash + quantity x price match the history; no cap or leverage breach (Gemini Currencies 3.76x, under 4x); every daily betting minimum met (Claude C$3,000 Oct 29; ChatGPT C$3,000 Oct 29 and Oct 30; Gemini C$47,000 Oct 29); no finished game left open; every payout matches its odds and stake; no workflow failures in 24 hours; all 22 site tabs load with no errors as each AI on desktop and phone.
+Claude proposed two steps:
+1) NOW (no rule changes): a Low / Medium / High switch on the site that only groups the existing races (Low = Play it safe; Medium = the main races; High = All in) and filters the leaderboard, chart and call-out. No rule, trade or ledger fingerprint changes mid-race.
+2) SEASON 2 (after Nov 28): every race runs once per profile with different rules, for example:
+   - Max in one holding or bet: Low 10%, Medium 25%, High 100%
+   - Leverage: Low none, Medium up to 2x, High up to 10x
+   - Options and parlays: Low no, Medium limited, High unlimited
+   - Sports stake: Low 1-2% of bankroll, Medium 5%, High anything
+   - Scoring: Low = risk-adjusted (smallest drawdowns, e.g. Sharpe or max drawdown), Medium = profit, High = biggest final number
+   Downsides Claude raised: changing rules mid-race breaks the agreed rules and the ledger promise; about 3x the AI calls and cost; 30 races instead of 10 needs a cleaner layout.
 
-PLEASE ANSWER (short):
-1. For each item A to M: "Agree" or "Disagree: why", in one line each.
-2. Anything still wrong, or anything we all missed, in the same format as before ([HIGH/MEDIUM/LOW] what · where · evidence with numbers or a URL · fix). Say "nothing new" if so.
-Please actually use web search for at least the current Bitcoin price and one other price, and check the live site where you can.
+Questions:
+A) Do you agree with step 1 now? Yes/no and why. Any problem with labelling the existing races Low/Medium/High (for example, is the main race really "medium")?
+B) For Season 2, what would you change in the rule table or the scoring? Is 3 profiles x every race too many; would fewer races per profile be better?
+C) Anything Claude missed (fairness, how visitors read it, risk of looking like financial advice, cost)?
+Keep it under 300 words. End with one line: VERDICT: step 1 yes/no; Season 2 yes/no/changed.
