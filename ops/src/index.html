@@ -279,6 +279,7 @@
   .st-score-h { margin: 0; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-warn); font-weight: 600; }
   .st-score-h span { margin-left: 8px; letter-spacing: 0; text-transform: none; color: var(--color-fg-muted); font-weight: 400; font-size: 13px; }
   .st-riskaward { margin-top: 10px; }
+  .gx-partly { color: #ffb000; }
   .st-s2 { margin: 8px 0 0; padding: 7px 10px; border: 1px dashed #ffb000; border-radius: var(--cds-radius); font-size: .88em; line-height: 1.4; }
   .st-s2 b:first-child { color: #ffb000; }
   .ra-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); gap: 8px; }
@@ -3964,11 +3965,13 @@
           const f = q.pcur === 'USD' ? usdcad : q.pcur === 'CNY' ? usdcad / (rates().CNY || 7.1) : 1, last = Number(q.last != null ? q.last : q.entry);
           const v = Number(q.qty) * last * f, pl = Number(q.qty) * (last - Number(q.entry)) * f, cost = Math.abs(Number(q.qty) * Number(q.entry) * f);
           const buys = TS.filter((t) => t.symbol === k && /^(Buy|Short)$/.test(t.action)).sort((a, b) => new Date(b.at) - new Date(a.at));
+          const sells = TS.filter((t) => t.symbol === k && /^(Sell|Cover)$/.test(t.action)).sort((a, b) => new Date(b.at) - new Date(a.at));   // partly sold: shown too (owner, Oct 30)
           const tr = mk('tr'); tr.className = 'gx-hold-last';
           const h = td(tr, '', 'wrap'); h.appendChild(mk('b', '', q.name || k)); if (Number(q.qty) < 0) h.appendChild(mk('small', 'st-muted gx-sub', 'short: it gains if the price falls'));
-          td(tr, buys.length ? buys.slice(0, 3).map((t) => (TRADE_VERB[t.action] || t.action) + ' ' + money(Math.abs(t.amount)) + ' at ' + (cs[t.pcur] || '') + d3.format(',.4~f')(t.price) + ' · ' + stFmt.when(t.at)).join('\n') : 'Paid ' + (cs[q.pcur] || '') + d3.format(',.4~f')(q.entry) + ' on average', 'wrap gx-pre', 'Bought');
+          td(tr, buys.length ? buys.concat(sells).sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, 5).map((t) => (TRADE_VERB[t.action] || t.action) + ' ' + money(Math.abs(t.amount)) + ' at ' + (cs[t.pcur] || '') + d3.format(',.4~f')(t.price) + ' · ' + stFmt.when(t.at)).join('\n') + (sells.length ? '\nStill held: ' + money(cost) + ' at cost' : '') : 'Paid ' + (cs[q.pcur] || '') + d3.format(',.4~f')(q.entry) + ' on average', 'wrap gx-pre', 'Bought');
           td(tr, money(v), 'num', 'Worth now');
-          td(tr, (pl >= 0 ? '+' : '') + money(pl) + ' (' + stFmt.pct(cost ? pl / cost : 0) + ')', 'num ' + upDown(pl), 'Profit or loss');
+          { const pc = td(tr, (pl >= 0 ? '+' : '') + money(pl) + ' (' + stFmt.pct(cost ? pl / cost : 0) + ')', 'num ' + upDown(pl), 'Profit or loss');
+            if (sells.length) pc.appendChild(mk('small', 'st-muted gx-sub', 'on the ' + money(cost) + ' still held')); }
           { const w = td(tr, (buys[0] || {}).reason || '', 'wrap gx-why', 'Why'); if (buys[0]) { const gn = pgNode(PG_KEY(buys[0])); if (gn) w.appendChild(gn); } } tb.appendChild(tr);
         });
       }
@@ -4047,7 +4050,11 @@
         lines.forEach((t, i) => {
           const tr = mk('tr'); if (i === n - 1) tr.className = 'gx-hold-last';
           if (i === 0) { const h = td(tr, '', 'wrap', n); h.appendChild(mk('b', '', r.holding)); if (short) h.appendChild(mk('small', 'st-muted gx-sub', 'short: it gains if the price falls')); else if (r.code && r.code !== r.holding) h.appendChild(mk('small', 'st-muted gx-sub', r.code));
-            h.appendChild(mk('small', 'st-muted gx-sub gx-qty', qtyText(r, p))); }
+            h.appendChild(mk('small', 'st-muted gx-sub gx-qty', qtyText(r, p)));
+            // partly sold: say so plainly, so "Bought C$35,000" next to a smaller "Worth now" never reads as a loss (owner, Oct 30)
+            { const ins = tr0.filter((x) => /^(Buy|Short)$/.test(x.action)), outs = tr0.filter((x) => /^(Sell|Cover)$/.test(x.action));
+              if (outs.length && ins.length) { const bIn = ins.reduce((a, x) => a + Math.abs(tradeAmt(x, p)), 0), bOut = outs.reduce((a, x) => a + Math.abs(tradeAmt(x, p)), 0);
+                h.appendChild(mk('small', 'gx-sub gx-partly', (short ? 'Shorted ' : 'Bought ') + money(bIn) + ' in all · ' + (short ? 'covered ' : 'sold ') + money(bOut) + ' back · ' + (isFinite(c) ? 'cost of what is left ' + money(Math.abs(c)) : 'the rest still held'))); } } }
           td(tr, t ? (TRADE_VERB[t.action] || t.action) + ' ' + money(Math.abs(tradeAmt(t, p))) : (isFinite(c) ? 'Paid ' + money(Math.abs(c)) : '—'), 'num');
           { const c = td(tr, t ? stFmt.when(t.at) : '—', 'wrap', 1, 'When');
             if (t) { const a = mk('a', 'gx-led', 'Ledger ›'); a.href = '#ledger'; a.title = 'See this trade in the Ledger'; a.addEventListener('click', (ev) => { ev.preventDefault(); window.ptGoLedgerTrade(p, t.at, r.holding); }); c.appendChild(a); } }
@@ -4055,6 +4062,9 @@
             td(tr, isFinite(v) ? money(v) : '—', 'num', n, 'Worth now');
             const pc = td(tr, isFinite(pl) && isFinite(c) ? (pl >= 0 ? '+' : '') + money(pl) + ' (' + stFmt.pct(c ? pl / Math.abs(c) : 0) + ')' : '—', 'num ' + upDown(pl), n, 'Profit or loss');
             pc.title = 'Worth now minus what it paid' + (short ? ' (for a short: what it got for selling minus what buying back would cost now)' : '');
+            { const rz = Number(cn ? r.realized_usd : r.realized_cad), sold = tr0.some((x) => /^(Sell|Cover)$/.test(x.action));
+              if (sold && isFinite(c)) { pc.appendChild(mk('small', 'st-muted gx-sub', 'on the ' + money(Math.abs(c)) + ' still held'));
+                if (isFinite(rz) && Math.abs(rz) >= 0.5) pc.appendChild(mk('small', 'gx-sub ' + upDown(rz), 'part sold: ' + (rz >= 0 ? '+' : '') + money(rz) + ' · total ' + (pl + rz >= 0 ? '+' : '') + money(pl + rz))); } }
           }
           { const w = td(tr, t ? (t.note || t.reason || (logFor(lgRows, t) || {}).detail || '') : '', 'wrap gx-why', 1, 'Why');
             const g = t && t.pg_key ? pgNode(t.pg_key) : null; if (g) w.appendChild(g); }   // the other AIs' grades (owner, Oct 29)
