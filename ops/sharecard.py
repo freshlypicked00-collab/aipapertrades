@@ -243,7 +243,7 @@ def moves_card(who, moves, path='/tmp/moves_card.png'):
 # only when the feed has it (no empty space reserved). The same layout, limits and order (chronological) for all three AIs.
 # Never invents a number: a missing field is left out. 1080 wide, 1080 to 1350 tall (fits the content; 1350 with a chart).
 H2 = 1350
-WHY_MAX, WRONG_MAX = 260, 150
+WHY_MAX, WRONG_MAX = 480, 220   # owner, Oct 30: 'make sure descriptive, I like where it explains why' (the full reason, almost always)
 UNIT = {'Crypto': ' a coin', 'Metals': ' an ounce', 'Stocks': ' a share', 'Safe': ' a share', 'China': ' a share', 'Energy': ' a share'}
 QTY = {'Crypto': 'coins', 'Metals': 'oz', 'Stocks': 'shares', 'Safe': 'shares', 'China': 'shares', 'Energy': 'shares', 'Currencies': 'units', 'AllInTrading': 'shares'}
 BARREL = ('CL=F', 'BZ=F')
@@ -330,7 +330,8 @@ def _box(g, x, y, w, h, label, value, sub=None, col=FG):
 
 def _quote(g, text, x, y, maxw, color_bar):
     y0 = y
-    y = _wrap(g, '“' + text + '”', _font('med', 40), x + 28, y, maxw - 28, 52, FG, max_lines=5)
+    f, lh = (_font('med', 40), 52) if len(text) <= 300 else (_font('med', 36), 47)
+    y = _wrap(g, '“' + text + '”', f, x + 28, y, maxw - 28, lh, FG, max_lines=10)
     g.rectangle([x, y0 + 6, x + 6, y - 10], fill=color_bar)
     return y
 
@@ -448,8 +449,8 @@ def move_card(who, t, path='/tmp/move_card.png', buyin=None, race_val=None, spar
         if act in ('Buy', 'Short', 'Bet'):
             wrong = _clip(t.get('wrong_if'), WRONG_MAX)
             g.text((80, y + 6), 'WHAT WOULD PROVE IT WRONG', font=_font('semi', 26), fill=MUTED)
-            y = _wrap(g, wrong or 'Not given.', _font('reg', 34), 80, y + 46, S - 160, 44, FG if wrong else MUTED, max_lines=3) + 10
-        if spark and len(spark) >= 2 and y < H2 - 470:
+            y = _wrap(g, wrong or 'Not given.', _font('reg', 34), 80, y + 46, S - 160, 44, FG if wrong else MUTED, max_lines=4) + 10
+        if spark and len(spark) >= 2 and y < H2 - 470:   # the reason comes first; the chart only where it still fits
             _spark(g, spark, (80, y + 40, S - 230, H2 - 250), col_ai if who != 'chatgpt' else (200, 200, 200), px if isinstance(px, (int, float)) else None, pc)
             y = H2
         return _finish(im, g, y, path)
@@ -571,3 +572,13 @@ def chart_points(symbol, experiment):
     if base == 'Currencies' and sym == 'JPY=X' and pts:
         return None   # the card shows the yen in US$; JPY=X is yen per dollar, so no line rather than an upside-down one
     return pts
+
+
+def just_reason(text):
+    """Claude's log line minus its bookkeeping ("Sold Bitcoin: C$11,288 at US$79,005.5." before, "Filled by the race runner ..." after),
+    so its card shows only the reason, like Gemini's and ChatGPT's."""
+    import re
+    t = ' '.join(str(text or '').split())
+    t = re.sub(r'^(Bought|Sold|Shorted|Covered|Bet|Queued)\b[^:]{0,80}:\s*(?:C\$|US\$|¥)[\d,]+(?:\.\d+)? at (?:C\$|US\$|¥)?[\d,]+(?:\.\d+)?\.?\s*', '', t)
+    t = re.sub(r'\s*Filled by the race runner.*$', '', t)
+    return t.strip()

@@ -339,7 +339,7 @@ for t in load(S + 'trades.json'):
                  ('trade', pf, tgcharts.symbol_for(pf, h, t.get('code')), t.get('price_local') or t.get('price_usd'), a,
                   {'experiment': pf, 'action': a, 'name': h, 'symbol': tgcharts.symbol_for(pf, h, t.get('code')), 'amount': (t.get('usd') if pf == 'China' else t.get('cad')) or 0,
                    'cur': 'USD' if pf == 'China' else 'CAD', 'price': t.get('price_local') or t.get('price_usd'), 'pcur': 'CNY' if pf == 'China' else 'USD', 'pnl': t.get('pnl'), 'at': t['at'],
-                   'model': 'claude', 'qty': t.get('shares'), 'reason': why.split('What would prove it wrong:')[0].strip(),
+                   'model': 'claude', 'qty': t.get('shares'), 'reason': sharecard.just_reason(why.split('What would prove it wrong:')[0]),
                    'wrong_if': why.split('What would prove it wrong:', 1)[1].strip() if 'What would prove it wrong:' in why else ''})))
 if TEST:
     msgs = [('🧪 <b>TEST POST</b> (a replay of the latest trade, not a new one)\n\n' + m, p) for m, p in msgs[-1:]]
