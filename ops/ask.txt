@@ -1,18 +1,25 @@
-[WEB SEARCH ON]
-Second discussion requested by the owner of papertrades.ai (Oct 30). NOT a trading turn; nothing in your books changes. This is the one Season 2 point where the three AIs disagree; the owner wants a second round to try to reach agreement. Read the other side's argument, answer honestly, and say if it changed your mind. You may propose a compromise.
+[WEB SEARCH OFF is fine]
+Design question from the owner of papertrades.ai (Oct 30). NOT a trading turn; nothing in your books changes. The owner wants the three AIs (Claude, Gemini, ChatGPT) to AGREE on one design; he will not choose. Disagree where you disagree, but aim to converge.
 
-The owner's principle: "We can't reward the biggest gambler." An AI that takes huge risks might win on profit but still be a terrible investment manager.
+THE PROBLEM. The Telegram/Instagram trade pictures (ops/sharecard.py, attached) are too vague. Example "Gemini makes 2 moves": only "Short Australian dollar C$10,000 / Currencies" and "Buy Crude Oil Dec 26 C$10,000 / Oil and energy". Owner: "they don't show when you bought in, they don't show the price, they don't explain why."
 
-Agreed by all three: Season 2 has Strict, Standard and Unrestricted levels; Strict and Standard are won on Return / max(Max Drawdown, floor) with floors of 5% and 10%; rule breaches make an AI ineligible.
+DATA AVAILABLE per trade (rivals.json trades and Claude's trades.json): time (at), action, name, symbol, fill price + price currency, amount + currency, quantity, reason (your own sentence), wrong_if, experiment. For sells/covers we can compute the average buy-in price and date from earlier trades -> profit or loss in money and %. Also: the race value, so size as % of the race; 24h price series from Yahoo.
 
-The open question: how is UNRESTRICTED won?
-- ChatGPT (and Claude agrees): Return / max(Max Drawdown, 20%). Raw profit is shown but never crowned. "Unrestricted means freedom of instruments, sizing, leverage and timing, not freedom from being judged as an investment manager." Overall champion: equal rank points across all three levels, each on its risk-adjusted score.
-- Gemini: raw profit. "An experiment needs a control group. Unrestricted should remain the gambler's baseline, to see whether the risk-adjusted levels outperform the moonshots. If a gambler wins this tier but gets crushed in the others, it validates the owner's principle." Overall champion: average of Strict and Standard only; Unrestricted is an exhibition.
+CLAUDE'S PROPOSAL (1080x1080 dark card, site colours, IBM Plex, same header/footer):
+P1. ONE CARD PER MOVE (sent as a Telegram album / Instagram carousel, up to 10; extra moves summarised on a last card). Each card:
+  - Header: AI colour bar, "PAPER TRADES · AI VS AI", race name, time of the fill in ET.
+  - Headline: "<AI> buys / sells / shorts <asset>" in the AI colour.
+  - Fact strip (3 boxes): PRICE (fill price, e.g. US$103.43 a barrel), SIZE (C$10,000 = 10% of the race), TIME (2:24 a.m. ET).
+  - For sells/covers: "Bought at US$X on Oct 28 -> sold at US$Y: -2.4% (-C$148)" in green/red.
+  - WHY: the AI's own reason, in quotes, up to 3 lines, labelled "In Gemini's words".
+  - WRONG IF: its own "what would prove it wrong" (1-2 lines), or "not given" if empty.
+  - Small 24h price line with the fill marked (when a feed exists).
+P2. The multi-move cover stays only as the FIRST picture of the album (headline "Gemini makes 2 moves" + a row per move WITH price and time), followed by the per-move cards.
+P3. Bets: game, pick, odds, start time, stake, to-win, why, wrong if. Results: stake, payout, profit.
+Rules: never invent a number; truncate reasons with "…", never rewrite another AI's words; no totals across races.
 
-Possible compromises to consider (or propose your own):
-(a) Unrestricted crowned on risk-adjusted score, with a separate "Biggest profit" mention that is not a title and earns no champion points.
-(b) Unrestricted crowned on raw profit but labelled an exhibition with zero champion points, and the overall champion decided by Strict and Standard only.
-(c) Unrestricted on risk-adjusted score with a higher floor (e.g. 30%) so bold strategies are not over-penalised.
-
-Gemini: does ChatGPT's argument change your view? ChatGPT: does Gemini's control-group argument change yours? Both: which single rule can all three accept?
-Under 220 words. End with one line: FINAL: Unrestricted won on <rule>; overall champion <rule>; I accept compromise a/b/c/other.
+Questions:
+A) Do you agree with P1-P3? What would you change, add or remove (e.g. % of race, buy-in date, the 24h chart, the "wrong if" box)?
+B) For a check-in with many moves (e.g. 6), album of cover + 6 cards, or one denser card? Telegram albums allow 10.
+C) Any fairness concern (same design for all three AIs, including Claude)?
+Under 250 words. End with one line: AGREE: yes/no, and your must-have changes in one line.
