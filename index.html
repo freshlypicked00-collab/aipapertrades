@@ -1201,7 +1201,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '34428bc84816';</script>
+<script>window.PT_PAGE_VER = '03f6e8a023b4';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -2890,7 +2890,7 @@ body { background:var(--color-bg); }
   window.ptGoLedgerTrade = (race, at, item) => {
     goTab('ledger', false);
     const sel = document.getElementById('lg-trades-pick'), box = document.getElementById('lg-trades'); if (!box) return;
-    if (sel) sel.value = race; box.dataset.portfolio = race; if (box._redraw) box._redraw();
+    if (sel) sel.value = race; box.dataset.portfolio = race; box.dataset.kind = ''; if (box._redraw) box._redraw();
     setTimeout(() => requestAnimationFrame(() => {
       const tb = box.querySelector('tbody'); if (!tb) return;
       const rows = [...tb.children].filter((r) => !r.classList.contains('bg-say')), when = stFmt.when(at);
@@ -4913,13 +4913,23 @@ body { background:var(--color-bg); }
     pensOf().forEach((x) => rows.push({ at: x.at, portfolio: 'Sports', action: 'Penalty', item: x.day === 'total' ? 'Total minimum shortfall' : 'Missed daily minimum ' + x.day, detail: x.reason, amount: '', cost: '', profit: -Number(x.amount), ret: null, open: false }));
     return rows.sort((a, b) => new Date(b.at) - new Date(a.at));
   };
+  const LG_KINDS = {
+    '': { label: 'Every move', re: /./, noun: ['trade or bet', 'trades and bets'], tip: 'Every buy, sell, bet and result' },
+    buy: { label: 'Buys', re: /^(Buy|Cover)$/, noun: ['buy', 'buys'], tip: 'Buys (and buying back a short, a "cover")' },
+    sell: { label: 'Sells', re: /^(Sell|Short|Settled|Expired)$/, noun: ['sell', 'sells'], tip: 'Sells (and new shorts, which sell first and buy back later)' },
+    bet: { label: 'Bets and results', re: /^(Bet|Parlay|Won|Lost|Push|Void|Penalty)$/, noun: ['bet or result', 'bets and results'], tip: 'Bets placed and how each one ended' },
+  };
   dash.draw('lg-trades', (el) => {
     const run = () => {
       el.replaceChildren();
       const rows = tradeRows();
       if (!rows) return;
       const p = el.dataset.portfolio;
-      const shown = rows.filter((r) => !p || r.portfolio === p);
+      const inRace = rows.filter((r) => !p || r.portfolio === p);
+      // Show: one tap for every move, buys only, sells only, or bets and results (owner, Oct 30); the counts follow the experiment
+      const kind = LG_KINDS[el.dataset.kind || ''] ? el.dataset.kind || '' : '';
+      document.querySelectorAll('#lg-trades-kinds .lg-kind').forEach((b) => { const k = b.dataset.k; b.textContent = LG_KINDS[k].label + ' (' + inRace.filter((r) => LG_KINDS[k].re.test(r.action)).length + ')'; b.setAttribute('aria-pressed', String(k === kind)); });
+      const shown = inRace.filter((r) => LG_KINDS[kind].re.test(r.action));
       const table = mk('table', 'st-table');
       table.innerHTML = '<thead><tr><th>When</th><th>Experiment</th><th>Action</th><th>What</th><th>Details</th><th class="num">Amount</th><th class="num">Cost / stake</th><th class="num">Won / lost</th><th class="num">Return</th><th>Why</th></tr></thead>';
       const tb = mk('tbody');
@@ -4944,13 +4954,13 @@ body { background:var(--color-bg); }
       // every trade is kept; 5 a page, newest first, with Newer / Older (owner, Oct 29). The page survives data refreshes and
       // goes back to the newest when the AI or the experiment changes.
       if (shown.length) {
-        const key = (dash.model || 'claude') + '|' + (p || ''); if (el._tKey !== key) { el._tKey = key; el._tPg = 0; }
+        const key = (dash.model || 'claude') + '|' + (p || '') + '|' + kind; if (el._tKey !== key) { el._tKey = key; el._tPg = 0; }
         tb.dataset.pgNewest = '1'; tb._pgKey = ''; tb._pg = el._tPg || 0;
         pagerFor(tb, 5, 'trades');
         const bar = tw.nextElementSibling;
         if (bar && bar.classList.contains('st-pager')) { const keep = () => { el._tPg = tb._pg || 0; }; bar.addEventListener('click', keep); bar.addEventListener('change', keep); }
       }
-      el.appendChild(mk('p', 'st-note', shown.length + (shown.length === 1 ? ' trade or bet' : ' trades and bets') + (p ? ' in ' + (LABEL[p] || p) : ' in total') + '. The download below has all of them.'));
+      el.appendChild(mk('p', 'st-note', shown.length + ' ' + LG_KINDS[kind].noun[shown.length === 1 ? 0 : 1] + (p ? ' in ' + (LABEL[p] || p) : ' in total') + '. The download below has all of them.'));
       { const dl = mk('button', 'lg-csv', '⬇ Download this list (CSV)'); dl.type = 'button';
         dl.addEventListener('click', () => {
           const q = (x) => '"' + String(x == null ? '' : x).replace(/"/g, '""') + '"';
@@ -7684,7 +7694,16 @@ body { background:var(--color-bg); }
   { const g = document.getElementById('log-all-graded'), t = document.getElementById('log-all-body');
     if (g && t) g.addEventListener('change', () => { if (g.value) t.dataset.graded = '1'; else delete t.dataset.graded; t._pgKey = null; if (dash.redraw) dash.redraw(); }); }
   { const sel = document.getElementById('lg-trades-pick'), t = document.getElementById('lg-trades');
-    if (sel && t) sel.addEventListener('change', () => { t.dataset.portfolio = sel.value; if (t._redraw) t._redraw(); }); }
+    if (sel && t) sel.addEventListener('change', () => { t.dataset.portfolio = sel.value; if (t._redraw) t._redraw(); });
+    // Show: Every move · Buys · Sells · Bets and results, one tap each (owner, Oct 30)
+    const bar = sel && sel.closest('.lg-pick');
+    if (bar && t && !document.getElementById('lg-trades-kinds')) {
+      const sw = document.createElement('div'); sw.className = 'lg-kinds'; sw.id = 'lg-trades-kinds'; sw.setAttribute('role', 'group'); sw.setAttribute('aria-label', 'Show');
+      const l = document.createElement('span'); l.className = 'lg-kinds-l'; l.textContent = 'Show:'; sw.appendChild(l);
+      Object.keys(LG_KINDS).forEach((k) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'lg-kind'; b.dataset.k = k; b.textContent = LG_KINDS[k].label; b.title = LG_KINDS[k].tip; b.setAttribute('aria-pressed', String(k === (t.dataset.kind || '')));
+        b.addEventListener('click', () => { t.dataset.kind = k; if (t._redraw) t._redraw(); }); sw.appendChild(b); });
+      bar.appendChild(sw); if (t._redraw) t._redraw();
+    } }
   document.querySelectorAll('[data-mode-for]').forEach((g) => {
     g.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
       g.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
