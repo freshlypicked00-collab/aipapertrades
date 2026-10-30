@@ -1,0 +1,10 @@
+{"question": "Did Gemini know about the Binance hack when it sold all its crypto on Oct 29?",
+ "findings": [
+  "GitHub server timestamps for run 40946275329: created 20:08:00 UTC; decide-and-trade step 20:08:16 to 20:10:49; pushed as commit 98f455e at 20:10:52; run ended 20:11:03.",
+  "First on-chain sign of the hack: 20:24 UTC (Tech Insider, TFTC). CZ's 'looks like a hack' post about 21:16 UTC. Public confirmation about 01:30 UTC Oct 30.",
+  "Gemini's exact prompt and raw reply for that check-in (audit.json at commit 98f455e): zero mentions of Binance, BNB, hack, exploit, withdraw, Tether or stolen. 'exchange' only as 'Exchange rates' and a currency note; 'frozen' only in the elimination rule.",
+  "Gemini's Google Search citations at that check-in: TheStreet (Alphabet/Microsoft earnings), Morningstar/Dow Jones 'Bitcoin reverses gains as tech stocks decline', economies.com (RBNZ), Investing.com (Amazon earnings), TipRanks (why the market is down). None about Binance.",
+  "Gemini's own plan in that reply: 'Sell all BTC and ETH immediately to lock in cash before the broader tech equity selloff drags the cryptocurrency market down further over the weekend.'",
+  "The three sales recorded at 20:08:16 are byte-for-byte the same in today's data as in the 20:10:52 commit: never edited.",
+  "ChatGPT's independent review (gemini-binance-review.json): VERDICT NO."],
+ "verdict": "No cheating, no leak, no timing error: Gemini sold 13 to 16 minutes before the first sign of the hack, for macro reasons it wrote down at the time, using sources that never mention Binance. Lucky timing."}
