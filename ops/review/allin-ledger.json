@@ -1,0 +1,62 @@
+{
+ "at": "2026-10-30T01:20:30Z",
+ "question": "QUESTION FROM THE OWNER, NOT A TRADING TURN (nothing changes in your books; not published).\n\nThe site's Ledger tab is the race's official record: \"All ten races right now\", \"What made or lost money\", \"Recent decisions\", \"Holdings\", \"Profit or loss by day\", \"Every trade and bet\" (with a CSV download), \"Day by day\" (the daily close notes). It covers only the ten main races. The All in side race (All in: trading and All in: sports, C$100,000 each per AI, no caps, its own winners, never counted in the ten races) is shown only on its own All in page, which already lists every All in move of all three AIs (10 a page, with an AI filter). The nightly ledger fingerprint already includes All in moves.\n\nThe owner asks: should All in also be in the Ledger? Options:\nA) Mix the All in moves into the Ledger's existing tables (Every trade and bet, Recent decisions), each row tagged \"Side race\", with a filter to show or hide them.\nB) A separate \"All in side race ledger\" section inside the Ledger tab: its own table of every All in move and result (all three AIs, filters, its own CSV), clearly labelled side race; the ten-race tables stay untouched.\nC) Leave All in only on its own page and add a link from the Ledger to it.\n\nReply in this exact shape, short:\nVOTE: A, B or C - one sentence why",
+ "files": [],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "VOTE: B - It keeps the ten-race Ledger clean while giving the fingerprinted All in side race its own clear, auditable record.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 323,
+     "completion_tokens": 230,
+     "total_tokens": 553,
+     "cost": 0.008515,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.008515,
+      "upstream_inference_prompt_cost": 0.001615,
+      "upstream_inference_completions_cost": 0.0069
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 194,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "VOTE: C - Keeping it strictly quarantined on its own linked page prevents UI clutter and eliminates any risk of users confusing the uncapped side race with the official ten-race records.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 334,
+     "candidatesTokenCount": 37,
+     "totalTokenCount": 1652,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 334
+      }
+     ],
+     "thoughtsTokenCount": 1281,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
