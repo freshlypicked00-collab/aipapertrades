@@ -36,6 +36,7 @@ LABEL = {'Stocks': 'Stocks and anything', 'Crypto': 'Crypto', 'China': 'China st
 TAGS = '#PaperTrades #AI #Claude #Gemini #ChatGPT'
 FOOT = ('\n\nThree AIs, ten separate races, one month (Oct 28 to Nov 28). Pretend money, real prices; every trade and the reasoning '
         'behind it is published live at papertrades.ai (link in bio).\n\nSimulation only. Not financial advice.\n\n' + TAGS)
+FEED_LEAD_CHANGES = False   # owner, Oct 30: no lead-change posts in the feed; every lead change is still a story (Lead changes highlight)
 MIN_LEAD = 500.0          # Instagram only gets lead changes that matter: ahead by C$500 or more (US$350 in China stocks)
 MOMENT_GAP_H = 24         # at most one lead-change post per race per day
 MOMENTS_PER_DAY = 3       # and at most three a day in total
@@ -74,7 +75,7 @@ def due_posts(state):
     data = load('data.json', {})
     posted = state.get('posted', {})
     recent = [(k, datetime.fromisoformat(v['at'])) for k, v in posted.items() if k.startswith('moment-')]
-    for m in reversed(data.get('moments', [])):   # oldest first
+    for m in ([] if not FEED_LEAD_CHANGES else reversed(data.get('moments', []))):   # oldest first; off since Oct 30 (owner): lead changes are stories only
         pid = 'moment-' + m['id']
         at = datetime.fromisoformat(m['at'].replace('Z', '+00:00'))
         need = MIN_LEAD / 1.4 if m['race'] == 'China' else MIN_LEAD
