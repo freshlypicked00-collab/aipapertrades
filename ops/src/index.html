@@ -3550,10 +3550,19 @@
     sel('AI:', 'ai', [['', 'All three AIs']].concat(['claude', 'gemini', 'chatgpt'].map((id) => [id, aiModel(id)])));
     // Show: one tap to switch between every move, buys only, sells only, and bets (owner, Oct 30: "see everything he bought, then quickly switch to sells")
     const KIND = { buy: /^(Buy|Cover)$/, sell: /^(Sell|Short|Settled|Expired)$/, bet: /^(Bet|Parlay|Won|Lost|Push|Void)$/ };
+    { // Holding now: positions still open in each AI's All in books, and bets not settled yet (owner, Oct 30)
+      const POS = new Set(), OPEN = new Set();
+      (dash.baseData('allin_models') || []).forEach((m) => Object.entries(m.books || {}).forEach(([e, bk]) => {
+        Object.entries((bk || {}).positions || {}).forEach(([sym, x]) => { if (Math.abs(Number((x || {}).qty) || 0) > 1e-9) POS.add(m.id + '|' + e + '|' + sym); });
+        ((bk || {}).bets || []).forEach((b) => { if (b.status === 'Open') OPEN.add(m.id + '|' + b.id); }); }));
+      const lot = window.ptHeld(TS.filter((t) => t.action !== 'Bet'), (t) => t.model + '|' + t.experiment + '|' + t.symbol + (t.outcome ? '|' + t.outcome : ''), (t) => t.qty, (k) => POS.has(k));
+      TS.forEach((t) => { t._held = lot.has(t) || (t.action === 'Bet' && OPEN.has(t.model + '|' + t.bet)); });
+      KIND.hold = { test: (a, t) => !!(t && t._held) };   // the regular expressions above ignore the second argument
+    }
     if (st.kind === 'trade') st.kind = 'buy';   // the old "Buys and sells" choice
     const sw = mk('div', 'lg-kinds'); sw.setAttribute('role', 'group'); sw.setAttribute('aria-label', 'Show');
     sw.appendChild(mk('span', 'lg-kinds-l', 'Show:'));
-    const pills = [['', 'Every move'], ['buy', 'Buys'], ['sell', 'Sells'], ['bet', 'Bets and results']].map(([v, t]) => {
+    const pills = [['', 'Every move'], ['buy', 'Buys'], ['sell', 'Sells'], ['bet', 'Bets and results'], ['hold', 'Holding now']].map(([v, t]) => {
       const b = mk('button', 'lg-kind'); b.type = 'button'; b.dataset.k = v; b._t = t;
       b.addEventListener('click', () => { st.kind = v; el._pg = 0; draw(); });
       sw.appendChild(b); return b; });
@@ -3563,8 +3572,8 @@
     const draw = () => {
       box.replaceChildren();
       const base = TS.filter((t) => (!st.part || t.experiment === st.part) && (!st.ai || t.model === st.ai));
-      pills.forEach((b) => { const k = b.dataset.k; const n = k ? base.filter((t) => KIND[k].test(t.action)).length : base.length; b.textContent = b._t + ' (' + n + ')'; b.setAttribute('aria-pressed', String((st.kind || '') === k)); });
-      const rows = base.filter((t) => !st.kind || (KIND[st.kind] || /./).test(t.action)).sort((a, b) => new Date(b.at) - new Date(a.at));
+      pills.forEach((b) => { const k = b.dataset.k; const n = k ? base.filter((t) => KIND[k].test(t.action, t)).length : base.length; b.textContent = b._t + ' (' + n + ')'; b.setAttribute('aria-pressed', String((st.kind || '') === k)); });
+      const rows = base.filter((t) => !st.kind || (KIND[st.kind] || /./).test(t.action, t)).sort((a, b) => new Date(b.at) - new Date(a.at));
       box.appendChild(mk('p', 'st-note', rows.length + ' move' + (rows.length === 1 ? '' : 's') + ', newest first, 10 a page.'));
       if (!rows.length) return;
       const w = mk('div', 'h2h-scroll st-wrap'); const tb = mk('table', 'h2h-table');
@@ -4571,13 +4580,13 @@
         detail: qtyTxt(t) + px(t),
         amount: t.portfolio === 'China' ? '¥' + d3.format(',.0f')(t.cny) + ' (US$' + d3.format(',.0f')(t.usd) + ')' : 'C$' + d3.format(',.0f')(t.cad),
         cost: sell && t.cost != null ? C(t.cost, t.portfolio) : '', profit: sell && t.pnl != null ? Number(t.pnl) : null,
-        ret: sell && t.pnl != null && t.cost ? t.pnl / t.cost : null, open: !sell, val
+        ret: sell && t.pnl != null && t.cost ? t.pnl / t.cost : null, open: !sell, val, q: Number(t.shares || t.qty || 0)
       };
     });
     B.data.forEach((b) => {
       const odds = (Number(b.odds) > 0 ? '+' : '') + b.odds, stake = Number(b.stake_cad);
       const res = b.status !== 'Open' ? Number(b.result_cad) : null;
-      rows.push({ pg: b.placed_at ? dash.model + '|' + new Date(b.placed_at).toISOString().slice(0, 19) + 'Z|Sports|' + b.bet + '|Bet' : null, at: b.placed_at || b.placed + 'T12:00:00-04:00', portfolio: 'Sports', action: 'Bet', item: b.bet + ' ' + b.pick, detail: b.event + ' at ' + odds + ' · to win C$' + d3.format(',.0f')(b.to_win_cad || 0), amount: 'C$' + d3.format(',.0f')(stake), cost: 'C$' + d3.format(',.0f')(stake), profit: null, ret: null, open: b.status === 'Open', outcome: res, void: b.status === 'Void', why: b.note || b.reason || ((lgRows.filter((l) => l.portfolio === 'Sports' && l.at === b.placed_at)[0] || {}).detail) || '' });
+      rows.push({ holding: b.status === 'Open', pg: b.placed_at ? dash.model + '|' + new Date(b.placed_at).toISOString().slice(0, 19) + 'Z|Sports|' + b.bet + '|Bet' : null, at: b.placed_at || b.placed + 'T12:00:00-04:00', portfolio: 'Sports', action: 'Bet', item: b.bet + ' ' + b.pick, detail: b.event + ' at ' + odds + ' · to win C$' + d3.format(',.0f')(b.to_win_cad || 0), amount: 'C$' + d3.format(',.0f')(stake), cost: 'C$' + d3.format(',.0f')(stake), profit: null, ret: null, open: b.status === 'Open', outcome: res, void: b.status === 'Void', why: b.note || b.reason || ((lgRows.filter((l) => l.portfolio === 'Sports' && l.at === b.placed_at)[0] || {}).detail) || '' });
       if (b.status !== 'Open') {
         const back = b.status === 'Won' ? stake + res : b.status === 'Lost' ? 0 : stake;
         rows.push({ at: b.settled_at || (b.starts_at ? new Date(new Date(b.starts_at).getTime() + 3 * 3600e3).toISOString() : b.placed + 'T23:00:00-04:00'), portfolio: 'Sports', action: b.status, item: b.bet + ' ' + b.pick, detail: b.event + (b.final ? ' · ' + b.final : '') + ' · paid back C$' + d3.format(',.0f')(back), amount: 'C$' + d3.format(',.0f')(back), cost: 'C$' + d3.format(',.0f')(stake), profit: res, ret: stake ? res / stake : null, open: false });
@@ -4593,15 +4602,31 @@
       for (const t of later) { if (/^(Buy|Short)$/.test(t.action)) break; if (/^(Sell|Cover|Settled|Expired)$/.test(t.action) && t.pnl != null) sum = (sum || 0) + Number(t.pnl); }
       if (sum !== null) r.outcome = sum;
     });
+    { const lot = window.ptHeld(rows.filter((r) => r.portfolio !== 'Sports'), (r) => r.portfolio + '|' + r.item, (r) => r.q, (k) => held.has(k)); rows.forEach((r) => { if (lot.has(r)) r.holding = true; }); }
     pensOf().forEach((x) => rows.push({ at: x.at, portfolio: 'Sports', action: 'Penalty', item: x.day === 'total' ? 'Total minimum shortfall' : 'Missed daily minimum ' + x.day, detail: x.reason, amount: '', cost: '', profit: -Number(x.amount), ret: null, open: false }));
     return rows.sort((a, b) => new Date(b.at) - new Date(a.at));
+  };
+  // the buys (or shorts) that make up a position still held: replays each holding's buys and sells in time order and keeps the
+  // buys since the position was last empty (owner, Oct 30: "a button that shows the ones you're currently holding", every ledger)
+  window.ptHeld = (rows, key, qty, isHeld) => {
+    const by = {}, out = new Set();
+    rows.slice().sort((a, b) => new Date(a.at) - new Date(b.at)).forEach((r) => {
+      const k = key(r); if (!k) return; const q = Math.abs(Number(qty(r)) || 0), a = r.action;
+      const st = by[k] || (by[k] = { q: 0, peak: 0, lot: [] });
+      if (/^(Buy|Short)$/.test(a)) { if (q && Math.abs(st.q) <= 1e-6 * Math.max(st.peak, 1)) st.lot = []; st.lot.push(r); st.q += a === 'Short' ? -q : q; st.peak = Math.max(st.peak, Math.abs(st.q)); }
+      else if (/^(Sell|Cover|Settled|Expired)$/.test(a) && q) { st.q = st.q > 0 ? Math.max(0, st.q - q) : Math.min(0, st.q + q); }
+    });
+    Object.entries(by).forEach(([k, st]) => { if (isHeld(k)) st.lot.forEach((r) => out.add(r)); });
+    return out;
   };
   const LG_KINDS = {
     '': { label: 'Every move', re: /./, noun: ['trade or bet', 'trades and bets'], tip: 'Every buy, sell, bet and result' },
     buy: { label: 'Buys', re: /^(Buy|Cover)$/, noun: ['buy', 'buys'], tip: 'Buys (and buying back a short, a "cover")' },
     sell: { label: 'Sells', re: /^(Sell|Short|Settled|Expired)$/, noun: ['sell', 'sells'], tip: 'Sells (and new shorts, which sell first and buy back later)' },
     bet: { label: 'Bets and results', re: /^(Bet|Parlay|Won|Lost|Push|Void|Penalty)$/, noun: ['bet or result', 'bets and results'], tip: 'Bets placed and how each one ended' },
+    hold: { label: 'Holding now', test: (r) => !!r.holding, noun: ['buy or bet still open', 'buys and bets still open'], tip: 'Only what it holds right now: the buys behind each position still open, and bets not settled yet' },
   };
+  const lgOk = (k, r) => (LG_KINDS[k].test ? LG_KINDS[k].test(r) : LG_KINDS[k].re.test(r.action));
   dash.draw('lg-trades', (el) => {
     const run = () => {
       el.replaceChildren();
@@ -4611,8 +4636,8 @@
       const inRace = rows.filter((r) => !p || r.portfolio === p);
       // Show: one tap for every move, buys only, sells only, or bets and results (owner, Oct 30); the counts follow the experiment
       const kind = LG_KINDS[el.dataset.kind || ''] ? el.dataset.kind || '' : '';
-      document.querySelectorAll('#lg-trades-kinds .lg-kind').forEach((b) => { const k = b.dataset.k; b.textContent = LG_KINDS[k].label + ' (' + inRace.filter((r) => LG_KINDS[k].re.test(r.action)).length + ')'; b.setAttribute('aria-pressed', String(k === kind)); });
-      const shown = inRace.filter((r) => LG_KINDS[kind].re.test(r.action));
+      document.querySelectorAll('#lg-trades-kinds .lg-kind').forEach((b) => { const k = b.dataset.k; b.textContent = LG_KINDS[k].label + ' (' + inRace.filter((r) => lgOk(k, r)).length + ')'; b.setAttribute('aria-pressed', String(k === kind)); });
+      const shown = inRace.filter((r) => lgOk(kind, r));
       const table = mk('table', 'st-table');
       table.innerHTML = '<thead><tr><th>When</th><th>Experiment</th><th>Action</th><th>What</th><th>Details</th><th class="num">Amount</th><th class="num">Cost / stake</th><th class="num">Won / lost</th><th class="num">Return</th><th>Why</th></tr></thead>';
       const tb = mk('tbody');
@@ -5498,27 +5523,45 @@
     let all;
     if (id === 'claude') {
       const lg = dash.baseData('log');
-      all = dash.baseData('trades').filter((t) => !String(t.holding).startsWith('[')).map((t) => ({ at: t.at, experiment: t.portfolio, action: t.action, name: t.holding, amount: +(t.cad != null ? t.cad : t.usd), cost: t.cost, pnl: t.pnl, reason: (logFor(lg, t) || {}).detail || '' }));
+      all = dash.baseData('trades').filter((t) => !String(t.holding).startsWith('[')).map((t) => ({ at: t.at, experiment: t.portfolio, action: t.action, name: t.holding, amount: +(t.cad != null ? t.cad : t.usd), cost: t.cost, pnl: t.pnl, q: Number(t.shares || t.qty || 0), reason: (logFor(lg, t) || {}).detail || '' }));
       // Claude's bets live in their own list: add them like Gemini's and ChatGPT's, the bet when placed and its result when settled
       dash.baseData('bets').filter((x) => x.placed_at && +new Date(x.placed_at) >= RESTART - 60e3).forEach((x) => {
         const nm2 = x.pick + (x.event ? ' (' + x.event + ')' : ''), st = Number(x.stake_cad) || 0, res = x.status === 'Won' ? Number(x.result_cad) : x.status === 'Lost' ? -st : x.status === 'Void' ? 0 : null;
         const why = (lg.filter((l) => l.portfolio === 'Sports' && l.at === x.placed_at)[0] || {}).detail || '';
-        all.push({ at: x.placed_at, experiment: 'Sports', action: 'Bet', name: nm2, amount: st, stake: st, result: res, reason: why });
+        all.push({ at: x.placed_at, experiment: 'Sports', action: 'Bet', name: nm2, amount: st, stake: st, result: res, reason: why, _held: x.status === 'Open' });
         if (x.settled_at && res !== null) all.push({ at: x.settled_at, experiment: 'Sports', action: x.status, name: nm2, amount: x.status === 'Void' ? 0 : res, stake: st, pnl: res, reason: '' });
       });
     } else all = dash.baseData('rivals_trades').filter((t) => t.model === id);
     all = all.concat(dash.baseData('allin_trades').filter((t) => t.model === id));
+    { // Holding now (owner, Oct 30): the buys behind each position this AI still holds, and its bets not settled yet
+      const POS = new Set(), OPEN = new Set();
+      if (id === 'claude') dash.baseData('holdings').forEach((h) => { if (Math.abs(Number(h.quantity) || 0) > 1e-9 && !/^Cash/.test(h.holding)) POS.add(h.portfolio + '|' + h.holding); });
+      const books = [].concat(id === 'claude' ? [] : (dash.baseData('rivals_models') || []).filter((m) => m.id === id), (dash.baseData('allin_models') || []).filter((m) => m.id === id));
+      books.forEach((m) => Object.entries(m.books || {}).forEach(([e, bk]) => {
+        Object.entries((bk || {}).positions || {}).forEach(([sym, x]) => { if (Math.abs(Number((x || {}).qty) || 0) > 1e-9) POS.add(e + '|' + sym); });
+        ((bk || {}).bets || []).forEach((b) => { if (b.status === 'Open') OPEN.add(e + '|' + b.id); }); }));
+      const keyOf = (t) => t.experiment + '|' + (t.symbol || t.name) + (t.outcome ? '|' + t.outcome : '');   // prediction positions are keyed by market and side
+      const lot = window.ptHeld(all.filter((t) => t.action !== 'Bet'), keyOf, (t) => t.q != null ? t.q : t.qty, (k) => POS.has(k));
+      all.forEach((t) => { if (lot.has(t) || (t.action === 'Bet' && t.bet && OPEN.has(t.experiment + '|' + t.bet))) t._held = true; });
+    }
     if (el._f === undefined) el._f = { exp: '', kind: '' };
     const bar = mk('div', 'ai-pick');
     const mksel = (label, opts, key) => { const l = mk('label', '', label + ' '); const s = mk('select'); opts.forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; s.appendChild(o); }); s.value = String(el._f[key]); s.addEventListener('change', () => { el._f[key] = key === 'n' ? Number(s.value) : s.value; draw(); }); l.appendChild(s); bar.appendChild(l); };
     mksel('Experiment:', [['', 'All experiments']].concat(PFS_ALL.map((e) => [e, LABEL[e] || e])).concat([['AllInTrading', 'All in: trading'], ['AllInSports', 'All in: sports']]), 'exp');
-    mksel('Type:', [['', 'Everything'], ['buy', 'Buys'], ['sell', 'Sells and covers'], ['bet', 'Bets and results']], 'kind');
+    // Show: one tap each, the same buttons as the Ledger and All in ledger (owner, Oct 30), plus Holding now
+    const AK = { buy: (t) => /^(Buy|Short)$/.test(t.action), sell: (t) => /^(Sell|Cover|Expired|Settled)$/.test(t.action), bet: (t) => /^(Bet|Won|Lost|Push)$/.test(t.action), hold: (t) => !!t._held };
+    const sw = mk('div', 'lg-kinds'); sw.setAttribute('role', 'group'); sw.setAttribute('aria-label', 'Show'); sw.appendChild(mk('span', 'lg-kinds-l', 'Show:'));
+    const pills = [['', 'Everything'], ['buy', 'Buys'], ['sell', 'Sells and covers'], ['bet', 'Bets and results'], ['hold', 'Holding now']].map(([v, t]) => {
+      const b = mk('button', 'lg-kind'); b.type = 'button'; b.dataset.k = v; b._t = t; b.addEventListener('click', () => { el._f.kind = v; draw(); }); sw.appendChild(b); return b; });
+    bar.appendChild(sw);
     tc.appendChild(bar);
     const box = mk('div'); tc.appendChild(box);
     const draw = () => {
       box.replaceChildren();
       const f = el._f;
-      const rows = all.filter((t) => (!f.exp || t.experiment === f.exp) && (!f.kind || (f.kind === 'buy' ? /^(Buy|Short)$/.test(t.action) : f.kind === 'sell' ? /^(Sell|Cover|Expired|Settled)$/.test(t.action) : /^(Bet|Won|Lost|Push)$/.test(t.action)))).sort((a, b) => new Date(b.at) - new Date(a.at));
+      const inExp = all.filter((t) => !f.exp || t.experiment === f.exp);
+      pills.forEach((b) => { const k = b.dataset.k; b.textContent = b._t + ' (' + (k ? inExp.filter(AK[k]).length : inExp.length) + ')'; b.setAttribute('aria-pressed', String((f.kind || '') === k)); });
+      const rows = inExp.filter((t) => !f.kind || (AK[f.kind] || (() => true))(t)).sort((a, b) => new Date(b.at) - new Date(a.at));
       box.appendChild(mk('p', 'st-note', rows.length + ' matching trade' + (rows.length === 1 ? '' : 's') + ', newest first, 10 a page. Use Older and Newer to see the rest.'));
       if (!rows.length) return;
       const wrap = mk('div', 'h2h-scroll st-wrap'); const tb = mk('table', 'h2h-table');
