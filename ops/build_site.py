@@ -1293,6 +1293,32 @@ def _usd_src(rows, rate, src, at):
 _usd_src(data.get('holdings'), _fxc.get('usdcad'), _fxc.get('usdcad_source'), _fxc.get('usdcad_at'))
 for _mid, _mv in (data.get('models') or {}).items():
     _usd_src(_mv.get('holdings'), (r.get('fx') or {}).get('USDCAD'), 'Yahoo Finance', None)
+# Call-out of the day (owner and Gemini, Oct 30): the sharpest thing one AI said about another in the last 24 hours, a fact-check found
+# wrong or partly wrong, or a D or F grade on a trade. Ties go to the newest. Shown on Home and in the daily race post.
+try:
+    _now = datetime.now(timezone.utc)
+    def _ts(x):
+        return datetime.fromisoformat(str(x).replace('Z', '+00:00'))
+    _cand = []
+    for x in data.get('factcheck') or []:
+        if x.get('verdict') in ('wrong', 'partly') and x.get('text') and x.get('checker') and x.get('checker') != x.get('model'):
+            _cand.append({'kind': 'fact', 'at': x['at'], 'by': x['checker'], 'about': x.get('model') or 'claude', 'race': x.get('experiment'),
+                          'verdict': x['verdict'], 'said': x.get('take', ''), 'text': x['text'], 'source': x.get('source'), 'score': 3 if x['verdict'] == 'wrong' else 2})
+    for x in data.get('peer_grades') or []:
+        if x.get('grade') in ('D', 'F') and x.get('text') and x.get('grader') != x.get('model'):
+            _cand.append({'kind': 'grade', 'at': x['at'], 'by': x['grader'], 'about': x['model'], 'race': x.get('experiment'), 'grade': x['grade'],
+                          'said': f"{x.get('action', '')} {x.get('what', '')}".strip(), 'text': x['text'], 'score': 3 if x['grade'] == 'F' else 2})
+    _co = None
+    for _hrs in (24, 72):
+        _p = [c for c in _cand if _now - _ts(c['at']) <= timedelta(hours=_hrs)]
+        if _p:
+            _co = max(_p, key=lambda c: (c['score'], _ts(c['at'])))
+            break
+    data['callout'] = [{k: v for k, v in _co.items() if k != 'score'}] if _co else []
+except Exception as _e:
+    print('call-out skipped:', _e)
+    data['callout'] = []
+
 import hashlib as _hl
 data.pop('ver', None)
 data['page_ver'] = PAGE_VER
@@ -1329,6 +1355,12 @@ try:
     _tk = [x for x in (data.get('take') or []) if x.get('text') and not x.get('experiment')] or [x for x in (data.get('take') or []) if x.get('text')]
     if _tk:
         _pg = _pg.replace('<span data-draw="take" data-source="take">—</span>', '<span data-draw="take" data-source="take">“' + _hm.escape(_tk[-1]['text']) + '” — Claude</span>', 1)
+    _co = (data.get('callout') or [None])[0]
+    if _co:
+        _lbl = ('FOUND WRONG' if _co.get('verdict') == 'wrong' else 'PARTLY WRONG') if _co['kind'] == 'fact' else 'GRADE ' + _co.get('grade', '')
+        _pg = _pg.replace('<div class="st-callout" data-draw="callout" data-source="callout callout_at"></div>',
+            '<div class="st-callout" data-draw="callout" data-source="callout callout_at"><p><b>Call-out of the day</b>: ' + _AI.get(_co['by'], _co['by']) + ' on ' + _AI.get(_co['about'], _co['about']) +
+            ' (' + _lbl + '). ' + _hm.escape(_co['text']) + '</p></div>', 1)
     _fp = data.get('fingerprints') or []
     if _fp:
         _pg = _pg.replace('<span data-fp-chip>Every trade fingerprinted nightly</span>', '<span data-fp-chip>Ledger verified through ' + datetime.fromisoformat(_fp[-1]['day']).strftime('%b %-d') + '</span>', 1)
