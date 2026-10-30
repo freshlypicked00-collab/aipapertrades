@@ -21,3 +21,10 @@ The owner asked, before going to sleep, for site improvements, future ideas and 
 - G2, an AI filter on the Ledger: Claude, ChatGPT and Gemini itself said no (the Ledger already follows the AI picked in the Menu).
 - G3, links from reasons to the Ledger: already built ("Ledger ›" on every holding row).
 - P3, a "paper value, races separate" tooltip on every value: Claude, Gemini and ChatGPT itself said no (clutter; already stated on the pages).
+
+## How it was built (Oct 30, Claude)
+- W1/P1: build_site.py adds `corrected` to the status price check from corrections.json `price_rows`; the status table shows "View correction ›", which opens Rules & Audit and highlights that entry.
+- W2: a second `<script>` loads d3 7.9.0 from jsDelivr only when `window.d3` is missing.
+- W3b, W4b, G1, P2: one self-contained block at the end of ops/src/index.html, phones only (700px and narrower, the site's existing phone breakpoint). Folded: Sports and the AI pages after their first two sections, AI vs AI after its first two blocks, and the Ledger's day view (days before today) under its heading. Opening a section, a jump chip or a link to an element inside a folded section opens it. On Sports the first chip reads "Bets" (Sports has no Holdings section).
+- N1b: the site note shows on Nov 1 (Eastern time) only; the Telegram text is in ops/nov1-note.txt, posted once by the scheduled task "Paper Trades: Nov 1 clock note" at 8:21 a.m. ET Nov 1.
+- Measured on a phone after the change: Sports 13.6 → 4.1 screens, an AI page 12.6 → 3.7, AI vs AI 10.8 → 4.5, Ledger 35 → 26. Desktop unchanged.
