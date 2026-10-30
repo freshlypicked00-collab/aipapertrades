@@ -455,7 +455,7 @@ from the same feeds (Yahoo Finance, Cboe, Polymarket, ESPN), at the moment the r
 Each AI grades the OTHER AIs' new trades and bets: A to F or "no view", plus one sentence of 25 words or fewer, shown publicly under each decision
 as "<grader>'s view (a competitor's opinion)". It never changes any score. The rubric (G1): thesis quality, sizing, risk control (an exit or
 "what would prove it wrong"), and use of what was known at the time; strict risk-officer tone; no generic filler. Selection (G2): every new
-decision of the other two AIs since the restart, all of them (owner, Oct 29): up to 20 at each check-in, newest first, until every one is graded. No hindsight (G3): the grader sees only what was known at the decision.
+decision of the other two AIs since the restart, all of them (owner, Oct 29): up to 50 at each check-in, newest first, until every one is graded. No hindsight (G3): the grader sees only what was known at the decision.
 Anonymous (G4): "Competitor A/B", reshuffled each time. The site shows each grader's average grade per rival (G5) and grades next to results (G6).
 Gemini and ChatGPT grade inside their check-ins; Claude grades in its runs with `python3 ops/grades.py todo` and `python3 ops/grades.py submit '{...}'`
 (stored in `ops/src/claude_grades.json`).

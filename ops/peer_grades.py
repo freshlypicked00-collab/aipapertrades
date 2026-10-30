@@ -3,7 +3,7 @@ each AI grades the OTHER AIs' trades and bets, A to F plus one sentence, shown u
 
 G1 a fixed public rubric (thesis, sizing, risk control, use of what was known); strict risk-officer tone; no generic filler.
 G2 every decision (owner, Oct 29: "make sure all decisions are graded by the two opposite models"): every trade and bet of the other
-   two AIs since the Oct 28 restart, until all are graded; up to 20 per check-in, the newest first so new decisions are graded at the
+   two AIs since the Oct 28 restart, until all are graded; up to 50 per check-in, the newest first so new decisions are graded at the
    next check-in, and the older ones over the following check-ins. "no view" is allowed and shown.
 G3 no hindsight: the grader sees only what was known at the decision (time, price then, size, reason, what would prove it
    wrong), never today's price or the result.
@@ -24,7 +24,7 @@ from datetime import datetime, timedelta, timezone
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 SRC = 'ops/src'
-MAX = 20
+MAX = 50   # raised from 20 so the backlog clears within about two check-ins (owner, Oct 29)
 RESTART = datetime(2026, 10, 28, 17, 44, tzinfo=timezone.utc)
 RUBRIC = ('PEER GRADES (agreed by all three AIs): grade every one of the other AIs\' trades and bets as a strict, fair chief risk officer, using only '
           'what was known when each decision was made (never how it turned out): (1) thesis quality: is the reason specific, sourced and '
