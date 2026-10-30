@@ -135,6 +135,9 @@ print('::notice title=diag::' + json.dumps({k: (v if not isinstance(v, dict) els
 
 # ---- 2. the question, with the attached files
 q = open('ops/ask.txt').read().strip()
+SEARCH = q.startswith('[WEB SEARCH ON]')   # an audit that must check prices and results online (owner, Oct 30); off by default
+if SEARCH:
+    q = q[len('[WEB SEARCH ON]'):].strip()
 files = []
 if os.path.exists('ops/ask_files.txt'):
     files = [x.strip() for x in open('ops/ask_files.txt') if x.strip() and not x.startswith('#')]
@@ -153,11 +156,11 @@ def run(mid):
     model = MODELS[mid]
     try:
         if mid == 'gemini':
-            text, meta = gemini(key, model, q, False)
+            text, meta = gemini(key, model, q, SEARCH)
         elif kind == 'openrouter':
-            text, meta = openrouter(key, model, q, 'none', 'high')
+            text, meta = openrouter(key, model, q, 'plugin' if SEARCH else 'none', 'high')
         else:
-            text, meta = openai(key, model, q, False)
+            text, meta = openai(key, model, q, SEARCH)
         answers[mid] = {'model': model, 'answer': text, 'meta': meta}
     except Exception as e:
         answers[mid] = {'model': model, 'answer': '', 'error': err(e)}
