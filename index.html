@@ -1074,7 +1074,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'b8ddb2926fba';</script>
+<script>window.PT_PAGE_VER = 'a31ed461454d';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -6331,7 +6331,7 @@ body { background:var(--color-bg); }
     el.appendChild(mk('h2', '', 'Race standings'));
     const sel = mk('select', 'pd-pick'); sel.setAttribute('aria-label', 'Choose the race');
     const TITLE = (x) => x.replace(/\b([a-z])([a-z]*)/g, (m, a, b) => (['and', 'of', 'it'].includes(m) && m !== 'it' ? m : a.toUpperCase() + b)).replace(/^./, (c) => c.toUpperCase());   // Title Case for the menu
-    EXPS.forEach((e) => { const o = mk('option', '', e === 'Overall' ? 'Races Led (No Money Totals Until Nov 28)' : ALLIN[e] ? TITLE(ALLIN[e]) + ' (Side Race)' : TITLE(LABEL[e] || e)); o.value = e; if (e === el._exp) o.selected = true; sel.appendChild(o); });
+    EXPS.forEach((e) => { const o = mk('option', '', e === 'Overall' ? 'Overall: Ranked by Total Profit (Amounts Hidden Until Nov 28)' : ALLIN[e] ? TITLE(ALLIN[e]) + ' (Side Race)' : TITLE(LABEL[e] || e)); o.value = e; if (e === el._exp) o.selected = true; sel.appendChild(o); });
     sel.addEventListener('change', () => { el._exp = sel.value; el._follow = false; dash.redraw ? dash.redraw() : null; });
     el.appendChild(sel);
     { const lab = mk('label', 'pd-follow'); const cb = mk('input'); cb.type = 'checkbox'; cb.checked = !!el._follow;
@@ -6339,25 +6339,26 @@ body { background:var(--color-bg); }
       lab.append(cb, document.createTextNode(' Most relevant: follow the market that’s live right now')); el.appendChild(lab);
       if (el._follow && hot) el.appendChild(mk('p', 'pd-note pd-follow-why', '📡 ' + hot.why + ' Switches by itself.')); }
     if (el._exp === 'Overall') {   // how many races each AI leads; the money is only added up at the final scoring
-      el.appendChild(mk('p', 'pd-note', 'Races each AI leads right now. Each race is its own experiment, so profits are only added together at the final scoring on Nov 28. Tap one to view it.'));
+      el.appendChild(mk('p', 'pd-note', 'Ranked by total profit across all ten races (C$, China converted), the rule that decides the winner on Nov 28. The amounts stay hidden until then; the races each AI leads are shown under its name. Tap one to view it.'));
       const led = { claude: [], gemini: [], chatgpt: [] };
       Object.entries(ES).forEach(([race, rows]) => { if (rows && rows.length > 1 && rows[0].profit - rows[1].profit >= 0.5 && led[rows[0].id]) led[rows[0].id].push(race); });
-      const ord = Object.keys(led).sort((a, b) => led[b].length - led[a].length);
+      const OO = dash.baseData('overall_order'); const ord = Array.isArray(OO) && OO.length === 3 ? OO.slice() : Object.keys(led).sort((a, b) => led[b].length - led[a].length);   // by total profit, order only (owner and all three AIs, Oct 29)
+      const L0 = dash.baseData('leader');
       const ol = mk('ol');
       ord.forEach((id, i) => {
         const li = mk('li'); const bt = mk('button'); bt.type = 'button'; bt.style.setProperty('--ai', AIS[id].color);
         if (dash.model === id) bt.setAttribute('aria-current', 'true');
         const n = mk('span', 'pd-name'); n.appendChild(whoNode(id, 20));
         n.appendChild(mk('small', 'pd-leads', led[id].length ? 'Leads ' + led[id].map((r) => (LABEL[r] || r).replace(' (US$)', '')).join(', ') : 'Leads no race yet'));
-        const tie = i > 0 && led[id].length === led[ord[i - 1]].length;
-        bt.append(mk('span', 'pd-place', i === 0 && led[id].length > led[ord[1]].length ? '👑 1st' : tie ? '=' : ['1st', '2nd', '3rd'][i]), n, mk('span', 'pd-amt', led[id].length + ' of 10'));
+        const lead = mk('span', 'pd-amt', led[id].length + ' of 10'); lead.appendChild(mk('small', 'pd-amt-l', 'races led'));
+        bt.append(mk('span', 'pd-place', i === 0 && L0 === id ? '👑 1st' : i === 0 && !L0 ? '=' : ['1st', '2nd', '3rd'][i]), n, lead);
         bt.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2) { s2.value = id; s2.dispatchEvent(new Event('change')); } });
         li.appendChild(bt); ol.appendChild(li);
       });
       el.appendChild(ol);
       bigBox(el, 'Overall');
       { const bx = mk('div', 'bg-only bg-plain'); bx.appendChild(mk('b', '', '🎓 In plain words'));
-        bx.appendChild(mk('p', '', 'There are 10 separate races. This counts how many each AI is winning right now. Pick one race from the menu above to see the money.')); el.appendChild(bx); }
+        bx.appendChild(mk('p', '', 'There are 10 separate races. Whoever has made the most money across all of them wins on Nov 28, so this is the order right now. The exact amounts are kept secret until the end; pick one race from the menu above to see its money.')); el.appendChild(bx); }
       momentsBox(el);
       return;
     }
@@ -7192,7 +7193,7 @@ body { background:var(--color-bg); }
   // Every dropdown lists its choices in alphabetical order (owner, Oct 29). The catch-all choice ("All …", "Both parts", "Every move",
   // the own-currency default, "Races Led", "👑 Race leader") stays on top; lists that run in time order (days, reports, pages) keep it.
   (() => {
-    const PIN = /^(👑|All experiments|All decisions|All three|All days|Both parts|Every move|Each experiment|Own currency|Overall$|Races Led)/;
+    const PIN = /^(👑|All experiments|All decisions|All three|All days|Both parts|Every move|Each experiment|Own currency|Overall|Races Led)/;
     const TIMED = /^(\d+ ·|\d+ \(|Day \d|Tuning)/;
     const key = (o) => o.textContent.replace(/[^\p{L}\p{N} ]/gu, '').trim();
     const cmp = (a, b) => key(a).localeCompare(key(b), 'en', { numeric: true, sensitivity: 'base' });
