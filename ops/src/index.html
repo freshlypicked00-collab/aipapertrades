@@ -844,11 +844,12 @@
   @keyframes pt-flash { 0%, 30% { box-shadow: 0 0 0 2px var(--accent, #ffb000); } 100% { box-shadow: 0 0 0 2px transparent; } }
   @media (prefers-reduced-motion: reduce) { .pt-flash { animation: none; } }
   /* All in: the Sports / Trading jump buttons at the top of the page (owner, Oct 30) */
-  .al-jump { display: grid; grid-template-columns: 1fr 1fr; gap: var(--cds-gap-sm); margin: 2px 0 4px; }
+  .al-jump { display: grid; grid-template-columns: 1fr; gap: var(--cds-gap-sm); margin: 2px 0 4px; }
   .al-jump-b { display: flex; align-items: center; gap: 12px; padding: 12px 14px; min-height: 76px; text-align: left; cursor: pointer;
     background: var(--color-bg); color: var(--color-fg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius);
     font: inherit; transition: border-color .15s, transform .15s, box-shadow .15s; }
   .al-jump-b svg { flex: none; }
+  .al-jump-b[hidden], #allin .h2h-exp[hidden] { display: none !important; }   /* only the selected part shows; the button switches to the other (owner, Oct 30) */
   .al-jump-b:hover, .al-jump-b:focus-visible { transform: translateY(-1px); outline: none; }
   .al-jump-sports:hover, .al-jump-sports:focus-visible { border-color: #f28c28; box-shadow: 0 0 0 1px #f28c28; }
   .al-jump-trading:hover, .al-jump-trading:focus-visible { border-color: #3fb68b; box-shadow: 0 0 0 1px #3fb68b; }
@@ -2039,8 +2040,8 @@
     <section class="st-card" aria-labelledby="h-allin">
       <h2 class="st-h2" id="h-allin">All in</h2>
       <!-- two big buttons that jump to each part of the side race (owner, Oct 30) -->
-      <nav class="al-jump" aria-label="Jump to a part of All in">
-        <button type="button" class="al-jump-b al-jump-sports" onclick="window.ptGoAllin && window.ptGoAllin('AllInSports')">
+      <nav class="al-jump" aria-label="Switch part of All in">
+        <button type="button" class="al-jump-b al-jump-sports" data-part="AllInSports" hidden onclick="window.ptGoAllin && window.ptGoAllin('AllInSports')">
           <svg viewBox="0 0 64 64" width="52" height="52" aria-hidden="true">
             <circle cx="36" cy="10" r="6" fill="currentColor"/>
             <path d="M33 17 L27 36 L35 37 L39 19 Z" fill="currentColor"/>
@@ -2051,9 +2052,9 @@
             <circle cx="19" cy="50" r="7" fill="#f28c28"/>
             <path d="M12 50 H26 M19 43 V57 M14 45 Q19 50 14 55 M24 45 Q19 50 24 55" stroke="#4a2a0a" stroke-width="1.2" fill="none"/>
           </svg>
-          <span class="al-jump-t"><b>Sports</b><small>All in: sports · bets on real games</small></span>
+          <span class="al-jump-t"><b>Switch to Sports</b><small>All in: sports · bets on real games</small></span>
         </button>
-        <button type="button" class="al-jump-b al-jump-trading" onclick="window.ptGoAllin && window.ptGoAllin('AllInTrading')">
+        <button type="button" class="al-jump-b al-jump-trading" data-part="AllInTrading" onclick="window.ptGoAllin && window.ptGoAllin('AllInTrading')">
           <svg viewBox="0 0 64 64" width="52" height="52" aria-hidden="true">
             <path d="M32 32 L32 6 A26 26 0 0 1 57.4 37.6 Z" fill="#3fb68b"/>
             <path d="M32 32 L57.4 37.6 A26 26 0 0 1 20.2 55.2 Z" fill="#4c8dff"/>
@@ -2061,7 +2062,7 @@
             <path d="M29 29 L6.5 16 A26 26 0 0 1 29 3 Z" fill="#e5484d"/>
             <circle cx="32" cy="32" r="26" fill="none" stroke="currentColor" stroke-opacity=".25" stroke-width="1"/>
           </svg>
-          <span class="al-jump-t"><b>Trading</b><small>All in: trading · stocks, crypto, options</small></span>
+          <span class="al-jump-t"><b>Switch to Trading</b><small>All in: trading · stocks, crypto, options</small></span>
         </button>
       </nav>
       <p class="st-note">The fun side race, in two parts, <b>each with its own winner</b>: All in: trading and All in: sports. Each AI gets an extra C$100,000 in each, with <b>no limits</b>: no position caps, and it can bet the whole lot on one idea. Here the goal is simply the biggest number. All in is completely separate: it never counts toward the ten main races, the two parts are never added together, and busting here doesn't eliminate anyone. Same real prices and odds, same check-ins.</p>
@@ -2504,8 +2505,16 @@
   };
   document.querySelectorAll('.st-tab').forEach((b) => b.addEventListener('click', () => goTab(b.dataset.tab)));
   // straight to one section of the All in page: All in: sports or All in: trading (owner, Oct 29)
+  window.ptAllinPart = window.ptAllinPart || 'AllInSports';
+  const showAllinPart = () => {
+    const cur = window.ptAllinPart;
+    document.querySelectorAll('#allin .h2h-exp[id^="allin-"]').forEach((b) => { b.hidden = b.id !== 'allin-' + cur; });
+    document.querySelectorAll('#allin .al-jump-b').forEach((b) => { b.hidden = b.dataset.part === cur; });
+  };
+  window.ptShowAllinPart = showAllinPart;
   const goAllin = (exp) => {
-    goTab('allin', false);
+    if (exp === 'AllInSports' || exp === 'AllInTrading') window.ptAllinPart = exp;
+    goTab('allin', false); showAllinPart();
     setTimeout(() => requestAnimationFrame(() => {
       const t = document.getElementById('allin-' + exp); if (!t) return;
       const bar = document.querySelector('.st-tabs'); const sticky = bar && getComputedStyle(bar).position === 'sticky' ? bar.offsetHeight : 0;
@@ -5461,7 +5470,7 @@
     const usdcad = rates().CAD || 1.38;
     const order = ['claude', 'gemini', 'chatgpt'];
     [['AllInTrading', 'All in: trading', 'Any stock, ETF, crypto or option, no caps.'], ['AllInSports', 'All in: sports', 'Moneyline bets on real games, no caps.']].forEach(([exp, title, sub]) => {
-      const box = mk('div', 'h2h-exp'); box.id = 'allin-' + exp;
+      const box = mk('div', 'h2h-exp'); box.id = 'allin-' + exp; box.hidden = exp !== (window.ptAllinPart || 'AllInSports');
       box.appendChild(mk('h3', '', title));
       box.appendChild(mk('p', 'st-note', sub + ' Started with C$100,000 each.'));
       const ser = order.map((id) => {
