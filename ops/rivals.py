@@ -1038,11 +1038,12 @@ def settle_predictions(model_id, book, fx, state):
 
 
 # ---------------- telegram ----------------
-def tg_photo(text, photo, silent=False):   # every trade, bet and result pings (owner's choice)
+def tg_photo(text, photo, silent=False, _dc=True):   # every trade, bet and result pings (owner's choice)
     tok, chat = os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID')
     if not photo:
-        return tg(text)
-    discord.post(text, photo)   # same post on Discord (does nothing until DISCORD_WEBHOOK_URL is set)
+        return tg(text, _dc=_dc)
+    if _dc:
+        discord.post(text, photo)   # same post on Discord (does nothing until DISCORD_WEBHOOK_URL is set)
     if not (tok and chat):
         return tg(text, _dc=False)
     b = '----pt' + str(os.getpid())
@@ -2073,11 +2074,12 @@ def main():
             pics = sharecard.album(r['label'], made, state['trades'], state['history'], f"/tmp/rm_{mid}_{len(state['trades'])}",
                                    series=lambda s, _m={t['symbol']: t['experiment'] for t in made}: sharecard.chart_points(s, _m.get(s)))
             if len(pics) >= 2:
-                discord.post(body, pics[0])
+                discord.post(body, pics)   # the whole album, never the cover alone: the cover says "Swipe for each move" (owner, Oct 30)
                 if sharecard.tg_album(os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID'), pics, body):
                     TGSTAT['sent'] += 1
-                else:
-                    tg_photo(body, pics[0]) if len(body) <= 1020 else tg(body)
+                else:   # album failed: a summary picture with no swipe line, and no second Discord post
+                    alt = sharecard.moves_card(r['label'], made, f"/tmp/rm_moves_{mid}.png") or pics[1]
+                    tg_photo(body, alt, _dc=False) if len(body) <= 1020 else tg(body, _dc=False)
                 pics, made_sent = [], True
             else:
                 made_sent = False

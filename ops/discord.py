@@ -31,7 +31,10 @@ def to_md(text):
 
 
 def post(text, photo=None, url=None):
-    """Send one message (with an optional PNG) to #live-trades, or to the webhook given. Returns True when Discord accepted it."""
+    """Send one message (with an optional PNG, or a list of PNGs sent together as one gallery, up to 10) to #live-trades,
+    or to the webhook given. Returns True when Discord accepted it.
+    An album (cover + one card per move) must be passed as the whole list: the cover says "Swipe for each move", so it is
+    never posted alone (owner, Oct 30, after a cover went out on its own)."""
     URL = (url if url is not None else globals()['URL']) or ''
     if not URL:
         return False
@@ -40,11 +43,14 @@ def post(text, photo=None, url=None):
         if len(content) > 1990:
             content = content[:1985].rstrip() + ' …'
         payload = json.dumps({'content': content, 'allowed_mentions': {'parse': []}, 'flags': 4})   # 4 = no link previews
-        if photo and os.path.exists(photo):
+        photos = [p for p in (photo if isinstance(photo, (list, tuple)) else [photo]) if p and os.path.exists(p)][:10]
+        if photos:
             b = '----ptdc' + str(os.getpid())
-            body = (f'--{b}\r\nContent-Disposition: form-data; name="payload_json"\r\nContent-Type: application/json\r\n\r\n{payload}\r\n'.encode()
-                    + f'--{b}\r\nContent-Disposition: form-data; name="files[0]"; filename="chart.png"\r\nContent-Type: image/png\r\n\r\n'.encode()
-                    + open(photo, 'rb').read() + f'\r\n--{b}--\r\n'.encode())
+            body = f'--{b}\r\nContent-Disposition: form-data; name="payload_json"\r\nContent-Type: application/json\r\n\r\n{payload}\r\n'.encode()
+            for i, p in enumerate(photos):
+                body += (f'--{b}\r\nContent-Disposition: form-data; name="files[{i}]"; filename="{i + 1:02d}.png"\r\nContent-Type: image/png\r\n\r\n'.encode()
+                         + open(p, 'rb').read() + b'\r\n')
+            body += f'--{b}--\r\n'.encode()
             req = urllib.request.Request(URL + '?wait=true', body, {'Content-Type': f'multipart/form-data; boundary={b}', 'User-Agent': UA})
         else:
             req = urllib.request.Request(URL + '?wait=true', payload.encode(), {'Content-Type': 'application/json', 'User-Agent': UA})

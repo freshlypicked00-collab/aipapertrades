@@ -410,12 +410,12 @@ for i, (m, pic) in enumerate(msgs):
         pics = sharecard.album('claude', pic[1], CLAUDE_TRADES, HIST, f'/tmp/pt_album_{i}', series=lambda s, _m={c.get('symbol'): c['experiment'] for c in pic[1]}: sharecard.chart_points(s, _m.get(s)))
         if len(pics) >= 2:
             mm = '🟠 <b>CLAUDE</b> (Anthropic)\n' + m + ('' if SITE in m else f'\n{SITE}')
-            discord.post(mm, pics[0])
+            discord.post(mm, pics)   # the whole album, never the cover alone: the cover says "Swipe for each move" (owner, Oct 30)
             if sharecard.tg_album(TOKEN, CHAT, pics, mm):
                 continue
-            send(mm, pics[0], silent=False, _dc=False)
+            send(mm, sharecard.moves_card('claude', pic[1], f'/tmp/pt_moves_{i}.png') or pics[1], silent=False, _dc=False)   # album failed: a summary with no swipe line
             continue
-        photo = (pics[0] if pics else None) or sharecard.moves_card('claude', pic[1], f'/tmp/pt_moves_{i}.png') or chart_section(pic[1][0]['experiment'], i)
+        photo = (pics[0] if len(pics) == 1 else None) or sharecard.moves_card('claude', pic[1], f'/tmp/pt_moves_{i}.png') or chart_section(pic[1][0]['experiment'], i)
     elif isinstance(pic, tuple) and pic[0] == 'trade':
         _, pf_, sym_, px_, act_ = pic[:5]
         photo = ((sharecard.album('claude', [pic[5]], CLAUDE_TRADES, HIST, f'/tmp/pt_one_{i}', series=lambda s, _e=pf_: sharecard.chart_points(s, _e)) or [None])[0] if len(pic) > 5 else None) or \
