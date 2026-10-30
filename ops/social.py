@@ -26,7 +26,7 @@ GRAPH = 'https://graph.facebook.com/v26.0'
 SITE = 'https://papertrades.ai'
 STATE = 'ops/src/social.json'
 PENDING = 'social/pending.json'
-MAX_PER_RUN = 2
+MAX_PER_RUN = 1   # one feed post per run (Instagram blocked the app for a while after several posts in a row, Oct 30)
 NOW = datetime.now(timezone.utc)
 START = datetime(2026, 10, 28, tzinfo=timezone.utc)
 RACE_END = datetime(2026, 11, 28, 21, 0, tzinfo=timezone.utc)
