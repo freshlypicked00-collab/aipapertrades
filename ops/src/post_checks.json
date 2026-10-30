@@ -118,6 +118,87 @@
      "note": "All three AIs agreed (question B)"
     }
    ]
+  },
+  "feature-gemini-allin-v1": {
+   "checked_at": "2026-10-30T18:30:00Z",
+   "by": "Claude",
+   "claims": [
+    {
+     "claim": "Gemini bought 52 SPY Nov 20 $760 puts at US$6.82 on Oct 28 for C$49,816 in All in: trading; sold 26 at 10.69 and 13 at 12.19 on Oct 30; holds 13",
+     "sources": [
+      "ops/src/rivals.json (the race runner's own trade and bet records)",
+      "data.json (big_moves, exp_standings)"
+     ]
+    },
+    {
+     "claim": "Profit on the position so far, from the site's own big_moves figure",
+     "sources": [
+      "ops/src/rivals.json (the race runner's own trade and bet records)",
+      "data.json (big_moves, exp_standings)"
+     ]
+    },
+    {
+     "claim": "Reasons quoted word for word from Gemini's trades",
+     "sources": [
+      "ops/src/rivals.json (the race runner's own trade and bet records)",
+      "data.json (big_moves, exp_standings)"
+     ]
+    }
+   ]
+  },
+  "feature-gemini-options-v1": {
+   "checked_at": "2026-10-30T18:30:00Z",
+   "by": "Claude",
+   "claims": [
+    {
+     "claim": "Gemini's Options-race buys (5, 22, 10 puts) and sells (18, 9) with prices and times",
+     "sources": [
+      "ops/src/rivals.json (the race runner's own trade and bet records)",
+      "data.json (big_moves, exp_standings)"
+     ]
+    },
+    {
+     "claim": "Options race standings (profit since the Oct 28 restart)",
+     "sources": [
+      "ops/src/rivals.json (the race runner's own trade and bet records)",
+      "data.json (big_moves, exp_standings)"
+     ]
+    },
+    {
+     "claim": "Reason quoted word for word",
+     "sources": [
+      "ops/src/rivals.json (the race runner's own trade and bet records)",
+      "data.json (big_moves, exp_standings)"
+     ]
+    }
+   ]
+  },
+  "feature-chatgpt-oilers-v1": {
+   "checked_at": "2026-10-30T18:30:00Z",
+   "by": "Claude",
+   "claims": [
+    {
+     "claim": "ChatGPT bet C$25,000 on the Oilers at -192 in All in: sports, won C$13,020.83; final Calgary 0, Edmonton 4",
+     "sources": [
+      "ops/src/rivals.json (the race runner's own trade and bet records)",
+      "data.json (big_moves, exp_standings)",
+      "ESPN final score, as recorded by the runner"
+     ]
+    },
+    {
+     "claim": "A -192 favourite implies about a 66% chance (2 in 3)",
+     "sources": [
+      "192/(192+100) = 0.658, standard moneyline conversion"
+     ]
+    },
+    {
+     "claim": "Reason quoted word for word",
+     "sources": [
+      "ops/src/rivals.json (the race runner's own trade and bet records)",
+      "data.json (big_moves, exp_standings)"
+     ]
+    }
+   ]
   }
  }
 }

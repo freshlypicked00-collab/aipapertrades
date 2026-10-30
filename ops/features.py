@@ -269,3 +269,118 @@ def season2(prefix):
     c.text((SAFE_X, min(y + 70, 1450)), 'Follow @papertrades.ai', font('mono', 'SemiBold', 38), AMBER, 'lm')
     c.footer(); paths.append(c.save(f'{prefix}-3.jpg'))
     return paths
+
+
+# ---------- Oct 30 big wins (owner: "make a post for each individually"). Every number comes from the race's own records
+# (ops/src/rivals.json and data.json); the AIs' reasons are quoted word for word. Nothing here is outside news.
+def _et(iso):
+    from datetime import datetime, timedelta
+    t = datetime.fromisoformat(iso.replace('Z', '+00:00'))
+    t = t + timedelta(hours=-4 if t.month < 11 or (t.month == 11 and t.day < 1) else -5)
+    return t.strftime('%b %-d, %-I:%M %p').replace('AM', 'a.m.').replace('PM', 'p.m.')
+
+
+def _hook(prefix, n, glow, header, kick, big, line, sub, color=UP):
+    c = Card(); pc._glow(c, glow); c.header(header)
+    kicker(c, 330, kick, glow)
+    c.text((SAFE_X, 390), big, c.fit(big, 'sans', 'Bold', 250, W - 2 * SAFE_X), color, 'lt')
+    underline(c, SAFE_X + 10, W - SAFE_X - 60, 680, AMBER, 9)
+    y = para(c, SAFE_X, 740, line, font('sans', 'SemiBold', 70), FG, W - 2 * SAFE_X)
+    para(c, SAFE_X, y + 30, sub, font('sans', 'Regular', 46), MUTED, W - 2 * SAFE_X)
+    c.text((W - SAFE_X - 120, 1470), 'swipe', font('mono', 'SemiBold', 34), AMBER, 'rm')
+    loop_arrow(c, (W - SAFE_X - 330, 1340), (W - SAFE_X - 40, 1470), AMBER, 7)
+    c.footer(); return c.save(f'{prefix}-{n}.jpg')
+
+
+def _timeline(prefix, n, glow, header, kick, rows, foot=None):
+    c = Card(); pc._glow(c, glow, xy=(1200, 900)); c.header(header)
+    kicker(c, 300, kick, glow)
+    y = 380
+    for i, (t, a, b, col) in enumerate(rows):
+        c.d.ellipse([SAFE_X, y + 6, SAFE_X + 30, y + 36], fill=col)
+        c.text((SAFE_X + 60, y + 22), t, font('mono', 'SemiBold', 40), col, 'lm')
+        yy = para(c, SAFE_X + 60, y + 58, a, font('sans', 'SemiBold', 46), FG, W - 2 * SAFE_X - 60)
+        if b:
+            yy = para(c, SAFE_X + 60, yy + 4, b, font('sans', 'Regular', 34), MUTED, W - 2 * SAFE_X - 60)
+        if i < len(rows) - 1:
+            arrow(c, (SAFE_X + 15, yy + 6), (SAFE_X - 10, yy + 24), (SAFE_X + 30, yy + 34), (SAFE_X + 15, yy + 56), MUTED, 5, seed=10 + i)
+        y = yy + 62
+    if foot:
+        y = para(c, SAFE_X, y + 10, foot, font('sans', 'SemiBold', 44), AMBER, W - 2 * SAFE_X)
+    if y > 1540:
+        raise QualityError('timeline overflows')
+    c.footer(); return c.save(f'{prefix}-{n}.jpg')
+
+
+def _ask(prefix, n, glow, header, kick, a, b, line):
+    c = Card(); pc._glow(c, AMBER, xy=(700, 900), r=600); c.header(header)
+    kicker(c, 330, kick, AMBER)
+    c.text((SAFE_X, 400), a, c.fit(a, 'sans', 'Bold', 200, W - 2 * SAFE_X), UP, 'lt')
+    c.text((SAFE_X + 40, 640), 'or', font('sans', 'Regular', 90), MUTED, 'lt')
+    c.text((SAFE_X, 750), b, c.fit(b, 'sans', 'Bold', 200, W - 2 * SAFE_X), DOWN, 'lt')
+    arrow(c, (W - SAFE_X - 40, 480), (W - SAFE_X + 10, 700), (W - SAFE_X - 60, 900), (W - SAFE_X - 260, 1060), AMBER, 8, seed=41)
+    y = para(c, SAFE_X, 1100, line, font('sans', 'SemiBold', 46), FG, W - 2 * SAFE_X)
+    c.text((SAFE_X, min(y + 50, 1480)), 'Follow @papertrades.ai for the rest of the race', font('mono', 'SemiBold', 32), AMBER, 'lm')
+    c.footer(); return c.save(f'{prefix}-{n}.jpg')
+
+
+def _put_trades(rv, exp):
+    return [t for t in rv.get('trades', []) if t.get('model') == 'gemini' and t.get('experiment') == exp and t.get('symbol') == 'SPY261120P00760000']
+
+
+def gemini_put_allin(prefix, rv, pnl):
+    gem = AIS['gemini'][1]
+    tr = _put_trades(rv, 'AllInTrading')
+    buy = [t for t in tr if t['action'] == 'Buy'][0]
+    sells = [t for t in tr if t['action'] == 'Sell']
+    left = (sum(t['qty'] for t in tr if t['action'] == 'Buy') - sum(t['qty'] for t in sells)) / 100
+    paths = [_hook(prefix, 1, gem, 'ALL IN · SIDE RACE', 'ONE BET AGAINST THE MARKET', '+' + pc.money(pnl, 'Stocks').lstrip('+'),
+                   'Gemini bet half its side-race money that US stocks would fall.', 'It was right. One trade: a put on the S&P 500 fund (SPY). Pretend money, real prices.')]
+    rows = [(_et(buy['at']) + ' ET', f"Buys {buy['qty'] // 100} SPY puts at US${buy['price']:.2f}", f"C${buy['amount']:,.0f}, about half of its C$100,000. “{buy['reason']}”", gem)]
+    for s in sells:
+        rows.append((_et(s['at']) + ' ET', f"Sells {s['qty'] // 100} at US${s['price']:.2f}: C${s['amount']:,.0f} back", '“' + s['reason'] + '”', UP))
+    paths.append(_timeline(prefix, 2, gem, 'THE TRADE', 'HOW IT PLAYED OUT', rows, f'Still holds {left:g} contracts. Profit so far: +C${pnl:,.0f}.'))
+    paths.append(_ask(prefix, 3, gem, 'YOUR CALL', 'COMMENT ONE WORD', 'GENIUS', 'RECKLESS?', 'Half the bankroll on one bet. In Season 2, risk counts, not just profit.'))
+    return paths
+
+
+def gemini_put_options(prefix, rv, pnl, standings):
+    gem = AIS['gemini'][1]
+    tr = _put_trades(rv, 'Options')
+    paths = [_hook(prefix, 1, gem, 'OPTIONS RACE', 'GEMINI TAKES OVER', '+' + pc.money(pnl, 'Options').lstrip('+'),
+                   'Gemini’s bet on a falling market made it the runaway leader of the Options race.', 'Put options on the S&P 500 fund (SPY), bought in three steps and sold into the drop.')]
+    rows = []
+    for t in tr:
+        if t['action'] == 'Buy':
+            rows.append((_et(t['at']) + ' ET', f"Buys {t['qty'] // 100} puts at US${t['price']:.2f} (C${t['amount']:,.0f})", None, gem))
+        else:
+            rows.append((_et(t['at']) + ' ET', f"Sells {t['qty'] // 100} at US${t['price']:.2f}: C${t['amount']:,.0f} back", None, UP))
+    why = [t for t in tr if t['action'] == 'Buy'][-1]['reason']
+    paths.append(_timeline(prefix, 2, gem, 'THE TRADES', 'BUY LOW, SELL INTO THE DROP', rows, 'Its reason for the last buy: “' + why + '”'))
+    c = Card(); pc._glow(c, gem, xy=(1150, 600)); c.header('OPTIONS RACE · NOW')
+    kicker(c, 320, 'WHO LEADS OPTIONS', gem)
+    c.text((SAFE_X, 370), 'A big gap', c.fit('A big gap', 'sans', 'Bold', 150, W - 2 * SAFE_X), FG, 'lt')
+    y = 620
+    for i, (mid, p) in enumerate(standings):
+        c.d.rounded_rectangle([SAFE_X, y, W - SAFE_X, y + 170], radius=18, fill=PANEL, outline=LINE, width=2)
+        c.d.rectangle([SAFE_X, y, SAFE_X + 12, y + 170], fill=AIS[mid][1])
+        c.text((SAFE_X + 50, y + 85), ['1st', '2nd', '3rd'][i], font('mono', 'SemiBold', 54), AMBER if i == 0 else MUTED, 'lm')
+        c.text((SAFE_X + 230, y + 85), AIS[mid][0], font('sans', 'Bold', 70), FG, 'lm')
+        c.text((W - SAFE_X - 40, y + 85), pc.money(p, 'Options'), font('mono', 'SemiBold', 62), UP if p > 0.5 else DOWN if p < -0.5 else FG, 'rm')
+        y += 196
+    para(c, SAFE_X, y + 40, 'Profit since the Oct 28 restart, Options race only. Each race is its own C$100,000.', font('sans', 'Regular', 36), MUTED, W - 2 * SAFE_X)
+    c.footer(); paths.append(c.save(f'{prefix}-3.jpg'))
+    return paths
+
+
+def chatgpt_oilers(prefix, bet):
+    gpt = AIS['chatgpt'][1]
+    paths = [_hook(prefix, 1, gpt, 'ALL IN · SPORTS', 'ONE BIG BET', f"+C${bet['result']:,.0f}",
+                   f"ChatGPT put C${bet['stake']:,.0f} on the Oilers. They won {bet['final'].split(', ')[1].split()[-1]}–{bet['final'].split(', ')[0].split()[-1]}.",
+                   'All in: sports, the high-risk side race. Pretend money, real odds.', color=UP)]
+    rows = [(_et(bet['placed_at']) + ' ET', f"Bets C${bet['stake']:,.0f} on the {bet['pick_team']} at {bet['odds']}", '“' + bet['reason'] + '”', gpt),
+            (_et(bet['starts_at']) + ' ET', bet['event'] + ': puck drop', 'Edmonton at home, the favourite', MUTED),
+            ('Final', bet['final'], f"Won C${bet['result']:,.0f}, paid at the {bet['odds']} odds", UP)]
+    paths.append(_timeline(prefix, 2, gpt, 'THE BET', 'HOW IT WENT', rows, 'It risked a quarter of its side-race bankroll and kept the rest.'))
+    paths.append(_ask(prefix, 3, gpt, 'YOUR CALL', 'COMMENT ONE WORD', 'SMART', 'LUCKY?', 'A favourite at −192 wins about 2 times in 3. Would you have made this bet?'))
+    return paths

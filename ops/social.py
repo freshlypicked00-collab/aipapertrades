@@ -139,6 +139,11 @@ def due_posts(state):
         for i in range(1, 5):
             if f'story-meet-{wk}-{i}' not in done:
                 out.append({'id': f'story-meet-{wk}-{i}', 'kind': 'story-meet', 'n': i})
+    for fid in ('feature-chatgpt-oilers-v1', 'feature-gemini-options-v1', 'feature-gemini-allin-v1'):   # Oct 30 big wins, one post each (owner); one goes out per run, Gemini's +C$35k first
+        if fid not in done and NOW < datetime(2026, 11, 2, 4, 0, tzinfo=timezone.utc):
+            out.insert(0, {'id': fid, 'kind': fid})
+        if 'story-' + fid not in done and NOW < datetime(2026, 11, 2, 4, 0, tzinfo=timezone.utc):
+            out.append({'id': 'story-' + fid, 'kind': 'story-' + fid})
     if 'feature-season2-v1' not in done and NOW < datetime(2026, 11, 2, 4, 0, tzinfo=timezone.utc):   # Season 2 teaser (owner, Oct 30; all three AIs agreed)
         out.insert(0, {'id': 'feature-season2-v1', 'kind': 'feature-season2-v1'})
     if 'story-feature-season2-v1' not in done and NOW < datetime(2026, 11, 2, 4, 0, tzinfo=timezone.utc):
@@ -213,6 +218,42 @@ def prepare():
                                     'Each of the ten races is scored on its own, so leading can also mean losing the least. Swipe for all ten.\n\n'
                                     'Three AIs, C$100,000 each, real prices, no human picking trades. Every trade live on Telegram @PaperTradesAI and at papertrades.ai.\n\n'
                                     'Simulation only. Not financial or betting advice.\n\n' + TAGS)
+            elif p['kind'].replace('story-', '') in ('feature-gemini-allin-v1', 'feature-gemini-options-v1', 'feature-chatgpt-oilers-v1'):
+                import features as FT
+                fid = p['kind'].replace('story-', '')
+                chk = (load('ops/src/post_checks.json', {}).get('checks') or {}).get(fid)
+                if not chk or not chk.get('claims') or any(not c.get('sources') for c in chk['claims']):   # the fact gate (owner, Oct 30)
+                    raise pc.QualityError('not fact-checked yet (ops/src/post_checks.json)')
+                rv = load('ops/src/rivals.json', {}); data = load('data.json', {})
+                bm = data.get('big_moves') or {}
+                if fid == 'feature-gemini-allin-v1':
+                    pnl = next(x['pnl'] for x in bm['AllInTrading']['up'] if x['id'] == 'gemini' and 'SPY Nov 20 $760 put' in x['what'])
+                    paths = FT.gemini_put_allin(f'social/{fid}', rv, pnl)
+                    cap = (f'Gemini bet half its side-race money that US stocks would fall. It was right: +C${pnl:,.0f}. 📉➡️💰\n\n'
+                           'Oct 28 it bought 52 put options on the S&P 500 fund (SPY), C$49,816 of its C$100,000 All in bankroll. '
+                           'Today it sold three quarters of them into the drop and still holds the rest.\n\n'
+                           'Half the bankroll on one bet: genius or reckless? Comment one word. 👇' + FOOT)
+                elif fid == 'feature-gemini-options-v1':
+                    ES = data.get('exp_standings'); ES = ES[0] if isinstance(ES, list) else ES
+                    st = sorted([(r['id'], float(r['profit'])) for r in ES['Options']], key=lambda x: -x[1])
+                    pnl = dict(st)['gemini']
+                    paths = FT.gemini_put_options(f'social/{fid}', rv, pnl, st)
+                    cap = (f'Gemini now leads the Options race by a mile: +C${pnl:,.0f}. 🚀\n\n'
+                           'It bought put options on the S&P 500 fund (SPY) in three steps, betting tech earnings would drag the market down, '
+                           'then sold most of them into the drop today. Swipe for every trade and its own reasoning.\n\n'
+                           'Can anyone catch it with four weeks to go? 👇' + FOOT)
+                else:
+                    bet = next(b for b in rv['models']['chatgpt']['books']['AllInSports']['bets'] if b['id'] == 'C4')
+                    paths = FT.chatgpt_oilers(f'social/{fid}', bet)
+                    cap = (f"ChatGPT put C${bet['stake']:,.0f} on the Edmonton Oilers. They beat Calgary 4–0: +C${bet['result']:,.0f}. 🏒\n\n"
+                           f"All in: sports is the high-risk side race, with no cap on bet size. ChatGPT took the home favourite at {bet['odds']} "
+                           'and risked only a quarter of its bankroll.\n\n'
+                           'Smart or lucky? Comment one word. 👇' + FOOT)
+                if p['kind'].startswith('story-'):
+                    pc.story(paths[0], img, top='NEW POST', bottom='Swipe through it on our page', glow_color=pc.AMBER)
+                    p['images'] = [img]; p['story'] = True; p['caption'] = ''
+                else:
+                    p['images'] = paths; img = paths[0]; p['caption'] = cap
             elif p['kind'].replace('story-', '') == 'feature-season2-v1':
                 import features as FT
                 chk = (load('ops/src/post_checks.json', {}).get('checks') or {}).get('feature-season2-v1')
