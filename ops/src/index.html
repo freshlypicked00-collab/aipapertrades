@@ -2498,16 +2498,15 @@
     { const b0 = document.getElementById('beginner-btn');
       if (b0) { const t3 = mk('button', 'st-tt-theme'); t3.type = 'button'; const same3 = () => { t3.textContent = b0.textContent; t3.setAttribute('aria-pressed', b0.getAttribute('aria-pressed') || 'false'); };
         same3(); new MutationObserver(same3).observe(b0, { childList: true, characterData: true, subtree: true, attributes: true }); t3.addEventListener('click', () => b0.click()); box.insertBefore(t3, box.lastChild); onlyWhenGone(b0, t3); } }
-    { // fold the menu away for more room, and bring it back (owner, Oct 30); remembered in this browser
+    { // fold the menu away for more room, and bring it back (owner, Oct 30); opens again on the next visit
       const mb = mk('button', 'st-tt-theme st-tt-fold'); mb.type = 'button';
       const cur = () => { const t = nav.querySelector('.st-tab[aria-selected="true"]'); return t ? t.textContent.trim() : ''; };
       const paint = () => { const min = nav.classList.contains('st-tabs--min'); mb.textContent = min ? '☰ Menu' : '▴ Menu';
         mb.setAttribute('aria-expanded', String(!min)); mb.title = min ? 'Show the menu again' + (cur() ? ' (you are on ' + cur() + ')' : '') : 'Hide the menu to see more of the page'; };
-      const set = (min) => { nav.classList.toggle('st-tabs--min', min); try { localStorage.setItem('pt-menu-min', min ? '1' : '0'); } catch (e) {} paint(); };
+      const set = (min) => { nav.classList.toggle('st-tabs--min', min); paint(); };
       mb.addEventListener('click', () => set(!nav.classList.contains('st-tabs--min')));
       window.addEventListener('pt-tab', paint);
-      let m0 = false; try { m0 = localStorage.getItem('pt-menu-min') === '1'; } catch (e) {}
-      set(m0); box.appendChild(mb);
+      set(false); box.appendChild(mb);   // every visit starts with the menu open; fold it when you want more room (owner, Oct 30)
     }
     { // the bar fits the page at any width or zoom: the least important bits give way, one at a time, until nothing sticks out (owner, Oct 30)
       const steps = ['fit-clock', 'fit-live', 'fit-labels', 'fit-brand', 'fit-narrow'];
