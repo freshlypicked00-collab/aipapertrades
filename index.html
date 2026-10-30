@@ -733,6 +733,29 @@
   .pt-story-f { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 8px 10px; background: color-mix(in srgb, #e5383b 4%, transparent); }
   .pt-story-f b { display: block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); }
   .pt-story-f span { display: block; font-size: 17px; font-weight: 700; margin: 2px 0; } .pt-story-f small { color: var(--color-fg-muted); font-size: 12px; }
+  /* News that moved the race (owner, Oct 30; all three AIs agreed): compact cards, details folded */
+  .nm-card { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 12px 14px; margin-top: 12px; }
+  .nm-card.nm-dev { border-left: 4px solid #e5383b; }
+  .nm-h { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 4px; font-size: 17px; line-height: 1.3; } .nm-h .pd-livebadge { font-size: 10.5px; }
+  .nm-meta { font-size: 12px; color: var(--color-fg-muted); margin: 0 0 6px; }
+  .nm-lede { margin: 0 0 4px; }
+  .nm-sec { margin-top: 10px; } .nm-sec > p { margin: 4px 0; }
+  .nm-k { display: block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); margin-bottom: 4px; }
+  .nm-list { margin: 0; padding-left: 18px; } .nm-list li { margin: 3px 0; }
+  .nm-pub { font-size: 12.5px; color: var(--color-fg-muted); margin: 0 0 6px; }
+  .nm-ais { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; }
+  .nm-ai { border: 1px solid var(--color-border-line); border-left: 3px solid var(--ai); border-radius: var(--cds-radius); padding: 6px 9px; min-width: 0; }
+  .nm-ai > p { margin: 4px 0; font-size: 13px; }
+  .nm-ai-n { display: inline-flex; align-items: center; gap: 6px; color: var(--ai); }
+  .nm-trs { list-style: none; margin: 4px 0 0; padding: 0; } .nm-tr { margin: 3px 0; font-size: 13px; overflow-wrap: anywhere; }
+  .nm-ais-full .nm-tr { padding-bottom: 4px; border-bottom: 1px dashed var(--color-border-line); } .nm-ais-full .nm-tr:last-child { border-bottom: 0; }
+  .nm-tr-t { font-variant-numeric: tabular-nums; color: var(--color-fg-muted); }
+  .nm-tag { display: inline-block; margin-left: 6px; font-size: 11px; padding: 0 6px; border-radius: 999px; border: 1px solid var(--color-warn, #e0a800); color: var(--color-warn, #e0a800); white-space: nowrap; }
+  .nm-why { display: block; font-size: 12.5px; color: var(--color-fg-muted); margin-top: 2px; quotes: '“' '”'; }
+  .nm-none, .nm-note { font-size: 12px; color: var(--color-fg-muted); margin: 4px 0 0; } small.nm-note { display: block; }
+  .nm-more { margin-top: 10px; } .nm-more > summary { cursor: pointer; font-weight: 600; font-size: 13.5px; }
+  .nm-chips { margin: 8px 0 2px; }
+  .nm-racelink { margin: 0 0 8px; font-size: 13.5px; } .nm-racelink a { color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; }
   /* the headline line keeps the Terminal look in every colour theme, so it always reads the same (owner, Oct 29) */
   .pt-news { --color-panel: #121210; --color-fg: #f2e9d8; --color-fg-muted: #9b927f; --accent: #ffb000; background: #121210; color: #f2e9d8; }
   :root[data-model="gemini"] .pt-news { --accent: #4f8ff7; } :root[data-model="chatgpt"] .pt-news { --accent: #f2f2f2; }
@@ -1202,7 +1225,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '6c0188194eee';</script>
+<script>window.PT_PAGE_VER = 'cad9975323fb';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -1280,6 +1303,7 @@ body { background:var(--color-bg); }
       <button class="st-tab" role="tab" data-tab="overview" aria-selected="true">Overview</button>
       <button class="st-tab" role="tab" data-tab="ledger" aria-selected="false">Ledger</button>
       <button class="st-tab st-tab-h2h" role="tab" data-tab="h2h" aria-selected="false">AI vs AI</button>
+      <button class="st-tab" role="tab" data-tab="news" aria-selected="false" title="News that moved the race: what happened, why it matters and what each AI did">News</button>
       <button class="st-tab" role="tab" data-tab="rules" aria-selected="false">How it works</button>
       <button class="st-tab" role="tab" data-tab="audit" aria-selected="false">Rules &amp; Audit</button>
       <div class="st-tabgroup" role="presentation"><span class="st-tabgroup-l">Trading</span>
@@ -2727,6 +2751,16 @@ body { background:var(--color-bg); }
       <div data-draw="allin-ledger" data-source="allin_trades allin_models allin_history peer_grades"></div>
     </section>
   </section>
+  <!-- News that moved the race (owner, Oct 30; Claude, Gemini and ChatGPT all agreed: ops/review/news-r1-oct30.json). Facts from named, dated
+       sources (ops/src/news_moments.json), corrected with a visible change log; what each AI did comes from the race record next to the time the
+       news became public; plans are each AI's own words. Details stay folded so a phone shows the headline, the market move and each AI's action. -->
+  <section class="st-page" id="news" data-page="news" hidden>
+    <section class="st-card nm-page" aria-labelledby="h-news">
+      <h2 class="st-h2" id="h-news">News that moved the race</h2>
+      <p class="st-note">The big news of the month, explained: what happened, how, why it matters to markets, what it moved, and what each AI did about it. Every fact comes from a named, dated source and is corrected here when the reporting changes (each card keeps its change log). What each AI did comes from the race record, shown next to the time the news became public; plans are each AI's latest plan for that race in its own words: dated race commentary, not recommendations. Not financial advice.</p>
+      <div data-draw="news-moments" data-source="news_moments story geo"></div>
+    </section>
+  </section>
   <!-- About: where Paper Trades started, with dated public proof (owner's request; all three AIs voted yes, Oct 29) -->
   <section class="st-page" id="about-pt" data-page="about" hidden>
     <section class="st-card st-about" aria-labelledby="h-why" id="why">
@@ -2835,7 +2869,7 @@ body { background:var(--color-bg); }
   };
 
   // Tabs
-  const TABS = ['h2h', 'rules', 'audit', 'allin', 'allinledger', 'about', 'ai-claude', 'ai-gemini', 'ai-chatgpt', 'overview', 'stocks', 'crypto', 'metals', 'sports', 'china', 'energy', 'options', 'predictions', 'safe', 'currencies', 'support', 'ledger'];
+  const TABS = ['h2h', 'news', 'rules','audit', 'allin', 'allinledger', 'about', 'ai-claude', 'ai-gemini', 'ai-chatgpt', 'overview', 'stocks', 'crypto', 'metals', 'sports', 'china', 'energy', 'options', 'predictions', 'safe', 'currencies', 'support', 'ledger'];
   const showTab = (name) => {
     if (!TABS.includes(name)) name = 'overview';
     document.querySelectorAll('[data-page]').forEach((s) => { s.hidden = s.dataset.page !== name; });
@@ -6620,6 +6654,139 @@ body { background:var(--color-bg); }
       const sm = mk('small', '', (f.note ? f.note + ' · ' : '')); if (f.url) { const a = mk('a', '', f.source || 'source'); a.href = f.url; a.target = '_blank'; a.rel = 'noopener'; sm.appendChild(a); } else if (f.source) sm.appendChild(document.createTextNode(f.source));
       c.appendChild(sm); g.appendChild(c); });
     el.appendChild(g);
+  });
+  // ---------- News that moved the race (owner, Oct 30; Claude, Gemini and ChatGPT all agreed: ops/review/news-r1-oct30.json). Every card
+  // has the same layout for all three AIs: headline, what it moved, and what each AI did (with the time the news became public, so nobody
+  // looks like it reacted to something it could not have known); the rest is folded under Read more: the full story, the live figures of a
+  // developing story (story.json / geo.json, one source of truth), how it happened, why it matters, every trade with its own reason, each
+  // AI's own words, its latest plan (dated race commentary, not a recommendation), dated sources and a visible change log.
+  const NM_RACE = { AllInTrading: 'All in: trading', AllInSports: 'All in: sports' };
+  const NM_TAB = { Stocks: 'stocks', Crypto: 'crypto', China: 'china', Metals: 'metals', Energy: 'energy', Options: 'options', Currencies: 'currencies', Safe: 'safe', Sports: 'sports', Predictions: 'predictions', AllInTrading: 'allin' };
+  const NM_VERB = { Buy: 'Bought', Sell: 'Sold', Short: 'Shorted', Cover: 'Covered', Bet: 'Bet on' };
+  const NM_AIS = ['claude', 'gemini', 'chatgpt'];
+  const nmRace = (e) => NM_RACE[e] || LABEL[e] || e;
+  const nmAmt = (x) => (x.cad != null ? 'C$' + d3.format(',.0f')(x.cad) : x.usd != null ? 'US$' + d3.format(',.0f')(x.usd) : '');
+  const nmPx = (v, cur) => { if (v == null || isNaN(+v)) return ''; v = +v; return (cur === 'CNY' ? '¥' : 'US$') + (v >= 1000 ? d3.format(',.0f')(v) : v >= 1 ? d3.format(',.2f')(v) : d3.format(',.4~f')(v)); };
+  const nmET = (t) => stFmt.whenET(t) + ' ET';
+  const nmTrade = (x, pub, full) => {
+    const li = mk('li', 'nm-tr');
+    const what = (NM_VERB[x.action] || x.action) + ' ' + String(x.what || '').replace(/ USD$/, '') + (nmAmt(x) ? ' (' + nmAmt(x) + (x.price != null ? ' at ' + nmPx(x.price, x.pcur) : '') + ')' : '');
+    li.append(mk('span', 'nm-tr-t', nmET(x.at)), document.createTextNode(' · ' + nmRace(x.race) + ' · ' + what));
+    if (pub && Date.parse(x.at) < Date.parse(pub)) li.appendChild(mk('span', 'nm-tag', 'before the news was public'));
+    if (full && x.reason) li.appendChild(mk('q', 'nm-why', x.reason));
+    return li;
+  };
+  const nmAiBox = (id, rows, pub, full) => {
+    const box = mk('div', 'nm-ai'); box.style.setProperty('--ai', AIS[id].color);
+    const n = mk('b', 'nm-ai-n'); n.append(aiBadge(id, 16), document.createTextNode(AIS[id].label)); box.appendChild(n);
+    if (!rows.length) { box.appendChild(mk('p', 'nm-none', 'No trade in these races in this window.')); return box; }
+    const ul = mk('ul', 'nm-trs'); (full ? rows : rows.slice(0, 2)).forEach((x) => ul.appendChild(nmTrade(x, pub, full))); box.appendChild(ul);
+    if (!full && rows.length > 2) box.appendChild(mk('p', 'nm-none', '+ ' + (rows.length - 2) + ' more under Read more'));
+    return box;
+  };
+  const nmMeasured = (x) => mk('li', '', x.label + ': ' + nmPx(x.before) + ' (' + nmET(x.before_at) + ') → ' + nmPx(x.last) + ' (' + nmET(x.last_at) + '), '
+    + (x.chg >= 0 ? '+' : '−') + d3.format('.1%')(Math.abs(x.chg)) + '; low ' + nmPx(x.low) + ', high ' + nmPx(x.high) + ' in between');
+  const nmLink = (title, url) => { const a = mk('a', '', title); a.href = url;
+    if (/^#/.test(url)) a.addEventListener('click', (ev) => { ev.preventDefault(); goTab(url.slice(1)); }); else { a.target = '_blank'; a.rel = 'noopener'; }
+    return a; };
+  const nmCard = (m, S, G, openSet) => {
+    const c = mk('article', 'nm-card' + (m.status === 'developing' ? ' nm-dev' : '')); c.id = 'nm-' + m.id;
+    const h = mk('h3', 'nm-h');
+    if (m.status === 'developing') { const bd = mk('span', 'pd-livebadge'); bd.append(mk('i'), document.createTextNode('DEVELOPING')); h.appendChild(bd); }
+    h.appendChild(document.createTextNode(m.title)); c.appendChild(h);
+    c.appendChild(mk('p', 'nm-meta', (m.when_text || stFmt.when(m.at)) + ' · ' + (m.races || []).map(nmRace).join(', ') + ' · last checked ' + nmET(m.checked_at)));
+    c.appendChild(mk('p', 'nm-lede', m.headline || ''));
+    const sec = (parent, k, nodes) => { const s = mk('div', 'nm-sec'); s.appendChild(mk('b', 'nm-k', k)); nodes.filter(Boolean).forEach((n) => s.appendChild(typeof n === 'string' ? mk('p', '', n) : n)); parent.appendChild(s); return s; };
+    // what it moved: the race's own price record, then the first reported market figure (the rest under Read more)
+    const mv = mk('ul', 'nm-list'); (m.measured || []).forEach((x) => mv.appendChild(nmMeasured(x)));
+    (m.moved || []).slice(0, 1).forEach((x) => mv.appendChild(mk('li', '', x.text + ' (' + x.source + ')')));
+    if (mv.children.length) sec(c, 'What it moved', [mv]);
+    // what each AI did, next to the time the news became public
+    const pub = m.public_at ? mk('p', 'nm-pub', 'News public: ' + stFmt.when(m.public_at) + (m.public_note ? ' (' + m.public_note + ')' : '')) : (m.public_note ? mk('p', 'nm-pub', m.public_note) : null);
+    const grid = mk('div', 'nm-ais'); NM_AIS.forEach((id) => grid.appendChild(nmAiBox(id, (m.ai_trades || {})[id] || [], m.public_at, false)));
+    sec(c, 'What each AI did', [pub, grid]);
+    // everything else, folded
+    const d = mk('details', 'nm-more'); d.appendChild(mk('summary', '', 'Read more: the full story, every trade with its reason, plans and sources'));
+    if (openSet) { d.open = openSet.has(m.id); d.addEventListener('toggle', () => { if (d.open) openSet.add(m.id); else openSet.delete(m.id); }); }   // stays open when fresh data redraws the page
+    if (m.what) sec(d, 'What happened', [m.what]);
+    if (m.story && S && S.id === m.story && S.active) {
+      const g = mk('div', 'pt-story-grid');
+      (S.facts || []).forEach((f) => { const fc = mk('div', 'pt-story-f'); fc.append(mk('b', '', f.label), mk('span', '', f.value));
+        const sm = mk('small', '', f.note ? f.note + ' · ' : ''); if (f.url) sm.appendChild(nmLink(f.source || 'source', f.url)); else if (f.source) sm.appendChild(document.createTextNode(f.source));
+        fc.appendChild(sm); g.appendChild(fc); });
+      sec(d, 'Latest figures (updated ' + nmET(S.updated_at) + ')', [mk('p', 'nm-note', 'The same figures as the box on the Crypto page, corrected as new confirmed reports come in.'), g]);
+    }
+    if (m.geo && G) {
+      const ul = mk('ul', 'nm-list');
+      (G.updates || []).slice(0, 3).forEach((u) => { const li = mk('li', ''); li.append(mk('span', 'nm-tr-t', stFmt.whenET(u.at).replace(/,.*$/, '')), document.createTextNode(' · ' + (u.kind === 'claim' && u.who ? 'Claim by ' + u.who + ': ' : '') + u.text + ' '));
+        (u.sources || []).slice(0, 2).forEach(([t, url]) => { li.appendChild(nmLink(t, url)); li.appendChild(document.createTextNode(' ')); }); ul.appendChild(li); });
+      const go = mk('p', 'nm-note'); go.appendChild(nmLink('The full war and Strait of Hormuz box is on Oil and energy →', '#energy'));
+      sec(d, 'Latest (checked ' + nmET(G.checked_at) + ')', [G.summary, ul, go]);
+    }
+    if (m.how) sec(d, 'How it happened', [m.how_label ? mk('p', 'nm-note', m.how_label) : null, m.how]);
+    if (m.why) sec(d, 'Why it matters to markets', [m.why]);
+    { const ul = mk('ul', 'nm-list'); (m.measured || []).forEach((x) => ul.appendChild(nmMeasured(x)));
+      (m.moved || []).forEach((x) => { const li = mk('li', '', x.text + ' '); li.appendChild(x.url ? nmLink('(' + x.source + ')', x.url) : document.createTextNode('(' + x.source + ')')); ul.appendChild(li); });
+      sec(d, 'What it moved', [(m.measured || []).length ? mk('p', 'nm-note', 'The first lines come from the race\'s own price record (the prices the race used, with their times).') : null, ul, m.overlap ? mk('p', 'nm-note', m.overlap) : null]); }
+    { const g2 = mk('div', 'nm-ais nm-ais-full'); NM_AIS.forEach((id) => g2.appendChild(nmAiBox(id, (m.ai_trades || {})[id] || [], m.public_at, true)));
+      sec(d, 'Every trade, with each AI\'s own reason at the time', [g2]); }
+    if (m.own_words && NM_AIS.some((id) => m.own_words[id])) {
+      const g3 = mk('div', 'nm-ais'); NM_AIS.forEach((id) => { const w = m.own_words[id]; if (!w) return; const b = mk('div', 'nm-ai'); b.style.setProperty('--ai', AIS[id].color);
+        const n = mk('b', 'nm-ai-n'); n.append(aiBadge(id, 16), document.createTextNode(AIS[id].label)); b.append(n, mk('q', 'nm-why', w.text), mk('small', 'nm-note', 'Written ' + nmET(w.at)));
+        g3.appendChild(b); });
+      sec(d, 'In its own words', [g3]);
+    }
+    if (m.plan_race && m.plans && NM_AIS.some((id) => (m.plans[id] || []).length)) {
+      const g4 = mk('div', 'nm-ais'); const HZ = { day: 'Next 24 hours', week: 'Next 7 days' };
+      NM_AIS.forEach((id) => { const ps = m.plans[id] || []; if (!ps.length) return; const b = mk('div', 'nm-ai'); b.style.setProperty('--ai', AIS[id].color);
+        const n = mk('b', 'nm-ai-n'); n.append(aiBadge(id, 16), document.createTextNode(AIS[id].label)); b.appendChild(n);
+        ps.forEach((p) => { const q = mk('p', ''); q.append(mk('span', 'nm-tr-t', HZ[p.horizon] || p.horizon), document.createTextNode(': ' + p.text + ' '), mk('small', 'nm-note', '(' + nmET(p.at) + ')')); b.appendChild(q); });
+        g4.appendChild(b); });
+      sec(d, 'Plans from here', [mk('p', 'nm-note', 'Each AI\'s latest plan for ' + nmRace(m.plan_race) + ', in its own words: dated race commentary, not recommendations.'), g4]);
+    }
+    if ((m.sources || []).length) { const ol = mk('ol', 'nm-list nm-src'); m.sources.forEach((s) => { const li = mk('li', ''); li.appendChild(nmLink(s.title, s.url)); if (s.date) li.appendChild(document.createTextNode(' · ' + s.date)); ol.appendChild(li); });
+      sec(d, 'Sources', [ol]); }
+    { const ch = (m.changes || []).slice().sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+      const ul = mk('ul', 'nm-list'); ch.forEach((x) => { const li = mk('li', ''); li.append(mk('span', 'nm-tr-t', nmET(x.at)), document.createTextNode(' · ' + x.text)); ul.appendChild(li); });
+      sec(d, 'Change log', [ch.length ? ul : mk('p', 'nm-note', 'No corrections since it was published.')]); }
+    c.appendChild(d);
+    return c;
+  };
+  dash.draw('news-moments', (el) => {
+    const run = () => {
+      el.replaceChildren();
+      const M = dash.baseData('news_moments') || [];
+      if (!M.length) { el.appendChild(mk('p', 'st-note', 'No moments yet.')); return; }
+      const S = (dash.baseData('story') || [])[0], G = (dash.baseData('geo') || [])[0];
+      const races = [...new Set(M.flatMap((m) => m.races || []))];
+      const want = races.includes(el._race) ? el._race : 'all';
+      const chips = mk('div', 'st-chips nm-chips'); chips.setAttribute('role', 'group'); chips.setAttribute('aria-label', 'Show news for which race');
+      [['all', 'All races']].concat(races.map((x) => [x, nmRace(x)])).forEach(([k, lab]) => {
+        const b = mk('button', '', lab); b.type = 'button'; b.setAttribute('aria-pressed', String(k === want));
+        b.addEventListener('click', () => { el._race = k; run(); }); chips.appendChild(b); });
+      el.appendChild(chips);
+      el._open = el._open || new Set();
+      M.filter((m) => want === 'all' || (m.races || []).includes(want)).forEach((m) => el.appendChild(nmCard(m, S, G, el._open)));
+    };
+    el._redraw = run;
+    run();
+  });
+  // one line at the top of each race page that has news: "News that moved this race (n)", straight to its newest card
+  dash.onData(() => {
+    const M = dash.baseData('news_moments') || [];
+    Object.entries(NM_TAB).forEach(([race, tab]) => {
+      const pg = document.querySelector('[data-page="' + tab + '"]'); if (!pg) return;
+      const list = M.filter((m) => (m.races || []).includes(race));
+      let p = pg.querySelector(':scope > .nm-racelink');
+      if (!list.length) { if (p) p.remove(); return; }
+      if (!p) { p = mk('p', 'nm-racelink'); pg.prepend(p); }
+      p.replaceChildren();
+      const a = mk('a', '', '📰 News that moved this race (' + list.length + '): ' + list[0].title + ' →'); a.href = '#news';
+      a.addEventListener('click', (ev) => { ev.preventDefault();
+        const box = document.querySelector('[data-draw="news-moments"]'); if (box) { box._race = race; if (box._redraw) box._redraw(); }
+        goTab('news'); setTimeout(() => { const card = document.getElementById('nm-' + list[0].id); if (card) card.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 200); });
+      p.appendChild(a);
+    });
   });
   dash.draw('newsline', {
     mount: (el) => {
