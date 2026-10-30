@@ -750,7 +750,7 @@
   .st-tabs > .pt-feed .pt-n-k { font-size: 11px; padding: 0 10px; }
   .st-tabs > .pt-feed .pt-ticker { margin: 0; }
   .st-tabs > .pt-feed .pt-tk-i { padding: 5px 20px; font-size: 12.5px; }
-  /* who leads overall (most races led), with a crown (owner, Oct 29) */
+  /* who leads overall (highest total profit, order only), with a crown (owner and all three AIs, Oct 29) */
   .st-crown-chip { display: inline-flex; align-items: center; gap: 7px; font: inherit; font-size: 13px; color: var(--color-fg); background: color-mix(in srgb, var(--ai, #ffb000) 12%, var(--color-panel)); border: 1px solid color-mix(in srgb, var(--ai, #ffb000) 60%, transparent); border-radius: 999px; padding: 4px 12px 4px 8px; cursor: pointer; white-space: nowrap; }
   .st-crown-chip:hover { border-color: var(--ai, #ffb000); }
   .st-crown-chip:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
@@ -4564,7 +4564,7 @@
     document.querySelectorAll('.st-tab[data-tab^="ai-"]').forEach((b) => { const id = b.dataset.tab.slice(3); if (MODEL_CO[id]) b.title = aiModelCo(id); });
   };
   dash.onData(fillModelNames);
-  // 👑 who leads overall right now = the AI leading the most of the ten races (money is only added up at the final) (owner, Oct 29)
+  // 👑 who leads overall right now = the highest total profit across the ten races, order only (owner and all three AIs, Oct 29)
   (() => {
     const nav = document.querySelector('nav.st-tabs'), head = document.querySelector('header.st-head'); if (!nav || !head) return;
     const make = () => { const b = mk('button', 'st-crown-chip'); b.type = 'button'; b.addEventListener('click', () => goTab('h2h')); return b; };
@@ -4598,19 +4598,20 @@
       const all = dash.baseData('exp_standings'); const ES = Array.isArray(all) ? all[0] : all; const total = ES ? Object.keys(ES).length : 10;
       if (!rows.length) { [navChip, headChip].forEach((c) => { c.hidden = true; }); return; }
       const L = dash.baseData('leader'); const n = (id) => ((rows.find((r) => r.id === id) || {}).leads || []).length;
-      const best = Math.max(...rows.map((r) => n(r.id))), tied = rows.filter((r) => n(r.id) === best).map((r) => r.id);
+      // the crown = the highest total profit across the ten races, the official win rule (all three AIs agreed, Oct 29); the amounts stay hidden until Nov 28
+      const RULE = 'Ranked by total profit across all ten races (C$, China converted), the rule that decides the winner on Nov 28. The amounts stay hidden until then; each race is shown on its own.';
       [navChip, headChip].forEach((c) => {
         c.hidden = false; c.replaceChildren();
         if (L && AIS[L]) {
           c.style.setProperty('--ai', AIS[L].color);
-          c.append(mk('span', 'cr-k', '👑'), aiBadge(L, 16), mk('span', 'cr-n', AIS[L].label), document.createTextNode(' leads overall'), mk('span', 'cr-s', '· ' + n(L) + ' of ' + total + ' races'));
-          c.title = AIS[L].label + ' is first in ' + n(L) + ' of the ' + total + ' races right now, more than any other AI. Each race is scored on its own; the money is only added up at the final on Nov 28. Tap to compare them in AI vs AI.';
-          c.setAttribute('aria-label', AIS[L].label + ' leads overall: first in ' + n(L) + ' of ' + total + ' races. Open AI vs AI.');
+          c.append(mk('span', 'cr-k', '👑'), aiBadge(L, 16), mk('span', 'cr-n', AIS[L].label), document.createTextNode(' leads overall'), mk('span', 'cr-s', '· by total profit · leads ' + n(L) + ' of ' + total + ' races'));
+          c.title = AIS[L].label + ' has made the most money in total. ' + RULE + ' ' + AIS[L].label + ' is first in ' + n(L) + ' of the ' + total + ' races. Tap to compare them in AI vs AI.';
+          c.setAttribute('aria-label', AIS[L].label + ' leads overall by total profit, and leads ' + n(L) + ' of ' + total + ' races. Open AI vs AI.');
         } else {
           c.style.removeProperty('--ai');
-          c.append(mk('span', 'cr-k', '👑'), mk('span', 'cr-n', 'Tied'), document.createTextNode(' for the lead'), mk('span', 'cr-s', '· ' + tied.map((id) => AIS[id].label).join(' and ') + ', ' + best + ' race' + (best === 1 ? '' : 's') + ' each'));
-          c.title = 'No single AI leads the most races right now. Tap to compare them in AI vs AI.';
-          c.setAttribute('aria-label', 'Tied for the lead: ' + tied.map((id) => AIS[id].label).join(' and ') + ', ' + best + ' races each. Open AI vs AI.');
+          c.append(mk('span', 'cr-k', '👑'), mk('span', 'cr-n', 'Tied'), document.createTextNode(' for the lead'), mk('span', 'cr-s', '· level on total profit'));
+          c.title = 'Two AIs are level on total profit right now. ' + RULE + ' Tap to compare them in AI vs AI.';
+          c.setAttribute('aria-label', 'Tied for the overall lead on total profit. Open AI vs AI.');
         }
       });
     };
@@ -5491,7 +5492,7 @@
   const MODEL_COL = { claude: ['var(--accent)', 'var(--accent-bg)'], gemini: ['#4f8ff7', 'rgba(79,143,247,.09)'], chatgpt: ['var(--ai-chatgpt)', 'rgba(160,160,160,.08)'] };
   const applyModel = (id) => {
     { const c = MODEL_COL[id] || MODEL_COL.claude; document.documentElement.style.setProperty('--model', c[0]); document.documentElement.style.setProperty('--model-bg', c[1]); document.documentElement.dataset.model = id || 'claude'; }
-    { const v = document.getElementById('viewing-name'); if (v) { v.textContent = MODEL_CO[id] ? aiModelCo(id) : id; const L = dash.baseData('leader'); if (L === id) v.appendChild(mk('span', 'st-crown', '👑 leads the most races')); } }
+    { const v = document.getElementById('viewing-name'); if (v) { v.textContent = MODEL_CO[id] ? aiModelCo(id) : id; const L = dash.baseData('leader'); if (L === id) v.appendChild(mk('span', 'st-crown', '👑 leads overall')); } }
     const views = dash.models();
     document.querySelectorAll('.model-pick').forEach((sel) => {
       sel.value = id;
@@ -6851,4 +6852,33 @@
   let rz;
   window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(redrawVisible, 150); });
   document.querySelectorAll('.st-tab, [data-goto]').forEach((b) => b.addEventListener('click', () => requestAnimationFrame(redrawVisible)));
+</script>
+<script>
+  // Every dropdown lists its choices in alphabetical order (owner, Oct 29). The catch-all choice ("All …", "Both parts", "Every move",
+  // the own-currency default, "Races Led", "👑 Race leader") stays on top; lists that run in time order (days, reports, pages) keep it.
+  (() => {
+    const PIN = /^(👑|All experiments|All decisions|All three|All days|Both parts|Every move|Each experiment|Own currency|Overall$|Races Led)/;
+    const TIMED = /^(\d+ ·|\d+ \(|Day \d|Tuning)/;
+    const key = (o) => o.textContent.replace(/[^\p{L}\p{N} ]/gu, '').trim();
+    const cmp = (a, b) => key(a).localeCompare(key(b), 'en', { numeric: true, sensitivity: 'base' });
+    const sortList = (parent) => {
+      const opts = [...parent.children].filter((o) => o.tagName === 'OPTION');
+      if (opts.length < 3 || opts.some((o) => TIMED.test(o.textContent.trim()))) return;
+      const pinned = opts.filter((o) => PIN.test(o.textContent.trim())), rest = opts.filter((o) => !pinned.includes(o)).sort(cmp);
+      const want = pinned.concat(rest);
+      if (want.every((o, i) => o === opts[i])) return;   // already in order: touch nothing (no loops with the mirrored menus)
+      const sel = parent.closest('select'), v = sel ? sel.value : null;
+      want.forEach((o) => parent.appendChild(o));
+      if (sel && v != null) sel.value = v;
+    };
+    const sortAll = () => document.querySelectorAll('select').forEach((s) => {
+      if (s.dataset.order === 'keep') return;
+      sortList(s); s.querySelectorAll('optgroup').forEach(sortList);
+    });
+    let q = false;
+    const later = () => { if (q) return; q = true; requestAnimationFrame(() => { q = false; sortAll(); }); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', later); else later();
+    new MutationObserver((ms) => { if (ms.some((m) => m.target.nodeName === 'SELECT' || m.target.nodeName === 'OPTGROUP' || [...m.addedNodes].some((n) => n.nodeType === 1 && (n.matches('select, option') || n.querySelector && n.querySelector('select'))))) later(); })
+      .observe(document.documentElement, { childList: true, subtree: true });
+  })();
 </script>

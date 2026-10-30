@@ -658,8 +658,14 @@ for _e, _lab in _LBL.items():
                 _s['leads'].append(_lab)
 # the crown goes to the AI leading the most races; races are never added together in public before the final (owner's rule)
 _led = sorted(((len(x['leads']), x['id']) for x in STANDINGS), reverse=True)
-LEADER = _led[0][1] if len(_led) > 1 and _led[0][0] > _led[1][0] else None
-data['standings'] = [{'id': x['id'], 'leads': x['leads']} for x in STANDINGS]
+LEADER_RACES = _led[0][1] if len(_led) > 1 and _led[0][0] > _led[1][0] else None
+# the crown follows the official win rule: the highest total profit across the ten races (C$, China converted), agreed by all
+# three AIs and the owner (Oct 29). Only the ORDER is published; the amounts stay hidden until the final scoring on Nov 28.
+_byp = sorted(STANDINGS, key=lambda x: -x['total'])
+LEADER = _byp[0]['id'] if len(_byp) > 1 and _byp[0]['total'] - _byp[1]['total'] >= 1 else None
+data['leader_races'] = LEADER_RACES
+data['overall_order'] = [x['id'] for x in _byp]
+data['standings'] = [{'id': x['id'], 'leads': x['leads'], 'rank': i + 1} for i, x in enumerate(_byp)]
 # Race standings per experiment (each race is separate): value now, profit since the restart, and what each AI holds
 _FS = datetime(2026, 10, 28, 17, 45, tzinfo=timezone.utc)
 _EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
@@ -1047,7 +1053,7 @@ except Exception as _e:
     data['moments'] = []
 data['penalties'] = [dict(x, model='claude') for x in r.get('claude_penalties', [])] + \
     [dict(x, model=_mid) for _mid, _m in (r.get('models') or {}).items() for x in ((_m.get('books') or {}).get('Sports') or {}).get('penalties', [])]
-data['leader'] = LEADER   # the AI leading the most races (None when tied); the page opens on the leader of the first race unless the viewer picked one
+data['leader'] = LEADER   # the AI with the highest total profit (None when tied; the amount is never published before Nov 28); the page opens on the leader of the first race unless the viewer picked one
 try:
     data['price_audit'] = [json.load(open(os.path.join(SRC, 'price_audit.json')))]   # Claude's prices vs the feeds (ops/price_audit.py)
 except Exception:
