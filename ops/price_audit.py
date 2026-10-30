@@ -174,6 +174,65 @@ def check(kind, at, pf, holding, px, act):
     return row
 
 
+BACKUP_PROMPT = '''You are {label}, one of the three AIs in the Paper Trades race (Claude vs Gemini vs ChatGPT, simulated money, papertrades.ai).
+An automatic price check flagged one of Claude's prices because it lies outside the price feed's range at that time.
+Act as an independent BACKUP CHECK of Claude's price: look the price up yourself (search the web if you can) and judge it.
+
+Holding: {holding} ({what})
+Time Claude stated: {at}
+Claude's price: {claude}
+Feed ({feed}, {basis}): low {lo}, high {hi}; gap {gap}; allowed tolerance {tol}
+{note}
+Reply with ONLY this JSON, no other text:
+{{"verdict": "claude_wrong" | "close_enough" | "feed_wrong" | "cannot_tell", "price": <the price you found for that time, or null>, "note": "<one plain-English sentence, at most 30 words>"}}'''
+VERDICTS = ('claude_wrong', 'close_enough', 'feed_wrong', 'cannot_tell')
+
+
+def backup_reviews(rows, limit=4):
+    """Owner, Oct 30: when Claude's price check is held up by flags, Gemini and ChatGPT check each flagged price as a backup.
+    Each model answers once per flagged row (row['backup'][model]); their verdicts are shown on the site and never change
+    Claude's numbers (only Claude logs corrections, with a Check log entry)."""
+    who = []
+    for mid, r in R.RIVALS.items():
+        key = os.environ.get(r['env'])
+        if not key and mid == 'chatgpt' and os.environ.get('OPENROUTER_API_KEY'):
+            key, r = os.environ['OPENROUTER_API_KEY'], {**r, 'pick': R.pick_openrouter, 'ask': R.ask_openrouter}
+        if key:
+            who.append((mid, r, key))
+    asked = 0
+    for row in [x for x in rows if x['status'] == 'flag']:
+        for mid, r, key in who:
+            if (row.get('backup') or {}).get(mid) or asked >= limit:
+                continue
+            asked += 1
+            gap = f"{row['gap_pct']}%" if row.get('gap_pct') is not None else f"{row.get('gap_abs')}"
+            prompt = BACKUP_PROMPT.format(label=r['label'], holding=row['holding'], what='a trade fill' if row['kind'] == 'fill' else 'a valuation',
+                                          at=row['at'], claude=row['claude'], feed=row.get('feed'), basis=row.get('basis'), lo=row.get('feed_low'),
+                                          hi=row.get('feed_high'), gap=gap, tol=row.get('tolerance'), note=('Note: ' + row['note']) if row.get('note') else '')
+            try:
+                picks = r['pick'](key)
+                text = ''
+                for model in (picks if isinstance(picks, list) else [picks]):
+                    try:
+                        text, _ = r['ask'](key, model, prompt)
+                        break
+                    except Exception as e:
+                        print(f'::warning::backup check: {mid} {model} failed: {str(e)[:120]}')
+                m = re.search(r'\{.*\}', text or '', re.S)
+                j = json.loads(m.group(0)) if m else {}
+                v = j.get('verdict') if j.get('verdict') in VERDICTS else None
+                if not v:
+                    continue   # no usable answer: tried again next run
+                rec = {'verdict': v, 'note': str(j.get('note') or '')[:240], 'at': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}
+                if isinstance(j.get('price'), (int, float)):
+                    rec['price'] = j['price']
+                row.setdefault('backup', {})[mid] = rec
+                print(f"::notice::backup check by {r['label']}: {row['holding']} at {row['at']}: {v}")
+            except Exception as e:
+                print(f'::warning::backup check by {mid} failed: {str(e)[:160]}')
+    return asked
+
+
 def main():
     old = {}
     try:
@@ -198,7 +257,16 @@ def main():
     flags = [r for r in rows if r['status'] == 'flag']
     for r in flags[-10:]:
         print(f"::warning::price check flag: {r['kind']} {r['holding']} at {r['at']}: Claude {r['claude']} vs feed {r.get('feed_low')}-{r.get('feed_high')}")
+    before = json.dumps([r.get('backup') for r in flags], sort_keys=True)
+    try:
+        backup_reviews(rows)
+    except Exception as e:
+        print(f'::warning::backup checks failed: {str(e)[:160]}')
+    if json.dumps([r.get('backup') for r in flags], sort_keys=True) != before:
+        new += 1   # save the new backup verdicts
     summ = {s: sum(1 for r in rows if r['status'] == s) for s in ('ok', 'flag', 'no_data', 'no_feed')}
+    summ['backup_pending'] = sum(1 for r in flags if len(r.get('backup') or {}) < 2)
+    summ['backup_wrong'] = sum(1 for r in flags if any(b['verdict'] == 'claude_wrong' for b in (r.get('backup') or {}).values()))
     try:
         prev = json.load(open(OUT))
     except Exception:
