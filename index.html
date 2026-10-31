@@ -1135,6 +1135,7 @@ tr.lg-hit .tx-id{opacity:1}
     table.st-table.pt-cards > tbody > tr > td.wrap[data-label]::before { display: block; margin: 6px 0 2px; }
     table.st-table.pt-cards > tbody > tr > td:first-child { font-weight: var(--cds-font-weight-medium, 500); }
   }
+  .bg-risk.bg-risk-none { color: var(--color-fg-muted); border-color: var(--color-border-line); background: transparent; }
 
 
 /* Dark is the default; the theme button switches to a soft light mode (remembered per viewer). */
@@ -1327,7 +1328,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '08ef0e77bae9';</script>
+<script>window.PT_PAGE_VER = 'e940397152a8';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -2954,6 +2955,10 @@ body { background:var(--color-bg); }
 </div>
 <script>
 
+  // W3b (owner, Oct 30; all three AIs agreed): a value that rounds to zero where it is shown gets no sign ("0.0%", "C$0"), never "−0.0%" in red
+  function ptSgn0(v) { v = Number(v); return !isFinite(v) || Math.round(v) === 0 ? '' : v > 0 ? '+' : '−'; }
+  function ptSgnP(v) { v = Number(v); return !isFinite(v) || Math.round(v * 1000) === 0 ? '' : v > 0 ? '+' : '−'; }
+
   const START = 100000;
   const EXP_START = new Date('2026-10-28T09:30:00-04:00').getTime();
   const EXP_END = new Date('2026-11-28T16:00:00-05:00').getTime();
@@ -2992,7 +2997,7 @@ body { background:var(--color-bg); }
     signed: (v, p) => (v >= 0 ? '+' : '−') + symOf(p) + d3.format(',.0f')(Math.abs(conv(v, p))),
     cad: (v) => symOf('Stocks') + d3.format(',.0f')(conv(v, 'Stocks')),
     signedCad: (v) => (v >= 0 ? '+' : '−') + symOf('Stocks') + d3.format(',.0f')(Math.abs(conv(v, 'Stocks'))),
-    pct: (v) => (v >= 0 ? '+' : '−') + d3.format('.1%')(Math.abs(v)),
+    pct: (v) => ptSgnP(v) + d3.format('.1%')(Math.abs(v)),
     when: (s) => d3.timeFormat('%b %-d, %-I:%M %p')(new Date(s)).replace('AM', 'a.m.').replace('PM', 'p.m.'),
     whereOf: (el) => new URLSearchParams(el.dataset.where || '').get('portfolio')
   };
@@ -3648,7 +3653,7 @@ body { background:var(--color-bg); }
     const r = rowFor('vsbtc', stFmt.whereOf(el));
     const ok = r && r.diff !== null;
     tone(el, ok ? r.diff : 0);
-    el.textContent = ok ? stFmt.signedCad(r.diff) : '—';
+    el.textContent = ok ? stFmt.signedCad(r.diff) : (r || dash.data('vsbtc').status === 'ok' ? 'not available yet' : '—');   // W3f
   });
   dash.draw('day-pnl', (el) => {
     const p = stFmt.whereOf(el), r = rowFor('pnl24', p);
@@ -3668,7 +3673,8 @@ body { background:var(--color-bg); }
     const r = d.status === 'ok' ? d.data.find((x) => x.id === id) : null;
     const ok = r && r.diff !== null;
     tone(el, ok ? r.diff : 0);
-    el.textContent = ok ? stFmt.signed(r.diff, r.portfolio) : '—';
+    el.textContent = ok ? stFmt.signed(r.diff, r.portfolio) : (d.status === 'ok' ? 'not available yet' : '—');   // W3f: never a bare dash once the data is in
+    el.title = ok ? '' : 'The comparison starts once this race has traded and the benchmark has a level for that moment.';
   });
   dash.draw('dd', (el) => {
     const p = stFmt.whereOf(el), r = rowFor('drawdown', p);
@@ -4126,7 +4132,7 @@ body { background:var(--color-bg); }
       const box = mk('div', 'al-now');
       Object.keys(ALLIN).forEach((e) => { const rows = allinRows(e).slice().sort((a, b) => b.profit - a.profit); if (!rows.length) return;
         const p = mk('p', 'al-now-l'); p.appendChild(mk('b', '', ALLIN[e] + ': '));
-        rows.forEach((r, i) => { if (i) p.appendChild(document.createTextNode(' · ')); const sp = mk('span', '', (i === 0 && rows.length > 1 && r.profit - rows[1].profit >= 0.5 ? '👑 ' : '') + AIS[r.id].label + ' ' + (r.profit >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(r.profit)) + (r.busted ? ' (busted)' : '')); sp.style.color = AIS[r.id].color; p.appendChild(sp); });
+        rows.forEach((r, i) => { if (i) p.appendChild(document.createTextNode(' · ')); const sp = mk('span', '', (i === 0 && rows.length > 1 && r.profit - rows[1].profit >= 0.5 ? '👑 ' : '') + AIS[r.id].label + ' ' + ptSgn0(r.profit) + 'C$' + d3.format(',.0f')(Math.abs(r.profit)) + (r.busted ? ' (busted)' : '')); sp.style.color = AIS[r.id].color; p.appendChild(sp); });
         box.appendChild(p); });
       el.appendChild(box);
     }
@@ -5868,16 +5874,16 @@ body { background:var(--color-bg); }
         const col = one || (parts.find((x) => x.lead) || {}).lead; if (col && AIS[col.id || col]) c.style.setProperty('--ai', AIS[col.id || col].color); else c.style.removeProperty('--ai');
         c.append(mk('span', 'cr-k', '🎲'), mk('span', 'cr-s cr-side', 'All in side race:'));
         // each part shows its leader's profit and the runner-up with theirs, in C$ since the start (owner's request, Oct 30; same as the overall crown)
-        const money = (v) => { const sp = mk('span', 'cr-p ' + (v >= 0 ? 'up' : 'down'), (v >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(v))); return sp; };
+        const money = (v) => { const sp = mk('span', 'cr-p ' + (v >= 0 ? 'up' : 'down'), ptSgn0(v) + 'C$' + d3.format(',.0f')(Math.abs(v))); return sp; };
         parts.forEach((x, i) => { if (i) c.appendChild(mk('span', 'cr-s cr-sep', '·'));
           const part = mk('span', 'cr-part'); part.title = 'Open All in: ' + x.nm;   // each part opens its own section: trading → All in: trading, sports → All in: sports (owner, Oct 30)
           part.addEventListener('click', (ev) => { ev.stopPropagation(); (window.ptGoAllin || (() => goTab('allin')))(x.e); });
           if (x.lead) { const n = mk('span', 'cr-n'); n.style.color = AIS[x.lead.id].color; n.textContent = AIS[x.lead.id].label; part.append(aiBadge(x.lead.id, 14), n, document.createTextNode(' leads ' + x.nm), money(x.lead.profit));
             const sec = x.rows.find((r) => r.id !== x.lead.id);
-            if (sec && AIS[sec.id]) { const n2 = mk('span', 'cr-n2', AIS[sec.id].label); n2.style.color = AIS[sec.id].color; const g = mk('span', 'cr-g'); g.append(mk('span', 'cr-s', '(2nd'), n2, money(sec.profit)); g.lastChild.appendChild(mk('span', 'cr-s', ')')); part.append(g); } }
+            if (sec && AIS[sec.id]) { const n2 = mk('span', 'cr-n2', AIS[sec.id].label); n2.style.color = AIS[sec.id].color; const g = mk('span', 'cr-g'); g.append(mk('span', 'cr-s', '(2nd'), n2, sec.last ? money(sec.profit) : mk('span', 'cr-s', x.e === 'AllInSports' ? 'no bets yet' : 'no trades yet')); g.lastChild.appendChild(mk('span', 'cr-s', ')')); part.append(g); } }   // W3e
           else part.appendChild(document.createTextNode('no leader yet in ' + x.nm));
           c.appendChild(part); });
-        const sgn = (v) => (v >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(v));
+        const sgn = (v) => ptSgn0(v) + 'C$' + d3.format(',.0f')(Math.abs(v));
         const tip = parts.map((x) => x.lead ? 'All in: ' + x.nm + ': ' + x.rows.map((r, i) => (i + 1) + '. ' + (AIS[r.id] || {}).label + ' ' + sgn(r.profit)).join(', ') : 'no leader yet in All in: ' + x.nm).join('; ');
         c.title = tip + '. A separate side race with no caps and its own winner in each part; it never counts in the ten races. Tap to open All in.';
         c.setAttribute('aria-label', 'All in side race: ' + tip + '. Open All in.');
@@ -5890,7 +5896,7 @@ body { background:var(--color-bg); }
       if (!rows.length) { [navChip, headChip].forEach((c) => { c.hidden = true; }); return; }
       const L = dash.baseData('leader'); const n = (id) => ((rows.find((r) => r.id === id) || {}).leads || []).length;
       // each AI's total profit in C$ since the Oct 28 restart, shown with the crown for the leader and the runner-up (owner's request, Oct 30)
-      const P = (id) => { const v = (rows.find((r) => r.id === id) || {}).profit; return typeof v === 'number' ? (v >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(v)) : ''; };
+      const P = (id) => { const v = (rows.find((r) => r.id === id) || {}).profit; return typeof v === 'number' ? ptSgn0(v) + 'C$' + d3.format(',.0f')(Math.abs(v)) : ''; };
       const amt = (id, cls) => { const s = mk('span', 'cr-p' + (cls ? ' ' + cls : ''), P(id)); const v = (rows.find((r) => r.id === id) || {}).profit; if (typeof v === 'number') s.classList.add(v >= 0 ? 'up' : 'down'); return s; };
       const second = rows.length > 1 ? rows.filter((r) => r.id !== L).sort((a, b) => (b.profit || 0) - (a.profit || 0))[0] : null;
       // the crown = the highest total profit across the ten races, the official win rule (all three AIs agreed, Oct 29); amounts shown from Oct 30 (owner)
@@ -5900,8 +5906,8 @@ body { background:var(--color-bg); }
         if (L && AIS[L]) {
           c.style.setProperty('--ai', AIS[L].color);
           c.append(mk('span', 'cr-k', '👑'), aiBadge(L, 16), mk('span', 'cr-n', AIS[L].label), document.createTextNode(' leads overall'), amt(L));
+          c.append(mk('span', 'cr-s', '· first in ' + n(L) + ' of ' + total + ' races'));   // W3d: next to the leader, so it never reads as the runner-up's
           if (second && AIS[second.id]) { const n2 = mk('span', 'cr-n2', AIS[second.id].label); n2.style.color = AIS[second.id].color; const g = mk('span', 'cr-g'); g.append(mk('span', 'cr-s', '· 2nd'), aiBadge(second.id, 14), n2, amt(second.id)); c.append(g); }
-          c.append(mk('span', 'cr-s', '· leads ' + n(L) + ' of ' + total + ' races'));
           const sayAll = rows.map((r, i) => (i + 1) + '. ' + (AIS[r.id] || {}).label + ' ' + P(r.id)).join(', ');
           c.title = AIS[L].label + ' has made the most money in total. Total profit: ' + sayAll + '. ' + RULE + ' ' + AIS[L].label + ' is first in ' + n(L) + ' of the ' + total + ' races. Tap to compare them in AI vs AI.';
           c.setAttribute('aria-label', AIS[L].label + ' leads overall with ' + P(L) + ' total profit' + (second && AIS[second.id] ? '; second is ' + AIS[second.id].label + ' with ' + P(second.id) : '') + '. Leads ' + n(L) + ' of ' + total + ' races. Open AI vs AI.');
@@ -5936,7 +5942,7 @@ body { background:var(--color-bg); }
       const h = mk('b'); h.append(aiBadge(id, 16), document.createTextNode(AIS[id].label)); c.appendChild(h);
       c.appendChild(mk('span', 'sp-wl', w + '–' + l + (pu ? '–' + pu : '')));
       c.appendChild(mk('small', '', 'won–lost' + (pu ? '–push' : '') + (w + l ? ' · ' + Math.round(100 * w / (w + l)) + '% hit rate' : '')));
-      const n = mk('small', '', 'Settled: ' + (net >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(net)) + ' · ' + op.length + ' open (C$' + d3.format(',.0f')(op.reduce((a, b) => a + b.stake, 0)) + ' riding)'); c.appendChild(n);
+      const n = mk('small', '', 'Settled: ' + ptSgn0(net) + 'C$' + d3.format(',.0f')(Math.abs(net)) + ' · ' + op.length + ' open (C$' + d3.format(',.0f')(op.reduce((a, b) => a + b.stake, 0)) + ' riding)'); c.appendChild(n);
       recs.appendChild(c);
     });
     wrap.appendChild(recs);
@@ -5949,7 +5955,7 @@ body { background:var(--color-bg); }
         const icon = b.status === 'Won' ? '✅' : b.status === 'Lost' ? '❌' : '➖';
         li.append(mk('span', 'sp-ic', icon), mk('span', 'sp-who', AIS[b.id].label));
         const t = mk('span', 'sp-t'); t.append(document.createTextNode(b.pick + (b.odds ? ' (' + (b.odds > 0 ? '+' : '') + b.odds + ')' : '')), mk('small', '', b.event + (b.final ? ' · ' + b.final : '') + ' · ' + stFmt.when(b.settled)));
-        const amt = mk('span', 'sp-amt', (b.result >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(b.result))); tone(amt, b.result);
+        const amt = mk('span', 'sp-amt', ptSgn0(b.result) + 'C$' + d3.format(',.0f')(Math.abs(b.result))); tone(amt, b.result);
         li.append(t, amt); ul.appendChild(li);
       });
       wrap.appendChild(ul);
@@ -6056,7 +6062,7 @@ body { background:var(--color-bg); }
             li.appendChild(mk('span', 'h2h-pct', 'Leads ' + s.wins + ' of ' + counted));
             li.appendChild(mk('span', 'h2h-sub', 'races it is first in right now'));
           } else {
-            const pf = mk('span', 'h2h-pct', (s.profit >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(s.profit))); tone(pf, s.profit); li.appendChild(pf);
+            const pf = mk('span', 'h2h-pct', ptSgn0(s.profit) + 'C$' + d3.format(',.0f')(Math.abs(s.profit))); tone(pf, s.profit); li.appendChild(pf);
             li.appendChild(mk('span', 'h2h-sub', EXP_SEL ? 'profit in this experiment' : 'total profit · led ' + s.wins + ' of ' + counted + ' races'));
             const ml = mk('span', 'h2h-sub'); const mm = mk('span', 'is-up', 'Made +C$' + d3.format(',.0f')(s.made)); const ll = mk('span', 'is-down', 'Lost −C$' + d3.format(',.0f')(-s.lost));
             ml.append(mm, document.createTextNode(' · '), ll); if (!EXP_SEL) li.appendChild(ml);
@@ -6423,7 +6429,7 @@ body { background:var(--color-bg); }
     { const pr = Object.entries(lastV).filter(([e]) => PFS_ALL.includes(e)).map(([e, v]) => [e, Math.max(0, v) - 100000]).sort((a, b) => b[1] - a[1]);
       const fmtR = ([e, x]) => (LABEL[e] || e).replace(' (US$)', '') + ' ' + (x >= 0 ? '+' : '−') + (e === 'China' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(x));
       if (pr.length) { stat('Best race', fmtR(pr[0]), pr[0][1]); stat('Worst race', fmtR(pr[pr.length - 1]), pr[pr.length - 1][1]); } }
-    { const g = (e) => (ai[e] != null ? Math.max(0, ai[e]) - 100000 : null), f = (x) => (x >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(x)); const tr = g('AllInTrading'), sp = g('AllInSports');
+    { const g = (e) => (ai[e] != null ? Math.max(0, ai[e]) - 100000 : null), f = (x) => ptSgn0(x) + 'C$' + d3.format(',.0f')(Math.abs(x)); const tr = g('AllInTrading'), sp = g('AllInSports');
       if (tr !== null) stat('All in: trading', f(tr), tr); if (sp !== null) stat('All in: sports', f(sp), sp); }
     { // each race is its own experiment: no total across races here (owner's rule); drops are shown per race in Race standings
       let w = 0, l = 0;
@@ -6590,7 +6596,7 @@ body { background:var(--color-bg); }
         li.appendChild(nm);
         const g = Math.max(0, x.last) - 100000;
         li.appendChild(mk('span', 'h2h-sub h2h-cap', 'Overall profit since the start'));   // labelled so nobody mistakes it for one bet (owner, Oct 30)
-        const pc = mk('span', 'h2h-pct', (g >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(g))); tone(pc, g); li.appendChild(pc);
+        const pc = mk('span', 'h2h-pct', ptSgn0(g) + 'C$' + d3.format(',.0f')(Math.abs(g))); tone(pc, g); li.appendChild(pc);
         { const ob = mk('span', 'h2h-sub'); ob.appendChild(mk('b', '', 'Overall balance: ')); ob.appendChild(document.createTextNode('C$' + d3.format(',.0f')(Math.max(0, x.last)) + ' · ' + stFmt.pct(x.last / 100000 - 1) + ' (started with C$100,000)')); li.appendChild(ob); }
         const hold = [];
         Object.entries(x.book.positions || {}).forEach(([k, p]) => { const v = Number(p.qty) * Number(p.last != null ? p.last : p.entry) * (p.pcur === 'USD' ? usdcad : 1); hold.push((p.name || k) + ' C$' + d3.format(',.0f')(v)); });
@@ -6605,7 +6611,7 @@ body { background:var(--color-bg); }
           [[exp === 'AllInSports' ? 'Best bet' : 'Best trade', best], ['Last win', done.find((t) => res(t) > 0)], ['Last loss', done.find((t) => res(t) < 0)]].forEach(([lab, t]) => {
             const ln = mk('span', 'h2h-sub h2h-wl'); ln.appendChild(mk('b', '', lab + ': '));
             if (!t) { ln.appendChild(document.createTextNode('none yet')); }
-            else { const v = res(t); const amt = mk('span', '', (v >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(v))); tone(amt, v); ln.append(amt, document.createTextNode(' · ' + what(t) + ' · ' + stFmt.whenET(t.at) + ' ET')); }
+            else { const v = res(t); const amt = mk('span', '', ptSgn0(v) + 'C$' + d3.format(',.0f')(Math.abs(v))); tone(amt, v); ln.append(amt, document.createTextNode(' · ' + what(t) + ' · ' + stFmt.whenET(t.at) + ' ET')); }
             li.appendChild(ln);
           });
         }
@@ -7281,7 +7287,7 @@ body { background:var(--color-bg); }
     return box;
   };
   const nmMeasured = (x) => mk('li', '', x.label + ': ' + nmPx(x.before) + ' (' + nmET(x.before_at) + ') → ' + nmPx(x.last) + ' (' + nmET(x.last_at) + '), '
-    + (x.chg >= 0 ? '+' : '−') + d3.format('.1%')(Math.abs(x.chg)) + '; low ' + nmPx(x.low) + ', high ' + nmPx(x.high) + ' in between');
+    + ptSgnP(x.chg) + d3.format('.1%')(Math.abs(x.chg)) + '; low ' + nmPx(x.low) + ', high ' + nmPx(x.high) + ' in between');
   const nmLink = (title, url) => { const a = mk('a', '', title); a.href = url;
     if (/^#/.test(url)) a.addEventListener('click', (ev) => { ev.preventDefault(); goTab(url.slice(1)); }); else { a.target = '_blank'; a.rel = 'noopener'; }
     return a; };
@@ -7634,7 +7640,7 @@ body { background:var(--color-bg); }
         n.appendChild(mk('small', 'pd-leads', (r.busted ? 'BUSTED · ' : '') + (r.holds.length ? (el._exp === 'AllInSports' ? 'Open bets: ' : 'Holds ') + r.holds.slice(0, 3).join(', ') + (r.holds.length > 3 ? ' +' + (r.holds.length - 3) + ' more' : '') : el._exp === 'AllInSports' ? 'No open bets' : 'All cash')));
         const tie = i > 0 && Math.abs(r.profit - rows[i - 1].profit) < 0.5;
         bt.append(mk('span', 'pd-place', i === 0 && rows.length > 1 && rows[0].profit - rows[1].profit >= 0.5 ? '👑 1st' : tie ? '=' : ['1st', '2nd', '3rd'][i] || (i + 1) + 'th'), n);
-        const am = mk('span', 'pd-amt', (r.profit >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(r.profit))); tone(am, r.profit); am.appendChild(mk('small', 'pd-amt-l', r.profit < -0.5 ? 'loss' : 'profit')); bt.appendChild(am);
+        const am = mk('span', 'pd-amt', ptSgn0(r.profit) + 'C$' + d3.format(',.0f')(Math.abs(r.profit))); tone(am, r.profit); am.appendChild(mk('small', 'pd-amt-l', r.profit < -0.5 ? 'loss' : 'profit')); bt.appendChild(am);
         bt.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2 && s2.value !== r.id) { s2.value = r.id; s2.dispatchEvent(new Event('change')); } goAllin(el._exp); });
         li.appendChild(bt); ol.appendChild(li);
       });
@@ -7676,7 +7682,9 @@ body { background:var(--color-bg); }
     const me = rows.find((r) => r.id === dash.model) || rows[0];
     const box = mk('div', 'pd-detail'); box.style.setProperty('--ai', AIS[me.id].color);
     box.appendChild(mk('b', '', AIS[me.id].label + ' in ' + (LABEL[el._exp] || el._exp)));
-    { const rk = RISK[el._exp]; if (rk) { const b2 = mk('span', 'bg-risk bg-risk-' + rk[0].toLowerCase(), 'Market risk: ' + rk[0]); b2.title = rk[1]; box.appendChild(b2); box.appendChild(mk('p', 'bg-only bg-note', rk[1])); } }
+    { const rk = RISK[el._exp]; const pie0 = (me.pie || []).filter((x) => x.value > 0); const idle = pie0.length > 0 && pie0.every((x) => /^(Cash|Not bet)/.test(x.name || ''));
+      if (rk && idle) { const b2 = mk('span', 'bg-risk bg-risk-none', /^(Sports|Predictions|AllInSports)$/.test(el._exp) ? 'No open bets · nothing at risk now' : 'All cash · no market risk now'); b2.title = 'This market’s risk level: ' + rk[0] + '. ' + rk[1]; box.appendChild(b2); }   // W3c: never "Market risk: high" on an AI that is all cash
+      else if (rk) { const b2 = mk('span', 'bg-risk bg-risk-' + rk[0].toLowerCase(), 'Market risk: ' + rk[0]); b2.title = rk[1]; box.appendChild(b2); box.appendChild(mk('p', 'bg-only bg-note', rk[1])); } }
     const pie = (me.pie || []).filter((x) => x.value > 0);
     if (pie.length) box.appendChild(pieNode(pie));
     box.appendChild(mk('p', 'pd-last', me.last ? 'Last trade: ' + me.last.text + ' · ' + stFmt.when(me.last.at) : 'No trades yet in this race.'));
@@ -7851,7 +7859,7 @@ body { background:var(--color-bg); }
       ? dash.baseData('bets').filter((b) => (b.status === 'Won' || b.status === 'Lost') && b.settled_at).map((b) => ({ at: Date.parse(b.settled_at), won: b.status === 'Won', pnl: b.status === 'Won' ? Number(b.result_cad || 0) : -Number(b.stake_cad || 0), what: String(b.pick || '').replace(/ moneyline$/, '') }))
       : dash.baseData('rivals_trades').filter((t) => t.model === id && t.experiment === 'Sports' && (t.action === 'Won' || t.action === 'Lost')).map((t) => ({ at: Date.parse(t.at), won: t.action === 'Won', pnl: Number(t.pnl != null ? t.pnl : t.action === 'Lost' ? -(t.stake || 0) : t.amount || 0), what: String(t.name || '').replace(/^[A-Z]+: /, '').replace(/ moneyline.*$/, '') }));
     const open = id === 'claude' ? dash.baseData('bets').filter((b) => b.status === 'Open').length : ((((dash.baseData('rivals_models').find((m) => m.id === id) || {}).books || {}).Sports || {}).bets || []).filter((b) => b.status === 'Open').length;
-    const m$ = (v) => (v >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(v));
+    const m$ = (v) => ptSgn0(v) + 'C$' + d3.format(',.0f')(Math.abs(v));
     const openTxt = open ? ' · ' + open + ' open' : '';
     const day = res.filter((x) => Date.now() - x.at < 864e5);
     if (day.length) { const w = day.filter((x) => x.won).length, l = day.length - w; return 'Last 24 h: ' + (w ? w + (w === 1 ? ' win' : ' wins') : '') + (w && l ? ', ' : '') + (l ? l + (l === 1 ? ' loss' : ' losses') : '') + ' · ' + m$(day.reduce((a, x) => a + x.pnl, 0)) + openTxt; }
@@ -7908,7 +7916,7 @@ body { background:var(--color-bg); }
     const by = {}; H.forEach((h) => { (by[h.id + '|' + h.e] = by[h.id + '|' + h.e] || []).push(h); });
     const moves = {}; Object.values(by).forEach((pts) => { const last = pts[pts.length - 1]; if (now - last.t > HOUR || !open.has(last.e)) return; const base = pts.filter((q) => q.t <= now - HOUR).pop() || pts[0]; const d = (last.v - base.v) * (last.e === 'China' ? fx : 1); if (!moves[last.e] || Math.abs(d) > Math.abs(moves[last.e].d)) moves[last.e] = { d, id: last.id }; });
     const sharp = Object.entries(moves).filter(([race, m]) => Math.abs(m.d) >= (ALLIN[race] ? 5000 : 1000)).sort((a, b) => Math.abs(b[1].d) - Math.abs(a[1].d))[0];   // the uncapped All in side race needs a bigger swing (C$5,000 in an hour) to take over
-    const mv = (race) => moves[race] && Math.abs(moves[race].d) >= 1 ? ' Biggest move in the last hour: ' + AIS[moves[race].id].label + ' ' + (moves[race].d >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(moves[race].d)) + '.' : '';
+    const mv = (race) => moves[race] && Math.abs(moves[race].d) >= 1 ? ' Biggest move in the last hour: ' + AIS[moves[race].id].label + ' ' + ptSgn0(moves[race].d) + 'C$' + d3.format(',.0f')(Math.abs(moves[race].d)) + '.' : '';
     // news beats the open session: a sharp move in a market's main price (Bitcoin, the S&P 500, oil, gold, the CSI 300, USD/JPY),
     // even if no AI holds it. Thresholds per market, for the last hour (or 1.5x that over 3 hours); only while that price is live.
     const NEWS = { Crypto: 0.03, Stocks: 0.015, Energy: 0.03, Metals: 0.02, China: 0.02, Currencies: 0.01 };
@@ -7923,7 +7931,7 @@ body { background:var(--color-bg); }
     const top = Object.entries(moves).sort((x, y) => Math.abs(y[1].d) - Math.abs(x[1].d))[0];
     const checks = [
       ['News: ' + (news ? 'a big move in ' + raceName(news.race) : 'no big price move in any market right now'), !!news],
-      ['Sharp swings: ' + (sharp ? raceName(sharp[0]) + ' moved ' + (sharp[1].d >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(sharp[1].d)) + ' in the last hour' : 'none of C$1,000 or more in the last hour' + (top ? ' (largest: ' + AIS[top[1].id].label + ' ' + (top[1].d >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(top[1].d)) + ' in ' + raceName(top[0]) + ')' : '')), !!sharp],
+      ['Sharp swings: ' + (sharp ? raceName(sharp[0]) + ' moved ' + ptSgn0(sharp[1].d) + 'C$' + d3.format(',.0f')(Math.abs(sharp[1].d)) + ' in the last hour' : 'none of C$1,000 or more in the last hour' + (top ? ' (largest: ' + AIS[top[1].id].label + ' ' + ptSgn0(top[1].d) + 'C$' + d3.format(',.0f')(Math.abs(top[1].d)) + ' in ' + raceName(top[0]) + ')' : '')), !!sharp],
       ['China stocks: ' + (chinaOpen ? 'Shanghai is trading' : 'Shanghai is closed'), chinaOpen],
       ['US stocks, options, oil, metals, Play it safe: ' + (usOpen ? 'New York is trading' : 'New York is closed' + (usNext ? ' (opens ' + usNext + ')' : '')), usOpen],
       ['Currencies: ' + (fxOpen ? 'forex is trading' : 'forex is closed for the weekend'), fxOpen],
@@ -8602,10 +8610,10 @@ body { background:var(--color-bg); }
         let dd = x ? x.dd : null;
         if (dd == null && ser.length) { let pk = 100000, m = 0; ser.concat([[now, v]]).forEach((p) => { pk = Math.max(pk, p[1]); if (pk > 0) m = Math.max(m, (pk - p[1]) / pk); }); dd = m * 100; }
         const w = mk('span', 'st-score-amt st-score-dd');
-        const c24 = mk('span', d24 > 0.00005 ? 'is-up' : d24 < -0.00005 ? 'is-down' : '', '24h ' + (d24 >= 0 ? '+' : '−') + Math.abs(d24 * 100).toFixed(1) + '%');
+        const c24 = mk('span', ptSgnP(d24) === '+' ? 'is-up' : ptSgnP(d24) === '−' ? 'is-down' : '', '24h ' + ptSgnP(d24) + Math.abs(d24 * 100).toFixed(1) + '%');
         c24.title = 'Change in the last 24 hours' + (before.length ? '' : ' (since this race started, less than 24 hours ago)');
         w.appendChild(c24);
-        if (dd != null) { w.appendChild(document.createTextNode(' · Worst drop −' + dd.toFixed(1) + '%')); w.title = 'Worst drop: the biggest fall from a high point in this race since the start (owner and all three AIs, Oct 30)'; }
+        if (dd != null) { w.appendChild(document.createTextNode(dd.toFixed(1) === '0.0' ? ' · No drop yet' : ' · Worst drop −' + dd.toFixed(1) + '%')); w.title = 'Worst drop: the biggest fall from a high point in this race since the start (owner and all three AIs, Oct 30)'; }
         b.appendChild(w); }
       b.setAttribute('aria-label', 'Rank ' + rank + ': ' + AIS[r.id].label + ' in ' + rn + ', ' + stFmt.pct(r.pct) + '. Opens it as ' + AIS[r.id].label + '.');
       b.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2 && s2.value !== r.id) { s2.value = r.id; s2.dispatchEvent(new Event('change')); } if (ALLIN[r.race]) goAllin(r.race); else goTab(TABOF[r.race]); });

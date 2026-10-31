@@ -843,7 +843,9 @@ for _e in _EXPS:
                    f"Push on {_nm}: {b2c(lt['stake'])} stake returned, no profit")
             last = {'at': lt['at'], 'text': _tx}
         elif lt and lt['action'] in ('Sell', 'Cover', 'Settled', 'Expired') and lt.get('pnl') is not None:
-            last = {'at': lt['at'], 'text': f"{lt['action']} {lt.get('name') or lt['symbol']} ({b2c(abs(lt['amount']), lt['cur'])}): {'+' if lt['pnl'] >= 0 else '−'}{b2c(abs(lt['pnl']), lt['cur'])} profit"}
+            last = {'at': lt['at'], 'text': f"{lt['action']} {lt.get('name') or lt['symbol']} ({b2c(abs(lt['amount']), lt['cur'])}): {'profit' if lt['pnl'] >= 0 else 'loss'} {b2c(abs(lt['pnl']), lt['cur'])}"}   # W3a: never "−C$396 profit"
+        elif lt and lt['action'] in ('Won', 'Lost') and lt.get('amount') is not None:   # Gemini's and ChatGPT's results keep the result in amount (no stake field)
+            last = {'at': lt['at'], 'text': f"{lt['action']} {lt.get('name') or lt['symbol']}: {'profit' if float(lt['amount']) >= 0 else 'loss'} {b2c(abs(float(lt['amount'])), lt['cur'])}"}
         else:
             last = {'at': lt['at'], 'text': f"{lt['action']} {lt.get('name') or lt['symbol']} ({b2c(abs(lt['amount']), lt['cur'])})"} if lt else None
         _es[_e].append({'id': _mid, 'value': round(v, 2), 'profit': round(max(v, 0) - 100000.0, 2), 'holds': held[:20],
