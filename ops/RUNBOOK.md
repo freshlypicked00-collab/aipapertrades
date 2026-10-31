@@ -590,3 +590,6 @@ youtube.yml now posts one story Short a day (ops/metricool.py story -> ops/story
 approved the format and waived his preview (Oct 31), so the checks in story_short.py must never be loosened.
 
 Discord alert roles (owner, Oct 31): members opt in during Onboarding. Lead-change posts mention @Lead Change Alerts (ROLE_LEADS); the daily race card and the Sunday week recap in #daily-results mention @Daily Results Alerts (ROLE_DAILY). Only that role is pinged (allowed_mentions), never @everyone. Role IDs live in ops/discord.py; they are not secrets.
+
+## Race-lead posts ("Day N of 32: who leads each race?") (owner, Oct 31)
+Always build them with `python3 ops/raceleads.py` from the live standings (run `python3 ops/build_site.py ops/src .` first), never by hand. It writes ops/note.txt (Telegram, copied to Discord) and ops/x_note.json (X), and ALWAYS includes the All in side race as its own lines ("Side race (All in, no limits, never counted in the ten)"), separate from the ten races. Publish with telegram.yml mode note and x.yml mode note. Write the name PaperTrades.AI.
