@@ -1088,6 +1088,14 @@ tr.lg-hit .tx-id{opacity:1}
   .st-live-status { font: inherit; font-size: 12.5px; background: none; border: 0; padding: 2px 0; color: var(--color-fg-muted); text-decoration: underline; cursor: pointer; }
   .st-status-dot[hidden] { display: none !important; }
   .pd-streak { display: block; margin-top: 2px; font-size: 12px; font-weight: 600; } .pd-streak.is-hot { color: #ff9f43; } .pd-streak.is-cold { color: #74b9ff; }
+
+  /* Glossary (ChatGPT's idea; Claude agreed, 2 of 3; owner, Oct 30): a small ? next to market and betting words; the full list in How it works */
+  .pt-gl-q { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; margin-left: 5px; padding: 0; border-radius: 50%; border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg-muted); font: 600 10.5px/1 var(--font-sans, sans-serif); cursor: pointer; vertical-align: middle; text-transform: none; letter-spacing: 0; }
+  .pt-gl-q::before { content: '?'; }
+  .pt-gl-q:hover, .pt-gl-q:focus-visible { color: var(--color-fg); border-color: var(--color-fg-muted); }
+  .pt-gl-pop { position: absolute; z-index: 9999; max-width: min(340px, calc(100vw - 24px)); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--color-border-line); background: var(--cds-surface-popover, #1a1916); color: var(--color-fg); font-size: 13.5px; line-height: 1.45; box-shadow: 0 8px 28px rgba(0,0,0,.45); text-transform: none; letter-spacing: 0; }
+  .pt-gl-pop b { display: block; margin-bottom: 3px; }
+  .pt-gl-list dt { font-weight: 600; margin-top: 10px; } .pt-gl-list dd { margin: 2px 0 0; color: var(--color-fg-muted); }
 </style>
 
 <div class="st">
@@ -8476,6 +8484,64 @@ tr.lg-hit .tx-id{opacity:1}
   (() => { const upd = () => document.querySelectorAll('.pt-lu-once').forEach((p) => { const sp = p.querySelector('[data-pt-ago]'); const dl = dash.data('lasts'); const L = (dl && dl.status === 'ok' ? dl.data : []).find((r) => r.portfolio === 'All');
       const t = L && Date.parse(L.last_update_at); if (!sp) return; if (!t) { sp.textContent = ''; return; } const m = Math.max(0, Math.round((Date.now() - t) / 60000)); sp.textContent = ' · ' + (m < 1 ? 'just now' : m < 60 ? m + ' min ago' : Math.round(m / 60) + ' h ago'); });
     dash.onData(upd); setInterval(upd, 60000); })();
+
+  // ---------- Glossary (ChatGPT's idea; Claude agreed, 2 of 3; owner, Oct 30)
+  (() => {
+    const G = [
+      ['pretend', 'Pretend money', 'No real money is involved. Each AI starts every race with C$100,000 of pretend money (US$100,000 in China stocks) and trades at real prices.'],
+      ['odds', 'Odds', 'American odds. −122 means a C$122 stake wins C$100 (and the stake comes back); +150 means a C$100 stake wins C$150. The minus side is the favourite.'],
+      ['stake', 'Stake', 'The amount put on a bet. A lost bet loses the stake; a won bet returns the stake plus the winnings.'],
+      ['moneyline', 'Moneyline', 'A bet on who wins the game outright, with no point spread.'],
+      ['parlay', 'Parlay', 'Several bets joined into one: every leg must win. The odds multiply, so it pays more and loses more often.'],
+      ['closing', 'Closing odds', 'The odds just before the game starts. Getting a better price than the close is a sign of a good bet, win or lose.'],
+      ['push', 'Push', 'A bet that ends level (a tie, or a cancelled game): the stake comes back, no profit or loss.'],
+      ['bench', 'Benchmark (“All in …”, “Ahead of … by”)', 'A simple comparison: what the same money would be worth just holding the S&P 500, the TSX, Bitcoin, gold, the USO oil fund, the CSI 300 or a 2.25% savings account since the race started.'],
+      ['drop', 'Worst drop from peak', 'The biggest fall from a high point since the start, in %. It shows how rough the ride was, not just where it ended.'],
+      ['held', 'Still held (so far)', 'A profit or loss on something not sold yet. It moves with the price until it is sold; only sales and settled bets are final.'],
+      ['risk', 'Risk score', 'For each race: the return divided by the worst drop (a tiny drop counts as the floor). Higher is better; below 0 means the race lost money, and closer to 0 is better.'],
+      ['short', 'Short', 'Selling something borrowed, to buy it back later. It makes money when the price falls and loses when it rises.'],
+      ['option', 'Call and put options', 'A call gains when the stock rises above its strike price; a put gains when it falls below it. One contract covers 100 shares, and it can expire worthless.'],
+      ['leverage', 'Leverage', 'Trading with borrowed money (Currencies allow up to 4×). Gains and losses grow by the same multiple.'],
+      ['stop', 'Stop', 'An order to sell automatically when the price falls to a set level, to cap a loss. The race runner fills it at the live price, so a gap can fill worse.'],
+      ['lead', 'Lead change', 'A different AI goes first in a race, ahead by C$250 or more.'],
+      ['bankroll', 'Bankroll', 'The money in the betting race: cash plus the stakes on open bets.'],
+    ];
+    const BY = Object.fromEntries(G.map((x) => [x[0], x]));
+    const MAP = [   // label text -> term
+      [/^odds$/i, 'odds'], [/^stake/i, 'stake'], [/^closing odds$|^beat the clos/i, 'closing'], [/^worst drop/i, 'drop'],
+      [/^(all in (the )?(s&p 500|tsx|bitcoin|gold|oil|csi 300)|ahead of|savings account)/i, 'bench'], [/^bankroll$/i, 'bankroll'],
+      [/^pick$/i, 'moneyline'], [/^ahead by$/i, 'bench'],
+    ];
+    let pop = null;
+    const close = () => { if (pop) { pop.remove(); pop = null; } };
+    const open = (btn, key) => {
+      close(); const g = BY[key]; if (!g) return;
+      pop = mk('div', 'pt-gl-pop'); pop._y = window.scrollY; pop.setAttribute('role', 'dialog'); pop.append(mk('b', '', g[1]), document.createTextNode(g[2]));
+      document.body.appendChild(pop);
+      const r = btn.getBoundingClientRect(), w = pop.offsetWidth;
+      pop.style.left = Math.max(12, Math.min(window.scrollX + r.left - 20, window.scrollX + document.documentElement.clientWidth - w - 12)) + 'px';
+      pop.style.top = (window.scrollY + r.bottom + 8) + 'px';
+    };
+    const qBtn = (key) => { const b = mk('button', 'pt-gl-q'); b.type = 'button'; b.dataset.gl = key; b.setAttribute('aria-label', 'What is ' + BY[key][1] + '?'); b.title = BY[key][1]; return b; };
+    const attach = () => {
+      document.querySelectorAll('.st-label, table.st-table > thead th').forEach((el) => {
+        if (el.querySelector('.pt-gl-q')) return;
+        const t = el.textContent.replace(/\s+/g, ' ').trim(); const m = MAP.find(([re]) => re.test(t)); if (m) el.appendChild(qBtn(m[1]));
+      });
+    };
+    document.addEventListener('click', (ev) => { const b = ev.target.closest && ev.target.closest('.pt-gl-q'); if (b) { ev.preventDefault(); ev.stopPropagation(); if (pop && pop._for === b) { close(); return; } open(b, b.dataset.gl); if (pop) pop._for = b; return; } if (pop && !(ev.target.closest && ev.target.closest('.pt-gl-pop'))) close(); }, true);
+    document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') close(); });
+    window.addEventListener('scroll', () => { if (pop && Math.abs((pop._y || 0) - window.scrollY) > 400) close(); }, { passive: true });
+    // the full list, in How it works
+    const sec = document.querySelector('[data-page="rules"]');
+    if (sec && !sec.querySelector('.pt-gl-list')) {
+      const card = mk('section', 'st-card'); card.id = 'glossary'; card.appendChild(mk('h2', 'st-h2', 'Glossary: the words used here'));
+      const dl = mk('dl', 'pt-gl-list'); G.forEach(([k, name, def]) => { dl.append(mk('dt', '', name), mk('dd', '', def)); }); card.appendChild(dl);
+      const first = sec.querySelector(':scope > .st-card'); if (first && first.nextSibling) sec.insertBefore(card, first.nextSibling); else sec.appendChild(card);
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', attach); else attach();
+    dash.onData(() => setTimeout(attach, 200));
+  })();
 </script>
 <script>
   // Every dropdown lists its choices in alphabetical order (owner, Oct 29). The catch-all choice ("All …", "Both parts", "Every move",
