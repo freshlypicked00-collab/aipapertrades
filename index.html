@@ -1351,7 +1351,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '56e7b38af4cf';</script>
+<script>window.PT_PAGE_VER = '4d317a4319ed';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -7473,7 +7473,7 @@ body { background:var(--color-bg); }
     const fx = (q) => /=X$/.test(q.sym);
     const num = (q) => { const v = q.price, s = fx(q) ? '' : (SY[q.cur] || ''); const isIdx = /^\^|000300/.test(q.sym);
       return (isIdx ? '' : s) + (v >= 1000 ? d3.format(',.0f')(v) : v >= 10 ? d3.format(',.2f')(v) : d3.format(',.4f')(v)); };
-    const pct = (x, lab) => { const sp = mk('span', 'pt-tk-c ' + (x >= 0 ? 'is-up' : 'is-down'), (x >= 0 ? '▲ +' : '▼ −') + Math.abs(x * 100).toFixed(1) + '% ' + lab); return sp; };
+    const pct = (x, lab) => { const z = ptSgnP(x) === ''; const sp = mk('span', 'pt-tk-c ' + (z ? '' : x > 0 ? 'is-up' : 'is-down'), (z ? '' : x > 0 ? '▲ +' : '▼ −') + Math.abs(x * 100).toFixed(1) + '% ' + lab); return sp; };   // W3b: 0.0% has no arrow, sign or colour
     const row = mk('div', 'pt-tk-row');
     // each price opens its live quote on Yahoo Finance (where the ticker's prices come from), in a new tab (owner, Oct 29)
     const item = (q) => { const it = mk('a', 'pt-tk-i'); it.href = 'https://finance.yahoo.com/quote/' + encodeURIComponent(q.sym) + '/'; it.target = '_blank'; it.rel = 'noopener';
