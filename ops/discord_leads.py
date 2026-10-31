@@ -26,15 +26,35 @@ def money(v, cur):
     return ('+' if v >= 0 else '−') + sym + f'{abs(v):,.0f}'
 
 
+def _dur(h):
+    if h is None:
+        return ''
+    return 'under an hour' if h < 1 else f'{round(h)} h' if h < 48 else f'{round(h / 24)} days'
+
+
+def rivalry(m):
+    """'ChatGPT had led for 9 h · 4th lead change in this race' (numbers from the value history; nothing estimated)."""
+    bits = []
+    if m.get('over') and m.get('held_h') is not None:
+        bits.append(f"{AIS.get(m['over'], m['over'])} had led for {_dur(m['held_h'])}")
+    n = m.get('nth')
+    if n:
+        bits.append(f"{n}{'th' if 10 <= n % 100 <= 20 else {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')} lead change in this race")
+    return ' · '.join(bits)
+
+
 def text(m):
     who, race, cur = AIS.get(m['who'], m['who']), LABEL.get(m['race'], m['race']), m.get('cur', 'CAD')
     prof = m.get('profit') or {}
     order = sorted(prof, key=lambda k: -prof[k])
     medal = ['🥇', '🥈', '🥉']
     at = datetime.fromisoformat(m['at'].replace('Z', '+00:00')).astimezone(ZoneInfo('America/New_York'))   # EDT, then EST from Nov 1
-    lines = [f"👑 <b>{who} takes the lead in {race}</b>"]
+    lines = [f"👑 <b>{who} {'retakes' if m.get('again') else 'takes'} the lead in {race}</b>"]
     if m.get('over'):
         lines.append(f"Passed {AIS.get(m['over'], m['over'])}" + (f", now ahead by {money(m['lead'], cur)[1:]}" if m.get('lead') is not None else '') + '.')
+    ctx = rivalry(m)   # W14 (owner, Oct 30; all three AIs agreed): how long the last lead lasted and how many times it has changed
+    if ctx:
+        lines.append(ctx)
     if order:
         lines.append(' · '.join(f"{medal[i]} {AIS.get(k, k)} {money(prof[k], cur)}" for i, k in enumerate(order[:3])))
     lines.append(f"{at.strftime('%b %-d, %-I:%M %p')} ET · profit since the Oct 28 restart · {SITE}")

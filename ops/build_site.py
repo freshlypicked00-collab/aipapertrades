@@ -1035,6 +1035,7 @@ def _moments():
     for _e in _EXPS:   # Claude's values on Oct 28 before the restart time count from its restart value
         base[('claude', _e)] = _lastv([(h['at'], float(h['value'])) for h in data['history'] if h['portfolio'] == _e])[1]
     cur, lead, last_at, out = {}, {}, {}, []
+    took, nchg, ever = {}, {}, {}   # W14 (owner, Oct 30; all three AIs agreed): when the leader took over, how many lead changes, who has led before
     fx = float(_cfx)
     groups = {}
     for at, mid, e, v in ev:   # values saved at the same moment are applied together, so a half-updated race never looks like a lead change
@@ -1061,15 +1062,20 @@ def _moments():
             if was is None:
                 if gap >= need:
                     lead[race] = top
+                    took[race] = at; ever.setdefault(race, set()).add(top)
                 continue
             if top != was and gap >= need:
+                held = (at - took[race]).total_seconds() / 3600 if race in took else None
+                again = top in ever.get(race, set())
                 lead[race] = top
+                took[race] = at; ever.setdefault(race, set()).add(top); nchg[race] = nchg.get(race, 0) + 1
                 if race in last_at and (at - last_at[race]).total_seconds() < 12 * 3600:
                     continue
                 last_at[race] = at
                 out.append({'id': f"{race}-{at.strftime('%Y%m%d%H%M')}-{top}", 'at': at.isoformat().replace('+00:00', 'Z'), 'race': race,
                             'who': top, 'over': was, 'lead': round(gap, 2), 'cur': 'USD' if race == 'China' else 'CAD',
-                            'profit': {m: round(vals[m], 2) for m in vals}})
+                            'profit': {m: round(vals[m], 2) for m in vals},
+                            'held_h': round(held, 1) if held is not None else None, 'nth': nchg[race], 'again': again})
     return out[::-1][:20]
 
 

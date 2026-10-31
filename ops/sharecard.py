@@ -22,6 +22,23 @@ VERB = {'Buy': 'buys', 'Sell': 'sells', 'Short': 'shorts', 'Cover': 'covers', 'B
         'Push': 'gets a refund', 'Void': 'gets a refund', 'Settled': 'settles', 'Expired': 'lets an option expire', 'Penalty': 'is fined'}
 
 
+ROBOTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'robots')
+
+
+def _robot(im, who, x, y, size):
+    """W13 (owner, Oct 30; all three AIs agreed): the AI's robot head (the site's mascots, ops/robots/*.png), small, in a corner,
+    so a viewer recognises the AI before reading. Fails soft: no file, no robot."""
+    try:
+        from PIL import Image
+        r = Image.open(os.path.join(ROBOTS, who + '.png')).convert('RGBA').resize((size, size), Image.LANCZOS)
+        if im.mode != 'RGBA':
+            base = im.convert('RGBA'); base.alpha_composite(r, (int(x), int(y))); im.paste(base.convert(im.mode))
+        else:
+            im.alpha_composite(r, (int(x), int(y)))
+    except Exception as e:
+        print('robot skipped:', e)
+
+
 def _font(weight, px):
     from PIL import ImageFont
     name = {'bold': 'IBMPlexSansCondensed-Bold.ttf', 'semi': 'IBMPlexSansCondensed-SemiBold.ttf', 'med': 'IBMPlexSansCondensed-Medium.ttf',
@@ -83,7 +100,9 @@ def _base(who, race, when=None):
     w = (when or datetime.now(timezone.utc)).astimezone(__import__('zoneinfo').ZoneInfo('America/New_York'))
     sub = (LABEL.get(race, race) if race else 'ALL TEN RACES').upper() + ' · ' + w.strftime('%b %-d, %-I:%M %p ET').replace('AM', 'a.m.').replace('PM', 'p.m.')
     g.text((80, 128), sub, font=_font('med', 30), fill=MUTED)
-    return im, g
+    _robot(im, who, S - 80 - 76, 52, 76)
+    from PIL import ImageDraw
+    return im, ImageDraw.Draw(im)
 
 
 def _foot(g, line='Every trade and bet · pretend money, real prices'):
@@ -486,7 +505,9 @@ def _head(g, who, exp, at, idx=None, total=None, top=None):
     g.text((80, 116), sub, font=_font('med', 30), fill=MUTED)
     if idx and total and total > 1:
         s = f'{idx} / {total}'
-        g.text((S - 80 - g.textlength(s, font=_font('semi', 30)), 116), s, font=_font('semi', 30), fill=MUTED)
+        g.text((S - 80 - 66 - 16 - g.textlength(s, font=_font('semi', 30)), 116), s, font=_font('semi', 30), fill=MUTED)
+    if who in AIS and getattr(g, '_image', None) is not None:
+        _robot(g._image, who, S - 80 - 66, 54, 66)
 
 
 def _finish(im, g, y, path, line='Pretend money, real prices · every move on papertrades.ai'):
@@ -659,7 +680,12 @@ def cover_card(who, moves, path='/tmp/cover_card.png', more=0, exits=None):
                 g.text((80, y + 50), det, font=fs, fill=MUTED)
                 g.text((S - 80 - g.textlength(pct, font=_font('bold', 30)), y + 50), pct, font=_font('bold', 30), fill=UP if ex['pct'] >= 0 else DOWN)
             else:
-                if isinstance(px, (int, float)):
+                if act in RESULTS:   # a bet result: its final score, never "1.00 at C$-122.0000" (the odds are not a price)
+                    sc = score_of(t)
+                    det = (f"Final: {sc['away']} {sc['as']}, {sc['home']} {sc['hs']}" if sc else ('Parlay settled' if legs_of(t) else '')) + (f" · odds {int(px):+d}" if isinstance(px, (int, float)) else '')
+                    while g.textlength(det, font=fs) > S - 160 and len(det) > 10:
+                        det = det[:-2].rstrip() + '…'
+                elif isinstance(px, (int, float)):
                     det += (f'odds {int(px):+d}' if act == 'Bet' else (qty_txt(t['qty'], t) + ' ' if t.get('qty') and act != 'Bet' and t.get('experiment') != 'Predictions' else '') + 'at ' + price(px, pc) + _unit(t)[0])
                 g.text((80, y + 50), det, font=fs, fill=MUTED)
             y += 112
