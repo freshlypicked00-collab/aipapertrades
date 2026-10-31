@@ -1076,6 +1076,12 @@ tr.lg-hit .tx-id{opacity:1}
   .pt-wel-btn.is-main { background: var(--color-fg); color: var(--color-bg, #0b0b0a); border-color: var(--color-fg); font-weight: 600; }
   .pt-wel-x { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg-muted); font-size: 14px; cursor: pointer; }
   .pt-since.pt-since-top { margin: 10px 0 12px; }
+
+  /* W6: every Eastern time on the page is tappable for UTC and Hong Kong time; the China race shows Beijing time next to it */
+  .pt-t { cursor: help; text-decoration: underline dotted 1px; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: 3px; }
+  .pt-t.is-open::after { content: ' (' attr(data-alt) ')'; color: var(--color-fg-muted); text-decoration: none; display: inline; }
+  [data-page="china"] .pt-t:not(.is-open)::after { content: ' · ' attr(data-bj); color: var(--color-fg-muted); }
+  .pt-lu-each { display: none !important; }   /* W6: said once above the ten cards (.pt-lu-once), not on each card */
 </style>
 
 <div class="st">
@@ -1285,7 +1291,7 @@ tr.lg-hit .tx-id{opacity:1}
     </section>
     <section class="st-card" aria-labelledby="h-s-events">
       <h2 class="st-h2" id="h-s-events">Coming up</h2>
-      <p class="st-note">Events ahead that could move this simulation. Times are Eastern (ET), with UTC in brackets.</p>
+      <p class="st-note">Events ahead that could move this simulation. Times are Eastern (ET); tap or point at a time for UTC and Hong Kong time.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="events" data-row-key="at,event">
           <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
@@ -1369,7 +1375,7 @@ tr.lg-hit .tx-id{opacity:1}
     </section>
     <section class="st-card" aria-labelledby="h-c-events">
       <h2 class="st-h2" id="h-c-events">Coming up</h2>
-      <p class="st-note">Events ahead that could move this simulation. Times are Eastern (ET), with UTC in brackets.</p>
+      <p class="st-note">Events ahead that could move this simulation. Times are Eastern (ET); tap or point at a time for UTC and Hong Kong time.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="events" data-row-key="at,event">
           <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
@@ -1453,7 +1459,7 @@ tr.lg-hit .tx-id{opacity:1}
     </section>
     <section class="st-card" aria-labelledby="h-m-events">
       <h2 class="st-h2" id="h-m-events">Coming up</h2>
-      <p class="st-note">Events ahead that could move this simulation. Times are Eastern (ET), with UTC in brackets.</p>
+      <p class="st-note">Events ahead that could move this simulation. Times are Eastern (ET); tap or point at a time for UTC and Hong Kong time.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="events" data-row-key="at,event">
           <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
@@ -1547,7 +1553,7 @@ tr.lg-hit .tx-id{opacity:1}
     </section>
     <section class="st-card" aria-labelledby="h-e-events">
       <h2 class="st-h2" id="h-e-events">Coming up</h2>
-      <p class="st-note">Events ahead that could move this experiment. Times are Eastern (ET), with UTC in brackets.</p>
+      <p class="st-note">Events ahead that could move this experiment. Times are Eastern (ET); tap or point at a time for UTC and Hong Kong time.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="events" data-row-key="at,event">
           <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
@@ -1629,7 +1635,7 @@ tr.lg-hit .tx-id{opacity:1}
     </section>
     <section class="st-card" aria-labelledby="h-o-events">
       <h2 class="st-h2" id="h-o-events">Coming up</h2>
-      <p class="st-note">Events ahead that could move this experiment. Times are Eastern (ET), with UTC in brackets.</p>
+      <p class="st-note">Events ahead that could move this experiment. Times are Eastern (ET); tap or point at a time for UTC and Hong Kong time.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="events" data-row-key="at,event">
           <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
@@ -1706,7 +1712,7 @@ tr.lg-hit .tx-id{opacity:1}
     </section>
     <section class="st-card" aria-labelledby="h-x-events">
       <h2 class="st-h2" id="h-x-events">Coming up</h2>
-      <p class="st-note">Events ahead that could move this experiment. Times are Eastern (ET), with UTC in brackets.</p>
+      <p class="st-note">Events ahead that could move this experiment. Times are Eastern (ET); tap or point at a time for UTC and Hong Kong time.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="events" data-row-key="at,event">
           <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
@@ -1790,7 +1796,7 @@ tr.lg-hit .tx-id{opacity:1}
     </section>
     <section class="st-card" aria-labelledby="h-p-events">
       <h2 class="st-h2" id="h-p-events">Coming up</h2>
-      <p class="st-note">Events ahead that could move this experiment. Times are Eastern (ET), with UTC in brackets.</p>
+      <p class="st-note">Events ahead that could move this experiment. Times are Eastern (ET); tap or point at a time for UTC and Hong Kong time.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="events" data-row-key="at,event">
           <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
@@ -1872,7 +1878,7 @@ tr.lg-hit .tx-id{opacity:1}
     </section>
     <section class="st-card" aria-labelledby="h-f-events">
       <h2 class="st-h2" id="h-f-events">Coming up</h2>
-      <p class="st-note">Events ahead that could move this experiment. Times are Eastern (ET), with UTC in brackets.</p>
+      <p class="st-note">Events ahead that could move this experiment. Times are Eastern (ET); tap or point at a time for UTC and Hong Kong time.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="events" data-row-key="at,event">
           <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
@@ -1957,7 +1963,7 @@ tr.lg-hit .tx-id{opacity:1}
     </section>
     <section class="st-card" aria-labelledby="h-b-events">
       <h2 class="st-h2" id="h-b-events">Coming up</h2>
-      <p class="st-note">Events ahead that could move this simulation. Times are Eastern (ET), with UTC in brackets.</p>
+      <p class="st-note">Events ahead that could move this simulation. Times are Eastern (ET); tap or point at a time for UTC and Hong Kong time.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="events" data-row-key="at,event">
           <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
@@ -2065,7 +2071,7 @@ tr.lg-hit .tx-id{opacity:1}
     </section>
     <section class="st-card" aria-labelledby="h-z-events">
       <h2 class="st-h2" id="h-z-events">Coming up</h2>
-      <p class="st-note">Events ahead that could move this simulation. Times are Eastern (ET), with UTC in brackets.</p>
+      <p class="st-note">Events ahead that could move this simulation. Times are Eastern (ET); tap or point at a time for UTC and Hong Kong time.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="events" data-row-key="at,event">
           <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
@@ -2317,6 +2323,7 @@ tr.lg-hit .tx-id{opacity:1}
       <p class="st-model-note" data-model-note>Showing Claude’s ten experiments (model: Claude Opus 5.5).</p>
     </div>
     <h2 class="st-group-h st-lg-top">All ten races right now</h2>
+    <p class="st-note pt-lu-once">Values as of <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=All">—</b><span data-pt-ago></span>.</p>
     <h2 class="st-group-h">Trading</h2>
     <div class="st-tiles st-tiles-4" aria-label="Trading experiments">
       <button class="st-card" data-goto="stocks">
@@ -2327,7 +2334,7 @@ tr.lg-hit .tx-id{opacity:1}
           <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Stocks">—</b></span>
           <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Stocks">—</b></span>
           <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Stocks">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Stocks">—</b></span>
+          <span class="pt-lu-each">Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Stocks">—</b></span>
           <span>Vs. S&amp;P 500: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=sp500">—</b></span>
         </span>
       </button>
@@ -2339,7 +2346,7 @@ tr.lg-hit .tx-id{opacity:1}
           <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Crypto">—</b></span>
           <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Crypto">—</b></span>
           <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Crypto">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Crypto">—</b></span>
+          <span class="pt-lu-each">Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Crypto">—</b></span>
           <span>Vs. just holding Bitcoin: <b data-draw="vs-diff" data-source="vsbtc" data-field="diff" data-where="portfolio=Crypto">—</b></span>
         </span>
       </button>
@@ -2351,7 +2358,7 @@ tr.lg-hit .tx-id{opacity:1}
           <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=China">—</b></span>
           <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=China">—</b></span>
           <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=China">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=China">—</b></span>
+          <span class="pt-lu-each">Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=China">—</b></span>
           <span>Vs. CSI 300: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=csi300">—</b></span>
         </span>
       </button>
@@ -2363,7 +2370,7 @@ tr.lg-hit .tx-id{opacity:1}
           <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Metals">—</b></span>
           <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Metals">—</b></span>
           <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Metals">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Metals">—</b></span>
+          <span class="pt-lu-each">Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Metals">—</b></span>
           <span>Vs. just holding gold: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=gold_metals">—</b></span>
         </span>
       </button>
@@ -2375,7 +2382,7 @@ tr.lg-hit .tx-id{opacity:1}
           <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Energy">—</b></span>
           <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Energy">—</b></span>
           <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Energy">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Energy">—</b></span>
+          <span class="pt-lu-each">Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Energy">—</b></span>
           <span>Vs. oil (USO fund): <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=uso_energy">—</b></span>
         </span>
       </button>
@@ -2387,7 +2394,7 @@ tr.lg-hit .tx-id{opacity:1}
           <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Options">—</b></span>
           <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Options">—</b></span>
           <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Options">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Options">—</b></span>
+          <span class="pt-lu-each">Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Options">—</b></span>
           <span>Vs. the S&amp;P 500: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=sp500_options">—</b></span>
         </span>
       </button>
@@ -2399,7 +2406,7 @@ tr.lg-hit .tx-id{opacity:1}
           <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Currencies">—</b></span>
           <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Currencies">—</b></span>
           <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Currencies">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Currencies">—</b></span>
+          <span class="pt-lu-each">Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Currencies">—</b></span>
           <span>Vs. a savings account: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=savings_fx">—</b></span>
         </span>
       </button>
@@ -2411,7 +2418,7 @@ tr.lg-hit .tx-id{opacity:1}
           <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Safe">—</b></span>
           <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Safe">—</b></span>
           <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Safe">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Safe">—</b></span>
+          <span class="pt-lu-each">Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Safe">—</b></span>
           <span>Vs. a savings account: <b data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=savings">—</b></span>
         </span>
       </button>
@@ -2426,7 +2433,7 @@ tr.lg-hit .tx-id{opacity:1}
           <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Sports">—</b></span>
           <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Sports">—</b></span>
           <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Sports">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Sports">—</b></span>
+          <span class="pt-lu-each">Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Sports">—</b></span>
           <span>Beat the closing line: <b data-draw="clv-sum" data-source="clvsum" data-field="beat" data-row="0">—</b></span>
         </span>
       </button>
@@ -2438,7 +2445,7 @@ tr.lg-hit .tx-id{opacity:1}
           <span>Last 24 hours: <b data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Predictions">—</b></span>
           <span>Worst drop: <b data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Predictions">—</b></span>
           <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Predictions">—</b></span>
-          <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Predictions">—</b></span>
+          <span class="pt-lu-each">Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Predictions">—</b></span>
         </span>
       </button>
     </div>
@@ -2451,7 +2458,7 @@ tr.lg-hit .tx-id{opacity:1}
 
     <section class="st-card" aria-labelledby="h-log-all">
       <h2 class="st-h2" id="h-log-all">Recent decisions</h2>
-      <p class="st-note">Every trade, bet and hold decision, newest first, 5 a page (use Older to go back), for the model picked in the Model menu. Pick one experiment to see only its decisions. Every decision is kept in the Ledger. Times are Eastern (ET), with UTC in brackets.</p>
+      <p class="st-note">Every trade, bet and hold decision, newest first, 5 a page (use Older to go back), for the model picked in the Model menu. Pick one experiment to see only its decisions. Every decision is kept in the Ledger. Times are Eastern (ET); tap or point at a time for UTC and Hong Kong time.</p>
       <p class="st-note">⚖️ <b>Peer grades:</b> every trade and bet is graded by both of the other two AIs (new ones at their next check-in): under each one, their grade (A to F) and one-sentence opinion, given anonymously (they see "Competitor A/B", not the name) and only on what was known at the time. Pick "Graded by the other AIs" to see only those.</p>
       <div class="lg-pick"><label>Show: <select class="pf-filter" data-target="log-all-body"></select></label> <label>Decisions: <select id="log-all-graded" aria-label="Which decisions"><option value="">All decisions</option><option value="1">Graded by the other AIs</option></select></label></div>
       <div class="st-wrap">
@@ -2482,7 +2489,7 @@ tr.lg-hit .tx-id{opacity:1}
 
     <section class="st-card" aria-labelledby="h-events-all">
       <h2 class="st-h2" id="h-events-all">Coming up</h2>
-      <p class="st-note">The next events that could move these simulations, as each AI sees them, 10 a page: switch the Model menu to see Gemini’s or ChatGPT’s own watchlist. Each race's page shows only its own. Times are Eastern (ET), with UTC in brackets.</p>
+      <p class="st-note">The next events that could move these simulations, as each AI sees them, 10 a page: switch the Model menu to see Gemini’s or ChatGPT’s own watchlist. Each race's page shows only its own. Times are Eastern (ET); tap or point at a time for UTC and Hong Kong time.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="events" data-row-key="at,event">
           <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="affects">Affects</th><th data-field="why">Why it matters</th></tr></thead>
@@ -2534,7 +2541,7 @@ tr.lg-hit .tx-id{opacity:1}
     </section>
     <section class="st-card" aria-labelledby="h-l-trades">
       <h2 class="st-h2" id="h-l-trades">Every trade and bet</h2>
-      <p class="st-note">Every buy, sell, bet and bet result across all ten experiments in one list, newest first, 5 a page (use Older to go back). "Won / lost" shows what each one made or lost once it was sold or the game ended; "open" means it is still running. Times are Eastern (ET), with UTC in brackets.</p>
+      <p class="st-note">Every buy, sell, bet and bet result across all ten experiments in one list, newest first, 5 a page (use Older to go back). "Won / lost" shows what each one made or lost once it was sold or the game ended; "open" means it is still running. Times are Eastern (ET); tap or point at a time for UTC and Hong Kong time.</p>
       <div class="lg-pick"><label>Experiment: <select id="lg-trades-pick" aria-label="Experiment"><option value="">All experiments</option><option value="Stocks">Stocks and anything</option><option value="Crypto">Crypto</option><option value="China">China stocks</option><option value="Metals">Metals</option><option value="Energy">Oil and energy</option><option value="Options">Options</option><option value="Currencies">Currencies</option><option value="Safe">Play it safe</option><option value="Sports">Sports (bets)</option><option value="Predictions">Prediction markets</option></select></label></div>
       <div class="st-wrap" id="lg-trades" data-draw="lg-trades" data-source="trades bets" data-portfolio=""></div>
     </section>
@@ -3396,7 +3403,7 @@ tr.lg-hit .tx-id{opacity:1}
       .forEach((r) => {
         const tr = document.createElement('tr');
         tr.dataset.key = encodeURIComponent(r.at) + ',' + encodeURIComponent(r.event);
-        const wt = /[ap]\.m\./.test(r.when) && r.at ? r.when.replace(/ ET$/, '') + ' ET (' + utcStr(r.at, true) + ' · ' + hkStr(r.at, true) + ')' : r.when;
+        const wt = /[ap]\.m\./.test(r.when) && r.at ? r.when.replace(/ ET$/, '') + ' ET' : r.when;   // W6: one time zone; UTC and Hong Kong on tap
         const cells = p ? [wt, r.event, r.why] : [wt, r.event, r.affects, r.why];
         cells.forEach((text, i) => {
           const td = document.createElement('td');
@@ -4061,12 +4068,15 @@ tr.lg-hit .tx-id{opacity:1}
   const HKF = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Hong_Kong', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
   const hkStr = (t, withDay) => { const q = Object.fromEntries(HKF.formatToParts(new Date(t)).map((x) => [x.type, x.value])); return (withDay ? q.month + ' ' + q.day + ', ' : '') + q.hour + ':' + q.minute + ' ' + ampm(q) + ' HKT'; };
   // every time on the page: Eastern first, then UTC and Hong Kong for readers elsewhere (with the date when it differs)
-  stFmt.when = (t) => {
+  // W6 (owner, Oct 30; Claude, Gemini and ChatGPT all agreed): lists show one time, Eastern; the full Eastern / UTC / Hong Kong time is one
+  // tap (or a pointer) away on every time on the page (the .pt-t wrapper further down), as all three asked. whenFull keeps the old long form.
+  stFmt.whenFull = (t) => {
     const p = etParts(t);
     const q = Object.fromEntries(UTCF.formatToParts(new Date(t)).map((x) => [x.type, x.value]));
     const h = Object.fromEntries(HKF.formatToParts(new Date(t)).map((x) => [x.type, x.value]));
     return stFmt.whenET(t) + ' ET (' + utcStr(t, !(q.month === p.month && q.day === p.day)) + ' · ' + hkStr(t, !(h.month === p.month && h.day === p.day)) + ')';
   };
+  stFmt.when = (t) => stFmt.whenET(t) + ' ET';
   const etHour = (t) => { const p = etParts(t); return p.hour + (p.minute === '00' ? '' : ':' + p.minute) + ' ' + ampm(p); };
   const etDay = (t) => { const p = etParts(t); return p.month + ' ' + p.day; };
   const etWeekday = (t) => { const p = etParts(t); return p.weekday + ', ' + p.month + ' ' + p.day; };
@@ -8388,6 +8398,55 @@ tr.lg-hit .tx-id{opacity:1}
     dash.onData(hero);   // its lead line follows each data refresh
   })();
   document.addEventListener('click', (ev) => { if (ev.target.closest && ev.target.closest('[data-pt-reintro]')) { try { localStorage.removeItem('pt-seen'); } catch (e) {} location.href = location.pathname; } });
+
+  // ---------- W6: wrap each Eastern time ("Oct 30, 11:14 p.m. ET", "Wed Oct 28, 9:45 a.m. ET") in a tappable span with its UTC and Hong Kong time
+  (() => {
+    const MON = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+    const RX = /(?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),? )?(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (\d{1,2}),? (\d{1,2}):(\d{2}) ([ap])\.m\. ET\b/g;
+    const instant = (mo, d, h, mi, ap) => {
+      const H = (Number(h) % 12) + (ap === 'p' ? 12 : 0), now = Date.now(), y0 = new Date(now).getUTCFullYear(); let best = null;
+      [y0 - 1, y0, y0 + 1].forEach((y) => [4, 5].forEach((off) => {
+        const t = Date.UTC(y, MON[mo], Number(d), H + off, Number(mi)); const q = etParts(t);
+        if (q.month === mo && Number(q.day) === Number(d) && Number(q.hour) % 12 === Number(h) % 12 && q.minute === mi && ampm(q)[0] === ap && (best === null || Math.abs(t - now) < Math.abs(best - now))) best = t;
+      }));
+      return best;
+    };
+    const alt = (t) => { const full = stFmt.whenFull(t); const k = full.indexOf(' ET ('); return k > 0 ? full.slice(k + 5, -1) : ''; };
+    const wrap = (tn) => {
+      const v = tn.nodeValue; if (!v || v.length < 14 || v.indexOf(' ET') < 0) return;
+      const par = tn.parentNode; if (!par || par.nodeType !== 1 || par.closest('.pt-t, a, button, summary, select, option, textarea, svg, script, style, title, [contenteditable]')) return;
+      RX.lastIndex = 0; let m, last = 0, hit = false; const frag = document.createDocumentFragment();
+      while ((m = RX.exec(v))) {
+        const t = instant(m[1], m[2], m[3], m[4], m[5]); if (t === null) continue;
+        hit = true; if (m.index > last) frag.appendChild(document.createTextNode(v.slice(last, m.index)));
+        const sp = document.createElement('span'); sp.className = 'pt-t'; sp.textContent = m[0];
+        const a = alt(t); sp.dataset.alt = a; sp.title = m[0] + ' · ' + a; sp.tabIndex = 0;
+        const hk = (a.split(' · ')[1] || '').replace(' HKT', ''); sp.dataset.bj = hk + ' Beijing';
+        frag.appendChild(sp); last = m.index + m[0].length;
+      }
+      if (!hit) return;
+      if (last < v.length) frag.appendChild(document.createTextNode(v.slice(last)));
+      par.replaceChild(frag, tn);
+    };
+    const walk = (root) => {
+      if (!root || !root.isConnected) return;
+      if (root.nodeType === 3) { wrap(root); return; }
+      if (root.nodeType !== 1 || (root.closest && root.closest('svg'))) return;
+      const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.nodeValue && n.nodeValue.indexOf(' ET') >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT) });
+      const list = []; while (tw.nextNode()) list.push(tw.currentNode); list.forEach(wrap);
+    };
+    const pend = new Set(); let tm = 0;
+    const flush = () => { tm = 0; const arr = [...pend]; pend.clear(); arr.forEach(walk); };
+    new MutationObserver((ms) => { ms.forEach((m) => m.addedNodes.forEach((n) => pend.add(n))); if (!tm) tm = setTimeout(flush, 80); }).observe(document.body, { childList: true, subtree: true });
+    dash.onData(() => setTimeout(() => walk(document.body), 120));
+    document.addEventListener('click', (ev) => { const sp = ev.target.closest && ev.target.closest('.pt-t'); if (!sp) return; sp.classList.toggle('is-open'); ev.stopPropagation(); ev.preventDefault(); }, true);
+    document.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && ev.target.classList && ev.target.classList.contains('pt-t')) ev.target.classList.toggle('is-open'); });
+  })();
+
+  // W6: "Values as of 11:14 p.m. ET · 13 min ago", once above the Ledger's ten race cards
+  (() => { const upd = () => document.querySelectorAll('.pt-lu-once').forEach((p) => { const sp = p.querySelector('[data-pt-ago]'); const dl = dash.data('lasts'); const L = (dl && dl.status === 'ok' ? dl.data : []).find((r) => r.portfolio === 'All');
+      const t = L && Date.parse(L.last_update_at); if (!sp) return; if (!t) { sp.textContent = ''; return; } const m = Math.max(0, Math.round((Date.now() - t) / 60000)); sp.textContent = ' · ' + (m < 1 ? 'just now' : m < 60 ? m + ' min ago' : Math.round(m / 60) + ' h ago'); });
+    dash.onData(upd); setInterval(upd, 60000); })();
 </script>
 <script>
   // Every dropdown lists its choices in alphabetical order (owner, Oct 29). The catch-all choice ("All …", "Both parts", "Every move",
