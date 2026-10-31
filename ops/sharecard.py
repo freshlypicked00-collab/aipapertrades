@@ -674,31 +674,182 @@ def cover_card(who, moves, path='/tmp/cover_card.png', more=0, exits=None):
         return None
 
 
+RESULTS, CLOSES = ('Won', 'Lost', 'Push', 'Void'), ('Sell', 'Cover')
+
+
+def _dt(x):
+    return datetime.fromisoformat(str(x).replace('Z', '+00:00'))
+
+
+def opener_of(t, trades, model=None):
+    """The decision behind a closing move: a bet result's bet, a sale's latest buy (a cover's latest short) before it."""
+    try:
+        act, m, exp, t0 = t.get('action'), t.get('model') or model, t.get('experiment'), _dt(t['at'])
+        pool = [x for x in (trades or []) if (x.get('model') or model) == m and x.get('experiment') == exp and x.get('at') and _dt(x['at']) <= t0 and x is not t]
+        if act in RESULTS:
+            key = t.get('bet') or t.get('symbol')
+            c = [x for x in pool if x.get('action') == 'Bet' and key and (x.get('bet') or x.get('symbol')) == key]
+        elif act in CLOSES:
+            c = [x for x in pool if x.get('action') == ('Buy' if act == 'Sell' else 'Short') and x.get('symbol') == t.get('symbol')]
+        else:
+            return None
+        return max(c, key=lambda x: _dt(x['at'])) if c else None
+    except Exception:
+        return None
+
+
+def grades_for(model, op):
+    """The two rivals' grades of that decision, given before the result (ops/src/rivals.json peer_grades + claude_grades.json)."""
+    try:
+        import json
+        src = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src')
+        G = list(json.load(open(os.path.join(src, 'rivals.json'))).get('peer_grades') or [])
+        try:
+            G += list(json.load(open(os.path.join(src, 'claude_grades.json'))))
+        except Exception:
+            pass
+        t0, sym = _dt(op['at']), str(op.get('bet') or op.get('symbol') or '')
+        by = {}
+        for g in G:
+            if g.get('model') != model or g.get('experiment') != op.get('experiment') or g.get('action') != op.get('action') or g.get('grade') not in ('A', 'B', 'C', 'D', 'F') or g.get('void'):
+                continue
+            if abs((_dt(g.get('decision_at') or g.get('at')) - t0).total_seconds()) > 120 or (sym and ('|' + sym + '|') not in str(g.get('key') or '|' + sym + '|')):
+                continue
+            if g.get('grader') not in by or str(g.get('at')) > str(by[g['grader']].get('at')):
+                by[g['grader']] = g
+        return [by[k] for k in ('claude', 'gemini', 'chatgpt') if k in by]
+    except Exception:
+        return []
+
+
+def receipt_card(who, t, op, grades=None, path='/tmp/receipt_card.png', idx=None, total=None, pnl=None, n_open=1):
+    """The decision behind a result, right after it (owner, Oct 30: 'a little proof'; all three AIs agreed: ops/review/receipt-r1-oct30.json):
+    when it was placed or bought, the size, the AI's own reason and 'wrong if' as written then, and the rivals' grades given before the
+    result, with a DECIDED BEFORE THE RESULT badge and the outcome's colour down both sides (green won, red lost)."""
+    try:
+        from PIL import Image, ImageDraw
+        who = _who(who)
+        nm_ai, col_ai = AIS[who]
+        bar = col_ai if who != 'chatgpt' else MUTED
+        act, oact = t.get('action'), op.get('action')
+        is_bet = oact == 'Bet'
+        cur, pc = op.get('cur', 'CAD'), op.get('pcur') or 'USD'
+        pnl = pnl if pnl is not None else t.get('pnl')
+        if pnl is None and act in RESULTS and t.get('amount') is not None:
+            pnl = float(t['amount'])
+        won = act == 'Won' or (pnl is not None and pnl > 0.5)
+        lost = act == 'Lost' or (pnl is not None and pnl < -0.5)
+        oc = UP if won else DOWN if lost else MUTED
+        im = Image.new('RGB', (S, H2), BG)
+        g = ImageDraw.Draw(im)
+        g.rectangle([0, 0, 10, H2], fill=oc); g.rectangle([S - 11, 0, S, H2], fill=oc)
+        _head(g, who, op.get('experiment'), t.get('at'), idx, total)
+        title = 'The bet behind it' if is_bet else ('The latest short' if oact == 'Short' else 'The latest buy') + f' of {n_open} behind it' if n_open > 1 else 'The short behind it' if oact == 'Short' else 'The buy behind it'
+        g.text((80, 176), title, font=_font('bold', 72), fill=FG)
+        res = ('Won' if act == 'Won' else 'Lost' if act == 'Lost' else 'Refunded' if act in ('Push', 'Void') else 'Result') + \
+              ((' ' + ('+' if pnl >= 0 else '−') + money(pnl, t.get('cur', 'CAD'))) if pnl is not None and act not in ('Push', 'Void') else '')
+        if act in CLOSES:
+            res = ('Sold' if act == 'Sell' else 'Covered') + ((' · ' + ('+' if pnl >= 0 else '−') + money(pnl, t.get('cur', 'CAD'))) if pnl is not None else '')
+        g.text((80, 268), res, font=_font('bold', 46), fill=oc)
+        bd = 'DECIDED BEFORE THE RESULT'
+        fb = _font('bold', 26); bw = g.textlength(bd, font=fb) + 40
+        g.rounded_rectangle([80, 340, 80 + bw, 390], radius=25, outline=ORANGE, width=3)
+        g.text((100, 350), bd, font=fb, fill=ORANGE)
+        y = 420
+        w0, hm0, d0 = _et(op.get('at'))
+        px, amt = op.get('price'), op.get('amount')
+        facts = []
+        if is_bet:
+            if isinstance(px, (int, float)):
+                facts.append(('ODDS', f'{int(px):+d}', None))
+            if amt:
+                facts.append(('STAKE', money(amt, cur), None))
+            facts.append(('PLACED', hm0 or '—', d0 or None))
+        else:
+            if isinstance(px, (int, float)):
+                facts.append(('PRICE', price(px, pc), _unit(op)[0].strip() or None))
+            if amt:
+                facts.append(('SIZE', money(amt, cur), None))
+            facts.append(('BOUGHT' if oact == 'Buy' else 'SHORTED', hm0 or '—', d0 or None))
+        bw3, gap = (S - 160 - 40) // 3, 20
+        for i, (lb, v, sb) in enumerate(facts[:3]):
+            _box(g, 80 + i * (bw3 + gap), y, bw3, 146, lb, v, sb, FG)
+        y += 176
+        why = _clip(op.get('reason'), 200)
+        if why:
+            g.text((80, y), f'WHY · IN {nm_ai.upper()}’S OWN WORDS, THEN', font=_font('semi', 26), fill=MUTED)
+            y = _quote(g, why, 80, y + 44, S - 160, bar) + 10
+        wrong = _clip(op.get('wrong_if'), 110)
+        if wrong:
+            g.text((80, y), 'WHAT WOULD PROVE IT WRONG', font=_font('semi', 26), fill=MUTED)
+            y = _wrap(g, wrong, _font('reg', 32), 80, y + 40, S - 160, 42, FG, max_lines=3) + 8
+        if grades:
+            g.text((80, y + 4), 'THE RIVALS’ GRADES, GIVEN BEFORE THE RESULT', font=_font('semi', 26), fill=MUTED)
+            y += 46
+            for gr in grades[:2]:
+                gn, gc = AIS.get(gr.get('grader'), (str(gr.get('grader')), FG))
+                head = f"{gn} · {gr['grade']}  "
+                g.text((80, y), head, font=_font('bold', 32), fill=gc if gr.get('grader') != 'chatgpt' else FG)
+                y = _wrap(g, _clip(gr.get('text'), 95), _font('reg', 30), 80 + int(g.textlength(head, font=_font('bold', 32))), y + 2, S - 160 - int(g.textlength(head, font=_font('bold', 32))), 38, MUTED, max_lines=2) + 8
+        tid = op.get('tx') or op.get('id')
+        line = f'Check it: papertrades.ai/?id={tid}' if tid else 'Every move and grade is on papertrades.ai (Ledger)'
+        return _finish(im, g, y + 10, path, line=line)
+    except Exception as e:
+        print('sharecard receipt_card failed:', e)
+        return None
+
+
 def album(who, moves, trades=None, history=None, prefix='/tmp/album', series=None, limit=9):
-    """Pictures for one check-in, in order: [cover] + one card per move (chronological, at most `limit` cards; the cover says how many more).
-    A single move gets just its card. trades: the full trade list (for entries); history: value history (for % of the race);
+    """Pictures for one check-in, in order: [cover] + one card per move, each closing move followed by its receipt (the decision behind
+    it), chronological, at most `limit` pictures after the cover. Over the limit, whole move+receipt pairs are kept for the biggest
+    moves by money (never a result without its receipt) and the cover says how many more are on the site (ChatGPT's change, Oct 30).
+    trades: the full trade list (for entries and openers); history: value history (for % of the race);
     series: function(symbol) -> 24h points or None. Returns a list of PNG paths (empty on failure)."""
     try:
         mv = sorted(moves, key=lambda t: str(t.get('at', '')))
+        mid = _who(who)
+        ops = [opener_of(t, trades, mid) if t.get('action') in RESULTS + CLOSES else None for t in mv]
+        size = [2 if o else 1 for o in ops]
+        keep = list(range(len(mv)))
+        if sum(size) > limit:   # the biggest moves by money, whole pairs
+            big = sorted(keep, key=lambda i: -abs(float(mv[i].get('pnl') if mv[i].get('pnl') is not None else mv[i].get('amount') or 0)))
+            keep, used = [], 0
+            for i in big:
+                if used + size[i] <= limit:
+                    keep.append(i); used += size[i]
+            keep.sort()
+        sel = [mv[i] for i in keep]
+        total = sum(size[i] for i in keep)
         out = []
         if len(mv) > 1:
-            ex = [exit_info(t, trades) if t.get('action') in ('Sell', 'Cover') else None for t in mv]
-            c = cover_card(who, mv, f'{prefix}-0.png', more=max(0, len(mv) - limit), exits=ex)
+            ex = [exit_info(t, trades) if t.get('action') in ('Sell', 'Cover') else None for t in sel]
+            c = cover_card(who, sel, f'{prefix}-0.png', more=len(mv) - len(sel), exits=ex)
             if c:
                 out.append(c)
-        for i, t in enumerate(mv[:limit], 1):
+        n = 0
+        for i in keep:
+            t = mv[i]
+            n += 1
             base = str(t.get('experiment', '')).replace('AllIn', '')
             bi = exit_info(t, trades) if t.get('action') in ('Sell', 'Cover') else None
-            rv = race_value(history, _who(who) if t.get('model') is None else t.get('model'), t.get('experiment'), t.get('at')) if history else None
+            rv = race_value(history, mid if t.get('model') is None else t.get('model'), t.get('experiment'), t.get('at')) if history else None
             sp = None
             if series and t.get('symbol') and base not in ('Predictions', 'Sports'):
                 try:
                     sp = series(t['symbol'])
                 except Exception:
                     sp = None
-            p = move_card(who, t, f'{prefix}-{i}.png', bi, rv, sp, i if len(mv) > 1 else None, min(len(mv), limit) if len(mv) > 1 else None)
+            p = move_card(who, t, f'{prefix}-{n}.png', bi, rv, sp, n if total > 1 else None, total if total > 1 else None)
             if p:
                 out.append(p)
+            if ops[i]:
+                n += 1
+                no = sum(1 for x in (trades or []) if (x.get('model') or mid) == (t.get('model') or mid) and x.get('experiment') == t.get('experiment') and x.get('action') == ops[i].get('action')
+                         and x.get('symbol') == ops[i].get('symbol') and x.get('at') and _dt(x['at']) <= _dt(t['at'])) if t.get('action') in CLOSES else 1
+                rc = receipt_card(who, t, ops[i], grades_for(t.get('model') or mid, ops[i]), f'{prefix}-{n}.png', n, total,
+                                  pnl=(bi or {}).get('pnl'), n_open=max(1, no))
+                if rc:
+                    out.append(rc)
         return out
     except Exception as e:
         print('sharecard album failed:', e)

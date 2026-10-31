@@ -127,6 +127,8 @@ def due_posts(state):
         for b in BMx.find(NOW, data):
             if 'story-big-' + b['id'] not in done:
                 out.append({'id': 'story-big-' + b['id'], 'kind': 'story-big', 'big': b})
+            if b.get('type') == 'bet' and 'story-receipt-' + b['id'] not in done:   # the next story: the bet behind it (owner, Oct 30; all three AIs agreed: ops/review/receipt-r1-oct30.json)
+                out.append({'id': 'story-receipt-' + b['id'], 'kind': 'story-receipt', 'big': b})
     except Exception as e:
         print('::warning::big moments not checked: ' + str(e)[:200])
     # Report cards every Sunday afternoon, and the final ones on Nov 28 (owner, Oct 30)
@@ -178,6 +180,26 @@ def prepare():
             elif p['kind'] == 'story-big':
                 import hl_stories, shutil
                 shutil.move(hl_stories.big_moment('/tmp', p['big']), img)
+                p['images'] = [img]; p['story'] = True; p['caption'] = ''
+            elif p['kind'] == 'story-receipt':   # a big bet result's receipt: when it was placed, why, the rivals' grades, on a story canvas
+                import sharecard
+                from PIL import Image
+                b = p['big']; mid, bid = b['who'], b['id'].split('-', 2)[2]
+                rv = load('ops/src/rivals.json', {})
+                if mid == 'claude':
+                    bt = next((x for x in load('ops/src/bets.json', []) if x.get('bet') == bid), None)
+                    op = bt and {'at': bt.get('placed_at'), 'action': 'Bet', 'experiment': 'Sports', 'bet': bid, 'symbol': bid, 'price': bt.get('odds'),
+                                 'amount': bt.get('stake_cad'), 'cur': 'CAD', 'reason': bt.get('note'), 'wrong_if': bt.get('wrong_if'), 'model': 'claude'}
+                else:
+                    op = next((x for x in rv.get('trades', []) if x.get('model') == mid and x.get('experiment') == 'Sports' and x.get('action') == 'Bet' and x.get('bet') == bid), None)
+                res = {'action': 'Won' if b.get('won') else 'Lost', 'pnl': b.get('amount'), 'cur': 'CAD', 'experiment': 'Sports', 'at': (op or {}).get('at'), 'model': mid}
+                if not op:
+                    raise RuntimeError('no bet found for ' + b['id'])
+                pth = sharecard.receipt_card(mid, res, op, sharecard.grades_for(mid, op), '/tmp/receipt_story.png')
+                if not pth:
+                    raise RuntimeError('receipt card failed')
+                card = Image.open(pth).convert('RGB'); canvas = Image.new('RGB', (1080, 1920), (20, 19, 15))
+                canvas.paste(card, (0, (1920 - card.height) // 2)); canvas.save(img, quality=92)
                 p['images'] = [img]; p['story'] = True; p['caption'] = ''
             elif p['kind'] == 'story-grades':
                 import hl_stories, shutil
