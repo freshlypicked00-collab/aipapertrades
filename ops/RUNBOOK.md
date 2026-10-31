@@ -532,3 +532,7 @@ change any score, and is never fed back to the AI later in Season 1. Only moves 
 - Claude, at every run: `python3 ops/lookback.py due` lists Claude's completed moves waiting for one (with the reasons given then); for
   each listed ID: `python3 ops/lookback.py add C-XXX-000 "<verdict>" "<at most 40 words>"`. Honest, first person, never rewritten.
   Do not let past reflections steer later decisions (same rule as the rivals). After 3 hours without one, the site shows it as missing.
+
+## Social standard and YouTube pause (owner, Oct 31)
+Read ops/review/SOCIAL_STANDARD.md before making any public post. Automatic YouTube Shorts (youtube.yml) are paused: the first one was
+an abstract replay a stranger could not follow. Story Shorts come from ops/story_short.py and post only after the owner approves each one.
