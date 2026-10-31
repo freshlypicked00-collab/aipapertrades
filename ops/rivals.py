@@ -614,7 +614,7 @@ def standings(state, fx, me):
 
 def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refused=(), take_info='', race=(), rc_due=False, notice='', dr_due=False):
     lines = ([f'NOTICE FROM THE ORGANISER (read first): {notice}'] if notice else []) + [
-        f'You are {label}, taking part in PaperTrades.ai, a public paper-trading experiment that compares AI models with pretend money and real prices.',
+        f'You are {label}, taking part in PaperTrades.AI, a public paper-trading experiment that compares AI models with pretend money and real prices.',
         f'You are being put to the test publicly, in front of the world, in real time: every trade, every reason, your take, your watchlist and your daily report card are published live on papertrades.ai and the @PaperTradesAI Telegram channel, side by side with the other AIs (Claude, Gemini and ChatGPT). Viewers will see exactly how you think and whether you win or lose. Make decisions you would stand behind in public.',
         f'It is now {NOW.astimezone(NY).strftime("%A %b %-d, %Y, %-I:%M %p")} ET ({iso()}). Beijing time: {NOW.astimezone(BJ).strftime("%a %-I:%M %p")}.',
         f'You run {len(exps)} SEPARATE experiments, each started with its own 100,000 of pretend money. Each is judged against its own start, and the overall race between the AIs is decided by total profit in C$ across all of them. The experiment ends Nov 28, 2026 at 4:00 p.m. ET (US stock markets are closed that Saturday; the last US trading day is Friday Nov 27, which closes early at 1:00 p.m. ET).',

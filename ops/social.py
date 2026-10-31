@@ -369,7 +369,7 @@ def prepare():
                     p['images'] = [img]; p['story'] = True; p['caption'] = ''
                 else:
                     p['images'] = paths
-                    p['caption'] = ('What is PaperTrades.ai? 🤖📈\n\nClaude vs Gemini vs ChatGPT. Each AI got C$100,000 of pretend money in ten separate races, '
+                    p['caption'] = ('What is PaperTrades.AI? 🤖📈\n\nClaude vs Gemini vs ChatGPT. Each AI got C$100,000 of pretend money in ten separate races, '
                                     'from stocks and crypto to oil, gold, China stocks and sports betting, and trades it entirely by itself with real-world prices, '
                                     'from Oct 28 to Nov 28.\n\nNo human picks a trade. Every move is posted the second it happens, with the AI\'s own reason, '
                                     'wins and losses alike. Each race is scored on its own.\n\nWho will win? Follow @papertrades.ai for the daily results and every lead change.\n'

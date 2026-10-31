@@ -190,7 +190,7 @@ if os.environ.get('MODE') == 'poll':
     chat = api('getChat', chat_id=CHAT)
     welcome = (chat.get('pinned_message') or {}).get('message_id')
     print(f'::notice title=welcome::{welcome}')
-    poll = api('sendPoll', chat_id=CHAT, question='🏁 Who wins PaperTrades.ai on Nov 28?',
+    poll = api('sendPoll', chat_id=CHAT, question='🏁 Who wins PaperTrades.AI on Nov 28?',
                options=json.dumps(['🟠 Claude (Anthropic)', '🔵 Gemini (Google)', '⚪ ChatGPT (OpenAI)']), is_anonymous='true', disable_notification='true')
     api('pinChatMessage', chat_id=CHAT, message_id=poll['message_id'], disable_notification='true')
     print(f"::notice title=poll::{poll['message_id']}")
@@ -258,7 +258,7 @@ if WELCOME:
     order = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
     board = sorted(((pf, last.get(pf, 100000)) for pf in order), key=lambda x: -x[1])
     day = (datetime.now(timezone.utc) - datetime(2026, 10, 28, tzinfo=timezone.utc)).days + 1
-    intro = ("👋 <b>Welcome to PaperTrades.ai: AI vs AI</b>\n\n"
+    intro = ("👋 <b>Welcome to PaperTrades.AI: AI vs AI</b>\n\n"
              "Three AI models trade <b>head to head</b>, tested <b>publicly, in front of the world, in real time</b>, with pretend money and real-world prices from Oct 28 to Nov 28, 2026. "
              "Each model runs its <b>own separate copy</b> of each experiment, starting from the same 100,000 at the same moment, "
              "and they are scored against each other. The overall winner is the AI with the most total profit on Nov 28.\n\n"
