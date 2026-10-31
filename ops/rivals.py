@@ -973,7 +973,7 @@ def settle_bets(model_id, book, state, exp='Sports'):
             b['final'] = '; '.join(f"{x['pick_team']} {x['status'].lower()}" + (f" ({x['final']})" if x.get('final') else '') for x in b['legs'])
             t = {'at': iso(), 'model': model_id, 'experiment': exp, 'action': b['status'], 'symbol': b['id'], 'outcome': None,
                  'name': f"{b['short']}: {b['pick_team']}", 'price': b['odds'], 'pcur': 'CAD', 'qty': 1,
-                 'amount': round(b['result'], 2), 'cur': 'CAD', 'fx': None, 'reason': 'Legs: ' + b['final'] + '.', 'bet': b['id']}
+                 'amount': round(b['result'], 2), 'cur': 'CAD', 'fx': None, 'reason': 'Legs: ' + b['final'] + '.', 'bet': b['id'], 'final': b['final']}
             state['trades'].append(t)
             out.append(t)
             continue
@@ -987,7 +987,7 @@ def settle_bets(model_id, book, state, exp='Sports'):
                       if g and g['completed'] else 'postponed or cancelled; stake refunded')
         t = {'at': iso(), 'model': model_id, 'experiment': exp, 'action': b['status'], 'symbol': b['id'], 'outcome': None,
              'name': f"{b['short']}: {b['pick_team']} moneyline ({b['event']})", 'price': b['odds'], 'pcur': 'CAD', 'qty': 1,
-             'amount': round(b['result'], 2), 'cur': 'CAD', 'fx': None, 'reason': 'Final: ' + b['final'] + '.', 'bet': b['id']}
+             'amount': round(b['result'], 2), 'cur': 'CAD', 'fx': None, 'reason': 'Final: ' + b['final'] + '.', 'bet': b['id'], 'final': b['final']}
         state['trades'].append(t)
         out.append(t)
     return out

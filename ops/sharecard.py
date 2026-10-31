@@ -121,20 +121,24 @@ def _spark(g, pts, box, color, mark=None, cur='USD'):
     g.text((x0, y1 + 14), f'Last 24 hours  {ch * 100:+.1f}%', font=_font('semi', 28), fill=UP if ch >= 0 else DOWN)
 
 
-def one_card(who, race, headline, sentence, amount=None, cur='CAD', spark=None, mark=None, bad=None, when=None, path='/tmp/card.png', big=None, small=None):
+def one_card(who, race, headline, sentence, amount=None, cur='CAD', spark=None, mark=None, bad=None, when=None, path='/tmp/card.png', big=None, small=None, block=None):
     try:
         who = _who(who)
         im, g = _base(who, race, when)
         neg = bad if bad is not None else (amount is not None and amount < 0)
         y = _wrap(g, headline, _font('bold', 86), 80, 210, S - 160, 96, DOWN if neg else AIS[who][1], max_lines=2)
         y = _wrap(g, sentence, _font('med', 44), 80, y + 34, S - 160, 56, FG, max_lines=4)
+        y0 = y
+        if block:
+            y = block(g, y + 40)
+        tight = y != y0
         if spark and len(spark) >= 2:
             top = max(y + 50, 560)
             _spark(g, spark, (80, top, S - 230, S - 230), AIS[who][1] if who != 'chatgpt' else (200, 200, 200), mark, cur)
         elif amount is not None or big:
-            yb = max(y + 60, 600)
+            yb = min(max(y + 40, 600), S - 330) if tight else max(y + 60, 600)
             txt, col = big if big else (('+' if amount >= 0 else '−') + money(amount, cur), UP if amount >= 0 else DOWN)
-            g.text((80, yb), txt, font=_font('bold', 150), fill=col)
+            g.text((80, yb), txt, font=_font('bold', 120 if tight else 150), fill=col)
             if small:
                 g.text((84, yb + 175), small, font=_font('med', 34), fill=MUTED)
         _foot(g)
@@ -143,6 +147,105 @@ def one_card(who, race, headline, sentence, amount=None, cur='CAD', spark=None, 
     except Exception as e:
         print('sharecard failed:', e)
         return None
+
+
+# ---------------- final score on bet results (owner, Oct 30: "for these in the future show the score and who won") ----------------
+# The score comes from the settlement itself (ESPN's final, as recorded: "Away 93, Home 98"): the trade's "final", or its reason
+# "Final: ..." (Gemini's and ChatGPT's), or "Legs: ..." for a parlay. Nothing is looked up again and nothing is invented:
+# if the score can't be read, the card is drawn as before.
+def _parse_score(txt):
+    import re
+    txt = re.sub(r'\s*\([^)]*\)\s*$', '', str(txt or '').strip().rstrip('.')).strip()
+    m = re.match(r'^(.*\S)\s+(\d+),\s+(.*\S)\s+(\d+)$', txt)
+    if not m:
+        return None
+    a, sa, h, sh = m.group(1), int(m.group(2)), m.group(3), int(m.group(4))
+    return {'away': a, 'as': sa, 'home': h, 'hs': sh, 'winner': a if sa > sh else h if sh > sa else None}
+
+
+def _final_text(t):
+    f = t.get('final')
+    if f:
+        return str(f)
+    r = str(t.get('reason') or '')
+    for pre in ('Final: ', 'Legs: '):
+        if r.startswith(pre):
+            return r[len(pre):]
+    return ''
+
+
+def score_of(t):
+    """{'away', 'as', 'home', 'hs', 'winner'} for a settled single-game bet, or None."""
+    f = _final_text(t)
+    if not f or ' won (' in f or ' lost (' in f or ' push (' in f:
+        return None
+    return _parse_score(f)
+
+
+def legs_of(t):
+    """[(pick, 'Won'|'Lost'|'Push', score dict or None)] for a settled parlay, or []."""
+    import re
+    f = _final_text(t)
+    out = []
+    for part in f.split('; '):
+        m = re.match(r'^(.*\S)\s+(won|lost|push)(?:\s+\((.*)\))?\.?$', part.strip())
+        if m:
+            out.append((m.group(1), m.group(2).capitalize(), _parse_score(m.group(3)) if m.group(3) else None))
+    return out
+
+
+def pick_of(t):
+    import re
+    return re.sub(r'\s+moneyline$', '', short_name(str(t.get('name') or '').split(' (')[0]))
+
+
+def _same_team(a, b):
+    a, b = str(a or '').lower(), str(b or '').lower()
+    return bool(a and b) and (a == b or a.endswith(' ' + b) or b.endswith(' ' + a))
+
+
+def _scoreboard(g, x, y, w, t, accent):
+    """FINAL SCORE: both teams with their points (the winner in bold), the AI's pick marked, then who won. Returns the new y (y unchanged if no score)."""
+    sc, legs = score_of(t), legs_of(t)
+    if not sc and not legs:
+        return y
+    if sc:
+        pick = pick_of(t)
+        g.text((x, y), 'FINAL SCORE', font=_font('semi', 26), fill=MUTED)
+        y += 40
+        for team, pts in ((sc['away'], sc['as']), (sc['home'], sc['hs'])):
+            won = sc['winner'] is not None and team == sc['winner']
+            f = _font('bold' if won else 'med', 44)
+            sp = str(pts)
+            room = w - g.textlength(sp, font=f) - 30
+            tag = '  · pick' if _same_team(team, pick) else ''
+            ft = f
+            while g.textlength(team + tag, font=ft) > room and ft.size > 28:
+                ft = _font('bold' if won else 'med', ft.size - 2)
+            g.text((x, y), team, font=ft, fill=FG if won else MUTED)
+            if tag:
+                g.text((x + g.textlength(team, font=ft), y + (ft.size - 30) * 0.6), tag, font=_font('semi', 30), fill=accent)
+            g.text((x + w - g.textlength(sp, font=f), y), sp, font=f, fill=FG if won else MUTED)
+            y += 56
+        res = t.get('action')
+        line = (sc['winner'] + ' won') if sc['winner'] else 'A draw'
+        g.text((x, y + 4), line, font=_font('bold', 36), fill=UP if res == 'Won' else DOWN if res == 'Lost' else FG)
+        return y + 54
+    g.text((x, y), 'THE LEGS', font=_font('semi', 26), fill=MUTED)
+    y += 40
+    for pick, st, s2 in legs[:4]:
+        col = UP if st == 'Won' else DOWN if st == 'Lost' else MUTED
+        g.text((x, y), st, font=_font('bold', 34), fill=col)
+        txt = pick + (f"  ({s2['away']} {s2['as']}, {s2['home']} {s2['hs']})" if s2 else '')
+        f = _font('med', 32)
+        while g.textlength(txt, font=f) > w - 130 and f.size > 22:
+            f = _font('med', f.size - 2)
+        g.text((x + 130, y + 2), txt, font=f, fill=FG)
+        y += 48
+    if len(legs) > 4:
+        g.text((x, y), f'+{len(legs) - 4} more legs on papertrades.ai', font=_font('med', 28), fill=MUTED)
+        y += 40
+    return y + 8
 
 
 def _series(symbol):
@@ -177,7 +280,9 @@ def _trade_card(who, t, path='/tmp/trade_card.png', symbol=None):
         if act == 'Lost':
             amt = -abs(float(t.get('stake') or t.get('amount') or amt))
         sent = nm.split(' (')[0] + (f" · stake {money(t['stake'], cur)}" if t.get('stake') else '')
-        return one_card(who, exp, head, sent, amt if act != 'Push' else 0.0, cur, path=path, bad=act == 'Lost', when=when)
+        acc = AIS[who][1] if who != 'chatgpt' else FG
+        return one_card(who, exp, head, sent, amt if act != 'Push' else 0.0, cur, path=path, bad=act == 'Lost', when=when,
+                        block=lambda g, y: _scoreboard(g, 80, y, S - 160, t, acc))
     if act == 'Bet':
         odds = t.get('price')
         game = nm.split(' (', 1)[1].rstrip(')') if ' (' in nm else ''
@@ -437,6 +542,8 @@ def move_card(who, t, path='/tmp/move_card.png', buyin=None, race_val=None, spar
                 sub.append(qty_txt(q, t))
         if sub:
             y = _wrap(g, ' · '.join(sub), _font('med', 32), 80, y + 4, S - 160, 40, MUTED, max_lines=2)
+        if act in ('Won', 'Lost', 'Push', 'Void'):
+            y = _scoreboard(g, 80, y + 24, S - 160, t, col_ai if who != 'chatgpt' else FG)
         y += 26
         # fact strip
         facts = []
@@ -452,9 +559,10 @@ def move_card(who, t, path='/tmp/move_card.png', buyin=None, race_val=None, spar
             if win:
                 facts.append(('TO WIN', money(win, cur), None))
         elif act in ('Won', 'Lost', 'Push', 'Void'):
-            if t.get('stake'):
-                facts.append(('STAKE', money(t['stake'], cur), None))
-            p = t.get('pnl')
+            stake = t.get('stake') or (abs(float(amt)) if act == 'Lost' and amt else None)   # Gemini's and ChatGPT's results keep the result in "amount"
+            if stake:
+                facts.append(('STAKE', money(stake, cur), None))
+            p = t.get('pnl') if t.get('pnl') is not None else (float(amt) if amt is not None else None)
             if p is not None:
                 facts.append(('RESULT', ('+' if p >= 0 else '−') + money(p, cur), None))
             facts.append(('SETTLED', _et(t.get('at'))[1] or '—', None))
@@ -490,6 +598,8 @@ def move_card(who, t, path='/tmp/move_card.png', buyin=None, race_val=None, spar
             g.text((80, y + 6), res, font=_font('bold', 54), fill=UP if buyin['pct'] >= 0 else DOWN)
             y += 92
         why = _clip(t.get('reason'), WHY_MAX)
+        if act in ('Won', 'Lost', 'Push', 'Void') and (score_of(t) or legs_of(t)) and str(t.get('reason') or '').startswith(('Final: ', 'Legs: ')):
+            why = ''   # the score box already says it
         if why:
             g.text((80, y + 6), f'WHY · IN {nm_ai.upper()}’S OWN WORDS', font=_font('semi', 26), fill=MUTED)
             y = _quote(g, why, 80, y + 50, S - 160, bar) + 14

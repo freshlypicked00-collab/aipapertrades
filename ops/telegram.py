@@ -355,9 +355,11 @@ for b in load(S + 'bets.json'):
                      ('trade', 'Sports', None, None, 'Bet', {'experiment': 'Sports', 'action': 'Bet', 'name': f"{b['pick']} ({b['event']})", 'amount': float(b['stake_cad']), 'price': float(b['odds']), 'to_win': float(b['to_win_cad']), 'cur': 'CAD', 'at': b.get('placed_at')})))
     elif o['status'] == 'Open' and b['status'] != 'Open':
         icon = {'Won': '✅', 'Lost': '❌', 'Push': '➖'}.get(b['status'], '🏁')
-        msgs.append((f"{icon} <b>Sports: {b['bet']} {b['status'].lower()}</b>\n{esc(b['pick'])} ({esc(b['event'])}): {money(b['result_cad'] or 0, 'Sports')}",
+        _sc = sharecard.score_of({'final': b.get('final')}) if b.get('final') else None
+        _fin = (f"\nFinal: {esc(b['final'])}" + (f" · <b>{esc(_sc['winner'])} won</b>" if _sc and _sc['winner'] else '')) if b.get('final') else ''
+        msgs.append((f"{icon} <b>Sports: {b['bet']} {b['status'].lower()}</b>\n{esc(b['pick'])} ({esc(b['event'])}): {money(b['result_cad'] or 0, 'Sports')}{_fin}",
                      ('trade', 'Sports', None, None, b['status'], {'experiment': 'Sports', 'action': b['status'], 'name': f"{b['pick']} ({b['event']})", 'stake': float(b['stake_cad']),
-                                                                  'pnl': float(b['result_cad'] or 0) if b['status'] == 'Won' else -float(b['stake_cad']) if b['status'] == 'Lost' else 0.0, 'cur': 'CAD', 'at': b.get('settled_at')})))
+                                                                  'pnl': float(b['result_cad'] or 0) if b['status'] == 'Won' else -float(b['stake_cad']) if b['status'] == 'Lost' else 0.0, 'cur': 'CAD', 'at': b.get('settled_at'), 'final': b.get('final')})))
 
 # prediction markets settled (a sale at 1.00 or 0.00)
 for t in load(S + 'trades.json'):

@@ -506,3 +506,6 @@ if nobody decided it, e.g. a bug fix). Facts only, no hype, no money totals acro
 Season 2 test, keys, costs). Routine runs (prices, trades, bets, takes, reports) are NOT logged here; they have their own records.
 Big rule changes also get a paragraph in Race updates (Rules & Audit).
 
+
+## Bet result pictures show the final score (owner, Oct 30)
+Every bet result picture (Telegram, Discord) for all three AIs shows a FINAL SCORE box: both teams with their points, the winner in bold, the AI's pick marked, and "<team> won"; parlays list each leg with its result and score. The score is the one recorded at settlement (`final` on the bet or trade, from ESPN); nothing is looked up again. Claude's settlements must keep `final` in bets.json (claude_fill.py passes it through update.py).
