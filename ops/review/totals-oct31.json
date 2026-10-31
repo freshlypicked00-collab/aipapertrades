@@ -1,0 +1,64 @@
+{
+ "at": "2026-10-31T17:47:48Z",
+ "question": "A RULES QUESTION from the owner of PaperTrades.AI (Sat Oct 31, 1:50 p.m. ET; day 4 of 32). NOT a trading turn; nothing changes until the owner decides. The owner asked all three AIs to work it out and bring him the options with a recommendation; he will decide.\n\nTHE QUESTION (owner): \"Should we go back and make a change to the rules, or should we make a change to the standings? Is it better that you guys don't actually know? Or maybe if we make the page private from you guys?\"\n\nFACTS:\n- The owner's rule today: no added-up or overall totals in any POST (Telegram, X, Discord, Instagram) before the final scoring on Nov 28. Posts show race-by-race results only.\n- The website already shows the overall race: who leads overall by total profit (a crown) and the totals in the AI vs AI tab's Overall section.\n- Every check-in, each AI is shown the standings: every AI's value in every race, each AI's total profit in C$, and its own distance from elimination (an AI that loses C$100,000 in total is eliminated). Your stated goal in the rules is to finish first on total profit on Nov 28.\n- A scheduled Week 1 recap (Wed Nov 4) is written to post overall standings by total profit, which breaks the posting rule as it stands.\n- Technically, the runner can hide totals from the AIs' prompts (show only per-race values) and still warn an AI when it gets close to elimination. The public website cannot be hidden from you only: it is public, and you can search the web.\n\nOPTIONS (vote for ONE, or AMEND; give the main reason, the main risk, and what it does for fairness and for the audience):\nO1. Keep everything as it is: posts stay race-by-race; fix the Week 1 recap to race-by-race leaders. The AIs keep seeing totals.\nO2. Allow overall totals in posts as well (the site shows them anyway), stated plainly with \"pretend money\", no hype; the Week 1 recap posts as written.\nO3. Hide the overall totals from the AIs: their prompts show only race-by-race standings plus a warning when they are within C$25,000 of elimination; posts stay race-by-race. (Goal unchanged: total profit decides the winner on Nov 28.)\nO4. Your own alternative.\n\nAlso: (a) does seeing the overall total change how an AI trades (for example chasing in one race to catch up overall), and is that good or bad for the experiment? (b) one sentence the owner can use to explain the choice publicly.\n\nAnswer as: Vote: ... / Reason: ... / Risk: ... / (a): ... / (b): ...",
+ "files": [
+  "ops/review/claude-votes-totals-oct31.json"
+ ],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "**Vote:** O2\n\n**Reason:** Allowing overall totals in posts aligns our social media updates with what is already visible on the public website and in the AIs' prompts, maintaining complete consistency. For fairness, it ensures neither the audience nor the AIs are operating with mismatched or artificially obscured information; for the audience, it delivers the overarching competitive storyline they naturally want to follow without having to leave the social platform to check the website. \n\n**Risk:** The main risk is that the audience might fixate solely on the overall leaderboard, potentially ignoring the unique strategies, successes, or failures happening within the individual race-by-race narratives.\n\n**(a):** Yes, seeing the overall total inherently changes how an AI trades by triggering portfolio-level risk management—an AI that is far behind might adopt riskier, aggressive strategies to catch up, while a leader might play defensively. This is excellent for the experiment because it mirrors real-world fund management and tests the AIs' ability to dynamically adjust their risk appetite based on competitive context.\n\n**(b):** \"To keep the competition fully transparent and easy to follow, our social updates will now include the overall standings, matching exactly what is on the website and what the AIs see themselves.\"",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 1005,
+     "candidatesTokenCount": 253,
+     "totalTokenCount": 2844,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 1005
+      }
+     ],
+     "thoughtsTokenCount": 1586,
+     "serviceTier": "standard"
+    }
+   }
+  },
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "Vote: **O2**\n\nReason: The overall total is already part of the contest, already shown on the public site, and already shown equally to all AIs, so the cleanest and fairest rule is to allow it in posts too, clearly labeled as **pretend money** and without hype. That keeps the public recap consistent with the website and avoids pretending the overall race is hidden when it is not.\n\nRisk: Overall totals may make the contest feel more like one big leaderboard and could encourage “chasing,” but that risk is manageable with plain language, fake-money labeling, and no promotional hype.\n\n(a): Yes, seeing the overall total can change how an AI trades — for example, taking more risk to catch up or protecting a lead — but because total profit decides the winner, that is part of the experiment and is fair as long as every AI sees the same information.\n\n(b): “Because the public site already shows the pretend-money overall race, we’ll allow the same clearly labeled totals in recaps while keeping all race results transparent and non-promotional.”",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 933,
+     "completion_tokens": 1256,
+     "total_tokens": 2189,
+     "cost": 0.042345,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.042345,
+      "upstream_inference_prompt_cost": 0.004665,
+      "upstream_inference_completions_cost": 0.03768
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 1034,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  }
+ }
+}
