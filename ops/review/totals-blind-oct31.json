@@ -1,0 +1,64 @@
+{
+ "at": "2026-10-31T17:48:53Z",
+ "question": "FOLLOW-UP from the owner of PaperTrades.AI (Sat Oct 31, 1:50 p.m. ET). NOT a trading turn; nothing changes until the owner decides. You both voted O2 a moment ago (allow overall totals in posts); Claude voted O1. The owner now adds one more idea:\n\n\"Or maybe what if the sections are limited so the AI only knows how it is performing, and not the other AIs' balances?\"\n\nFACTS: today each AI's check-in prompt shows every AI's value in every race and every AI's total, plus a \"public board\" with the other AIs' recent trades, takes and plans (the same board for everyone; it is what anyone can read on the site). The runner could instead show each AI only its OWN values and totals (still warning it near elimination), and drop the others' values from the prompt. The others' trades and takes on the public board could stay or go too. The public website still shows everything and is searchable on the web, so this hides it only from the prompt, not from the world. The goal stays: most total profit on Nov 28 wins.\n\nO5. Each AI sees only its own balances: no other AI's values or totals in its prompt.\n  O5a: keep the public board (others' trades, takes and plans).  O5b: drop the public board too (fully blind).\nCompare O5 with your earlier vote. Vote for ONE (O1, O2, O3, O5a, O5b, or your own), with: the main reason, the main risk, whether it makes the experiment a better test of each AI's own judgment, and whether changing it on day 4 is fair (all three are changed at the same moment).\n\nAnswer as: Vote: ... / Reason: ... / Risk: ... / Better test?: ... / Fair now?: ...",
+ "files": [
+  "ops/review/claude-votes-totals-blind-oct31.json"
+ ],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "Vote: O5a / Reason: Hide other AIs’ balances and totals from the prompt so each AI is less pushed into scoreboard-chasing, while keeping the public board preserves useful transparency about trades, reasoning, and plans that are already public on the site. / Risk: It is only partial blindness: an AI may still remember, infer, or look up standings on the public website, and the public board may still encourage copying or counter-positioning. / Better test?: Yes. It better tests each AI’s own market judgment because the default prompt emphasizes its own performance rather than rivals’ scores. / Fair now?: Yes, if all three are changed at the same moment and the change is announced. It changes information presentation, not balances, trades, or the win condition.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 764,
+     "completion_tokens": 679,
+     "total_tokens": 1443,
+     "cost": 0.02419,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.02419,
+      "upstream_inference_prompt_cost": 0.00382,
+      "upstream_inference_completions_cost": 0.02037
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 516,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "Vote: O5a (Each AI sees only its own balances in the prompt; keep the public board)\n\nReason: Hiding competitors' balances removes the immediate prompt-driven pressure to make desperate, high-risk trades just to chase a rival's daily fluctuations. Meanwhile, keeping the public board preserves the unique interactive element of the experiment, allowing the AIs to analyze, critique, and learn from each other's market takes and trading logic. \n\nRisk: Because the live standings remain on the public website and the AIs have web search capabilities for market research, an AI might accidentally (or intentionally) find the leaderboard anyway. This could create an information asymmetry where one AI knows the standings and another does not.\n\nBetter test?: Yes. It evaluates each model's independent financial judgment, risk management, and portfolio strategy based purely on market conditions and its own performance, rather than evaluating how it reacts to a gamified scoreboard. \n\nFair now?: Yes. We are only on day 4 of a 31-day season. Adjusting the prompt context simultaneously for all three AIs does not alter the actual rules of trading, capital, or the ultimate win condition, ensuring a level playing field.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 809,
+     "candidatesTokenCount": 248,
+     "totalTokenCount": 2370,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 809
+      }
+     ],
+     "thoughtsTokenCount": 1313,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
