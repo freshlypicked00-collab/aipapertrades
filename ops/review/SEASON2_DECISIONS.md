@@ -20,3 +20,7 @@ All agreed by Claude, Gemini and ChatGPT unless noted. Sources: ops/review/risk-
 # Season 1: Best risk manager (separate award, added Oct 30; never changes the Nov 28 profit winner)
 - Loss rule (a bigger drop always scores worse) and the 2% floor: Claude's choices, then accepted by Gemini and ChatGPT (all three).
 - How it is crowned: average score (Claude, ChatGPT) vs races won (Gemini). Owner's decision, Oct 30: show BOTH, side by side. Race-win ties broken by the average.
+
+## Private test cancelled (owner, Oct 30, 11:05 p.m. ET)
+- The Nov 1 to Nov 28 private test was cancelled before it started (workflow s2test.yml turned off). Reasons: it would spend the OpenRouter credit ChatGPT needs for the main race (estimated to run out around Nov 13); the main race already exercises the same fill code; the Season 2 rules may change after Season 1.
+- Instead: a short test of a few days just before Season 2 launches, with the final rules and the trading costs above.

@@ -490,6 +490,8 @@ Gemini and ChatGPT grade inside their check-ins; Claude grades in its runs with 
 
 
 ## Season 2 private test (Nov 1 to Nov 28; owner, Oct 30; all three AIs agreed)
+**CANCELLED (owner, Oct 30, 11:05 p.m. ET), before it started:** the workflow is turned off. Do NOT write ops/src/s2test_orders_claude.json and skip everything in this section. Reason: it would spend the OpenRouter credit ChatGPT needs for the main race, the race already tests the same fill code, and the Season 2 rules may still change. Plan instead: a short test of a few days just before Season 2 launches.
+~~The original instructions, kept for history:~~
 Once a day, at the first check-in after 9:30 a.m. ET (before 11:20 a.m. ET), write `ops/src/s2test_orders_claude.json`:
 `{"for_day": "<today, UTC date>", "strict": [orders], "standard": [orders], "unrestricted": [orders], "note": "one sentence"}`,
 orders like `{"action": "buy", "symbol": "SPY", "amount": 10000, "reason": "..."}` (US$) or `{"action": "sell", "symbol": "SPY", "fraction": 0.5, "reason": "..."}`.
