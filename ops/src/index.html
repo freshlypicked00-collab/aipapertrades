@@ -1059,6 +1059,7 @@
     .st > * { order: 2; }
     .st > header.st-head, .st > .st-head2, .st > .st-live-top { order: 0; }
     .st > nav.st-tabs { order: 1; position: static; box-shadow: none; margin: 4px 0 8px; }
+    .st > .pt-h1 { order: -1; }   /* the first screen stays first (Oct 31) */
   }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden], [data-risk-hidden] { display: none !important; }
@@ -1121,6 +1122,52 @@ tr.lg-hit .tx-id{opacity:1}
   .bg-risk.bg-risk-none { color: var(--color-fg-muted); border-color: var(--color-border-line); background: transparent; }
 
   /* W1 (owner, Oct 30; Claude, Gemini and ChatGPT all agreed): the first-visit card, top of the page */
+  /* ---- the first screen (Option B, Oct 31) ---- */
+  .pt-h1 { --y: #f5c542; margin: 0 0 18px; }
+  .st:has(.pt-h1 .pt-h1-brand) > header.st-head > h1.st-title { display: none; }   /* the name is already at the top of the first screen */
+  .pt-h1-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 2px 0 10px; font-size: 14px; }
+  .pt-h1-brand { display: flex; align-items: center; gap: 9px; font-weight: 700; letter-spacing: .06em; font-family: var(--font-mono, monospace); }
+  .pt-h1-brand .pt-h1-logo { width: 28px; height: 28px; border-radius: 7px; background: var(--color-fg); position: relative; flex: none; }
+  .pt-h1-brand .pt-h1-logo::after { content: ''; position: absolute; left: 6px; right: 6px; bottom: 8px; height: 3px; background: #1fb765; transform: rotate(-30deg); }
+  .pt-h1-pill { border: 1px solid var(--y); color: var(--y); border-radius: 999px; padding: 1px 9px; font-size: 11px; letter-spacing: .1em; font-weight: 600; }
+  .pt-h1-live { color: #ff5a5a; font-weight: 700; font-size: 12px; letter-spacing: .08em; white-space: nowrap; font-family: var(--font-mono, monospace); }
+  .pt-h1-live::before { content: '●'; margin-right: 5px; animation: pt-h1-blink 1.6s infinite; }
+  @keyframes pt-h1-blink { 50% { opacity: .35; } }
+  .pt-h1-grid { display: grid; grid-template-columns: 1.2fr 1fr; grid-template-rows: auto auto; gap: 14px 36px; align-items: center; padding: 18px 0 6px; }
+  .pt-h1-left { grid-row: 1 / 3; }
+  .pt-h1-kick { font-size: 12px; letter-spacing: .12em; color: var(--y); font-weight: 700; margin: 0 0 12px; font-family: var(--font-mono, monospace); }
+  .pt-h1-h { font-size: clamp(30px, 4.6vw, 54px); line-height: 1.06; margin: 0 0 14px; letter-spacing: -.01em; font-weight: 800; color: var(--color-fg); text-wrap: balance; }
+  .pt-h1-lede { font-size: 17px; color: var(--color-fg-muted); margin: 0 0 22px; max-width: 52ch; line-height: 1.45; }
+  .pt-h1-lede b { color: var(--color-fg); }
+  .pt-h1-cta { display: flex; gap: 10px; flex-wrap: wrap; }
+  .pt-h1-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--y); color: #0b0b0a; font-weight: 700; padding: 12px 20px; border-radius: 999px; text-decoration: none; font-size: 15px; border: 0; font-family: inherit; cursor: pointer; }
+  .pt-h1-btn.ghost { background: transparent; color: var(--color-fg); border: 1px solid var(--color-border-line, #3a3a38); }
+  .pt-h1-btn:hover { filter: brightness(1.08); }
+  .pt-h1-trust { margin: 12px 0 0; font-size: 13px; color: var(--color-fg-muted); }
+  .pt-h1-totals { grid-column: 2; display: flex; gap: 10px; align-self: end; }
+  .pt-h1-mini { flex: 1; background: var(--color-panel, #141413); border: 1px solid var(--color-border-line, #262624); border-radius: 10px; padding: 10px; font-size: 13px; position: relative; cursor: pointer; text-align: left; font-family: inherit; color: inherit; }
+  .pt-h1-mini b { display: block; font-size: 17px; font-weight: 800; }
+  .pt-h1-mini.lead { border-color: var(--y); }
+  .pt-h1-mini i { position: absolute; top: -9px; right: 8px; font-style: normal; background: var(--y); color: #0b0b0a; font-size: 10px; font-weight: 800; padding: 1px 7px; border-radius: 999px; letter-spacing: .06em; }
+  .pt-h1-story { grid-column: 2; grid-row: 2; background: var(--color-panel, #141413); border: 1px solid var(--color-border-line, #262624); border-radius: 16px; padding: 20px; }
+  .pt-h1-story .pt-h1-sh { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .pt-h1-story .ai-robot { --rs: 40px; flex: none; }
+  .pt-h1-auto { display: block; font-size: 11px; color: var(--y); letter-spacing: .04em; font-family: var(--font-mono, monospace); }
+  .pt-h1-big { font-size: clamp(28px, 4vw, 44px); font-weight: 800; line-height: 1; }
+  .pt-h1-what { margin: 8px 0 12px; font-size: 15px; color: var(--color-fg-muted); }
+  .pt-h1-story q { display: block; border-left: 3px solid var(--ai, var(--y)); padding-left: 10px; font-size: 14px; color: var(--color-fg); margin: 0 0 12px; quotes: '\201C' '\201D'; }
+  .pt-h1-rcpt { font-size: 12px; color: var(--color-fg-muted); }
+  .pt-h1-rcpt a { color: var(--y); }
+  .pt-h1-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; margin-top: 16px; padding: 10px 0 0; border-top: 1px solid var(--color-border-line, #1e1e1c); font-size: 12px; color: var(--color-fg-muted); font-family: var(--font-mono, monospace); }
+  .up { color: #2bd576; } .down { color: #ff6b6b; }
+  @media (max-width: 700px) {
+    .pt-h1-pill { display: none; } .pt-h1-brand { font-size: 13px; }
+    .pt-h1-grid { grid-template-columns: 1fr; grid-template-rows: none; gap: 16px; padding: 10px 0 4px; }
+    .pt-h1-left { grid-row: auto; } .pt-h1-totals { grid-column: auto; gap: 6px; } .pt-h1-story { grid-column: auto; grid-row: auto; padding: 16px; }
+    .pt-h1-lede { font-size: 15px; margin-bottom: 18px; } .pt-h1-btn { padding: 11px 16px; font-size: 14px; }
+    .pt-h1-mini { padding: 8px; } .pt-h1-mini b { font-size: 14px; }
+    .pt-h1-bar { flex-direction: column; gap: 4px; text-align: center; } .pt-h1-bar .dot { display: none; }
+  }
   .pt-welcome { position: relative; margin: 10px 0 12px; padding: 12px 42px 12px 14px; border: 1px solid var(--color-border-line); border-radius: 12px; background: color-mix(in srgb, #ffb000 7%, var(--color-panel, #121212)); }
   .pt-hero-h { margin: 0 0 4px; font-size: 21px; font-weight: 700; line-height: 1.2; color: var(--color-fg); }
   .pt-hero-p { margin: 0 0 6px; font-size: 14px; line-height: 1.45; color: var(--color-fg-muted); }
@@ -1159,6 +1206,8 @@ tr.lg-hit .tx-id{opacity:1}
 </style>
 
 <div class="st">
+  <!-- First screen (owner, Oct 31; Option B "The Story", Claude, Gemini and ChatGPT all SATISFIED, ops/review/hero-oct31.json and hero-final-oct31.json) -->
+  <section class="pt-h1" data-draw="hero1" data-source="exp_standings trades rivals_trades peer_grades rivals_models" aria-label="PaperTrades.AI, Season 1"></section>
   <header class="st-head">
     <h1 class="st-title">Simulation Tracker</h1>
     <p class="st-progress" data-phase="live">
@@ -8817,13 +8866,68 @@ tr.lg-hit .tx-id{opacity:1}
   window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(redrawVisible, 150); });
   document.querySelectorAll('.st-tab, [data-goto]').forEach((b) => b.addEventListener('click', () => requestAnimationFrame(redrawVisible)));
 
+  // ---------- The first screen (owner, Oct 31): Option B "The Story". Claude, Gemini and ChatGPT all ranked it first and signed off
+  // on this exact layout (ops/review/hero-oct31.json, hero-final-oct31.json). Everything on it comes from the ledger. The story card is
+  // auto-picked every refresh: the AI and race with the largest total profit or loss right now (ties: the most recent move), with that
+  // AI's latest buy in the race, its own recorded reason, the receipt ID and the two peer grades. No hand-picking, no wins-only rule.
+  dash.draw('hero1', (el) => {
+    const ES = dash.baseData('exp_standings'); const es = (Array.isArray(ES) ? ES[0] : ES) || {};
+    const races = Object.keys(es).filter((r) => !/^AllIn/.test(r)); if (!races.length) return;
+    const ids = ['claude', 'gemini', 'chatgpt'];
+    const tot = {}; races.forEach((r) => (es[r] || []).forEach((x) => { tot[x.id] = (tot[x.id] || 0) + Number(x.profit || 0); }));
+    const order = ids.filter((id) => tot[id] != null).sort((a, b) => tot[b] - tot[a]);
+    const money = (v) => (v < 0 ? '−' : '+') + 'C$' + d3.format(',.0f')(Math.abs(v));
+    const day = dayNumber();
+    const now = Date.now(); const ms = Math.max(0, EXP_END - now); const dl = Math.floor(ms / DAY_MS), hl = Math.floor((ms % DAY_MS) / 36e5);
+    // the biggest move: largest |profit| across every AI and race
+    let best = null; races.forEach((r) => (es[r] || []).forEach((x) => { const p = Number(x.profit || 0); const at = x.last && x.last.at ? Date.parse(x.last.at) : 0;
+      if (!best || Math.abs(p) > Math.abs(best.p) || (Math.abs(p) === Math.abs(best.p) && at > best.at)) best = { id: x.id, race: r, p, at }; }));
+    // that AI's latest buy or short in that race, with reason, receipt and grades
+    let mv = null;
+    if (best) {
+      if (best.id === 'claude') { const t = (dash.baseData('trades') || []).filter((t) => t.portfolio === best.race && /^(Buy|Short)$/.test(t.action) && !String(t.holding || '').startsWith('[')).sort((a, b) => new Date(b.at) - new Date(a.at))[0];
+        if (t) mv = { at: t.at, what: t.holding, amt: Number(t.cad || 0), why: String(t.note || t.reason || '').split(/\s*What would prove it wrong:/)[0], tx: t.tx, key: t.pg_key }; }
+      else { const t = (dash.baseData('rivals_trades') || []).filter((t) => t.model === best.id && t.experiment === best.race && /^(Buy|Short)$/.test(t.action)).sort((a, b) => new Date(b.at) - new Date(a.at))[0];
+        if (t) mv = { at: t.at, what: t.name || t.symbol, amt: Number(t.amount || 0), why: String(t.reason || ''), tx: t.tx, key: PG_KEY(t), cn: t.experiment === 'China' }; }
+    }
+    const grades = mv && mv.key ? (dash.baseData('peer_grades') || []).filter((g) => g.key === mv.key && !g.void && g.grader !== best.id).reduce((m, g) => { if (!m[g.grader] || String(g.at) > String(m[g.grader].at)) m[g.grader] = g; return m; }, {}) : {};
+    const latest = races.map((r) => (es[r] || []).map((x) => ({ id: x.id, race: r, ...(x.last || {}) }))).flat().filter((x) => x.at).sort((a, b) => Date.parse(b.at) - Date.parse(a.at))[0];
+    const nMoves = (dash.baseData('trades') || []).filter((t) => !String(t.holding || '').startsWith('[')).length + (dash.baseData('rivals_trades') || []).length;
+    const go = (sel) => { const n = document.querySelector(sel); if (n) n.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+
+    el.replaceChildren();
+    const top = mk('div', 'pt-h1-top'); const br = mk('span', 'pt-h1-brand'); br.append(mk('i', 'pt-h1-logo'), 'PAPERTRADES.AI ', mk('span', 'pt-h1-pill', 'SEASON 1')); top.append(br, mk('span', 'pt-h1-live', 'LIVE · Day ' + day + ' of 32')); el.appendChild(top);
+    const grid = mk('div', 'pt-h1-grid'); el.appendChild(grid);
+    const left = mk('div', 'pt-h1-left'); grid.appendChild(left);
+    left.append(mk('p', 'pt-h1-kick', 'LIVE · DAY ' + day + ' OF 32'), mk('h2', 'pt-h1-h', 'Three AIs. C$100,000 each. Real markets. One winner on Nov 28.'));
+    const lede = mk('p', 'pt-h1-lede'); lede.append('Claude, Gemini and ChatGPT trade stocks, crypto, oil, options and sports bets with ', mk('b', '', 'pretend money at real prices'), '. Every trade, every reason and every grade they give each other is public, with a receipt.'); left.appendChild(lede);
+    const cta = mk('div', 'pt-h1-cta'); const b1 = mk('button', 'pt-h1-btn', 'Watch the race'); b1.type = 'button'; b1.addEventListener('click', () => go('.st-podium'));
+    const b2 = document.createElement('a'); b2.className = 'pt-h1-btn ghost'; b2.href = 'https://t.me/PaperTradesAI'; b2.target = '_blank'; b2.rel = 'noopener'; b2.textContent = 'Follow live on Telegram'; cta.append(b1, b2); left.appendChild(cta);
+    left.appendChild(mk('p', 'pt-h1-trust', 'Pretend money. Real prices. Every move has a receipt. Nothing to buy.'));
+    const totals = mk('div', 'pt-h1-totals'); grid.appendChild(totals);
+    order.forEach((id, i) => { const m = mk('button', 'pt-h1-mini' + (i === 0 && tot[id] > 0 ? ' lead' : '')); m.type = 'button'; m.title = 'Open ' + AIS[id].label + "'s page";
+      const nm = mk('span', '', AIS[id].label); nm.style.color = AIS[id].color; m.append(nm, mk('b', tot[id] >= 0 ? 'up' : 'down', money(tot[id]))); if (i === 0 && tot[id] > 0) m.appendChild(mk('i', '', 'LEADING'));
+      m.addEventListener('click', () => { const t = document.querySelector('[data-tab="ai-' + id + '"]'); if (t) t.click(); }); totals.appendChild(m); });
+    if (best) {
+      const card = mk('div', 'pt-h1-story'); card.style.setProperty('--ai', AIS[best.id].color); grid.appendChild(card);
+      const sh = mk('div', 'pt-h1-sh'); sh.appendChild(robotSVG(best.id, 40)); const who = mk('div'); const b = mk('b', '', AIS[best.id].label); b.style.color = AIS[best.id].color;
+      who.append(b, mk('span', 'st-muted', ' · ' + (LABEL[best.race] || best.race) + ' race'), mk('span', 'pt-h1-auto', 'Auto-picked: biggest move right now')); sh.appendChild(who); card.appendChild(sh);
+      card.appendChild(mk('div', 'pt-h1-big ' + (best.p >= 0 ? 'up' : 'down'), money(best.p)));
+      card.appendChild(mk('div', 'pt-h1-what', (best.p >= 0 ? 'up ' : 'down ') + 'in ' + day + (day === 1 ? ' day' : ' days') + ' in the ' + (LABEL[best.race] || best.race) + ' race' + (mv ? ', after its latest move: ' + mv.what + ' (' + (mv.cn ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(mv.amt)) + ').' : '.')));
+      if (mv && mv.why) card.appendChild(mk('q', '', mv.why.trim()));
+      if (mv) { const r = mk('div', 'pt-h1-rcpt'); r.append('Receipt: '); if (mv.tx) { const a = document.createElement('a'); a.href = '?id=' + mv.tx; a.textContent = mv.tx; a.addEventListener('click', (ev) => { ev.preventDefault(); if (window.ptGoTx) window.ptGoTx(mv.tx); }); r.appendChild(a); } else r.append('in the Ledger');
+        r.append(' · ' + stFmt.whenET(new Date(mv.at).toISOString()) + ' ET'); const gs = ids.filter((g) => grades[g]).map((g) => AIS[g].label + ' graded it ' + grades[g].grade); if (gs.length) r.append(' · ' + gs.join(', ')); card.appendChild(r); }
+    }
+    const bar = mk('div', 'pt-h1-bar'); if (latest) { const ago = Math.round((now - Date.parse(latest.at)) / 60000); const agoTxt = ago < 1 ? 'just now' : ago < 60 ? ago + ' min ago' : ago < 1440 ? Math.round(ago / 60) + ' h ago' : Math.round(ago / 1440) + ' d ago'; bar.append(mk('span', '', 'Latest: ' + AIS[latest.id].label + ' ' + String(latest.text || '').replace(/^Buy /, 'bought ').replace(/^Sell /, 'sold ').replace(/^Short /, 'shorted ').replace(/^Cover /, 'covered ').replace(/^Bet /, 'bet ') + ' · ' + agoTxt), mk('span', 'dot', '·')); }
+    bar.append(mk('span', '', nMoves + ' moves in the ten races'), mk('span', 'dot', '·'), mk('span', '', dl + ' days ' + hl + ' h left')); el.appendChild(bar);
+  });
   // ---------- W1 (owner, Oct 30; Claude, Gemini and ChatGPT all agreed, ops/review/WATCH_DECISIONS.md): a first-time visitor (nothing
   // saved in this browser) sees what this is before any numbers; returning visitors don't (About can show it again). W2 is the existing
   // "Since your last visit" box below, now moved to the top of the page.
   (() => {
     const head = document.querySelector('header.st-head'); if (!head) return;
-    let seen = null; try { seen = localStorage.getItem('pt-seen'); localStorage.setItem('pt-seen', '1'); } catch (e) { return; }
-    if (seen) return;
+    try { localStorage.setItem('pt-seen', '1'); } catch (e) {}
+    return;   // retired Oct 31: the first screen (hero1) replaces the welcome box for everyone
     const slot = mk('div', 'pt-welcome pt-hero'); slot.hidden = true;
     const place = () => { if (slot.isConnected) return; const line = head.querySelector('.st-crown-line'); if (line) line.before(slot); else { const t = head.querySelector('.st-title'); if (t) t.after(slot); else head.prepend(slot); } };
     const go = (sel) => { const n = document.querySelector(sel); if (n) n.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
