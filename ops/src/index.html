@@ -4357,7 +4357,7 @@
         R = { status: 'ok', data: [] };
       }
       const hs = H.data.filter((h) => h.portfolio === pf && h.holding !== 'USDC' && !/^Cash/.test(h.holding) && Math.abs(Number(h.quantity)) > 1e-9 && (h.price_local ?? h.price_usd) !== null && (h.price_local ?? h.price_usd) !== undefined);
-      if (!hs.length) { el.appendChild(mk('div', 'gx-empty', 'Nothing held yet.')); return; }
+      if (!hs.length) { el.appendChild(mk('div', 'gx-empty', T.data.some((t) => t.portfolio === pf) ? 'Nothing held right now: everything bought in this race has been sold.' : 'Nothing held yet.')); return; }   // a race that sold out must not read as never invested (accuracy check, Oct 30)
       const pick = el._pick && hs.some((h) => h.holding === el._pick) ? el._pick : hs[0].holding;
       const chips = mk('div', 'st-chips'); chips.setAttribute('role', 'group'); chips.setAttribute('aria-label', 'Holding');
       hs.forEach((h) => {
