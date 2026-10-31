@@ -1193,6 +1193,10 @@ try:
     data['price_audit'] = [json.load(open(os.path.join(SRC, 'price_audit.json')))]   # Claude's prices vs the feeds (ops/price_audit.py)
 except Exception:
     data['price_audit'] = []
+try:   # what happened next: the latest price of everything sold in the last 31 days (ops/after.py, owner Oct 30)
+    data['after'] = [json.load(open(os.path.join(SRC, 'after.json')))]
+except Exception:
+    data['after'] = []
 if os.path.exists(os.path.join(SRC, 'px_long.json')):   # long price history per holding (ops/px_long.py), loaded by the page only for long chart ranges
     import shutil
     shutil.copyfile(os.path.join(SRC, 'px_long.json'), os.path.join(OUT, 'px_long.json'))

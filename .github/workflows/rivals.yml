@@ -121,6 +121,11 @@ jobs:
         continue-on-error: true
         timeout-minutes: 4
         run: python3 ops/px_long.py
+      - name: What happened next (ops/after.py; the latest price of everything sold in the last 31 days, shown under each sale)
+        if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' }}
+        continue-on-error: true
+        timeout-minutes: 3
+        run: python3 ops/after.py
       - name: Publish
         if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' }}
         env:
@@ -137,10 +142,11 @@ jobs:
         run: |
           [ -f ops/src/rivals.json ] || exit 0
           # nothing to publish when this run skipped or changed nothing: never push an old copy over newer data
-          if git diff --quiet -- ops/src/rivals.json && [ -z "$(git status --porcelain -- ops/src/price_audit.json ops/src/px_long.json)" ] && [ ! -f /tmp/claude_fill_batch.json ]; then echo "nothing changed; nothing to publish"; exit 0; fi
+          if git diff --quiet -- ops/src/rivals.json && [ -z "$(git status --porcelain -- ops/src/price_audit.json ops/src/px_long.json ops/src/after.json)" ] && [ ! -f /tmp/claude_fill_batch.json ]; then echo "nothing changed; nothing to publish"; exit 0; fi
           cp ops/src/rivals.json /tmp/rivals.json
           [ -f ops/src/price_audit.json ] && cp ops/src/price_audit.json /tmp/price_audit.json
           [ -f ops/src/px_long.json ] && cp ops/src/px_long.json /tmp/px_long.json
+          [ -f ops/src/after.json ] && cp ops/src/after.json /tmp/after.json
           [ -f ops/archive/thoughts.jsonl ] && cp ops/archive/thoughts.jsonl /tmp/thoughts.jsonl
           git config user.name "paper-trades-bot"
           git config user.email "paper-trades-bot@users.noreply.github.com"
@@ -149,6 +155,7 @@ jobs:
             cp /tmp/rivals.json ops/src/rivals.json
             [ -f /tmp/price_audit.json ] && cp /tmp/price_audit.json ops/src/price_audit.json
             [ -f /tmp/px_long.json ] && cp /tmp/px_long.json ops/src/px_long.json
+            [ -f /tmp/after.json ] && cp /tmp/after.json ops/src/after.json
             if [ -f /tmp/thoughts.jsonl ]; then mkdir -p ops/archive && cp /tmp/thoughts.jsonl ops/archive/thoughts.jsonl; fi
             # option B: Claude's fills go onto the LATEST ops/src (anything Claude pushed meanwhile is kept); one that no longer fits is refused
             if [ -f /tmp/claude_fill_batch.json ]; then python3 ops/claude_fill.py apply /tmp/claude_fill_batch.json; fi
@@ -160,6 +167,7 @@ jobs:
             [ -f ops/src/x_sent.json ] && git add ops/src/x_sent.json   # what went to X (no repeats, the daily cap)
             [ -f ops/src/price_audit.json ] && git add ops/src/price_audit.json
             [ -f ops/src/px_long.json ] && git add ops/src/px_long.json px_long.json
+            [ -f ops/src/after.json ] && git add ops/src/after.json
             [ -f ops/archive/thoughts.jsonl ] && git add ops/archive/thoughts.jsonl
             [ -f /tmp/claude_fill_batch.json ] && git add ops/src
             git diff --cached --quiet && exit 0

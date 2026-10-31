@@ -76,7 +76,7 @@ def build(rivals, claude):
                                       'pick': x['pick_team'] + ' moneyline', 'odds': x['odds'], 'stake_cad': x['stake'], 'to_win_cad': x['to_win'],
                                       'status': x['status'], 'result_cad': x['result'] if x['status'] != 'Open' else None, 'market': 'moneyline',
                                       'line': None, 'closing_odds': x.get('closing_odds'), 'closing_line': None, 'starts_at': x['starts_at'],
-                                      'placed_at': x['placed_at'], 'settled_at': x.get('settled_at'), 'note': x.get('reason', '')})
+                                      'placed_at': x['placed_at'], 'settled_at': x.get('settled_at'), 'final': x.get('final'), 'note': x.get('reason', '')})
                 d['history'].append({'at': started[e].isoformat(), 'portfolio': e, 'value': 100000.0, 'close': False})
                 continue
             for key, p in b['positions'].items():

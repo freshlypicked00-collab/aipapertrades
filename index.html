@@ -1271,7 +1271,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '230f9d757d22';</script>
+<script>window.PT_PAGE_VER = '73053feee0a4';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -5080,7 +5080,8 @@ body { background:var(--color-bg); }
         detail: qtyTxt(t) + px(t),
         amount: t.portfolio === 'China' ? '¥' + d3.format(',.0f')(t.cny) + ' (US$' + d3.format(',.0f')(t.usd) + ')' : 'C$' + d3.format(',.0f')(t.cad),
         cost: sell && t.cost != null ? C(t.cost, t.portfolio) : '', profit: sell && t.pnl != null ? Number(t.pnl) : null,
-        ret: sell && t.pnl != null && t.cost ? t.pnl / t.cost : null, open: !sell, val, q: Number(t.shares || t.qty || 0)
+        ret: sell && t.pnl != null && t.cost ? t.pnl / t.cost : null, open: !sell, val, q: Number(t.shares || t.qty || 0),
+        px0: t.portfolio === 'China' ? Number(t.price_local) : Number(t.price_usd), pxTxt: px(t)
       };
     });
     B.data.forEach((b) => {
@@ -5089,7 +5090,7 @@ body { background:var(--color-bg); }
       rows.push({ holding: b.status === 'Open', pg: b.placed_at ? dash.model + '|' + new Date(b.placed_at).toISOString().slice(0, 19) + 'Z|Sports|' + b.bet + '|Bet' : null, at: b.placed_at || b.placed + 'T12:00:00-04:00', portfolio: 'Sports', action: 'Bet', item: b.bet + ' ' + b.pick, detail: b.event + ' at ' + odds + ' · to win C$' + d3.format(',.0f')(b.to_win_cad || 0), amount: 'C$' + d3.format(',.0f')(stake), cost: 'C$' + d3.format(',.0f')(stake), profit: null, ret: null, open: b.status === 'Open', outcome: res, void: b.status === 'Void', why: b.note || b.reason || ((lgRows.filter((l) => l.portfolio === 'Sports' && l.at === b.placed_at)[0] || {}).detail) || '' });
       if (b.status !== 'Open') {
         const back = b.status === 'Won' ? stake + res : b.status === 'Lost' ? 0 : stake;
-        rows.push({ at: b.settled_at || (b.starts_at ? new Date(new Date(b.starts_at).getTime() + 3 * 3600e3).toISOString() : b.placed + 'T23:00:00-04:00'), portfolio: 'Sports', action: b.status, item: b.bet + ' ' + b.pick, detail: b.event + (b.final ? ' · ' + b.final : '') + ' · paid back C$' + d3.format(',.0f')(back), amount: 'C$' + d3.format(',.0f')(back), cost: 'C$' + d3.format(',.0f')(stake), profit: res, ret: stake ? res / stake : null, open: false });
+        rows.push({ at: b.settled_at || (b.starts_at ? new Date(new Date(b.starts_at).getTime() + 3 * 3600e3).toISOString() : b.placed + 'T23:00:00-04:00'), portfolio: 'Sports', action: b.status, item: b.bet + ' ' + b.pick, detail: b.event + (b.final ? ' · ' + b.final : '') + ' · paid back C$' + d3.format(',.0f')(back), amount: 'C$' + d3.format(',.0f')(back), cost: 'C$' + d3.format(',.0f')(stake), profit: res, ret: stake ? res / stake : null, open: false, betAfter: { odds: Number(b.odds), closing: b.closing_odds != null ? Number(b.closing_odds) : null, final: b.final || '', status: b.status } });
       }
     });
     // a buy (or short) that has since been sold (or covered): its result, from the sells that followed it
@@ -5131,6 +5132,47 @@ body { background:var(--color-bg); }
   // searchlog/<UTC day>.json, fetched only when a visitor opens one. Links only. Recorded from Oct 31, 2026 (00:00 UTC).
   const SL_START = Date.parse('2026-10-31T00:00:00Z'), SLC = {};
   const slDay = (day) => SLC[day] || (SLC[day] = fetch('searchlog/' + day + '.json', { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).then((j) => (j && j.checkins) || []).catch(() => []));
+  // ---------- what happened next (owner, Oct 30): under a sale, the price since and what keeping it would have meant; under a settled bet, the final and the closing line
+  const afterQ = () => { const A = dash.baseData('after'); const a = (Array.isArray(A) ? A[0] : A) || {}; return a.q || {}; };
+  const amOdds = (o) => (o > 0 ? '+' : '') + o, impl = (o) => (o < 0 ? -o / (-o + 100) : 100 / (o + 100));
+  const nextNode = (r, model) => {
+    const sale = /^(Sell|Cover)$/.test(r.action), bet = !!r.betAfter && /^(Won|Lost|Push)$/.test(r.action);
+    if (!(sale || bet) || r.void) return null;
+    const d = mk('details', 'lg-look lg-next'); d.appendChild(mk('summary', '', '⏩ What happened next')); const body = mk('div', 'lg-look-b'); d.appendChild(body);
+    d.addEventListener('toggle', () => {
+      if (!d.open || d._done) return; d._done = 1;
+      if (bet) {
+        const b = r.betAfter;
+        body.appendChild(mk('p', '', (b.final ? 'Final: ' + b.final + '. ' : '') + (b.status === 'Won' ? 'The bet won.' : b.status === 'Lost' ? 'The bet lost.' : 'The bet was a push (stake back).')));
+        if (b.closing != null && b.odds) {
+          const p0 = impl(b.odds), p1 = impl(b.closing), better = p1 > p0 + 0.005, worse = p1 < p0 - 0.005;
+          body.appendChild(mk('p', '', 'Odds taken ' + amOdds(b.odds) + '; just before the game they were ' + amOdds(b.closing) + '. '
+            + (better ? 'The market moved toward this pick after the bet (a good sign about the price taken, whatever the result).' : worse ? 'The market moved away from this pick after the bet (the price taken was worse than the closing one).' : 'The line barely moved.')));
+        } else body.appendChild(mk('p', 'st-muted', 'No closing odds were recorded for this game.'));
+        return;
+      }
+      const cur = r.portfolio === 'China' ? 'US$' : 'C$', a = afterQ()[model + '|' + r.portfolio + '|' + String(r.item)];
+      if (!a || !(r.px0 > 0)) { body.appendChild(mk('p', 'st-muted', 'No later price for this one yet. It is read from the same price feed at each check-in, for 31 days after a sale (options that have expired and bets have none).')); return; }
+      const fx = rates(), mv = a.px / r.px0 - 1, units = Math.abs(Number(r.q) || 0);
+      const toRace = r.portfolio === 'China' ? 1 / (fx.CNY || 7.1) : (fx.CAD || 1.38);   // price units -> the race's money
+      const diff = (a.px - r.px0) * units * toRace * (r.action === 'Cover' ? -1 : 1);   // what keeping the position would have added (+) or cost (−)
+      const pp = (x) => (Math.abs(x) >= 1000 ? d3.format(',.0f')(x) : Math.abs(x) >= 0.1 ? d3.format(',.2f')(x) : d3.format('.4~r')(x));
+      const unitPx = r.portfolio === 'China' ? '¥' + pp(a.px) : r.portfolio === 'Predictions' ? d3.format('.1f')(a.px * 100) + '¢' : 'US$' + pp(a.px);
+      body.appendChild(mk('p', '', (r.action === 'Cover' ? 'Bought back' : 'Sold') + ' ' + (r.pxTxt ? 'at ' + r.pxTxt.replace(/^at /, '') : '') + ' on ' + stFmt.whenET(r.at) + ' ET.'));
+      const p2 = mk('p'); p2.appendChild(document.createTextNode('Latest price ' + unitPx + ' (' + stFmt.whenET(a.at) + ' ET): '));
+      const m = mk('b', '', Math.abs(mv) < 0.0005 ? 'unchanged' : (mv >= 0 ? '▲ +' : '▼ −') + Math.abs(mv * 100).toFixed(1) + '% since'); p2.appendChild(m); body.appendChild(p2);
+      const uw = r.portfolio === 'Crypto' ? 'coins' : r.portfolio === 'Currencies' ? 'units' : r.portfolio === 'Metals' && model === 'claude' ? 'ounces' : 'shares';
+      if (units && Math.abs(diff) >= 1) {
+        const good = diff < 0;   // the sale avoided a loss
+        const p3 = mk('p'); const v = mk('b', '', cur + d3.format(',.0f')(Math.abs(diff))); tone(v, good ? 1 : -1);
+        p3.append(document.createTextNode(good ? (r.action === 'Cover' ? 'Buying back avoided ' : 'Selling avoided ') : (r.action === 'Cover' ? 'Keeping the short would have made ' : 'Keeping it would have made ')), v,
+          document.createTextNode(good ? ' of losses on the ' + d3.format(',.6~r')(units) + ' ' + uw + ' it ' + (r.action === 'Cover' ? 'bought back.' : 'sold.') : ' more on the ' + d3.format(',.6~r')(units) + ' ' + uw + ' it ' + (r.action === 'Cover' ? 'bought back.' : 'sold.')));
+        body.appendChild(p3);
+      }
+      body.appendChild(mk('p', 'st-muted', 'Information only: it never changes the result, the score or the grades. Prices from the same feed the race uses' + (r.portfolio === 'Metals' && model === 'claude' ? ' (futures, a little above spot)' : '') + '.'));
+    });
+    return d;
+  };
   const lookedUp = (model, at) => {
     const d = mk('details', 'lg-look'); d.appendChild(mk('summary', '', '🔎 What it looked up'));
     const body = mk('div', 'lg-look-b'); d.appendChild(body);
@@ -5301,6 +5343,7 @@ body { background:var(--color-bg); }
         cells.forEach(([v, c]) => { const td = mk('td', c || ''); if (v instanceof Node) td.appendChild(v); else td.textContent = v; tr.appendChild(td); });
         { const gn = r.pg ? pgNode(r.pg) : null; if (gn) tr.lastElementChild.appendChild(gn); }   // the other AIs' grades (owner, Oct 29)
         if (/^(Buy|Sell|Short|Cover|Bet|Parlay)$/.test(r.action)) tr.lastElementChild.appendChild(lookedUp(dash.model || 'claude', r.at));   // the search source ledger (Oct 30)
+        { const nx = nextNode(r, dash.model || 'claude'); if (nx) tr.lastElementChild.appendChild(nx); }   // what happened next (owner, Oct 30)
         tb.appendChild(tr);
         if (document.documentElement.dataset.beginner === '1') { const s2 = plainTrade(r); if (s2) { const tr2 = mk('tr', 'bg-say'); const td2 = mk('td', '', s2); td2.colSpan = 9; tr2.appendChild(td2); tb.appendChild(tr2); } }
       });
