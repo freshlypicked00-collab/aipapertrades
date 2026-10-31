@@ -2391,6 +2391,7 @@ tr.lg-hit .tx-id{opacity:1}
       <p class="st-note">Agreed by all three AIs on Oct 29. After each daily close (8 p.m. ET until Nov 1, 7 p.m. ET after), the race runner takes a SHA-256 fingerprint of every trade and bet of all three AIs up to that close and publishes it here and on Telegram, once. Your browser recomputes each one right now from the data on this page: if any earlier trade or bet had been edited since, its fingerprint would no longer match. Corrections, when there are any, are listed below with their reasons.</p>
       <p class="st-note"><b>Search source ledger</b> (all three AIs agreed, Oct 30): from Oct 30, 8 p.m. ET (Oct 31, 00:00 UTC), every check-in of every AI records its search queries and the links it used (links only, never page text), in a public file for each day. Each closed day's file gets its own SHA-256 below, next to that night's fingerprint. Earlier check-ins can't be rebuilt. It is for transparency, not scoring. Open "What it looked up" under any trade in the Ledger.</p>
       <div data-draw="fingerprints" data-source="fingerprints trades bets rivals_trades allin_trades price_corrections"></div>
+      <div data-draw="nightly" data-source="nightly_audit"></div>
     </section>
     <section class="st-card" aria-labelledby="h-pa">
       <h2 class="st-h2" id="h-pa">Price check: Claude’s prices vs the feeds</h2>
@@ -8344,6 +8345,15 @@ tr.lg-hit .tx-id{opacity:1}
       el.appendChild(ul);
     }).catch(() => { el._busy = false; });
   };
+  dash.draw('nightly', (el) => {   // R6 (root-cause vote, Oct 31): the nightly full audit of every fill and bet against the feeds
+    el.replaceChildren();
+    const n = (dash.baseData('nightly_audit') || [])[0];
+    const p = mk('p', 'st-note');
+    if (!n) { p.textContent = 'Nightly full audit (all three AIs agreed, Oct 31): every night after the close, every fill and bet of the last two days is re-checked against Yahoo, Polymarket and ESPN. The first one runs tonight.'; el.appendChild(p); return; }
+    const flags = (n.open_flags || []).length;
+    p.textContent = 'Nightly full audit, ' + stFmt.when(n.at) + ': ' + n.fills_checked + ' fills and ' + n.bets_checked + ' bets of the last two days re-checked against Yahoo, Polymarket and ESPN; ' + (flags ? flags + ' open to review (listed in the next correction or note).' : 'nothing open.');
+    el.appendChild(p);
+  });
   dash.draw('pricecorr', (el) => {   // full-audit vote V3 (Oct 31): fills made at a stale or rounded feed price, restated at the 1-minute bar
     el.replaceChildren();
     const pcs = dash.baseData('price_corrections') || [];

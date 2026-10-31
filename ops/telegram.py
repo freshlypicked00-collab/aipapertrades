@@ -68,7 +68,11 @@ def send(text, photo=None, silent=False, _dc=True):
         return json.loads(r.read())['result']['message_id']
 
 
-HIST = load('ops/src/history.json')
+try:   # R4 (root-cause vote, Oct 31): posts use Claude's official values (the race runner's, same check-ins as Gemini's and ChatGPT's)
+    import official as _OF
+    HIST = _OF.load('ops/src')
+except Exception:
+    HIST = load('ops/src/history.json')
 # Claude's trades in the shape sharecard.buy_in() reads (for the average entry on sells): China counts shares; elsewhere each buy is
 # weighted by its C$ cost / price (proportional to the quantity bought; Claude's trades.json has no quantity field)
 CLAUDE_TRADES = [{'at': x['at'], 'model': 'claude', 'experiment': x['portfolio'], 'action': x['action'], 'symbol': tgcharts.symbol_for(x['portfolio'], x['holding'], x.get('code')),

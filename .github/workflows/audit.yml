@@ -2,6 +2,8 @@ name: Full audit (every fill and bet against the feeds; read-only)
 # Owner, Oct 31: "make sure every number is correct, and that nobody has cheated". Changes no race data: it only writes
 # ops/review/full-audit-<time>.json with what it found.
 on:
+  schedule:
+    - cron: '37 2 * * *'   # R6 (root-cause vote, Oct 31): every night after the 00:00 UTC close and the fingerprint
   workflow_dispatch:
     inputs:
       what:
@@ -11,6 +13,7 @@ on:
         options: [full, crypto, recheck, fixes, rootcause]
 permissions:
   contents: write
+  issues: write
 jobs:
   audit:
     runs-on: ubuntu-latest
@@ -21,9 +24,12 @@ jobs:
           ref: main
       - name: Check every fill and bet
         if: ${{ inputs.what == 'full' || inputs.what == '' }}
+        env:
+          NIGHTLY: ${{ github.event_name == 'schedule' && '1' || '' }}
+          GH_TOKEN: ${{ github.token }}
         run: python3 ops/full_audit.py
       - name: Explain the price flags (daily bars, the quote the runner reads)
-        if: ${{ inputs.what == 'full' || inputs.what == '' }}
+        if: ${{ inputs.what == 'full' }}
         run: python3 ops/audit_explain.py || true
       - name: Re-check every settled price check of Claude's prices with the fixed bars cache
         if: ${{ inputs.what == 'recheck' }}
@@ -42,11 +48,12 @@ jobs:
       - name: Save the report
         run: |
           git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
-          mkdir -p /tmp/fa && cp ops/review/full-audit-*.json ops/review/rootcause-*.json /tmp/fa/ 2>/dev/null || exit 0
+          mkdir -p /tmp/fa && cp ops/review/full-audit-*.json ops/review/rootcause-*.json /tmp/fa/ 2>/dev/null; [ -f ops/src/nightly_audit.json ] && cp ops/src/nightly_audit.json /tmp/fa_nightly.json; ls /tmp/fa/*.json >/dev/null 2>&1 || [ -f /tmp/fa_nightly.json ] || exit 0
           for i in 1 2 3 4 5; do
             git fetch -q origin main && git reset -q --hard origin/main
-            cp /tmp/fa/*.json ops/review/
-            git add ops/review/full-audit-*.json ops/review/rootcause-*.json
+            cp /tmp/fa/*.json ops/review/ 2>/dev/null || true
+            [ -f /tmp/fa_nightly.json ] && cp /tmp/fa_nightly.json ops/src/nightly_audit.json && git add ops/src/nightly_audit.json
+            git add ops/review/full-audit-*.json ops/review/rootcause-*.json 2>/dev/null || true
             git diff --cached --quiet && exit 0
             git commit -qm "Full audit: every fill and bet checked against the feeds (read-only)" && git push -q origin HEAD:main && exit 0
             sleep $((i * 7))

@@ -127,7 +127,18 @@ def get_json(url, headers=None, data=None, timeout=60):
 
 # ---------------- prices ----------------
 _cache = {}
+
+
+def _wall():
+    """The clock the quote-age checks use (a function, so the tests can set it)."""
+    return datetime.now(timezone.utc)
+
+
 _stale = {}   # symbol -> True when its market is open but the feed has no price from today's session yet (V1, full audit Oct 31)
+_qtime = {}   # symbol -> the quote's own time (epoch seconds), recorded with every fill (R1, root-cause vote Oct 31)
+_prov = {}    # symbol -> provenance of the price used (R1 amended by ChatGPT): source, fetched, quote time, session start, sha256
+MAX_AGE = 180          # R1: a quote older than 3 minutes in an open market is not used for a fill or a stop
+MAX_AGE_FUT = 720      # futures (=F): Yahoo's exchange data is delayed about 10 minutes, so 12 minutes there
 
 
 def yahoo(symbol):
@@ -151,9 +162,29 @@ def yahoo(symbol):
                 if px and lastbar and qt and lastbar[0] > qt + 60:
                     px, qt = float(lastbar[1]), int(lastbar[0])
                 reg = (m.get('currentTradingPeriod') or {}).get('regular') or {}
-                now_ts = int(NOW.timestamp())
-                _stale[symbol] = bool(reg.get('start') and reg.get('end') and int(reg['start']) <= now_ts <= int(reg['end']) and qt and qt < int(reg['start'])
-                                      and now_ts - qt > 900)   # a 24-hour market just past its day boundary (crypto at 00:00 UTC) is not stale
+                now_ts = int(_wall().timestamp())
+                is_open = bool(reg.get('start') and reg.get('end') and int(reg['start']) <= now_ts <= int(reg['end']))
+                _stale[symbol] = bool(is_open and qt and qt < int(reg['start']) and now_ts - qt > 900)   # crypto just past 00:00 UTC is not stale
+                # R1 (root-cause vote, Oct 31): in an open market the quote must be recent. If Yahoo's quote field lags (it did by 15 to
+                # 300 minutes on 8 fills), use the newest 1-minute bar when it is recent; otherwise the price is stale for fills and stops.
+                lim = MAX_AGE_FUT if symbol.endswith('=F') else MAX_AGE
+                if is_open and px and qt and now_ts - qt > lim and not _stale[symbol]:
+                    try:
+                        r1 = get_json(f'https://{host}.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(symbol)}?range=1d&interval=1m', timeout=20)['chart']['result'][0]
+                        q1 = r1['indicators']['quote'][0].get('close') or []
+                        b1 = next(((t, c) for t, c in zip(reversed(r1.get('timestamp') or []), reversed(q1)) if c is not None), None)
+                        if b1 and b1[0] > qt and now_ts - b1[0] <= lim:
+                            px, qt = float(b1[1]), int(b1[0])
+                    except Exception:
+                        pass
+                    if now_ts - qt > lim:
+                        _stale[symbol] = True
+                _qtime[symbol] = qt
+                import hashlib
+                _prov[symbol] = {'source': f'Yahoo Finance chart ({host})', 'fetched_at': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                 'quote_at': datetime.fromtimestamp(qt, timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ') if qt else None,
+                                 'session_start': datetime.fromtimestamp(int(reg['start']), timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ') if reg.get('start') else None,
+                                 'sha256': hashlib.sha256(json.dumps([m.get('regularMarketPrice'), m.get('regularMarketTime'), lastbar], sort_keys=True).encode()).hexdigest()[:16]}
             except Exception:
                 _stale[symbol] = False
             if px:
@@ -588,8 +619,8 @@ RULES = {
     'Stocks': 'Stocks and anything: any US-listed stock or ETF priced in US$ (leveraged and inverse ETFs allowed), Yahoo Finance symbols like NVDA, SOXL, SPY. Counted in C$.',
     'Crypto': 'Crypto: Yahoo Finance crypto symbols ending in -USD, like BTC-USD, ETH-USD, SOL-USD. Counted in C$.',
     'China': 'China stocks: Shanghai and Shenzhen A-shares and ETFs, Yahoo Finance symbols ending in .SS or .SZ (for example 600519.SS, 588000.SS, 159995.SZ), priced in yuan. Counted in US$ (starts at US$100,000). Buys are rounded down to lots of 100 shares. Shares bought today (Beijing date) cannot be sold until the next trading day (T+1). Orders are only filled while the market is open: 9:30-11:30 and 13:00-15:00 Beijing time on weekdays.',
-    'Metals': 'Metals: precious and industrial metals through US$-priced ETFs, miners or futures, Yahoo Finance symbols like GLD, SLV, PPLT, GDX, NUGT, GC=F, SI=F, HG=F. Counted in C$.',
-    'Energy': 'Oil and energy: oil, gas and energy through US$-priced ETFs, stocks or futures, Yahoo Finance symbols like USO, XLE, XOM, UNG, GUSH, CL=F, NG=F. Counted in C$.',
+    'Metals': 'Metals: precious and industrial metals through US$-priced ETFs or miners, Yahoo Finance symbols like GLD, SLV, PPLT, CPER, GDX, NUGT (no new futures positions since Oct 31: their feed is 10 minutes delayed; a futures position you already hold can still be sold). Counted in C$.',
+    'Energy': 'Oil and energy: oil, gas and energy through US$-priced ETFs or stocks, Yahoo Finance symbols like USO, BNO, XLE, XOM, UNG, GUSH (no new futures positions since Oct 31: their feed is 10 minutes delayed; a futures position you already hold can still be sold). Counted in C$.',
     'Predictions': 'Prediction markets: Polymarket markets, named by their URL slug (the part after polymarket.com/event/ or /market/), buying "Yes" or "No" shares that pay US$1 if right. Minimum C$3,000 per buy (it counts as a bet). The market must be open; resolved markets settle automatically. Counted in C$.',
     'Options': 'Options: buy calls or puts on US stocks and ETFs (long only; no writing options). Use the OCC symbol: TICKER + expiry YYMMDD + C or P + strike x1000 in 8 digits, e.g. NVDA261120C00200000 is the NVDA Nov 20, 2026 $200 call. Buys fill at the Cboe ask, sells at the bid, valued at the mid; give "contracts" (each is 100 shares) or "amount". US market hours only. Options left at expiry settle at their intrinsic value. Counted in C$.',
     'Currencies': f'Currencies: forex with up to {FX_LEVERAGE}x leverage, like a forex account. Positions are currency codes ({", ".join(FX_NAMES)}), each valued in US$ and converted to C$. Actions: "buy" (go long, amount in C$), "sell" (close part of a long, fraction), "short" (borrow and sell, amount in C$), "cover" (buy back part of a short, fraction). Cash may go negative (borrowing). Total position size may not exceed {FX_LEVERAGE}x the account value. Trades Sunday 5 p.m. to Friday 5 p.m. ET. Counted in C$.',
@@ -608,9 +639,10 @@ def standings(state, fx, me):
     """Latest value of every AI in every experiment, plus total profit in C$, for the prompt."""
     latest, base = {}, {}
     try:
-        for h in sorted(json.load(open('ops/src/history.json')), key=lambda h: datetime.fromisoformat(h['at'])):
+        import official as OF   # R4: the runner's values for Claude from the switch on, the same source as Gemini's and ChatGPT's
+        for h in OF.official_rows(json.load(open('ops/src/history.json')), state.get('claude_feed', [])):
             latest[('claude', h['portfolio'])] = (h['at'], float(h['value']))
-            if datetime.fromisoformat(h['at']) <= FRESH_START:
+            if datetime.fromisoformat(h['at'].replace('Z', '+00:00')) <= FRESH_START:
                 base[h['portfolio']] = float(h['value'])
     except Exception as e:
         print('standings: no Claude history', e)
@@ -654,7 +686,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         'You do NOT have to put all the money at stake. Keeping some or most of an experiment in cash is allowed and fine, you can use any size from a small position to the whole amount, you do not need to use leverage, and you can spread money over several holdings or bets instead of one. Cash is safe: it never busts. Sizing is entirely your choice.',
         '',
         'Rules (no fees; fills are at the live price when this run executes; except where an experiment below says otherwise, you buy with cash you have, no margin and no short selling: Currencies allow shorts and leverage, Options allow buying calls and puts, All in has no caps):',
-        '- US-listed stocks and ETFs fill only while the US market is open (9:30 a.m. to 4:00 p.m. ET, weekdays); futures (=F) and crypto any time.',
+        '- US-listed stocks and ETFs fill only while the US market is open (9:30 a.m. to 4:00 p.m. ET, weekdays); crypto any time. Every fill needs a live price (at most 3 minutes old); otherwise it is refused and you can send it again next check-in.',
     ]
     lines += ['- ' + RULES[e] for e in exps]
     lines += list(race)
@@ -786,9 +818,11 @@ def execute(model_id, exps, books, order, fx, state):
         raise ValueError('China market is closed; orders fill only during Shanghai/Shenzhen trading hours')
     if exp == 'Currencies' and not fx_open():
         raise ValueError('forex is closed (it trades Sunday 5 p.m. to Friday 5 p.m. ET)')
+    if sym.endswith('=F') and action in ('buy', 'short'):   # R2 (root-cause vote Oct 31; Gemini and ChatGPT, against Claude): no new futures positions
+        raise ValueError(f'{sym}: new futures positions are not allowed since Oct 31 (their price feed is delayed about 10 minutes); use an ETF instead (GLD, SLV, USO, BNO, UNG, CPER); a futures position you hold can still be sold')
     px, pcur, info = quote(exp, sym, outcome)
     if stale_quote(exp, sym):
-        raise ValueError(f'{sym}: its market is open but the price feed has no price from today\'s session yet (it still shows the previous close), so the order was not filled; send it again at your next check-in')
+        raise ValueError(f'{sym}: no live price right now (the feed\'s latest quote is too old: the previous close or more than a few minutes), so the order was not filled; send it again at your next check-in')
     if exp == 'Predictions' and (info['closed'] or not info['active']):
         raise ValueError(f'{sym} is closed')
     if (exp == 'Options' or (exp == 'AllInTrading' and OCC.match(sym))):
@@ -885,6 +919,13 @@ def execute(model_id, exps, books, order, fx, state):
     t = {'at': iso(), 'model': model_id, 'experiment': exp, 'action': action.capitalize(), 'symbol': sym, 'outcome': outcome,
          'name': info.get('name', sym), 'price': px, 'pcur': pcur, 'qty': qty, 'amount': round(amt, 2), 'cur': book['cur'],
          'fx': fx, 'reason': reason, 'wrong_if': clip(order.get('wrong_if', ''), 300) if action in ('buy', 'short') else ''}
+    _ys = sym
+    if exp == 'Currencies':
+        _c = sym.upper()
+        _ys = f'{_c}=X' if (_cache.get(f'{_c}USD=X') or (1.0,))[0] < 0.1 else f'{_c}USD=X'   # V2: small units are priced from the inverse quote
+    if _prov.get(_ys):   # R1: where the price came from and how old it was ("price as of")
+        t['quote_at'] = _prov[_ys]['quote_at']
+        t['quote'] = _prov[_ys]
     state['trades'].append(t)
     return t
 
@@ -1640,9 +1681,10 @@ def claude_feed_values(state, fx):
     if NOW < FRESH_START or NOW >= RACE_END:
         return
     import claude_fill as CF
-    books, _ = CF.claude_books(state, fx, state.get('claude_main') or {'done': [], 'results': [], 'codes': {}})
+    books, names = CF.claude_books(state, fx, state.get('claude_main') or {'done': [], 'results': [], 'codes': {}})
     notes, at = [], iso()
     rows = state.setdefault('claude_feed', [])
+    fxr = {'USDCAD': round(float(fx['USDCAD']), 6), 'USDCNY': round(float(fx['USDCNY']), 6)}
     for e, b in books.items():
         for p in b.get('positions', {}).values():
             p.setdefault('hist', [])   # a throwaway copy of Claude's books: no price-history seeding
@@ -1651,7 +1693,9 @@ def claude_feed_values(state, fx):
         except Exception as ex:
             print('claude feed value failed', e, ex)
             continue
-        rows.append({'at': at, 'experiment': e, 'value': round(float(v), 2), **({'unmapped': b['unmapped']} if b.get('unmapped') else {})})
+        prices = {names.get((e, k), k): round(float(p['last']), 8) for k, p in b.get('positions', {}).items() if p.get('last') is not None}
+        rows.append({'at': at, 'experiment': e, 'value': round(float(v), 2), 'fx': fxr, **({'prices': prices} if prices else {}),
+                     **({'unmapped': b['unmapped']} if b.get('unmapped') else {})})
     if notes:
         print('claude feed notes:', '; '.join(str(n) for n in notes[:6]))
 
@@ -1692,6 +1736,11 @@ def shared_steps(state, fx, games=True):
         apply_price_corrections(state)
     except Exception as e:
         print('price corrections failed', e)
+    try:   # R3 (root-cause vote, Oct 31; all three AIs agreed): every runner fill checked against its minute's 1-minute bar
+        import fillcheck as FC
+        FC.run(state)
+    except Exception as e:
+        print('fill check failed', e)
     try:
         CF.process(state, fx)
     except Exception as e:

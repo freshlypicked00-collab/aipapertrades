@@ -141,6 +141,20 @@ if SEARCH:
 files = []
 if os.path.exists('ops/ask_files.txt'):
     files = [x.strip() for x in open('ops/ask_files.txt') if x.strip() and not x.startswith('#')]
+# Oct 31: a list left by an earlier question sent Gemini and ChatGPT the wrong Claude vote file. A claude-votes file is attached only if
+# it belongs to THIS question (its "topic" is the answers name); Claude's own vote file for this question is attached automatically.
+def _votes_topic(f):
+    try:
+        return json.load(open(f)).get('topic')
+    except Exception:
+        return None
+_skipped = [f for f in files if os.path.basename(f).startswith('claude-votes-') and _votes_topic(f) != NAME]
+files = [f for f in files if f not in _skipped]
+if _skipped:
+    print('::warning::not attached (Claude votes for another question):', ', '.join(_skipped))
+_mine = f'ops/review/claude-votes-{NAME}.json'
+if os.path.exists(_mine) and _mine not in files:
+    files.append(_mine)
 for f in files:
     try:
         q += f'\n\n===== FILE: {f} =====\n' + open(f).read()

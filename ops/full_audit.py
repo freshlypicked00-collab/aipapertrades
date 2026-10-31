@@ -277,11 +277,16 @@ def check_bet(b):
 
 def main():
     r = json.load(open(os.path.join(SRC, 'rivals.json')))
-    fills = [x for x in r.get('trades', []) if x.get('action') in ('Buy', 'Sell', 'Short', 'Cover') and t(x['at']) >= FS
+    since = FS
+    if os.environ.get('NIGHTLY'):   # R6 (root-cause vote, Oct 31): the nightly run re-checks the last 2 days (earlier days were checked already)
+        since = max(FS, NOW - timedelta(days=2))
+    fills = [x for x in r.get('trades', []) if x.get('action') in ('Buy', 'Sell', 'Short', 'Cover') and t(x['at']) >= since
              and x.get('experiment') not in ('Sports', 'AllInSports')]
     print(f'checking {len(fills)} fills')
     frows = [check_fill(x) for x in fills]
     bets = all_bets()
+    if os.environ.get('NIGHTLY'):
+        bets = [b for b in bets if not b.get('placed_at') or t(b['placed_at']) >= since - timedelta(days=2)]
     print(f'checking {len(bets)} bets')
     brows = [check_bet(b) for b in bets]
     import collections
@@ -298,6 +303,32 @@ def main():
         if x['status'] in ('flag', 'note'):
             print('::warning::BET', json.dumps({k: x.get(k) for k in ('model', 'race', 'id', 'event', 'status', 'notes')}))
     print('written', path)
+    if os.environ.get('NIGHTLY'):
+        nightly(out, r)
+
+
+def nightly(out, r):
+    """R6: publish the nightly audit's summary for Rules & Audit (ops/src/nightly_audit.json, newest first, 40 nights) and open an
+    "Audit flag" issue for any fill or bet flag that is not an option (the option check is a plausibility test) and not already corrected."""
+    corrected = {(c.get('model'), c.get('fill_at')) for c in r.get('price_corrections', [])}
+    flags = [x for x in out['fills'] if (x['status'] == 'flag' or x.get('amount_check') not in (None, 'ok')) and x.get('experiment') != 'Options'
+             and not str(x.get('symbol', '')).startswith(('SPY2', 'QQQ2')) and not x.get('note', '').startswith('sold far above') and (x.get('model'), x.get('at')) not in corrected]
+    bflags = [x for x in out['bets'] if x['status'] == 'flag']
+    p = os.path.join(SRC, 'nightly_audit.json')
+    try:
+        hist = json.load(open(p))
+    except Exception:
+        hist = []
+    hist.insert(0, {'at': out['at'], 'fills_checked': len(out['fills']), 'bets_checked': len(out['bets']), 'summary': out['summary'],
+                    'open_flags': [{k: x.get(k) for k in ('at', 'model', 'experiment', 'action', 'symbol', 'price', 'feed_low', 'feed_high', 'gap_pct', 'status')} for x in flags]
+                    + [{k: x.get(k) for k in ('model', 'race', 'id', 'event', 'status', 'notes')} for x in bflags]})
+    json.dump(hist[:40], open(p, 'w'), indent=1)
+    if flags or bflags:
+        import subprocess
+        body = 'The nightly full audit (root-cause vote R6) found fills or bets outside the feeds that are not corrected yet:\n\n' + '\n'.join(
+            '- ' + json.dumps({k: x.get(k) for k in ('at', 'model', 'experiment', 'action', 'symbol', 'id', 'price', 'feed_low', 'feed_high', 'gap_pct', 'status', 'notes')}) for x in (flags + bflags)[:30])
+        subprocess.run(['gh', 'label', 'create', 'audit-flag', '--color', 'D93F0B', '--description', 'Nightly audit flag'], capture_output=True)
+        subprocess.run(['gh', 'issue', 'create', '--title', f"Audit flag: {len(flags) + len(bflags)} to review ({out['at'][:10]})", '--label', 'audit-flag', '--body', body], capture_output=True)
 
 
 if __name__ == '__main__':

@@ -52,6 +52,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main   # always the newest data: a queued run must not start from the commit it was triggered on
+      - name: Append-only check of the past record (root-cause vote R5, Oct 31; reports only, never changes the record)
+        if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        continue-on-error: true
+        run: python3 ops/appendonly.py
       - name: Test price feeds
         if: ${{ inputs.mode == 'prices' }}
         run: python3 ops/rivals.py --prices
@@ -85,6 +91,22 @@ jobs:
           done
       - run: pip install -q matplotlib
         if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' && !startsWith(github.event.schedule, '3,18,33,48') }}
+      - name: "Tests of the race code (root-cause vote R7, Oct 31); a failure stops this run and opens an alert"
+        if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! python3 ops/tests/run_tests.py > /tmp/tests.log 2>&1; then
+            cat /tmp/tests.log
+            if [ -z "$(gh issue list --label tests-failing --state open --json number --jq '.[].number' 2>/dev/null)" ]; then
+              gh label create tests-failing --color B60205 --description "Race code tests failing; runs are stopped" 2>/dev/null || true
+              { echo "The race code's tests failed, so this run (and every run until they pass) did not trade, fill or publish. Gemini, ChatGPT and Claude are stopped equally."; echo; echo '```'; tail -60 /tmp/tests.log; echo '```'; } > /tmp/body.md
+              gh issue create --title "Race stopped: code tests failing" --label tests-failing --body-file /tmp/body.md || true
+            fi
+            exit 1
+          fi
+          tail -1 /tmp/tests.log
+          for n in $(gh issue list --label tests-failing --state open --json number --jq '.[].number' 2>/dev/null); do gh issue close "$n" -c "Tests pass again; runs resumed." || true; done
       - name: Let each rival model decide and trade
         if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' }}
         env:
@@ -149,6 +171,7 @@ jobs:
           [ -f ops/src/px_long.json ] && cp ops/src/px_long.json /tmp/px_long.json
           [ -f ops/src/after.json ] && cp ops/src/after.json /tmp/after.json
           [ -f ops/archive/thoughts.jsonl ] && cp ops/archive/thoughts.jsonl /tmp/thoughts.jsonl
+          [ -f ops/src/integrity.json ] && cp ops/src/integrity.json /tmp/integrity.json
           git config user.name "paper-trades-bot"
           git config user.email "paper-trades-bot@users.noreply.github.com"
           for i in 1 2 3 4 5; do
@@ -157,9 +180,12 @@ jobs:
             [ -f /tmp/price_audit.json ] && cp /tmp/price_audit.json ops/src/price_audit.json
             [ -f /tmp/px_long.json ] && cp /tmp/px_long.json ops/src/px_long.json
             [ -f /tmp/after.json ] && cp /tmp/after.json ops/src/after.json
+            [ -f /tmp/integrity.json ] && cp /tmp/integrity.json ops/src/integrity.json
             if [ -f /tmp/thoughts.jsonl ]; then mkdir -p ops/archive && cp /tmp/thoughts.jsonl ops/archive/thoughts.jsonl; fi
             # option B: Claude's fills go onto the LATEST ops/src (anything Claude pushed meanwhile is kept); one that no longer fits is refused
             if [ -f /tmp/claude_fill_batch.json ]; then python3 ops/claude_fill.py apply /tmp/claude_fill_batch.json; fi
+            # R3: Claude's automatic price corrections, also on the LATEST ops/src (root-cause vote, Oct 31)
+            if grep -q '"pending_claude": true' ops/src/rivals.json; then python3 ops/fillcheck.py apply-claude && git add ops/src/holdings.json ops/src/history.json ops/src/log.json; fi
             python3 ops/build_site.py ops/src .
             python3 ops/discord_leads.py pick || true   # new lead changes for Discord #lead-changes, posted after the push
             git add ops/src/rivals.json index.html data.json data.ver audit.json og.png ops/src/og.json
@@ -169,6 +195,7 @@ jobs:
             [ -f ops/src/price_audit.json ] && git add ops/src/price_audit.json
             [ -f ops/src/px_long.json ] && git add ops/src/px_long.json px_long.json
             [ -f ops/src/after.json ] && git add ops/src/after.json
+            [ -f ops/src/integrity.json ] && git add ops/src/integrity.json
             [ -f ops/archive/thoughts.jsonl ] && git add ops/archive/thoughts.jsonl
             [ -f /tmp/claude_fill_batch.json ] && git add ops/src
             git diff --cached --quiet && exit 0

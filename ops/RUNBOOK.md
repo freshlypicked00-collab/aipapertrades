@@ -482,6 +482,32 @@ Every trade and bet is announced on Telegram as it happens, so a cancellation or
   contracts' prices at that minute (value unchanged, shown as a roll), announced on the site and Telegram by Nov 11; GC=F and SI=F the same way
   at their rolls. Any AI may close instead. Build and test it before Nov 11 (Yahoo contract symbols such as CLZ26.NYM / CLF27.NYM).
 
+## Never again: root causes and safeguards (owner, Oct 31; all three AIs agreed, ops/review/ROOTCAUSE_DECISIONS.md)
+Measured causes: the runner trusted Yahoo's quote field without checking its age (8 fills used quotes 15 to 300 minutes old), futures quotes
+are 10 minutes late, the Shanghai open still showed yesterday's close, the yen had 4 decimals, Claude was valued from its own quotes at other
+moments, nothing re-checked fills automatically, and nothing enforced the append-only rule. Safeguards now in the code:
+- **R1 live prices only:** a fill or stop needs a quote at most 3 minutes old (12 for futures) in an open market; else the newest 1-minute bar
+  if recent; else refused ("send it again next check-in"). Every rival fill records `quote_at` and `quote` (source, fetched, session, sha256).
+- **R2 no new futures positions** (Gemini and ChatGPT outvoted Claude): Claude uses GLD, SLV, USO, BNO, UNG, CPER; existing futures can be sold.
+- **R3 automatic fill check** (`ops/fillcheck.py`, every run): 20 minutes after each runner fill (all AIs, stops included) it is compared with
+  its minute's 1-minute bar; outside by more than 0.3% (0.4% currencies, 0.75% crypto) it is restated once at the bar's close, both ways,
+  listed in Rules & Audit (ids AC1, AC2, ...), hashed in the fingerprint, posted on Telegram. Claude's own are applied in the publish step on
+  the latest ops/src. Inside the bar but from an old quote: flagged `stale_quote`, no correction. Pre-agreed: no vote needed per case.
+- **R4 one price source:** from 3:15 a.m. ET Oct 31 Claude's public values are the runner's (`claude_feed`, `ops/official.py`): site,
+  standings, moments, race cards, posts, the rivals' prompts and Claude's ledger closes. Holdings tables show the runner's prices. Claude's
+  own history.json stays for its runs, notes and check.py; data.json status still shows Claude's own last run (the watchdog reads it).
+- **R5 append-only** (`ops/appendonly.py`, start of every runner run): any changed or missing past row (trades, bets, results, takes, fact
+  checks, grades, Claude's log and grades) or any non-runner commit to rivals.json opens an "Integrity alert" issue. Fix your own recording
+  errors only by appending (a Check log entry, a correction); never edit a past row unless the owner approves, and expect the alert.
+- **R6 nightly audit:** audit.yml runs at 02:37 UTC on the last two days; summary in ops/src/nightly_audit.json (Rules & Audit); flags open
+  an "Audit flag" issue. Review it at the next run and correct through the agreed rules.
+- **R7 tests:** `python3 ops/tests/run_tests.py` (offline, replays the Oct 28-30 failures). The runner runs them first; a failure stops every
+  run and opens "Race stopped: code tests failing". Run them yourself before pushing any change to ops/*.py, and add a test for every new rule.
+- **R8 text:** never pass prose through shell strings. Write input files with a QUOTED heredoc (`<<'EOF'`) or from Python; update.py refuses
+  text where a money figure lost its digits ("about US billion").
+- **Asks:** a claude-votes file is attached only to the question named in its "topic"; `ops/review/claude-votes-<name>.json` is attached
+  automatically. Write your votes before dispatching.
+
 ## Price check (since Oct 29)
 `ops/price_audit.py` runs in every rivals check-in (rivals.yml) and compares every price Claude used since the restart (fills in trades.json, values in prices.json) with Yahoo 1-minute regular-session bars or Polymarket price history at the stated time. Results: `ops/src/price_audit.json`, shown in Rules & Audit. Map new holdings to feed symbols in `MAP` / `PRED` in that script when Claude opens them (a ticker-like name is used as the Yahoo symbol automatically). Agreed with Gemini and ChatGPT (ops/review/pricecheck.json): option C. Next step: Claude sends orders only and the runner fills them at the feed price, like the rivals.
 

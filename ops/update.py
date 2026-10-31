@@ -47,6 +47,28 @@ def ts(s):
 
 changed = set()
 inp = json.load(open(INP))
+
+
+def _money_text_check(o, path='input'):
+    """R8 (root-cause vote, Oct 31; all three AIs agreed): refuse text where a money figure lost its digits, as when a shell ate
+    "$76,900" and "$3 billion" (Oct 30 log). Write input files with a QUOTED heredoc (<<'EOF') or from Python, never through shell strings."""
+    import re as _re
+    bad = []
+    if isinstance(o, dict):
+        for k, v in o.items():
+            bad += _money_text_check(v, f'{path}.{k}')
+    elif isinstance(o, list):
+        for i, v in enumerate(o):
+            bad += _money_text_check(v, f'{path}[{i}]')
+    elif isinstance(o, str):
+        for m in _re.finditer(r'\b(?:US|C|A|HK)\$?\s+(?:billion|million|trillion|bn)\b|(?:US|C)\$(?=[\s,.;:)]|$)|\$\s+\d|(?:about|around|near|at|to|from|of)\s+(?:billion|million|trillion)\b', o):
+            bad.append(f'{path}: "...{o[max(0, m.start() - 30):m.end() + 15]}..."')
+    return bad
+
+
+_bad_money = _money_text_check(inp)
+if _bad_money:
+    sys.exit('REFUSED: a money figure lost its digits (shell "$" expansion?). Rewrite the input with a quoted heredoc or Python:\n' + '\n'.join(_bad_money[:10]))
 AT = inp['at']
 at_dt = ts(AT)
 warnings = []
@@ -487,7 +509,16 @@ if inp.get('sources_add'):
 
 # ---- daily ledger: each day runs 00:00 to 00:00 UTC
 UTC = timezone.utc
-series = {pf: sorted(((ts(h['at']).astimezone(UTC), float(h['value'])) for h in history if h['portfolio'] == pf)) for pf in ORDER}
+# R4 (root-cause vote, Oct 31; all three AIs agreed): the day closes use Claude's official values: the race runner's (rivals.json
+# "claude_feed", same feed and check-in as Gemini's and ChatGPT's) from the switch on, Claude's own before it.
+try:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import official as _OF
+    _close_rows = _OF.official_rows(history, json.load(open(os.path.join(SRC, 'rivals.json'))).get('claude_feed', []))
+except Exception as _e:
+    print('official values unavailable for the day close; using Claude\'s own:', _e)
+    _close_rows = history
+series = {pf: sorted(((ts(h['at'].replace('Z', '+00:00')).astimezone(UTC), float(h['value'])) for h in _close_rows if h['portfolio'] == pf)) for pf in ORDER}
 
 
 def value_at(pf, T):

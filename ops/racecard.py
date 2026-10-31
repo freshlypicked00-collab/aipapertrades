@@ -16,7 +16,8 @@ T = lambda s: datetime.fromisoformat(s.replace('Z', '+00:00'))
 def _series(src='ops/src'):
     """{(model, exp): [(time, value), ...]} for every AI."""
     out = {}
-    for h in json.load(open(f'{src}/history.json')):
+    import official as OF   # R4 (root-cause vote, Oct 31): Claude's values from the same runner check-ins as Gemini's and ChatGPT's
+    for h in OF.load(src):
         out.setdefault(('claude', h['portfolio']), []).append((T(h['at']), float(h['value'])))
     try:
         for h in json.load(open(f'{src}/rivals.json')).get('history', []):

@@ -494,6 +494,31 @@ except Exception:
     data['changelog'] = []
 rv = os.path.join(SRC, 'rivals.json')
 r = json.load(open(rv)) if os.path.exists(rv) else {'models': {}, 'trades': [], 'history': [], 'takes': []}
+# R4 (root-cause vote, Oct 31; all three AIs agreed): one price source. From the switch, Claude's values on the site are the race runner's
+# (rivals.json "claude_feed", the same check-ins and feeds as Gemini's and ChatGPT's), and its holdings show the runner's prices too, so a
+# tile always equals the sum of its holdings. Claude's own valuations stay in history_own (its run times, its notes).
+data['history_own'] = data['history']
+try:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import official as _OF
+    data['history'] = _OF.official_rows(data['history_own'], r.get('claude_feed', []))
+    _fpx = _OF.latest_prices(r.get('claude_feed', []))
+    _ffx = next((f.get('fx') for f in reversed(r.get('claude_feed', [])) if f.get('fx')), None)
+    if _ffx:
+        for _hr in data['holdings']:
+            _k = (_hr['portfolio'], _hr['holding'])
+            if _k not in _fpx or not _hr.get('quantity') or str(_hr['holding']).startswith('Cash') or _hr['holding'] == 'USDC':
+                continue
+            _px, _pat = _fpx[_k]
+            if _hr['portfolio'] == 'China':
+                _hr['price_local'] = _px; _hr['value_usd'] = round(_hr['quantity'] * _px / _ffx['USDCNY'], 2); _ent = _hr.get('entry_local')
+            else:
+                _hr['price_usd'] = _px; _hr['value_cad'] = round(_hr['quantity'] * _px * _ffx['USDCAD'], 2); _ent = _hr.get('entry_usd')
+            if _ent:
+                _hr['change_pct'] = round(_px / _ent - 1, 4)
+            _hr['price_source'] = 'Race runner (same feed and check-in as Gemini and ChatGPT)'; _hr['price_at'] = _pat
+except Exception as _e:
+    print('official values not applied:', _e)
 try:   # public transaction IDs, read from the registry the race runner keeps in rivals.json (ops/txids.py); never assigned here
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import txids as _TX
@@ -546,6 +571,10 @@ def _price_corrections():
 
 
 data['price_corrections'] = _price_corrections()
+try:   # R6 (root-cause vote, Oct 31): the nightly full audit's summaries, newest first
+    data['nightly_audit'] = json.load(open(os.path.join(SRC, 'nightly_audit.json')))[:7]
+except Exception:
+    data['nightly_audit'] = []
 # Profit on every closed trade (average cost) and every settled bet, so every trade table can show what went in,
 # what came back and the profit. Buys and open bets are marked open. Sells carry "cost" (what that part cost) and "pnl".
 def _annotate_rivals(r):
@@ -621,7 +650,7 @@ data['allin_history'] = [h for h in r['history'] if str(h.get('experiment', ''))
 data['rivals_trades'] = [t for t in r['trades'] if not str(t.get('experiment', '')).startswith('AllIn') and t.get('model') != 'claude']
 data['rivals_history'] = [h for h in r['history'] if not str(h.get('experiment', '')).startswith('AllIn') and h.get('model') != 'claude']
 data['factcheck'] = [dict(x, checker=x.get('checker', 'claude')) for x in data['factcheck']] + [x for x in r.get('factchecks', [])]   # from now on Gemini checks Claude; Claude's one earlier self-check stays visible
-_cl = max((datetime.fromisoformat(h['at'].replace('Z', '+00:00')) for h in data['history']), default=None)
+_cl = max((datetime.fromisoformat(h['at'].replace('Z', '+00:00')) for h in data['history_own']), default=None)   # Claude's own last run
 data['checkins'] = ([{'id': 'claude', 'at': _cl.isoformat() if _cl else None, 'status': 'ok'}] +
                     [{'id': k, 'at': (v.get('last_run') or {}).get('at'), 'status': (v.get('last_run') or {}).get('status', '')} for k, v in r['models'].items()])
 data['geo'] = [json.load(open(os.path.join(SRC, 'geo.json')))] if os.path.exists(os.path.join(SRC, 'geo.json')) else []
@@ -1364,7 +1393,7 @@ _ig = sorted((v.get('at') for v in _soc.values() if v.get('at')), reverse=True)
 _notes = [n for _m in (r.get('models') or {}).values() for n in ((_m.get('last_run') or {}).get('notes') or [])]
 data['status'] = [{
     'built_at': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
-    'claude': max((h['at'] for h in data['history']), key=lambda t: _when(t), default=None),
+    'claude': max((h['at'] for h in data['history_own']), key=lambda t: _when(t), default=None),   # Claude's own last run (the watchdog reads it)
     'rivals': {mid: {'at': (m.get('last_run') or {}).get('at'), 'status': (m.get('last_run') or {}).get('status'), 'fail_streak': m.get('fail_streak', 0)} for mid, m in (r.get('models') or {}).items()},
     'odds': r.get('feeds') or {},
     'prices_missing': [n for n in _notes if 'no price' in n.lower() or 'price unavailable' in n.lower()][:5],
@@ -1802,6 +1831,7 @@ open(os.path.join(_dd, 'README.txt'), 'w').write(
     'grades.csv: every grade one AI gave another, given anonymously and before the result.\n\n'
     'The full record is fingerprinted every night (SHA-256, see Rules & Audit on papertrades.ai). Not financial advice.\n')
 data['downloads'] = [{'file': n, 'bytes': os.path.getsize(os.path.join(_dd, n))} for n in ('moves.csv', 'values.csv', 'prices_claude.csv', 'grades.csv', 'README.txt')]
+data.pop('history_own', None)   # Claude's own valuations are not published twice (R4: the site shows the runner's)
 json.dump(data, open(os.path.join(OUT, 'data.json'), 'w'), separators=(',', ':'))  # compact: smaller and faster to load
 open(os.path.join(OUT, 'data.ver'), 'w').write(data['ver'])
 
