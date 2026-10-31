@@ -38,8 +38,13 @@ def direction(kind, qty):
 def price_now(stop, fx):
     """The live price the stop watches: its own quote, or a separate rate ("watch", e.g. CAD=X for a US dollar position)."""
     if stop.get('watch'):
-        return R.yahoo(stop['watch'])[0]
+        px = R.yahoo(stop['watch'])[0]
+        if R._stale.get(stop['watch']):
+            raise ValueError('no price from today\'s session yet')
+        return px
     px, _, info = R.quote(stop['experiment'], stop['symbol'], stop.get('outcome'))
+    if R.stale_quote(stop['experiment'], str(stop['symbol'])):   # V1: never trigger a stop on the previous close
+        raise ValueError('no price from today\'s session yet')
     return info.get('mid', px) if isinstance(info, dict) and info.get('mid') else px
 
 

@@ -127,6 +127,7 @@ def get_json(url, headers=None, data=None, timeout=60):
 
 # ---------------- prices ----------------
 _cache = {}
+_stale = {}   # symbol -> True when its market is open but the feed has no price from today's session yet (V1, full audit Oct 31)
 
 
 def yahoo(symbol):
@@ -136,8 +137,24 @@ def yahoo(symbol):
     for host in ('query1', 'query2'):
         try:
             j = get_json(f'https://{host}.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(symbol)}?range=1d&interval=5m', timeout=20)
-            m = j['chart']['result'][0]['meta']
+            res = j['chart']['result'][0]
+            m = res['meta']
             px = m.get('regularMarketPrice')
+            # V1 (full audit Oct 31; agreed by vote, ops/review/audit-fix-oct31.json): just after a market opens Yahoo's quote can still be
+            # the previous close (every China fill at the Shanghai open on Oct 29 and 30 was at the prior close). If the newest bar is newer
+            # than the quote, the bar's price is the real one; if the session is open and nothing is from today's session yet, the price is
+            # marked stale: orders and stops then wait (valuations still use the last price).
+            try:
+                qt = int(m.get('regularMarketTime') or 0)
+                ts, cl = res.get('timestamp') or [], (res['indicators']['quote'][0].get('close') or [])
+                lastbar = next(((t, c) for t, c in zip(reversed(ts), reversed(cl)) if c is not None), None)
+                if px and lastbar and qt and lastbar[0] > qt + 60:
+                    px, qt = float(lastbar[1]), int(lastbar[0])
+                reg = (m.get('currentTradingPeriod') or {}).get('regular') or {}
+                now_ts = int(NOW.timestamp())
+                _stale[symbol] = bool(reg.get('start') and reg.get('end') and int(reg['start']) <= now_ts <= int(reg['end']) and qt and qt < int(reg['start']))
+            except Exception:
+                _stale[symbol] = False
             if px:
                 _cache[symbol] = (float(px), m.get('currency', 'USD'), m.get('longName') or m.get('shortName') or symbol)
                 return _cache[symbol]
@@ -182,6 +199,11 @@ def quote(exp, symbol, outcome=None):
         px, cur, _ = yahoo(f'{code}USD=X')
         if cur != 'USD':
             raise ValueError(f'no US$ rate for {code}')
+        if px < 0.1:   # V2 (full audit Oct 31): Yahoo rounds this quote to 4 decimals (yen showed 0.0063 for 0.006335); 1 / (units per US$) is exact
+            inv, _, _ = yahoo(f'{code}=X')
+            if inv and float(inv) > 0:
+                px = 1.0 / float(inv)
+                _stale[f'{code}USD=X'] = _stale.get(f'{code}=X', False)
         return px, 'USD', {'name': FX_NAMES[code]}
     if exp == 'Options' or (exp == 'AllInTrading' and OCC.match(symbol)):
         o = option_quote(symbol)
@@ -718,6 +740,15 @@ def parse_reply(text):
     return json.loads(m.group(0))
 
 
+def stale_quote(exp, sym):
+    """True when the Yahoo price behind this order is the previous close although its market is open (V1, full audit Oct 31)."""
+    if exp == 'Predictions' or exp == 'Options' or (exp == 'AllInTrading' and OCC.match(sym)):
+        return False
+    if exp == 'Currencies':
+        return bool(_stale.get(f'{sym.upper()}USD=X'))
+    return bool(_stale.get(sym))
+
+
 def execute(model_id, exps, books, order, fx, state):
     exp = order.get('experiment')
     if exp not in exps:
@@ -755,6 +786,8 @@ def execute(model_id, exps, books, order, fx, state):
     if exp == 'Currencies' and not fx_open():
         raise ValueError('forex is closed (it trades Sunday 5 p.m. to Friday 5 p.m. ET)')
     px, pcur, info = quote(exp, sym, outcome)
+    if stale_quote(exp, sym):
+        raise ValueError(f'{sym}: its market is open but the price feed has no price from today\'s session yet (it still shows the previous close), so the order was not filled; send it again at your next check-in')
     if exp == 'Predictions' and (info['closed'] or not info['active']):
         raise ValueError(f'{sym} is closed')
     if (exp == 'Options' or (exp == 'AllInTrading' and OCC.match(sym))):
@@ -1745,6 +1778,9 @@ def main():
             apply_penalties(state, fx)   # before the final freeze, so a last missed day counts in the final values
     except Exception as e:
         print('penalties failed', e)
+    # V6 (full audit Oct 31; all three AIs agreed, ops/review/audit-fix-oct31.json): the public board and the takes a fact-checker checks
+    # are frozen at the start of the check-in, so the AI that decides second never sees the first one's moves or words from the same round.
+    FROZEN = {k: list(state.get(k, [])) for k in ('takes', 'plans', 'trades', 'thoughts')}
     for mid, r in RIVALS.items():
         key = os.environ.get(r['env'])
         if not key and mid == 'chatgpt' and os.environ.get('OPENROUTER_API_KEY'):
@@ -1809,7 +1845,7 @@ def main():
             mine = [x for x in state['takes'] if x['model'] == mid]
             today = [x for x in mine if x['at'][:10] == NOW.date().isoformat()]
             myplans = {k: next((x['text'] for x in reversed(state.get('plans', [])) if x['model'] == mid and x['horizon'] == k and not x.get('experiment')), '') for k in ('day', 'week', 'month', 'feeling')}
-            board, fc_task = public_board(state, mid) + betting_rule_line(state, mid, fx) + ' ', ''
+            board, fc_task = public_board({**FROZEN, 'factchecks': state.get('factchecks', [])}, mid) + betting_rule_line(state, mid, fx) + ' ', ''
             fc_races, fc_take = [], None
             # the fact-check loop (each AI checks exactly one other, nobody checks itself): Gemini checks Claude, ChatGPT checks Gemini
             # (Claude checks ChatGPT in its own runs)
@@ -1819,12 +1855,12 @@ def main():
                     if fc_target == 'claude':
                         ct = max([x for x in json.load(open('ops/src/take.json')) if not x.get('experiment')], key=lambda x: datetime.fromisoformat(x['at'].replace('Z', '+00:00')))
                     else:
-                        ct = max([x for x in state.get('takes', []) if x.get('model') == fc_target], key=lambda x: datetime.fromisoformat(x['at'].replace('Z', '+00:00')))
+                        ct = max([x for x in FROZEN['takes'] if x.get('model') == fc_target], key=lambda x: datetime.fromisoformat(x['at'].replace('Z', '+00:00')))
                 except Exception:
                     ct = None
                 done = {x['take_at'] for x in state.get('factchecks', []) if x.get('model') == fc_target and not x.get('experiment')}
                 tname = {'claude': 'Claude', 'gemini': 'Gemini'}[fc_target]
-                fc_races = race_takes_to_check(state, fc_target)   # its race takes that state a checkable fact (owner, Oct 29)
+                fc_races = race_takes_to_check({**FROZEN, 'factchecks': state.get('factchecks', [])}, fc_target)   # its race takes that state a checkable fact (owner, Oct 29)
                 if (ct and ct['at'] not in done) or fc_races:
                     fc_task = (f'INDEPENDENT FACT-CHECK TASK: you are the public fact-checker for {tname}\'s takes. Use web search to check every factual claim '
                                f'(prices, levels, rate decisions, data, earnings, events, game results); what {tname} says it holds, plans or thinks is not checkable, skip that. Be fair and strict. '
