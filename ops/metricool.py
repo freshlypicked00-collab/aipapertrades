@@ -2,6 +2,8 @@
 public (our own unaudited API project would be locked private; all three AIs flagged that, Oct 30).
 
   python3 ops/metricool.py probe   -> checks the token and the YouTube connection, saves the API's own YouTube fields (posts nothing)
+  python3 ops/metricool.py test    -> the safety test (owner approved, Oct 31): uploads an existing Short as UNLISTED (not on the
+                                      channel, no notification) and waits for YouTube to confirm, so we know uploads are not locked private
 
 The token comes only from the METRICOOL_TOKEN secret and is never printed or written anywhere. The account and brand numbers are not
 secret (they are in the address bar of every Metricool page)."""
@@ -82,6 +84,74 @@ def probe():
     print('schemas saved:', list((out.get('schemas') or {}).keys())[:40])
 
 
+def normalize(url):
+    """Metricool copies the file to its own storage; the post must use the address it returns."""
+    st, r = call('/actions/normalize/image/url?' + urllib.parse.urlencode({'url': url}), raw=True)
+    if st != 200:
+        return None, f'normalize {st}: {str(r)[:300]}'
+    r = r.strip()
+    try:
+        j = json.loads(r)
+        r = j if isinstance(j, str) else (j.get('url') or (j.get('data') or {}).get('url') or j.get('mediaId') or j.get('id') or '')
+    except Exception:
+        r = r.strip('"')
+    return (r or None), ('' if r else 'normalize returned nothing')
+
+
+def schedule_short(video_url, title, text, privacy, when=None):
+    """Schedule one YouTube Short. Returns (status, response)."""
+    from datetime import datetime, timedelta
+    from zoneinfo import ZoneInfo
+    tz = 'America/Toronto'
+    at = when or (datetime.now(ZoneInfo(tz)) + timedelta(minutes=3))
+    media, err = normalize(video_url)
+    if not media:
+        return 0, err
+    body = {
+        'text': text, 'providers': [{'network': 'youtube'}],
+        'publicationDate': {'dateTime': at.strftime('%Y-%m-%dT%H:%M:%S'), 'timezone': tz},
+        'draft': False, 'autoPublish': True, 'media': [media],
+        'youtubeData': {'title': title[:100], 'type': 'short', 'privacy': privacy, 'madeForKids': False, 'category': '28',
+                        'notifySubscribers': privacy == 'public', 'tags': ['AI', 'Claude', 'Gemini', 'ChatGPT', 'paper trading']},
+    }
+    return call('/v2/scheduler/posts', 'POST', body)
+
+
+def wait_for(post_id, minutes=20):
+    """Poll until YouTube's answer comes back: PUBLISHED (with its link) or ERROR."""
+    import time
+    last = None
+    for _ in range(minutes * 2):
+        st, r = call(f'/v2/scheduler/posts/{post_id}')
+        d = r.get('data', r) if isinstance(r, dict) else {}
+        prov = [p for p in (d.get('providers') or []) if p.get('network') == 'youtube']
+        last = prov[0] if prov else {'status': f'http {st}'}
+        print('  status:', last.get('status'), (last.get('detailedStatus') or '')[:160])
+        if last.get('status') in ('PUBLISHED', 'ERROR'):
+            break
+        time.sleep(30)
+    return last
+
+
+def test():
+    if not TOKEN:
+        print('METRICOOL_TOKEN secret is missing'); sys.exit(1)
+    name = 'replay-Options-2026-10-30.mp4'
+    tries = ['https://papertrades.ai/social/reels/' + name, 'https://raw.githubusercontent.com/freshlypicked00-collab/aipapertrades/main/social/reels/' + name]
+    out = {'video': name, 'privacy': 'unlisted'}
+    for u in tries:
+        st, r = schedule_short(u, 'Paper Trades test upload (unlisted)', 'Test upload from Paper Trades. https://papertrades.ai', 'unlisted')
+        out.setdefault('attempts', []).append({'source': u.split('/')[2], 'status': st, 'answer': _scrub(r) if isinstance(r, (dict, list)) else str(r)[:400]})
+        if st in (200, 201) and isinstance(r, dict):
+            d = r.get('data', r); pid = d.get('id')
+            out['post_id'] = pid
+            if pid:
+                out['result'] = _scrub(wait_for(pid))
+            break
+    json.dump(_scrub(out), open(os.path.join(HERE, 'review', 'metricool-test.json'), 'w'), indent=1)
+    print(json.dumps(_scrub(out), indent=1)[:3000])
+
+
 if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else 'probe'
-    {'probe': probe}[cmd]()
+    {'probe': probe, 'test': test}[cmd]()

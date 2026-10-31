@@ -3,9 +3,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'probe = check the Metricool token and the YouTube connection (posts nothing)'
+        description: 'probe = check the token and the YouTube connection (posts nothing); test = upload an existing Short as UNLISTED to prove uploads work'
         type: choice
-        options: [probe]
+        options: [probe, test]
         default: probe
 permissions:
   contents: write
@@ -15,7 +15,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     env:
       METRICOOL_TOKEN: ${{ secrets.METRICOOL_TOKEN }}
     steps:
@@ -28,3 +28,9 @@ jobs:
           python3 ops/metricool.py probe
           git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
           git add ops/review/metricool-probe.json && git commit -qm "Metricool probe: token and YouTube connection (no posting)" && for i in 1 2 3; do git pull -q --rebase origin main && git push -q origin HEAD:main && break; sleep 5; done || true
+      - name: Safety test - one existing Short, UNLISTED (not on the channel, no notification)
+        if: ${{ inputs.mode == 'test' }}
+        run: |
+          python3 ops/metricool.py test
+          git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
+          git add ops/review/metricool-test.json && git commit -qm "Metricool safety test: one unlisted YouTube Short" && for i in 1 2 3; do git pull -q --rebase origin main && git push -q origin HEAD:main && break; sleep 5; done || true
