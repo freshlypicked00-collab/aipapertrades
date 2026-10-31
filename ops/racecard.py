@@ -137,7 +137,7 @@ def race_card(rows, big, title, path='/tmp/pt_race.png', height=6.75):
     ax = fig.add_axes([0, 0, 1, 1]); ax.set_xlim(0, 1200); ax.set_ylim(675, 0); ax.axis('off')
     ax.text(60, 70, 'PAPERTRADES.AI', color='#ffb000', fontsize=22, fontweight='bold', family='monospace')
     ax.text(60, 112, title, color=FG, fontsize=17)
-    ax.text(1140, 70, 'Which AI makes the most money?', color=MUTED, fontsize=13, ha='right')
+    ax.text(1140, 70, 'Which AI makes the most (pretend) money?', color=MUTED, fontsize=13, ha='right')
     ax.text(60, 160, 'TOTAL PROFIT SINCE THE OCT 28 RESTART (C$, ALL 10 EXPERIMENTS)', color=MUTED, fontsize=11, family='monospace')
     y = 215
     for i, r in enumerate(rows):
