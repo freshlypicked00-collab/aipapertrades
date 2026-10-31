@@ -99,3 +99,8 @@ Measure in GoatCounter: visits per utm_source, follow/<channel>-<place> events, 
 - P3 Show HN Tue Nov 3 about 9 a.m. ET, the day before the Ben's Bites ad, with the technical/audit/conflict-of-interest first comment; no vote asking: all three agreed. The single most important step this week (all three).
 - P4 site ready for the spike before Show HN (fast first screen on phones, one-sentence explanation, audit page easy to find): all three agreed.
 - Extra ideas: a weekly email recap sign-up before the spike (Gemini only); a launch checklist per post and the owner replying for the first hour (ChatGPT only).
+
+### Ad log
+- **Oct 31, 6:28 p.m. ET:** first Instagram boost live (ad-1-feed.jpg). Goal: profile visits. Paid in the iPhone app (web checkout kept failing on a new ad account; Apple fee about 30%). Ad account is the personal one Instagram made (…153572), not in the PaperTrades business portfolio. UK and Australia need phone verification on that account: use the blue "Verify phone number in Meta Business Suite" link on the boost page, then pay on the web to skip the Apple fee. Advantage+ creative off; AI label on; financial-products toggle off.
+- **Budget rule (all three AIs agreed):** hold 2 to 4 days, then raise only if cost per profile visit is at or under about C$0.15 to 0.20 and at least 5 to 10% of profile visitors tap the site link. Step up gradually (C$10 → 15 → 25). Next: a Reel as a second ad (Instagram library music only).
+- **Check results:** Tue Nov 3 or Wed Nov 4.
