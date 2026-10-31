@@ -24249,6 +24249,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 113020.83
+  },
+  {
+   "at": "2026-10-31T00:25:10Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 96839.23
+  },
+  {
+   "at": "2026-10-31T00:25:10Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 100000.0
   }
  ],
  "takes": [
@@ -39225,7 +39237,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 690.49,
-      "priced_at": "2026-10-31T00:15:43Z",
+      "priced_at": "2026-10-31T00:25:10Z",
       "hist": [
        [
         29886870,
@@ -39483,8 +39495,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 77194.14,
-      "priced_at": "2026-10-31T00:15:43Z",
+      "last": 77202.56,
+      "priced_at": "2026-10-31T00:25:10Z",
       "hist": [
        [
         29886870,
@@ -61196,20 +61208,6 @@
     "reason": "If EURUSD falls to 1.105, I want to lock in part of the FX gain rather than overstay a leveraged macro trade."
    },
    {
-    "id": "chatgpt-10",
-    "model": "chatgpt",
-    "experiment": "AllInTrading",
-    "symbol": "SOL-USD",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 90.0,
-    "fraction": 0.5,
-    "name": "Solana USD",
-    "placed_at": "2026-10-29T21:16:33Z",
-    "reason": "The all-in book can take more risk, but SOL below 90 would make the crypto leg a capital drain instead of an upside swing."
-   },
-   {
     "id": "chatgpt-12",
     "model": "chatgpt",
     "experiment": "Crypto",
@@ -61264,20 +61262,6 @@
     "name": "United States Oil Fund, LP",
     "placed_at": "2026-10-29T22:15:24Z",
     "reason": "A move to 176 would give me a chance to take partial profit on the smaller energy position after today's recovery."
-   },
-   {
-    "id": "chatgpt-18",
-    "model": "chatgpt",
-    "experiment": "AllInTrading",
-    "symbol": "SOL-USD",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 112.0,
-    "fraction": 0.5,
-    "name": "Solana USD",
-    "placed_at": "2026-10-29T22:15:24Z",
-    "reason": "The all-in side book can stay aggressive, but a sharp Solana bounce should still be partly monetized."
    },
    {
     "id": "chatgpt-22",
@@ -61569,7 +61553,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-10-31T00:15:43Z",
+  "at": "2026-10-31T00:25:10Z",
   "games": [
    {
     "id": "401909285",
@@ -61586,8 +61570,8 @@
     "away": "Denver Nuggets",
     "home": "Phoenix Suns",
     "start": "2026-10-31T02:00Z",
-    "away_ml": -180,
-    "home_ml": 150
+    "away_ml": -175,
+    "home_ml": 145
    },
    {
     "id": "401866451",
@@ -62479,6 +62463,26 @@
    "name": "SPY Nov 20 $760 put",
    "kind": "target",
    "level": 20.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-10-31T00:25:10Z",
+   "model": "chatgpt",
+   "id": "chatgpt-10",
+   "experiment": "AllInTrading",
+   "name": "Solana USD",
+   "kind": "stop",
+   "level": 90.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-10-31T00:25:10Z",
+   "model": "chatgpt",
+   "id": "chatgpt-18",
+   "experiment": "AllInTrading",
+   "name": "Solana USD",
+   "kind": "target",
+   "level": 112.0,
    "result": "removed: the position is no longer held"
   }
  ],
