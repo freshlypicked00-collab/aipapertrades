@@ -1312,7 +1312,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '53a8d4f6ec8f';</script>
+<script>window.PT_PAGE_VER = '0c5216cbe94c';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -4432,16 +4432,30 @@ body { background:var(--color-bg); }
         svg.append('text').attr('x', W - M.r - 4).attr('y', y(l.v) - 6).attr('text-anchor', 'end').attr('font-size', 12.5)
           .style('fill', 'var(--color-fg)').text(l.label);
       });
-      // area + line
-      const grad = svg.append('defs').append('linearGradient').attr('id', id).attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', 1);
+      // area + line. Owner, Oct 30 ("doesn't show the colour way properly"): the line is green while above the reference
+      // (the start, or the range's first value) and red while below it, with the shading split at that level the same way,
+      // instead of one colour for the whole line from where it ends. No reference: one colour as before.
+      const defs = svg.append('defs');
+      const split = ref !== undefined && ref !== null && pts.length > 1;
+      const yRef = split ? Math.max(M.t, Math.min(H - M.b, y(ref))) : 0;
+      const twoTone = (gid, op) => {   // hard switch from green to red at the reference level (user space, so flat lines work too)
+        const g = defs.append('linearGradient').attr('id', gid).attr('gradientUnits', 'userSpaceOnUse').attr('x1', 0).attr('x2', 0).attr('y1', M.t).attr('y2', H - M.b);
+        const f = (H - M.b) > M.t ? (yRef - M.t) / ((H - M.b) - M.t) : 0.5;
+        [[0, 'var(--color-ok)'], [f, 'var(--color-ok)'], [f, 'var(--color-bad)'], [1, 'var(--color-bad)']].forEach(([o, c]) =>
+          g.append('stop').attr('offset', o).style('stop-color', c).style('stop-opacity', op));
+        return `url(#${gid})`;
+      };
+      const grad = defs.append('linearGradient').attr('id', id).attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', 1);
       grad.append('stop').attr('offset', '0%').style('stop-color', color).style('stop-opacity', 0.22);
       grad.append('stop').attr('offset', '100%').style('stop-color', color).style('stop-opacity', 0);
+      const lineInk = split ? twoTone(id + '-ln', 1) : color;
       if (pts.length > 1) {
-        svg.append('path').datum(pts).attr('d', d3.area().x((d) => x(d.t)).y0(H - M.b).y1((d) => y(d.v))).style('fill', `url(#${id})`);
+        if (split) svg.append('path').datum(pts).attr('d', d3.area().x((d) => x(d.t)).y0(yRef).y1((d) => y(d.v))).style('fill', twoTone(id + '-ar', 0.2));
+        else svg.append('path').datum(pts).attr('d', d3.area().x((d) => x(d.t)).y0(H - M.b).y1((d) => y(d.v))).style('fill', `url(#${id})`);
         if (bench.length > 1) svg.append('path').datum(bench).attr('d', d3.line().x((d) => x(d.t)).y((d) => y(d.v)))
           .style('fill', 'none').style('stroke', 'var(--color-fg-muted)').attr('stroke-width', 1.5).attr('stroke-dasharray', '5 4');
         svg.append('path').datum(pts).attr('d', d3.line().x((d) => x(d.t)).y((d) => y(d.v)))
-          .style('fill', 'none').style('stroke', color).attr('stroke-width', 2.5).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round');
+          .style('fill', 'none').style('stroke', lineInk).attr('stroke-width', 2.5).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round');
       }
       svg.append('circle').attr('cx', x(last.t)).attr('cy', y(last.v)).attr('r', 4.5).style('fill', color);
       // trade markers
