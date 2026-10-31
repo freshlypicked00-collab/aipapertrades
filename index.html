@@ -1015,8 +1015,10 @@
   .pd-who-txt { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; line-height: 1.2; } .pd-who-txt .ai-mdl { margin-left: 0; }
   .ai-hero-h { display: flex; align-items: center; gap: 4px; }
   .st-hook-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .st-bots { display: inline-flex; gap: 6px; flex: 0 0 auto; } .st-bots .ai-robot { --rs: 46px; margin: 0; }
-  .st-bot { background: none; border: 2px solid transparent; border-radius: 12px; padding: 2px; cursor: pointer; line-height: 0; } .st-bot:hover { border-color: var(--color-border-line); } .st-bot.is-on { border-color: #ffb000; } .st-bot:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .st-bots { display: inline-flex; gap: 6px; flex: 0 0 auto; align-items: flex-start; } .st-bots .ai-robot { --rs: 46px; margin: 0; }
+  .st-bot { background: none; border: 2px solid transparent; border-radius: 12px; padding: 2px 4px 3px; cursor: pointer; line-height: 0; display: inline-flex; flex-direction: column; align-items: center; gap: 2px; color: var(--color-fg); font: inherit; min-width: 64px; vertical-align: top; }
+  .st-bot-n { font-size: 11px; line-height: 1.1; font-weight: 600; } .st-bot-t { font-size: 10px; line-height: 1.1; color: var(--color-fg-muted); white-space: pre; } .st-bot-t.is-lead { color: #ffb000; font-weight: 600; }
+  @media (max-width: 700px) { .st-bot { min-width: 46px; padding: 1px 2px 2px; } .st-bot-n { font-size: 9.5px; } .st-bot-t { font-size: 8.5px; } } .st-bot:hover { border-color: var(--color-border-line); } .st-bot.is-on { border-color: #ffb000; } .st-bot:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   @media (max-width: 700px) { .st-bots .ai-robot { --rs: 30px; } .st-bots { gap: 3px; } }
   @media (prefers-reduced-motion: no-preference) { .st-bots .ai-robot { animation: pt-bob 3.2s ease-in-out infinite; } .st-bots .st-bot:nth-child(2) .ai-robot { animation-delay: -1.1s; } .st-bots .st-bot:nth-child(3) .ai-robot { animation-delay: -2.2s; } }
   @keyframes pt-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
@@ -1269,7 +1271,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'cd710a44dd04';</script>
+<script>window.PT_PAGE_VER = '01d9541d5b87';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -5549,8 +5551,12 @@ body { background:var(--color-bg); }
     const cur = dash.model || 'claude', key = 'b:' + L + ':' + cur; if (b.dataset.k === key) return; b.dataset.k = key;
     b.removeAttribute('aria-hidden'); b.setAttribute('role', 'group'); b.setAttribute('aria-label', 'Pick an AI');
     b.replaceChildren(...['claude', 'gemini', 'chatgpt'].map((x) => { const btn = mk('button', 'st-bot' + (x === cur ? ' is-on' : '')); btn.type = 'button';
-      btn.setAttribute('aria-pressed', String(x === cur)); btn.title = 'Show ' + AIS[x].label + (x === cur ? ' (showing now)' : ''); btn.setAttribute('aria-label', btn.title);
+      btn.setAttribute('aria-pressed', String(x === cur)); btn.title = 'Show ' + AIS[x].label + (x === cur ? ' (showing now)' : '') + (x === L ? '. The crown: ' + AIS[x].label + ' leads the race overall on total profit (amounts hidden until Nov 28)' : '') + '. The gold ring marks the AI the page is showing.'; btn.setAttribute('aria-label', btn.title);
       btn.appendChild(robotSVG(x, 0, x === L));
+      // say what the crown and the gold ring mean, whichever AI the page shows (owner, Oct 30: "it's vague, write something underneath")
+      btn.appendChild(mk('span', 'st-bot-n', AIS[x].label));
+      btn.appendChild(mk('span', 'st-bot-t' + (x === L ? ' is-lead' : ''), x === L ? '👑 leads overall' : x === cur ? 'showing' : ' '));
+      if (x === L && x === cur) btn.appendChild(mk('span', 'st-bot-t', 'showing'));
       btn.addEventListener('click', () => { const sel = document.getElementById('model-pick'); if (sel && sel.value !== x) { sel.value = x; sel.dispatchEvent(new Event('change', { bubbles: true })); } setTimeout(fillBots, 60); });
       return btn; })); };
   window.ptFillBots = fillBots; try { dash.onModel(() => setTimeout(fillBots, 0)); } catch (e) {}
