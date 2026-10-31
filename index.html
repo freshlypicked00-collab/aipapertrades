@@ -1359,7 +1359,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '6c90522d9779';</script>
+<script>window.PT_PAGE_VER = '728b384238ec';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -8651,7 +8651,7 @@ body { background:var(--color-bg); }
     const ORD = (n) => n + (['th', 'st', 'nd', 'rd'][(n % 100 - 20) % 10] || ['th', 'st', 'nd', 'rd'][n % 100] || 'th');
     // W9 (owner, Oct 30; all three AIs agreed): the ten main races are ranked on their own; the All in side races get their own small list below
     const mainL = narrow ? live : live.filter((r) => !ALLIN[r.race]), sideL = narrow ? [] : live.filter((r) => ALLIN[r.race]);
-    const shown = narrow ? live : el._all ? mainL : mainL.slice(0, 10);
+    const shown = narrow ? live : el._all ? mainL : mainL.slice(0, 5);   // one row of 5, the rest under Show all (owner, Oct 31)
     const card = (r, i) => {
       const li = mk('li'); const rank = i + 1;
       const b = mk('button', 'st-score-ai' + (rank === 1 ? ' st-score-top' : '')); b.type = 'button'; b.style.setProperty('--ai', AIS[r.id].color);
@@ -8679,9 +8679,12 @@ body { background:var(--color-bg); }
       li.appendChild(b); el.appendChild(li);
     };
     shown.forEach(card);
-    if (sideL.length) { const hd = mk('li', 'st-score-side-h'); hd.append(mk('b', '', 'Side race · All in'), mk('span', '', ' No caps, its own winner, never counted in the ten races')); el.appendChild(hd); sideL.forEach(card); }
+    const moreBtn = (key, n, all) => { const f = mk('li', 'st-score-foot'); const t = mk('button', 'st-score-more', el[key] ? 'Show the top 5 ▴' : 'Show all ' + n + ' ▾'); t.type = 'button';
+      t.addEventListener('click', () => { el[key] = !el[key]; if (el._redraw) el._redraw(); else dash.redraw(); }); f.appendChild(t); el.appendChild(f); };
+    if (!narrow && mainL.length > 5) moreBtn('_all', mainL.length);
+    if (sideL.length) { const hd = mk('li', 'st-score-side-h'); hd.append(mk('b', '', 'Side race · All in'), mk('span', '', ' No caps, its own winner, never counted in the ten races')); el.appendChild(hd);
+      (el._allSide ? sideL : sideL.slice(0, 5)).forEach(card); if (sideL.length > 5) moreBtn('_allSide', sideL.length); }
     const foot = mk('li', 'st-score-foot');
-    if (!narrow && mainL.length > 10) { const t = mk('button', 'st-score-more', el._all ? 'Show the top 10 ▴' : 'Show all ' + mainL.length + ' ▾'); t.type = 'button'; t.addEventListener('click', () => { el._all = !el._all; if (el._redraw) el._redraw(); else dash.redraw(); }); foot.appendChild(t); }
     if (idle.length) foot.appendChild(mk('span', 'st-score-idle', idle.length + ' not started yet (still all in cash): ' + idle.map((r) => AIS[r.id].label + ' in ' + (ALLIN[r.race] || LABEL[r.race] || r.race)).join(', ') + '.'));
     if (foot.childNodes.length) el.appendChild(foot);
   });
