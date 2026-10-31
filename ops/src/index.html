@@ -1046,7 +1046,7 @@
   [data-dash-source-state=empty] { color: transparent; }
   [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
 .tx-id{display:block;margin-top:2px;padding:0 4px;border:1px solid var(--line,#ccd);border-radius:4px;background:none;color:inherit;font:600 10.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.02em;opacity:.75;cursor:pointer;width:max-content}
-.tx-id:hover{opacity:1}.tx-pending{opacity:.45;font-weight:400;cursor:default}
+.tx-id:hover{opacity:1}.tx-wrap{display:block}.tx-link{display:block;font-size:10.5px;line-height:1.35;opacity:.85;margin-top:1px}.tx-link a{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.tx-pending{opacity:.45;font-weight:400;cursor:default}
 .tx-search{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 8px}.tx-search input{flex:1 1 180px;max-width:280px;min-width:0;padding:5px 8px;font:13px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;border:1px solid var(--line,#ccd);border-radius:6px;background:transparent;color:inherit}
 .tx-search button{padding:5px 10px;border-radius:6px;border:1px solid var(--line,#ccd);background:none;color:inherit;font:inherit;font-size:13px;cursor:pointer}.tx-msg{font-size:12px;opacity:.8}
 tr.lg-hit .tx-id{opacity:1}
@@ -2802,10 +2802,41 @@ tr.lg-hit .tx-id{opacity:1}
   const TX_AI = { C: 'claude', G: 'gemini', X: 'chatgpt' };
   const TX_RACE = { STK: 'Stocks', CRY: 'Crypto', CHN: 'China', MET: 'Metals', ENE: 'Energy', OPT: 'Options', CUR: 'Currencies', SAF: 'Safe', SPT: 'Sports', PRD: 'Predictions', AIT: 'AllInTrading', AIS: 'AllInSports' };
   const TX_RESTART = Date.parse('2026-10-28T17:45:00Z');
+  // which moves belong together (owner, Oct 31: "why isn't it linked to the subsequent trade?"): a sale points to the buys it sells,
+  // a buy to the sales that sold it, a bet to its result and back. Replayed in time order per AI, race and holding; a holding that
+  // went back to zero starts a new set of buys.
+  let TXL = null, TXL_K = '';
+  const txLinks = () => {
+    const C = dash.baseData('trades') || [], R = dash.baseData('rivals_trades') || [], A = dash.baseData('allin_trades') || [], B = dash.baseData('bets') || [];
+    const k = C.length + '|' + R.length + '|' + A.length + '|' + B.length; if (TXL && TXL_K === k) return TXL; TXL_K = k;
+    const L = {}, add = (a, rel, b) => { if (!a || !b) return; const o = (L[a] = L[a] || { sold: [], buys: [], bet: null, result: null });
+      if (Array.isArray(o[rel])) { if (!o[rel].includes(b)) o[rel].push(b); } else o[rel] = b; };
+    const moves = [];
+    C.forEach((t) => { if (t.tx) moves.push({ id: t.tx, at: t.at, key: 'claude|' + t.portfolio + '|' + t.holding, a: t.action, q: Number(t.shares || t.qty || (t.price_usd ? (t.cad || t.usd || 0) / t.price_usd : 0)) }); });
+    R.concat(A).forEach((t) => { if (!t.tx) return; if (t.bet) { if (t.action === 'Bet') moves.push({ bet: t.model + '|' + t.bet, id: t.tx, a: 'Bet', at: t.at }); else moves.push({ bet: t.model + '|' + t.bet, id: t.tx, a: 'Result', at: t.at }); return; }
+      moves.push({ id: t.tx, at: t.at, key: t.model + '|' + t.experiment + '|' + t.symbol + (t.outcome ? '|' + t.outcome : ''), a: t.action, q: Number(t.qty || 0) }); });
+    B.forEach((b) => { if (b.tx && b.tx_result) { add(b.tx, 'result', b.tx_result); add(b.tx_result, 'bet', b.tx); } });
+    const bets = {}; moves.filter((m) => m.bet).sort((x, y) => Date.parse(x.at) - Date.parse(y.at)).forEach((m) => { if (m.a === 'Bet') bets[m.bet] = m.id; else if (bets[m.bet]) { add(bets[m.bet], 'result', m.id); add(m.id, 'bet', bets[m.bet]); } });
+    const st = {};
+    moves.filter((m) => m.key).sort((x, y) => Date.parse(x.at) - Date.parse(y.at)).forEach((m) => {
+      const s2 = st[m.key] || (st[m.key] = { q: 0, peak: 0, lot: [] });
+      if (/^(Buy|Short)$/.test(m.a)) { if (m.q && Math.abs(s2.q) <= 0.02 * Math.max(s2.peak, 1e-9)) s2.lot = []; s2.lot.push(m.id); s2.q += m.a === 'Short' ? -m.q : m.q; s2.peak = Math.max(s2.peak, Math.abs(s2.q)); }
+      else if (/^(Sell|Cover|Settled|Expired)$/.test(m.a)) { s2.lot.forEach((b) => { add(m.id, 'buys', b); add(b, 'sold', m.id); }); if (m.q) s2.q = s2.q > 0 ? Math.max(0, s2.q - m.q) : Math.min(0, s2.q + m.q); }
+    });
+    TXL = L; return L;
+  };
+  window.ptTxLinks = txLinks;
   window.ptTxTag = (id, at) => {
-    if (id) { const b = document.createElement('button'); b.className = 'tx-id'; b.textContent = id; b.type = 'button'; b.title = 'Transaction ID ' + id + ': tap to copy a link to this move';
+    if (id) { const w = document.createElement('span'); w.className = 'tx-wrap';
+      const b = document.createElement('button'); b.className = 'tx-id'; b.textContent = 'Transaction ID ' + id; b.type = 'button'; b.title = 'Transaction ID ' + id + ': tap to copy a link to this move';
       b.addEventListener('click', (ev) => { ev.stopPropagation(); const u = location.origin + location.pathname + '?id=' + id;
-        try { navigator.clipboard.writeText(u).then(() => { b.textContent = 'Link copied'; setTimeout(() => { b.textContent = id; }, 1400); }, () => {}); } catch (e) {} }); return b; }
+        try { navigator.clipboard.writeText(u).then(() => { b.textContent = 'Link copied'; setTimeout(() => { b.textContent = 'Transaction ID ' + id; }, 1400); }, () => {}); } catch (e) {} });
+      w.appendChild(b);
+      try { const x = txLinks()[id]; const go = (lab, ids) => { if (!ids || !ids.length) return; const ln = document.createElement('span'); ln.className = 'tx-link'; ln.append(lab + ' ');
+          ids.forEach((t, i) => { if (i) ln.append(', '); const a = document.createElement('a'); a.href = '?id=' + t; a.textContent = t; a.title = 'Go to ' + t;
+            a.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); if (window.ptGoTx) window.ptGoTx(t); }); ln.appendChild(a); }); w.appendChild(ln); };
+        if (x) { go('Sells', x.buys); go('Sold in', x.sold); go('Result:', x.result ? [x.result] : null); go('Bet:', x.bet ? [x.bet] : null); } } catch (e) {}
+      return w; }
     if (Date.parse(at) >= TX_RESTART) { const sp = document.createElement('span'); sp.className = 'tx-id tx-pending'; sp.textContent = 'ID pending'; sp.title = 'The race runner gives this move its ID at its next run'; return sp; }
     return document.createTextNode('');
   };
