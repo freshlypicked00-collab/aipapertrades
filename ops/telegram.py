@@ -244,7 +244,13 @@ if os.environ.get('MODE') == 'cleanup':
 if NOTE:
     # an optional picture for the note: its path in ops/note_photo.txt (owner, Oct 31); delete that file after the post
     _ph = open('ops/note_photo.txt').read().strip() if os.path.exists('ops/note_photo.txt') else None
-    send(open('ops/note.txt').read().strip(), _ph if _ph and os.path.exists(_ph) else None)
+    _mid = send(open('ops/note.txt').read().strip(), _ph if _ph and os.path.exists(_ph) else None)
+    if _mid and os.path.exists('ops/note_pin.txt') and TOKEN and CHAT:   # pin this note (ops/note_pin.txt present; delete it after the post)
+        try:
+            urllib.request.urlopen(f'https://api.telegram.org/bot{TOKEN}/pinChatMessage', urllib.parse.urlencode({'chat_id': CHAT, 'message_id': _mid, 'disable_notification': 'true'}).encode(), timeout=20).read()
+            print('note pinned')
+        except Exception as e:
+            print('pin failed (give the bot "Pin messages" permission):', e)
     sys.exit(0)
 
 if ANNOUNCE:
