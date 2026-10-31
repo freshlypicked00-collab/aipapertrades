@@ -92,3 +92,10 @@ The owner: funding is not an issue; post links until we grow, and tell me what I
 Ad text: "Claude vs Gemini vs ChatGPT trade pretend money at real prices. Every move and reason is public. Watch the race, winner Nov 28."
 Dropped: Big Brain (its newsletter stopped in Nov 2023 although the sponsor page is still up). Instagram boost (US$5/day) runs on the side, not part of the budget.
 Measure in GoatCounter: visits per utm_source, follow/<channel>-<place> events, visitor/return-7d. First read: Wed Nov 4 evening / Thu Nov 5. Rule (all three AIs): scale only what costs under ~US$2 per real visitor.
+
+## Next step, agreed Oct 31, 11:45 a.m. ET (ops/review/next-step-oct31.json)
+- P1 race-lead post from live per-race standings (no totals): all three agreed; ChatGPT's fix adopted ("best result", not "biggest lead": C$22,842 is Gemini's Options profit, not its margin). Posted Oct 31 on X, Telegram and Discord.
+- P2 Reddit first, one a day, owner-posted, "I built this with Claude" disclosed, ?utm_source=reddit: r/ClaudeAI Sun Nov 1, r/ChatGPT Mon Nov 2, r/singularity Tue Nov 3. Claude and Gemini agreed on the title; ChatGPT wanted it softened. Standings recomputed right before each post.
+- P3 Show HN Tue Nov 3 about 9 a.m. ET, the day before the Ben's Bites ad, with the technical/audit/conflict-of-interest first comment; no vote asking: all three agreed. The single most important step this week (all three).
+- P4 site ready for the spike before Show HN (fast first screen on phones, one-sentence explanation, audit page easy to find): all three agreed.
+- Extra ideas: a weekly email recap sign-up before the spike (Gemini only); a launch checklist per post and the owner replying for the first hour (ChatGPT only).
