@@ -35,7 +35,7 @@ jobs:
         run: python3 ops/fill_fixes.py || true
       - name: Root cause of the off-market fills (how old the quote was)
         if: ${{ inputs.what == 'rootcause' }}
-        run: python3 ops/rootcause.py || true
+        run: python3 ops/rootcause.py || true; python3 ops/rootcause_all.py || true
       - name: Crypto standings check (1-minute bars at the day closes and the Oct 28 moment)
         if: ${{ inputs.what == 'crypto' }}
         run: python3 ops/audit_crypto.py || true
