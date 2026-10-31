@@ -63,8 +63,10 @@ def pick():
 def post():
     if not os.path.exists(TMP):
         return
+    import xpost
     for m in json.load(open(TMP)):
         discord.post(text(m), url=discord.LEADS)
+        xpost.post(text(m), key='lead-' + m['id'])   # X too, without the link (owner, Oct 30)
 
 
 if __name__ == '__main__':

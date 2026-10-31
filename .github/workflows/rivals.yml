@@ -100,6 +100,10 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           DISCORD_WEBHOOK_DAILY: ${{ secrets.DISCORD_WEBHOOK_DAILY }}
           DISCORD_WEBHOOK_LEADS: ${{ secrets.DISCORD_WEBHOOK_LEADS }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
         run: python3 ops/rivals.py
       - name: Check Claude's prices against the same feeds (ops/price_audit.py)
         if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' && !startsWith(github.event.schedule, '3,18,33,48') }}
@@ -126,6 +130,10 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           DISCORD_WEBHOOK_DAILY: ${{ secrets.DISCORD_WEBHOOK_DAILY }}
           DISCORD_WEBHOOK_LEADS: ${{ secrets.DISCORD_WEBHOOK_LEADS }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
         run: |
           [ -f ops/src/rivals.json ] || exit 0
           # nothing to publish when this run skipped or changed nothing: never push an old copy over newer data
@@ -149,6 +157,7 @@ jobs:
             git add ops/src/rivals.json index.html data.json data.ver audit.json og.png ops/src/og.json
             [ -d searchlog ] && git add searchlog   # the search source ledger's public day files (all three AIs agreed, Oct 30)
             [ -f ops/src/discord_sent.json ] && git add ops/src/discord_sent.json
+            [ -f ops/src/x_sent.json ] && git add ops/src/x_sent.json   # what went to X (no repeats, the daily cap)
             [ -f ops/src/price_audit.json ] && git add ops/src/price_audit.json
             [ -f ops/src/px_long.json ] && git add ops/src/px_long.json px_long.json
             [ -f ops/archive/thoughts.jsonl ] && git add ops/archive/thoughts.jsonl
@@ -162,6 +171,7 @@ jobs:
           [ "${pushed:-0}" = 1 ] || { echo "could not push after 5 tries"; exit 1; }
           [ -f /tmp/claude_fill_posts.json ] && python3 ops/claude_fill.py post /tmp/claude_fill_posts.json || true
           python3 ops/discord_leads.py post || true
+          if [ -n "$(git status --porcelain -- ops/src/x_sent.json)" ]; then git add ops/src/x_sent.json && git commit -qm "X: lead changes posted" && (git push -q origin HEAD:main || (git pull --rebase -q && git push -q origin HEAD:main)) || true; fi
           gh workflow run deploy.yml -R ${{ github.repository }} --ref main >/dev/null || true   # publish the site (deploy.yml)
       - name: Instagram (moments and the daily race post; does nothing until the key is set)
         if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' }}
