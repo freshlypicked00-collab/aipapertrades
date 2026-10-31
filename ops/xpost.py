@@ -144,5 +144,14 @@ if __name__ == '__main__':   # python3 ops/xpost.py check  -> who the keys belon
             print('X keys not set'); sys.exit(0)
         try:
             print(json.dumps(_req('GET', API + '/2/users/me'))[:300])
+        except urllib.error.HTTPError as e:
+            body = ''
+            try:
+                body = e.read().decode('utf-8', 'replace')[:300]
+            except Exception:
+                pass
+            k = KEYS
+            # key shapes only (lengths and the access token's user-id prefix), never the keys themselves
+            print('X check failed:', e.code, body, '| key lengths:', [len(x) for x in k], '| token user id:', k[2].split('-')[0] if '-' in k[2] else 'no dash')
         except Exception as e:
             print('X check failed:', str(e)[:300])
