@@ -7749,13 +7749,16 @@
     const d = dash.data('take');
     el.replaceChildren();
     const who = AIS[dash.model] ? AIS[dash.model].label : 'Claude';
-    const race = window.ptOverall ? null : window.ptRace || (window.ptFirstRace ? window.ptFirstRace() : null);
-    const rn = race ? (LABEL[race] || race).replace(' (US$)', '') : '';
+    // the take follows the race picked in Race standings, the All in side race included (owner, Oct 30)
+    const race = ALLIN[window.ptStandRace] ? window.ptStandRace : window.ptOverall ? null : window.ptRace || (window.ptFirstRace ? window.ptFirstRace() : null);
+    const rn = race ? (ALLIN[race] || LABEL[race] || race).replace(' (US$)', '') : '';
     const lab = el.closest('.st-take') && el.closest('.st-take').querySelector('.st-take-l');
     // the take for the race being viewed: Claude's race takes, or Gemini's / ChatGPT's one-sentence note on that race from their latest check-in
     let r = null;
     if (race) {
       const pool = dash.model === 'claude' ? ((dash.baseData('take') || []).filter((x) => x.experiment === race)) : ((dash.baseData('rivals_thoughts') || []).filter((x) => x.model === dash.model && x.experiment === race));
+      // the All in side race: the AI's note on it, or the reason it gave for its latest All in move
+      if (ALLIN[race]) ((dash.baseData('allin_trades') || []).filter((x) => x.model === dash.model && x.experiment === race && x.reason)).forEach((x) => pool.push({ at: x.at, text: x.reason }));
       if (pool.length) r = pool.reduce((a, b) => (new Date(b.at) > new Date(a.at) ? b : a));
     }
     if (lab) lab.textContent = who + '’s current take' + (race ? ' on ' + rn : ' overall');
