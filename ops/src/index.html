@@ -3410,7 +3410,8 @@ tr.lg-hit .tx-id{opacity:1}
       .forEach((r) => {
         const tr = document.createElement('tr');
         tr.dataset.key = encodeURIComponent(r.at) + ',' + encodeURIComponent(r.event);
-        const wt = /[ap]\.m\./.test(r.when) && r.at ? r.when.replace(/ ET$/, '') + ' ET' : r.when;   // W6: one time zone; UTC and Hong Kong on tap
+        const dIn = new Date(r.at) - Date.now(), rel = dIn > 0 && dIn < 48 * 3600e3 ? ' · in ' + (dIn < 3600e3 ? Math.max(1, Math.round(dIn / 60000)) + ' min' : Math.round(dIn / 3600e3) + ' h') : '';   // countdown (2 of 3, owner Oct 30)
+        const wt = (/[ap]\.m\./.test(r.when) && r.at ? r.when.replace(/ ET$/, '') + ' ET' : r.when) + rel;   // W6: one time zone; UTC and Hong Kong on tap
         const cells = p ? [wt, r.event, r.why] : [wt, r.event, r.affects, r.why];
         cells.forEach((text, i) => {
           const td = document.createElement('td');

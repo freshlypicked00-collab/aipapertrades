@@ -132,7 +132,10 @@ script += """
         const weekday = !['Sat', 'Sun'].includes(parts.weekday);
         const open = weekday && ((mins >= 570 && mins < 690) || (mins >= 780 && mins < 900));
         const lunch = weekday && mins >= 690 && mins < 780;
-        el.textContent = open ? '● China market open' : lunch ? '◐ China lunch break' : '○ China market closed';
+        let nxt = null; { const WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], w0 = WD.indexOf(parts.weekday);
+          if (lunch) nxt = 780 - mins; else for (let k = 0; k < 8 && nxt === null; k++) { const w = (w0 + k) % 7; if (w !== 0 && w !== 6 && (k > 0 || mins < 570)) nxt = k * 1440 + 570 - mins; } }
+        const inTxt = (m) => (m < 60 ? m + ' min' : m < 1440 ? Math.floor(m / 60) + ' h ' + (m % 60) + ' min' : Math.floor(m / 1440) + ' d ' + Math.floor((m % 1440) / 60) + ' h');
+        el.textContent = open ? '● China market open' : (lunch ? '◐ China lunch break' : '○ China market closed') + (nxt !== null ? (lunch ? ' · reopens in ' : ' · opens in ') + inTxt(nxt) : '');   // countdown (2 of 3, owner Oct 30)
         el.title = lunch ? 'Shanghai and Shenzhen pause 11:30 a.m. to 1:00 p.m. Beijing time' : 'Shanghai and Shenzhen trade 9:30–11:30 a.m. and 1:00–3:00 p.m. Beijing time, weekdays';
         el.classList.toggle('is-open', open);
         el.classList.toggle('is-lunch', lunch);
@@ -152,7 +155,13 @@ script += """
         const mins = Number(parts.hour) * 60 + Number(parts.minute);
         const day = parts.year + '-' + parts.month + '-' + parts.day;
         const open = !['Sat', 'Sun'].includes(parts.weekday) && !HOLIDAY[day] && mins >= 570 && mins < (EARLY[day] || 960);
-        el.textContent = open ? '● US market open' + (EARLY[day] ? ' (closes 1 p.m. ET)' : '') : HOLIDAY[day] ? '○ US market closed (' + HOLIDAY[day] + ')' : '○ US market closed';
+        // countdown to the next open (Gemini's idea, Claude agreed, 2 of 3; owner, Oct 30): weekends and Thanksgiving skipped
+        let nxt = null; { const WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], w0 = WD.indexOf(parts.weekday), base = Date.UTC(+parts.year, +parts.month - 1, +parts.day);
+          const at930 = (ds) => { for (const off of [4, 5]) { const t = Date.parse(ds + 'T00:00:00Z') + (570 + off * 60) * 60000; const q = Object.fromEntries(f.formatToParts(new Date(t)).map((x) => [x.type, x.value])); if (Number(q.hour) * 60 + Number(q.minute) === 570) return t; } return null; };   // the real moment, across the clock change
+          for (let k = 0; k < 8 && nxt === null; k++) { const ds = new Date(base + k * 864e5).toISOString().slice(0, 10), w = (w0 + k) % 7;
+            if (w !== 0 && w !== 6 && !HOLIDAY[ds] && (k > 0 || mins < 570)) { const t = at930(ds); nxt = t ? Math.max(1, Math.round((t - Date.now()) / 60000)) : k * 1440 + 570 - mins; } } }
+        const inTxt = (m) => (m < 60 ? m + ' min' : m < 1440 ? Math.floor(m / 60) + ' h ' + (m % 60) + ' min' : Math.floor(m / 1440) + ' d ' + Math.floor((m % 1440) / 60) + ' h');
+        el.textContent = open ? '● US market open' + (EARLY[day] ? ' (closes 1 p.m. ET)' : '') : (HOLIDAY[day] ? '○ US market closed (' + HOLIDAY[day] + ')' : '○ US market closed') + (nxt !== null ? ' · opens in ' + inTxt(nxt) : '');
         el.classList.toggle('is-open', open);
       };
       tick();
