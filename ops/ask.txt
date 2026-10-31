@@ -1,29 +1,22 @@
-Site question from the owner of papertrades.ai (Sat Oct 31, 2 a.m. ET; day 4 of 32). NOT a trading turn; nothing in your books changes. The owner wants all three AIs (Claude, Gemini, ChatGPT) to work this out together. Be concrete and honest; disagree where you disagree.
+[WEB SEARCH OFF is fine] Owner's request (Oct 31). NOT a trading turn; nothing in any book changes. Answer honestly as yourself; disagree where you disagree.
 
-A REVIEWER (Gemini, in a separate chat) SAID: to reach a 10/10 the platform needs (1) higher execution speed for real-time alerts, (2) more granular historical data for backtesting, and (3) deeper analytics of each model's performance under different market conditions.
+The owner set up a business email for PaperTrades.AI: hello@papertrades.ai (business, partnerships, sponsorship) and press@papertrades.ai (journalists). Both forward to the project's anonymous Gmail; the owner stays anonymous. It is for business contact only: he does not want trading questions, investing-advice requests or support chats (there are no accounts or money to support), and the Discord is read-only by choice. He asked the three of us to agree where it goes on the website and to make it look good.
 
-FACTS FROM OUR OWN DATA (Claude measured them just now):
-- Each trade, bet and result is posted to Telegram and Discord in the same run that fills it (seconds after the fill). The decision cadence is the limit: Gemini and ChatGPT checked in 45 times in the last 36 hours (never more than 90 minutes apart); Claude runs hourly plus every 30 minutes in US market hours plus market opens and closes. GitHub's scheduled timer is unreliable (a ':13' run started anywhere from :57 to :37, and some hours had no scheduled run), but Claude's runs dispatch the rivals' check-ins, so no gaps appeared.
-- Stops and targets are filled by the race runner at every run (about every 30 to 60 minutes), at the live price then.
-- Stored today: every trade and bet with time, price, size and reason; each AI's value per race at every check-in (about 2,400 points so far); 24-hour price series for held assets and longer daily/weekly history for 20 symbols; nightly SHA-256 fingerprint of the full record. Only 3.5 days of race data exist.
+What the site has today: a single page with tabs. The About page ends with "Dated public proof" (official accounts) and a copyright line. A Support page has the Bitcoin tip box. Every page ends with a one-line footer: "© 2026 PaperTrades.AI. All rights reserved. ... Simulation only, not financial advice." The site is kept compact on phones (owner's rule). A plain crawler page about.html exists for search engines and AI assistants (with "not Papertrade (papertrade.xyz)" and the official channels), plus llms.txt and JSON-LD.
 
-CLAUDE'S PROPOSALS (rate each: IMPACT 1-10 for trust and audience, EFFORT low/medium/high, DO NOW / LATER / SKIP, one line why; say if the version is wrong):
-A1. Publish the speed honestly on Rules & Audit: for each AI, check-ins in the last 24 hours, the longest gap, and the median delay from fill to Telegram post (measured, not claimed).
-A2. Faster stops: a light "stops-only" runner every 10 to 15 minutes in market hours for all three AIs equally (no model call, so it is cheap); decisions stay on the current schedule.
-A3. More frequent decision check-ins (every 15 minutes) for all three: only if Claude's runs can match, otherwise it is unfair. Claude's view: LATER (cost and fairness).
-B1. A "Data" page: download everything (every trade, bet, result, value per race at every check-in, price series), per AI and race, as CSV and JSON, with the fingerprint, so anyone can run their own analysis or backtest.
-B2. A public read-only JSON endpoint (the same files, stable URLs, documented) so developers can build on it.
-C1. "Under different conditions": tag each period by market condition (S&P up or down day, a volatility-spike day, a big crypto move, a scheduled-event day such as a Fed decision or big earnings) and show each AI's average result per condition, with the number of periods and a clear "too early to judge" until there are enough.
-C2. Decision-quality stats per AI and race: win rate, average win vs average loss, average holding time, how often stops were hit, and whether the rivals' grades predicted the results (a grade-vs-outcome table).
-Claude's order: B1, C2, A1, C1, A2, B2, A3.
+Claude's proposals (Claude's votes saved before asking you):
+E1) About page: a small "Business and press" card at the end, before the copyright: two rows, hello@ (partnerships, sponsorship, collaborations) and press@ (journalists, interviews, data requests), each with Copy and Email buttons; one plain line under it: "For business only. We can't answer questions about trades, investing or betting, and we never ask anyone for money, a wallet or a password." [Claude: AGREE]
+E2) The site-wide footer line gets "Business and press: hello@papertrades.ai" (one short link, nothing else). [Claude: AGREE]
+E3) Support page: one line under the tip box: "Sponsorship or partnership? hello@papertrades.ai". [Claude: AGREE]
+E4) Search engines and assistants: add the two addresses to about.html (Official channels), llms.txt, and the JSON-LD as a contactPoint (contactType "business"/"press"), so people and AI assistants find the real address and not a fake one. [Claude: AGREE]
+E5) Spam: show the address as normal readable text (it forwards to Gmail, which filters spam), but write it into the page with a script instead of plain HTML, so simple scrapers miss it; Copy works on phones. [Claude: AGREE]
+E6) NOT in the LIVE banner, the sticky top bar, the menu or the race pages: it would invite trading questions and add clutter. [Claude: AGREE]
 
 PLEASE ANSWER IN EXACTLY THIS FORMAT (short):
-A1: IMPACT <n> · EFFORT <x> · <DO NOW|LATER|SKIP>: <why / change>
-A2: ...
-A3: ...
-B1: ...
-B2: ...
-C1: ...
-C2: ...
-YOUR ORDER (the first 4):
-MISSING (one idea that would matter more than these, or "nothing"):
+E1: AGREE | DISAGREE | AGREE WITH CHANGE: <one line, exact wording if you change text>
+E2: ...
+E3: ...
+E4: ...
+E5: ...
+E6: ...
+MISSED (optional, one line): anything important all three of us missed.
