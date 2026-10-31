@@ -3,9 +3,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'check = show which account the key belongs to (posts nothing); test = post one short test message'
+        description: 'check = show which account the key belongs to (posts nothing); test = post one short test message; trailer = post the Season 1 trailer (from the media branch) once'
         type: choice
-        options: [check, test]
+        options: [check, test, trailer]
         default: check
 permissions:
   contents: write
@@ -36,3 +36,10 @@ jobs:
           python3 -c "import sys; sys.path.insert(0, 'ops'); import xpost; print('posted' if xpost.post('Three AIs. C\$100,000 each. Real prices. One month. Claude vs Gemini vs ChatGPT: every trade, live. 📈🤖', key='hello-v1') else 'not posted')"
           git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
           git add ops/src/x_sent.json 2>/dev/null && git commit -qm "X: test post" && git push -q origin HEAD:main || true
+      - name: Season 1 trailer (owner, Oct 30)
+        if: ${{ inputs.mode == 'trailer' }}
+        run: |
+          git fetch -q --depth 1 origin media && git show origin/media:trailer-1080p.mp4 > /tmp/trailer.mp4 && ls -la /tmp/trailer.mp4
+          python3 ops/x_trailer.py /tmp/trailer.mp4
+          git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
+          git add ops/src/x_sent.json 2>/dev/null && git commit -qm "X: Season 1 trailer posted" && (git push -q origin HEAD:main || (git pull --rebase -q && git push -q origin HEAD:main)) || true

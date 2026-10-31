@@ -37,7 +37,8 @@ def _auth(method, url, params=None):
 
 
 def _req(method, url, body=None, ctype=None):
-    h = {'Authorization': _auth(method, url), 'User-Agent': 'PaperTradesBot/1.0'}
+    base, _, qs = url.partition('?')   # query parameters are part of the OAuth signature
+    h = {'Authorization': _auth(method, base, dict(urllib.parse.parse_qsl(qs)) if qs else None), 'User-Agent': 'PaperTradesBot/1.0'}
     if ctype:
         h['Content-Type'] = ctype
     with urllib.request.urlopen(urllib.request.Request(url, body, h, method=method), timeout=60) as r:
@@ -90,6 +91,67 @@ def upload(photo):
             f'--{b}\r\nContent-Disposition: form-data; name="media"; filename="card"\r\nContent-Type: {mt}\r\n\r\n').encode() + data + f'\r\n--{b}--\r\n'.encode()
     j = _req('POST', API + '/2/media/upload', body, f'multipart/form-data; boundary={b}')
     return str((j.get('data') or {}).get('id') or j.get('media_id_string') or '')
+
+
+def upload_video(path, chunk=4 * 1024 * 1024):
+    """Chunked video upload (X API v2: initialize, append, finalize, then wait for processing). Returns the media id."""
+    size = os.path.getsize(path)
+    j = _req('POST', API + '/2/media/upload/initialize', json.dumps({'media_type': 'video/mp4', 'total_bytes': size, 'media_category': 'tweet_video'}).encode(), 'application/json')
+    mid = str((j.get('data') or {}).get('id') or '')
+    if not mid:
+        raise RuntimeError('no media id: ' + json.dumps(j)[:200])
+    with open(path, 'rb') as f:
+        i = 0
+        while True:
+            part = f.read(chunk)
+            if not part:
+                break
+            b = '----ptx' + secrets.token_hex(8)
+            body = (f'--{b}\r\nContent-Disposition: form-data; name="segment_index"\r\n\r\n{i}\r\n'
+                    f'--{b}\r\nContent-Disposition: form-data; name="media"; filename="part"\r\nContent-Type: application/octet-stream\r\n\r\n').encode() + part + f'\r\n--{b}--\r\n'.encode()
+            _req('POST', f'{API}/2/media/upload/{mid}/append', body, f'multipart/form-data; boundary={b}')
+            i += 1
+    j = _req('POST', f'{API}/2/media/upload/{mid}/finalize')
+    info = (j.get('data') or {}).get('processing_info') or {}
+    for _ in range(60):   # X processes the video before it can be posted
+        if not info or info.get('state') == 'succeeded':
+            return mid
+        if info.get('state') == 'failed':
+            raise RuntimeError('X could not process the video: ' + json.dumps(info)[:200])
+        time.sleep(max(2, int(info.get('check_after_secs') or 5)))
+        j = _req('GET', f'{API}/2/media/upload?command=STATUS&media_id={mid}')
+        info = (j.get('data') or {}).get('processing_info') or {}
+    raise RuntimeError('video still processing after several minutes')
+
+
+def post_video(text, path, key, reply_link=None):
+    """One post with a video (owner, Oct 30: the Season 1 trailer). reply_link: a first reply carrying the link, so the
+    main post has none (posts with links get less reach; the one reply with a link costs about US$0.20)."""
+    if not ON:
+        print('X keys not set'); return False
+    st = _load()
+    if any(p.get('key') == key for p in st['posts']):
+        print('already posted:', key); return False
+    try:
+        mid = upload_video(path)
+        body = fit(text)
+        j = _req('POST', API + '/2/tweets', json.dumps({'text': body, 'media': {'media_ids': [mid]}}).encode(), 'application/json')
+        pid = (j.get('data') or {}).get('id')
+        now = datetime.now(timezone.utc)
+        st['posts'].append({'at': now.isoformat(timespec='seconds'), 'id': pid, 'key': key, 'text': body})
+        if reply_link and pid:
+            r = _req('POST', API + '/2/tweets', json.dumps({'text': reply_link, 'reply': {'in_reply_to_tweet_id': pid}}).encode(), 'application/json')
+            st['posts'].append({'at': now.isoformat(timespec='seconds'), 'id': (r.get('data') or {}).get('id'), 'key': key + '-link', 'text': reply_link})
+        json.dump(st, open(SENT, 'w'), indent=1)
+        print('::notice::posted the video to X', pid)
+        return True
+    except urllib.error.HTTPError as e:
+        try:
+            msg = e.read().decode()[:400]
+        except Exception:
+            msg = ''
+        print(f'::error::X video post failed: HTTP {e.code} {msg}')
+        return False
 
 
 def post(text, photo=None, key=None):
