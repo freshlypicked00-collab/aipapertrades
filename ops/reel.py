@@ -2,11 +2,12 @@
 
 Draws the three AIs' profit in one race over time, from the same data as the site (data.json: Claude's "history",
 Gemini's and ChatGPT's "rivals_history"), in the posts' look (ops/postcard.py colours and IBM Plex fonts). One race
-only, never totals across races. No music: add a sound in the Instagram app when posting by hand.
+only, never totals across races. Music: our own, synthesized from scratch each day (ops/soundtrack.py), so nothing to license.
 
   python3 ops/reel.py                 -> picks the race with the widest gap between first and last, writes social/reels/
   python3 ops/reel.py --race Options  -> that race
-Output: social/reels/replay-<race>-<date>.mp4 (1080x1920, 30 fps, H.264, no audio) and a cover .jpg.
+Output: social/reels/replay-<race>-<date>.mp4 (1080x1920, 30 fps, H.264, with our own original soundtrack; --silent for none),
+a cover .jpg and a -thumb.jpg ("Which AI is winning?" with the standings, for YouTube).
 """
 import argparse
 import json
@@ -111,7 +112,7 @@ def header(f, race, day):
     f.text((X0, 360), 'RACE REPLAY · ' + LABEL[race].upper(), font('mono', 'SemiBold', 30), UP, 'lm')
 
 
-def render(race, out_dir):
+def render(race, out_dir, sound=True):
     d = json.load(open('data.json'))
     S = series(d, race)
     now = max(p[0] for s in S.values() for p in s)
@@ -206,23 +207,56 @@ def render(race, out_dir):
         save(fr)
     os.makedirs(out_dir, exist_ok=True)
     stem = f'{out_dir}/replay-{race}-{now.astimezone(NY):%Y-%m-%d}'
-    cmd = ['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(FPS), '-i', os.path.join(tmp, '%05d.png'),
-           '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', stem + '.mp4']
+    cmd = ['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(FPS), '-i', os.path.join(tmp, '%05d.png')]
+    if sound:   # our own soundtrack, made from scratch (ops/soundtrack.py), its hit on the moment the winner appears
+        import soundtrack
+        wav = soundtrack.make(os.path.join(tmp, 'track.wav'), INTRO + DRAW + HOLD + OUTRO, INTRO + DRAW, f'{now.astimezone(NY):%Y-%m-%d}|{race}')
+        cmd += ['-i', wav, '-map', '0:v', '-map', '1:a', '-c:a', 'aac', '-b:a', '192k', '-shortest']
+    cmd += ['-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', stem + '.mp4']
     subprocess.run(cmd, check=True)
+    thumbnail(race, finals, day, stem + '-thumb.jpg')
     shutil.copy(os.path.join(tmp, f'{int((INTRO + DRAW + HOLD) * FPS) - 1:05d}.png'), '/tmp/reel-cover.png')
     Image.open('/tmp/reel-cover.png').convert('RGB').save(stem + '-cover.jpg', 'JPEG', quality=92)
     shutil.rmtree(tmp)
     return stem + '.mp4', {k: round(v, 2) for k, v in finals}
 
 
+def thumbnail(race, finals, day, path):
+    """A bold vertical thumbnail (owner, Oct 31): big question, the race, the three AIs ranked with this race's profit.
+    The chart frame is not used: its axis labels show the peak, not where each AI ended, which reads wrong when small."""
+    from PIL import ImageDraw
+    im = Image.new('RGB', (W, H), BG)
+    g = Image.new('RGBA', (W, H), (0, 0, 0, 0)); ImageDraw.Draw(g).ellipse((-200, 500, 1300, 1500), fill=(60, 110, 220, 110))
+    im = Image.alpha_composite(im.convert('RGBA'), g.filter(ImageFilter.GaussianBlur(200))).convert('RGB'); d = ImageDraw.Draw(im)
+    icon = os.path.join(os.path.dirname(pc.HERE), 'icon-512.png')
+    if os.path.exists(icon):
+        ic = Image.open(icon).convert('RGBA').resize((90, 90), Image.LANCZOS); im.paste(ic, (90, 250), ic)
+    d.text((205, 295), 'PAPERTRADES.AI', font=font('mono', 'SemiBold', 52), fill=FG, anchor='lm')
+    d.text((90, 420), f'SEASON 1 · DAY {day}', font=font('mono', 'SemiBold', 46), fill=AMBER, anchor='lm')
+    d.text((90, 560), 'Which AI', font=font('sans', 'Bold', 130), fill=FG, anchor='lm')
+    d.text((90, 700), 'is winning?', font=font('sans', 'Bold', 130), fill=FG, anchor='lm')
+    d.text((90, 880), LABEL[race].upper() + ' RACE', font=font('mono', 'SemiBold', 50), fill=UP, anchor='lm')
+    y = 960
+    for pos, (k, v) in enumerate(finals):
+        d.rounded_rectangle((90, y, 990, y + 150), radius=22, fill=PANEL, outline=LINE, width=3)
+        d.text((140, y + 75), str(pos + 1), font=font('mono', 'SemiBold', 60), fill=MUTED, anchor='lm')
+        d.text((220, y + 75), AIS[k][0], font=font('sans', 'Bold', 76), fill=AIS[k][1], anchor='lm')
+        d.text((950, y + 75), money(v), font=font('mono', 'SemiBold', 62), fill=UP if v > 0.5 else DOWN if v < -0.5 else FG, anchor='rm')
+        y += 175
+    d.text((90, y + 70), 'Pretend money · real prices', font=font('sans', 'Regular', 48), fill=MUTED, anchor='lm')
+    im.save(path, 'JPEG', quality=92)
+    return path
+
+
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--race')
     ap.add_argument('--out', default='social/reels')
+    ap.add_argument('--silent', action='store_true', help='no soundtrack')
     a = ap.parse_args()
     d = json.load(open('data.json'))
     race = a.race or pick_race(d)
     if race not in LABEL:
         sys.exit(f'unknown race {race}')
-    path, finals = render(race, a.out)
+    path, finals = render(race, a.out, sound=not a.silent)
     print(path, finals)
