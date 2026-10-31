@@ -233,15 +233,22 @@ def daily():
             'Every trade and the reason behind it, live and free: papertrades.ai\n'
             'Pretend money only. Not investment or betting advice.\n\n#AI #Claude #ChatGPT #Gemini #Shorts')
     out = {'day': today.isoformat(), 'at': datetime.now(NY).isoformat(timespec='seconds'), 'race': race, 'video': rel, 'title': title, 'standings': {k: v for k, v in fin}}
-    urls = ['https://raw.githubusercontent.com/freshlypicked00-collab/aipapertrades/main/' + rel, 'https://papertrades.ai/' + rel]
-    st, r = 0, 'not tried'
-    for k, u in enumerate(urls):
-        if k:
-            time.sleep(120)   # give the site a moment to publish the file
-        st, r = schedule_short(u, title, text, 'public')
-        if st in (200, 201) and isinstance(r, dict):
-            break
-        print('  try', k + 1, 'failed:', st, str(r)[:300])
+    # Metricool fetches the video itself, and only papertrades.ai serves it as a video (GitHub's raw files failed, Oct 31): publish
+    # the site, wait until the file is really there, then hand it over
+    import subprocess
+    subprocess.run(['gh', 'workflow', 'run', 'deploy.yml', '--ref', 'main'], capture_output=True)
+    url = 'https://papertrades.ai/' + rel
+    live = False
+    for _ in range(40):   # up to 10 minutes
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, method='HEAD'), timeout=20) as h:
+                if h.status == 200 and 'video' in (h.headers.get('Content-Type') or ''):
+                    live = True; break
+        except Exception:
+            pass
+        time.sleep(15)
+    print('video live on the site:', live)
+    st, r = schedule_short(url, title, text, 'public') if live else (0, 'the video never appeared on papertrades.ai')
     if not (st in (200, 201) and isinstance(r, dict)):
         out['status'] = 'ERROR'; out['error'] = str(_scrub(r))[:400]
     else:

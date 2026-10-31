@@ -15,6 +15,7 @@ on:
         default: daily
 permissions:
   contents: write
+  actions: write   # to publish the site (deploy.yml) after adding the video
 concurrency:
   group: youtube
   cancel-in-progress: false
@@ -24,6 +25,7 @@ jobs:
     timeout-minutes: 30
     env:
       METRICOOL_TOKEN: ${{ secrets.METRICOOL_TOKEN }}
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
         with:
