@@ -3669,6 +3669,11 @@
     });
   })();
   // ---------- the All in side race ledger (owner's question, Oct 29; majority of the three AIs chose a separate section): every move and result
+  window.ptGoAllinLedger = (model, exp, at, key) => {   // from the All in page to that move in the All in ledger (owner, Oct 30)
+    const el = document.querySelector('[data-draw="allin-ledger"]'); if (!el) return;
+    el._f = { part: exp, ai: model, kind: '' }; el._focus = { model, exp, at, key }; el._pg = 0;
+    goTab('allinledger'); if (dash.redraw) dash.redraw();
+  };
   dash.draw('allin-ledger', (el) => {
     el.replaceChildren();
     const TS = (dash.baseData('allin_trades') || []).filter((t) => AIS[t.model] && ALLIN[t.experiment]);
@@ -3713,6 +3718,13 @@
       const base = TS.filter((t) => (!st.part || t.experiment === st.part) && (!st.ai || t.model === st.ai));
       pills.forEach((b) => { const k = b.dataset.k; const n = k ? base.filter((t) => KIND[k].test(t.action, t)).length : base.length; b.textContent = b._t + ' (' + n + ')'; b.setAttribute('aria-pressed', String((st.kind || '') === k)); });
       const rows = base.filter((t) => !st.kind || (KIND[st.kind] || /./).test(t.action, t)).sort((a, b) => new Date(b.at) - new Date(a.at));
+      // a "🔎 Ledger" tap from the All in page: open the page this move is on and highlight it (owner, Oct 30)
+      let hitT = null;
+      if (el._focus) { const F = el._focus; const t0 = Date.parse(F.at);
+        hitT = rows.filter((t) => t.model === F.model && t.experiment === F.exp && (t.symbol === F.key || t.bet === F.key || String(t.name || '') === F.key))
+          .sort((a, b) => Math.abs(Date.parse(a.at) - t0) - Math.abs(Date.parse(b.at) - t0))[0] || null;
+        if (hitT && Math.abs(Date.parse(hitT.at) - t0) > 6 * 3600e3) hitT = null;
+        if (hitT) el._pg = Math.floor(rows.indexOf(hitT) / 10); }
       box.appendChild(mk('p', 'st-note', rows.length + ' move' + (rows.length === 1 ? '' : 's') + ', newest first, 10 a page.'));
       if (!rows.length) return;
       const w = mk('div', 'h2h-scroll st-wrap'); const tb = mk('table', 'h2h-table');
@@ -3726,10 +3738,17 @@
         { const n = /^(Buy|Sell|Short|Cover|Bet)$/.test(t.action) ? pgNode(PG_KEY(t)) : null; if (n) why.appendChild(n); }
         r.append(mk('td', '', stFmt.when(t.at)), ai, mk('td', '', ALLIN[t.experiment].replace('All in: ', '')), mk('td', 'wrap', t.action + ' ' + String(t.name || t.symbol).replace(/^[A-Z]{2,5}: /, '') + (bt && bt.starts_at ? ' · game starts ' + stFmt.whenET(bt.starts_at) + ' ET' : '')),
           mk('td', 'num', Number.isFinite(+t.amount) ? (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.0f')(Math.abs(t.amount)) : ''), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret || ''), why);
+        if (t === hitT) r.classList.add('lg-hit');
         body.appendChild(r);
       });
       w.appendChild(tb); box.appendChild(w);
       body.dataset.pgNewest = '1'; body._pgKey = ''; body._pg = el._pg || 0; pagerFor(body, 10, 'moves');
+      if (el._focus) { const miss = !hitT; el._focus = null;
+        setTimeout(() => requestAnimationFrame(() => { const row = body.querySelector('tr.lg-hit'); const target = row || box;
+          let off = 0; document.querySelectorAll('.st-tabs, .pt-ticker, .pt-mtick, header').forEach((x) => { const cs = getComputedStyle(x); if ((cs.position === 'sticky' || cs.position === 'fixed') && x.getBoundingClientRect().top < 40) off = Math.max(off, x.getBoundingClientRect().bottom); });
+          window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - off - 60, behavior: 'smooth' });
+          if (row) { row.classList.remove('pt-flash'); void row.offsetWidth; row.classList.add('pt-flash'); setTimeout(() => row.classList.remove('pt-flash'), 2200); }
+          else if (miss) box.insertBefore(mk('p', 'st-note', 'Could not find that move here; showing this AI\'s moves in that part.'), box.firstChild); }), 120); }
       const pb = w.nextElementSibling; if (pb && pb.classList.contains('st-pager')) { const keep = () => { el._pg = body._pg || 0; }; pb.addEventListener('click', keep); pb.addEventListener('change', keep); }
       const dl = mk('button', 'lg-csv', '⬇ Download this list (CSV)'); dl.type = 'button';
       dl.addEventListener('click', () => {
@@ -4111,7 +4130,8 @@
         groups.forEach((g) => { const x = g.items[0], n = g.items.length, sum = (f) => g.items.reduce((a, y) => a + Number(y[f] || 0), 0); const tr = mk('tr'); tr.className = 'gx-hold-last';
           const c = td(tr, '', 'wrap'); c.append(mk('b', '', x.pick_team || x.pick), mk('small', 'st-muted gx-sub', x.event || ''));
           { const seen = new Set(); g.items.forEach((y) => { const t = TS.find((q) => q.action === 'Bet' && (q.symbol === (y.bet || y.id) || (y.placed_at && Math.abs(Date.parse(q.at) - Date.parse(y.placed_at)) < 120e3 && Math.abs(Number(q.amount) - Number(y.stake)) < 1)));
-              if (!t) return; const k = PG_KEY(t); if (seen.has(k)) return; seen.add(k); const gn = pgNode(k); if (gn) c.appendChild(gn); }); }   // the other AIs' grades (owner, Oct 29)
+              if (!t) return; const k = PG_KEY(t); if (seen.has(k)) return; seen.add(k); const gn = pgNode(k); if (gn) c.appendChild(gn);
+              if (!c._led) { c._led = 1; const lb = mk('button', 'lg-find', '🔎 Ledger'); lb.type = 'button'; lb.title = 'See this bet in the All in ledger'; lb.addEventListener('click', () => window.ptGoAllinLedger(id, exp, t.at, t.bet || t.symbol)); c.appendChild(lb); } }); }   // the other AIs' grades (owner, Oct 29); a button to the bet in the ledger (owner, Oct 30)
           if (n > 1) { const dt = mk('details', 'bet-list'); dt.appendChild(mk('summary', '', 'The same pick ' + n + ' times · see each bet'));
             g.items.forEach((y) => dt.appendChild(mk('span', '', (y.placed_at ? stFmt.whenET(y.placed_at) + ' ET' : '') + ' · ' + money(y.stake) + ' at ' + betOdds(y.odds)))); c.appendChild(dt); }
           td(tr, n > 1 ? n + ' times, latest ' + stFmt.when(x.placed_at) : x.placed_at ? stFmt.when(x.placed_at) : '—', 'wrap', 'Placed'); td(tr, money(sum('stake')), 'num', 'Stake');
@@ -4137,6 +4157,7 @@
           { const pc = td(tr, (pl >= 0 ? '+' : '') + money(pl) + ' (' + stFmt.pct(cost ? pl / cost : 0) + ')', 'num ' + upDown(pl), 'Profit or loss');
             if (sells.length) pc.appendChild(mk('small', 'st-muted gx-sub', 'on the ' + money(cost) + ' still held')); }
           { const w = td(tr, (buys[0] || {}).reason || '', 'wrap gx-why', 'Why'); if (buys[0]) { const gn = pgNode(PG_KEY(buys[0])); if (gn) w.appendChild(gn); } } tb.appendChild(tr);
+          if (buys[0]) { const lb = mk('button', 'lg-find', '🔎 Ledger'); lb.type = 'button'; lb.title = 'See this buy in the All in ledger'; lb.addEventListener('click', () => window.ptGoAllinLedger(id, exp, buys[0].at, buys[0].symbol)); h.appendChild(lb); }   // owner, Oct 30
         });
       }
       if (Number(bk.cash) > 0.5) box.appendChild(mk('p', 'st-note', 'Cash not invested: ' + money(bk.cash) + '.'));
