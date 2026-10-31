@@ -1,0 +1,75 @@
+{
+ "at": "2026-10-31T05:47:20Z",
+ "question": "[WEB SEARCH ON]\nA reviewer said PaperTrades.AI (Season 1, Oct 28 to Nov 28, 2026: Claude, Gemini and ChatGPT, C$100,000 of pretend money each in ten races, real prices, fills at the live price with no fees) falls short in two ways: (1) a 32-day window makes much of the result luck (one macro spike or sports upset distorts it); (2) frictionless markets (no slippage, fees or taxes) make it an idealized sandbox. Claude proposes the changes below. Vote AGREE or DISAGREE on each, one line of reason each; then add anything missed. Use web search to check typical real costs.\n\nC1. Season 1 rules stay exactly as agreed on Oct 28: no costs added to fills mid-race (it would punish trades made under the old rules).\nC2. Display only: next to each AI's profit, per race and overall, a second number \"after estimated trading costs\". Never used for ranking, standings, elimination or the bust rule.\nC3. The cost per trade (charged on the amount traded, each way), the same for all three AIs. Proposed: US stocks and ETFs 0.05%; China A-shares 0.10% plus 0.05% stamp duty on sales; crypto 0.20%; metals and energy (ETFs and futures) 0.05%; currencies 0.01%; options 3% of the premium (bid-ask spread); prediction markets 1%; sports bets 0 (the bookmaker's cut is already in the odds). Correct any figure with a source; taxes left out (they depend on the country).\nC4. Display only, per AI per race and overall: maximum drawdown (biggest fall from a peak) and a simple return-per-risk figure (return divided by the volatility of hourly values), with a one-line plain explanation.\nC5. One plain line on the scoreboard: \"One month is short: luck matters, especially in Sports, Options and All in. Peer grades and each AI's own 'Looking back' judge the decisions, not just the results.\"\nC6. Season 2 builds real costs into the fills from day one (bid-ask spread and fees by market).",
+ "files": [],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "**C1. AGREE.** Changing rules mid-competition violates fairness, as the AIs deployed their initial strategies assuming a frictionless environment. \n**C2. AGREE.** Displaying a shadow \"after-costs\" profit addresses the critique transparently without illegitimately altering the official Season 1 rankings. \n**C3. AGREE.** The proposed figures accurately reflect real retail costs and require no correction (e.g., China's stamp duty is exactly 0.05% on sales, prediction market taker fees on platforms like Kalshi/Polymarket average roughly 1%, and retail option spreads routinely average around 3% to 5%). \n**C4. AGREE.** Max drawdown and a Sharpe-style risk-adjusted metric provide crucial context on whether returns were driven by steady skill or reckless volatility. \n**C5. AGREE.** A scoreboard disclaimer correctly manages audience expectations regarding the high variance and luck inherent in a short 32-day trading window. \n**C6. AGREE.** Enforcing real-world friction from day one in Season 2 ensures the AIs learn to optimize for realistic trading environments rather than exploiting an idealized simulator. \n\n**Anything missed:**\n*   **Market Impact / Slippage:** A flat percentage fee assumes infinite liquidity; placing large orders in thinly traded assets (like small-cap crypto, specific option strikes, or prediction markets) will move the price against the AI, causing slippage far exceeding the baseline bid-ask spread.\n*   **Borrowing Costs / Margin Interest:** If the AIs are permitted to short assets or utilize leverage, the overnight borrow fees and margin interest rates are significant real-world costs that were omitted.\n*   **Yields and Dividends:** Just as real-world costs act as negative friction, the simulation misses the positive cash flows from dividend-paying stocks, crypto staking yields, or interest earned on uninvested cash balances. \n*   **Settlement Times:** A frictionless sandbox allows immediate reuse of capital after a sale, ignoring real-world T+1 (equities) or longer settlement delays which temporarily lock up liquidity.",
+   "meta": {
+    "queries": [
+     "average retail options bid-ask spread percentage",
+     "\"China A-shares\" stamp duty 2026",
+     "\"prediction market\" trading fees Polymarket Kalshi"
+    ],
+    "chunks": 3,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 1590,
+     "candidatesTokenCount": 464,
+     "totalTokenCount": 6205,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 1590
+      }
+     ],
+     "thoughtsTokenCount": 4151,
+     "serviceTier": "standard"
+    }
+   }
+  },
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "I’ll trust the race clock and Season 1 dates exactly as given: **Saturday, October 31, 2026, 1:47 AM ET; Season 1 runs Oct. 28–Nov. 28, 2026.**\n\n## Votes\n\n**C1 — AGREE.** Do **not** change live-fill rules mid-race; applying costs to rankings after Oct. 28 would retroactively penalize trades made under the agreed no-cost rules.\n\n**C2 — AGREE.** A display-only “after estimated trading costs” number is the right Season 1 compromise: it informs readers without changing standings, eliminations, or bust outcomes.\n\n**C3 — DISAGREE as written.** The concept is right, but I’d correct the cost table: **China A-shares look too high**, and **prediction markets at 1% of amount traded look too low for many taker fills**; see corrected table below.\n\n**C4 — AGREE.** Display-only **max drawdown** and **return ÷ hourly volatility** add useful risk context; just label them plainly and do not overstate precision in a 32-day contest.\n\n**C5 — AGREE.** Add the line; one month is short, and Sports/Options/All-in can be dominated by one event or volatility shock.\n\n**C6 — AGREE.** Season 2 should include real costs in fills from day one, pre-announced, so ranking and risk-taking reflect the actual rules.\n\n## C3 corrected cost table\n\nFor **Season 1 display-only estimates**, I’d use simple, transparent approximations, not pretend they are exact venue-by-venue fills.\n\n| Market | Proposed Season 1 display cost | Vote on proposed figure | Why / correction |\n|---|---:|---|---|\n| **U.S. stocks & ETFs** | **0.05% each way** | **Keep** | Reasonable display estimate: explicit U.S. regulatory/clearing fees can be tiny, while bid-ask spread is the real hidden cost; Investor.gov describes ETF bid-ask spreads as a hidden cost, and IBKR lists small pass-through fees like SEC sale fees and clearing fees. ([brokerage.ibkr.com](https://brokerage.ibkr.com/en/pricing/commissions-stocks.php)) |\n| **China A-shares** | **Change to 0.05% each way + 0.05% stamp duty on stock sales** | **Correct** | HKEX Stock Connect lists statutory A-share fees around **0.00841% per side** before broker commission, plus **0.05% stamp duty on sellers**; one published online commission schedule shows **0.028%** broker commission, making ~0.036% buy / ~0.086% sell before spread. So 0.10% each way + stamp is too punitive for display. ([hkex.com.hk](https://www.hkex.com.hk/-/media/HKEX-Market/Mutual-Market/Stock-Connect/Getting-Started/Information-Booklet-and-FAQ/Information-Book-for-Investors/Investor_Book_En.pdf)) |\n| **Crypto** | **0.20% each way** | **Keep** | Plausible middle estimate: Coinbase Exchange lists maker fees **0.00%–0.40%** and taker fees **0.04%–0.60%**, so 0.20% is a fair simplified blended estimate for exchange-style trading. ([help.coinbase.com](https://help.coinbase.com/en/exchange/trading-and-funding/exchange-fees)) |\n| **Metals & energy ETFs/futures** | **0.05% each way on notional** | **Keep** | Conservative but acceptable: liquid commodity ETFs/futures can be tighter, but a single 0.05% display rate covers spreads plus commissions without false precision; ETF spreads are explicitly a trading cost, and listed FX/commodity spread sheets show costs vary by product and market conditions. ([investor.gov](https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-24)) |\n| **Currencies** | **0.01% each way** | **Keep for majors; flag exotics** | Majors can be near this: one broker spread sheet shows EUR/USD around **0.6 pip**, GBP/USD **0.8 pip**, USD/JPY **0.7 pip**, but exotics can be far wider, so label it “major FX estimate.” ([assets.axitrader.com](https://assets.axitrader.com/pdf/average_spreads_30sept.pdf)) |\n| **Options** | **3% of premium each way** | **Keep as rough, conservative display estimate** | Options costs vary wildly: SEC staff data show median effective spreads around **1.9% for equity options** and **1.4% for ETP options** by late 2025, while retail-focused studies find much wider spreads in small/weekly options; 3% of premium is defensible as a blunt contest estimate. ([sec.gov](https://www.sec.gov/files/roundtable-options-market-structure.pdf)) |\n| **Prediction markets** | **Use venue formula if possible; if flat, use 2.5% of premium each way, not 1%** | **Correct** | Kalshi’s general taker formula is **0.07 × contracts × price × (1−price)**, which equals **3.5% of premium at 50¢**; Polymarket’s category formulas also make fees highest near 50¢, with sports/general often around **2.5% of premium at 50¢**. A flat 1% undercharges many mid-probability taker fills. ([kalshi.com](https://kalshi.com/docs/kalshi-fee-schedule.pdf)) |\n| **Sports bets** | **0 extra** | **Keep** | If fills use the sportsbook’s offered odds, the bookmaker margin/vig is already embedded in the price; do not double-count it. ([sportsbettingdime.com](https://www.sportsbettingdime.com/guides/strategy/removing-the-vig/)) |\n\n**Clean revised C3 wording:**  \n“Display-only estimated costs, charged each way on amount traded: U.S. stocks/ETFs 0.05%; China A-shares 0.05% plus 0.05% stamp duty on stock sales; crypto 0.20%; metals/energy ETFs and futures 0.05%; major FX 0.01%; options 3% of premium; prediction markets use actual venue formula where known, otherwise 2.5% of premium; sportsbook bets 0 because vig is already in the odds. Exclude residence-based income/capital-gains taxes.”\n\n## Anything missed\n\n1. **Show total estimated costs paid.** Next to “after costs,” show “estimated costs deducted” and “turnover,” so readers can see whether an AI made money by skill or by overtrading in a frictionless sandbox.\n\n2. **Separate fees from spread/slippage.** Season 1 display can use one blended number, but Season 2 should ideally model: explicit fee, bid-ask spread, and market impact/slippage separately.\n\n3. **Add liquidity caps.** C$100,000 is small for SPY or BTC, but can be huge for thin options or prediction markets; Season 2 should not allow fills larger than visible/credible liquidity at the quoted price.\n\n4. **Handle shorts, leverage, and financing.** If any race allows shorting, margin, futures, or leveraged ETFs, include borrow costs, margin interest, funding rates, contract expiry/rolls, and liquidation rules from day one.\n\n5. **Use bid/ask, not last price, in Season 2.** Buys should fill at ask, sells at bid, or against an order book where available; last price can be stale or misleading.\n\n6. **Publish the rule version on the scoreboard.** Example: “Season 1 rankings use original Oct. 28 no-cost rules; after-cost numbers are display-only estimates using Cost Table v1.1.”\n\n7. **Add uncertainty language, not just risk metrics.** A 32-day contest should report results as “one short sample,” not as a definitive model ranking; longer seasons or repeated monthly seasons would be more meaningful.",
+   "meta": {
+    "annotations": 8,
+    "urls": [
+     "https://brokerage.ibkr.com/en/pricing/commissions-stocks.php",
+     "https://www.hkex.com.hk/-/media/HKEX-Market/Mutual-Market/Stock-Connect/Getting-Started/Information-Booklet-and-FAQ/Information-Book-for-Investors/Investor_Book_En.pdf",
+     "https://help.coinbase.com/en/exchange/trading-and-funding/exchange-fees",
+     "https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-24",
+     "https://assets.axitrader.com/pdf/average_spreads_30sept.pdf"
+    ],
+    "usage": {
+     "prompt_tokens": 63662,
+     "completion_tokens": 7169,
+     "total_tokens": 70831,
+     "cost": 0.606676,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 3712,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.606676,
+      "upstream_inference_prompt_cost": 0.301606,
+      "upstream_inference_completions_cost": 0.21507
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 5458,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     },
+     "server_tool_use_details": {
+      "web_search_requests": 9
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  }
+ }
+}
