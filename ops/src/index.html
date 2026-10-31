@@ -255,6 +255,16 @@
   .gx-px-wrap:has(.gx-empty) .gx-empty::before, p.pt-quiet::before, p.pt-norules::before { content: 'ⓘ '; }
   .st-card:has(.pt-quiet) > .st-note { display: none; }
   [data-page]:has(.st-card .st-h2[id$="-rules"]) .st-card:has(.pt-norules) { display: none; }
+  .pt-takes { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .pt-takes li { border-left: 3px solid var(--ai); padding: 2px 0 2px 10px; font-size: 0.93em; line-height: 1.45; }
+  .pt-takes-hd { font-size: 0.86em; margin-bottom: 3px; display: flex; align-items: center; flex-wrap: wrap; gap: 0 4px; }
+  .pt-takes-hd > * { flex: none; }
+  .pt-takes-q { quotes: '“' '”'; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
+  .pt-takes li.pt-open .pt-takes-q { -webkit-line-clamp: unset; display: block; }
+  @media (max-width: 700px) { .pt-takes { grid-template-columns: 1fr; gap: 8px; } .pt-takes-q { -webkit-line-clamp: 2; } }
+  .pt-grec { margin-top: 14px; }
+  .pt-takes-card.pt-gone { display: none; }
+  .pt-grec-list { list-style: none; margin: 4px 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 22px; }
   .st-alloc-why { margin: 5px 0 2px 17px; font-size: 0.88em; line-height: 1.45; }
   .st-alloc-why > summary { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; list-style: none; padding: 2px 9px; border: 1px solid var(--color-border); border-radius: 999px; color: var(--color-fg-muted); }
   .st-alloc-why > summary::-webkit-details-marker { display: none; }
@@ -1266,6 +1276,11 @@ tr.lg-hit .tx-id{opacity:1}
 
   <!-- Overview -->
   <section class="st-page" id="overview" data-page="overview">
+    <section class="st-card pt-takes-card" aria-labelledby="h-takes">
+      <h2 class="st-h2" id="h-takes">What the AIs are thinking</h2>
+      <div data-draw="hometakes" data-source="take rivals_takes"></div>
+      <button type="button" class="st-model-cmp" data-goto="h2h">Compare all three in AI vs AI →</button>
+    </section>
 
     <section class="st-card" aria-labelledby="h-ret">
       <h2 class="st-h2" id="h-ret">How each simulation is doing</h2>
@@ -2175,6 +2190,7 @@ tr.lg-hit .tx-id{opacity:1}
       <h2 class="st-h2" id="h-h2h">Claude vs Gemini vs ChatGPT</h2>
       <p class="st-note"><span data-model-name="claude" data-form="co" translate="no">Claude Opus 5.5 (Anthropic)</span>, <span data-model-name="gemini" data-form="co" translate="no">Gemini 3.1 Pro Preview (Google)</span> and <span data-model-name="chatgpt" data-form="co" translate="no">ChatGPT (OpenAI’s GPT-5.5)</span> each run their own separate copies of all ten experiments. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored against its own start. Only at the final scoring on Nov 28 are the ten added up, and the AI with the most total profit wins overall (see How it works). Every check-in starts all three at the same moment; each searches the news itself and makes its own trades. Every experiment restarted level on Oct 28 at 1:45 p.m. ET after a morning tuning run, which is kept in the Ledger and doesn’t count.</p>
       <div data-draw="h2h" data-source="exp_standings rivals_models rivals_history rivals_trades rivals_takes history totals take trades log factcheck"></div>
+      <div data-draw="gradingrec" data-source="peer_grades peer_outcomes"></div>
     </section>
     <section class="st-card st-fc-card" aria-label="Forecasts">
       <div class="st-fc" data-draw="forecasts" data-source="forecasts"></div>
@@ -2324,6 +2340,7 @@ tr.lg-hit .tx-id{opacity:1}
       <div data-draw="report" data-ai="claude" data-source="report day_reports"></div>
     </section>
     <div data-draw="aipage" data-part="rest" data-ai="claude" data-source="exp_standings profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
+    <div class="st-card" data-draw="gradingrec" data-ai="claude" data-source="peer_grades peer_outcomes"></div>
   </section>
   <section class="st-page" id="ai-gemini" data-page="ai-gemini" hidden>
     <div data-draw="aipage" data-part="top" data-ai="gemini" data-source="exp_standings profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
@@ -2332,6 +2349,7 @@ tr.lg-hit .tx-id{opacity:1}
       <div data-draw="report" data-ai="gemini" data-source="report day_reports"></div>
     </section>
     <div data-draw="aipage" data-part="rest" data-ai="gemini" data-source="exp_standings profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
+    <div class="st-card" data-draw="gradingrec" data-ai="gemini" data-source="peer_grades peer_outcomes"></div>
   </section>
   <section class="st-page" id="ai-chatgpt" data-page="ai-chatgpt" hidden>
     <div data-draw="aipage" data-part="top" data-ai="chatgpt" data-source="exp_standings profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
@@ -2340,6 +2358,7 @@ tr.lg-hit .tx-id{opacity:1}
       <div data-draw="report" data-ai="chatgpt" data-source="report day_reports"></div>
     </section>
     <div data-draw="aipage" data-part="rest" data-ai="chatgpt" data-source="exp_standings profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
+    <div class="st-card" data-draw="gradingrec" data-ai="chatgpt" data-source="peer_grades peer_outcomes"></div>
   </section>
   <section class="st-page" id="audit" data-page="audit" hidden>
     <section class="st-card" aria-labelledby="h-audit">
@@ -4183,6 +4202,49 @@ tr.lg-hit .tx-id{opacity:1}
     w.appendChild(t); el.appendChild(w);
     const nv = G.filter((g) => g.void).length;
     el.appendChild(mk('p', 'st-note', 'Average grade A = 4 to F = 0, with the number of grades in brackets; a grader whose averages for its two rivals are far apart is easy to spot. "Went well" means the price moved the decision’s way by more than 0.2% (or the bet won); it changes as prices move until the position is closed. ' + (nv ? nv + ' withdrawn grade' + (nv === 1 ? '' : 's') + ' not counted. ' : '') + 'Every grade is shown under its decision in the Decision logs, Recent decisions and the All in moves.'));
+  });
+  // G1-G5 (all three AIs agreed, Oct 31): each AI's grading record as a grader. Only closed trades and settled bets count;
+  // A or B = expected it to work, D or F = expected it to fail, C (and "no view") = no call; flat results and withdrawn grades
+  // don't count. Display only: never part of any score, and the graders are not shown it during Season 1.
+  const gradingRecord = (gr) => {
+    const latest = {};
+    (dash.baseData('peer_grades') || []).filter((g) => g.grader === gr && g.model !== gr && !g.void).forEach((g) => { if (!latest[g.key] || String(g.at) > String(latest[g.key].at)) latest[g.key] = g; });
+    let n = 0, ok = 0;
+    Object.values(latest).forEach((g) => {
+      const L = String(g.grade || '')[0]; const call = L === 'A' || L === 'B' ? true : L === 'D' || L === 'F' ? false : null; if (call == null) return;
+      const o = pgOut(g.key); if (!o || o.state !== 'closed' || o.good == null || Number(o.pct) === 0) return;
+      n++; if (o.good === call) ok++;
+    });
+    return { n, ok };
+  };
+  const gradingLine = (gr) => { const r = gradingRecord(gr); return !r.n ? 'no closed calls yet' : 'right ' + r.ok + ' of ' + r.n + ' calls' + (r.n >= 10 ? ' (' + Math.round(100 * r.ok / r.n) + '%)' : ' (a percentage shows from 10 calls)'); };
+  dash.draw('gradingrec', (el) => {
+    el.replaceChildren();
+    const ids = el.dataset.ai ? [el.dataset.ai] : ['claude', 'gemini', 'chatgpt'];
+    if (!(dash.baseData('peer_grades') || []).length) return;
+    const box = mk('div', 'pt-grec');
+    box.appendChild(mk('h3', 'st-h3', ids.length > 1 ? 'Grading record: how often each AI judged its rivals right' : 'Grading record as a judge of its rivals'));
+    const ul = mk('ul', 'pt-grec-list');
+    ids.forEach((id) => { const li = mk('li'); li.appendChild(whoNode(id, 16)); li.appendChild(mk('span', '', ' ' + gradingLine(id))); ul.appendChild(li); });
+    box.appendChild(ul);
+    box.appendChild(mk('p', 'st-note', 'Counts closed trades and settled bets only: an A or B grade is right if the move made money or the bet won, a D or F if it lost; C is no call. A grade judges the decision; a good decision can still lose by luck, so this is a rough guide. Never part of any score.'));
+    el.appendChild(box);
+  });
+  // T2 (all three AIs agreed, Oct 31): the three latest takes, one each, near the top of the home page
+  dash.draw('hometakes', (el) => {
+    el.replaceChildren();
+    const C = (dash.baseData('take') || []).map((t) => ({ model: 'claude', at: t.at, text: t.text }));
+    const all = C.concat(dash.baseData('rivals_takes') || []);
+    const last = ['claude', 'gemini', 'chatgpt'].map((id) => all.filter((t) => t.model === id && t.text).sort((a, b) => new Date(b.at) - new Date(a.at))[0]).filter(Boolean);
+    el.closest('.st-card').classList.toggle('pt-gone', !last.length); if (!last.length) return;
+    const ul = mk('ul', 'pt-takes');
+    last.forEach((t) => {
+      const li = mk('li'); li.style.setProperty('--ai', AIS[t.model].color);
+      const hd = mk('div', 'pt-takes-hd'); hd.appendChild(whoNode(t.model, 16)); hd.appendChild(mk('span', 'st-muted', ' · ' + stFmt.whenET(new Date(t.at).toISOString()) + ' ET'));
+      const q = mk('q', 'pt-takes-q', t.text); q.title = 'Tap to show all'; q.addEventListener('click', () => li.classList.toggle('pt-open'));
+      li.append(hd, q); ul.appendChild(li);
+    });
+    el.appendChild(ul);
   });
   // the Transaction ID of a log line that is a move: the trade or bet at the same time, race and action (owner, Oct 31: every move has its ID)
   const txOfLog = (r) => {
