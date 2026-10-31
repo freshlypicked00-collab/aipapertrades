@@ -1,17 +1,22 @@
-Site question from the owner of papertrades.ai (Oct 30, evening). NOT a trading turn; nothing in your books changes. The owner wants all three AIs (Claude, Gemini, ChatGPT) to agree before it is built. Answer honestly and disagree where you disagree.
+Site question from the owner of papertrades.ai (Fri Oct 30, about 9:40 p.m. ET). NOT a trading turn; nothing in your books changes. The owner wants all three AIs (Claude, Gemini, ChatGPT) to weigh in before it is built. Answer honestly and disagree where you disagree.
 
-THE OWNER'S REQUEST: in the Ledger's "Every trade" table, when a row is a buy or a sell, make it obvious at a glance whether it made or lost money: a check or a cross, the word profit or loss, the amount, and a button that finds the matching buy (for a sell) so you don't have to scroll.
+THE OWNER ASKS: for any trade or bet, a button on the later entry (a sale, a cover, a bet result) that links back to the earlier buy-in (or the bet as placed), so anyone can easily confirm everything is logged, for more transparency.
 
-TODAY: the table's columns are When, Experiment, Action (a coloured pill: Buy, Sell...), What, Details, Amount, Cost/stake, Won/lost, Return, Why. The result sits in the far-right "Won/lost" column (for example "Lost −C$1,683" on a sell, "Lost −C$1,683 (sold)" on the buy behind it), easy to miss on a wide table and often off-screen on phones. A "Find in Ledger" view already exists (from Moments): it shows only that holding, highlights the sale and softly highlights the buys behind it.
+WHAT EXISTS TODAY
+- Ledger, "Every trade and bet" table: since this evening (Claude, Gemini and ChatGPT agreed, ops/review/ledgerpl-r1-oct30.json) every sell/cover has "Find the buy(s)" and every buy that was sold has "Find the sale(s)": it shows only that holding, highlights the sale and softly highlights the buys behind it. The view lives in the address (papertrades.ai/?find=model~race~time~holding#ledger), so it can be shared.
+- Bets: a bet's row already shows when it was placed and its result together; there is no separate result entry to link from.
+- NOT linked yet: (a) each race page's Decision log (When / Action / Detail; the place most visitors read trades): a "Sold ..." entry has no way back to the buy; (b) the AI pages' and AI vs AI "newest trades" lists; (c) Telegram and Discord posts about a sale or a settled bet: no link back to the buy or the bet.
 
 CLAUDE'S PROPOSAL (vote on each):
-L1. Under the Action pill, a small result line: "✓ Profit +C$412" in green or "✗ Loss −C$1,683" in red. On a SELL (or cover): the realized result of that sale. On a BUY (or short): the result once sold ("✗ Loss −C$1,683, sold"), or "Still held" while open (no unrealized number here, so a price that moves every hour is not mistaken for a final result). Bets are left as they are (they already show Won/Lost).
-L2. A break-even sale (within C$0.50) shows "Even" with no tick or cross.
-L3. On a sell or cover: a small "🔎 Find the buy" button that opens the existing Find view (only that holding, the sale highlighted, its buys softly highlighted). On a buy that has been sold: "🔎 Find the sale". Hidden while that Find view is already open.
-L4. The far-right Won/lost column stays as it is (the CSV download and the wide view keep it).
-L5. Amounts follow the visitor's currency setting like the rest of the table; China stays in US$.
+P1. Decision logs and the "newest trades" lists: every Sell/Cover entry gets "Find the buy(s)", every Buy that was later sold gets "Find the sale(s)", opening the same Ledger Find view. Same for all three AIs.
+P2. Settled bets in those lists get "Find the bet", opening the Ledger on that bet with its placement and result together.
+P3. Telegram and Discord: each post about a sale, cover or settled bet ends with one short link per closed position, e.g. "Check the buy: papertrades.ai/?find=...", so channel readers can verify in one tap (link previews stay off). When one post bundles several moves, only the closing moves get a link, at most 5 links, the rest "and more on the site".
+P4 (optional, say if worth it): give every trade and bet a permanent public number (e.g. C-142, G-87, X-55) shown everywhere, so a sale can say "closes buys G-71 and G-80".
 
 PLEASE ANSWER IN EXACTLY THIS FORMAT (short):
-L1: AGREE | DISAGREE | CHANGE: <one line>
-... (L1 to L5)
-RISK (one line): the biggest way this could mislead a reader.
+VERDICT: ADD | ADD WITH CHANGES | DO NOT ADD: <one line why>
+P1: AGREE | DISAGREE | CHANGE: <what>
+P2: AGREE | DISAGREE | CHANGE: <what>
+P3: AGREE | DISAGREE | CHANGE: <what>
+P4: WORTH IT NOW | LATER | NO: <one line why>
+RISK (one line):
