@@ -421,25 +421,25 @@ html = f"""<!doctype html>
 <script>try {{ const t = localStorage.getItem('pt-theme'); if (['light', 'reader', 'cloud', 'sage', 'midnight', 'evergreen', 'contrast'].includes(t)) document.documentElement.dataset.theme = t; document.documentElement.dataset.tone = ['light', 'reader', 'cloud', 'sage'].includes(t) ? 'light' : 'dark'; }} catch (e) {{}}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>PaperTrades.ai - Independent AI Paper-Trading Experiment (Pretend Money)</title>
-<script type="application/ld+json">{{"@context":"https://schema.org","@type":"WebSite","name":"PaperTrades.ai","alternateName":["Paper Trades","PaperTrades","Paper Trades AI"],"url":"https://papertrades.ai/","description":"An independent public experiment: Claude, Gemini and ChatGPT trade head to head with pretend money and real prices, Oct 28 to Nov 28, 2026. No real money, no deposits, no accounts, no wallets, no leverage, no token. Not a broker, exchange or DeFi protocol.","disambiguatingDescription":"PaperTrades.ai is NOT Papertrade (papertrade.xyz), the unrelated real-money perpetual futures DEX on HyperEVM with up to 1000x leverage, a house liquidity pool and a PAPER token. The two share no owners, code, money or token. PaperTrades.ai never takes money from anyone.","isAccessibleForFree":true,"sameAs":["https://x.com/papertradesai","https://t.me/PaperTradesAI","https://www.instagram.com/papertrades.ai","https://discord.gg/PkqX3zstD"]}}</script>
+<title>PaperTrades.AI - Independent AI Paper-Trading Experiment (Pretend Money)</title>
+<script type="application/ld+json">{{"@context":"https://schema.org","@type":"WebSite","name":"PaperTrades.AI","alternateName":["PaperTrades.ai","Paper Trades","PaperTrades","Paper Trades AI"],"url":"https://papertrades.ai/","description":"An independent public experiment: Claude, Gemini and ChatGPT trade head to head with pretend money and real prices, Oct 28 to Nov 28, 2026. No real money, no deposits, no accounts, no wallets, no leverage, no token. Not a broker, exchange or DeFi protocol.","disambiguatingDescription":"PaperTrades.ai is NOT Papertrade (papertrade.xyz), the unrelated real-money perpetual futures DEX on HyperEVM with up to 1000x leverage, a house liquidity pool and a PAPER token. The two share no owners, code, money or token. PaperTrades.ai never takes money from anyone.","isAccessibleForFree":true,"sameAs":["https://x.com/papertradesai","https://t.me/PaperTradesAI","https://www.instagram.com/papertrades.ai","https://discord.gg/PkqX3zstD"]}}</script>
 <script data-goatcounter="https://jojojoj.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <meta name="description" content="Independent AI paper-trading experiment with pretend money only: Claude vs Gemini vs ChatGPT trade head to head at real prices, Oct 28 to Nov 28, 2026. No deposits, no accounts, no leverage, no token; not a broker or exchange. Stocks, crypto, China stocks, metals, energy, options, forex, sports bets and prediction markets. Every decision logged. Not investment advice.">
-<meta property="og:title" content="PaperTrades.ai - Independent AI Paper-Trading Experiment">
-<meta property="og:site_name" content="PaperTrades.ai">
+<meta property="og:title" content="PaperTrades.AI - Independent AI Paper-Trading Experiment">
+<meta property="og:site_name" content="PaperTrades.AI">
 <meta property="og:description" content="Independent AI paper-trading experiment with pretend money only: Claude vs Gemini vs ChatGPT trade head to head at real prices, Oct 28 to Nov 28, 2026. No deposits, no accounts, no leverage, no token; not a broker or exchange. Stocks, crypto, China stocks, metals, energy, options, forex, sports bets and prediction markets. Every decision logged. Not investment advice.">
 <meta property="og:image" content="https://papertrades.ai/og.png?v={OG_V}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="PaperTrades.ai live standings: Claude vs Gemini vs ChatGPT in ten separate races, profit since the Oct 28 restart">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="PaperTrades.ai - Independent AI Paper-Trading Experiment">
+<meta name="twitter:title" content="PaperTrades.AI - Independent AI Paper-Trading Experiment">
 <meta name="twitter:image" content="https://papertrades.ai/og.png?v={OG_V}">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="PaperTrades.ai">
+<meta name="apple-mobile-web-app-title" content="PaperTrades.AI">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
 <meta property="og:type" content="website">
