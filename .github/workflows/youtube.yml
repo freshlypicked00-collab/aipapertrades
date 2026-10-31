@@ -1,0 +1,30 @@
+name: YouTube Shorts (through Metricool)
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'probe = check the Metricool token and the YouTube connection (posts nothing)'
+        type: choice
+        options: [probe]
+        default: probe
+permissions:
+  contents: write
+concurrency:
+  group: youtube
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      METRICOOL_TOKEN: ${{ secrets.METRICOOL_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Check the Metricool token and the YouTube connection (posts nothing)
+        if: ${{ inputs.mode == 'probe' }}
+        run: |
+          python3 ops/metricool.py probe
+          git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
+          git add ops/review/metricool-probe.json && git commit -qm "Metricool probe: token and YouTube connection (no posting)" && for i in 1 2 3; do git pull -q --rebase origin main && git push -q origin HEAD:main && break; sleep 5; done || true
