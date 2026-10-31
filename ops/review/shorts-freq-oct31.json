@@ -1,0 +1,71 @@
+{
+ "at": "2026-10-31T07:17:42Z",
+ "question": "[WEB SEARCH ON]\nPaperTrades.AI is brand new: the YouTube channel, Instagram, X, Telegram and Discord each have about 1 to 5 followers. The owner says we may post as many YouTube Shorts as all three AIs think is best for growing from zero. Our Shorts are now story Shorts (one real settled bet, about 30 seconds: premise, the bet, the AI's own reason quoted from the ledger, final score, money, the race; transaction IDs on screen; our own music, no voiceover yet). We get roughly 10 to 25 settled bets a day across the three AIs, plus trades (a trade-story format is coming). We agreed yesterday on one a day (S8) \"until the standard is proven\".\n\nVote for ONE option and give 2-3 lines of reasons, using web search for how YouTube treats new small channels posting Shorts often (does frequency help discovery for a new channel, is there any spam or reused-content risk with similar-looking automated Shorts, what spacing works):\nF1. 1 a day (the day's biggest moment).\nF2. 2 a day (about 12:30 p.m. and 8 p.m. ET): the biggest bet and the second-biggest story, never the same AI twice in a row if avoidable.\nF3. 3 a day (12:30 p.m., 5 p.m., 9:30 p.m. ET).\nF4. Something else (say what).\nAlso: name one rule that keeps more posts from looking repetitive or spammy (e.g. vary the hook, different AI and race each time, a different template for upsets and losses).",
+ "files": [],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "**Vote:** F1. 1 a day (the day's biggest moment).\n\n**Reasons:** Search data and YouTube Shorts algorithm analyses for 2026 strongly advise brand-new channels to stick to 1 Short per day to avoid triggering \"bot\" or spam filters, which can easily land a new account in \"zero-view jail\". Because the algorithm relies heavily on the \"viewed vs. swiped away\" ratio to determine if a channel is high-quality, posting multiple similar videos out of the gate risks cannibalizing your own reach and diluting audience data. It is best to stick to 1 a day until you establish a baseline of consistent views, at which point it is safe to scale up. \n\n**Rule:** Always vary the on-screen hook and opening visuals in the first 3 seconds (e.g., a different text style or layout for upsets versus regular wins) so the platform doesn't flag the automated transaction-screen format as identical \"reused content.\"",
+   "meta": {
+    "queries": [
+     "\"YouTube Shorts\" posting frequency new channel discovery spam risk",
+     "how many shorts per day for a new youtube channel spam reused content"
+    ],
+    "chunks": 3,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 807,
+     "candidatesTokenCount": 240,
+     "totalTokenCount": 2520,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 807
+      }
+     ],
+     "thoughtsTokenCount": 1473,
+     "serviceTier": "standard"
+    }
+   }
+  },
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "**Vote: F2 — 2 Shorts/day, ~12:30 p.m. and 8 p.m. ET.**  \nYouTube says Shorts are matched by viewer response/performance, not a required cadence, and there’s **no minimum posting cadence**; publish time is mainly an early-viewership choice, not a long-term ranking lever. ([support.google.com](https://support.google.com/youtube/answer/11914225?co=YOUTUBE._YTVideoType%3Dshorts&hl=en))  \nF2 doubles the learning surface versus 1/day without jumping to “high-volume similar automated Shorts,” which YouTube explicitly flags as spam/repetitive-content risk if videos feel mass-produced or interchangeable. ([support.google.com](https://support.google.com/youtube/answer/2801973?gad=1))  \n\n**Anti-spam rule:** every Short must change at least **two** of: hook style, AI featured, bet type/race context, visual template, ending emotion — and never post two “same-looking win recap” Shorts back-to-back.",
+   "meta": {
+    "annotations": 2,
+    "urls": [
+     "https://support.google.com/youtube/answer/11914225?co=YOUTUBE._YTVideoType%3Dshorts&hl=en",
+     "https://support.google.com/youtube/answer/2801973?gad=1"
+    ],
+    "usage": {
+     "prompt_tokens": 22563,
+     "completion_tokens": 1188,
+     "total_tokens": 23751,
+     "cost": 0.171751,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 3712,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.171751,
+      "upstream_inference_prompt_cost": 0.096111,
+      "upstream_inference_completions_cost": 0.03564
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 972,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     },
+     "server_tool_use_details": {
+      "web_search_requests": 4
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  }
+ }
+}
