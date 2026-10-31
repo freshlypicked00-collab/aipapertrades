@@ -27,7 +27,9 @@ jobs:
           ref: main
       - name: Check the key
         if: ${{ inputs.mode == 'check' }}
-        run: python3 ops/xpost.py check
+        run: |
+          python3 ops/xpost.py check | tee /tmp/xcheck.txt
+          echo "::notice title=X check::$(head -c 300 /tmp/xcheck.txt | tr '\n' ' ')"   # readable as an annotation without the full log
       - name: Test post
         if: ${{ inputs.mode == 'test' }}
         run: |
