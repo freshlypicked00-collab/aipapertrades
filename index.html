@@ -1408,7 +1408,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '8a16d979bcca';</script>
+<script>window.PT_PAGE_VER = '315b361e1b59';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -2658,6 +2658,7 @@ body { background:var(--color-bg); }
       <h2 class="st-h2" id="h-audit">Rules and audit</h2>
       <p class="st-note">Every rule of the race, then proof that nobody steers the AIs: exactly what each AI is told at its latest check-in, word for word, and the raw reply it sent back, plus every correction made by hand. How prices and fills work is in <a href="#" data-goto="rules">How it works</a>; every trade, price and reason is in the Ledger.</p>
       <div data-draw="audit" data-source="checkins"></div>
+      <div data-draw="pricecorr" data-source="price_corrections"></div>
     </section>
     <section class="st-card" id="status" aria-labelledby="h-status">
       <h2 class="st-h2" id="h-status">System status</h2>
@@ -8584,26 +8585,33 @@ body { background:var(--color-bg); }
       (a.corrections || []).slice().sort((p, q) => new Date(q.at) - new Date(p.at)).forEach((x) => { const li = mk('li'); li.dataset.at = x.at || ''; li.append(mk('b', '', x.what + ' · ' + stFmt.when(x.at) + ': '), document.createTextNode(x.text)); ul.appendChild(li); });
       if (!(a.corrections || []).length) ul.appendChild(mk('li', '', 'None so far.'));
       el.appendChild(ul);
-      const pcs = dash.baseData('price_corrections') || [];
-      if (pcs.length) {   // full-audit vote V3 (Oct 31): fills made at a stale or rounded feed price, restated at the 1-minute bar
-        el.appendChild(mk('h3', 'st-h3', 'Price corrections of past fills'));
-        el.appendChild(mk('p', 'st-note', 'Decided Oct 31 by all three AIs after the full audit: a fill made at a stale or rounded feed price is restated at the close of the 1-minute bar of its minute, for every AI, in both directions. The original fill stays in the ledger as it was; the difference goes to or from that race\u2019s cash once, at the time shown.'));
-        const NM = { claude: 'Claude', gemini: 'Gemini', chatgpt: 'ChatGPT' };
-        const RL = { AllInTrading: 'All in: trading', Currencies: 'Currencies', China: 'China', Metals: 'Metals' };
-        const px = (v) => (v === null || v === undefined ? '' : (Math.abs(v) < 0.1 ? d3.format('.6f')(v) : d3.format(',.3~f')(v)));
-        const w = mk('div', 'st-wrap'); const t = mk('table', 'st-table');
-        t.innerHTML = '<thead><tr><th>AI</th><th>Race</th><th>Fill</th><th class="num">Filled at</th><th class="num">1-min bar</th><th class="num">Correction</th></tr></thead>';
-        const tb = mk('tbody');
-        pcs.forEach((c) => {
-          const tr = mk('tr'); const cur = c.currency === 'USD' ? 'US$' : 'C$';
-          tr.append(mk('td', '', NM[c.model] || c.model), mk('td', '', RL[c.experiment] || c.experiment), mk('td', 'wrap', stFmt.when(c.fill_at) + ' · ' + c.action + ' ' + c.symbol + (c.why ? ' (' + c.why + ')' : '')),
-            mk('td', 'num', px(c.fill_price)), mk('td', 'num', px(c.bar_price)), mk('td', 'num ' + (c.amount >= 0 ? 'is-up' : 'is-down'), (c.amount >= 0 ? '+' : '−') + cur + d3.format(',.2f')(Math.abs(c.amount))));
-          tb.appendChild(tr);
-        });
-        t.appendChild(tb); w.appendChild(t); el.appendChild(w);
-      }
     }).catch(() => { el._busy = false; });
   };
+  dash.draw('pricecorr', (el) => {   // full-audit vote V3 (Oct 31): fills made at a stale or rounded feed price, restated at the 1-minute bar
+    el.replaceChildren();
+    const pcs = dash.baseData('price_corrections') || [];
+    if (!pcs.length) return;
+    el.appendChild(mk('h3', 'st-h3', 'Price corrections of past fills'));
+    el.appendChild(mk('p', 'st-note', 'Decided Oct 31 by all three AIs after the full audit: a fill made at a stale or rounded feed price is restated at the close of the 1-minute bar of its minute, for every AI, in both directions. The original fill stays in the ledger as it was; the difference goes to or from that race\u2019s cash once. Part of the nightly fingerprint from the Oct 31 close.'));
+    const NM = { claude: 'Claude', gemini: 'Gemini', chatgpt: 'ChatGPT' };
+    const RL = { AllInTrading: 'All in: trading', Currencies: 'Currencies', China: 'China', Metals: 'Metals' };
+    const px = (v) => (v === null || v === undefined ? '' : (Math.abs(v) < 0.1 ? d3.format('.6f')(v) : d3.format(',.3~f')(v)));
+    const bj = (s) => new Date(s).toLocaleString('en-US', { timeZone: 'Asia/Shanghai', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).replace(' AM', ' a.m.').replace(' PM', ' p.m.');
+    const groups = [];
+    pcs.forEach((c) => { let g = groups.find((x) => x.why === c.why); if (!g) { g = { why: c.why, rows: [] }; groups.push(g); } g.rows.push(c); });
+    groups.forEach((g) => {
+      if (g.why) el.appendChild(mk('p', 'st-note', g.why.charAt(0).toUpperCase() + g.why.slice(1) + ':'));
+      const ul = mk('ul', 'au-corr');
+      g.rows.forEach((c) => {
+        const li = mk('li'); const cur = c.currency === 'USD' ? 'US$' : 'C$';
+        li.append(mk('b', '', (NM[c.model] || c.model) + ', ' + (RL[c.experiment] || c.experiment) + ': '),
+          document.createTextNode(c.action + ' ' + c.symbol + ', ' + stFmt.when(c.fill_at) + (c.experiment === 'China' ? ' (' + bj(c.fill_at) + ' Beijing)' : '') + '. Filled at ' + px(c.fill_price) + ', 1-minute price ' + px(c.bar_price) + ': '),
+          mk('b', c.amount >= 0 ? 'is-up' : 'is-down', (c.amount >= 0 ? '+' : '\u2212') + cur + d3.format(',.2f')(Math.abs(c.amount))));
+        ul.appendChild(li);
+      });
+      el.appendChild(ul);
+    });
+  });
   dash.draw('betmins', (el) => {
     el.replaceChildren();
     const rows = dash.baseData('betmins'); if (!rows.length) return;
