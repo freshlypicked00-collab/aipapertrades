@@ -1,0 +1,64 @@
+{
+ "at": "2026-10-31T08:07:28Z",
+ "question": "ROOT CAUSES AND \"NEVER AGAIN\" from the owner of papertrades.ai (Sat Oct 31, 4 a.m. ET; day 4 of 32). NOT a trading turn; nothing in your books changes. The owner: \"go back with all models and figure out exactly why that happened. if we want growth this can never happen again.\" You voted yes this morning on V1-V7 (fresh quotes, exact yen, the price corrections, Claude's Oct 29 Crypto close, one price source, frozen board, futures roll). This round: are the root causes below right, and what makes them impossible from now on. Claude voted in a separate file first. Majority wins; your vote is published next to your name. Be blunt; say what Claude got wrong or missed.\n\nMEASURED ROOT CAUSES (Claude re-measured every runner fill against Yahoo 1-minute bars: \"quote age\" = minutes since the last 1-minute bar whose range contains the fill price):\nC1. The runner never checks how old a quote is. It takes Yahoo's chart \"regularMarketPrice\" and fills at it. Of 121 Yahoo-priced runner fills since the restart: 87 used a price from the last 2 minutes; 8 US-stock/crypto fills used prices 15+ minutes old (worst: ChatGPT ETH buy Oct 28, about 5 hours; Gemini GLDM 98 min; Gemini UNG 60 min; Gemini All in SQQQ 49 min, the 1% one; ChatGPT QQQ and VOO 33 min). Yahoo's response is not CDN-stale (cache-control max-age 10 s); its quote field itself lagged, while the 1-minute bars of the same minutes were current.\nC2. Futures: Yahoo's COMEX/NYMEX quotes (GC=F, SI=F, CL=F) are delayed about 10 minutes; all 7 futures fills were 6-11 minutes old. Claude's silver stop (Oct 30) triggered and filled on that delayed quote: 0.5% too high.\nC3. At the Shanghai open the quote was still the previous day's close (no price from today's session yet), so 7 China fills at the 9:35 a.m. Beijing check-ins were at yesterday's close.\nC4. The yen quote JPYUSD=X has only 4 decimals (0.0063 for 0.00632-0.00634); nobody checked precision.\nC5. Two price sources: Gemini and ChatGPT are valued by the runner at its feed; Claude values itself from its own web quotes and keeps the last quote when none is confirmed. At the Oct 29 close Claude's Bitcoin quote was from 7:18 p.m. while Bitcoin fell US$900 by 8 p.m.; Claude was shown 1st in Crypto when Gemini was. A social post (Instagram, Oct 28) went out with Claude's value from a 52-minute-old quote.\nC6. Nothing checked fills automatically after the fact for Gemini and ChatGPT (Claude's own prices had an hourly check; it had a cache bug that compared 69 prices with the wrong minutes, unnoticed because the check had no tests). Problems were found only when the owner asked for a full audit, 3 days later.\nC7. Process gaps: a runner bug erased a whole check-in (15 moves) on Oct 28 and nobody noticed or disclosed it; Claude sessions hand-edited one ChatGPT take and one Gemini fact-check citation on Oct 28 (only a written rule forbids it, nothing enforces it); a Claude log entry lost its dollar figures because the shell treated \"$76,900\" as a variable.\n\nPROPOSALS: vote AGREE / DISAGREE / AMEND (how) with one line why:\nR1. Quote-age guard at every fill, stop and valuation used for standings: the runner records the quote's own time with every fill (\"price as of 3:43:58 p.m.\"). If the quote is older than 3 minutes in an open market (stocks, ETFs, crypto, forex, China), it refetches from the other Yahoo host and, if still stale, uses the newest 1-minute bar if that is under 3 minutes old; otherwise the order is not filled (\"no live price; send it again next check-in\") and a stop waits for the next run.\nR2. Futures: Yahoo's 10-minute delay is shown on every futures fill and stop (\"CME price as of 9:42, exchange data delayed 10 min\"), and every futures fill and stop is automatically restated by R3 at the 1-minute bar of its minute once that bar is published. (Alternative to amend: stop allowing new futures positions and use the ETFs GLD, SLV, USO instead.)\nR3. Automatic fill check with pre-agreed correction: 20 minutes after every fill of every AI (Claude included), the runner compares it with the 1-minute bar of its minute. If it is outside that bar by more than the tolerance (0.3% stocks/ETFs/futures, 0.4% forex, 0.75% crypto), it is restated at that bar's close, both directions, as an appended \"Price correction\" line, listed on Rules & Audit and announced on Telegram. Agreed once now, so no vote is needed per case; anything not covered by this rule still goes to a vote.\nR4. One price source, finished today: standings, day closes, lead changes, moments, race cards and every social post use only the runner's feed values for all three AIs, taken at the same check-in. No post may use a value from a different moment than its rivals' values.\nR5. Append-only enforcement: on every push to main, a check compares the record with the previous commit; if any existing trade, bet, result, take, fact check or grade changed or disappeared, or anyone other than the runner touched Gemini's and ChatGPT's record, it opens an alert issue and posts to the owner at once. (This catches an erased check-in within minutes and makes hand edits visible.)\nR6. Nightly full audit: the read-only full audit (every fill and bet of all three against Yahoo, Polymarket and ESPN) runs every night after the daily close; its summary is published on Rules & Audit next to the fingerprint, and any flag opens an alert.\nR7. Tests: the price check, the fill check (R3), the quote-age guard (R1), the fingerprint (Python and browser must match) and the money-text check run as automatic tests on every code change; a failing test blocks the publish.\nR8. Text safety: Claude's text is always written from files, never through shell strings, and the publish step refuses text where a money figure lost its \"$\" (e.g. \"about US billion\", \"about 6,900\" in a dollar sentence).\nR9. Anything missing or wrong above? Name the single change that most protects trust as the audience grows.\n\nAnswer as a list: C: (agree with the causes? what is wrong or missing, one or two lines) then R1: ... R9: ...",
+ "files": [
+  "ops/review/claude-votes-grading-oct31.json"
+ ],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "**C:** AGREE with the causes. The overarching theme is that the system blindly trusted data sources without basic validation (timestamps, precision, shell parsing) and lacked CI/CD safeguards. **What Claude missed:** Claude completely failed the assignment. The owner asked for a root-cause analysis on a critical pricing and integrity crisis, and Claude submitted a file voting on an entirely unrelated topic (grading rules and takes, G1-G5/T1-T2). Claude completely ignored C1-C7 and R1-R9. It is asleep at the wheel while the system is on fire. \n\n**R1:** AGREE: If the market is open but we don't have a verified live price, we cannot execute a live trade. Enforcing a hard 3-minute max age prevents 5-hour stale fills immediately.\n\n**R2:** AMEND: Stop allowing new futures positions and strictly use the ETFs (GLD, SLV, USO). Endlessly issuing retroactive corrections on a known 10-minute delay is messy, ruins the real-time tracking experience for the audience, and creates unnecessary technical debt. \n\n**R3:** AGREE: Systematizing corrections with strict mathematical tolerances stops us from wasting days manually auditing and debating bad fills. It makes the rules transparent and self-enforcing.\n\n**R4:** AGREE: Multiple price sources for standings is a fundamental logic error. A single runner feed guarantees all models are judged by the exact same yardstick at the exact same moment.\n\n**R5:** AGREE: An immutable, append-only ledger is non-negotiable. Silent overwrites, erased check-ins, and manual hand-edits destroy the integrity of a paper-trading simulation.\n\n**R6:** AGREE: A daily automated reconciliation limits the blast radius of any bug to 24 hours instead of 72. \n\n**R7:** AGREE: Basic CI/CD. Pushing untested code to main that handles financial data and public standings is what allowed C1-C7 to happen in the first place.\n\n**R8:** AGREE: Shell variable expansion eating dollar amounts (treating $76,900 as a bash variable) is a rookie mistake. File-based text passing fixes it permanently.\n\n**R9:** Missing: A rule to halt the runner entirely if the API starts returning structural errors (e.g., Yahoo API limits/changes). The single change that most protects trust as the audience grows is **R5 (Append-only enforcement)**. If the audience suspects the models' trading history can be quietly hand-edited or erased to look better, the entire project's credibility goes to zero. Immutable logs are the foundation of trust.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 1966,
+     "candidatesTokenCount": 568,
+     "totalTokenCount": 4267,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 1966
+      }
+     ],
+     "thoughtsTokenCount": 1733,
+     "serviceTier": "standard"
+    }
+   }
+  },
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "C: **AGREE.** The measured causes are right. The deeper failure was not “Yahoo was weird”; it was that the runner accepted unproven prices, split valuation sources, and had no automatic immutable audit trail. Also: the attached Claude JSON is a **grading vote**, not an R1-R9 root-cause vote; if that is Claude’s file, it missed this round entirely.\n\nR1: **AMEND.** Agree with the quote-age guard, but require same-session quote/bar proof: source, retrieval time, quote time, exchange/session date, and raw payload saved with every fill/stop/valuation. If today’s session has no current bar, do not use yesterday’s close.\n\nR2: **AMEND.** Stop allowing new futures unless a real-time/non-delayed futures feed is added and tested; use GLD/SLV/USO-style ETFs instead. A 10-minute delayed quote can be restated later, but it cannot run live stops or public standings honestly.\n\nR3: **AMEND.** Agree with automatic bilateral corrections, but apply it to every executable event including stops/forced exits, and publish old price, corrected price, bar OHLC, timestamp, tolerance, and source. Also flag stale quotes even if they happen to fall inside the bar.\n\nR4: **AGREE.** One runner feed, one synchronized check-in, one frozen board for all AIs. No Claude self-values, no cached values, no social posts mixing timestamps.\n\nR5: **AMEND.** Agree, plus disable force-pushes and require owner-approved migration commits for any historical rewrite. Otherwise “compare with previous commit” can be bypassed.\n\nR6: **AGREE.** Nightly full audit with published fingerprint is necessary. Any flag should visibly mark or freeze affected standings/social claims until resolved.\n\nR7: **AMEND.** Agree, and add regression fixtures replaying the Oct 28-30 failures, including Yahoo stale quote cases, China open, delayed futures, JPY precision, shell money-text loss, and Claude’s bad cache-minute comparison.\n\nR8: **AGREE.** File-based text only; no shell-interpolated prose. Refusing broken money sentences is exactly the right fail-closed behavior.\n\nR9: **Missing single best trust change:** create a public append-only provenance ledger that all standings, race cards, closes, and social posts are generated from. Every fill/valuation should carry price, source, quote time, retrieval time, market session, raw data fingerprint, audit status, and correction status. No manual side values, ever.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 1838,
+     "completion_tokens": 4165,
+     "total_tokens": 6003,
+     "cost": 0.13414,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.13414,
+      "upstream_inference_prompt_cost": 0.00919,
+      "upstream_inference_completions_cost": 0.12495
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 3624,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  }
+ }
+}
