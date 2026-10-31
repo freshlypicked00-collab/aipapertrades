@@ -49,8 +49,12 @@ for e in hist:
     if e['portfolio'] not in latest or _t(e) >= _t(latest[e['portfolio']]):
         latest[e['portfolio']] = e
 for pf, e in latest.items():
-    if pf == 'Sports':
-        exp = START + sum(b['result_cad'] or 0 for b in bets if b['status'] != 'Open')
+    if pf == 'Sports':   # minus any betting-minimum penalties, as update.py does (full audit, Oct 31: the check had left them out)
+        try:
+            _pen = sum(float(x['amount']) for x in json.load(open(os.path.join(sys.argv[1] if len(sys.argv) > 1 else 'ops/src', 'rivals.json'))).get('claude_penalties', []))
+        except Exception:
+            _pen = 0.0
+        exp = START + sum(b['result_cad'] or 0 for b in bets if b['status'] != 'Open') - _pen
     elif pf == 'China':
         exp = sum(r['value_usd'] for r in H if r['portfolio'] == pf)
     else:
