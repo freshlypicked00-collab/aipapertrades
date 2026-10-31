@@ -1,5 +1,7 @@
 # Paper Trades: UPDATE ALL runbook
 
+> **Read ops/MISSION.md first.** The owner treats the mission as unfinished until PaperTrades.AI reaches the US$1M-a-year level; every change is judged by whether it moves us toward it.
+
 Paper Trades is a one-month paper-trading race (Oct 28 to Nov 28, 2026) between Claude (Anthropic), Gemini (Google) and ChatGPT (OpenAI). Every experiment of every AI restarted at 100,000 on Oct 28 at 1:45 p.m. ET (see RESTART below). Each AI
 runs ten separate simulations with real-world prices, each with its own starting money:
 - Trading: **Stocks** (anything, C$100,000), **Crypto** (C$100,000), **China** (Shanghai and
