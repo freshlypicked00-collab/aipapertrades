@@ -70,6 +70,9 @@ def ease(x):
 # ---------- the facts, from the public ledger only
 def bet_story(result_tx, data):
     rows = data.get('allin_trades', []) + data.get('rivals_trades', [])
+    cb = next((b for b in data.get('bets', []) if b.get('tx_result') == result_tx), None)
+    if cb:   # Claude's own Sports bets live in bets.json, in their own shape
+        return claude_bet_story(cb, data)
     res = next((t for t in rows if t.get('tx') == result_tx), None)
     if not res or res.get('action') not in ('Won', 'Lost'):
         raise StoryError(f'{result_tx}: not a won or lost bet in the ledger')
@@ -94,6 +97,38 @@ def bet_story(result_tx, data):
             'won': res['action'] == 'Won', 'pnl': float(res.get('pnl', res.get('amount', 0))), 'final': [(fin[1], int(fin[2])), (fin[3], int(fin[4]))],
             'placed': bet['at'], 'settled': res['at'], 'standings': st, 'day': pc.day_of(datetime.fromisoformat(res['at'].replace('Z', '+00:00')))}
 
+
+def claude_bet_story(b, data):
+    if b.get('status') not in ('Won', 'Lost'):
+        raise StoryError('Claude bet not won or lost')
+    if b.get('market') != 'moneyline' or ' @ ' not in b.get('event', ''):
+        raise StoryError('only moneyline bets have a story template so far')
+    away, home = b['event'].split(' @ ', 1)
+    fin = re.match(r'^(.+?) (\d+), (.+?) (\d+)$', b.get('final') or '')
+    if not fin:
+        raise StoryError('no final score in the ledger for ' + str(b.get('tx_result')))
+    reason = re.split(r' What would prove it wrong:', b.get('note') or '')[0].strip()
+    if not reason or not b.get('tx'):
+        raise StoryError('the bet has no reason or no ID')
+    return {'model': 'claude', 'race': 'Sports', 'league': (b.get('sport') or '').upper(), 'pick': b['pick'].replace(' moneyline', ''),
+            'away': away, 'home': home, 'odds': int(b['odds']), 'stake': float(b['stake_cad']), 'reason': reason, 'bet_tx': b['tx'],
+            'res_tx': b['tx_result'], 'won': b['status'] == 'Won', 'pnl': float(b.get('result_cad') or 0),
+            'final': [(fin[1], int(fin[2])), (fin[3], int(fin[4]))], 'placed': b.get('placed_at'), 'settled': b.get('settled_at'),
+            'standings': standings('Sports', data), 'day': pc.day_of(datetime.fromisoformat(b['settled_at']))}
+
+
+def candidates(data, since_iso):
+    """Every settled moneyline bet since that time with its result ID: [(abs money, result ID)], biggest first (S2: the day's biggest moment)."""
+    out = []
+    for t in data.get('allin_trades', []) + data.get('rivals_trades', []):
+        if t.get('action') in ('Won', 'Lost') and t.get('tx') and t.get('at', '') >= since_iso and 'moneyline' in (t.get('name') or ''):
+            out.append((abs(float(t.get('pnl', t.get('amount', 0)) or 0)), t['tx']))
+    for b in data.get('bets', []):
+        if b.get('status') in ('Won', 'Lost') and b.get('tx_result') and b.get('market') == 'moneyline':
+            st = datetime.fromisoformat(b['settled_at']).astimezone(ZoneInfo('UTC')).strftime('%Y-%m-%dT%H:%M:%SZ')
+            if st >= since_iso:
+                out.append((abs(float(b.get('result_cad') or 0)), b['tx_result']))
+    return sorted(set(out), reverse=True)
 
 def standings(race, data):
     hist = data.get('allin_history', []) if race.startswith('AllIn') else data.get('rivals_history', [])
@@ -168,10 +203,14 @@ def render(s, out):
                     fr.t((x, y + 50), AIS[k][0], font('sans', 'Bold', 76), AIS[k][1]); x += fr.d.textlength(AIS[k][0], font=font('sans', 'Bold', 76)) + 44
                 fr.t((L, y + 190), 'Today:', font('sans', 'Bold', 96), AMBER)
             elif name == 'hook':
-                q = '“very safe”' if 'very safe' in s['reason'].lower() else '“' + ' '.join(s['reason'].split()[:4]) + '…”'
                 y = block(fr, y, [who], font('sans', 'Bold', 160), col)
-                y = block(fr, y + 10, wrap(fr.d, f'called a {odds(s["odds"])} favourite {q}…' if s['odds'] < 0 else f'took a {odds(s["odds"])} underdog…', big, R - L), big, FG)
-                y = block(fr, y + 30, [f'and bet {money(s["stake"], False)}', 'on it.'], big, AMBER)
+                kind = 'favourite' if s['odds'] < 0 else 'underdog'
+                if 'very safe' in s['reason'].lower():
+                    y = block(fr, y + 10, wrap(fr.d, f'called a {odds(s["odds"])} {kind} “very safe”…', big, R - L), big, FG)
+                    y = block(fr, y + 30, [f'and bet {money(s["stake"], False)}', 'on it.'], big, AMBER)
+                else:
+                    y = block(fr, y + 10, wrap(fr.d, f'bet {money(s["stake"], False)} on a {odds(s["odds"])} {kind}.', big, R - L), big, FG)
+                    y = block(fr, y + 30, ['Did it pay off?'], big, AMBER)
             elif name == 'bet':
                 fr.t((L, y), 'THE BET', font('mono', 'SemiBold', 40), MUTED); y += 80
                 box = (L, y, R, y + 900)

@@ -1,18 +1,20 @@
 name: YouTube Shorts (through Metricool)
 on:
   schedule:
-    # three Shorts a day, posted on their own (owner, Oct 31; all three AIs agreed): about 12:30 p.m., 5 p.m. and 9:45 p.m. ET
-    # (an hour earlier in ET after Nov 1, when clocks go back)
+    # ONE story Short a day (owner, Oct 31: the replays were slop; standard S1-S10 agreed by all three AIs, S8 = one a day):
+    # about 12:30 p.m. ET, after the night's games have settled (11:30 a.m. ET after Nov 1, when clocks go back)
     - cron: '32 16 * * *'
-    - cron: '2 21 * * *'
-    - cron: '47 1 * * *'
   workflow_dispatch:
     inputs:
       mode:
-        description: 'daily = make and post the next Short (public; 3 a day at most); probe = check the token (posts nothing); test = an UNLISTED test upload'
+        description: 'story = the day''s biggest settled bet as a story Short (public; one a day); probe = check the token (posts nothing); test = an UNLISTED test upload; daily = the OLD replay (retired)'
         type: choice
-        options: [daily, probe, test]
-        default: daily
+        options: [story, probe, test, daily]
+        default: story
+      tx:
+        description: 'story only: a result transaction ID to tell (e.g. G-AIS-017); empty = the biggest of the last 36 hours'
+        required: false
+        default: ''
 permissions:
   contents: write
   actions: write   # to publish the site (deploy.yml) after adding the video
@@ -42,8 +44,14 @@ jobs:
           python3 ops/metricool.py test
           git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
           git add ops/review/metricool-test.json && git commit -qm "Metricool safety test: one unlisted YouTube Short" && for i in 1 2 3; do git pull -q --rebase origin main && git push -q origin HEAD:main && break; sleep 5; done || true
-      - name: Today's Short - make it and post it (public, at most once a day)
-        if: ${{ github.event_name == 'schedule' || inputs.mode == 'daily' }}
+      - name: Today's story Short - make it and post it (public, one a day)
+        if: ${{ github.event_name == 'schedule' || inputs.mode == 'story' }}
+        run: |
+          sudo apt-get update -qq >/dev/null && sudo apt-get install -y -qq ffmpeg >/dev/null
+          pip install -q pillow numpy >/dev/null 2>&1 || true
+          python3 ops/metricool.py story "${{ inputs.tx }}"
+      - name: The old race replay (retired, manual only)
+        if: ${{ inputs.mode == 'daily' }}
         run: |
           sudo apt-get update -qq >/dev/null && sudo apt-get install -y -qq ffmpeg >/dev/null
           pip install -q pillow numpy >/dev/null 2>&1 || true

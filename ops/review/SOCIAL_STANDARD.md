@@ -1,6 +1,7 @@
 # Social standard (owner, Oct 31: "this is slop... work together on socials with a higher standard")
-All three AIs agreed on S1-S10 (ops/review/social-standard-oct31.json). Automatic YouTube posting (youtube.yml) is PAUSED
-(workflow disabled Oct 31, 2 a.m. ET) until the owner approves the new format; do not re-enable it without the owner.
+All three AIs agreed on S1-S10 (ops/review/social-standard-oct31.json). Owner approved the story format at 2:20 a.m. ET Oct 31 and
+waived his preview: Claude's checks replace it (facts from the ledger or no render; safe-zone frames). youtube.yml now posts ONE story
+Short a day (ops/metricool.py story); the old race replay is retired.
 
 S1  A stranger understands it: the premise in the first 2 seconds (3 AIs, C$100,000 of pretend money each, real prices). No slow logo intro.
 S2  ONE concrete story per post (a specific bet or trade), the day's biggest moment; never an abstract chart or a race rotation.

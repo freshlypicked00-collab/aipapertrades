@@ -263,6 +263,73 @@ def daily():
         sys.exit(1)
 
 
+def story():
+    """The daily story Short (owner, Oct 31; standard S1-S10 agreed by all three AIs: ops/review/SOCIAL_STANDARD.md): the day's biggest
+    settled bet told for a stranger (ops/story_short.py). One a day (S8). Owner, Oct 31: "approved" - Claude's checks replace the
+    owner's preview: every fact comes from the ledger and the render fails if one is missing; frames are kept in the safe zone.
+    python3 ops/metricool.py story [RESULT_TX]   (no ID: the biggest result of the last 36 hours not yet posted)"""
+    import time
+    from datetime import datetime, date, timedelta, timezone
+    from zoneinfo import ZoneInfo
+    if not TOKEN:
+        print('METRICOOL_TOKEN secret is missing'); sys.exit(1)
+    NY = ZoneInfo('America/New_York')
+    today = datetime.now(NY).date()
+    if today > date(2026, 11, 28):
+        print('Season 1 is over; nothing to post'); return
+    sys.path.insert(0, HERE)
+    import story_short as SS
+    log = _log()
+    want = (sys.argv[2].strip().upper() if len(sys.argv) > 2 and sys.argv[2].strip() else None)
+    if not want and any(p.get('day') == today.isoformat() and p.get('kind') == 'story' and p.get('status') != 'ERROR' for p in log['posts']):
+        print('already one story Short today (S8: one a day)'); return
+    root = os.path.dirname(HERE)
+    d = json.load(open(os.path.join(root, 'data.json')))
+    posted = {p.get('tx') for p in log['posts'] if p.get('status') != 'ERROR'}
+    since = (datetime.now(timezone.utc) - timedelta(hours=36)).strftime('%Y-%m-%dT%H:%M:%SZ')
+    picks = [want] if want else [tx for _, tx in SS.candidates(d, since) if tx not in posted]
+    st_ = None
+    for tx in picks:
+        try:
+            st_ = SS.bet_story(tx, d); break
+        except SS.StoryError as e:
+            print('skipped', tx, e)
+    if not st_:
+        print('no story today: no settled bet with a full ledger record'); return
+    mp4, title, desc = SS.render(st_, os.path.join(root, 'social', 'stories'))
+    rel = os.path.relpath(mp4, root); stem = rel[:-4]
+    if not _push(f'YouTube story Short: {st_["res_tx"]} ({today})', [rel, stem + '.json', stem + '-thumb.png']):
+        print('could not push the video'); sys.exit(1)
+    out = {'kind': 'story', 'tx': st_['res_tx'], 'day': today.isoformat(), 'at': datetime.now(NY).isoformat(timespec='seconds'),
+           'race': st_['race'], 'video': rel, 'title': title}
+    import subprocess
+    subprocess.run(['gh', 'workflow', 'run', 'deploy.yml', '--ref', 'main'], capture_output=True)
+    url = 'https://papertrades.ai/' + rel
+    live = False
+    for _ in range(40):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, method='HEAD'), timeout=20) as h:
+                if h.status == 200 and 'video' in (h.headers.get('Content-Type') or ''):
+                    live = True; break
+        except Exception:
+            pass
+        time.sleep(15)
+    print('video live on the site:', live)
+    st, r = schedule_short(url, title, desc, 'public') if live else (0, 'the video never appeared on papertrades.ai')
+    if not (st in (200, 201) and isinstance(r, dict)):
+        out['status'] = 'ERROR'; out['error'] = str(_scrub(r))[:400]
+    else:
+        pid = (r.get('data') or r).get('id'); out['post_id'] = pid
+        res = wait_for(pid) if pid else {}
+        out['status'] = res.get('status'); out['url'] = res.get('publicUrl'); out['detail'] = res.get('detailedStatus')
+    log['posts'].append(_scrub(out))
+    json.dump(log, open(LOG, 'w'), indent=1)
+    _push(f'YouTube story Short {out.get("status")}: {st_["res_tx"]} ({today})', [os.path.relpath(LOG, root)])
+    print(json.dumps(_scrub(out), indent=1))
+    if out.get('status') != 'PUBLISHED':
+        sys.exit(1)
+
+
 if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else 'probe'
-    {'probe': probe, 'test': test, 'daily': daily}[cmd]()
+    {'probe': probe, 'test': test, 'daily': daily, 'story': story}[cmd]()

@@ -534,5 +534,6 @@ change any score, and is never fed back to the AI later in Season 1. Only moves 
   Do not let past reflections steer later decisions (same rule as the rivals). After 3 hours without one, the site shows it as missing.
 
 ## Social standard and YouTube pause (owner, Oct 31)
-Read ops/review/SOCIAL_STANDARD.md before making any public post. Automatic YouTube Shorts (youtube.yml) are paused: the first one was
-an abstract replay a stranger could not follow. Story Shorts come from ops/story_short.py and post only after the owner approves each one.
+Read ops/review/SOCIAL_STANDARD.md before making any public post. The old automatic replays were retired (a stranger could not follow them).
+youtube.yml now posts one story Short a day (ops/metricool.py story -> ops/story_short.py): the day's biggest settled bet; the owner
+approved the format and waived his preview (Oct 31), so the checks in story_short.py must never be loosened.
