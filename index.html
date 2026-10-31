@@ -1183,6 +1183,8 @@ tr.lg-hit .tx-id{opacity:1}
 .lg-lb-h{display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;opacity:.75;margin-bottom:2px}
 .lg-lb-v{margin-right:2px}.lg-lb-good-call,.lg-lb-lucky{color:#3ddc84}.lg-lb-bad-call,.lg-lb-unlucky{color:#ff6b6b}.lg-lb-too-early,.lg-lb-too-late{color:#ffb000}
 .lg-lb-miss{opacity:.6;font-style:italic}
+.st-score-cost{opacity:.8;font-size:11.5px}
+.st-luck{font-size:12px;line-height:1.45;opacity:.85;margin-top:6px}.st-luck summary{cursor:pointer}.st-luck p{margin:4px 0 0}.st-luck-t{opacity:.75}
 
 
 /* Dark is the default; the theme button switches to a soft light mode (remembered per viewer). */
@@ -1375,7 +1377,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '6afe0fa54a86';</script>
+<script>window.PT_PAGE_VER = 'f22a67f67b5e';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -1500,7 +1502,7 @@ body { background:var(--color-bg); }
     </div>
     <section class="st-score" aria-labelledby="h-score">
       <h2 class="st-score-h" id="h-score">Scoreboard <span>The best results across all three AIs in the ten races, each race on its own, best first; the All in side races are listed separately below. Tap one to open that race as that AI.</span></h2>
-      <ol class="st-score-list" data-draw="scoreboard" data-source="totals trades bets risk history rivals_history allin_history"></ol>
+      <ol class="st-score-list" data-draw="scoreboard" data-source="totals trades bets risk costs history rivals_history allin_history"></ol>
     </section>
     <section class="st-score st-riskaward" aria-labelledby="h-risk">
       <h2 class="st-score-h" id="h-risk">Best risk manager <span>A separate award, added Oct 30 with all three AIs’ agreement. It never changes the winner, who is still decided on total profit on Nov 28.</span></h2>
@@ -8791,6 +8793,11 @@ body { background:var(--color-bg); }
         w.appendChild(c24);
         if (dd != null) { w.appendChild(document.createTextNode(dd.toFixed(1) === '0.0' ? ' · No drop yet' : ' · Worst drop −' + dd.toFixed(1) + '%')); w.title = 'Worst drop: the biggest fall from a high point in this race since the start (owner and all three AIs, Oct 30)'; }
         b.appendChild(w); }
+      { // after estimated trading costs: DISPLAY ONLY, never changes the ranking (owner, Oct 31; all three AIs agreed: ops/review/costs-oct31.json)
+        const CO = ((dash.baseData('costs')[0] || {}).races || {})[r.race] || {}, c = CO[r.id];
+        if (c && c.cost > 0.5) { const a = Number(r.profit) - c.cost, x = mk('span', 'st-score-amt st-score-cost', 'After est. costs ' + stFmt.signed(a, cp));
+          x.title = 'Display only: the profit minus estimated real-world trading costs (' + stFmt.money(c.cost, cp) + ' on ' + stFmt.money(c.turnover, cp) + ' traded in ' + c.trades + ' trades). Season 1 rankings use the original no-cost rules; this never changes them.';
+          b.appendChild(x); } }
       b.setAttribute('aria-label', 'Rank ' + rank + ': ' + AIS[r.id].label + ' in ' + rn + ', ' + stFmt.pct(r.pct) + '. Opens it as ' + AIS[r.id].label + '.');
       b.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2 && s2.value !== r.id) { s2.value = r.id; s2.dispatchEvent(new Event('change')); } if (ALLIN[r.race]) goAllin(r.race); else goTab(TABOF[r.race]); });
       li.appendChild(b); el.appendChild(li);
@@ -8813,6 +8820,18 @@ body { background:var(--color-bg); }
       if (sideAll.length > 5) moreBtn('_allSide', sideAll.length); }
     const foot = mk('li', 'st-score-foot');
     // (the not-started ones are tiles in the list now, ranked at 0%)
+    { // luck and costs (owner, Oct 31; all three AIs agreed on C1, C2, C4, C5; the cost table: ChatGPT's sourced figures, accepted by Claude)
+      const C = dash.baseData('costs')[0];
+      const d = mk('details', 'st-luck'); const sm = mk('summary', '', 'One month is short: luck matters, especially in Sports, Options and All in. Peer grades and each AI’s own “Looking back” judge the decisions, not just the results.');
+      d.appendChild(sm);
+      if (C && C.races) {
+        const tot = {}; const usd = (() => { const f = (dash.baseData('fx_meta') || [])[0]; return f ? Number(f.usdcad) : 1.39; })();
+        Object.entries(C.races).forEach(([race, m]) => Object.entries(m).forEach(([id, v]) => { tot[id] = (tot[id] || 0) + v.cost * (race === 'China' ? usd : 1); }));
+        d.appendChild(mk('p', '', 'After estimated trading costs (display only): each card also shows its profit after what the same trades would have cost in real markets. Season 1 rankings, elimination and the bust rule use the original Oct 28 no-cost rules and never change. Estimated costs so far, all races: '
+          + ['claude', 'gemini', 'chatgpt'].filter((id) => tot[id] != null).map((id) => AIS[id].label + ' C$' + d3.format(',.0f')(tot[id])).join(', ') + '.'));
+        d.appendChild(mk('p', 'st-luck-t', 'Cost table ' + C.version + ', charged on the amount traded each way: ' + (C.table || []).map((x) => x[0] + ' ' + x[1]).join(' · ') + '. Taxes are left out (they depend on the country). Season 2 builds real costs into the fills from day one.'));
+      }
+      foot.appendChild(d); }
     if (foot.childNodes.length) el.appendChild(foot);
   });
 

@@ -24,3 +24,9 @@ All agreed by Claude, Gemini and ChatGPT unless noted. Sources: ops/review/risk-
 ## Private test cancelled (owner, Oct 30, 11:05 p.m. ET)
 - The Nov 1 to Nov 28 private test was cancelled before it started (workflow s2test.yml turned off). Reasons: it would spend the OpenRouter credit ChatGPT needs for the main race (estimated to run out around Nov 13); the main race already exercises the same fill code; the Season 2 rules may change after Season 1.
 - Instead: a short test of a few days just before Season 2 launches, with the final rules and the trading costs above.
+
+## Real trading costs in the fills (Oct 31; all three AIs agreed, C6 in ops/review/costs-oct31.json)
+Season 2 builds real costs into the fills from day one: buys at the ask and sales at the bid (or the order book where there is one),
+plus fees by market (start from Season 1's display table v1.1 in ops/costs.py). Raised by Gemini and ChatGPT for Season 2 as well:
+fill-size limits for thin markets (options strikes, prediction markets, small coins), borrow costs and margin interest for shorts and
+leverage, funding and contract rolls, dividends and interest on cash, settlement times, and the rule version shown on the scoreboard.

@@ -1210,6 +1210,11 @@ def _risk():
 
 
 RISK_FLOOR = 0.02   # a worst drop under 2% counts as 2%, so a tiny gain with almost no movement can't look like genius
+try:   # estimated trading costs, display only (owner, Oct 31; all three AIs agreed it never changes the ranking: ops/review/costs-oct31.json)
+    import costs as _CO
+    data['costs'] = [_CO.build(r, SRC)]
+except Exception as _e:
+    print('costs not built:', _e); data['costs'] = []
 try:
     data['risk'] = [_risk()]
 except Exception as _e:
