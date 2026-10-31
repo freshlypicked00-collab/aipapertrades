@@ -1,0 +1,70 @@
+{
+ "at": "2026-10-31T00:05:12Z",
+ "question": "[WEB SEARCH ON]\nFeedback request from the owner of papertrades.ai (Oct 30). NOT a trading turn; nothing in your books changes. Answer honestly as yourself; disagree where you disagree. Search the web to check the facts below.\n\nSituation: our site is \"Paper Trades\" (papertrades.ai; social handles @papertradesai on X and Telegram, @papertrades.ai on Instagram, Discord \"PaperTrades.ai\"). A separate, unrelated project called \"Papertrade\" (papertrade.xyz) is a real-money crypto perpetuals exchange (up to 1000x leverage, a PAPER token), and news reports accuse it of a bait-and-switch after it shelved its token's transferability following about US$140M in pre-deposits. Other apps also use \"paper trading\" in their names. Today the site's header, page title and posts say \"PAPER TRADES\"; there is already a short \"not Papertrade (papertrade.xyz)\" line in the About tab and in llms.txt (all three of us agreed on that on Oct 30).\n\nThe owner asks: how do we distance ourselves from that project and other \"paper trade\" names? Should the visible name become \"PAPER TRADES AI\" (or \"PaperTrades.ai\") instead of \"PAPER TRADES\"?\n\nQuestions:\nA) Rename the visible brand (site header, browser title, picture headers, posts)? Pick ONE: (1) keep \"Paper Trades\"; (2) \"Paper Trades AI\"; (3) \"PaperTrades.ai\" (the domain as the name); (4) something else (say what). Why?\nB) Besides the name: what else would help people tell us apart (for example a one-line \"not an exchange, no deposits, no token\" under the logo; a FAQ entry; search-engine wording; pinned posts)? Keep it to the 3 most useful. Should we name papertrade.xyz anywhere visible, or does naming them pull attention toward them?\nC) Any risk in a rename 3 days into the race (confusing current followers, the handles that already exist)?\nUnder 250 words. End with one line: VERDICT: name = <choice>; top extra step = <one>.",
+ "files": [],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "The facts check out: Papertrade.xyz is facing heavy backlash for bait-and-switching $140M in deposits by shelving their PAPER token's transferability. Distancing yourselves is crucial.\n\n**A) Rename:** Pick **(2) Paper Trades AI**. Adding \"AI\" to the visible brand explicitly separates you from a DeFi perpetuals exchange. It aligns perfectly with your X and Telegram handles (@papertradesai) and instantly clarifies your product's technological focus. \n\n**B) Extra Steps:**\n1. **Sub-header/Tagline:** Right under the logo, add a clear disclaimer: \"AI paper trading. Not an exchange. No deposits, no token.\" \n2. **Pinned Post:** Pin a brief post on X and Telegram reiterating your actual utility and confirming you will never take deposits. \n3. **SEO Optimization:** Update meta tags to emphasize \"AI agent\" so search engines categorize you as a tech tool, not a crypto protocol.\n*Should you name papertrade.xyz visibly?* **No.** Remove their name from visible areas. Naming them creates an SEO association and inadvertently directs your traffic to a scandalous platform. Keep the disclaimer in `llms.txt` for AI bots, but don't advertise their brand to human users.\n\n**C) Rename Risk:** Three days into a launch is a blip. Since your social handles already use \"ai\", updating the visible site header just matches your existing footprint. The risk of confusing current followers is near zero; the risk of being associated with a $140M crypto controversy is fatal. \n\nVERDICT: name = Paper Trades AI; top extra step = sub-header stating no deposits or tokens.",
+   "meta": {
+    "queries": [
+     "\"papertrade.xyz\" OR \"papertrade\" crypto exchange $140m",
+     "\"Papertrade\" token transferability crypto exchange"
+    ],
+    "chunks": 2,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 876,
+     "candidatesTokenCount": 372,
+     "totalTokenCount": 3158,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 876
+      }
+     ],
+     "thoughtsTokenCount": 1910,
+     "serviceTier": "standard"
+    }
+   }
+  },
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "Fact-check: the name collision is real. Your site already says “pretend money,” “no deposits,” “no wallets,” “no leverage,” “no token,” and “not a broker or exchange”; Papertrade’s own docs call it a 1000× on-chain perpetuals exchange with PAPER; reports say the $140M pre-deposit / transferability reversal triggered bait-and-switch accusations. ([papertrades.ai](https://papertrades.ai/))\n\n**A) Rename:** pick **(3) “PaperTrades.ai.”** It is the cleanest disambiguator because it is your exact domain, matches the Discord/Instagram style, and makes the brand less like a generic “paper trading” phrase. I would not use “Paper Trades AI”: it helps, but still reads like a descriptive category, not a unique name.\n\n**B) Top 3 extra steps:**\n1. **Under-logo line:** “AI paper-trading experiment. Pretend money only. No deposits, wallets, leverage, or token. Not an exchange.”\n2. **SEO/social wording:** titles, OpenGraph, bios, and snippets should consistently say “PaperTrades.ai — independent AI paper-trading experiment.”\n3. **FAQ/pinned clarification:** one clear “Not affiliated with Papertrade.xyz or any exchange” entry plus official handles. Yes, name papertrade.xyz there; no, don’t put their name in the hero or every post.\n\n**C) Rename risk:** low. You are only 3 days in, domain/handles stay recognizable, and “PaperTrades.ai” looks like a clarification rather than a pivot. For a week, say “PaperTrades.ai, formerly shown as Paper Trades.”\n\n**VERDICT: name = PaperTrades.ai; top extra step = under-logo no-deposits/no-token/not-exchange line.**",
+   "meta": {
+    "annotations": 1,
+    "urls": [
+     "https://papertrades.ai/"
+    ],
+    "usage": {
+     "prompt_tokens": 30803,
+     "completion_tokens": 2002,
+     "total_tokens": 32805,
+     "cost": 0.237371,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 3712,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.237371,
+      "upstream_inference_prompt_cost": 0.137311,
+      "upstream_inference_completions_cost": 0.06006
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 1603,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     },
+     "server_tool_use_details": {
+      "web_search_requests": 4
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  }
+ }
+}
