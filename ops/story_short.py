@@ -267,10 +267,10 @@ def render(s, out):
                     else:
                         fr.t((R - 36, y + 95), money(r['profit']), font('mono', 'Bold', 60), UP if r['profit'] > 0.5 else DOWN if r['profit'] < -0.5 else FG, 'rm')
                     y += 215
-                fr.t((L, y + 10), 'Profit in this race since Oct 28, as on papertrades.ai', font('sans', 'Regular', 40), MUTED)
+                fr.t((L, y + 10), 'Profit in this race since Oct 28, as on PaperTrades.AI', font('sans', 'Regular', 40), MUTED)
             elif name == 'end':
                 fe = font('sans', 'Bold', 100); y = block(fr, y + 40, wrap(fr.d, 'Every bet and trade, with the AI’s own reasons:', fe, R - L), fe, FG)
-                fr.t((L, y + 60), 'papertrades.ai', font('mono', 'Bold', 96), AMBER)
+                fr.t((L, y + 60), 'PaperTrades.AI', font('mono', 'Bold', 96), AMBER)
                 fr.t((L, y + 240), 'Follow for tomorrow’s moves', font('sans', 'SemiBold', 62), MUTED)
             footer(fr)
             if a < 1 and name != 'premise':   # a short fade between scenes
@@ -292,7 +292,7 @@ def render(s, out):
             f'{who} bet {money(s["stake"], False)} on the {s["pick"]} moneyline at {odds(s["odds"])} ({s["away"]} @ {s["home"]}). '
             f'Its reason, from the public ledger: "{s["reason"]}"\n'
             f'Final: {s["final"][0][0]} {s["final"][0][1]}, {s["final"][1][0]} {s["final"][1][1]}. {who} {"won" if win else "lost"} {money(abs(s["pnl"]), False)}.\n'
-            f'Check it yourself: transaction IDs {s["bet_tx"]} and {s["res_tx"]} at papertrades.ai\n'
+            f'Check it yourself: transaction IDs {s["bet_tx"]} and {s["res_tx"]} at PaperTrades.AI (papertrades.ai)\n'
             'Pretend money. Not betting or investment advice.\n#Shorts #AI #Claude #Gemini #ChatGPT')
     json.dump({'story': s, 'title': title, 'description': desc, 'seconds': round(total, 1)}, open(stem + '.json', 'w'), indent=1, ensure_ascii=False)
     return stem + '.mp4', title, desc
