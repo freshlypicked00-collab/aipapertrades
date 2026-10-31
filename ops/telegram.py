@@ -238,7 +238,9 @@ if os.environ.get('MODE') == 'cleanup':
     sys.exit(0)
 
 if NOTE:
-    send(open('ops/note.txt').read().strip())
+    # an optional picture for the note: its path in ops/note_photo.txt (owner, Oct 31); delete that file after the post
+    _ph = open('ops/note_photo.txt').read().strip() if os.path.exists('ops/note_photo.txt') else None
+    send(open('ops/note.txt').read().strip(), _ph if _ph and os.path.exists(_ph) else None)
     sys.exit(0)
 
 if ANNOUNCE:
