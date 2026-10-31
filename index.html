@@ -1328,7 +1328,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'e940397152a8';</script>
+<script>window.PT_PAGE_VER = '8cfbf7752f8c';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -5880,7 +5880,7 @@ body { background:var(--color-bg); }
           part.addEventListener('click', (ev) => { ev.stopPropagation(); (window.ptGoAllin || (() => goTab('allin')))(x.e); });
           if (x.lead) { const n = mk('span', 'cr-n'); n.style.color = AIS[x.lead.id].color; n.textContent = AIS[x.lead.id].label; part.append(aiBadge(x.lead.id, 14), n, document.createTextNode(' leads ' + x.nm), money(x.lead.profit));
             const sec = x.rows.find((r) => r.id !== x.lead.id);
-            if (sec && AIS[sec.id]) { const n2 = mk('span', 'cr-n2', AIS[sec.id].label); n2.style.color = AIS[sec.id].color; const g = mk('span', 'cr-g'); g.append(mk('span', 'cr-s', '(2nd'), n2, sec.last ? money(sec.profit) : mk('span', 'cr-s', x.e === 'AllInSports' ? 'no bets yet' : 'no trades yet')); g.lastChild.appendChild(mk('span', 'cr-s', ')')); part.append(g); } }   // W3e
+            if (sec && AIS[sec.id]) { const n2 = mk('span', 'cr-n2', AIS[sec.id].label); n2.style.color = AIS[sec.id].color; const g = mk('span', 'cr-g'); if (sec.last) g.append(mk('span', 'cr-s', '(2nd'), n2, money(sec.profit)); else g.append(mk('span', 'cr-s', '('), n2, mk('span', 'cr-s', x.e === 'AllInSports' ? ': no bets yet' : ': no trades yet')); g.lastChild.appendChild(mk('span', 'cr-s', ')')); part.append(g); } }   // W3e
           else part.appendChild(document.createTextNode('no leader yet in ' + x.nm));
           c.appendChild(part); });
         const sgn = (v) => ptSgn0(v) + 'C$' + d3.format(',.0f')(Math.abs(v));
