@@ -1222,6 +1222,41 @@ if os.path.exists(os.path.join(SRC, 'px_long.json')):   # long price history per
     shutil.copyfile(os.path.join(SRC, 'px_long.json'), os.path.join(OUT, 'px_long.json'))
 # Moments for the world to see, good and bad, by the same rules for all three AIs (owner's request, Oct 29):
 # lead changes, any single trade or bet that made or lost at least 1,000 (1% of a race), penalties, fact checks found wrong, busts.
+def _streaks():
+    """Bet streaks (Gemini's idea, Claude's change: losing streaks too, so it is never selective; owner, Oct 30): for each AI in Sports and
+    All in: sports, its latest run of wins or losses in a row since the Oct 28 restart (pushes and voids skipped)."""
+    def run(bets):
+        res = sorted([x for x in bets if x.get('status') in ('Won', 'Lost') and x.get('settled_at') and _when(x['settled_at']) >= _FS],
+                     key=lambda x: _when(x['settled_at']))
+        if not res:
+            return None
+        k, n = res[-1]['status'], 0
+        for x in reversed(res):
+            if x['status'] != k:
+                break
+            n += 1
+        return {'k': 'W' if k == 'Won' else 'L', 'n': n, 'since': res[-n]['settled_at']}
+    out = []
+    cb = [x for x in data.get('bets', []) if not x.get('placed_at') or _when(x['placed_at']) >= _FS]
+    books = {('claude', 'Sports'): cb}
+    for mid in ('gemini', 'chatgpt'):
+        books[(mid, 'Sports')] = (((r.get('models') or {}).get(mid) or {}).get('books') or {}).get('Sports', {}).get('bets', [])
+    for am in data.get('allin_models') or []:
+        books[(am['id'], 'AllInSports')] = ((am.get('books') or {}).get('AllInSports') or {}).get('bets', [])
+    for (mid, race), bets in books.items():
+        s = run(bets or [])
+        if s and s['n'] >= 2:
+            out.append(dict(s, id=mid, race=race))
+    return out
+
+
+try:
+    data['streaks'] = _streaks()
+except Exception as _e:
+    print('streaks not built:', _e)
+    data['streaks'] = []
+
+
 def _all_moments():
     out = [dict(m, type='lead') for m in data.get('moments', [])]
     BIG = 1000.0

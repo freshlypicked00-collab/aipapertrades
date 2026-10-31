@@ -359,7 +359,7 @@ for b in load(S + 'bets.json'):
         _fin = (f"\nFinal: {esc(b['final'])}" + (f" · <b>{esc(_sc['winner'])} won</b>" if _sc and _sc['winner'] else '')) if b.get('final') else ''
         msgs.append((f"{icon} <b>Sports: {b['bet']} {b['status'].lower()}</b>\n{esc(b['pick'])} ({esc(b['event'])}): {money(b['result_cad'] or 0, 'Sports')}{_fin}",
                      ('trade', 'Sports', None, None, b['status'], {'experiment': 'Sports', 'action': b['status'], 'name': f"{b['pick']} ({b['event']})", 'stake': float(b['stake_cad']),
-                                                                  'pnl': float(b['result_cad'] or 0) if b['status'] == 'Won' else -float(b['stake_cad']) if b['status'] == 'Lost' else 0.0, 'cur': 'CAD', 'at': b.get('settled_at'), 'final': b.get('final')})))
+                                                                  'pnl': float(b['result_cad'] or 0) if b['status'] == 'Won' else -float(b['stake_cad']) if b['status'] == 'Lost' else 0.0, 'cur': 'CAD', 'at': b.get('settled_at'), 'final': b.get('final'), 'streak': sharecard.streak_of(load(S + 'bets.json'))})))
 
 # prediction markets settled (a sale at 1.00 or 0.00)
 for t in load(S + 'trades.json'):

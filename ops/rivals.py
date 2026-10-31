@@ -1772,7 +1772,8 @@ def main():
         if 'AllInTrading' in exps and NOW < RACE_END:
             settled += settle_options(mid, m['books']['AllInTrading'], fx, state, 'AllInTrading')
         for t in settled:
-            tg_trade(r['label'], t, None, sharecard.trade_card(r['label'], t, f"/tmp/rc_{mid}_{len(state['trades'])}_{t.get('bet') or t.get('symbol')}.png") or chart(r['label'], r['color'], t['experiment'], state, mid))
+            tc = dict(t, streak=sharecard.streak_of(m['books'][t['experiment']].get('bets', []))) if t.get('action') in ('Won', 'Lost') and t['experiment'] in ('Sports', 'AllInSports') else t   # streak on the picture only, never stored
+            tg_trade(r['label'], t, None, sharecard.trade_card(r['label'], tc, f"/tmp/rc_{mid}_{len(state['trades'])}_{t.get('bet') or t.get('symbol')}.png") or chart(r['label'], r['color'], t['experiment'], state, mid))
         values = frozen_values(state, mid, m['books'], exps, fx, notes)
         if NOW >= RACE_END:
             freeze_final(state, mid, exps, values)
