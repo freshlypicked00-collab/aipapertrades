@@ -299,7 +299,7 @@
   .st-season { color: var(--accent, #ffb000); font-weight: 700; letter-spacing: .02em; }
   .lg-act { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 7.5em; }
   .lg-pl { font-size: 12px; font-weight: 700; white-space: nowrap; color: var(--color-fg-muted); } .lg-pl.is-up { color: #3ddc84; } .lg-pl.is-down { color: #ff5a4e; }
-  .lg-find { font: inherit; font-size: 11.5px; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg-muted); cursor: pointer; white-space: nowrap; } .lg-find:hover { color: var(--color-fg); border-color: var(--accent); }
+  .lg-find { display: inline-block; padding: 0 4px; border: 1px solid var(--line, #ccd); border-radius: 4px; background: none; color: inherit; font: 600 10.5px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .02em; opacity: .75; cursor: pointer; white-space: nowrap; width: max-content; } .lg-find:hover { opacity: 1; }   /* the same chip as Transaction ID (owner, Oct 31) */
   .st-podium .pd-live-b > span:not(.pd-live-now):not(.ai-badge) { flex: 1 1 0; min-width: 0; } .st-podium .pd-live-b > .ai-badge { flex: 0 0 auto; }
   .pd-live-now { display: block; flex-basis: 100%; font-size: 11.5px; font-weight: 700; margin: 1px 0 0 20px; } .pd-live-now.is-up { color: #3ddc84; } .pd-live-now.is-down { color: #ff5a4e; } .pd-live-now.is-tie { color: #ffb000; } .pd-live-now:empty { display: none; }
   .mkt:empty { display: none; } .mkt { margin: 10px 0 4px; }
@@ -1113,7 +1113,7 @@
   [data-dash-source-state=empty] { color: transparent; }
   [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
 .tx-id{display:block;margin-top:2px;padding:0 4px;border:1px solid var(--line,#ccd);border-radius:4px;background:none;color:inherit;font:600 10.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.02em;opacity:.75;cursor:pointer;width:max-content}
-.tx-id:hover{opacity:1}.tx-wrap{display:block}.tx-link{display:block;font-size:10.5px;line-height:1.35;opacity:.85;margin-top:1px}[data-draw="allin-ledger"] .tx-link{display:none}.tx-link a{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.tx-pending{opacity:.45;font-weight:400;cursor:default}
+.tx-id:hover{opacity:1}.tx-wrap{display:block}.tx-link{display:block;margin-top:0}.tx-link .tx-go{margin-top:3px}[data-draw="allin-ledger"] .tx-link{display:none}.tx-link a{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.tx-pending{opacity:.45;font-weight:400;cursor:default}
 .tx-search{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 8px}.tx-search input{flex:1 1 180px;max-width:280px;min-width:0;padding:5px 8px;font:13px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;border:1px solid var(--line,#ccd);border-radius:6px;background:transparent;color:inherit}
 .tx-search button{padding:5px 10px;border-radius:6px;border:1px solid var(--line,#ccd);background:none;color:inherit;font:inherit;font-size:13px;cursor:pointer}.tx-msg{font-size:12px;opacity:.8}
 tr.lg-hit .tx-id{opacity:1}
@@ -2970,10 +2970,11 @@ tr.lg-hit .tx-id{opacity:1}
       b.addEventListener('click', (ev) => { ev.stopPropagation(); const u = location.origin + location.pathname + '?id=' + id;
         try { navigator.clipboard.writeText(u).then(() => { b.textContent = 'Link copied'; setTimeout(() => { b.textContent = 'Transaction ID ' + id; }, 1400); }, () => {}); } catch (e) {} });
       w.appendChild(b);
-      try { const x = txLinks()[id]; const go = (lab, ids) => { if (!ids || !ids.length) return; const ln = document.createElement('span'); ln.className = 'tx-link'; ln.append(lab + ' ');
-          ids.forEach((t, i) => { if (i) ln.append(', '); const a = document.createElement('a'); a.href = '?id=' + t; a.textContent = t; a.title = 'Go to ' + t;
+      // the links to related moves are chips styled like the Transaction ID one (owner, Oct 31: "make the find buy button the same as the other ones")
+      try { const x = txLinks()[id]; const go = (lab, ids) => { if (!ids || !ids.length) return; const ln = document.createElement('span'); ln.className = 'tx-link';
+          ids.forEach((t) => { const a = document.createElement('button'); a.type = 'button'; a.className = 'tx-id tx-go'; a.textContent = lab + ' ' + t; a.title = 'Go to ' + t;
             a.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); if (window.ptGoTx) window.ptGoTx(t); }); ln.appendChild(a); }); w.appendChild(ln); };
-        if (x) { go(x.buys.length > 1 ? 'Find the buys:' : 'Find the buy:', x.buys); go(x.sold.length > 1 ? 'Find the sales:' : 'Find the sale:', x.sold); go('Find the result:', x.result ? [x.result] : null); go('Find the bet:', x.bet ? [x.bet] : null); } } catch (e) {}
+        if (x) { go('Find the buy', x.buys); go('Find the sale', x.sold); go('Find the result', x.result ? [x.result] : null); go('Find the bet', x.bet ? [x.bet] : null); } } catch (e) {}
       return w; }
     if (Date.parse(at) >= TX_RESTART) { const sp = document.createElement('span'); sp.className = 'tx-id tx-pending'; sp.textContent = 'ID pending'; sp.title = 'The race runner gives this move its ID at its next run'; return sp; }
     return document.createTextNode('');
@@ -4104,10 +4105,10 @@ tr.lg-hit .tx-id{opacity:1}
         // a sold buy its sale. Nothing on a bet still open or a position still held.
         { const tAt = Date.parse(t.at), RES = /^(Won|Lost|Push|Void)$/; let pt = null, lab = '';
           const same = (x) => x !== t && x.model === t.model && x.experiment === t.experiment;
-          if (RES.test(t.action)) { pt = TS.find((x) => same(x) && x.action === 'Bet' && x.bet && x.bet === t.bet); lab = '🔎 Find the bet'; }
-          else if (t.action === 'Bet' && !t._held) { pt = TS.find((x) => same(x) && RES.test(x.action) && x.bet === t.bet); lab = '🔎 Find the result'; }
-          else if (/^(Sell|Cover)$/.test(t.action)) { pt = TS.filter((x) => same(x) && x.symbol === t.symbol && /^(Buy|Short)$/.test(x.action) && Date.parse(x.at) <= tAt).sort((a, b) => Date.parse(b.at) - Date.parse(a.at))[0]; lab = '🔎 Find the buy'; }
-          else if (/^(Buy|Short)$/.test(t.action) && !t._held) { pt = TS.filter((x) => same(x) && x.symbol === t.symbol && /^(Sell|Cover)$/.test(x.action) && Date.parse(x.at) >= tAt).sort((a, b) => Date.parse(a.at) - Date.parse(b.at))[0]; lab = '🔎 Find the sale'; }
+          if (RES.test(t.action)) { pt = TS.find((x) => same(x) && x.action === 'Bet' && x.bet && x.bet === t.bet); lab = 'Find the bet'; }
+          else if (t.action === 'Bet' && !t._held) { pt = TS.find((x) => same(x) && RES.test(x.action) && x.bet === t.bet); lab = 'Find the result'; }
+          else if (/^(Sell|Cover)$/.test(t.action)) { pt = TS.filter((x) => same(x) && x.symbol === t.symbol && /^(Buy|Short)$/.test(x.action) && Date.parse(x.at) <= tAt).sort((a, b) => Date.parse(b.at) - Date.parse(a.at))[0]; lab = 'Find the buy'; }
+          else if (/^(Buy|Short)$/.test(t.action) && !t._held) { pt = TS.filter((x) => same(x) && x.symbol === t.symbol && /^(Sell|Cover)$/.test(x.action) && Date.parse(x.at) >= tAt).sort((a, b) => Date.parse(a.at) - Date.parse(b.at))[0]; lab = 'Find the sale'; }
           if (pt) { const fb = mk('button', 'lg-find', lab); fb.type = 'button'; fb.title = 'Jump to the matching move in this ledger, highlighted';
             fb.addEventListener('click', () => { st.kind = ''; el._focus = { model: pt.model, exp: pt.experiment, key: pt.bet || pt.symbol, at: pt.at, tx: pt.tx || null }; draw(); });
             r.children[3].append(document.createElement('br'), fb); } }
@@ -4327,7 +4328,7 @@ tr.lg-hit .tx-id{opacity:1}
         const named = near.filter((x) => nm(x.item) && det.includes(nm(x.item)));
         const m = named.length === 1 ? named[0] : near.length === 1 ? near[0] : null; if (!m) return;
         if (fam === 'open' && m.outcome == null) return;   // still held: there is no sale to find yet
-        const b = mk('button', 'lg-find', fam === 'close' ? '🔎 Find the buy(s)' : fam === 'open' ? '🔎 Find the sale(s)' : '🔎 Find the bet in the Ledger'); b.type = 'button';
+        const b = mk('button', 'lg-find', fam === 'close' ? 'Find the buy(s)' : fam === 'open' ? 'Find the sale(s)' : 'Find the bet in the Ledger'); b.type = 'button';
         b.title = 'Open the Ledger on this holding: every buy and sale behind it, with times, prices and reasons';
         b.addEventListener('click', () => window.ptFindTrade(dash.model || 'claude', m.portfolio, m.at, String(m.item).replace(/ \(.*\)$/, ''), m.action));
         tr.lastElementChild.append(document.createTextNode(' '), b); });
@@ -4593,7 +4594,7 @@ tr.lg-hit .tx-id{opacity:1}
           const c = td(tr, '', 'wrap'); c.append(mk('b', '', x.pick_team || x.pick), mk('small', 'st-muted gx-sub', x.event || ''));
           { const seen = new Set(); g.items.forEach((y) => { const t = TS.find((q) => q.action === 'Bet' && (q.symbol === (y.bet || y.id) || (y.placed_at && Math.abs(Date.parse(q.at) - Date.parse(y.placed_at)) < 120e3 && Math.abs(Number(q.amount) - Number(y.stake)) < 1)));
               if (!t) return; const k = PG_KEY(t); if (seen.has(k)) return; seen.add(k); c.appendChild(window.ptTxTag(t.tx, t.at)); const gn = pgNode(k); if (gn) c.appendChild(gn);
-              if (!c._led) { c._led = 1; const lb = mk('button', 'lg-find', '🔎 Ledger'); lb.type = 'button'; lb.title = 'See this bet in the All in ledger'; lb.addEventListener('click', () => window.ptGoAllinLedger(id, exp, t.at, t.bet || t.symbol)); c.appendChild(lb); } }); }   // the other AIs' grades (owner, Oct 29); a button to the bet in the ledger (owner, Oct 30)
+              if (!c._led) { c._led = 1; const lb = mk('button', 'lg-find', 'Find in the Ledger'); lb.type = 'button'; lb.title = 'See this bet in the All in ledger'; lb.addEventListener('click', () => window.ptGoAllinLedger(id, exp, t.at, t.bet || t.symbol)); c.appendChild(lb); } }); }   // the other AIs' grades (owner, Oct 29); a button to the bet in the ledger (owner, Oct 30)
           if (n > 1) { const dt = mk('details', 'bet-list'); dt.appendChild(mk('summary', '', 'The same pick ' + n + ' times · see each bet'));
             g.items.forEach((y) => dt.appendChild(mk('span', '', (y.placed_at ? stFmt.whenET(y.placed_at) + ' ET' : '') + ' · ' + money(y.stake) + ' at ' + betOdds(y.odds)))); c.appendChild(dt); }
           td(tr, n > 1 ? n + ' times, latest ' + stFmt.when(x.placed_at) : x.placed_at ? stFmt.when(x.placed_at) : '—', 'wrap', 'Placed'); td(tr, money(sum('stake')), 'num', 'Stake');
@@ -4621,7 +4622,7 @@ tr.lg-hit .tx-id{opacity:1}
           { const pc = td(tr, (pl >= 0 ? '+' : '') + money(pl) + ' (' + stFmt.pct(cost ? pl / cost : 0) + ')', 'num ' + upDown(pl), 'Profit or loss');
             if (sells.length) pc.appendChild(mk('small', 'st-muted gx-sub', 'on the ' + money(cost) + ' still held')); }
           { const w = td(tr, (buys[0] || {}).reason || '', 'wrap gx-why', 'Why'); if (buys[0]) { const gn = pgNode(PG_KEY(buys[0])); if (gn) w.appendChild(gn); } } tb.appendChild(tr);
-          if (buys[0]) { const lb = mk('button', 'lg-find', '🔎 Ledger'); lb.type = 'button'; lb.title = 'See this buy in the All in ledger'; lb.addEventListener('click', () => window.ptGoAllinLedger(id, exp, buys[0].at, buys[0].symbol)); h.appendChild(lb); }   // owner, Oct 30
+          if (buys[0]) { const lb = mk('button', 'lg-find', 'Find in the Ledger'); lb.type = 'button'; lb.title = 'See this buy in the All in ledger'; lb.addEventListener('click', () => window.ptGoAllinLedger(id, exp, buys[0].at, buys[0].symbol)); h.appendChild(lb); }   // owner, Oct 30
         });
       }
       if (Number(bk.cash) > 0.5) box.appendChild(mk('p', 'st-note', 'Cash not invested: ' + money(bk.cash) + '.'));
@@ -5522,7 +5523,7 @@ tr.lg-hit .tx-id{opacity:1}
           }
           if (txt) actBox.appendChild(mk('span', 'lg-pl ' + cls, txt));
           const canFind = !(F && !F.missing) && (closing || v != null);
-          if (canFind && window.ptFindTrade) { const fb = mk('button', 'lg-find', closing ? '🔎 Find the buy(s)' : '🔎 Find the sale(s)'); fb.type = 'button'; fb.title = 'Show only this holding: the sale highlighted, the buys behind it softly';
+          if (canFind && window.ptFindTrade) { const fb = mk('button', 'lg-find', closing ? 'Find the buy(s)' : 'Find the sale(s)'); fb.type = 'button'; fb.title = 'Show only this holding: the sale highlighted, the buys behind it softly';
             fb.addEventListener('click', () => window.ptFindTrade(dash.model || 'claude', r.portfolio, r.at, String(r.item).replace(/ \(.*\)$/, ''), r.action)); actBox.appendChild(fb); }
         }
         const whenBox = mk('div'); whenBox.append(document.createTextNode(stFmt.when(r.at)), window.ptTxTag(r.tx, r.at)); if (r.tx) tr.dataset.tx = r.tx;
@@ -6265,7 +6266,7 @@ tr.lg-hit .tx-id{opacity:1}
           tr.appendChild(window.ptTxWhen(t.at, t.tx)); [LABEL[t.experiment] || t.experiment, what, px, Number.isFinite(t.amount) ? stFmt.money(t.amount, t.experiment) : ''].forEach((v) => tr.appendChild(mk('td', '', v)));
           tr.append(mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret), mk('td', '', t.reason || ''));
           if (/^(Sell|Cover)$/.test(t.action) && window.ptFindTrade) {   // the way back to the buy(s) (owner, Oct 30; all three AIs agreed)
-            const fb = mk('button', 'lg-find', '🔎 Find the buy(s)'); fb.type = 'button'; fb.title = 'Open the Ledger on this holding: the sale and every buy behind it';
+            const fb = mk('button', 'lg-find', 'Find the buy(s)'); fb.type = 'button'; fb.title = 'Open the Ledger on this holding: the sale and every buy behind it';
             fb.addEventListener('click', () => window.ptFindTrade(id, t.experiment, t.at, String(t.name || t.symbol).replace(/ \(.*\)$/, '').replace(/ USD$/, ''), t.action));
             tr.children[2].append(document.createElement('br'), fb); }
           tb.appendChild(tr);
