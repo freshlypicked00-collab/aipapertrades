@@ -310,6 +310,22 @@
   .st-alloc-buys { display: block; margin: 3px 0 0 17px; font-size: 0.86em; line-height: 1.45; color: var(--color-fg-muted); }
   .st-alloc-buys span { display: block; }
   .st-alloc-buys span b { color: var(--color-fg); font-weight: 600; }
+  .pt-allcash { padding: 10px 12px; border: 1px solid var(--color-border); border-radius: 8px; }
+  .pt-allcash-line { margin: 0; font-weight: 600; }
+  .pt-allcash-why { margin-top: 6px; line-height: 1.5; font-size: 0.93em; }
+  .pt-allcash-why q { quotes: '“' '”'; }
+  td.pt-cash-cell { font-style: italic; }
+  /* D3, D4, D7 (all three AIs agreed, Oct 31): empty sections shrink to their title and one muted line, purely in CSS, so each
+     comes back by itself, exactly as before, the moment it has data */
+  .st-wrap:has(> table > tbody:empty) > table { display: none; }
+  .st-wrap:has(> table > tbody:empty)::after { content: 'ⓘ Nothing to show yet.'; display: block; padding: 6px 10px; border-left: 2px solid var(--color-border); color: var(--color-fg-muted); font-size: 0.92em; }
+  .st-wrap:has(> table > tbody[data-draw="events-body"]:empty)::after { content: 'ⓘ Nothing scheduled for this race in the coming days.'; }
+  .st-card:has(tbody[data-draw="events-body"]:empty) > .st-note { display: none; }
+  .gx-px-wrap:has(.gx-empty) > .st-note { display: none; }
+  .gx-px-wrap:has(.gx-empty) .gx-empty { padding: 6px 10px; text-align: left; border-left: 2px solid var(--color-border); font-size: 0.92em; }
+  .gx-px-wrap:has(.gx-empty) .gx-empty::before, p.pt-quiet::before, p.pt-norules::before { content: 'ⓘ '; }
+  .st-card:has(.pt-quiet) > .st-note { display: none; }
+  [data-page]:has(.st-card .st-h2[id$="-rules"]) .st-card:has(.pt-norules) { display: none; }
   .st-alloc-why { margin: 5px 0 2px 17px; font-size: 0.88em; line-height: 1.45; }
   .st-alloc-why > summary { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; list-style: none; padding: 2px 9px; border: 1px solid var(--color-border); border-radius: 999px; color: var(--color-fg-muted); }
   .st-alloc-why > summary::-webkit-details-marker { display: none; }
@@ -1377,7 +1393,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'f22a67f67b5e';</script>
+<script>window.PT_PAGE_VER = '73191e85417b';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -3833,7 +3849,7 @@ body { background:var(--color-bg); }
     const fmtP = (v, c, pf) => (pf === 'Predictions' ? d3.format('.1f')(v * 100) + '¢' : v < 0.1 ? '$' + d3.format('.5~r')(v) : c === 'CNY' ? '¥' + d3.format(',.3f')(v) : v >= 1000 ? '$' + d3.format(',.0f')(v) : '$' + d3.format(',.2f')(v));
     const rows = d.data.filter((r) => !p || r.portfolio === p).filter((r) => r.price !== null)
       .sort((a, b) => (a.hit === b.hit ? a.away - b.away : a.hit ? -1 : 1)).slice(0, limit);
-    if (!rows.length) { const n = document.createElement('p'); n.className = 'st-note'; n.textContent = 'No price rules right now.'; el.appendChild(n); return; }
+    if (!rows.length) { const n = document.createElement('p'); n.className = 'st-note pt-norules'; n.textContent = 'No price rules right now.'; el.appendChild(n); return; }
     rows.forEach((r) => {
       const row = document.createElement('div'); row.className = 'st-trow';
       const near = !r.hit && r.away < 0.05;
@@ -3896,7 +3912,7 @@ body { background:var(--color-bg); }
     const bars = (list, label, lab) => { if (!list.length) return; el.appendChild(mk('div', 'st-bsub', label)); const max = d3.max(list, (r) => Math.abs(r.pnl)) || 1;
       list.forEach((r) => { const row = mk('div', 'st-brow'); const l = mk('div', 'lbl', lab(r)); const tr = mk('div', 'st-btrack'); const bar = mk('div', 'st-bar ' + (r.pnl >= 0 ? 'up' : 'down')); bar.style.width = (Math.abs(r.pnl) / max * 50) + '%'; tr.appendChild(bar);
         row.append(l, tr, mk('div', 'val ' + upDown(r.pnl), stFmt.signed(r.pnl, r.e))); el.appendChild(row); }); };
-    if (!rows.length && !shut.length) { el.appendChild(mk('p', 'st-note', 'Nothing moved this day.')); return; }
+    if (!rows.length && !shut.length) { el.appendChild(mk('p', 'st-note pt-quiet', 'Nothing moved this day.')); return; }
     bars(rows.sort((a, b) => Math.abs(b.pnl) - Math.abs(a.pnl)), p ? 'This race over the day' : 'Each race over the day (everything it holds, open and closed)', (r) => r.key);
     bars(shut, 'Closed or settled that day', (r) => (p ? '' : (LABEL[r.e] || r.e) + ': ') + r.what);
   };
@@ -4051,6 +4067,14 @@ body { background:var(--color-bg); }
         const t = TT.filter((x) => x.portfolio === pf && x.holding === h && /^(Buy|Short)$/.test(x.action) && x.pg_key).sort((a, b) => new Date(b.at) - new Date(a.at))[0];
         const gn = t ? pgNode(t.pg_key) : null; if (!gn) return;
         const cell = [...tr.children].find((c) => c.textContent.startsWith(h)) || tr.children[0]; cell.appendChild(gn); }); }
+    // D2 (all three AIs agreed, Oct 31): cash has no quantity, entry, now or change; one muted cell says what it is, never the
+    // cash amount under a Shares/Ounces/Coins column
+    { const at = el.dataset.all ? 2 : 1;
+      [...el.children].forEach((tr) => { if (!tr.dataset.key) return; const h = decodeURIComponent(tr.dataset.key.split(',')[1] || '');
+        if (!/^Cash\b/.test(h) || tr.children.length < at + 4) return;
+        const td = mk('td', 'st-muted pt-cash-cell', 'Cash, ready to invest'); td.colSpan = 4;
+        for (let k = 0; k < 4; k++) tr.children[at].remove();
+        tr.insertBefore(td, tr.children[at]); }); }
     pagerFor(el, 10, 'holdings'); });
   // "Show:" experiment menus on the overview tables
   const fillPf = () => document.querySelectorAll('select.pf-filter').forEach((sel) => {
@@ -4167,7 +4191,7 @@ body { background:var(--color-bg); }
       th.appendChild(hr); t.appendChild(th); const tb = mk('tbody'); t.appendChild(tb);
       ['claude', 'gemini', 'chatgpt'].forEach((id) => {
         const bs = of(id, side); const tr = mk('tr'); const n = mk('td'); n.appendChild(whoNode(id, 16)); tr.appendChild(n);
-        if (!bs.length) { tr.append(mk('td', 'num', '0'), mk('td', 'num', '—'), mk('td', 'num', '—'), mk('td', 'num', '—'), mk('td', 'st-muted', 'No bets yet')); tb.appendChild(tr); return; }
+        if (!bs.length) { const td = mk('td', 'st-muted', 'No bets yet'); td.colSpan = 5; tr.append(td); tb.appendChild(tr); return; /* D6 (all three AIs agreed, Oct 31) */ }
         const tot = bs.reduce((a, b) => a + b.st, 0), p = tot ? bs.reduce((a, b) => a + b.st * imp(b.o), 0) / tot : null;
         const heavy = bs.filter((b) => b.o <= -1000), hv = heavy.reduce((a, b) => a + b.st, 0);
         const big = bs.slice().sort((a, b) => a.o - b.o)[0];
@@ -4821,7 +4845,7 @@ body { background:var(--color-bg); }
     const valOf = (r) => Number(cn ? r.value_usd : r.value_cad), costOf = (r) => Number(cn ? r.cost_usd : r.cost_cad);
     const cash = rows.filter((r) => /^Cash/.test(r.holding)), pos = rows.filter((r) => !/^Cash/.test(r.holding) && Math.abs(Number(r.quantity)) > 1e-9).sort((a, b) => Math.abs(valOf(b)) - Math.abs(valOf(a)));
     box.appendChild(mk('h3', 'st-h3', 'What ' + nm + ' holds in ' + race + ' now'));
-    if (!pos.length) box.appendChild(mk('p', 'st-note', 'Nothing bought yet in this simulation: all cash.'));
+    if (!pos.length) { const TD = dash.data('trades'); const traded = TD.status === 'ok' && TD.data.some((t) => t.portfolio === p && /^(Buy|Short)$/.test(t.action)); box.appendChild(mk('p', 'st-note', traded ? 'Nothing held right now: all cash (everything bought in this race has been sold).' : 'Nothing bought yet in this race: all cash.')); }
     else {
       const LG = dash.data('log'), lgRows = LG.status === 'ok' ? LG.data : [];
       const tb = table([['Holding'], ['Trade', 'num'], ['When'], ['Worth now', 'num'], ['Profit or loss', 'num'], ['Why']]);
@@ -5797,6 +5821,21 @@ body { background:var(--color-bg); }
     const coins = rows.filter((r) => !cash(r)).map((r) => r.holding);
     const col = (r) => (cash(r) ? 'var(--color-fg-muted)' : (dash.colors.concat(['#c77dff','#4dd4c6','#ff8fab','#a3c45a','#ffb000','#7aa2ff']))[coins.indexOf(r.holding) % (dash.colors.length + 6)]);
     el.appendChild(mk('h3', 'st-alloc-h', "What I'm holding"));
+    // D1 + D5 (all three AIs agreed, Oct 31): an all-cash race gets one line instead of a one-colour pie, plus the AI's own latest
+    // reason for staying in cash, quoted from its decision log (never written for it; if none is recorded, it says so)
+    if (rows.every(cash) && !d.data.some((r) => r.portfolio === pf && Number(r.value_cad) < 0)) {
+      const box = mk('div', 'pt-allcash');
+      box.appendChild(mk('p', 'pt-allcash-line', '💵 All cash: ' + (pf === 'China' ? stFmt.money(d3.sum(rows, vOf), pf) : stFmt.cad(total)) + ' ready to invest, nothing held.'));
+      const TT = dash.data('trades'), LG = dash.data('log');
+      const lastT = TT.status === 'ok' ? d3.max(TT.data.filter((t) => t.portfolio === pf), (t) => +new Date(t.at)) || 0 : 0;
+      const note = LG.status === 'ok' ? LG.data.filter((l) => l.portfolio === pf && /^(Note|Hold)$/.test(l.action) && +new Date(l.at) >= lastT && l.detail).sort((a, b) => new Date(b.at) - new Date(a.at))[0] : null;
+      const who = ({ claude: 'Claude', gemini: 'Gemini', chatgpt: 'ChatGPT' })[dash.model] || 'Claude';
+      const w = mk('div', 'pt-allcash-why');
+      w.appendChild(mk('b', '', 'Why all cash? '));
+      if (note) { w.appendChild(mk('q', '', String(note.detail).replace(/^Held \(no trade in this race that day\):\s*/, ''))); w.appendChild(mk('span', 'st-muted', ' ' + who + ', ' + stFmt.whenET(note.at) + ' ET')); }
+      else w.appendChild(mk('span', 'st-muted', who + ' has not recorded a note on staying in cash yet.'));
+      box.appendChild(w); el.appendChild(box); return;
+    }
     const owed = d.data.filter((r) => r.portfolio === pf && Number(r.value_cad) < 0).reduce((a, r) => a + Number(r.value_cad), 0);
     if (owed) el.appendChild(mk('p', 'st-note', 'Shows positions only. Bought partly with borrowed money (leverage): C$' + d3.format(',.0f')(-owed) + ' owed, not shown in the chart.'));
     const row = mk('div', 'st-alloc-row'); el.appendChild(row);
