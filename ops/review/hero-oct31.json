@@ -1,0 +1,67 @@
+{
+ "at": "2026-10-31T08:41:04Z",
+ "question": "[WEB SEARCH OFF is fine]\nDesign round from the owner of PaperTrades.AI (Sat Oct 31, 2026, 4:40 a.m. ET). NOT a trading turn. The owner asked for a fresh FIRST SCREEN for the home page, the thing a new visitor from Reddit, Hacker News or a newsletter sees in the first 2 seconds. His rule: Claude, Gemini and ChatGPT must ALL be satisfied before he sees it. This is round 1.\n\nTHE PROBLEM TODAY: the current first screen shows the hook box, then three clocks, then a settings row (language, app, sound, beginner, theme, full screen), then a social-buttons bar, then a sticky bar and ticker, and only then the headline. A newcomer sees controls before the story.\n\nTHREE OPTIONS, built as real pages with today's real numbers (the HTML of each is attached; same dark theme, same robot mascots and colours as the site; everything below the first screen stays as it is):\nA. THE SCOREBOARD: headline \"Which AI makes the most money?\", one explainer sentence, three cards (robot, name, model, total profit: Gemini +C$16,701 LEADING, ChatGPT -C$2,314, Claude -C$8,364, \"leads N of 10 races\"), faint profit lines drawn behind, two buttons (\"See the races\", \"Get the Season 1 result by email\"), then one mono line: latest move, moves so far, days left.\nB. THE STORY: left: headline \"Three AIs. C$100,000 each. Real markets. One winner on Nov 28.\", explainer, buttons (\"Watch the race\", \"Email me the result\"). Right: a story card with today's biggest story: Gemini, Options race, +C$22,842 in 4 days betting against the S&P 500 with put options; Gemini's own reason quoted from the ledger; the receipt (G-OPT-002, Oct 29, 1:44 p.m. ET, ChatGPT graded it B, Claude C); three mini totals. The story card would be picked automatically each hour (biggest profit or loss, a lead change, an upset).\nC. THE RACE TRACK: headline, explainer, then three lanes with the robots positioned by total profit on a track (START C$100,000 in the middle, -C$25,000 to +C$25,000), profit at the end of each lane, buttons, one mono line.\nCommon to all: no clocks, settings or social buttons above the fold (they move below or into the menu); one email button (the email list we all agreed on); every number from the ledger.\n\nPLEASE ANSWER, under 300 words:\n1. Rank A, B, C (1 = best for keeping a newcomer), one line why each.\n2. For your number 1: up to 3 concrete changes (wording, layout, what to add or remove) that would make you fully satisfied. Be specific: we build exactly what you write.\n3. Anything that must NOT be on the first screen.\n4. Say SATISFIED if your number 1 with your changes is good enough to ship; otherwise say what is still missing.",
+ "files": [
+  "ops/review/hero-options/option-A.html",
+  "ops/review/hero-options/option-B.html",
+  "ops/review/hero-options/option-C.html",
+  "ops/review/claude-votes-hero-oct31.json"
+ ],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "1. **B — The Story**: Best for keeping a newcomer because it instantly explains the contest *and* gives a specific, receipt-backed reason to care.  \n2. **A — The Scoreboard**: Clearest in 2 seconds, but feels more like a dashboard than a story people will remember/share.  \n3. **C — The Race Track**: Fun visual, but it takes extra decoding and risks feeling like a game instead of a public market experiment.\n\nFor **B**, ship with these changes:\n\n1. Add a compact totals row directly under the buttons, visible before the story card on mobile:  \n   **Gemini +C$16,701 LEADING · ChatGPT −C$2,314 · Claude −C$8,364**\n\n2. Label the story card selection transparently:  \n   Replace “today’s biggest story” with **“Auto-picked: biggest profit/loss story right now”**.\n\n3. Add one trust line under the buttons or totals row:  \n   **Pretend money. Real prices. Every move has a receipt. Nothing to buy.**\n\nMust **NOT** be on the first screen: clocks, settings row, sound/theme/fullscreen controls, social buttons, sticky ticker, dense tables, “signals,” “advice,” “picks,” or anything that makes this look like a trading product.\n\n**SATISFIED** with B plus those changes.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 6990,
+     "completion_tokens": 812,
+     "total_tokens": 7802,
+     "cost": 0.05931,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.05931,
+      "upstream_inference_prompt_cost": 0.03495,
+      "upstream_inference_completions_cost": 0.02436
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 516,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "**1. Rank: B, A, C**\n*   **1. B (The Story):** Showing the actual logic, real-world events, and a verifiable receipt instantly proves the concept to skeptical HN/Reddit visitors.\n*   **2. A (The Scoreboard):** Clean and fast to read, but a pure scoreboard lacks the \"how\" and \"why\" that makes the experiment fascinating. \n*   **3. C (The Race Track):** Too gamified; placing robots on a track makes a serious real-data market simulation look like a toy.\n\n**2. Changes to make Option B perfect:**\n*   **Scoreboard visibility:** Move the three mini-totals (Gemini, ChatGPT, Claude) to the top of the right column (above the story card) so mobile users see the overarching race score before scrolling.\n*   **Add the live ticker bar:** Bring over the mono-spaced bottom bar from Options A and C (\"Latest move... 28 days left\") to reinforce that this is a live, ongoing, programmatic race.\n*   **Explicit auto-selection:** Change the \"today's biggest story\" text to say \"Auto-picked: Today's biggest move.\" Tech audiences need to know you aren't manually cherry-picking only the winning trades for marketing.\n\n**3. Must NOT be on the first screen:**\n*   Clocks, settings toggles, or social media buttons (keep them in the menu/footer as planned).\n*   Any language implying financial advice, \"stock picks,\" or \"signals.\"\n*   Gamified graphics (like the cars/lanes) that distract from the raw ledger data.\n\n**4. SATISFIED.** Option B with these structural tweaks gives a newcomer the exact right balance of overarching context (the score) and granular proof (the receipt and logic) needed to stick around.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 7860,
+     "candidatesTokenCount": 395,
+     "totalTokenCount": 9931,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 7860
+      }
+     ],
+     "thoughtsTokenCount": 1676,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
