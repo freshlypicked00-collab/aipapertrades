@@ -208,6 +208,12 @@ def render(s, out):
                 if 'very safe' in s['reason'].lower():
                     y = block(fr, y + 10, wrap(fr.d, f'called a {odds(s["odds"])} {kind} “very safe”…', big, R - L), big, FG)
                     y = block(fr, y + 30, [f'and bet {money(s["stake"], False)}', 'on it.'], big, AMBER)
+                elif s['odds'] > 0:   # varied hooks so the Shorts never look interchangeable (variety rule, all three AIs, Oct 31)
+                    y = block(fr, y + 10, wrap(fr.d, f'took a {odds(s["odds"])} underdog for {money(s["stake"], False)}.', big, R - L), big, FG)
+                    y = block(fr, y + 30, ['Upset or bust?'], big, AMBER)
+                elif s['stake'] >= 10000:
+                    y = block(fr, y + 10, wrap(fr.d, f'put {money(s["stake"], False)} on one game.', big, R - L), big, FG)
+                    y = block(fr, y + 30, ['Here’s how it ended.'], big, AMBER)
                 else:
                     y = block(fr, y + 10, wrap(fr.d, f'bet {money(s["stake"], False)} on a {odds(s["odds"])} {kind}.', big, R - L), big, FG)
                     y = block(fr, y + 30, ['Did it pay off?'], big, AMBER)

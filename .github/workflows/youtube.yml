@@ -1,9 +1,11 @@
 name: YouTube Shorts (through Metricool)
 on:
   schedule:
-    # ONE story Short a day (owner, Oct 31: the replays were slop; standard S1-S10 agreed by all three AIs, S8 = one a day):
+    # TWO story Shorts a day (owner, Oct 31; Claude and ChatGPT voted 2, Gemini 1: ops/review/shorts-freq-oct31.json):
     # about 12:30 p.m. ET, after the night's games have settled (11:30 a.m. ET after Nov 1, when clocks go back)
     - cron: '32 16 * * *'
+    # and a second one about 8 p.m. ET (7 p.m. after Nov 1)
+    - cron: '2 0 * * *'
   workflow_dispatch:
     inputs:
       mode:

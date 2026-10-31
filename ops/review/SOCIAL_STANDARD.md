@@ -19,3 +19,8 @@ clutter; sports compliance footer (never link sportsbooks, never imply copying a
 "chose to view" vs swiped away, average view duration, completion, shares, follows against our own past Shorts; no post without a TX ID.
 
 Tool: ops/story_short.py (the sports-bet story; trading story and voiceover next).
+
+Frequency (Oct 31, owner: "as many as you all feel is good"; we are at 1-5 followers): TWO story Shorts a day (~12:30 p.m. and ~8 p.m.
+ET), at least 4 hours apart. Claude and ChatGPT voted 2, Gemini voted 1 (spam-filter caution for a new channel). Variety rule, all three
+agreed: never two look-alike Shorts in a row: a different AI (then a different race) from the last one when another story exists, and
+the hook changes with the story (a "very safe" quote, an underdog, a big stake, a plain favourite). Review after a week of view data.

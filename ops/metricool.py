@@ -281,13 +281,22 @@ def story():
     import story_short as SS
     log = _log()
     want = (sys.argv[2].strip().upper() if len(sys.argv) > 2 and sys.argv[2].strip() else None)
-    if not want and any(p.get('day') == today.isoformat() and p.get('kind') == 'story' and p.get('status') != 'ERROR' for p in log['posts']):
-        print('already one story Short today (S8: one a day)'); return
+    # two a day (owner, Oct 31: "as many as you and ChatGPT and Gemini feel is good"; Claude and ChatGPT voted 2, Gemini 1:
+    # ops/review/shorts-freq-oct31.json), at least 4 hours apart; the variety rule all three agreed on is applied below
+    mine = [p for p in log['posts'] if p.get('kind') == 'story' and p.get('status') != 'ERROR']
+    if not want and sum(1 for p in mine if p.get('day') == today.isoformat()) >= 2:
+        print('already two story Shorts today'); return
+    if not want and mine and mine[-1].get('at') and (datetime.now(NY) - datetime.fromisoformat(mine[-1]['at'])).total_seconds() < 4 * 3600:
+        print('last story Short was under 4 hours ago; waiting'); return
     root = os.path.dirname(HERE)
     d = json.load(open(os.path.join(root, 'data.json')))
     posted = {p.get('tx') for p in log['posts'] if p.get('status') != 'ERROR'}
     since = (datetime.now(timezone.utc) - timedelta(hours=36)).strftime('%Y-%m-%dT%H:%M:%SZ')
     picks = [want] if want else [tx for _, tx in SS.candidates(d, since) if tx not in posted]
+    if not want and mine:   # variety (all three AIs): never the same AI, then never the same race, as the last Short when another story exists
+        import txids as _TX
+        last_ai, last_race = (mine[-1].get('tx') or '?')[:1], _TX.RACE.get(mine[-1].get('race') or '', '?')
+        picks = sorted(picks, key=lambda tx: (tx[:1] == last_ai, tx.split('-')[1] == last_race))   # stable: biggest first within each group
     st_ = None
     for tx in picks:
         try:
