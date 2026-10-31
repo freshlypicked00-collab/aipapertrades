@@ -4,6 +4,9 @@ public (our own unaudited API project would be locked private; all three AIs fla
   python3 ops/metricool.py probe   -> checks the token and the YouTube connection, saves the API's own YouTube fields (posts nothing)
   python3 ops/metricool.py test    -> the safety test (owner approved, Oct 31): uploads an existing Short as UNLISTED (not on the
                                       channel, no notification) and waits for YouTube to confirm, so we know uploads are not locked private
+  python3 ops/metricool.py daily   -> the daily Short, posted on its own like Discord (owner, Oct 31: "upload shorts on your own"):
+                                      one race replay, PUBLIC, at most one a day, a different race from the last few days; recorded in
+                                      ops/src/youtube.json so a rerun never posts twice
 
 The token comes only from the METRICOOL_TOKEN secret and is never printed or written anywhere. The account and brand numbers are not
 secret (they are in the address bar of every Metricool page)."""
@@ -152,6 +155,99 @@ def test():
     print(json.dumps(_scrub(out), indent=1)[:3000])
 
 
+LOG = os.path.join(HERE, 'src', 'youtube.json')
+RACE_START = '2026-10-28'
+
+
+def _log():
+    try:
+        return json.load(open(LOG))
+    except Exception:
+        return {'posts': []}
+
+
+def _git(*a):
+    import subprocess
+    return subprocess.run(['git', *a], capture_output=True, text=True)
+
+
+def _push(msg, paths):
+    _git('config', 'user.name', 'paper-trades-bot'); _git('config', 'user.email', 'paper-trades-bot@users.noreply.github.com')
+    _git('add', *paths)
+    if _git('commit', '-qm', msg).returncode != 0:
+        return True
+    for _ in range(4):
+        _git('pull', '-q', '--rebase', 'origin', 'main')
+        if _git('push', '-q', 'origin', 'HEAD:main').returncode == 0:
+            return True
+    return False
+
+
+def daily():
+    import time
+    from datetime import datetime, date
+    from zoneinfo import ZoneInfo
+    if not TOKEN:
+        print('METRICOOL_TOKEN secret is missing'); sys.exit(1)
+    NY = ZoneInfo('America/New_York')
+    today = datetime.now(NY).date()
+    if today > date(2026, 11, 28):
+        print('Season 1 is over; nothing to post'); return
+    log = _log()
+    if any(p.get('day') == today.isoformat() and p.get('status') != 'ERROR' for p in log['posts']):
+        print('already posted today:', today); return
+    sys.path.insert(0, HERE)
+    import reel
+    d = json.load(open(os.path.join(os.path.dirname(HERE), 'data.json')))
+    recent = [p.get('race') for p in log['posts'][-3:]]
+    best, gap = None, -1
+    for r in reel.ORDER:   # the race with the widest gap between first and last, not one shown in the last three days
+        if r == 'China' or r in recent:
+            continue
+        sr = reel.series(d, r); last = [x[-1][1] for x in sr.values() if x]
+        if len(last) == 3 and max(last) - min(last) > gap:
+            best, gap = r, max(last) - min(last)
+    race = best or reel.pick_race(d)
+    mp4, finals = reel.render(race, os.path.join(os.path.dirname(HERE), 'social', 'reels'), sound=True)
+    rel = os.path.relpath(mp4, os.path.dirname(HERE))
+    stem = rel[:-4]
+    if not _push(f'YouTube Short: {race} race replay ({today})', [rel, stem + '-cover.jpg', stem + '-thumb.jpg']):
+        print('could not push the video'); sys.exit(1)
+    fin = sorted(finals.items(), key=lambda kv: -kv[1]) if isinstance(finals, dict) else finals
+    name = {'claude': 'Claude', 'gemini': 'Gemini', 'chatgpt': 'ChatGPT'}
+    lab = reel.LABEL[race]
+    day = (today - date(2026, 10, 28)).days + 1
+    money = lambda v: ('+' if v > 0.5 else '−' if v < -0.5 else '') + 'C$' + f'{abs(v):,.0f}'
+    title = f'Which AI is winning {lab}? Day {day} | Claude vs Gemini vs ChatGPT'
+    lines = [f'{i + 1}. {name.get(k, k)}: {money(v)}' for i, (k, v) in enumerate(fin)]
+    text = (f'Day {day} of 32 in the {lab} race. Three AIs, C$100,000 of pretend money each, real prices, no humans picking trades.\n\n'
+            + '\n'.join(lines) + ' (profit in this race so far)\n\n'
+            'Every trade and the reason behind it, live and free: papertrades.ai\n'
+            'Pretend money only. Not investment or betting advice.\n\n#AI #Claude #ChatGPT #Gemini #Shorts')
+    out = {'day': today.isoformat(), 'race': race, 'video': rel, 'title': title, 'standings': {k: v for k, v in fin}}
+    urls = ['https://raw.githubusercontent.com/freshlypicked00-collab/aipapertrades/main/' + rel, 'https://papertrades.ai/' + rel]
+    st, r = 0, 'not tried'
+    for k, u in enumerate(urls):
+        if k:
+            time.sleep(120)   # give the site a moment to publish the file
+        st, r = schedule_short(u, title, text, 'public')
+        if st in (200, 201) and isinstance(r, dict):
+            break
+        print('  try', k + 1, 'failed:', st, str(r)[:300])
+    if not (st in (200, 201) and isinstance(r, dict)):
+        out['status'] = 'ERROR'; out['error'] = str(_scrub(r))[:400]
+    else:
+        pid = (r.get('data') or r).get('id'); out['post_id'] = pid
+        res = wait_for(pid) if pid else {}
+        out['status'] = res.get('status'); out['url'] = res.get('publicUrl'); out['detail'] = res.get('detailedStatus')
+    log['posts'].append(_scrub(out))
+    json.dump(log, open(LOG, 'w'), indent=1)
+    _push(f'YouTube Short {out.get("status")}: {race} ({today})', [os.path.relpath(LOG, os.path.dirname(HERE))])
+    print(json.dumps(_scrub(out), indent=1))
+    if out.get('status') != 'PUBLISHED':
+        sys.exit(1)
+
+
 if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else 'probe'
-    {'probe': probe, 'test': test}[cmd]()
+    {'probe': probe, 'test': test, 'daily': daily}[cmd]()

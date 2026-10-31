@@ -1,12 +1,14 @@
 name: YouTube Shorts (through Metricool)
 on:
+  schedule:
+    - cron: '47 1 * * *'   # every evening, 9:47 p.m. ET (8:47 p.m. after Nov 1): today's Short, posted on its own (owner, Oct 31)
   workflow_dispatch:
     inputs:
       mode:
-        description: 'probe = check the token and the YouTube connection (posts nothing); test = upload an existing Short as UNLISTED to prove uploads work'
+        description: 'daily = make and post today''s Short (once a day, public); probe = check the token (posts nothing); test = an UNLISTED test upload'
         type: choice
-        options: [probe, test]
-        default: probe
+        options: [daily, probe, test]
+        default: daily
 permissions:
   contents: write
 concurrency:
@@ -34,3 +36,9 @@ jobs:
           python3 ops/metricool.py test
           git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
           git add ops/review/metricool-test.json && git commit -qm "Metricool safety test: one unlisted YouTube Short" && for i in 1 2 3; do git pull -q --rebase origin main && git push -q origin HEAD:main && break; sleep 5; done || true
+      - name: Today's Short - make it and post it (public, at most once a day)
+        if: ${{ github.event_name == 'schedule' || inputs.mode == 'daily' }}
+        run: |
+          sudo apt-get update -qq >/dev/null && sudo apt-get install -y -qq ffmpeg >/dev/null
+          pip install -q pillow numpy >/dev/null 2>&1 || true
+          python3 ops/metricool.py daily
