@@ -485,6 +485,14 @@ except Exception:
     data['changelog'] = []
 rv = os.path.join(SRC, 'rivals.json')
 r = json.load(open(rv)) if os.path.exists(rv) else {'models': {}, 'trades': [], 'history': [], 'takes': []}
+try:   # public transaction IDs, read from the registry the race runner keeps in rivals.json (ops/txids.py); never assigned here
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import txids as _TX
+    _REG = r.get('txids', {}) or {}
+    for _t in r.get('trades', []):
+        _t['tx'] = _REG.get(_TX.rival_key(_t)) if _t.get('model') in _TX.AI and _t.get('experiment') in _TX.RACE else None
+except Exception as _e:
+    print('transaction IDs skipped:', _e); _TX = None; _REG = {}
 try:   # the search source ledger's public day files, searchlog/<UTC day>.json (all three AIs agreed, Oct 30)
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import searchlog as _SL
@@ -1324,6 +1332,24 @@ for _b in data.get('benchmark') or []:
     if _fx0 and _b.get('btc_start_usd') and _b.get('start_at') and _when(_b['start_at']) < _RST:
         _b.update(start_at=_RST.isoformat(), fx_start=_fx0)
 data['models'] = model_views.build(r, {k: data[k] for k in ('indexes', 'bench_history', 'benchmark', 'prices', 'events')} | {'fx': json.load(open(os.path.join(SRC, 'fx.json')))})
+
+try:   # IDs on Claude's own trades and bets, and on each rival's bets and their results (owner, Oct 30)
+    if _TX:
+        for _t in data.get('trades', []):
+            if not str(_t.get('holding', '')).startswith('['):
+                _t['tx'] = _REG.get(_TX.claude_trade_key(_t))
+        for _b in data.get('bets', []):
+            _k1, _k2 = _TX.claude_bet_keys(_b)
+            _b['tx'] = _REG.get(_k1); _b['tx_result'] = _REG.get(_k2) if _k2 else None
+        _BT = {}
+        for _t in r.get('trades', []):
+            if _t.get('experiment') == 'Sports' and _t.get('tx'):
+                _BT[(_t['model'], _t.get('symbol'), 'bet' if _t['action'] == 'Bet' else 'res')] = _t['tx']
+        for _mid, _v in (data.get('models') or {}).items():
+            for _b in _v.get('bets', []):
+                _b['tx'] = _BT.get((_mid, _b.get('bet'), 'bet')); _b['tx_result'] = _BT.get((_mid, _b.get('bet'), 'res'))
+except Exception as _e:
+    print('transaction IDs (views) skipped:', _e)
 try:   # graded holds (the latest note per race per closed race day where the AI did not trade) go into each AI's Decision log, with their grades
     import peer_grades as _PG2
     for _mid in ('claude', 'gemini', 'chatgpt'):

@@ -1470,6 +1470,16 @@ def compact(state):
     """Keep rivals.json small over a month of runs (about 1,400 check-ins). Rows older than 3 days are thinned:
     history keeps the last value per AI, experiment and hour (plus each first row and the final rows); thoughts keep the last
     note per AI, experiment and day. Dropped notes are appended to ops/archive/thoughts.jsonl, so nothing is lost."""
+    try:   # public transaction IDs: this runner is their ONLY writer, so a number can never be handed out twice (all three AIs agreed, Oct 30)
+        import txids as TX
+        n_new = TX.assign(state)
+        dup, gaps = TX.check(state)
+        if dup or gaps:
+            print('::warning::transaction IDs: duplicates', sorted(dup), 'gaps', gaps)
+        elif n_new:
+            print(f'transaction IDs: {n_new} new')
+    except Exception as e:
+        print('transaction IDs failed', e)
     cut = iso(min(NOW, RACE_END) - timedelta(days=3))   # fixed after the end, so the final state stops changing
     hist = state.get('history', [])
     keep, seen_first, last_in_hour = [], set(), {}

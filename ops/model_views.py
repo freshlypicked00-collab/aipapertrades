@@ -133,7 +133,7 @@ def build(rivals, claude):
             what = _clean(t.get('name') or t['symbol'], t['experiment'])
             if t.get('outcome'):
                 what = f"{what} ({t['outcome']})"
-            row = {'at': t['at'], 'portfolio': t['experiment'], 'holding': what, 'action': 'Sell' if t['action'] in ('Settled', 'Expired') else t['action'],
+            row = {'at': t['at'], 'portfolio': t['experiment'], 'holding': what, 'action': 'Sell' if t['action'] in ('Settled', 'Expired') else t['action'], 'tx': t.get('tx'),
                    'note': t['reason'] + (f" What would prove it wrong: {t['wrong_if']}" if t.get('wrong_if') else '')}
             if t['experiment'] == 'China':
                 row.update(price_local=t['price'], currency='CNY', shares=t['qty'], cny=round(t['qty'] * t['price'], 2), usd=t['amount'])

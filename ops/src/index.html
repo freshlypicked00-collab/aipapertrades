@@ -1024,6 +1024,11 @@
   .st-live-btn:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   [data-dash-source-state=empty] { color: transparent; }
   [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+.tx-id{display:block;margin-top:2px;padding:0 4px;border:1px solid var(--line,#ccd);border-radius:4px;background:none;color:inherit;font:600 10.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.02em;opacity:.75;cursor:pointer;width:max-content}
+.tx-id:hover{opacity:1}.tx-pending{opacity:.45;font-weight:400;cursor:default}
+.tx-search{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 8px}.tx-search input{flex:1 1 180px;max-width:280px;min-width:0;padding:5px 8px;font:13px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;border:1px solid var(--line,#ccd);border-radius:6px;background:transparent;color:inherit}
+.tx-search button{padding:5px 10px;border-radius:6px;border:1px solid var(--line,#ccd);background:none;color:inherit;font:inherit;font-size:13px;cursor:pointer}.tx-msg{font-size:12px;opacity:.8}
+tr.lg-hit .tx-id{opacity:1}
 </style>
 
 <div class="st">
@@ -2712,10 +2717,54 @@
     goTab('ledger', false);
     { const mp = document.getElementById('model-pick'); if (mp && mp.value !== F.model) { mp.value = F.model; mp.dispatchEvent(new Event('change')); } }
     if (sel) sel.value = F.race; box.dataset.portfolio = F.race; box.dataset.kind = '';
-    box.dataset.focus = JSON.stringify({ model: F.model, race: F.race, at: F.at, item: F.item });
+    box.dataset.focus = JSON.stringify({ model: F.model, race: F.race, at: F.at, item: F.item, tx: F.tx || null });
     if (box._redraw) box._redraw();
   };
-  window.ptFindTrade = (model, race, at, item, action) => { const F = { model, race, at, item, action }; setFindUrl(F, true); applyFind(F); };
+  window.ptFindTrade = (model, race, at, item, action, tx) => { const F = { model, race, at, item, action, tx }; setFindUrl(F, true); applyFind(F); };
+  // ---------- public transaction IDs (owner's idea; all three AIs agreed, Oct 30: ops/review/txid-oct30.json). Given only by the race runner
+  // (ops/txids.py): AI letter (C Claude, G Gemini, X ChatGPT) + race code + number, never changed or reused.
+  const TX_AI = { C: 'claude', G: 'gemini', X: 'chatgpt' };
+  const TX_RACE = { STK: 'Stocks', CRY: 'Crypto', CHN: 'China', MET: 'Metals', ENE: 'Energy', OPT: 'Options', CUR: 'Currencies', SAF: 'Safe', SPT: 'Sports', PRD: 'Predictions', AIT: 'AllInTrading', AIS: 'AllInSports' };
+  const TX_RESTART = Date.parse('2026-10-28T17:45:00Z');
+  window.ptTxTag = (id, at) => {
+    if (id) { const b = document.createElement('button'); b.className = 'tx-id'; b.textContent = id; b.type = 'button'; b.title = 'Transaction ID ' + id + ': tap to copy a link to this move';
+      b.addEventListener('click', (ev) => { ev.stopPropagation(); const u = location.origin + location.pathname + '?id=' + id;
+        try { navigator.clipboard.writeText(u).then(() => { b.textContent = 'Link copied'; setTimeout(() => { b.textContent = id; }, 1400); }, () => {}); } catch (e) {} }); return b; }
+    if (Date.parse(at) >= TX_RESTART) { const sp = document.createElement('span'); sp.className = 'tx-id tx-pending'; sp.textContent = 'ID pending'; sp.title = 'The race runner gives this move its ID at its next run'; return sp; }
+    return document.createTextNode('');
+  };
+  window.ptTxWhen = (at, id) => { const td = document.createElement('td'); td.append(document.createTextNode(stFmt.when(at)), window.ptTxTag(id, at)); return td; };
+  const txParse = (q) => { const m = /^\s*([CGX])\s*-?\s*([A-Z]{3})\s*-?\s*0*(\d{1,4})\s*$/i.exec(String(q || '')); if (!m || !TX_RACE[m[2].toUpperCase()]) return null;
+    return { id: m[1].toUpperCase() + '-' + m[2].toUpperCase() + '-' + String(+m[3]).padStart(3, '0'), model: TX_AI[m[1].toUpperCase()], race: TX_RACE[m[2].toUpperCase()] }; };
+  // find one move by its ID, anywhere: the right AI, the right race, the row highlighted (the search boxes and ?id= links)
+  window.ptGoTx = (q, done) => {
+    const P = txParse(q); if (!P) { if (done) done('bad'); return; }
+    if (/^AllIn/.test(P.race)) { const t = (dash.baseData('allin_trades') || []).find((x) => x.tx === P.id); if (!t) { if (done) done('missing'); return; }
+      window.ptGoAllinLedger(t.model, t.experiment, t.at, t.bet || t.symbol, P.id); if (done) done('ok'); return; }
+    { const mp = document.getElementById('model-pick'); if (mp && mp.value !== P.model) { mp.value = P.model; mp.dispatchEvent(new Event('change')); } }
+    let n = 0;
+    const look = () => {
+      const rows = (dash.model || 'claude') === P.model && window.ptTradeRows ? window.ptTradeRows() || [] : [];
+      const r = rows.find((x) => x.tx === P.id);
+      if (!r) { if (++n < 15) return setTimeout(look, 200); if (done) done('missing'); return; }
+      window.ptFindTrade(P.model, P.race, r.at, String(r.item).replace(/ \(.*\)$/, ''), r.action, P.id);
+      setTimeout(() => { const tr = document.querySelector('#lg-trades tr[data-tx="' + P.id + '"]'); if (tr) tr.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 250);
+      if (done) done('ok');
+    };
+    look();
+  };
+  window.ptTxSearch = (host) => {   // one small search box above a ledger
+    if (!host || !host.parentNode || host.parentNode.querySelector(':scope > .tx-search')) return;
+    const f = document.createElement('form'); f.className = 'tx-search'; f.setAttribute('role', 'search');
+    const i = document.createElement('input'); i.type = 'search'; i.placeholder = 'Transaction ID, e.g. G-MET-007'; i.setAttribute('aria-label', 'Find a transaction ID'); i.autocomplete = 'off'; i.spellcheck = false;
+    const b = document.createElement('button'); b.type = 'submit'; b.textContent = 'Find';
+    const msg = document.createElement('span'); msg.className = 'tx-msg'; msg.setAttribute('role', 'status');
+    f.append(i, b, msg);
+    f.addEventListener('submit', (ev) => { ev.preventDefault(); msg.textContent = '…';
+      window.ptGoTx(i.value, (res) => { msg.textContent = res === 'ok' ? '' : res === 'bad' ? 'An ID looks like G-MET-007: the AI (C, G or X), the race, a number.' : 'No move has that ID (yet).'; }); });
+    host.parentNode.insertBefore(f, host);
+  };
+  { const v = new URLSearchParams(location.search).get('id'); if (v) { let tries = 0; const go = () => window.ptGoTx(v, (r) => { if (r === 'missing' && ++tries < 3) setTimeout(go, 1500); }); dash.onData(() => { if (!go._d) { go._d = 1; setTimeout(go, 600); } }); setTimeout(() => { if (!go._d) { go._d = 1; go(); } }, 2500); } }
   window.ptClearFind = () => {
     const box = document.getElementById('lg-trades'); if (box && box.dataset.focus) { delete box.dataset.focus; if (box._redraw) box._redraw(); }
     if (new URLSearchParams(location.search).has(FIND_KEY)) setFindUrl(null, false);
@@ -3692,12 +3741,13 @@
     });
   })();
   // ---------- the All in side race ledger (owner's question, Oct 29; majority of the three AIs chose a separate section): every move and result
-  window.ptGoAllinLedger = (model, exp, at, key) => {   // from the All in page to that move in the All in ledger (owner, Oct 30)
+  window.ptGoAllinLedger = (model, exp, at, key, tx) => {   // from the All in page to that move in the All in ledger (owner, Oct 30)
     const el = document.querySelector('[data-draw="allin-ledger"]'); if (!el) return;
-    el._f = { part: exp, ai: model, kind: '' }; el._focus = { model, exp, at, key }; el._pg = 0;
+    el._f = { part: exp, ai: model, kind: '' }; el._focus = { model, exp, at, key, tx }; el._pg = 0;
     goTab('allinledger'); if (dash.redraw) dash.redraw();
   };
   dash.draw('allin-ledger', (el) => {
+    window.ptTxSearch(el);
     el.replaceChildren();
     const TS = (dash.baseData('allin_trades') || []).filter((t) => AIS[t.model] && ALLIN[t.experiment]);
     const st = (el._f = el._f || { part: '', ai: '', kind: '' });
@@ -3744,7 +3794,7 @@
       // a "🔎 Ledger" tap from the All in page: open the page this move is on and highlight it (owner, Oct 30)
       let hitT = null;
       if (el._focus) { const F = el._focus; const t0 = Date.parse(F.at);
-        hitT = rows.filter((t) => t.model === F.model && t.experiment === F.exp && (t.symbol === F.key || t.bet === F.key || String(t.name || '') === F.key))
+        hitT = rows.filter((t) => F.tx ? t.tx === F.tx : t.model === F.model && t.experiment === F.exp && (t.symbol === F.key || t.bet === F.key || String(t.name || '') === F.key))
           .sort((a, b) => Math.abs(Date.parse(a.at) - t0) - Math.abs(Date.parse(b.at) - t0))[0] || null;
         if (hitT && Math.abs(Date.parse(hitT.at) - t0) > 6 * 3600e3) hitT = null;
         if (hitT) el._pg = Math.floor(rows.indexOf(hitT) / 10); }
@@ -3759,7 +3809,7 @@
         const bt = t.action === 'Bet' ? BETS[t.model + '|' + t.bet] : null;   // a bet says when its game starts, so the bet time and the game time are never confused
         const pl = pnlOf(t); const why = mk('td', 'wrap', t.reason || '');
         { const n = /^(Buy|Sell|Short|Cover|Bet)$/.test(t.action) ? pgNode(PG_KEY(t)) : null; if (n) why.appendChild(n); }
-        r.append(mk('td', '', stFmt.when(t.at)), ai, mk('td', '', ALLIN[t.experiment].replace('All in: ', '')), mk('td', 'wrap', t.action + ' ' + String(t.name || t.symbol).replace(/^[A-Z]{2,5}: /, '') + (bt && bt.starts_at ? ' · game starts ' + stFmt.whenET(bt.starts_at) + ' ET' : '')),
+        r.append(window.ptTxWhen(t.at, t.tx), ai, mk('td', '', ALLIN[t.experiment].replace('All in: ', '')), mk('td', 'wrap', t.action + ' ' + String(t.name || t.symbol).replace(/^[A-Z]{2,5}: /, '') + (bt && bt.starts_at ? ' · game starts ' + stFmt.whenET(bt.starts_at) + ' ET' : '')),
           mk('td', 'num', Number.isFinite(+t.amount) ? (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.0f')(Math.abs(t.amount)) : ''), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret || ''), why);
         if (t === hitT) r.classList.add('lg-hit');
         body.appendChild(r);
@@ -4810,7 +4860,7 @@
       const sell = /^(Sell|Cover|Settled|Expired)$/.test(t.action);
       const val = t.portfolio === 'China' ? Number(t.usd) : Number(t.cad);
       return {
-        at: t.at, portfolio: t.portfolio, action: t.action, item: t.holding, why: why(t), pg: t.pg_key,
+        at: t.at, portfolio: t.portfolio, action: t.action, item: t.holding, why: why(t), pg: t.pg_key, tx: t.tx || null,
         detail: qtyTxt(t) + px(t),
         amount: t.portfolio === 'China' ? '¥' + d3.format(',.0f')(t.cny) + ' (US$' + d3.format(',.0f')(t.usd) + ')' : 'C$' + d3.format(',.0f')(t.cad),
         cost: sell && t.cost != null ? C(t.cost, t.portfolio) : '', profit: sell && t.pnl != null ? Number(t.pnl) : null,
@@ -4821,10 +4871,10 @@
     B.data.forEach((b) => {
       const odds = (Number(b.odds) > 0 ? '+' : '') + b.odds, stake = Number(b.stake_cad);
       const res = b.status !== 'Open' ? Number(b.result_cad) : null;
-      rows.push({ holding: b.status === 'Open', pg: b.placed_at ? dash.model + '|' + new Date(b.placed_at).toISOString().slice(0, 19) + 'Z|Sports|' + b.bet + '|Bet' : null, at: b.placed_at || b.placed + 'T12:00:00-04:00', portfolio: 'Sports', action: 'Bet', item: b.bet + ' ' + b.pick, detail: b.event + ' at ' + odds + ' · to win C$' + d3.format(',.0f')(b.to_win_cad || 0), amount: 'C$' + d3.format(',.0f')(stake), cost: 'C$' + d3.format(',.0f')(stake), profit: null, ret: null, open: b.status === 'Open', outcome: res, void: b.status === 'Void', why: b.note || b.reason || ((lgRows.filter((l) => l.portfolio === 'Sports' && l.at === b.placed_at)[0] || {}).detail) || '' });
+      rows.push({ tx: b.tx || null, holding: b.status === 'Open', pg: b.placed_at ? dash.model + '|' + new Date(b.placed_at).toISOString().slice(0, 19) + 'Z|Sports|' + b.bet + '|Bet' : null, at: b.placed_at || b.placed + 'T12:00:00-04:00', portfolio: 'Sports', action: 'Bet', item: b.bet + ' ' + b.pick, detail: b.event + ' at ' + odds + ' · to win C$' + d3.format(',.0f')(b.to_win_cad || 0), amount: 'C$' + d3.format(',.0f')(stake), cost: 'C$' + d3.format(',.0f')(stake), profit: null, ret: null, open: b.status === 'Open', outcome: res, void: b.status === 'Void', why: b.note || b.reason || ((lgRows.filter((l) => l.portfolio === 'Sports' && l.at === b.placed_at)[0] || {}).detail) || '' });
       if (b.status !== 'Open') {
         const back = b.status === 'Won' ? stake + res : b.status === 'Lost' ? 0 : stake;
-        rows.push({ at: b.settled_at || (b.starts_at ? new Date(new Date(b.starts_at).getTime() + 3 * 3600e3).toISOString() : b.placed + 'T23:00:00-04:00'), portfolio: 'Sports', action: b.status, item: b.bet + ' ' + b.pick, detail: b.event + (b.final ? ' · ' + b.final : '') + ' · paid back C$' + d3.format(',.0f')(back), amount: 'C$' + d3.format(',.0f')(back), cost: 'C$' + d3.format(',.0f')(stake), profit: res, ret: stake ? res / stake : null, open: false, betAfter: { odds: Number(b.odds), closing: b.closing_odds != null ? Number(b.closing_odds) : null, final: b.final || '', status: b.status } });
+        rows.push({ tx: b.tx_result || null, at: b.settled_at || (b.starts_at ? new Date(new Date(b.starts_at).getTime() + 3 * 3600e3).toISOString() : b.placed + 'T23:00:00-04:00'), portfolio: 'Sports', action: b.status, item: b.bet + ' ' + b.pick, detail: b.event + (b.final ? ' · ' + b.final : '') + ' · paid back C$' + d3.format(',.0f')(back), amount: 'C$' + d3.format(',.0f')(back), cost: 'C$' + d3.format(',.0f')(stake), profit: res, ret: stake ? res / stake : null, open: false, betAfter: { odds: Number(b.odds), closing: b.closing_odds != null ? Number(b.closing_odds) : null, final: b.final || '', status: b.status } });
       }
     });
     // a buy (or short) that has since been sold (or covered): its result, from the sells that followed it
@@ -5021,7 +5071,9 @@
     };
     el._paint();
   });
+  window.ptTradeRows = tradeRows;
   dash.draw('lg-trades', (el) => {
+    window.ptTxSearch(el);
     const run = () => {
       el.replaceChildren();
       const rows = tradeRows();
@@ -5039,6 +5091,7 @@
         const t0 = +new Date(F.at), closing = /^(Sell|Cover|Settled|Expired|Won|Lost)$/;
         hit = mine.filter((r) => closing.test(r.action)).sort((a, b) => Math.abs(+new Date(a.at) - t0) - Math.abs(+new Date(b.at) - t0))[0] || null;
         if (hit && Math.abs(+new Date(hit.at) - t0) > 6 * 3600e3) hit = null;
+        if (F.tx) { const h = inRace.find((r) => r.tx === F.tx); if (h) { hit = h; mine = mine.filter((r) => r === h || !/^(Sell|Cover|Settled|Expired|Won|Lost)$/.test(r.action) || +new Date(r.at) <= +new Date(h.at)); if (!mine.includes(h)) mine.push(h); } }   // found by its transaction ID
         { const gid = hit && /^(G\d+) /.exec(String(hit.item)); if (gid) mine = mine.filter((r) => String(r.item).startsWith(gid[1] + ' ')); }   // a bet: just that bet and its result
         if (mine.length) inRace = mine; else F.missing = true;
       }
@@ -5079,7 +5132,8 @@
           if (canFind && window.ptFindTrade) { const fb = mk('button', 'lg-find', closing ? '🔎 Find the buy(s)' : '🔎 Find the sale(s)'); fb.type = 'button'; fb.title = 'Show only this holding: the sale highlighted, the buys behind it softly';
             fb.addEventListener('click', () => window.ptFindTrade(dash.model || 'claude', r.portfolio, r.at, String(r.item).replace(/ \(.*\)$/, ''), r.action)); actBox.appendChild(fb); }
         }
-        const cells = [[stFmt.when(r.at)], [LABEL[r.portfolio] || r.portfolio], [actBox], [r.item], [r.detail, 'wrap'], [r.amount, 'num'], [r.cost || '', 'num'],
+        const whenBox = mk('div'); whenBox.append(document.createTextNode(stFmt.when(r.at)), window.ptTxTag(r.tx, r.at)); if (r.tx) tr.dataset.tx = r.tx;
+        const cells = [[whenBox], [LABEL[r.portfolio] || r.portfolio], [actBox], [r.item], [r.detail, 'wrap'], [r.amount, 'num'], [r.cost || '', 'num'],
           (() => { const v = r.profit !== null ? r.profit : r.outcome != null ? r.outcome : null, cur = r.portfolio === 'China' ? 'US$' : 'C$';
             if (r.void) return ['Refunded', 'num st-open'];
             if (v === null) return [r.open ? 'open' : '', 'num st-open'];
@@ -6189,7 +6243,7 @@
           const ai = mk('td', '', AIS[t.model] ? AIS[t.model].label : t.model); ai.style.borderLeft = '3px solid ' + (AIS[t.model] || {}).color; ai.style.paddingLeft = '6px';
           const pl = pnlOf(t);
           const why = mk('td', '', t.reason || ''); { const n = /^(Buy|Sell|Short|Cover|Bet)$/.test(t.action) ? pgNode(PG_KEY(t)) : null; if (n) why.appendChild(n); }
-          r.append(mk('td', '', stFmt.when(t.at)), ai, mk('td', '', t.action + ' ' + (t.name || t.symbol)), mk('td', '', (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.0f')(Math.abs(t.amount))), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), why);
+          r.append(window.ptTxWhen(t.at, t.tx), ai, mk('td', '', t.action + ' ' + (t.name || t.symbol)), mk('td', '', (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.0f')(Math.abs(t.amount))), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), why);
           body.appendChild(r);
         });
         wrap.appendChild(tb); list.appendChild(wrap);
