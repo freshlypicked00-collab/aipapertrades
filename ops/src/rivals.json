@@ -825,7 +825,7 @@
     },
     "China": {
      "cur": "USD",
-     "cash": 97830.22291012686,
+     "cash": 97434.48291012687,
      "positions": {}
     },
     "Metals": {
@@ -1582,7 +1582,7 @@
     },
     "Currencies": {
      "cur": "CAD",
-     "cash": 475238.44194376096,
+     "cash": 475038.301943761,
      "positions": {
       "EUR": {
        "qty": -115394.2358792525,
@@ -3814,7 +3814,7 @@
     },
     "AllInTrading": {
      "cur": "CAD",
-     "cash": 26998.308502648666,
+     "cash": 27633.318502648664,
      "positions": {
       "SQQQ": {
        "qty": 1864.7809548724954,
@@ -5485,7 +5485,7 @@
     },
     "China": {
      "cur": "USD",
-     "cash": 79518.17772223637,
+     "cash": 79727.57772223638,
      "positions": {
       "510300.SS": {
        "qty": 32000,
@@ -26224,6 +26224,18 @@
    "model": "claude",
    "experiment": "AllInSports",
    "value": 100000.0
+  },
+  {
+   "at": "2026-10-31T06:49:22Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 96848.93
+  },
+  {
+   "at": "2026-10-31T06:49:22Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 100000.0
   }
  ],
  "takes": [
@@ -42110,7 +42122,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 690.49,
-      "priced_at": "2026-10-31T06:23:43Z",
+      "priced_at": "2026-10-31T06:49:22Z",
       "hist": [
        [
         29886870,
@@ -42391,6 +42403,10 @@
        [
         29890455,
         690.49
+       ],
+       [
+        29890489,
+        690.49
        ]
       ]
      },
@@ -42400,8 +42416,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 77116.73,
-      "priced_at": "2026-10-31T06:23:43Z",
+      "last": 77234.06,
+      "priced_at": "2026-10-31T06:49:22Z",
       "hist": [
        [
         29886870,
@@ -42822,6 +42838,10 @@
        [
         29890455,
         77149.01
+       ],
+       [
+        29890489,
+        77234.06
        ]
       ]
      }
@@ -65858,7 +65878,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-10-31T06:23:43Z",
+  "at": "2026-10-31T06:49:22Z",
   "games": [
    {
     "id": "401879248",
@@ -67848,5 +67868,158 @@
   "G-CHN": 4,
   "C-CHN": 2,
   "G-PRD": 3
- }
+ },
+ "price_corrections": [
+  {
+   "id": "PC1",
+   "at": "2026-10-31T06:49:22Z",
+   "model": "gemini",
+   "experiment": "China",
+   "symbol": "510300.SS",
+   "fill_at": "2026-10-29T01:36:43Z",
+   "action": "Buy",
+   "fill_price": 4.152,
+   "bar_price": 4.12300014,
+   "amount": 349.04,
+   "currency": "USD",
+   "cash_before": 97830.22,
+   "cash_after": 98179.26
+  },
+  {
+   "id": "PC2",
+   "at": "2026-10-31T06:49:22Z",
+   "model": "gemini",
+   "experiment": "China",
+   "symbol": "159915.SZ",
+   "fill_at": "2026-10-29T01:36:43Z",
+   "action": "Buy",
+   "fill_price": 2.649,
+   "bar_price": 2.59699988,
+   "amount": 785.07,
+   "currency": "USD",
+   "cash_before": 98179.26,
+   "cash_after": 98964.33
+  },
+  {
+   "id": "PC3",
+   "at": "2026-10-31T06:49:22Z",
+   "model": "chatgpt",
+   "experiment": "China",
+   "symbol": "510300.SS",
+   "fill_at": "2026-10-29T01:36:43Z",
+   "action": "Buy",
+   "fill_price": 4.152,
+   "bar_price": 4.12300014,
+   "amount": 139.27,
+   "currency": "USD",
+   "cash_before": 79518.18,
+   "cash_after": 79657.45
+  },
+  {
+   "id": "PC4",
+   "at": "2026-10-31T06:49:22Z",
+   "model": "chatgpt",
+   "experiment": "China",
+   "symbol": "159915.SZ",
+   "fill_at": "2026-10-29T01:36:43Z",
+   "action": "Buy",
+   "fill_price": 2.649,
+   "bar_price": 2.59699988,
+   "amount": 195.88,
+   "currency": "USD",
+   "cash_before": 79657.45,
+   "cash_after": 79853.33
+  },
+  {
+   "id": "PC5",
+   "at": "2026-10-31T06:49:22Z",
+   "model": "gemini",
+   "experiment": "China",
+   "symbol": "159915.SZ",
+   "fill_at": "2026-10-30T01:36:45Z",
+   "action": "Sell",
+   "fill_price": 2.535,
+   "bar_price": 2.46799994,
+   "amount": -1012.04,
+   "currency": "USD",
+   "cash_before": 98964.33,
+   "cash_after": 97952.29
+  },
+  {
+   "id": "PC6",
+   "at": "2026-10-31T06:49:22Z",
+   "model": "gemini",
+   "experiment": "China",
+   "symbol": "510300.SS",
+   "fill_at": "2026-10-30T01:36:45Z",
+   "action": "Sell",
+   "fill_price": 4.111,
+   "bar_price": 4.06799984,
+   "amount": -517.81,
+   "currency": "USD",
+   "cash_before": 97952.29,
+   "cash_after": 97434.48
+  },
+  {
+   "id": "PC7",
+   "at": "2026-10-31T06:49:22Z",
+   "model": "chatgpt",
+   "experiment": "China",
+   "symbol": "159915.SZ",
+   "fill_at": "2026-10-30T01:36:45Z",
+   "action": "Sell",
+   "fill_price": 2.535,
+   "bar_price": 2.46799994,
+   "amount": -125.75,
+   "currency": "USD",
+   "cash_before": 79853.33,
+   "cash_after": 79727.58
+  },
+  {
+   "id": "PC8",
+   "at": "2026-10-31T06:49:22Z",
+   "model": "gemini",
+   "experiment": "Currencies",
+   "symbol": "JPY",
+   "fill_at": "2026-10-28T18:32:55Z",
+   "action": "Short",
+   "fill_price": 0.0063,
+   "bar_price": 0.00631684,
+   "amount": 133.65,
+   "currency": "CAD",
+   "cash_before": 475238.44,
+   "cash_after": 475372.09
+  },
+  {
+   "id": "PC9",
+   "at": "2026-10-31T06:49:22Z",
+   "model": "gemini",
+   "experiment": "Currencies",
+   "symbol": "JPY",
+   "fill_at": "2026-10-29T02:14:30Z",
+   "action": "Cover",
+   "fill_price": 0.0063,
+   "bar_price": 0.00634228,
+   "amount": -333.79,
+   "currency": "CAD",
+   "cash_before": 475372.09,
+   "cash_after": 475038.3
+  },
+  {
+   "id": "PC11",
+   "at": "2026-10-31T06:49:22Z",
+   "model": "gemini",
+   "experiment": "AllInTrading",
+   "symbol": "SQQQ",
+   "fill_at": "2026-10-30T19:44:20Z",
+   "action": "Buy",
+   "fill_price": 42.795,
+   "bar_price": 42.25149918,
+   "amount": 635.01,
+   "currency": "CAD",
+   "cash_before": 26998.31,
+   "cash_after": 27633.32
+  }
+ ],
+ "claude_feed": []
 }
