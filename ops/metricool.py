@@ -111,7 +111,7 @@ def schedule_short(video_url, title, text, privacy, when=None):
         'text': text, 'providers': [{'network': 'youtube'}],
         'publicationDate': {'dateTime': at.strftime('%Y-%m-%dT%H:%M:%S'), 'timezone': tz},
         'draft': False, 'autoPublish': True, 'media': [media],
-        'youtubeData': {'title': title[:100], 'type': 'short', 'privacy': privacy, 'madeForKids': False, 'category': '28',
+        'youtubeData': {'title': title[:100], 'type': 'short', 'privacy': privacy, 'madeForKids': False, 'category': 'SCIENCE_TECHNOLOGY',
                         'notifySubscribers': privacy == 'public', 'tags': ['AI', 'Claude', 'Gemini', 'ChatGPT', 'paper trading']},
     }
     return call('/v2/scheduler/posts', 'POST', body)
