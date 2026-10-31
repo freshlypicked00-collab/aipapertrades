@@ -2,6 +2,7 @@
 
     python3 ops/daycards.py slate     # 6:30 p.m. ET: "Tonight's slate": every open Sports bet of all three AIs on tonight's games
     python3 ops/daycards.py preview   # 9:05 a.m. ET, weekdays: "Day N preview": today's scheduled events and each AI's published plan
+    python3 ops/daycards.py weekly    # 5:05 p.m. ET, Sundays: "Week N recap": who leads each race, races led, biggest win, worst loss
     python3 ops/daycards.py stash     # after posting: keep what was sent (ops/src/daycards_sent.json, ops/src/x_sent.json) in /tmp
     python3 ops/daycards.py merge     # on the latest main: merge the stashed records back in (other runs push these files too)
 
@@ -362,6 +363,134 @@ def preview():
     publish('preview', '\n'.join(tg), x_text, photo, '')
 
 
+# ------------------------------------------------------------------ Weekly recap, Sundays 5:05 p.m. ET (Gemini's idea; Claude agreed, 2 of 3)
+RACES = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
+RLABEL = {'Stocks': 'Stocks and anything', 'Crypto': 'Crypto', 'China': 'China stocks', 'Metals': 'Metals', 'Energy': 'Oil and energy',
+          'Options': 'Options', 'Currencies': 'Currencies', 'Safe': 'Play it safe', 'Sports': 'Sports betting', 'Predictions': 'Prediction markets'}
+
+
+def site_data():
+    try:
+        return json.load(open(os.path.join(os.path.dirname(SRC), '..', 'data.json')))
+    except Exception:
+        try:
+            return json.load(open('data.json'))
+        except Exception:
+            return {}
+
+
+def week_facts():
+    d = site_data()
+    es = d.get('exp_standings') or {}
+    es = es[0] if isinstance(es, list) and es else es
+    et = NOW.astimezone(ET)
+    lo = max(NOW - timedelta(days=7), datetime(2026, 10, 28, 17, 45, tzinfo=timezone.utc))
+    leaders, led = [], {k: 0 for k in ORDER}
+    for race in RACES:
+        rows = [r for r in (es.get(race) or []) if r.get('id') in AIS]
+        rows.sort(key=lambda r: -float(r.get('profit') or 0))
+        if len(rows) > 1 and float(rows[0]['profit']) - float(rows[1]['profit']) >= 0.5:
+            leaders.append((race, rows[0]['id'], float(rows[0]['profit'])))
+            led[rows[0]['id']] += 1
+        else:
+            leaders.append((race, None, None))
+    ms = [m for m in (d.get('moments_all') or []) if at(m.get('at')) and at(m['at']) >= lo and m.get('who') in AIS]
+    wins = [m for m in ms if m.get('type') == 'win']
+    losses = [m for m in ms if m.get('type') == 'loss']
+    leads = [m for m in ms if (m.get('type') or 'lead') == 'lead']
+    best = max(wins, key=lambda m: float(m.get('amount') or 0), default=None)
+    worst = min(losses, key=lambda m: float(m.get('amount') or 0), default=None)
+    streaks = [s for s in (d.get('streaks') or []) if s.get('n', 0) >= 3 and s.get('id') in AIS]
+    n = 1 + max(0, (et.date() - datetime(2026, 11, 1).date()).days // 7)
+    return {'n': n, 'from': lo, 'leaders': leaders, 'led': led, 'best': best, 'worst': worst, 'leads': leads, 'streaks': streaks}
+
+
+def money_r(v, race):
+    return ('+' if v >= 0 else '−') + ('US$' if race == 'China' else 'C$') + f'{abs(v):,.0f}'
+
+
+def what_of(m):
+    return str(m.get('what') or '').split(' (')[0]
+
+
+def weekly_card(f, path):
+    from PIL import Image, ImageDraw
+    im = Image.new('RGB', (C.S, C.H2), C.BG)
+    g = ImageDraw.Draw(im)
+    g.rectangle([0, 0, C.S, 14], fill=C.ORANGE)
+    g.text((80, 70), 'PAPER TRADES · AI VS AI', font=C._font('bold', 30), fill=C.ORANGE)
+    span = f["from"].astimezone(ET).strftime('%b %-d') + ' – ' + NOW.astimezone(ET).strftime('%b %-d')
+    g.text((80, 116), ('SEASON 1 · ' + span).upper(), font=C._font('med', 30), fill=C.MUTED)
+    y = C._wrap(g, f'Week {f["n"]} recap', C._font('bold', 84), 80, 166, C.S - 160, 92, C.FG, max_lines=1) + 10
+    g.text((80, y), 'WHO LEADS EACH RACE · EACH RACE ON ITS OWN', font=C._font('semi', 26), fill=C.MUTED)
+    y += 40
+    for race, who, prof in f['leaders']:
+        g.text((80, y), RLABEL[race], font=C._font('med', 31), fill=C.FG)
+        if who:
+            C._robot(im, who, 520, y - 2, 36)
+            g = ImageDraw.Draw(im)
+            g.text((566, y), AIS[who], font=C._font('semi', 31), fill=C.AIS[who][1])
+            amt = money_r(prof, race)
+            g.text((C.S - 80 - g.textlength(amt, font=C._font('semi', 31)), y), amt, font=C._font('semi', 31), fill=C.UP if prof >= 0 else C.DOWN)
+        else:
+            g.text((520, y), 'no clear leader', font=C._font('reg', 31), fill=C.MUTED)
+        y += 44
+    y += 6
+    led = f['led']
+    g.text((80, y), 'Races led now: ' + ' · '.join(f"{AIS[k]} {led[k]}" for k in sorted(ORDER, key=lambda k: -led[k])), font=C._font('semi', 31), fill=C.FG)
+    y += 56
+    for lab, m, col in (('BIGGEST WIN THIS WEEK', f['best'], C.UP), ('WORST LOSS THIS WEEK', f['worst'], C.DOWN)):
+        if not m:
+            continue
+        g.text((80, y), lab, font=C._font('semi', 26), fill=C.MUTED)
+        y += 36
+        line = f"{AIS[m['who']]}: {money_r(float(m['amount']), m.get('race'))} on {what_of(m)} ({RLABEL.get(m.get('race'), m.get('race'))})"
+        y = C._wrap(g, line, C._font('med', 31), 80, y, C.S - 160, 40, col, max_lines=2) + 12
+    extra = [f"{len(f['leads'])} lead change{'s' if len(f['leads']) != 1 else ''} this week"]
+    extra += [f"{AIS[s['id']]}: {s['n']} {'wins' if s['k'] == 'W' else 'losses'} in a row in {RLABEL.get(s['race'], 'All in: sports')}" for s in f['streaks'][:2]]
+    for e in extra:
+        y = C._wrap(g, e, C._font('med', 30), 80, y, C.S - 160, 38, C.MUTED, max_lines=1) + 4
+    return C._finish(im, g, y + 16, path, 'Pretend money, real prices · each race is scored on its own until Nov 28')
+
+
+def weekly():
+    et = NOW.astimezone(ET)
+    if not FORCE and (et.weekday() != 6 or not (16 * 60 + 55 <= et.hour * 60 + et.minute <= 18 * 60 + 20)):
+        print('outside the Sunday 4:55-6:20 p.m. ET window:', et.strftime('%a %H:%M'))
+        return
+    if NOW >= RACE_END:
+        print('the race is over: the final result is posted instead')
+        return
+    f = week_facts()
+    if not any(w for _, w, _ in f['leaders']):
+        print('no standings to recap')
+        return
+    photo = weekly_card(f, '/tmp/weekly.png')
+    span = f["from"].astimezone(ET).strftime('%b %-d') + ' – ' + et.strftime('%b %-d')
+    tg = [f"📅 <b>Week {f['n']} recap</b> · {span}", '<i>Each race is scored on its own; nothing is added up until Nov 28.</i>', '', '<b>Who leads each race</b>']
+    for race, who, prof in f['leaders']:
+        tg.append(f"• {RLABEL[race]}: " + (f"{AIS[who]} {money_r(prof, race)}" if who else 'no clear leader'))
+    tg += ['', 'Races led now: ' + ' · '.join(f"{AIS[k]} {f['led'][k]}" for k in sorted(ORDER, key=lambda k: -f['led'][k]))]
+    if f['best']:
+        m = f['best']; tg.append(f"🏆 Biggest win: {AIS[m['who']]} {money_r(float(m['amount']), m.get('race'))} on {_html.escape(what_of(m))}")
+    if f['worst']:
+        m = f['worst']; tg.append(f"📉 Worst loss: {AIS[m['who']]} {money_r(float(m['amount']), m.get('race'))} on {_html.escape(what_of(m))}")
+    tg.append(f"🏁 {len(f['leads'])} lead changes this week")
+    for s in f['streaks'][:3]:
+        tg.append(f"{'🔥' if s['k'] == 'W' else '🧊'} {AIS[s['id']]}: {s['n']} {'wins' if s['k'] == 'W' else 'losses'} in a row ({RLABEL.get(s['race'], 'All in: sports')})")
+    tg += ['', f'{SITE} · Pretend money, not advice.']
+    led = f['led']
+    xl = [f"📅 Week {f['n']} recap · {span}", 'Races led: ' + ' · '.join(f"{AIS[k]} {led[k]}" for k in sorted(ORDER, key=lambda k: -led[k]))]
+    if f['best']:
+        xl.append(f"Biggest win: {AIS[f['best']['who']]} {money_r(float(f['best']['amount']), f['best'].get('race'))}")
+    if f['worst']:
+        xl.append(f"Worst loss: {AIS[f['worst']['who']]} {money_r(float(f['worst']['amount']), f['worst'].get('race'))}")
+    xl.append(f"{len(f['leads'])} lead changes")
+    import xpost
+    x_text = xpost.fit('\n'.join(xl)) if hasattr(xpost, 'fit') else '\n'.join(xl)[:260]
+    publish('weekly', '\n'.join(tg), x_text, photo, 'h2h')
+
+
 # ------------------------------------------------------------------ keeping the records when other runs push the same files
 def stash():
     for f in (SENT, XSENT):
@@ -386,4 +515,4 @@ def merge():
 
 
 if __name__ == '__main__':
-    {'slate': slate, 'preview': preview, 'stash': stash, 'merge': merge}[sys.argv[1]]()
+    {'slate': slate, 'preview': preview, 'weekly': weekly, 'stash': stash, 'merge': merge}[sys.argv[1]]()

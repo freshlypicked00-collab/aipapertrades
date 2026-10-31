@@ -1,4 +1,4 @@
-name: Daily cards (Tonight's slate, Day N preview)
+name: Daily cards (Tonight's slate, Day N preview, Sunday weekly recap)
 # W11 and W12 (owner, Oct 30; Claude, Gemini and ChatGPT all agreed: ops/review/WATCH_DECISIONS.md). Each schedule runs at both
 # possible UTC times because Eastern daylight time ends Nov 1; ops/daycards.py only acts inside its Eastern window, once a day.
 on:
@@ -7,13 +7,14 @@ on:
     - cron: '30 23 * * *'     # Tonight's slate, 6:30 p.m. EST (from Nov 1)
     - cron: '5 13 * * 1-5'    # Day N preview, 9:05 a.m. EDT
     - cron: '5 14 * * 1-5'    # Day N preview, 9:05 a.m. EST
+    - cron: '5 22 * * 0'      # Week N recap, Sundays 5:05 p.m. EST (Gemini's idea; Claude agreed, 2 of 3)
   workflow_dispatch:
     inputs:
       mode:
-        description: 'slate or preview'
+        description: 'slate, preview or weekly'
         default: slate
         type: choice
-        options: [slate, preview]
+        options: [slate, preview, weekly]
       force:
         description: 'post even outside the time window (still once a day)'
         type: boolean
@@ -50,6 +51,7 @@ jobs:
           case "${{ github.event.schedule }}" in
             '30 22 * * *'|'30 23 * * *') MODE=slate ;;
             '5 13 * * 1-5'|'5 14 * * 1-5') MODE=preview ;;
+            '5 22 * * 0') MODE=weekly ;;
           esac
           python3 ops/daycards.py "$MODE"
           python3 ops/daycards.py stash

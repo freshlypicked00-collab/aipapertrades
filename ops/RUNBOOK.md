@@ -518,4 +518,6 @@ on that night's games; repeat bets on the same pick shown as one line with the c
 preview" at 9:05 a.m. ET on weekdays (today's events from events.json and each AI's latest published 24-hour plan, word for word; "no plan
 posted yet" when none in 36 hours). Telegram, Discord (#daily-results if set) and X with the page link in the first reply; not Instagram
 while Meta's request limit pauses posts. Once per Eastern day (ops/src/daycards_sent.json). Manual test: run the workflow with dry=true.
-Scheduled runs need nothing from Claude; keep events.json and Claude's "day" plan current, as the runbook already asks.
+Sundays at 5:05 p.m. ET it also posts the "Week N recap" (Gemini's idea; Claude agreed, 2 of 3): who leads each race (race by race, never
+added up), races led, the week's biggest win and worst loss, lead changes and streaks. Scheduled runs need nothing from Claude; keep
+events.json and Claude's "day" plan current, as the runbook already asks.
