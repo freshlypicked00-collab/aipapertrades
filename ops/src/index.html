@@ -9108,3 +9108,22 @@ tr.lg-hit .tx-id{opacity:1}
     if (sheet) new MutationObserver(settings).observe(sheet, { attributes: true, attributeFilter: ['hidden'], childList: true });
   })();
 </script>
+<script>
+  // O7 (all three AIs agreed, Oct 31; ops/MISSION.md): the 7-day return rate. The visitor's own browser keeps only the day of
+  // its last visit (nothing personal, never sent anywhere); on a visit on a NEW day it counts one anonymous GoatCounter event:
+  // visitor/new, visitor/return-7d (back within 7 days) or visitor/return-later. Return rate = return-7d / new, per week.
+  // Devices excluded with #toggle-goatcounter are not counted (GoatCounter skips them).
+  (() => {
+    try {
+      const K = 'pt-ret7', now = Date.now(), day = new Date().toLocaleDateString('en-CA');
+      let d = null; try { d = JSON.parse(localStorage.getItem(K) || 'null'); } catch (e) {}
+      let ev = null;
+      if (!d || !d.last) ev = 'visitor/new';
+      else if (d.day !== day) ev = now - d.last <= 7 * 864e5 ? 'visitor/return-7d' : 'visitor/return-later';
+      try { localStorage.setItem(K, JSON.stringify({ last: now, day })); } catch (e) {}
+      if (!ev) return;
+      let n = 0; const send = () => { if (window.goatcounter && window.goatcounter.count) { try { window.goatcounter.count({ path: ev, title: ev, event: true }); } catch (e) {} } else if (++n < 40) setTimeout(send, 500); };
+      send();
+    } catch (e) {}
+  })();
+</script>
