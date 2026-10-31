@@ -282,12 +282,17 @@
   .st-callout.gr { padding: 8px 12px; border-left-width: 1px; background: var(--color-panel); }
   .st-callout .gr-h { margin: 0 0 4px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); }
   .st-callout .gr-row + .gr-row { border-top: 1px solid var(--color-border-line); }
-  .st-callout .gr-row summary { list-style: none; cursor: pointer; margin: 5px 0; padding: 0; font-size: 13.5px; line-height: 1.4; max-height: 2.8em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .st-callout .gr-row[open] summary { -webkit-line-clamp: unset; max-height: none; display: block; } .st-callout .gr-row[open] .gr-q { display: none; }
+  .st-callout .gr-row summary { list-style: none; cursor: pointer; margin: 5px 0; padding: 0; font-size: 13.5px; line-height: 1.4; display: flex; align-items: flex-start; gap: 8px; }
+  .st-callout .gr-line { flex: 1; min-width: 0; max-height: 2.8em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }   /* the text is clamped, the Show more button never is (owner, Oct 30) */
+  .st-callout .gr-row[open] .gr-line { -webkit-line-clamp: unset; max-height: none; display: block; } .st-callout .gr-row[open] .gr-q { display: none; }
   .st-callout .gr-row summary::-webkit-details-marker { display: none; }
   .st-callout .gr-k { margin-right: 4px; }
   .st-callout .gr-tag { display: inline-block; border-radius: 999px; padding: 0 7px; margin-right: 6px; font-size: 11px; font-weight: 700; color: #fff; vertical-align: 1px; }
   .st-callout .gr-bad .gr-tag { background: var(--color-bad, #c0392b); } .st-callout .gr-good .gr-tag { background: var(--color-good, #2f9e5b); } .st-callout .gr-mine .gr-tag { background: var(--color-border-line, #555); color: var(--color-fg); }   /* the selected AI's own grades (Oct 30) */
+  .st-callout .gr-h-mine { margin-top: 10px; padding-top: 8px; border-top: 2px solid var(--color-border-line); }
+  .st-callout .gr-tog { display: inline-block; flex-shrink: 0; margin-left: 0; padding: 1px 10px; border: 1px solid var(--accent, #ffb000); border-radius: 999px; color: var(--accent, #ffb000); font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer; vertical-align: middle; }
+  .st-callout .gr-tog:hover { background: color-mix(in srgb, var(--accent, #ffb000) 18%, transparent); }
+  .st-callout .gr-row > summary:focus-visible .gr-tog { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   .st-callout .gr-who { margin-right: 6px; } .st-callout .gr-q { color: var(--color-fg-muted); }
   .st-callout .gr-more { padding: 0 0 6px 22px; font-size: 13px; color: var(--color-fg-muted); } .st-callout .gr-more p { margin: 3px 0; }
   .st-callout .gr-foot { font-size: 11.5px; }
@@ -7949,7 +7954,9 @@ tr.lg-hit .tx-id{opacity:1}
     const when = (at) => new Date(at).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' ET';
     const row = (cls, icon, tag, who, quote, details) => {
       const d = mk('details', 'gr-row ' + cls), s = mk('summary');
-      s.append(mk('span', 'gr-k', icon), mk('span', 'gr-tag', tag), who, mk('span', 'gr-q', quote)); d.appendChild(s);
+      const tog = mk('span', 'gr-tog', 'Show more ▾');   // an obvious button, not just a tappable line (owner, Oct 30)
+      const ln = mk('span', 'gr-line'); ln.append(mk('span', 'gr-k', icon), mk('span', 'gr-tag', tag), who, mk('span', 'gr-q', quote)); s.append(ln, tog); d.appendChild(s);
+      d.addEventListener('toggle', () => { tog.textContent = d.open ? 'Show less ▴' : 'Show more ▾'; });
       const b = mk('div', 'gr-more'); details.forEach((n) => b.appendChild(n)); d.appendChild(b); return d;
     };
     const bad = pick('callout'), good = pick('praise'), rows = [];
@@ -7967,10 +7974,11 @@ tr.lg-hit .tx-id{opacity:1}
     // the selected AI's own best and worst grades received (owner, Oct 30; Claude, Gemini and ChatGPT all agreed: ops/review/aigrades-r1-oct30.json):
     // decisions it made in the last 24 hours, in the race being viewed or all races; how many grades it got is on the line, so one grade
     // cannot mislead; the full spread and both quotes when tapped; "no grades" said, not hidden (ChatGPT's change)
+    const mine = [];
     { const me = dash.model || 'claude', ORD = 'ABCDF', since = Date.now() - 864e5;
-      const G = (dash.baseData('peer_grades') || []).filter((g) => g.model === me && ORD.includes(g.grade) && Date.parse(g.decision_at || g.at) >= since && (!inRace || g.experiment === sr));
+      const G = (dash.baseData('peer_grades') || []).filter((g) => g.model === me && ORD.includes(g.grade) && Date.parse(g.decision_at || g.at) >= since);   // all races: about the AI picked at the top, not the race picked in Race standings (owner, Oct 30)
       const who = mk('span', 'gr-who'); const bn = mk('b', '', nm(me) + ' today'); bn.style.color = col(me); who.appendChild(bn);
-      if (!G.length) rows.push(row('gr-mine', '📋', 'Its grades', who, 'No grades in the last 24 hours' + (inRace ? ' in this race' : '') + '.', [mk('p', 'gr-foot', 'Grades from the other two AIs appear here after their next check-in.')]));
+      if (!G.length) mine.push(row('gr-mine', '📋', 'Its grades', who, 'No grades in the last 24 hours.', [mk('p', 'gr-foot', 'Grades from the other two AIs appear here after their next check-in.')]));
       else {
         const newer = (a, b) => Date.parse(b.at) - Date.parse(a.at);
         const best = G.slice().sort((a, b) => ORD.indexOf(a.grade) - ORD.indexOf(b.grade) || newer(a, b))[0];
@@ -7982,14 +7990,15 @@ tr.lg-hit .tx-id{opacity:1}
           const dup = sameAs(g); q.appendChild(document.createTextNode(dup ? '(the same grade as ' + dup + ')' : '“' + g.text + '”'));
           q.appendChild(mk('span', 'gr-foot', ' On ' + nm(me) + '’s ' + (/^hold$/i.test(g.action || '') || /^\(no trade/.test(g.what || '') ? 'decision to hold' : String(g.action || 'decision').toLowerCase() + ' of ' + String(g.what || '').replace(/ USD$/, '')) + ' · ' + (LABEL[g.experiment] || ALLIN[g.experiment] || g.experiment) + ' · decision ' + when(g.decision_at || g.at))); return q; };
         const line = 'best ' + best.grade + ' from ' + nm(best.grader) + ' · worst ' + worst.grade + ' from ' + nm(worst.grader) + ' · ' + G.length + ' grade' + (G.length > 1 ? 's' : '');
-        rows.push(row('gr-mine', '📋', 'Its grades', who, line, [one('Best', best), worst === best ? null : one('Worst', worst),
-          mk('p', '', G.length + ' grade' + (G.length > 1 ? 's' : '') + ' on decisions from the last 24 hours' + (inRace ? ' in this race' : '') + ': ' + spread + '.'),
+        mine.push(row('gr-mine', '📋', 'Its grades', who, line, [one('Best', best), worst === best ? null : one('Worst', worst),
+          mk('p', '', G.length + ' grade' + (G.length > 1 ? 's' : '') + ' on decisions from the last 24 hours, all races: ' + spread + '.'),
           mk('p', 'gr-foot', 'Given by the other two AIs, anonymously and before the result. Opinions only: never a score.')].filter(Boolean)));
       }
     }
-    if (!rows.length) return;
+    if (rows.length) {
     const hd = mk('p', 'gr-h', 'Today’s grades · ' + (inRace ? (LABEL[sr] || ALLIN[sr] || sr) : 'all races')); hd.title = 'The AIs grade each other’s decisions, anonymously and before the result. Opinions only: they never change a score. Tap a line for details.'; el.appendChild(hd);
-    rows.forEach((r) => el.appendChild(r));
+    rows.forEach((r) => el.appendChild(r)); }
+    if (mine.length) { const me = dash.model || 'claude'; const h2 = mk('p', 'gr-h gr-h-mine', nm(me) + '’s grades today · all races'); h2.title = 'The grades the AI picked at the top received from the other two, in every race; it does not follow Race standings.'; el.appendChild(h2); mine.forEach((r) => el.appendChild(r)); }
   });
   dash.draw('factcheck', (el) => {
     el.replaceChildren();
