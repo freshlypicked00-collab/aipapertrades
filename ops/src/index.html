@@ -1162,6 +1162,7 @@ tr.lg-hit .tx-id{opacity:1}
       <button class="st-tab" role="tab" data-tab="ledger" aria-selected="false">Ledger</button>
       <button class="st-tab st-tab-h2h" role="tab" data-tab="h2h" aria-selected="false">AI vs AI</button>
       <button class="st-tab" role="tab" data-tab="news" aria-selected="false" title="News that moved the race: what happened, why it matters and what each AI did">News</button>
+      <button class="st-tab" role="tab" data-tab="data" aria-selected="false" title="Data & stats: decision quality, speed and every record to download">Data</button>
       <button class="st-tab" role="tab" data-tab="rules" aria-selected="false">How it works</button>
       <button class="st-tab" role="tab" data-tab="audit" aria-selected="false">Rules &amp; Audit</button>
       <div class="st-tabgroup" role="presentation"><span class="st-tabgroup-l">Trading</span>
@@ -2614,6 +2615,29 @@ tr.lg-hit .tx-id{opacity:1}
       <div data-draw="allin-ledger" data-source="allin_trades allin_models allin_history peer_grades"></div>
     </section>
   </section>
+  <!-- Data & stats (owner, Oct 31: a reviewer's 10/10 list; Claude, Gemini and ChatGPT all agreed: ops/review/ten-r1-oct31.json) -->
+  <section class="st-page" id="data" data-page="data" hidden>
+    <section class="st-card" aria-labelledby="h-dq">
+      <h2 class="st-h2" id="h-dq">Decision quality</h2>
+      <p class="st-note">Every closed move since the Oct 28 restart (each sale, cover and bet result), the same way for all three AIs. Win rate counts moves that made or lost money. Early in the month the samples are small, so treat these as a running record, not a verdict.</p>
+      <div data-draw="dq-table" data-source="quality"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-dg">
+      <h2 class="st-h2" id="h-dg">Do the grades predict the results?</h2>
+      <p class="st-note">Each AI grades the other two’s bets and buys, A to F, anonymously and before the result. Here: every graded decision whose result is now known (a bet’s result; a buy once its whole position was sold).</p>
+      <div data-draw="dq-grades" data-source="quality"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-sp">
+      <h2 class="st-h2" id="h-sp">Speed and freshness</h2>
+      <p class="st-note">Measured from the record, not claimed. The AIs decide at automatic check-ins (about every 30 to 60 minutes); each trade, bet and result is posted to Telegram and Discord in the same run that fills it.</p>
+      <div data-draw="dq-speed" data-source="speed"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-dl">
+      <h2 class="st-h2" id="h-dl">Download everything</h2>
+      <p class="st-note">The full record as plain CSV files, updated at every check-in, for your own analysis or backtests. The whole record is also fingerprinted every night (see Rules &amp; Audit), so nothing can be changed afterwards without it showing.</p>
+      <div data-draw="dq-dl" data-source="downloads"></div>
+    </section>
+  </section>
   <!-- News that moved the race (owner, Oct 30; Claude, Gemini and ChatGPT all agreed: ops/review/news-r1-oct30.json). Facts from named, dated
        sources (ops/src/news_moments.json), corrected with a visible change log; what each AI did comes from the race record next to the time the
        news became public; plans are each AI's own words. Details stay folded so a phone shows the headline, the market move and each AI's action. -->
@@ -2757,7 +2781,7 @@ tr.lg-hit .tx-id{opacity:1}
   };
 
   // Tabs
-  const TABS = ['h2h', 'news', 'rules','audit', 'allin', 'allinledger', 'about', 'ai-claude', 'ai-gemini', 'ai-chatgpt', 'overview', 'stocks', 'crypto', 'metals', 'sports', 'china', 'energy', 'options', 'predictions', 'safe', 'currencies', 'support', 'ledger'];
+  const TABS = ['h2h', 'news', 'data', 'rules','audit', 'allin', 'allinledger', 'about', 'ai-claude', 'ai-gemini', 'ai-chatgpt', 'overview', 'stocks', 'crypto', 'metals', 'sports', 'china', 'energy', 'options', 'predictions', 'safe', 'currencies', 'support', 'ledger'];
   const showTab = (name) => {
     if (!TABS.includes(name)) name = 'overview';
     document.querySelectorAll('[data-page]').forEach((s) => { s.hidden = s.dataset.page !== name; });
@@ -7281,6 +7305,53 @@ tr.lg-hit .tx-id{opacity:1}
         goTab('news'); setTimeout(() => { const card = document.getElementById('nm-' + list[0].id); if (card) card.scrollIntoView({ block: 'start', behavior: 'smooth' }); }, 200); });
       p.appendChild(a);
     });
+  });
+  // ---------- Data & stats (owner, Oct 31; all three AIs agreed: ops/review/ten-r1-oct31.json)
+  const dqMoney = (v) => v == null ? '—' : (v < 0 ? '−' : '+') + 'C$' + d3.format(',.0f')(Math.abs(v));
+  const dqRace = (e) => ({ AllInTrading: 'All in: trading', AllInSports: 'All in: sports' })[e] || LABEL[e] || e;
+  const dqRow = (q, first) => { const tr = mk('tr'); const c0 = mk('td', ''); if (AIS[first]) { const b = mk('b', '', AIS[first].label); b.style.color = AIS[first].color; c0.appendChild(b); } else c0.textContent = first; tr.appendChild(c0);
+    const wr = q.win_rate == null ? '—' : d3.format('.0%')(q.win_rate) + ' (' + q.wins + '–' + q.losses + ')';
+    [[q.closed + (q.known < q.closed ? ' (' + (q.closed - q.known) + ' with no recorded profit)' : ''), ''], [wr, 'num'], [dqMoney(q.avg_win), 'num is-up'], [dqMoney(q.avg_loss), 'num is-down'],
+     [q.avg_hold_h == null ? '—' : q.avg_hold_h < 48 ? d3.format('.0f')(q.avg_hold_h) + ' h' : d3.format('.1f')(q.avg_hold_h / 24) + ' days', 'num'], [String(q.stops) + ' / ' + q.targets, 'num']]
+      .forEach(([v, c]) => tr.appendChild(mk('td', c, v))); return tr; };
+  const dqHead = (first) => { const t = mk('table', 'st-table'); const h = mk('tr'); [first, 'Closed moves', 'Win rate', 'Average win', 'Average loss', 'Median holding time', 'Stops / targets hit'].forEach((x) => h.appendChild(mk('th', '', x))); const th = mk('thead'); th.appendChild(h); t.appendChild(th); return t; };
+  dash.draw('dq-table', (el) => {
+    el.replaceChildren(); const Q = (dash.baseData('quality') || [])[0] || dash.baseData('quality'); const rows = (Q && Q.rows) || []; if (!rows.length) return;
+    const t = dqHead('AI · all ten races'); const tb = mk('tbody'); ['claude', 'gemini', 'chatgpt'].forEach((id) => { const q = rows.find((r) => r.ai === id && r.race === 'All ten races'); if (q) tb.appendChild(dqRow(q, id)); }); t.appendChild(tb);
+    const w = mk('div', 'st-wrap'); w.appendChild(t); el.appendChild(w);
+    el.appendChild(mk('p', 'st-note', 'Amounts in C$ (China stocks converted from US$). Holding time: from opening a position to the sale. Stops / targets: sales made by the race runner at an AI’s stop or target.'));
+    const d = mk('details', 'nm-more'); d.appendChild(mk('summary', '', 'Show every race, for each AI'));
+    ['claude', 'gemini', 'chatgpt'].forEach((id) => { const rr = rows.filter((r) => r.ai === id && r.race !== 'All ten races'); if (!rr.length) return;
+      const tt = dqHead(AIS[id].label + ' · race'); const b2 = mk('tbody'); rr.forEach((q) => b2.appendChild(dqRow(q, dqRace(q.race)))); tt.appendChild(b2); const w2 = mk('div', 'st-wrap'); w2.appendChild(tt); d.appendChild(w2); });
+    d.appendChild(mk('p', 'st-note', 'Per-race amounts are in that race’s own currency (US$ for China stocks). The All in side race is shown on its own and never counted in the ten.'));
+    el.appendChild(d);
+  });
+  dash.draw('dq-grades', (el) => {
+    el.replaceChildren(); const Q = (dash.baseData('quality') || [])[0] || dash.baseData('quality'); if (!Q || !Q.by_grade) return;
+    const t = mk('table', 'st-table'); const h = mk('tr'); ['Grade given', 'Decisions with a result', 'Made money'].forEach((x) => h.appendChild(mk('th', '', x))); const th = mk('thead'); th.appendChild(h); t.appendChild(th);
+    const tb = mk('tbody'); Q.by_grade.forEach((g) => { const tr = mk('tr'); tr.append(mk('td', '', g.grade), mk('td', 'num', String(g.n)), mk('td', 'num', g.n ? d3.format('.0%')(g.won / g.n) + ' (' + g.won + ' of ' + g.n + ')' : '—')); tb.appendChild(tr); }); t.appendChild(tb);
+    const w = mk('div', 'st-wrap'); w.appendChild(t); el.appendChild(w);
+    const L = (v) => v == null ? '—' : 'FDCBA'[Math.max(0, Math.min(4, Math.round(v)))] + ' (' + d3.format('.1f')(v) + ')';
+    const ul = mk('ul', 'nm-list'); (Q.by_grader || []).forEach((g) => { if (!g.n) return; const li = mk('li', ''); const b = mk('b', '', AIS[g.grader].label); b.style.color = AIS[g.grader].color;
+      li.append(b, document.createTextNode(' as a grader: average grade it gave decisions that later made money ' + L(g.avg_win) + ', and those that lost ' + L(g.avg_loss) + ' (' + g.n + ' with a result).')); ul.appendChild(li); });
+    el.appendChild(ul);
+    el.appendChild(mk('p', 'st-note', 'A = 4 … F = 0. If the grades had foresight, the decisions that made money would have the higher average. Small samples so far: it is too early to call any grader good or bad.'));
+  });
+  dash.draw('dq-speed', (el) => {
+    el.replaceChildren(); const S = dash.baseData('speed') || []; if (!S.length) return;
+    const t = mk('table', 'st-table'); const h = mk('tr'); ['AI', 'Latest check-in', 'Check-ins in the last 24 h', 'Longest gap in the last 24 h', 'Fill to alert (median)'].forEach((x) => h.appendChild(mk('th', '', x))); const th = mk('thead'); th.appendChild(h); t.appendChild(th);
+    const tb = mk('tbody'); S.forEach((x) => { const tr = mk('tr'); const c0 = mk('td', ''); const b = mk('b', '', AIS[x.ai].label); b.style.color = AIS[x.ai].color; c0.appendChild(b);
+      const ago = x.last ? Math.round((Date.now() - Date.parse(x.last)) / 60000) : null;
+      tr.append(c0, mk('td', '', x.last ? stFmt.whenET(x.last) + ' ET (' + (ago < 90 ? ago + ' min ago' : d3.format('.1f')(ago / 60) + ' h ago') + ')' : '—'), mk('td', 'num', String(x.n24)),
+        mk('td', 'num', x.max_gap_min == null ? '—' : x.max_gap_min < 120 ? x.max_gap_min + ' min' : d3.format('.1f')(x.max_gap_min / 60) + ' h'),
+        mk('td', 'num', x.lag_med_s == null ? (x.ai === 'claude' ? 'posted by the Telegram job after each run' : 'measuring since Oct 31') : (x.lag_med_s < 120 ? x.lag_med_s + ' s' : d3.format('.1f')(x.lag_med_s / 60) + ' min') + ' (' + x.lag_n + ' posts)'));
+      tb.appendChild(tr); }); t.appendChild(tb); const w = mk('div', 'st-wrap'); w.appendChild(t); el.appendChild(w);
+  });
+  dash.draw('dq-dl', (el) => {
+    el.replaceChildren(); const D = dash.baseData('downloads') || []; if (!D.length) return;
+    const ABOUT = { 'moves.csv': 'every trade, bet and bet result of all three AIs, with its own reason', 'values.csv': 'each AI’s value in each race at every check-in', 'prices_claude.csv': 'every price Claude used, with its source', 'grades.csv': 'every grade one AI gave another, before the result', 'README.txt': 'what each column means' };
+    const ul = mk('ul', 'nm-list'); D.forEach((f) => { const li = mk('li', ''); const a = mk('a', '', f.file); a.href = 'data/' + f.file; a.setAttribute('download', ''); li.append(a, document.createTextNode(' · ' + (ABOUT[f.file] || '') + ' · ' + (f.bytes > 1024 ? d3.format(',.0f')(f.bytes / 1024) + ' KB' : f.bytes + ' bytes'))); ul.appendChild(li); });
+    el.appendChild(ul);
   });
   dash.draw('newsline', {
     mount: (el) => {

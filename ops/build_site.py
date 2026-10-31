@@ -1638,6 +1638,151 @@ import hashlib as _hl
 data.pop('ver', None)
 data['page_ver'] = PAGE_VER
 data['ver'] = _hl.sha1(json.dumps(data, separators=(',', ':'), sort_keys=True).encode()).hexdigest()[:16]
+# ---- Data & stats (owner, Oct 31: a reviewer's "10/10" list; Claude, Gemini and ChatGPT all agreed: ops/review/ten-r1-oct31.json) ----
+# B1: every record as plain CSV files anyone can download and analyse (papertrades.ai/data/...); C2: decision-quality stats per AI and
+# race, computed the same way for all three; A1: how often each AI checked in and how fresh the data is (measured, not claimed).
+import csv as _csv
+def _w(x):
+    return datetime.fromisoformat(str(x).replace('Z', '+00:00')).astimezone(timezone.utc)
+_LAB = {'claude': 'Claude', 'gemini': 'Gemini', 'chatgpt': 'ChatGPT'}
+_RT = list(r.get('trades', []))
+_src = lambda n: json.load(open(os.path.join(SRC, n + '.json')))
+# one list of moves for all three AIs (Claude's ten races from trades.json and bets.json; everything else from rivals.json)
+_moves = []
+for t in _src('trades'):
+    _moves.append({'ai': 'claude', 'race': t.get('portfolio'), 'at': _w(t['at']), 'action': t.get('action'), 'what': t.get('holding'), 'symbol': t.get('holding'),
+                   'qty': t.get('qty'), 'price': t.get('price_usd') if t.get('price_usd') is not None else t.get('price_local'), 'amount': t.get('cad'),
+                   'cur': 'USD' if t.get('portfolio') == 'China' else 'CAD', 'reason': t.get('note') or '', 'wrong_if': t.get('wrong_if') or '', 'pnl': t.get('pnl_cad'), 'id': t.get('tx') or ''})
+for b in _src('bets'):
+    if b.get('placed_at'):
+        _moves.append({'ai': 'claude', 'race': 'Sports', 'at': _w(b['placed_at']), 'action': 'Bet', 'what': f"{b.get('pick')} ({b.get('event')})", 'symbol': b.get('bet'),
+                       'qty': None, 'price': b.get('odds'), 'amount': b.get('stake_cad'), 'cur': 'CAD', 'reason': b.get('note') or '', 'wrong_if': b.get('wrong_if') or '', 'pnl': None, 'id': b.get('tx') or ''})
+    if b.get('status') in ('Won', 'Lost', 'Push', 'Void') and b.get('settled_at'):
+        _moves.append({'ai': 'claude', 'race': 'Sports', 'at': _w(b['settled_at']), 'action': b['status'], 'what': f"{b.get('pick')} ({b.get('event')})", 'symbol': b.get('bet'),
+                       'qty': None, 'price': b.get('odds'), 'amount': b.get('result_cad'), 'cur': 'CAD', 'reason': b.get('final') or '', 'wrong_if': '', 'pnl': float(b.get('result_cad') or 0), 'id': ''})
+for t in _RT:
+    if t.get('model') not in _LAB:
+        continue
+    _moves.append({'ai': t['model'], 'race': t.get('experiment'), 'at': _w(t['at']), 'action': t.get('action'), 'what': t.get('name') or t.get('symbol'), 'symbol': t.get('symbol'),
+                   'qty': t.get('qty'), 'price': t.get('price'), 'amount': t.get('amount'), 'cur': t.get('cur') or 'CAD', 'reason': t.get('reason') or '', 'wrong_if': t.get('wrong_if') or '',
+                   'pnl': (float(t['amount']) if t.get('action') in ('Won', 'Lost') and t.get('amount') is not None else 0.0 if t.get('action') in ('Push', 'Void') else t.get('pnl')),
+                   'id': t.get('tx') or '', 'outcome': t.get('outcome')})
+_moves.sort(key=lambda m: m['at'])
+_RS = datetime(2026, 10, 28, 17, 45, tzinfo=timezone.utc)   # the restart: earlier moves (tuning runs, pre-race bets) are kept in the download but never counted
+for m in _moves:
+    m['counts'] = m['at'] >= _RS and not str(m.get('what') or '').startswith('[')
+_all_moves, _moves = _moves, [m for m in _moves if m['counts']]
+# average-cost profit on every sale or cover (the same rule as the site's tables), holding time from when the position was opened
+_pos, _closed, _episodes = {}, [], []
+for m in _moves:
+    a = m['action']
+    if a not in ('Buy', 'Sell', 'Short', 'Cover'):
+        continue
+    k = (m['ai'], m['race'], m['symbol'], m.get('outcome'))
+    p = _pos.setdefault(k, {'q': 0.0, 'c': 0.0, 'sq': 0.0, 'sp': 0.0, 'start': None, 'ep': None})
+    q, amt = float(m.get('qty') or 0), float(m.get('amount') or 0)
+    if a in ('Buy', 'Short'):
+        if (p['q'] <= 1e-9 and a == 'Buy') or (p['sq'] <= 1e-9 and a == 'Short'):
+            p['start'] = m['at']; p['ep'] = {'ai': m['ai'], 'race': m['race'], 'pnl': 0.0, 'open': True, 'openers': []}; _episodes.append(p['ep'])
+        p['ep']['openers'].append(m)
+        if a == 'Buy':
+            p['q'] += q; p['c'] += amt
+        else:
+            p['sq'] += q; p['sp'] += amt
+        continue
+    pnl = m.get('pnl')
+    if pnl is None and q > 0:
+        if a == 'Sell' and p['q'] > 1e-9:
+            basis = p['c'] / p['q'] * min(q, p['q']); pnl = amt - basis; p['c'] -= basis; p['q'] = max(0.0, p['q'] - q)
+        elif a == 'Cover' and p['sq'] > 1e-9:
+            basis = p['sp'] / p['sq'] * min(q, p['sq']); pnl = basis - amt; p['sp'] -= basis; p['sq'] = max(0.0, p['sq'] - q)
+    elif pnl is not None and q > 0 and a == 'Sell' and p['q'] > 1e-9:
+        p['c'] -= p['c'] / p['q'] * min(q, p['q']); p['q'] = max(0.0, p['q'] - q)
+    hold = (m['at'] - p['start']).total_seconds() / 3600 if p.get('start') else None
+    _closed.append({'ai': m['ai'], 'race': m['race'], 'pnl': pnl, 'hold_h': hold, 'stop': str(m['reason']).startswith('Stop order reached'), 'target': str(m['reason']).startswith('Target order reached')})
+    if p.get('ep') is not None and pnl is not None:
+        p['ep']['pnl'] += pnl
+        if p['q'] <= 1e-9 and p['sq'] <= 1e-9:
+            p['ep']['open'] = False; p['start'] = None; p['ep'] = None
+for m in _moves:
+    if m['action'] in ('Won', 'Lost', 'Push', 'Void'):
+        _closed.append({'ai': m['ai'], 'race': m['race'], 'pnl': m['pnl'], 'hold_h': None, 'stop': False, 'target': False, 'bet': True})
+_usdcad = float((json.load(open(os.path.join(SRC, 'fx.json'))) or {}).get('usdcad') or 1.39)
+for x in _closed:   # the all-races rows are in C$ (China stocks converted from US$ at the latest rate)
+    x['pnl_c'] = (x['pnl'] * _usdcad if x['race'] == 'China' else x['pnl']) if x['pnl'] is not None else None
+def _qual(rows):
+    known = [x for x in rows if x['pnl'] is not None]
+    w, l = [x['pnl'] for x in known if x['pnl'] > 0.5], [x['pnl'] for x in known if x['pnl'] < -0.5]
+    hs = [x['hold_h'] for x in rows if x.get('hold_h') is not None]
+    return {'closed': len(rows), 'known': len(known), 'wins': len(w), 'losses': len(l), 'win_rate': (len(w) / (len(w) + len(l))) if (w or l) else None,
+            'avg_win': (sum(w) / len(w)) if w else None, 'avg_loss': (sum(l) / len(l)) if l else None, 'total': sum(x['pnl'] for x in known),
+            'avg_hold_h': (sorted(hs)[len(hs) // 2] if hs else None), 'stops': sum(1 for x in rows if x['stop']), 'targets': sum(1 for x in rows if x['target'])}
+_QR = []
+for _ai in _LAB:
+    for _race in sorted({x['race'] for x in _closed if x['ai'] == _ai}):
+        _QR.append(dict(_qual([x for x in _closed if x['ai'] == _ai and x['race'] == _race]), ai=_ai, race=_race))
+    _QR.append(dict(_qual([dict(x, pnl=x['pnl_c']) for x in _closed if x['ai'] == _ai and not str(x['race']).startswith('AllIn')]), ai=_ai, race='All ten races'))
+# did the rivals' grades predict the results? each graded bet or buy whose result is known (a bet's result; a buy's whole position, once closed)
+_GN = {'A': 4, 'B': 3, 'C': 2, 'D': 1, 'F': 0}
+_res = []
+for g in data.get('peer_grades', []):
+    if g.get('grade') not in _GN or g.get('void') or g.get('action') not in ('Bet', 'Buy', 'Short'):
+        continue
+    t0, sym = _w(g.get('decision_at') or g['at']), str(g.get('key') or '').split('|')[3] if len(str(g.get('key') or '').split('|')) > 4 else None
+    out = None
+    if g['action'] == 'Bet':
+        rr = [m for m in _moves if m['ai'] == g['model'] and m['race'] == g.get('experiment') and m['action'] in ('Won', 'Lost') and sym and m['symbol'] == sym]
+        out = rr[0]['pnl'] if rr else None
+    else:
+        for ep in _episodes:
+            if ep['ai'] == g['model'] and ep['race'] == g.get('experiment') and not ep['open'] and any(abs((o['at'] - t0).total_seconds()) < 120 and (not sym or o['symbol'] == sym) for o in ep['openers']):
+                out = ep['pnl']; break
+    if out is not None and abs(out) > 0.5:
+        _res.append({'grade': g['grade'], 'grader': g.get('grader'), 'won': out > 0})
+data['quality'] = [{'rows': _QR, 'by_grade': [{'grade': k, 'n': sum(1 for x in _res if x['grade'] == k), 'won': sum(1 for x in _res if x['grade'] == k and x['won'])} for k in 'ABCDF'],
+                   'by_grader': [{'grader': gr, 'avg_win': (lambda a: sum(a) / len(a) if a else None)([_GN[x['grade']] for x in _res if x['grader'] == gr and x['won']]),
+                                  'avg_loss': (lambda a: sum(a) / len(a) if a else None)([_GN[x['grade']] for x in _res if x['grader'] == gr and not x['won']]),
+                                  'n': sum(1 for x in _res if x['grader'] == gr)} for gr in _LAB],
+                   'at': datetime.now(timezone.utc).isoformat(timespec='seconds')}]   # a one-item list, like story and geo
+# A1: check-ins in the last 24 hours, the longest gap between them, and the latest one, per AI (from the value records)
+_now = datetime.now(timezone.utc)
+_ci = {'claude': sorted({_w(h['at']).replace(second=0, microsecond=0) for h in _src('history')})}
+for h in r.get('history', []):
+    if h.get('model') in ('gemini', 'chatgpt'):
+        _ci.setdefault(h['model'], set()).add(_w(h['at']).replace(second=0, microsecond=0))
+_spd = []
+for _ai in _LAB:
+    ts = sorted(_ci.get(_ai) or [])
+    last24 = [t for t in ts if _now - t <= timedelta(hours=24)]
+    span = ([ts[ts.index(last24[0]) - 1]] if last24 and ts.index(last24[0]) > 0 else []) + last24 + [_now]
+    gaps = [(b - a).total_seconds() / 60 for a, b in zip(span, span[1:])]
+    _spd.append({'ai': _ai, 'n24': len(last24), 'max_gap_min': round(max(gaps)) if gaps else None, 'last': ts[-1].isoformat() if ts else None})
+_lag = [x for x in r.get('alert_lag', []) if x.get('fill') and x.get('posted')]
+for s_ in _spd:
+    L = sorted((_w(x['posted']) - _w(x['fill'])).total_seconds() for x in _lag if x.get('model') == s_['ai'])
+    s_['lag_n'], s_['lag_med_s'] = len(L), (round(L[len(L) // 2]) if L else None)
+data['speed'] = _spd
+# B1: the CSV downloads (every move, every value per race at every check-in, Claude's price record, every grade), with a README
+_dd = os.path.join(OUT, 'data'); os.makedirs(_dd, exist_ok=True)
+def _csvw(name, head, rows):
+    with open(os.path.join(_dd, name), 'w', newline='') as f:
+        w = _csv.writer(f); w.writerow(head); [w.writerow(x) for x in rows]
+_csvw('moves.csv', ['time_utc', 'ai', 'race', 'action', 'what', 'symbol', 'quantity', 'price', 'amount', 'currency', 'id', 'reason', 'wrong_if', 'counts_in_race'],
+      [[m['at'].isoformat(), _LAB[m['ai']], m['race'], m['action'], m['what'], m['symbol'], m['qty'], m['price'], m['amount'], m['cur'], m.get('id') or '', m['reason'], m['wrong_if'], 'yes' if m['counts'] else 'no (before the Oct 28 restart)'] for m in _all_moves])
+_vals = [(_w(h['at']), 'claude', h['portfolio'], h['value']) for h in _src('history')] + [(_w(h['at']), h['model'], h['experiment'], h['value']) for h in r.get('history', []) if h.get('model') in _LAB]
+_csvw('values.csv', ['time_utc', 'ai', 'race', 'value'], [[a.isoformat(), _LAB[b], c, d] for a, b, c, d in sorted(_vals)])
+_csvw('prices_claude.csv', ['time_utc', 'asset', 'price', 'source'], [[_w(p_['at']).isoformat(), p_.get('asset'), p_.get('price'), p_.get('source') or ''] for p_ in sorted(_src('prices'), key=lambda x: _w(x['at']))])
+_csvw('grades.csv', ['graded_utc', 'grader', 'about_ai', 'race', 'decision_utc', 'action', 'what', 'grade', 'reason'],
+      [[g.get('at'), _LAB.get(g.get('grader'), g.get('grader')), _LAB.get(g.get('model'), g.get('model')), g.get('experiment'), g.get('decision_at'), g.get('action'), g.get('what'), g.get('grade'), g.get('text')]
+       for g in data.get('peer_grades', [])])
+open(os.path.join(_dd, 'README.txt'), 'w').write(
+    'PaperTrades.AI Season 1 data (pretend money, real prices; Oct 28 to Nov 28, 2026). Updated at every check-in.\n\n'
+    'moves.csv: every trade, bet and bet result of Claude, Gemini and ChatGPT in the ten races and the All in side race, with its own reason.\n'
+    '  amount is in the race\'s currency (C$, or US$ for China stocks); for a bet result it is the profit or loss.\n'
+    'values.csv: each AI\'s value in each race at every check-in.\nprices_claude.csv: every price Claude used, with its source.\n'
+    'grades.csv: every grade one AI gave another, given anonymously and before the result.\n\n'
+    'The full record is fingerprinted every night (SHA-256, see Rules & Audit on papertrades.ai). Not financial advice.\n')
+data['downloads'] = [{'file': n, 'bytes': os.path.getsize(os.path.join(_dd, n))} for n in ('moves.csv', 'values.csv', 'prices_claude.csv', 'grades.csv', 'README.txt')]
 json.dump(data, open(os.path.join(OUT, 'data.json'), 'w'), separators=(',', ':'))  # compact: smaller and faster to load
 open(os.path.join(OUT, 'data.ver'), 'w').write(data['ver'])
 

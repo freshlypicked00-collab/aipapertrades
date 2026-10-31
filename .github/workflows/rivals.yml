@@ -8,6 +8,7 @@ on:
     - cron: '3,18,33,48 0-6,23 * * *'
     - cron: '3,18,33,48 16-22 * * 0,6'
     - cron: '43 13-20 * * 1-5'    # half-hour runs during US market hours (EDT and EST)
+    - cron: '8,23,38,53 13-21 * * 1-5'   # stops and targets only, every 15 minutes in US market hours (no model call; rivals.py STOPS_CRON)
     - cron: '35 13,14 * * 1-5'    # US open, 9:35 a.m. ET (EDT / EST)
     - cron: '5 20,21 * * 1-5'     # US close, 4:05 p.m. ET (EDT / EST)
     - cron: '35 1 * * 1-5'        # Shanghai open, 9:35 a.m. Beijing
@@ -106,7 +107,7 @@ jobs:
           X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
         run: python3 ops/rivals.py
       - name: Check Claude's prices against the same feeds (ops/price_audit.py)
-        if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' && !startsWith(github.event.schedule, '3,18,33,48') }}
+        if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' && !startsWith(github.event.schedule, '3,18,33,48') && github.event.schedule != '8,23,38,53 13-21 * * 1-5' }}
         continue-on-error: true
         timeout-minutes: 8
         env:   # Gemini and ChatGPT check each flagged price as a backup (owner, Oct 30)
@@ -117,7 +118,7 @@ jobs:
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
         run: python3 ops/price_audit.py
       - name: Long price history for every holding (ops/px_long.py; the site's 30-day to 5-year holding charts)
-        if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' && !startsWith(github.event.schedule, '3,18,33,48') }}
+        if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' && !startsWith(github.event.schedule, '3,18,33,48') && github.event.schedule != '8,23,38,53 13-21 * * 1-5' }}
         continue-on-error: true
         timeout-minutes: 4
         run: python3 ops/px_long.py

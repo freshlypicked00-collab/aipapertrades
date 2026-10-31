@@ -26,6 +26,7 @@ STATE = 'ops/src/rivals.json'
 # (nothing saved, nothing published) when no bet's game could have ended yet. Must match the crons in rivals.yml exactly.
 SETTLE_CRONS = ('3,18,33,48 0-6,23 * * *', '3,18,33,48 16-22 * * 0,6')
 WATCH_CRON = '7,22,37,52 * * * *'   # the event watcher's schedule in rivals.yml (must match it exactly)
+STOPS_CRON = '8,23,38,53 13-21 * * 1-5'   # stops and targets every 15 minutes in US market hours, for all three AIs equally, no model call (owner, Oct 31; all three AIs agreed: ops/review/ten-r1-oct31.json)
 ALL_EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
 ALLIN = ['AllInTrading', 'AllInSports']   # High risk, high reward: no caps, separate, never counted in the race
 RACE_EXPS = ALL_EXPS
@@ -1654,6 +1655,8 @@ def main():
         return
     sys.modules.setdefault('rivals', sys.modules[__name__])
     state = load_state()
+    if os.environ.get('SCHEDULE') == STOPS_CRON:
+        os.environ['MODE'] = 'fill'   # the same fill run Claude's runs dispatch: queued orders and every AI's stops and targets, no check-in
     if os.environ.get('MODE') == 'fill':
         # Claude's fill run (option B): fill Claude's queued orders, check every AI's stops and closing odds; no rival check-in
         try:
@@ -2115,6 +2118,11 @@ def main():
                 pics, made_sent = [], True
             else:
                 made_sent = False
+            try:   # A1 (owner, Oct 31; all three AIs agreed): measured delay from the fill to the alert going out, shown on the Data page
+                state.setdefault('alert_lag', []).append({'model': mid, 'fill': max(t['at'] for t in made), 'posted': iso()})
+                state['alert_lag'] = state['alert_lag'][-400:]
+            except Exception:
+                pass
             pic = (pics[0] if pics else None) if not made_sent else None
             if made_sent:
                 pass

@@ -151,7 +151,7 @@ no trades; it re-checks the last 24 hours against fresh sources and fixes mistak
 Stops and targets are orders held by the race runner, for Claude exactly as for Gemini and ChatGPT:
 `python3 ops/orders.py queue '{"experiment": "Crypto", "action": "stop", "symbol": "Bitcoin", "level": 75500, "fraction": 1, "reason": "..."}'`
 (or `"target"`; `fraction` is the share of the position to sell or cover; one stop and one target per holding, a new one replaces the old).
-The runner checks every stop at every run (check-ins, fill runs and skipped runs, about every 30 to 60 minutes) and fills a crossed one at the
+The runner checks every stop at every run (check-ins, fill runs and skipped runs, about every 30 to 60 minutes; from Oct 31 also a stops-only run every 15 minutes in US market hours, for all three AIs equally) and fills a crossed one at the
 LIVE price then, never at the level (a gap fills worse); stocks and China only while their market is open. `python3 ops/orders.py status`
 lists them with their ids; `{"action": "cancel_stop", "stop": "claude-3"}` removes one. At the first run after the option B start the runner
 turned Claude's price rules in `rules.json` into stops (gold and silver levels moved to the futures scale the feed uses; the US-dollar short
