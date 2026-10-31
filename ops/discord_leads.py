@@ -66,7 +66,9 @@ def post():
     import xpost
     for m in json.load(open(TMP)):
         discord.post(text(m), url=discord.LEADS)
-        xpost.post(text(m), key='lead-' + m['id'])   # X too, without the link (owner, Oct 30)
+        tab = {'Stocks': 'stocks', 'Crypto': 'crypto', 'China': 'china', 'Metals': 'metals', 'Energy': 'energy', 'Options': 'options', 'Currencies': 'currencies',
+               'Safe': 'safe', 'Sports': 'sports', 'Predictions': 'predictions', 'AllInTrading': 'allin', 'AllInSports': 'allin'}.get(m.get('race') or m.get('exp'), '')
+        xpost.post(text(m), key='lead-' + m['id'], reply_link='https://papertrades.ai/?utm_source=x' + ('#' + tab if tab else ''))   # X too, the race's page in the first reply (owner, Oct 30)
 
 
 if __name__ == '__main__':

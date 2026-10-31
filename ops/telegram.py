@@ -466,7 +466,7 @@ for day, n in race_days[-1:]:
             discord.post('\n'.join(txt), pic, url=discord.DAILY)   # also in #daily-results (owner, Oct 30)
             try:   # X (@papertradesai): the race card, without links (a post with a link costs 13x on the X API); owner, Oct 30
                 import xpost
-                xpost.post('\n'.join(t for t in txt if 'Share it' not in t), pic, key='daily-' + datetime.now(timezone.utc).date().isoformat())
+                xpost.post('\n'.join(t for t in txt if 'Share it' not in t), pic, key='daily-' + datetime.now(timezone.utc).date().isoformat(), reply_link='https://papertrades.ai/?utm_source=x')
             except Exception as e:
                 print('X race card failed', e)
     except Exception as e:

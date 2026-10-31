@@ -74,3 +74,11 @@ Tagged links per channel (`?utm_source=x`, `instagram`, `telegram`, `reddit`, `n
 2. Give the app **Read and write** permission and create the four keys (API key and secret, access token and secret).
 3. Paste them into GitHub → the repo → Settings → Secrets and variables → Actions as `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_SECRET`. (Claude never types keys or passwords anywhere.)
 4. Tell Claude. Claude then adds X posting to the same workflow that posts to Instagram and Telegram.
+
+## Update, Oct 30, 11 p.m. ET: links and growth (ops/review/growth-r1-oct30.json)
+The owner: funding is not an issue; post links until we grow, and tell me what I can do to help.
+- **Links (all three AIs agreed):** money is no longer a reason to limit links; reach is. X main posts stay link-free and end with "👇 Link in reply"; the page they point to goes in the first reply, on every post that sends people somewhere (no one-a-day cap). Plain papertrades.ai links with `?utm_source=x`, no shorteners (ChatGPT). Built in ops/xpost.py (`reply_link`), used by the daily race card and lead-change posts; X cap raised to 24 posts a day, link replies included. Telegram and Discord can carry links freely.
+- **The owner's own top actions (all three listed the same five; order differs):** pitch the AI and fintech newsletters with the media kit (Gemini's #1), 20 to 30 useful hand-written replies a day on X to AI and markets threads (ChatGPT's and Claude's #1), the hand-written Show HN and 3 Reddit posts under each forum's rules, answering every real comment and DM within a few hours, and tightly targeted ad tests.
+- **Only one AI suggested:** TikTok and YouTube Shorts: repost the best Instagram reel daily (ChatGPT); X Premium on @papertradesai, about US$8 to 16 a month, for reach and reply priority (Gemini).
+- **Paid:** Instagram boosts C$10 to 15 a day (all three); an X ads test: ChatGPT US$25 to 50 a day for 3 days, Gemini US$15 to 25 a day; positioned as an AI race with pretend money, never profit claims or stock picks (X restricts financial ads).
+- **Avoid (all three):** bought followers, giveaways, pods, mass DMs, undisclosed paid promos, "AI beat the market" claims or anything that reads as investment advice.

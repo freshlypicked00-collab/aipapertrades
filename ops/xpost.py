@@ -5,7 +5,7 @@ posts here NEVER contain a link (papertrades.ai is in the bio and printed on eve
 
 Does nothing until these four GitHub secrets are set (keys from the X Developer Console, app permission "Read and write"):
   X_API_KEY, X_API_SECRET (consumer keys) and X_ACCESS_TOKEN, X_ACCESS_SECRET (the @papertradesai user's access token).
-Never raises: an X problem must never stop a check-in. Guards: no links, at most 280 characters, at most DAILY_CAP posts
+Never raises: an X problem must never stop a check-in. Guards: no links in the main post (a page link goes in the first reply), at most 280 characters, at most DAILY_CAP posts
 per rolling 24 hours (recorded in ops/src/x_sent.json, committed with each run), the same text never twice.
 """
 import base64, hashlib, hmac, html, json, os, re, secrets, time, urllib.error, urllib.parse, urllib.request
@@ -15,7 +15,7 @@ KEYS = [os.environ.get(k, '').strip() for k in ('X_API_KEY', 'X_API_SECRET', 'X_
 ON = all(KEYS)
 API = 'https://api.x.com'
 SENT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src', 'x_sent.json')
-DAILY_CAP = 12      # posts per rolling 24 hours (about US$0.18 a day at the plain-post price)
+DAILY_CAP = 24      # posts per rolling 24 hours, link replies included (owner, Oct 30: funding is not an issue, post links until we grow)
 LIMIT = 270   # X counts an emoji as two characters: a little room to spare
 
 
@@ -154,15 +154,17 @@ def post_video(text, path, key, reply_link=None):
         return False
 
 
-def post(text, photo=None, key=None):
-    """One post (with an optional picture). key: a stable id so the same thing is never posted twice. True when posted."""
+def post(text, photo=None, key=None, reply_link=None):
+    """One post (with an optional picture). key: a stable id so the same thing is never posted twice. True when posted.
+    reply_link: the page it points to, posted as the first reply (the main post stays link-free for reach and says 'Link in reply';
+    owner, Oct 30, and all three AIs agreed: ops/review/growth-r1-oct30.json). Plain papertrades.ai links with ?utm_source=x, no shorteners."""
     if not ON:
         return False
     try:
         st = _load()
         now = datetime.now(timezone.utc)
         recent = [p for p in st['posts'] if now - datetime.fromisoformat(p['at']) < timedelta(hours=24)]
-        body = fit(text)
+        body = fit(text, '\n👇 Link in reply' if reply_link else '')
         if not body:
             return False
         if key and any(p.get('key') == key for p in st['posts']):
@@ -184,6 +186,12 @@ def post(text, photo=None, key=None):
         pid = (j.get('data') or {}).get('id')
         st['posts'] = [p for p in st['posts'] if now - datetime.fromisoformat(p['at']) < timedelta(days=7)]
         st['posts'].append({'at': now.isoformat(timespec='seconds'), 'id': pid, 'key': key, 'text': body})
+        if reply_link and pid:   # the link in the first reply (about US$0.20); a failed reply never undoes the post
+            try:
+                r = _req('POST', API + '/2/tweets', json.dumps({'text': reply_link, 'reply': {'in_reply_to_tweet_id': pid}}).encode(), 'application/json')
+                st['posts'].append({'at': now.isoformat(timespec='seconds'), 'id': (r.get('data') or {}).get('id'), 'key': (key or '') + '-link', 'text': reply_link})
+            except Exception as e:
+                print('::warning::X link reply failed:', str(e)[:200])
         json.dump(st, open(SENT, 'w'), indent=1)
         print('::notice::posted to X', pid)
         return True
