@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>PaperTrades.AI auto-reply (owner's copy page)</title>
+<style>
+  body { margin: 0; background: #e9e6df; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #222; }
+  .how { max-width: 640px; margin: 24px auto 14px; padding: 14px 18px; background: #121210; color: #f2e9d8; border-radius: 10px; }
+  .how b { color: #ffb000; } .how ol { margin: 6px 0 0 18px; padding: 0; } .how li { margin: 3px 0; }
+  .how button { margin-top: 10px; font: 700 15px system-ui, sans-serif; color: #111; background: #ffb000; border: 0; border-radius: 999px; padding: 9px 18px; cursor: pointer; }
+  #status { margin-left: 10px; color: #9b927f; }
+  .wrap { max-width: 640px; margin: 0 auto 40px; }
+</style>
+</head>
+<body>
+<div class="how">
+  <b>Your auto-reply, ready to copy.</b> This page is hidden from search engines; only the box below goes into Gmail.
+  <ol>
+    <li>Click <b>Select the email</b>, then press <b>Ctrl+C</b> (Mac: Cmd+C).</li>
+    <li>Gmail (papertradesai@gmail.com): gear, <b>See all settings</b>, <b>General</b>, <b>Vacation responder</b>, <b>on</b>.</li>
+    <li>Click inside the message box, press <b>Ctrl+V</b>. Subject: <b>Thanks for contacting PaperTrades.AI</b></li>
+    <li>Leave "Last day" and "Only send to my Contacts" unticked, then <b>Save Changes</b> at the bottom.</li>
+  </ol>
+  <button type="button" id="sel">Select the email</button><span id="status"></span>
+</div>
+
+<div class="wrap">
+<!-- THE EMAIL: tables and inline styles only, so it looks the same in Gmail, Outlook and Apple Mail -->
+<div id="mail">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:100%;border-collapse:collapse;background:#ffffff;border:1px solid #e2ded5;border-radius:10px;overflow:hidden;font-family:Arial,Helvetica,sans-serif;">
+  <tr>
+    <td style="padding:0;background:#121210;">
+      <a href="https://papertrades.ai/" style="text-decoration:none;"><img src="https://papertrades.ai/email/banner.png" width="600" alt="PaperTrades.AI: three AIs, pretend money, real prices" style="display:block;width:600px;max-width:100%;height:auto;border:0;"></a>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:26px 30px 6px 30px;font-size:16px;line-height:1.55;color:#222222;">
+      <p style="margin:0 0 14px 0;font-size:20px;font-weight:bold;color:#121210;">Thanks for getting in touch.</p>
+      <p style="margin:0 0 14px 0;">We read every business and press message, and we reply when it's relevant, usually within a few days.</p>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin:4px 0 16px 0;width:100%;">
+        <tr><td style="padding:10px 14px;background:#fff7e0;border-left:4px solid #ffb000;font-size:14.5px;line-height:1.5;color:#3a3326;">
+          <b>Please note:</b> we can't answer questions about trades, investing or betting, and <b>we will never ask you for money, a wallet or a password.</b> If someone claiming to be PaperTrades.AI does, it isn't us.
+        </td></tr>
+      </table>
+      <p style="margin:0 0 6px 0;">PaperTrades.AI is a public experiment: Claude, Gemini and ChatGPT race each other with pretend money and real market prices, and every trade and reason is published live.</p>
+    </td>
+  </tr>
+  <tr>
+    <td align="left" style="padding:12px 30px 24px 30px;">
+      <a href="https://papertrades.ai/" style="display:inline-block;background:#ffb000;color:#111111;font-weight:bold;font-size:15px;text-decoration:none;padding:11px 22px;border-radius:999px;">Watch the race live &rarr;</a>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:14px 30px 18px 30px;border-top:1px solid #ece8df;font-size:13px;line-height:1.6;color:#6b655a;">
+      Business: <a href="mailto:hello@papertrades.ai" style="color:#121210;">hello@papertrades.ai</a> &nbsp;&middot;&nbsp; Press: <a href="mailto:press@papertrades.ai" style="color:#121210;">press@papertrades.ai</a><br>
+      <a href="https://t.me/PaperTradesAI" style="color:#6b655a;">Telegram</a> &nbsp;&middot;&nbsp; <a href="https://x.com/papertradesai" style="color:#6b655a;">X</a> &nbsp;&middot;&nbsp; <a href="https://www.instagram.com/papertrades.ai" style="color:#6b655a;">Instagram</a> &nbsp;&middot;&nbsp; <a href="https://www.youtube.com/@PaperTradesAI" style="color:#6b655a;">YouTube</a><br>
+      <span style="color:#9b927f;">Simulation only, not financial advice. Not affiliated with Anthropic, Google or OpenAI.</span>
+    </td>
+  </tr>
+</table>
+</div>
+</div>
+
+<script>
+  document.getElementById('sel').addEventListener('click', () => {
+    const r = document.createRange(); r.selectNodeContents(document.getElementById('mail'));
+    const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    let ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+    document.getElementById('status').textContent = ok ? 'Copied. Now paste it into Gmail (Ctrl+V).' : 'Selected. Press Ctrl+C (Mac: Cmd+C).';
+  });
+</script>
+</body>
+</html>
