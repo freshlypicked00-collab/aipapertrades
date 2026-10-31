@@ -5,7 +5,7 @@ public (our own unaudited API project would be locked private; all three AIs fla
   python3 ops/metricool.py test    -> the safety test (owner approved, Oct 31): uploads an existing Short as UNLISTED (not on the
                                       channel, no notification) and waits for YouTube to confirm, so we know uploads are not locked private
   python3 ops/metricool.py daily   -> the daily Short, posted on its own like Discord (owner, Oct 31: "upload shorts on your own"):
-                                      one race replay, PUBLIC, at most one a day, a different race from the last few days; recorded in
+                                      race replays, PUBLIC, three a day at most (never two within 3 hours), a different race each time; recorded in
                                       ops/src/youtube.json so a rerun never posts twice
 
 The token comes only from the METRICOOL_TOKEN secret and is never printed or written anywhere. The account and brand numbers are not
@@ -156,6 +156,7 @@ def test():
 
 
 LOG = os.path.join(HERE, 'src', 'youtube.json')
+PER_DAY = 3
 RACE_START = '2026-10-28'
 
 
@@ -194,14 +195,21 @@ def daily():
     if today > date(2026, 11, 28):
         print('Season 1 is over; nothing to post'); return
     log = _log()
-    if any(p.get('day') == today.isoformat() and p.get('status') != 'ERROR' for p in log['posts']):
-        print('already posted today:', today); return
+    # three a day (owner: "post more than every day"; all three AIs agreed, Oct 31), never two within three hours, so a rerun or a
+    # late schedule never doubles up
+    done = [p for p in log['posts'] if p.get('day') == today.isoformat() and p.get('status') != 'ERROR']
+    if len(done) >= PER_DAY:
+        print(f'already {len(done)} Shorts today'); return
+    if log['posts'] and log['posts'][-1].get('at') and log['posts'][-1].get('status') != 'ERROR':
+        gap_h = (datetime.now(NY) - datetime.fromisoformat(log['posts'][-1]['at'])).total_seconds() / 3600
+        if gap_h < 3:
+            print(f'last Short was {gap_h:.1f} h ago; waiting'); return
     sys.path.insert(0, HERE)
     import reel
     d = json.load(open(os.path.join(os.path.dirname(HERE), 'data.json')))
-    recent = [p.get('race') for p in log['posts'][-3:]]
+    recent = [p.get('race') for p in log['posts'][-6:]]   # not a race shown in the last six Shorts (two days)
     best, gap = None, -1
-    for r in reel.ORDER:   # the race with the widest gap between first and last, not one shown in the last three days
+    for r in reel.ORDER:   # the race with the widest gap between first and last, not one shown in the last six Shorts
         if r == 'China' or r in recent:
             continue
         sr = reel.series(d, r); last = [x[-1][1] for x in sr.values() if x]
@@ -224,7 +232,7 @@ def daily():
             + '\n'.join(lines) + ' (profit in this race so far)\n\n'
             'Every trade and the reason behind it, live and free: papertrades.ai\n'
             'Pretend money only. Not investment or betting advice.\n\n#AI #Claude #ChatGPT #Gemini #Shorts')
-    out = {'day': today.isoformat(), 'race': race, 'video': rel, 'title': title, 'standings': {k: v for k, v in fin}}
+    out = {'day': today.isoformat(), 'at': datetime.now(NY).isoformat(timespec='seconds'), 'race': race, 'video': rel, 'title': title, 'standings': {k: v for k, v in fin}}
     urls = ['https://raw.githubusercontent.com/freshlypicked00-collab/aipapertrades/main/' + rel, 'https://papertrades.ai/' + rel]
     st, r = 0, 'not tried'
     for k, u in enumerate(urls):

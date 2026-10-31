@@ -1,11 +1,15 @@
 name: YouTube Shorts (through Metricool)
 on:
   schedule:
-    - cron: '47 1 * * *'   # every evening, 9:47 p.m. ET (8:47 p.m. after Nov 1): today's Short, posted on its own (owner, Oct 31)
+    # three Shorts a day, posted on their own (owner, Oct 31; all three AIs agreed): about 12:30 p.m., 5 p.m. and 9:45 p.m. ET
+    # (an hour earlier in ET after Nov 1, when clocks go back)
+    - cron: '32 16 * * *'
+    - cron: '2 21 * * *'
+    - cron: '47 1 * * *'
   workflow_dispatch:
     inputs:
       mode:
-        description: 'daily = make and post today''s Short (once a day, public); probe = check the token (posts nothing); test = an UNLISTED test upload'
+        description: 'daily = make and post the next Short (public; 3 a day at most); probe = check the token (posts nothing); test = an UNLISTED test upload'
         type: choice
         options: [daily, probe, test]
         default: daily
