@@ -15,6 +15,8 @@ jobs:
           ref: main
       - name: Check every fill and bet
         run: python3 ops/full_audit.py
+      - name: Explain the price flags (daily bars, the quote the runner reads)
+        run: python3 ops/audit_explain.py || true
       - name: Save the report
         run: |
           git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
