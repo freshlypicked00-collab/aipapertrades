@@ -1033,6 +1033,17 @@
   .pd-rankby-b { font: inherit; font-size: 12.5px; padding: 5px 11px; border-radius: 999px; cursor: pointer; background: var(--color-bg); color: var(--color-fg); border: 1px solid var(--color-border-line); }
   .pd-rankby-b[aria-pressed="true"] { background: var(--accent, #ffb000); border-color: var(--accent, #ffb000); color: #111; font-weight: 700; }
   .st-indep { font-size: 12.5px; line-height: 1.45; color: var(--color-fg-muted); margin: 2px 0 8px; } .st-indep a { color: inherit; }
+  .pt-x { font: inherit; font-size: 12.5px; font-weight: 700; letter-spacing: .02em; color: #fff; background: #d93a2b; border: 1px solid #d93a2b; border-radius: 999px; padding: 5px 13px; cursor: pointer; white-space: nowrap; line-height: 1.2; }
+  .pt-x:hover, .pt-x:focus-visible { background: #b92e21; border-color: #b92e21; outline: none; }
+  .pt-story-h .pt-x { margin-left: auto; }
+  [data-draw="geo"] > .pt-x { float: right; margin: 0 0 6px 10px; }
+  .pt-x-sm { padding: 1px 8px; font-size: 12px; margin-right: 8px; vertical-align: 1px; }
+  .pt-news > .pt-n-x { align-self: center; flex: 0 0 auto; margin: 0 6px; padding: 2px 9px; font-size: 12px; }
+  .pt-closedbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 13px; color: var(--color-fg-muted); padding: 4px 2px; }
+  .pt-open { font: inherit; font-size: 12.5px; font-weight: 700; color: #111; background: var(--accent, #ffb000); border: 0; border-radius: 999px; padding: 4px 12px; cursor: pointer; }
+  .pt-story.pt-is-closed { padding-top: 6px; padding-bottom: 6px; }
+  .pt-card-closed > :not([data-draw="geo"]) { display: none !important; } .pt-card-closed { padding-top: 6px; padding-bottom: 6px; }
+  .pt-news.pt-is-closed { min-height: 0; padding: 2px 10px; }
   .ai-robot { --rs: 34px; display: inline-flex; width: var(--rs); height: var(--rs); flex: 0 0 auto; vertical-align: middle; margin-right: 8px; }
   .ai-robot svg { width: 100%; height: 100%; overflow: visible; }
   .pd-who.pd-who-bot, .pd-name .pd-who.pd-who-bot { display: inline-flex !important; align-items: center; flex-wrap: nowrap !important; min-width: 0; }
@@ -1301,7 +1312,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '0456e4b6dfeb';</script>
+<script>window.PT_PAGE_VER = '53a8d4f6ec8f';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -7163,12 +7174,24 @@ body { background:var(--color-bg); }
     if (!out.length && race) out.push({ k: NEWS_K[race], cls: 'pt-n-news', t: race === 'Sports' ? 'No news on the teams bet on right now. Finals show here as soon as a game ends.' : 'No fresh ' + (LABEL[race] || race).replace(' (US$)', '').toLowerCase() + ' headlines from the outlets we trust in the last 24 hours.' });
     return out;
   };
+  // ---------- close any news box (owner, Oct 30): an obvious ✕ Close; a closed box shrinks to one slim line with Show, is remembered in this
+  // browser, and opens again by itself when there is a new update (the version changes)
+  const NCK = 'pt-closed-';
+  const isClosed = (key, ver) => { try { return localStorage.getItem(NCK + key) === String(ver); } catch (e) { return false; } };
+  const setClosed = (key, ver, on) => { try { if (on) localStorage.setItem(NCK + key, String(ver)); else localStorage.removeItem(NCK + key); } catch (e) {} if (dash.redraw) dash.redraw(); };
+  const closeBtn = (key, ver, what) => { const b = mk('button', 'pt-x', '✕ Close'); b.type = 'button'; b.title = 'Hide ' + (what || 'this') + '. A slim bar stays so you can open it again; it opens by itself when there is news.';
+    b.setAttribute('aria-label', 'Close ' + (what || 'this')); b.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); setClosed(key, ver, true); }); return b; };
+  const closedBar = (el, key, text) => { const bar = mk('div', 'pt-closedbar'); bar.appendChild(mk('span', 'pt-closedbar-t', text));
+    const o = mk('button', 'pt-open', 'Show ▾'); o.type = 'button'; o.addEventListener('click', () => setClosed(key, null, false)); bar.appendChild(o); el.appendChild(bar); };
   // a developing story on a race's page (ops/src/story.json), with its latest figures and sources; refreshed at Claude's runs (owner, Oct 30)
   dash.draw('devstory', (el) => {
     el.replaceChildren();
-    const S = (dash.baseData('story') || [])[0]; if (!S || !S.active || (el.dataset.race && S.race !== el.dataset.race)) return;
+    const S = (dash.baseData('story') || [])[0]; if (!S || !S.active || (el.dataset.race && S.race !== el.dataset.race)) { el.classList.remove('pt-is-closed'); return; }
+    const sv = S.updated_at || S.title;
+    el.classList.toggle('pt-is-closed', isClosed('story', sv));
+    if (isClosed('story', sv)) { closedBar(el, 'story', '🔴 ' + S.title + ' (closed; opens again when it is updated)'); return; }
     const h = mk('h2', 'st-h2 pt-story-h'); h.id = 'h-c-story'; const bd = mk('span', 'pd-livebadge'); bd.append(mk('i'), document.createTextNode('DEVELOPING'));
-    h.append(bd, document.createTextNode(S.title));
+    h.append(bd, document.createTextNode(S.title), closeBtn('story', sv, 'this story'));
     el.append(h, mk('p', 'pt-story-up', 'Updated ' + stFmt.when(S.updated_at) + ' · figures change as new reports come in'));
     const canSay = 'speechSynthesis' in window;   // every card can be read aloud on its own, or the whole story at once (owner, Oct 30)
     if (canSay) { const top = mk('div', 'pt-story-listen'); top.appendChild(listenBtn(() => S.title + '. ' + S.summary + ' ' + (S.facts || []).map((f) => f.label + ': ' + f.value + '. ' + (f.note || '')).join(' '), 'Listen to the whole story')); el.appendChild(top); }
@@ -7309,6 +7332,9 @@ body { background:var(--color-bg); }
       if (!list.length) { if (p) p.remove(); return; }
       if (!p) { p = mk('p', 'nm-racelink'); pg.prepend(p); }
       p.replaceChildren();
+      if (isClosed('nm-' + race, list[0].id)) { p.remove(); return; }
+      { const x = mk('button', 'pt-x pt-x-sm', '✕'); x.type = 'button'; x.title = 'Hide this news line (it comes back when there is new news for this race)'; x.setAttribute('aria-label', 'Hide the news line');
+        x.addEventListener('click', (ev) => { ev.preventDefault(); setClosed('nm-' + race, list[0].id, true); p.remove(); }); p.appendChild(x); }
       const a = mk('a', '', '📰 News that moved this race (' + list.length + '): ' + list[0].title + ' →'); a.href = '#news';
       a.addEventListener('click', (ev) => { ev.preventDefault();
         const box = document.querySelector('[data-draw="news-moments"]'); if (box) { box._race = race; if (box._redraw) box._redraw(); }
@@ -7320,11 +7346,16 @@ body { background:var(--color-bg); }
     mount: (el) => {
       let i = 0;
       const paint = (fresh) => {
+        const nv = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });   // closed for the rest of the day (ET)
+        if (isClosed('newsline', nv)) { if (!el.classList.contains('pt-is-closed')) { el.classList.add('pt-is-closed'); el.replaceChildren(); closedBar(el, 'newsline', '📰 Headlines hidden for today'); } return; }
+        if (el.classList.contains('pt-is-closed')) { el.classList.remove('pt-is-closed'); el.replaceChildren(); }
         const ctx = newsCtx(); if (el._ctx !== ctx) { el._ctx = ctx; i = 0; fresh = true; }   // a new tab: start again on its own news at once
         let L = []; try { L = newsItems(ctx); } catch (e) { L = []; } if (!L.length) { el.replaceChildren(); return; }
         // breaking news first, then everything else in turn
         const it = (!fresh && L.find((x) => x.k === 'BREAKING' && !el._seen?.has(x.t))) || L[i++ % L.length]; el._seen = el._seen || new Set(); if (it.k === 'BREAKING') el._seen.add(it.t);
-        if (!el.firstChild) { el.append(mk('span', 'pt-n-k'), mk('span', 'pt-n-t'), mk('span', 'pt-n-n')); }
+        if (!el.firstChild) { el.append(mk('span', 'pt-n-k'), mk('span', 'pt-n-t'), mk('span', 'pt-n-n'));
+          const x = mk('button', 'pt-x pt-n-x', '✕'); x.type = 'button'; x.title = 'Hide the headlines for today'; x.setAttribute('aria-label', 'Hide the headlines for today');
+          x.addEventListener('click', () => { try { localStorage.setItem(NCK + 'newsline', nv); } catch (e) {} paint(true); }); el.appendChild(x); }
         const [k, t, n] = el.children; k.className = 'pt-n-k ' + it.cls; k.textContent = it.k;
         t.classList.remove('pt-n-in'); void t.offsetWidth; t.classList.add('pt-n-in');
         t.replaceChildren();
@@ -8244,6 +8275,10 @@ body { background:var(--color-bg); }
     el.replaceChildren();
     const g = dash.baseData('geo'); const d = Array.isArray(g) ? g[0] : g;
     if (!d || !d.summary) { el.appendChild(mk('p', 'st-note', 'No update yet.')); return; }
+    const gv = String(d.summary).length + ':' + String(d.summary).slice(0, 60), card = el.closest('.st-card');
+    if (card) card.classList.toggle('pt-card-closed', isClosed('geo', gv));
+    if (isClosed('geo', gv)) { closedBar(el, 'geo', '🛢️ The war and the Strait of Hormuz (closed; opens again when there is news)'); return; }
+    el.appendChild(closeBtn('geo', gv, 'the war and Strait of Hormuz box'));
     const top = mk('div', 'ai-pick');
     top.appendChild(mk('p', 'st-note', 'Last checked ' + stFmt.when(d.checked_at) + ' by ' + (AIS[d.checked_by] ? AIS[d.checked_by].label : 'Claude') + '. Shown for context only; it is the same for all three AIs.'));
     if (typeof listenBtn === 'function') top.appendChild(listenBtn(() => d.summary + ' ' + (d.status || []).map((x) => x.label + ': ' + x.value + '. ' + (x.note || '')).join(' '), 'Listen'));
