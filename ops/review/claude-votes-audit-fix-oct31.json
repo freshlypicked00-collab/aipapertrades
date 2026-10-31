@@ -1,0 +1,16 @@
+{
+ "at": "2026-10-31T06:31:05Z",
+ "model": "claude",
+ "topic": "audit-fix-oct31",
+ "written_before_reading": "gemini and chatgpt answers",
+ "votes": {
+  "V1": "AGREE: a fill has to be at a price from the minute it happens; refusing and asking again beats filling at yesterday's close.",
+  "V2": "AGREE: a quote rounded to two significant digits is a bug, and the inverse quote is exact. It also fixes Claude's own yen stop.",
+  "V3": "AGREE: the promise is fills at the real market price. Appended runner lines keep every original visible, and both directions apply, including Claude's silver stop, which costs Claude C$70 to C$95.",
+  "V4": "AGREE: Claude's own valuation error, in Claude's favour; restating it gives Gemini the Oct 29 Crypto day.",
+  "V5": "AGREE: the same prices at the same moment for all three is the only fair standing, and Claude's separate quotes are what caused P5.",
+  "V6": "AGREE: deciding second with the first mover's moves in view is an edge, and freezing the board is cheap.",
+  "V7": "AGREE: a contract roll is not a market move; announce it ahead and keep the value unchanged.",
+  "V8": "The hourly check of Claude's prices had a cache bug (fixed today): 32 earlier 'ok' rows were compared with bars from another time of day. Claude re-runs those checks and publishes the result."
+ }
+}
