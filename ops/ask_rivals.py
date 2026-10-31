@@ -146,6 +146,14 @@ for f in files:
         q += f'\n\n===== FILE: {f} =====\n' + open(f).read()
     except Exception as e:
         q += f'\n\n===== FILE: {f} (could not be read: {e}) ====='
+# Every question starts with today's date (owner, Oct 30): Gemini once "corrected" the race year to 2024 because ask mode, unlike the
+# trading check-ins, never told the AIs the date. The date line comes from the runner's clock, so no AI has to guess it.
+from datetime import datetime as _dt
+from zoneinfo import ZoneInfo as _ZI
+_now = _dt.now(_ZI('America/New_York'))
+q = (f"TODAY'S DATE (from the race runner's clock, authoritative): {_now.strftime('%A %B %-d, %Y, %-I:%M %p')} ET. "
+     "Season 1 of PaperTrades.AI runs Oct 28 to Nov 28, 2026. Dates and years written in this question are correct; do not change them. "
+     "If something conflicts with what you remember, trust this date and say what you are unsure of instead of guessing.\n\n") + q
 print(f'question: {len(q):,} characters, {len(files)} files')
 
 answers = {}
