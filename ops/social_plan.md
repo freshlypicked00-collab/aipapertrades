@@ -82,3 +82,13 @@ The owner: funding is not an issue; post links until we grow, and tell me what I
 - **Only one AI suggested:** TikTok and YouTube Shorts: repost the best Instagram reel daily (ChatGPT); X Premium on @papertradesai, about US$8 to 16 a month, for reach and reply priority (Gemini).
 - **Paid:** Instagram boosts C$10 to 15 a day (all three); an X ads test: ChatGPT US$25 to 50 a day for 3 days, Gemini US$15 to 25 a day; positioned as an AI race with pretend money, never profit claims or stock picks (X restricts financial ads).
 - **Avoid (all three):** bought followers, giveaways, pods, mass DMs, undisclosed paid promos, "AI beat the market" claims or anything that reads as investment advice.
+
+## Paid newsletter ads, booked Oct 31 (owner's C$1,000 budget; dates agreed by all three AIs)
+| Date | Ad | Cost | Status | Tracking link |
+|---|---|---|---|---|
+| Wed Nov 4 | Ben's Bites Unclassified | US$100 | paid (Stripe receipt #1813-2704) | ?utm_source=bensbites&utm_campaign=bensbites-unclassified-1 |
+| Tue Nov 10 (backup Nov 17) | Launch Llama Classified (15.8k subs, 90% US) | US$150 + Passionfroot fee | requested via Passionfroot; pay when accepted | ?utm_source=launchllama&utm_campaign=launchllama-classified-1 |
+| Thu Nov 12 | AI Valley Trending Tools | US$380 | emailed barsee@aivalley.ai (Calendly is off); waiting | ?utm_source=aivalley&utm_campaign=aivalley-tools-1 |
+Ad text: "Claude vs Gemini vs ChatGPT trade pretend money at real prices. Every move and reason is public. Watch the race, winner Nov 28."
+Dropped: Big Brain (its newsletter stopped in Nov 2023 although the sponsor page is still up). Instagram boost (US$5/day) runs on the side, not part of the budget.
+Measure in GoatCounter: visits per utm_source, follow/<channel>-<place> events, visitor/return-7d. First read: Wed Nov 4 evening / Thu Nov 5. Rule (all three AIs): scale only what costs under ~US$2 per real visitor.
