@@ -239,6 +239,16 @@
   .st-alloc-buys { display: block; margin: 3px 0 0 17px; font-size: 0.86em; line-height: 1.45; color: var(--color-fg-muted); }
   .st-alloc-buys span { display: block; }
   .st-alloc-buys span b { color: var(--color-fg); font-weight: 600; }
+  .st-alloc-why { margin: 5px 0 2px 17px; font-size: 0.88em; line-height: 1.45; }
+  .st-alloc-why > summary { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; list-style: none; padding: 2px 9px; border: 1px solid var(--color-border); border-radius: 999px; color: var(--color-fg-muted); }
+  .st-alloc-why > summary::-webkit-details-marker { display: none; }
+  .st-alloc-why > summary b { color: var(--color-accent, var(--color-fg)); letter-spacing: 0.04em; }
+  .st-alloc-why > summary::after { content: '▸'; font-size: 0.85em; }
+  .st-alloc-why[open] > summary::after { content: '▾'; }
+  .st-alloc-why blockquote { margin: 4px 0 0; padding: 0; }
+  .st-alloc-why blockquote > div { margin: 6px 0 0; padding-left: 9px; border-left: 2px solid var(--color-border); }
+  .st-alloc-why blockquote b { font-weight: 600; color: var(--color-fg); }
+  .st-alloc-why q { quotes: '“' '”'; }
   .st-alloc-more summary { cursor: pointer; color: var(--color-fg-muted); text-decoration: underline dotted; }
   .st-alloc-key i.st-alloc-hollow { background: transparent !important; border: 1.5px dashed var(--color-fg-muted); }
   .st-hook { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
@@ -5516,19 +5526,53 @@ tr.lg-hit .tx-id{opacity:1}
       if (tail.length) box.appendChild(mk('span', '', tail.join(' · ')));
       return box;
     };
+    // WHY? under each holding: only the AI's own recorded words (owner, Oct 31): its buy reasons, what would prove it wrong,
+    // its stop or target and its plan for this race. Nothing is written for it.
+    const LGW = dash.data('log'), lgW = LGW.status === 'ok' ? LGW.data : [];
+    const RLW = dash.data('rules'), rlW = RLW.status === 'ok' ? RLW.data : [];
+    const PLW = dash.data('plans'), plW = PLW.status === 'ok' ? PLW.data : [];
+    const who = ({ claude: 'Claude', gemini: 'Gemini', chatgpt: 'ChatGPT' })[dash.model] || 'Claude';
+    const WRONG = /\s*What would prove it wrong:\s*/;
+    const whyOf = (r) => {
+      const ts = TR.filter((t) => t.holding === r.holding).sort((a, b) => new Date(a.at) - new Date(b.at));
+      let start = 0; ts.forEach((t, k) => { if ((t.action === 'Sell' || t.action === 'Cover') && t.outcome !== 'partial' && k < ts.length - 1 && ts.slice(k + 1).some((x) => x.action === 'Buy' || x.action === 'Short')) start = k + 1; });
+      const ins = ts.slice(start).filter((t) => t.action === 'Buy' || t.action === 'Short').reverse();
+      const seen = new Set(), reasons = [], wrongs = [];
+      ins.forEach((t) => {
+        const raw = String(t.note || t.reason || (logFor(lgW, t) || {}).detail || '').trim(); if (!raw) return;
+        const [rs, wr] = raw.split(WRONG);
+        if (rs && !seen.has(rs)) { seen.add(rs); reasons.push([t, rs]); }
+        if (wr && !wrongs.includes(wr)) wrongs.push(wr);
+      });
+      const nm = String(r.holding).toLowerCase();
+      const exits = rlW.filter((x) => x.portfolio === pf && x.stop_id && x.asset && (String(x.asset).toLowerCase() === nm || nm.startsWith(String(x.asset).toLowerCase())));
+      const plan = plW.filter((x) => x.experiment === pf && (!x.model || x.model === dash.model) && (x.horizon === 'week' || x.horizon === 'month')).sort((a, b) => ((a.horizon === 'week' ? 0 : 1) - (b.horizon === 'week' ? 0 : 1)) || (new Date(b.at) - new Date(a.at)))[0];
+      if (!reasons.length && !wrongs.length && !exits.length && !plan) return null;
+      const det = mk('details', 'st-alloc-why');
+      const sm = mk('summary'); sm.append(mk('b', '', 'WHY?'), mk('span', '', ' In ' + who + "'s own words")); det.appendChild(sm);
+      const box = document.createElement('blockquote'); det.appendChild(box);   // one ▶ M / ▶ F for the whole answer
+      const add = (label, text, when, tail) => { const p = mk('div'); p.appendChild(mk('b', '', label + (when ? ' (' + stFmt.whenET(when) + ' ET)' : '') + ': ')); if (tail === true) p.append(text); else { p.appendChild(mk('q', '', text)); if (tail) p.appendChild(mk('span', 'st-muted', ' ' + tail)); } box.appendChild(p); };
+      reasons.slice(0, 3).forEach(([t, rs], k) => add(k ? 'Earlier, ' + (t.action === 'Short' ? 'when it shorted more' : 'when it added') : (ins.length > 1 ? 'Latest reason' : 'Why it ' + (t.action === 'Short' ? 'shorted' : 'bought')), rs, t.at));
+      if (reasons.length > 3) box.appendChild(mk('div', 'st-muted', reasons.length - 3 + ' more reasons in the Trades table.'));
+      wrongs.slice(0, 2).forEach((w) => add('What would prove it wrong', w));
+      exits.forEach((x) => add(/target/i.test(x.label) ? 'When it takes profit' : 'When it cuts the loss', x.why || String(x.rule || '').replace(/ \(([a-z]+), checked at every run by the race runner\)\./, ' ($1, checked automatically).'), null, x.why ? '(' + String(x.label || '').toLowerCase() + ' at ' + d3.format(',~f')(x.level) + ', checked automatically)' : true));
+      if (plan) add('Its ' + (plan.horizon === 'week' ? 'plan this week' : 'plan for the month') + ' in this race', plan.text);
+      if (!reasons.length && !ins.length) box.appendChild(mk('div', 'st-muted', 'Bought before the Oct 28 restart, so no reason was recorded with the trade.'));
+      return det;
+    };
     const key = mk('ul', 'st-alloc-key');
     rows.forEach((r, i) => {
       const li = mk('li');
       const sw = mk('i'); sw.style.background = col(r, i);
       li.append(sw, mk('b', '', r.holding + ' '), document.createTextNode(d3.format('.0%')(r.value_cad / total) + ' · ' + (pf === 'China' ? stFmt.money(vOf(r), pf) : stFmt.cad(r.value_cad))));
-      if (!cash(r)) li.appendChild(buysOf(r));
+      if (!cash(r)) { li.appendChild(buysOf(r)); const w = whyOf(r); if (w) { li.appendChild(w); li.dataset.say = 'no'; } }
       key.appendChild(li);
     });
     // shorts and borrowed money aren't slices of the pie, but they are holdings: list them with when and at what price
     d.data.filter((r) => r.portfolio === pf && Number(r.value_cad) < 0 && !cash(r) && Math.abs(Number(r.quantity)) > 1e-9).forEach((r) => {
       const li = mk('li'); const sw = mk('i', 'st-alloc-hollow');
       li.append(sw, mk('b', '', (Number(r.quantity) < 0 ? 'Short ' : '') + r.holding + ' '), document.createTextNode((Number(r.quantity) < 0 ? 'owes ' : '') + (pf === 'China' ? stFmt.money(Math.abs(vOf(r)), pf) : stFmt.cad(Math.abs(r.value_cad))) + ' (not in the chart)'));
-      li.appendChild(buysOf(r)); key.appendChild(li);
+      li.appendChild(buysOf(r)); { const w = whyOf(r); if (w) { li.appendChild(w); li.dataset.say = 'no'; } } key.appendChild(li);
     });
     row.appendChild(key);
   });

@@ -524,7 +524,7 @@ if (r.get('stops_migrated') or {}).get('claude'):
         _watch = ' (watching USD/CAD)' if _w == 'CAD=X' else ' (on the futures price the runner watches)' if _w in ('GC=F', 'SI=F') else ''
         data['rules'].append({'portfolio': _st['experiment'], 'rule': f"{_act} {_share} {_st.get('name')} if it {_move} to {_st['level']:g}{_watch} ({_st['kind']}, checked at every run by the race runner).",
                               'asset': _st.get('name'), 'level': _st['level'], 'direction': _st['direction'], 'label': _st['kind'].capitalize(), 'stop_id': _st['id'],
-                              **({'watch': _w} if _w else {})})
+                              **({'watch': _w} if _w else {}), **({'why': _st['reason']} if _st.get('reason') and not re.match(r'^(Sell|Cover|Buy)\b.*\((stop|target)\)\.?$', _st['reason']) else {})})
 data['stops_log'] = (r.get('stops_log') or [])[-60:]
 data['fingerprints'] = r.get('fingerprints') or []   # nightly ledger fingerprints (ops/fingerprint.py), recomputed by the visitor's browser
 # Profit on every closed trade (average cost) and every settled bet, so every trade table can show what went in,

@@ -184,7 +184,7 @@ def build(rivals, claude):
             move = 'falls' if st['direction'] == 'below' else 'rises'
             d['rules'].append({'portfolio': st['experiment'], 'rule': f"{act} {share} {nm} if it {move} to {st['level']:g} ({st['kind']}, checked at every run by the race runner).",
                                'asset': nm, 'level': st['level'], 'direction': st['direction'], 'label': st['kind'].capitalize(), 'stop_id': st['id'],
-                               **({'watch': st['watch']} if st.get('watch') else {})})
+                               **({'watch': st['watch']} if st.get('watch') else {}), **({'why': st['reason']} if st.get('reason') else {})})
         d['sources'] = [{'title': s['title'], 'url': s['url'], 'portfolios': exps} for s in lr.get('sources', [])]
 
         # daily ledger at 00:00 UTC, from the hourly check-ins
