@@ -345,6 +345,7 @@
   .st-score-list button.st-score-ai[aria-current="true"] { background: var(--card-inset, #1d1c18); }
   .st-score-who { font-size: 13px; font-weight: 600; color: var(--ai); gap: 5px; }
   .st-score-who .ai-mdl { color: var(--color-fg-muted); }
+  .st-score-list .st-score-idle-t { opacity: .62; border-style: dashed; } .st-score-list .st-score-idle-t .st-score-pct { color: var(--color-fg-muted); font-size: 18px; }
   .st-score-list li.st-score-foot { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 12.5px; color: var(--color-fg-muted); }
   .st-score-list button.st-score-more { width: auto; height: auto; padding: 5px 12px; border-radius: 999px; font-size: 13px; }
   .st-score-wait .st-score-pct { font-size: 15px; color: var(--color-fg-muted); font-family: inherit; }
@@ -8333,7 +8334,11 @@ tr.lg-hit .tx-id{opacity:1}
     const ORD = (n) => n + (['th', 'st', 'nd', 'rd'][(n % 100 - 20) % 10] || ['th', 'st', 'nd', 'rd'][n % 100] || 'th');
     // W9 (owner, Oct 30; all three AIs agreed): the ten main races are ranked on their own; the All in side races get their own small list below
     const mainL = narrow ? live : live.filter((r) => !ALLIN[r.race]), sideL = narrow ? [] : live.filter((r) => ALLIN[r.race]);
-    const shown = narrow ? live : el._all ? mainL : mainL.slice(0, 5);   // one row of 5, the rest under Show all (owner, Oct 31)
+    // not started yet (all cash) = exactly 0%: ranked by that 0%, ahead of every loss and behind every gain (owner, Oct 31)
+    const idleMain = narrow ? [] : idle.filter((r) => !ALLIN[r.race]), idleSide = narrow ? [] : idle.filter((r) => ALLIN[r.race]);
+    const withIdle = (L, I) => L.concat(I.map((r) => ({ ...r, _idle: 1, pct: 0, profit: 0 }))).sort((a, b) => (b.pct - a.pct) || ((a._idle ? 1 : 0) - (b._idle ? 1 : 0)));
+    const mainAll = narrow ? live : withIdle(mainL, idleMain), sideAll = narrow ? [] : withIdle(sideL, idleSide);
+    const shown = narrow ? live : el._all ? mainAll : mainAll.slice(0, 5);   // one row of 5, the rest under Show all (owner, Oct 31)
     const card = (r, i) => {
       const li = mk('li'); const rank = i + 1;
       const b = mk('button', 'st-score-ai' + (rank === 1 ? ' st-score-top' : '')); b.type = 'button'; b.style.setProperty('--ai', AIS[r.id].color);
@@ -8360,14 +8365,24 @@ tr.lg-hit .tx-id{opacity:1}
       b.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2 && s2.value !== r.id) { s2.value = r.id; s2.dispatchEvent(new Event('change')); } if (ALLIN[r.race]) goAllin(r.race); else goTab(TABOF[r.race]); });
       li.appendChild(b); el.appendChild(li);
     };
-    shown.forEach(card);
+    // not started yet (still all cash): grey tiles ranked at 0%, so the list always has all 30 (3 AIs x 10 races) and all 6 side-race entries (owner, Oct 31)
+    const idleCard = (r, i) => { const li = mk('li'); const b = mk('button', 'st-score-ai st-score-idle-t'); b.type = 'button'; b.style.setProperty('--ai', AIS[r.id].color);
+      const rn = ALLIN[r.race] ? ALLIN[r.race] + ' (side race)' : LABEL[r.race] || r.race;
+      const h = mk('span', 'st-score-name'); h.append(mk('b', '', ORD(i + 1)), document.createTextNode(rn)); b.appendChild(h);
+      b.appendChild(whoNode(r.id, 16, 'pd-who st-score-who')); b.appendChild(mk('span', 'st-score-pct', '0.0%')); b.appendChild(mk('span', 'st-score-amt', 'Not started yet'));
+      b.appendChild(mk('small', '', 'All cash, no trade or bet yet · ' + (r.race === 'China' ? 'US$' : 'C$') + '100,000'));
+      b.setAttribute('aria-label', AIS[r.id].label + ' has not started ' + rn + ' yet. Opens it as ' + AIS[r.id].label + '.');
+      b.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2 && s2.value !== r.id) { s2.value = r.id; s2.dispatchEvent(new Event('change')); } if (ALLIN[r.race]) goAllin(r.race); else goTab(TABOF[r.race]); });
+      li.appendChild(b); el.appendChild(li); };
+    shown.forEach((r, i) => (r._idle ? idleCard(r, i) : card(r, i)));
     const moreBtn = (key, n, all) => { const f = mk('li', 'st-score-foot'); const t = mk('button', 'st-score-more', el[key] ? 'Show the top 5 ▴' : 'Show all ' + n + ' ▾'); t.type = 'button';
       t.addEventListener('click', () => { el[key] = !el[key]; if (el._redraw) el._redraw(); else dash.redraw(); }); f.appendChild(t); el.appendChild(f); };
-    if (!narrow && mainL.length > 5) moreBtn('_all', mainL.length);
-    if (sideL.length) { const hd = mk('li', 'st-score-side-h'); hd.append(mk('b', '', 'Side race · All in'), mk('span', '', ' No caps, its own winner, never counted in the ten races')); el.appendChild(hd);
-      (el._allSide ? sideL : sideL.slice(0, 5)).forEach(card); if (sideL.length > 5) moreBtn('_allSide', sideL.length); }
+    if (!narrow && mainAll.length > 5) moreBtn('_all', mainAll.length);
+    if (sideAll.length) { const hd = mk('li', 'st-score-side-h'); hd.append(mk('b', '', 'Side race · All in'), mk('span', '', ' No caps, its own winner, never counted in the ten races')); el.appendChild(hd);
+      (el._allSide ? sideAll : sideAll.slice(0, 5)).forEach((r, i) => (r._idle ? idleCard(r, i) : card(r, i)));
+      if (sideAll.length > 5) moreBtn('_allSide', sideAll.length); }
     const foot = mk('li', 'st-score-foot');
-    if (idle.length) foot.appendChild(mk('span', 'st-score-idle', idle.length + ' not started yet (still all in cash): ' + idle.map((r) => AIS[r.id].label + ' in ' + (ALLIN[r.race] || LABEL[r.race] || r.race)).join(', ') + '.'));
+    // (the not-started ones are tiles in the list now, ranked at 0%)
     if (foot.childNodes.length) el.appendChild(foot);
   });
 
