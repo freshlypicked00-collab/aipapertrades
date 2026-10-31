@@ -560,3 +560,5 @@ change any score, and is never fed back to the AI later in Season 1. Only moves 
 Read ops/review/SOCIAL_STANDARD.md before making any public post. The old automatic replays were retired (a stranger could not follow them).
 youtube.yml now posts one story Short a day (ops/metricool.py story -> ops/story_short.py): the day's biggest settled bet; the owner
 approved the format and waived his preview (Oct 31), so the checks in story_short.py must never be loosened.
+
+Discord alert roles (owner, Oct 31): members opt in during Onboarding. Lead-change posts mention @Lead Change Alerts (ROLE_LEADS); the daily race card and the Sunday week recap in #daily-results mention @Daily Results Alerts (ROLE_DAILY). Only that role is pinged (allowed_mentions), never @everyone. Role IDs live in ops/discord.py; they are not secrets.

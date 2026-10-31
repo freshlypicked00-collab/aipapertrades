@@ -15,6 +15,8 @@ import urllib.request
 URL = os.environ.get('DISCORD_WEBHOOK_URL', '').strip()                # #live-trades: everything Telegram gets
 DAILY = os.environ.get('DISCORD_WEBHOOK_DAILY', '').strip()           # #daily-results: the race card after each daily close
 LEADS = os.environ.get('DISCORD_WEBHOOK_LEADS', '').strip()           # #lead-changes: each time an AI takes the lead in a race
+ROLE_LEADS = '1565994173562232860'   # @Lead Change Alerts: members opt in during Onboarding (owner, Oct 31)
+ROLE_DAILY = '1565994220278251620'   # @Daily Results Alerts
 UA = 'PaperTradesBot (https://papertrades.ai, 1.0)'   # Discord rejects requests with no User-Agent
 
 
@@ -33,19 +35,19 @@ def to_md(text):
 STAT = {'sent': 0, 'failed': 0, 'error': ''}   # this run's Discord results (rivals.py saves them in rivals.json 'discord', so a failure is visible)
 
 
-def post(text, photo=None, url=None):
+def post(text, photo=None, url=None, ping=None):
     """Send one message (with an optional PNG, or a list of PNGs sent together as one gallery, up to 10) to #live-trades,
-    or to the webhook given. Returns True when Discord accepted it.
+    or to the webhook given. Returns True when Discord accepted it. ping = a role ID to mention (only that role is pinged).
     An album (cover + one card per move) must be passed as the whole list: the cover says "Swipe for each move", so it is
     never posted alone (owner, Oct 30, after a cover went out on its own)."""
     URL = (url if url is not None else globals()['URL']) or ''
     if not URL:
         return False
     try:
-        content = to_md(text)
+        content = (f'<@&{ping}> ' if ping else '') + to_md(text)   # the mention goes first, then the 2,000-character cut
         if len(content) > 1990:
             content = content[:1985].rstrip() + ' …'
-        payload = json.dumps({'content': content, 'allowed_mentions': {'parse': []}, 'flags': 4})   # 4 = no link previews
+        payload = json.dumps({'content': content, 'allowed_mentions': {'parse': [], 'roles': [ping] if ping else []}, 'flags': 4})   # 4 = no link previews
         photos = [p for p in (photo if isinstance(photo, (list, tuple)) else [photo]) if p and os.path.exists(p)][:10]
         if photos:
             b = '----ptdc' + str(os.getpid())

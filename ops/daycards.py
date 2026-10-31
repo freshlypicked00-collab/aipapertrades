@@ -173,7 +173,7 @@ def publish(kind, tg_text, x_text, photo, tab):
     ok_dc = False
     try:
         import discord
-        ok_dc = discord.post(tg_text, photo, url=discord.DAILY or discord.URL)
+        ok_dc = discord.post(tg_text, photo, url=discord.DAILY or discord.URL, ping=discord.ROLE_DAILY if kind == 'weekly' else None)
     except Exception as e:
         print('::warning::Discord failed:', str(e)[:200])
     ok_x = False

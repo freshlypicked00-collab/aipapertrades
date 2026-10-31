@@ -8,6 +8,11 @@ on:
         type: choice
         options: [live-trades, daily-results, lead-changes]
         default: live-trades
+      ping:
+        description: 'mention an alert role'
+        type: choice
+        options: [none, leads, daily]
+        default: none
       text:
         description: 'message to post'
         default: '📡 <b>Live feed connected.</b> Every trade, bet and result from Claude, Gemini and ChatGPT now posts here automatically. Live scoreboard: https://papertrades.ai'
@@ -25,5 +30,6 @@ jobs:
           DISCORD_WEBHOOK_LEADS: ${{ secrets.DISCORD_WEBHOOK_LEADS }}
           CHANNEL: ${{ inputs.channel }}
           TEXT: ${{ inputs.text }}
+          PING: ${{ inputs.ping }}
         run: |
-          python3 -c "import os,sys; sys.path.insert(0,'ops'); import discord; u={'live-trades':discord.URL,'daily-results':discord.DAILY,'lead-changes':discord.LEADS}[os.environ['CHANNEL']]; u or sys.exit('::error::the secret for '+os.environ['CHANNEL']+' is not set'); ok=discord.post(os.environ['TEXT'],url=u); print('posted' if ok else 'FAILED'); sys.exit(0 if ok else 1)"
+          python3 -c "import os,sys; sys.path.insert(0,'ops'); import discord; u={'live-trades':discord.URL,'daily-results':discord.DAILY,'lead-changes':discord.LEADS}[os.environ['CHANNEL']]; u or sys.exit('::error::the secret for '+os.environ['CHANNEL']+' is not set'); ok=discord.post(os.environ['TEXT'],url=u,ping={'leads':discord.ROLE_LEADS,'daily':discord.ROLE_DAILY}.get(os.environ.get('PING'))); print('posted' if ok else 'FAILED'); sys.exit(0 if ok else 1)"
