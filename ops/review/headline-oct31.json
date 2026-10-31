@@ -1,0 +1,64 @@
+{
+ "at": "2026-10-31T18:04:52Z",
+ "question": "FRONT-PAGE WORDING, from the owner of PaperTrades.AI (Sat Oct 31, 2 p.m. ET). NOT a trading turn. The owner: \"Is this not misleading to have on the front page when it's fake money? Maybe we can say best judgement or something. Check with the other AIs; if they think it's fine, stay with it; but check legally.\" Majority wins.\n\nTHE FRONT PAGE NOW (the first thing a visitor reads):\n  Headline: \"Which AI makes the most money?\"\n  Line under it: \"Claude vs Gemini vs ChatGPT · C$100,000 of pretend money each · 10 races, from stocks to sports bets · real prices · Oct 28 to Nov 28. Every trade and every reason is public.\"\n  Then: \"Right now: 👑 Gemini leads overall (+C$15,659 total profit).\"\n\nCONTEXT: The site is run from British Columbia, Canada; most visitors are Canadian, some US. Nothing is sold; no real money is invested or bet; the site gives no advice, and every page says simulation only. Canada's Competition Act judges a claim by its \"general impression\" on an ordinary reader, not only its literal words; Canadian securities regulators watch online content that looks like investment advice or performance promotion; sports-bet content is sensitive for advertising (the site takes no bets and links to no sportsbook).\n\nOPTIONS (vote for ONE or AMEND, with the main reason and any risk):\nH1. Keep it as is (the sub-line already says pretend money).\nH2. \"Which AI makes the most (pretend) money?\" plus the same sub-line.\nH3. \"Which AI has the best judgment with money?\" plus the sub-line, and the leader line reads \"Right now: 👑 Gemini leads overall (+C$15,659 in pretend money)\".\nH4. \"Which AI makes the best money calls?\" with \"Pretend money, real prices\" in the sub-line's first words.\nH5. Your own wording (headline at most 8 words).\nAlso: is \"+C$15,659 total profit\" on the front page misleading without \"pretend\"? One line.\n\nAnswer as: Vote: ... / Reason: ... / Risk: ... / Leader line: ...",
+ "files": [
+  "ops/review/claude-votes-headline-oct31.json"
+ ],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "Vote: H2, amended so the leader line also says pretend money.\n\nReason: It preserves the clear hook, but puts “pretend” in the headline itself, which is safer for the ordinary-reader/general-impression test. “Best judgment” or “best money calls” could sound more like investment advice or performance promotion.\n\nRisk: Still slightly promotional because it ranks AIs by “money” and uses C$ figures, so the simulation language should appear before or beside every profit/leader figure.\n\nLeader line: Yes — “+C$15,659 total profit” is potentially misleading without “pretend”; use: “Right now: 👑 Gemini leads overall (+C$15,659 in pretend-money profit).”",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 778,
+     "completion_tokens": 669,
+     "total_tokens": 1447,
+     "cost": 0.02396,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.02396,
+      "upstream_inference_prompt_cost": 0.00389,
+      "upstream_inference_completions_cost": 0.02007
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 516,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "Vote: H2, with the leader line amended to include \"pretend money\".\n\nReason: Under Canada's Competition Act, the \"general impression\" of the primary headline must not be deceptive; adding \"(pretend)\" directly into the headline instantly neutralizes regulatory risk while keeping the clear, objective metric (money) rather than a subjective one (judgment), and avoids the word \"calls\" which securities regulators might interpret as unregistered investment advice.\n\nRisk: Using parentheses slightly disrupts the visual punch and flow of the main headline, but this is a minor trade-off for absolute regulatory safety. \n\nLeader line: Yes, stating \"+C$15,659 total profit\" without a qualifier could give a skimming reader the general impression of real financial returns, so it must be amended to \"pretend money\" or \"paper profit\".",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 844,
+     "candidatesTokenCount": 172,
+     "totalTokenCount": 2248,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 844
+      }
+     ],
+     "thoughtsTokenCount": 1232,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
