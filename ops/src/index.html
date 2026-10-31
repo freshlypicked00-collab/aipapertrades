@@ -881,8 +881,9 @@
     /* the name next to the logo always stays (owner, Oct 30; Claude, Gemini and ChatGPT agreed): other parts give way first,
        in the order Claude and Gemini picked: Beginner and Full screen copies, then the theme menu, then Currency and Risk, then a smaller name */
     .st-tabs-tools.fit-opts .st-tt-opt { display: none !important; }
-    .st-tabs-tools.fit-theme .st-tt-themepick select { max-width: 46px; }
-    .st-tabs-tools.fit-sec .st-tt-sec select { max-width: 78px; }
+    .st-tabs-tools.fit-theme .st-tt-themepick select { max-width: 112px; }   /* squeezed, it still shows the theme's name (was 46px: just 'H'; owner, Oct 30) */
+    .st-tabs-tools .st-tt-themepick::before { content: '🎨'; font-size: 15px; letter-spacing: 0; }   /* the icon never hides, even when the labels do, so it is always clear what it is */
+    .st-tabs-tools.fit-sec .st-tt-sec select { max-width: 132px; }   /* short names with an icon, never cut to 'Each e' (owner, Oct 30) */
     .st-tabs-tools.fit-brand-sm .st-tt-brand span { font-size: 11px; letter-spacing: .08em; }
     .st-tabs.st-tabs--min > :not(.st-tabs-tools):not(.pt-feed) { display: none !important; }   /* folded: only the slim top row stays */
     .st-tabs.st-tabs--min > .pt-feed .pt-news { display: none !important; }   /* ...plus the live price ticker under it; the headline waits for Open menu (owner, Oct 30) */
@@ -1192,19 +1193,19 @@ tr.lg-hit .tx-id{opacity:1}
         <p class="st-model-note" data-model-note>Showing Claude’s ten experiments (model: Claude Opus 5.5).</p>
         <label class="st-model-l" for="cur-pick">Currency</label>
         <select id="cur-pick" class="cur-pick">
-          <option value="">Each experiment's own (C$, or US$ for China)</option>
-          <option value="CAD">Canadian dollars (C$)</option><option value="USD">US dollars (US$)</option><option value="EUR">Euros (€)</option>
-          <option value="GBP">British pounds (£)</option><option value="JPY">Japanese yen (¥)</option><option value="CNY">Chinese yuan (CN¥)</option>
-          <option value="HKD">Hong Kong dollars (HK$)</option><option value="AUD">Australian dollars (A$)</option><option value="INR">Indian rupees (₹)</option>
-          <option value="MXN">Mexican pesos (MX$)</option><option value="CHF">Swiss francs (CHF)</option><option value="KRW">South Korean won (₩)</option>
-          <option value="BRL">Brazilian reais (R$)</option><option value="SGD">Singapore dollars (S$)</option>
+          <option value="" data-short="💱 Default">Each experiment's own (C$, or US$ for China)</option>
+          <option value="CAD" data-short="💱 C$">Canadian dollars (C$)</option><option value="USD" data-short="💱 US$">US dollars (US$)</option><option value="EUR" data-short="💱 €">Euros (€)</option>
+          <option value="GBP" data-short="💱 £">British pounds (£)</option><option value="JPY" data-short="💱 ¥">Japanese yen (¥)</option><option value="CNY" data-short="💱 CN¥">Chinese yuan (CN¥)</option>
+          <option value="HKD" data-short="💱 HK$">Hong Kong dollars (HK$)</option><option value="AUD" data-short="💱 A$">Australian dollars (A$)</option><option value="INR" data-short="💱 ₹">Indian rupees (₹)</option>
+          <option value="MXN" data-short="💱 MX$">Mexican pesos (MX$)</option><option value="CHF" data-short="💱 CHF">Swiss francs (CHF)</option><option value="KRW" data-short="💱 ₩">South Korean won (₩)</option>
+          <option value="BRL" data-short="💱 R$">Brazilian reais (R$)</option><option value="SGD" data-short="💱 S$">Singapore dollars (S$)</option>
         </select>
         <label class="st-model-l" for="risk-pick">Risk profile</label>
         <select id="risk-pick" class="risk-pick" title="Show only the races with this level of rules (owner, Oct 30; labels agreed with Gemini and ChatGPT)">
-          <option value="" data-short="Risk: all levels">All risk levels</option>
-          <option value="strict" data-short="Risk: Strict">Strict: Play it safe (low-risk funds, no leverage)</option>
-          <option value="standard" data-short="Risk: Standard">Standard: the main races (normal limits)</option>
-          <option value="unrestricted" data-short="Risk: Unrestricted">Unrestricted: All in (no limits, side race)</option>
+          <option value="" data-short="⚖️ All risk">All risk levels</option>
+          <option value="strict" data-short="⚖️ Strict">Strict: Play it safe (low-risk funds, no leverage)</option>
+          <option value="standard" data-short="⚖️ Standard">Standard: the main races (normal limits)</option>
+          <option value="unrestricted" data-short="⚖️ Unrestricted">Unrestricted: All in (no limits, side race)</option>
         </select>
         <p class="st-model-note" id="cur-note" hidden>Converted at the latest exchange rates for viewing only. Each experiment still runs in its own currency.</p>
         <button type="button" class="st-model-cmp" data-goto="h2h">Compare all models in AI vs AI →</button>
@@ -2961,10 +2962,10 @@ tr.lg-hit .tx-id{opacity:1}
     tick(); setInterval(tick, 15000);
     box.appendChild(clk);
     box.appendChild(mirror(mp, 'Model'));
-    if (cp) { const l = mirror(cp, 'Currency'); l.classList.add('st-tt-sec'); box.appendChild(l); }
+    if (cp) { const l = mirror(cp, 'Currency'); l.classList.add('st-tt-sec'); l.title = 'Currency: show every amount in one currency (for viewing only; each race still runs in its own)'; box.appendChild(l); }
     { const rp = document.getElementById('risk-pick'); if (rp) { const l = mirror(rp, 'Risk'); l.classList.add('st-tt-sec'); l.title = 'Risk profile: show only Strict, Standard or Unrestricted races'; box.appendChild(l); } }
     // the colour theme menu, the same as the header's (eight themes, owner Oct 29)
-    { const tp = document.getElementById('theme-pick'); if (tp) { const l = mirror(tp, 'Colour theme'); l.classList.add('st-tt-themepick'); l.title = 'Terminal on your first visit, then the one you pick is remembered in this browser'; box.appendChild(l); } }
+    { const tp = document.getElementById('theme-pick'); if (tp) { const l = mirror(tp, 'Colour theme'); l.classList.add('st-tt-themepick'); l.title = 'Colour theme: changes the site’s colours (dark or light). Terminal on your first visit, then the one you pick is remembered in this browser'; { const sl = l.querySelector('select'); if (sl) sl.title = l.title; } box.appendChild(l); } }
     // the bar's Beginner and Full screen copies show only once the header's own buttons have scrolled out of view, so the two are never on screen together (owner, Oct 30)
     const onlyWhenGone = (orig, copy) => {
       if (!('IntersectionObserver' in window)) return;
