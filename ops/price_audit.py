@@ -281,5 +281,30 @@ def main():
     print(f'::notice::price check: {new} new; totals {summ}')
 
 
+def recheck():
+    """Full audit, Oct 31 (read-only): re-check every settled row with the fixed bars cache, because rows checked before the fix could
+    have been compared with bars from another time of day. Writes ops/review/full-audit-recheck-<time>.json; changes nothing else."""
+    old = {}
+    for r in json.load(open(OUT)).get('rows', []):
+        old[(r['kind'], r['at'], r['holding'])] = r
+    out, changed = [], []
+    for it in items():
+        k = (it[0], it[1], it[3])
+        o = old.get(k)
+        if not o or o.get('status') not in ('ok', 'flag'):
+            continue
+        r = check(*it) or {}
+        row = {'kind': it[0], 'at': it[1], 'holding': it[3], 'claude': it[4], 'old': o.get('status'), 'new': r.get('status'),
+               'old_feed': [o.get('feed_low'), o.get('feed_high')], 'new_feed': [r.get('feed_low'), r.get('feed_high')], 'basis': r.get('basis'), 'gap_pct': r.get('gap_pct'), 'tolerance': r.get('tolerance')}
+        out.append(row)
+        if row['old'] != row['new'] or row['old_feed'] != row['new_feed']:
+            changed.append(row)
+    summ = {'rows': len(out), 'status_changed': sum(1 for r in out if r['old'] != r['new']), 'feed_range_changed': len(changed),
+            'now_flag': sum(1 for r in out if r['new'] == 'flag'), 'was_flag': sum(1 for r in out if r['old'] == 'flag')}
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'review', 'full-audit-recheck-' + datetime.now(timezone.utc).strftime('%Y-%m-%d-%H%M') + '.json')
+    json.dump({'at': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'), 'summary': summ, 'changed': changed, 'rows': out}, open(p, 'w'), indent=1)
+    print('recheck', summ, 'written', p)
+
+
 if __name__ == '__main__':
-    main()
+    recheck() if os.environ.get('PRICE_RECHECK') else main()
