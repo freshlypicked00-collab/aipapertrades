@@ -64,7 +64,7 @@ class S:
         self.t((X0, y), s, F('mono', 'SemiBold', 30), fill or self.col)
 
     def brand(self, label):
-        self.t((X0, 150), 'PAPER TRADES', F('mono', 'SemiBold', 30), CREAM)
+        self.t((X0, 150), 'PAPERTRADES.AI', F('mono', 'SemiBold', 30), CREAM)
         self.t((X1, 150), label, F('mono', 'Medium', 26), MUTED, 'ra')
 
     def arrow(self, pts, fill=None, w=8, seed=1):
@@ -110,7 +110,7 @@ def start_here(out):
     for i, k in enumerate(('claude', 'gemini', 'chatgpt')):
         robot(s.d, 300 + i * 240, 620 + (-40 if i == 1 else 30), AIC[k], 1.0, i)
         s.t((300 + i * 240, 760), NAME[k], F('sans', 'Bold', 44), AIC[k], 'ma')
-    s.kicker(880, 'WHAT IS PAPER TRADES?')
+    s.kicker(880, 'WHAT IS PAPERTRADES.AI?')
     s.t((X0, 930), 'Three AIs.', F('sans', 'Bold', 110))
     s.t((X0, 1060), 'One money race.', F('sans', 'Bold', 110), G)
     s.underline(X0 + 10, X0 + F('sans', 'Bold', 110).getlength('One money race.') - 10, 1200)

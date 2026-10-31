@@ -149,7 +149,7 @@ def guide(paths, out):
     W, H = 1440, 2560
     im = Image.new('RGB', (W, H), BG); d = ImageDraw.Draw(im)
     f = lambda k, w, s: pc.font(k, w, s)
-    d.text((90, 120), 'PAPER TRADES', font=f('mono', 'SemiBold', 44), fill=CREAM, anchor='lm')
+    d.text((90, 120), 'PAPERTRADES.AI', font=f('mono', 'SemiBold', 44), fill=CREAM, anchor='lm')
     d.text((90, 230), 'Your highlights', font=f('sans', 'Bold', 120), fill=(255, 176, 0), anchor='lm')
     wobble(d, [(95, 310), (300, 302), (520, 312), (740, 304)], (255, 176, 0), 10, 3)
     d.text((90, 380), 'In this order on the profile. Each circle is its cover.', font=f('sans', 'Regular', 44), fill=(155, 146, 127), anchor='lm')

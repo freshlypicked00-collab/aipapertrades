@@ -1,4 +1,4 @@
-"""Instagram pictures for Paper Trades, in the website's own look (dark theme, IBM Plex fonts, the site's colors).
+"""Instagram pictures for PaperTrades.ai, in the website's own look (dark theme, IBM Plex fonts, the site's colors).
 
 Every picture is 1440x1800 (4:5, the largest Instagram keeps), with all content inside the centre 3:4 area so the
 profile grid shows it uncropped. A quality gate (QualityError) refuses any picture whose text would leave the safe area,
@@ -103,7 +103,7 @@ class Card:
             ic = Image.open(icon).convert('RGBA').resize((76, 76), Image.LANCZOS)
             self.im.paste(ic, (x, 92), ic)
             x += 100
-        self.text((x, 130), 'PAPER TRADES', font('mono', 'SemiBold', 44), FG, 'lm', tracking=6)
+        self.text((x, 130), 'PAPERTRADES.AI', font('mono', 'SemiBold', 44), FG, 'lm', tracking=6)
         self.text((W - SAFE_X, 130), right, font('mono', 'Medium', 28), MUTED, 'rm', tracking=3)
         self.d.line([(SAFE_X, 210), (W - SAFE_X, 210)], fill=LINE, width=3)
 
@@ -376,7 +376,7 @@ def title_slide(n, when, path):
 SW, SH = 1440, 2560
 
 
-def story(cover_jpg, path, top='NEW ON PAPER TRADES', bottom='Every trade, live: papertrades.ai', glow_color=None):
+def story(cover_jpg, path, top='NEW ON PAPERTRADES.AI', bottom='Every trade, live: papertrades.ai', glow_color=None):
     cov = Image.open(cover_jpg).convert('RGB')
     if cov.size != (W, H):
         raise QualityError('story cover has the wrong size')
@@ -400,7 +400,7 @@ def story(cover_jpg, path, top='NEW ON PAPER TRADES', bottom='Every trade, live:
     return path
 
 
-# ---------- the "What is Paper Trades?" explainer: a 4-slide carousel for new visitors (pinned), plus its story
+# ---------- the "What is PaperTrades.ai?" explainer: a 4-slide carousel for new visitors (pinned), plus its story
 def intro_slides(table, prefix):
     """1) what it is, 2) nobody touches the trades, 3) the ten races and who leads each now, 4) where to follow. Returns paths."""
     if not table or any(e not in table for e in ORDER):
@@ -411,7 +411,7 @@ def intro_slides(table, prefix):
     _glow(c, AMBER, xy=(1150, 420), r=560)
     c.header('START HERE')
     y = brand_block(c)
-    y = title_block(c, y + 10, 'WHAT IS PAPER TRADES?', 'Three AIs. C$100,000 each. Ten races. One month.', max_lines=3)
+    y = title_block(c, y + 10, 'WHAT IS PAPERTRADES.AI?', 'Three AIs. C$100,000 each. Ten races. One month.', max_lines=3)
     c.text((SAFE_X, max(y + 10, 1300)), 'Real prices. Pretend money. Every trade public.', font('sans', 'Medium', 50), MUTED, 'lt')
     c.text((W - SAFE_X, 1528), 'Swipe to see how it works  →', font('mono', 'SemiBold', 30), AMBER, 'rm')
     c.footer(); paths.append(c.save(prefix + '-1.jpg'))

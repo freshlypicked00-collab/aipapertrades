@@ -1,4 +1,4 @@
-"""Post new Paper Trades activity to a Telegram channel.
+"""Post new PaperTrades.ai activity to a Telegram channel.
 
 Run by GitHub Actions after each push (see .github/workflows/telegram.yml). Compares the data
 files in this commit with the previous commit and posts: new trades, new bets, settled bets,
@@ -62,7 +62,7 @@ def send(text, photo=None, silent=False, _dc=True):
         with urllib.request.urlopen(req, timeout=30) as r:
             return json.loads(r.read())['result']['message_id']
     if photo:
-        send(f'<b>PAPER TRADES</b> · {SITE}', photo, silent, _dc=False)
+        send(f'<b>PAPERTRADES.AI</b> · {SITE}', photo, silent, _dc=False)
     data = urllib.parse.urlencode({'chat_id': CHAT, 'text': text, 'parse_mode': 'HTML', 'disable_web_page_preview': 'true', 'disable_notification': 'true' if silent else 'false'}).encode()
     with urllib.request.urlopen(f'https://api.telegram.org/bot{TOKEN}/sendMessage', data, timeout=20) as r:
         return json.loads(r.read())['result']['message_id']
@@ -120,7 +120,7 @@ def chart_section(pf, n):
             for sp in ax.spines.values():
                 sp.set_color(LINE)
             ax.grid(color=LINE, lw=.6)
-        fig.suptitle(f"PAPER TRADES · {LABEL.get(pf, pf)} · value {sym}{pts[-1][1]:,.0f} (started {sym}100,000)", color=AMBER, fontsize=13, x=.01, ha='left', fontweight='bold')
+        fig.suptitle(f"PAPERTRADES.AI · {LABEL.get(pf, pf)} · value {sym}{pts[-1][1]:,.0f} (started {sym}100,000)", color=AMBER, fontsize=13, x=.01, ha='left', fontweight='bold')
         fig.text(.99, .01, 'Simulation only · papertrades.ai', color=MUTED, ha='right', fontsize=9)
         fig.tight_layout(rect=(0, .03, 1, .94))
         path = f'/tmp/pt_{pf}_{n}.png'
@@ -152,7 +152,7 @@ def chart_scoreboard(rows, title, single=None):
             ax.set_xticks([])
             for sp in ax.spines.values():
                 sp.set_visible(False)
-        fig.suptitle('PAPER TRADES · ' + title, color=AMBER, fontsize=14, x=.01, ha='left', fontweight='bold')
+        fig.suptitle('PAPERTRADES.AI · ' + title, color=AMBER, fontsize=14, x=.01, ha='left', fontweight='bold')
         fig.text(.99, .01, ('Archived first run · ' if single else 'Ten separate experiments · ') + 'Simulation only · papertrades.ai', color=MUTED, ha='right', fontsize=9)
         fig.tight_layout(rect=(0, .03, 1, .93))
         path = '/tmp/pt_close.png'
@@ -190,7 +190,7 @@ if os.environ.get('MODE') == 'poll':
     chat = api('getChat', chat_id=CHAT)
     welcome = (chat.get('pinned_message') or {}).get('message_id')
     print(f'::notice title=welcome::{welcome}')
-    poll = api('sendPoll', chat_id=CHAT, question='🏁 Who wins Paper Trades on Nov 28?',
+    poll = api('sendPoll', chat_id=CHAT, question='🏁 Who wins PaperTrades.ai on Nov 28?',
                options=json.dumps(['🟠 Claude (Anthropic)', '🔵 Gemini (Google)', '⚪ ChatGPT (OpenAI)']), is_anonymous='true', disable_notification='true')
     api('pinChatMessage', chat_id=CHAT, message_id=poll['message_id'], disable_notification='true')
     print(f"::notice title=poll::{poll['message_id']}")
@@ -258,7 +258,7 @@ if WELCOME:
     order = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
     board = sorted(((pf, last.get(pf, 100000)) for pf in order), key=lambda x: -x[1])
     day = (datetime.now(timezone.utc) - datetime(2026, 10, 28, tzinfo=timezone.utc)).days + 1
-    intro = ("👋 <b>Welcome to Paper Trades: AI vs AI</b>\n\n"
+    intro = ("👋 <b>Welcome to PaperTrades.ai: AI vs AI</b>\n\n"
              "Three AI models trade <b>head to head</b>, tested <b>publicly, in front of the world, in real time</b>, with pretend money and real-world prices from Oct 28 to Nov 28, 2026. "
              "Each model runs its <b>own separate copy</b> of each experiment, starting from the same 100,000 at the same moment, "
              "and they are scored against each other. The overall winner is the AI with the most total profit on Nov 28.\n\n"
