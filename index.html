@@ -1299,7 +1299,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '7a655cf6dbdf';</script>
+<script>window.PT_PAGE_VER = '4abb92f28e91';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -4135,6 +4135,17 @@ body { background:var(--color-bg); }
         { const n = /^(Buy|Sell|Short|Cover|Bet)$/.test(t.action) ? pgNode(PG_KEY(t)) : null; if (n) why.appendChild(n); }
         r.append(window.ptTxWhen(t.at, t.tx), ai, mk('td', '', ALLIN[t.experiment].replace('All in: ', '')), mk('td', 'wrap', t.action + ' ' + String(t.name || t.symbol).replace(/^[A-Z]{2,5}: /, '') + (bt && bt.starts_at ? ' · game starts ' + stFmt.whenET(bt.starts_at) + ' ET' : '')),
           mk('td', 'num', Number.isFinite(+t.amount) ? (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.0f')(Math.abs(t.amount)) : ''), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret || ''), why);
+        // the way back and forth (owner, Oct 30; all three AIs agreed): a result finds its bet, a settled bet its result, a sale its buy,
+        // a sold buy its sale. Nothing on a bet still open or a position still held.
+        { const tAt = Date.parse(t.at), RES = /^(Won|Lost|Push|Void)$/; let pt = null, lab = '';
+          const same = (x) => x !== t && x.model === t.model && x.experiment === t.experiment;
+          if (RES.test(t.action)) { pt = TS.find((x) => same(x) && x.action === 'Bet' && x.bet && x.bet === t.bet); lab = '🔎 Find the bet'; }
+          else if (t.action === 'Bet' && !t._held) { pt = TS.find((x) => same(x) && RES.test(x.action) && x.bet === t.bet); lab = '🔎 Find the result'; }
+          else if (/^(Sell|Cover)$/.test(t.action)) { pt = TS.filter((x) => same(x) && x.symbol === t.symbol && /^(Buy|Short)$/.test(x.action) && Date.parse(x.at) <= tAt).sort((a, b) => Date.parse(b.at) - Date.parse(a.at))[0]; lab = '🔎 Find the buy'; }
+          else if (/^(Buy|Short)$/.test(t.action) && !t._held) { pt = TS.filter((x) => same(x) && x.symbol === t.symbol && /^(Sell|Cover)$/.test(x.action) && Date.parse(x.at) >= tAt).sort((a, b) => Date.parse(a.at) - Date.parse(b.at))[0]; lab = '🔎 Find the sale'; }
+          if (pt) { const fb = mk('button', 'lg-find', lab); fb.type = 'button'; fb.title = 'Jump to the matching move in this ledger, highlighted';
+            fb.addEventListener('click', () => { st.kind = ''; el._focus = { model: pt.model, exp: pt.experiment, key: pt.bet || pt.symbol, at: pt.at, tx: pt.tx || null }; draw(); });
+            r.children[3].append(document.createElement('br'), fb); } }
         if (t === hitT) r.classList.add('lg-hit');
         body.appendChild(r);
       });
