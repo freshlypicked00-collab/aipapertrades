@@ -1111,6 +1111,7 @@
   @media (max-width: 700px) { .st-bots .ai-robot { --rs: 30px; } .st-bots { gap: 3px; } }
   @media (prefers-reduced-motion: no-preference) { .st-bots .ai-robot { animation: pt-bob 3.2s ease-in-out infinite; } .st-bots .st-bot:nth-child(2) .ai-robot { animation-delay: -1.1s; } .st-bots .st-bot:nth-child(3) .ai-robot { animation-delay: -2.2s; } }
   @keyframes pt-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
+  .pt-takes-fb { margin-left: 6px; font-size: 11px; padding: 0 7px; border-radius: 999px; border: 1px solid var(--color-border-line); color: var(--color-fg-muted); white-space: nowrap; }
   #allin .h2h-cap { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: -4px; }
   .al-jump-b[hidden], #allin .h2h-exp[hidden] { display: none !important; }   /* only the selected part shows; the button switches to the other (owner, Oct 30) */
   .al-jump-b:hover, .al-jump-b:focus-visible { transform: translateY(-1px); outline: none; }
@@ -1418,7 +1419,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '31e62fc8f080';</script>
+<script>window.PT_PAGE_VER = 'ad489984737d';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -1590,7 +1591,7 @@ body { background:var(--color-bg); }
   <section class="st-page" id="overview" data-page="overview">
     <section class="st-card pt-takes-card" aria-labelledby="h-takes">
       <h2 class="st-h2" id="h-takes">What the AIs are thinking</h2>
-      <div data-draw="hometakes" data-source="take rivals_takes"></div>
+      <div data-draw="hometakes" data-source="take rivals_takes rivals_thoughts allin_trades"></div>
       <button type="button" class="st-model-cmp" data-goto="h2h">Compare all three in AI vs AI →</button>
     </section>
 
@@ -4551,14 +4552,26 @@ body { background:var(--color-bg); }
   // T2 (all three AIs agreed, Oct 31): the three latest takes, one each, near the top of the home page
   dash.draw('hometakes', (el) => {
     el.replaceChildren();
-    const C = (dash.baseData('take') || []).map((t) => ({ model: 'claude', at: t.at, text: t.text }));
-    const all = C.concat(dash.baseData('rivals_takes') || []);
-    const last = ['claude', 'gemini', 'chatgpt'].map((id) => all.filter((t) => t.model === id && t.text).sort((a, b) => new Date(b.at) - new Date(a.at))[0]).filter(Boolean);
+    // follows the race picked in Race standings, like the take box (owner, Oct 31): each AI's take on THAT race; Overall = their overall takes
+    const race = ALLIN[window.ptStandRace] ? window.ptStandRace : window.ptOverall ? null : window.ptRace || (window.ptFirstRace ? window.ptFirstRace() : null);
+    const rn = race ? (ALLIN[race] || LABEL[race] || race).replace(' (US$)', '') : '';
+    { const h = document.getElementById('h-takes'); if (h) h.textContent = race ? 'What the AIs are thinking about ' + rn : 'What the AIs are thinking overall'; }
+    const newest = (L) => L.filter((t) => t && t.text).sort((a, b) => new Date(b.at) - new Date(a.at))[0] || null;
+    const overallOf = (id) => id === 'claude' ? newest((dash.baseData('take') || []).filter((t) => !t.experiment)) : newest((dash.baseData('rivals_takes') || []).filter((t) => t.model === id));
+    const raceOf = (id) => {
+      if (!race) return null;
+      const pool = id === 'claude' ? (dash.baseData('take') || []).filter((x) => x.experiment === race).slice() : (dash.baseData('rivals_thoughts') || []).filter((x) => x.model === id && x.experiment === race);
+      if (ALLIN[race]) (dash.baseData('allin_trades') || []).filter((x) => x.model === id && x.experiment === race && x.reason).forEach((x) => pool.push({ at: x.at, text: x.reason }));
+      return newest(pool);
+    };
+    const last = ['claude', 'gemini', 'chatgpt'].map((id) => { const r = raceOf(id); if (r) return { model: id, at: r.at, text: r.text };
+      const o = overallOf(id); return o ? { model: id, at: o.at, text: o.text, fallback: !!race } : null; }).filter(Boolean);
     el.closest('.st-card').classList.toggle('pt-gone', !last.length); if (!last.length) return;
     const ul = mk('ul', 'pt-takes');
     last.forEach((t) => {
       const li = mk('li'); li.style.setProperty('--ai', AIS[t.model].color);
       const hd = mk('div', 'pt-takes-hd'); hd.appendChild(whoNode(t.model, 16)); hd.appendChild(mk('span', 'st-muted', ' · ' + stFmt.whenET(new Date(t.at).toISOString()) + ' ET'));
+      if (t.fallback) hd.appendChild(mk('span', 'pt-takes-fb', 'no ' + rn + ' note yet · its overall take'));
       const q = mk('q', 'pt-takes-q', t.text); q.title = 'Tap to show all'; q.addEventListener('click', () => li.classList.toggle('pt-open'));
       li.append(hd, q); ul.appendChild(li);
     });
