@@ -459,6 +459,29 @@ Stories: one each day with the daily results (after the daily post), and one for
 ## Corrections on Telegram
 Every trade and bet is announced on Telegram as it happens, so a cancellation or correction must be announced there too. Write the notice to ops/notices/<date>-<what>.txt (Telegram HTML; plain and factual: what was posted, what changed, why, that it never counted) and dispatch it: `gh api -X POST repos/freshlypicked00-collab/aipapertrades/actions/workflows/notice.yml/dispatches -f ref=main -f 'inputs[file]=<file>'`. It posts once, with a push notification. Also add the entry to ops/src/corrections.json. ops/void_bets.py voids bets but does not post: always follow it with a notice.
 
+## Full audit decisions (owner's request, Oct 31; all three AIs agreed: ops/review/AUDIT_DECISIONS.md)
+- **Fresh quotes only (V1, live):** `yahoo()` in `ops/rivals.py` uses the newest bar when Yahoo's quote lags it, and marks a symbol stale when its
+  market is open but nothing is from today's session yet; `execute` refuses such an order ("send it again at your next check-in") and
+  `stops.price_now` keeps the stop for the next run. Valuations still use the last price. Futures quotes on Yahoo can lag about 10 minutes; that is
+  why Claude's Oct 30 silver stop filled 0.5% high (P3).
+- **Small-unit currencies (V2, live):** a US$ quote below 0.1 (the yen) is replaced by 1 / (units per US$) from `<CODE>=X`.
+- **Price corrections of past fills (V3, done):** `ops/fill_fixes.py` (audit.yml, mode fixes) takes the close of the 1-minute bar of the fill
+  minute and writes the amounts; `ops/src/price_corrections.json` holds them. The race runner applies each Gemini/ChatGPT correction ONCE to that
+  book's cash (`apply_price_corrections`, in every run's shared steps) and records it in rivals.json `price_corrections`; Claude's are applied
+  in Claude's own files (holdings.json cash + a history point + a Check log entry) and get an "at" in the json. Never rewrite the original fill.
+  They show in Rules & Audit ("Price corrections of past fills") and are hashed in the nightly fingerprint as `P` lines (ops/fingerprint.py and
+  the browser's fpLines must stay in step). A new correction needs a vote first (owner's rule), then a new id in the json.
+- **Claude's Oct 29 Crypto close (V4, done):** restated in ledger.json (C$98,864.38; "restated" field keeps the old value).
+- **One price source for standings (V5, started):** the runner records Claude's values at its own feed prices at every check-in in rivals.json
+  `claude_feed` (`claude_feed_values`, same `value_book` code as the rivals). Next: once a few check-ins agree with Claude's own values within
+  normal quote noise, build standings, day closes, lead changes and moments from `claude_feed` for Claude. Until then nothing on the site reads it.
+- **Same board for everyone (V6, live):** the runner freezes the public board and the fact-check takes at the start of each check-in
+  (`FROZEN` in main). **Claude:** decide from the board as it stood when your run started. Your run dispatches the rivals' check-in at its
+  start; do not read Gemini's or ChatGPT's moves from that check-in (rivals.json changes after your run started) until your orders are queued.
+- **Futures roll (V7, planned for Wed Nov 18):** at the first US-hours check-in, roll every CL=F position into the January contract at both
+  contracts' prices at that minute (value unchanged, shown as a roll), announced on the site and Telegram by Nov 11; GC=F and SI=F the same way
+  at their rolls. Any AI may close instead. Build and test it before Nov 11 (Yahoo contract symbols such as CLZ26.NYM / CLF27.NYM).
+
 ## Price check (since Oct 29)
 `ops/price_audit.py` runs in every rivals check-in (rivals.yml) and compares every price Claude used since the restart (fills in trades.json, values in prices.json) with Yahoo 1-minute regular-session bars or Polymarket price history at the stated time. Results: `ops/src/price_audit.json`, shown in Rules & Audit. Map new holdings to feed symbols in `MAP` / `PRED` in that script when Claude opens them (a ticker-like name is used as the Yahoo symbol automatically). Agreed with Gemini and ChatGPT (ops/review/pricecheck.json): option C. Next step: Claude sends orders only and the runner fills them at the feed price, like the rivals.
 

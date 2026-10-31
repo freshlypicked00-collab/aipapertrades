@@ -2369,7 +2369,7 @@ tr.lg-hit .tx-id{opacity:1}
       <h2 class="st-h2" id="h-fp">Ledger fingerprints: proof nothing was changed later</h2>
       <p class="st-note">Agreed by all three AIs on Oct 29. After each daily close (8 p.m. ET until Nov 1, 7 p.m. ET after), the race runner takes a SHA-256 fingerprint of every trade and bet of all three AIs up to that close and publishes it here and on Telegram, once. Your browser recomputes each one right now from the data on this page: if any earlier trade or bet had been edited since, its fingerprint would no longer match. Corrections, when there are any, are listed below with their reasons.</p>
       <p class="st-note"><b>Search source ledger</b> (all three AIs agreed, Oct 30): from Oct 30, 8 p.m. ET (Oct 31, 00:00 UTC), every check-in of every AI records its search queries and the links it used (links only, never page text), in a public file for each day. Each closed day's file gets its own SHA-256 below, next to that night's fingerprint. Earlier check-ins can't be rebuilt. It is for transparency, not scoring. Open "What it looked up" under any trade in the Ledger.</p>
-      <div data-draw="fingerprints" data-source="fingerprints trades bets rivals_trades allin_trades"></div>
+      <div data-draw="fingerprints" data-source="fingerprints trades bets rivals_trades allin_trades price_corrections"></div>
     </section>
     <section class="st-card" aria-labelledby="h-pa">
       <h2 class="st-h2" id="h-pa">Price check: Claude’s prices vs the feeds</h2>
@@ -4101,6 +4101,8 @@ tr.lg-hit .tx-id{opacity:1}
     });
     (dash.baseData('rivals_trades') || []).concat(dash.baseData('allin_trades') || []).forEach((t) => {
       if (t.at && T(t.at) < close && (t.model !== 'claude' || /^AllIn/.test(t.experiment || ''))) out.push(['R', S(t.model), S(t.at), S(t.experiment), S(t.action), S(t.symbol), C(t.amount), P(t.price)].join('|')); });
+    (dash.baseData('price_corrections') || []).forEach((c) => {   // price corrections of past fills (audit vote V3, Oct 31), as in ops/fingerprint.py
+      if (c.at && T(c.at) < close) out.push(['P', S(c.model), S(c.at), S(c.experiment), S(c.symbol), S(c.fill_at), C(c.amount)].join('|')); });
     return out.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
   };
   const fpHash = async (ls) => { const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(ls.join('\n'))); return [...new Uint8Array(buf)].map((x) => x.toString(16).padStart(2, '0')).join(''); };
@@ -8264,6 +8266,24 @@ tr.lg-hit .tx-id{opacity:1}
       (a.corrections || []).slice().sort((p, q) => new Date(q.at) - new Date(p.at)).forEach((x) => { const li = mk('li'); li.dataset.at = x.at || ''; li.append(mk('b', '', x.what + ' · ' + stFmt.when(x.at) + ': '), document.createTextNode(x.text)); ul.appendChild(li); });
       if (!(a.corrections || []).length) ul.appendChild(mk('li', '', 'None so far.'));
       el.appendChild(ul);
+      const pcs = dash.baseData('price_corrections') || [];
+      if (pcs.length) {   // full-audit vote V3 (Oct 31): fills made at a stale or rounded feed price, restated at the 1-minute bar
+        el.appendChild(mk('h3', 'st-h3', 'Price corrections of past fills'));
+        el.appendChild(mk('p', 'st-note', 'Decided Oct 31 by all three AIs after the full audit: a fill made at a stale or rounded feed price is restated at the close of the 1-minute bar of its minute, for every AI, in both directions. The original fill stays in the ledger as it was; the difference goes to or from that race\u2019s cash once, at the time shown.'));
+        const NM = { claude: 'Claude', gemini: 'Gemini', chatgpt: 'ChatGPT' };
+        const RL = { AllInTrading: 'All in: trading', Currencies: 'Currencies', China: 'China', Metals: 'Metals' };
+        const px = (v) => (v === null || v === undefined ? '' : (Math.abs(v) < 0.1 ? d3.format('.6f')(v) : d3.format(',.3~f')(v)));
+        const w = mk('div', 'st-wrap'); const t = mk('table', 'st-table');
+        t.innerHTML = '<thead><tr><th>AI</th><th>Race</th><th>Fill</th><th class="num">Filled at</th><th class="num">1-min bar</th><th class="num">Correction</th></tr></thead>';
+        const tb = mk('tbody');
+        pcs.forEach((c) => {
+          const tr = mk('tr'); const cur = c.currency === 'USD' ? 'US$' : 'C$';
+          tr.append(mk('td', '', NM[c.model] || c.model), mk('td', '', RL[c.experiment] || c.experiment), mk('td', 'wrap', stFmt.when(c.fill_at) + ' · ' + c.action + ' ' + c.symbol + (c.why ? ' (' + c.why + ')' : '')),
+            mk('td', 'num', px(c.fill_price)), mk('td', 'num', px(c.bar_price)), mk('td', 'num ' + (c.amount >= 0 ? 'is-up' : 'is-down'), (c.amount >= 0 ? '+' : '−') + cur + d3.format(',.2f')(Math.abs(c.amount))));
+          tb.appendChild(tr);
+        });
+        t.appendChild(tb); w.appendChild(t); el.appendChild(w);
+      }
     }).catch(() => { el._busy = false; });
   };
   dash.draw('betmins', (el) => {

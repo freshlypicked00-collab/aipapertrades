@@ -527,6 +527,25 @@ if (r.get('stops_migrated') or {}).get('claude'):
                               **({'watch': _w} if _w else {}), **({'why': _st['reason']} if _st.get('reason') and not re.match(r'^(Sell|Cover|Buy)\b.*\((stop|target)\)\.?$', _st['reason']) else {})})
 data['stops_log'] = (r.get('stops_log') or [])[-60:]
 data['fingerprints'] = r.get('fingerprints') or []   # nightly ledger fingerprints (ops/fingerprint.py), recomputed by the visitor's browser
+
+
+def _price_corrections():
+    """Price corrections of past fills (full-audit vote V3, Oct 31; all three AIs agreed): Gemini's and ChatGPT's as applied by the race
+    runner (rivals.json), Claude's as applied in its own files (ops/src/price_corrections.json with an "at"). Each carries the original
+    fill price and the 1-minute bar price. Hashed in the nightly fingerprint ("P" lines), so the browser needs the same fields."""
+    try:
+        spec = {c['id']: c for c in json.load(open(os.path.join(SRC, 'price_corrections.json')))}
+    except Exception:
+        spec = {}
+    keep = ('bar_minute', 'why', 'qty', 'feed', 'problem')
+    out = [{**{k: v for k, v in spec.get(c['id'], {}).items() if k in keep}, **c} for c in (r.get('price_corrections') or [])]
+    for c in spec.values():
+        if c.get('model') == 'claude' and c.get('at'):
+            out.append({k: c.get(k) for k in ('id', 'at', 'model', 'experiment', 'symbol', 'fill_at', 'action', 'fill_price', 'bar_price', 'amount', 'currency') + keep})
+    return sorted(out, key=lambda c: (c['fill_at'], c['id']))
+
+
+data['price_corrections'] = _price_corrections()
 # Profit on every closed trade (average cost) and every settled bet, so every trade table can show what went in,
 # what came back and the profit. Buys and open bets are marked open. Sells carry "cost" (what that part cost) and "pnl".
 def _annotate_rivals(r):

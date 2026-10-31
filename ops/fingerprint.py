@@ -7,6 +7,7 @@ Lines (sorted, joined with a newline, UTF-8):
   B|bet|placed_at|pick|odds|stake cents                       Claude's bets as placed (ops/src/bets.json)
   S|bet|settled_at|status|result cents                        a Claude bet's result, once settled before the close
   R|model|at|race|action|symbol|amount cents|price millionths Gemini's and ChatGPT's trades and bets, and every AI's All in moves
+  P|model|at|race|symbol|fill time|amount cents               a price correction of a past fill (full-audit vote V3, from Oct 31)
 Numbers are whole units (floor(x * 100 + 0.5) cents, floor(x * 1e6 + 0.5) millionths), the same in Python and in the browser.
 Published at the first run 2 hours after the close (late records land first), in rivals.json "fingerprints" and on Telegram.
 """
@@ -35,8 +36,16 @@ def _p(x):
     return '' if x is None or x == '' else str(math.floor(float(x) * 1e6 + 0.5))
 
 
-def lines(trades, bets, rtrades, close):
+def corrections(state):
+    """Every applied price correction: Gemini's and ChatGPT's from rivals.json, Claude's from ops/src/price_corrections.json."""
+    return list(state.get('price_corrections', [])) + [c for c in _j('price_corrections') if c.get('model') == 'claude' and c.get('at')]
+
+
+def lines(trades, bets, rtrades, close, corr=()):
     out = []
+    for c in corr:
+        if c.get('at') and _t(c['at']) < close:
+            out.append('|'.join(['P', _s(c.get('model')), _s(c['at']), _s(c.get('experiment')), _s(c.get('symbol')), _s(c.get('fill_at')), _c(c.get('amount'))]))
     for t in trades:
         if t.get('at') and _t(t['at']) < close:
             amt = t.get('cad') if t.get('cad') is not None else t.get('usd')
@@ -76,7 +85,7 @@ def maybe_publish(state, now, post=None):
     day = (close - timedelta(days=1)).date().isoformat()
     if day in have:
         return None
-    ls = lines(_j('trades'), _j('bets'), state.get('trades', []), close)
+    ls = lines(_j('trades'), _j('bets'), state.get('trades', []), close, corrections(state))
     f = {'day': day, 'close_at': close.strftime('%Y-%m-%dT%H:%M:%SZ'), 'sha256': digest(ls), 'records': len(ls), 'at': now.strftime('%Y-%m-%dT%H:%M:%SZ')}
     try:   # the search source ledger's day file gets its own SHA-256 beside it (all three AIs agreed, Oct 30); the rule above is unchanged
         import searchlog as SL

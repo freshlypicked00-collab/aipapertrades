@@ -1529,6 +1529,12 @@ def compact(state):
             last_in_hour[k + (h['at'][:13],)] = i
     keep = sorted(set(keep) | set(last_in_hour.values()))
     state['history'] = [hist[i] for i in keep]
+    cf, last_cf = state.get('claude_feed', []), {}   # V5 rows: older than 3 days, the last per race and hour
+    for i, x in enumerate(cf):
+        if x['at'] < cut:
+            last_cf[(x['experiment'], x['at'][:13])] = i
+    keep_cf = set(last_cf.values())
+    state['claude_feed'] = [x for i, x in enumerate(cf) if x['at'] >= cut or i in keep_cf]
     pl = state.get('plans', [])
     last_pl = {}
     for i, x in enumerate(pl):
@@ -1625,11 +1631,66 @@ def save_state(state):
     os.replace(tmp, STATE)
 
 
+def claude_feed_values(state, fx):
+    """V5 of the full-audit vote (Oct 31; all three AIs agreed): at every check-in the race runner also values Claude's holdings at
+    its own feed prices, with the same code it uses for Gemini and ChatGPT (value_book), so all three are priced from one source at
+    the same moment. Kept in rivals.json "claude_feed" (one row per race per check-in). Claude's own quotes stay for its decisions and
+    notes; the site moves standings, day closes, lead changes and moments onto these values once they are checked side by side."""
+    if NOW < FRESH_START or NOW >= RACE_END:
+        return
+    import claude_fill as CF
+    books, _ = CF.claude_books(state, fx, state.get('claude_main') or {'done': [], 'results': [], 'codes': {}})
+    notes, at = [], iso()
+    rows = state.setdefault('claude_feed', [])
+    for e, b in books.items():
+        for p in b.get('positions', {}).values():
+            p.setdefault('hist', [])   # a throwaway copy of Claude's books: no price-history seeding
+        try:
+            v = value_book(e, b, fx, notes)
+        except Exception as ex:
+            print('claude feed value failed', e, ex)
+            continue
+        rows.append({'at': at, 'experiment': e, 'value': round(float(v), 2), **({'unmapped': b['unmapped']} if b.get('unmapped') else {})})
+    if notes:
+        print('claude feed notes:', '; '.join(str(n) for n in notes[:6]))
+
+
+def apply_price_corrections(state):
+    """V3 of the full-audit vote (Oct 31; Claude, Gemini and ChatGPT all agreed, ops/review/AUDIT_DECISIONS.md): a fill that was made
+    at a stale or rounded feed price is restated once, at the close of the Yahoo 1-minute bar of its minute, as a cash correction in that
+    book. The original fill is never changed; each correction is kept in rivals.json "price_corrections" (Rules & Audit, fingerprints).
+    The amounts come from ops/src/price_corrections.json, computed from the feed by ops/fill_fixes.py. Claude's own corrections are
+    applied in Claude's files (holdings.json), not here."""
+    try:
+        todo = json.load(open('ops/src/price_corrections.json'))
+    except Exception:
+        return
+    done = state.setdefault('price_corrections', [])
+    have = {d['id'] for d in done}
+    for c in todo:
+        if c.get('model') not in RIVALS or c.get('id') in have:
+            continue
+        book = state.get('models', {}).get(c['model'], {}).get('books', {}).get(c['race'])
+        if not book or book.get('cur') != c.get('currency'):
+            print('price correction skipped: no matching book', c.get('id'))
+            continue
+        before = float(book['cash'])
+        book['cash'] = before + float(c['amount'])
+        done.append({'id': c['id'], 'at': iso(), 'model': c['model'], 'experiment': c['race'], 'symbol': c['symbol'], 'fill_at': c['fill_at'],
+                     'action': c['action'], 'fill_price': c['fill_price'], 'bar_price': c['bar_price'], 'amount': float(c['amount']),
+                     'currency': c['currency'], 'cash_before': round(before, 2), 'cash_after': round(book['cash'], 2)})
+        print('price correction applied', c['id'], c['model'], c['race'], c['amount'], c['currency'])
+
+
 def shared_steps(state, fx, games=True):
     """At every run (check-ins and Claude's fill runs): Claude's queued orders and stops (option B), every rival's stops and
     targets, and closing odds, all through the same code and feeds."""
     import claude_fill as CF
     import stops as ST
+    try:
+        apply_price_corrections(state)
+    except Exception as e:
+        print('price corrections failed', e)
     try:
         CF.process(state, fx)
     except Exception as e:
@@ -2179,6 +2240,10 @@ def main():
     if not ran:
         print('no rival API keys set; nothing to do')
         return
+    try:
+        claude_feed_values(state, fx)
+    except Exception as e:
+        print('claude feed values failed', e)
     if NOW >= RACE_END:   # after the end, write only what really changed (final values, late bet results)
         try:
             compact(state)
