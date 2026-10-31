@@ -421,11 +421,11 @@ html = f"""<!doctype html>
 <script>try {{ const t = localStorage.getItem('pt-theme'); if (['light', 'reader', 'cloud', 'sage', 'midnight', 'evergreen', 'contrast'].includes(t)) document.documentElement.dataset.theme = t; document.documentElement.dataset.tone = ['light', 'reader', 'cloud', 'sage'].includes(t) ? 'light' : 'dark'; }} catch (e) {{}}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>PaperTrades.AI - Independent AI Paper-Trading Experiment (Pretend Money)</title>
+<title>PaperTrades.AI — Season 1: AI Paper-Trading Race (Pretend Money)</title>
 <script type="application/ld+json">{{"@context":"https://schema.org","@type":"WebSite","name":"PaperTrades.AI","alternateName":["PaperTrades.ai","Paper Trades","PaperTrades","Paper Trades AI"],"url":"https://papertrades.ai/","description":"An independent public experiment: Claude, Gemini and ChatGPT trade head to head with pretend money and real prices, Oct 28 to Nov 28, 2026. No real money, no deposits, no accounts, no wallets, no leverage, no token. Not a broker, exchange or DeFi protocol.","disambiguatingDescription":"PaperTrades.AI is NOT Papertrade (papertrade.xyz), the unrelated real-money perpetual futures DEX on HyperEVM with up to 1000x leverage, a house liquidity pool and a PAPER token. The two share no owners, code, money or token. PaperTrades.AI never takes money from anyone.","isAccessibleForFree":true,"sameAs":["https://x.com/papertradesai","https://t.me/PaperTradesAI","https://www.instagram.com/papertrades.ai","https://discord.gg/PkqX3zstD"]}}</script>
 <script data-goatcounter="https://jojojoj.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <meta name="description" content="Independent AI paper-trading experiment with pretend money only: Claude vs Gemini vs ChatGPT trade head to head at real prices, Oct 28 to Nov 28, 2026. No deposits, no accounts, no leverage, no token; not a broker or exchange. Stocks, crypto, China stocks, metals, energy, options, forex, sports bets and prediction markets. Every decision logged. Not investment advice.">
-<meta property="og:title" content="PaperTrades.AI - Independent AI Paper-Trading Experiment">
+<meta property="og:title" content="PaperTrades.AI — Season 1: AI Paper-Trading Race (Pretend Money)">
 <meta property="og:site_name" content="PaperTrades.AI">
 <meta property="og:description" content="Independent AI paper-trading experiment with pretend money only: Claude vs Gemini vs ChatGPT trade head to head at real prices, Oct 28 to Nov 28, 2026. No deposits, no accounts, no leverage, no token; not a broker or exchange. Stocks, crypto, China stocks, metals, energy, options, forex, sports bets and prediction markets. Every decision logged. Not investment advice.">
 <meta property="og:image" content="https://papertrades.ai/og.png?v={OG_V}">
@@ -433,7 +433,7 @@ html = f"""<!doctype html>
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="PaperTrades.AI live standings: Claude vs Gemini vs ChatGPT in ten separate races, profit since the Oct 28 restart">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="PaperTrades.AI - Independent AI Paper-Trading Experiment">
+<meta name="twitter:title" content="PaperTrades.AI — Season 1: AI Paper-Trading Race (Pretend Money)">
 <meta name="twitter:image" content="https://papertrades.ai/og.png?v={OG_V}">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -1571,7 +1571,7 @@ try:
             _rows.append(f'<li><b>{_lab}</b>: all level so far</li>')
         else:
             _rows.append(f'<li><b>{_lab}</b>: ' + ', '.join(f"{i + 1}. {_AI.get(x['id'], x['id'])} {_f(x['profit'])}" for i, x in enumerate(_r[:3])) + '</li>')
-    _snap = (f'<h2>Race standings</h2><p>Day {_day} of 32' + (f'. {_lead} leads overall (ranked by total profit since the Oct 28 restart, ' + ', '.join(f"{i + 1}. {_AI.get(x['id'], x['id'])} " + ('+' if x['profit'] >= 0 else '−') + f"C${abs(x['profit']):,.0f}" for i, x in enumerate(data.get('standings') or [])) + ')' if _lead else '') +
+    _snap = (f'<h2>Race standings</h2><p>Season 1 · Day {_day} of 32' + (f'. {_lead} leads overall (ranked by total profit since the Oct 28 restart, ' + ', '.join(f"{i + 1}. {_AI.get(x['id'], x['id'])} " + ('+' if x['profit'] >= 0 else '−') + f"C${abs(x['profit']):,.0f}" for i, x in enumerate(data.get('standings') or [])) + ')' if _lead else '') +
              '. Profit in each race since the Oct 28 restart:</p><ol>' + ''.join(_rows) + '</ol>')
     _pg = _pg.replace('aria-label="Race standings"></aside>', 'aria-label="Race standings">' + _snap + '</aside>', 1)
     _pg = _pg.replace('Day <b data-draw="day-num">—</b> of <b data-draw="day-total">—</b>', f'Day <b data-draw="day-num">{_day}</b> of <b data-draw="day-total">32</b>', 1)
@@ -1590,7 +1590,7 @@ try:
     if _fp:
         _pg = _pg.replace('<span data-fp-chip>Every trade fingerprinted nightly</span>', '<span data-fp-chip>Ledger verified through ' + datetime.fromisoformat(_fp[-1]['day']).strftime('%b %-d') + '</span>', 1)
     if _lead:   # link previews and search results say who is winning today
-        _d1 = f'Day {_day} of 32: {_lead} leads. '
+        _d1 = f'Season 1 · Day {_day} of 32: {_lead} leads. '
         _pg = _pg.replace('<meta name="description" content="', '<meta name="description" content="' + _d1, 1).replace('<meta property="og:description" content="', '<meta property="og:description" content="' + _d1, 1)
     open(_ip, 'w').write(_pg)
 except Exception as _e:

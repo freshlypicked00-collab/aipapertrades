@@ -138,7 +138,7 @@ def moment(m, path):
         raise QualityError('moment data incomplete')
     at = datetime.fromisoformat(m['at'].replace('Z', '+00:00'))
     c = Card()
-    c.header(f'DAY {day_of(at)} OF 32')
+    c.header(f'SEASON 1 · DAY {day_of(at)} OF 32')
     c.text((SAFE_X, 300), f'LEAD CHANGE · {LABEL[race].upper()}', font('mono', 'SemiBold', 34), AMBER, 'lm', tracking=4)
     hf = font('sans', 'Bold', 150)
     head = f'{AIS[who][0]} takes the lead'
@@ -179,7 +179,7 @@ def daily(table, n, when, big, path):
     if not table or any(e not in table for e in ORDER):
         raise QualityError('daily data incomplete: not every race has results')
     c = Card()
-    c.header(f'DAY {n} OF 32')
+    c.header(f'SEASON 1 · DAY {n} OF 32')
     c.text((SAFE_X, 290), f'DAY {n} RESULTS · {when.strftime("%a %b %-d").upper()}', font('mono', 'SemiBold', 34), AMBER, 'lm', tracking=4)
     c.text((SAFE_X, 330), 'Who leads each race', font('sans', 'Bold', 104), FG, 'lt')
     c.text((SAFE_X, 455), 'Ten separate races · profit since the Oct 28 restart', font('sans', 'Regular', 34), MUTED, 'lt')
@@ -275,7 +275,7 @@ def moment_cover(m, path, glow=True):
     c = Card()
     if glow:
         _glow(c, AIS[who][1])
-    c.header(f'DAY {day_of(at)} OF 32')
+    c.header(f'SEASON 1 · DAY {day_of(at)} OF 32')
     y = brand_block(c)
     y = title_block(c, y + 10, f'LEAD CHANGE · {LABEL[race].upper()}',
                     f'{AIS[who][0]} takes the lead in {LABEL[race]}, {money(m["lead"], race).lstrip("+")} ahead of {AIS[over][0]}')
@@ -303,7 +303,7 @@ def daily_cover(table, n, when, big, path, glow=True, swipe=True):
     c = Card()
     if glow:
         _glow(c, AIS[top[0]][1] if len(top) == 1 else AMBER)
-    c.header(f'DAY {n} OF 32')
+    c.header(f'SEASON 1 · DAY {n} OF 32')
     y = brand_block(c)
     if len(top) == 1:
         title = f'{AIS[top[0]][0]} leads {len(led[top[0]])} of the 10 races'
@@ -341,7 +341,7 @@ def title_slide(n, when, path):
         raise QualityError('day number out of range')
     c = Card()
     _glow(c, AMBER, xy=(1100, 520), r=520)
-    c.header(f'DAY {n} OF 32')
+    c.header(f'SEASON 1 · DAY {n} OF 32')
     c.text((SAFE_X, 360), 'THE AI MONEY RACE', font('mono', 'SemiBold', 34), UP, 'lm', tracking=6)
     big = c.fit(f'Day {n}', 'sans', 'Bold', 400, W - 2 * SAFE_X, 220)
     c.text((SAFE_X, 400), f'Day {n}', big, FG, 'lt')
@@ -355,7 +355,7 @@ def title_slide(n, when, path):
     for i in range(32):
         x = SAFE_X + i * (seg_w + gap)
         c.d.rounded_rectangle([x, y, x + seg_w, y + 22], radius=4, fill=AMBER if i < n else LINE)
-    c.text((SAFE_X, y + 64), f'Day {n} of 32', font('mono', 'Medium', 30), MUTED, 'lm')
+    c.text((SAFE_X, y + 64), f'Season 1 · Day {n} of 32', font('mono', 'Medium', 30), MUTED, 'lm')
     c.text((W - SAFE_X, y + 64), 'Final scoring Nov 28', font('mono', 'Medium', 30), MUTED, 'rm')
     # the three AIs
     y += 150

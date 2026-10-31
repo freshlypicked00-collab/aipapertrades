@@ -295,7 +295,7 @@ if WELCOME:
         except Exception as e:
             print('could not edit the pinned message, posting a new one:', e)
     mid = send(intro, 'og.png' if os.path.exists('og.png') else None)
-    lines = [f"🏁 <b>Where things stand: day {day} of 32</b> (Claude's experiments)\n"]
+    lines = [f"🏁 <b>Where things stand: Season 1, day {day} of 32</b> (Claude's experiments)\n"]
     for i, (pf, v) in enumerate(board, 1):
         sym = 'US$' if pf == 'China' else 'C$'
         ch = v - 100000

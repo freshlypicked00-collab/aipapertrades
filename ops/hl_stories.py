@@ -315,7 +315,7 @@ def day_table(cut):
 
 # ---------- DAILY (orange)
 def daily(out, n, cut, when):
-    O = AMBER; s = S(O); s.brand(f'DAILY · DAY {n} OF 32')
+    O = AMBER; s = S(O); s.brand(f'SEASON 1 · DAY {n} OF 32')
     s.kicker(280, when.upper())
     s.t((X0, 320), f'Day {n}', F('sans', 'Bold', 150)); s.t((X0 + F('sans', 'Bold', 150).getlength(f'Day {n}') + 30, 345), 'results', F('sans', 'Bold', 100), O)
     s.underline(X0 + 10, X1 - 80, 500, O, 40 + n)

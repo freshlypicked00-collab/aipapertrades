@@ -106,7 +106,7 @@ def header(f, race, day):
         ic = Image.open(icon).convert('RGBA').resize((64, 64), Image.LANCZOS)
         f.im.paste(ic, (X0, 200), ic)
     f.text((X0 + 84, 232), 'PAPERTRADES.AI', font('mono', 'SemiBold', 38), FG, 'lm')
-    f.text((W - 150, 232), f'DAY {day} OF 32', font('mono', 'Medium', 28), MUTED, 'rm')
+    f.text((W - 150, 232), f'SEASON 1 · DAY {day} OF 32', font('mono', 'Medium', 28), MUTED, 'rm')
     f.d.line([(X0, 300), (W - 150, 300)], fill=LINE, width=3)
     f.text((X0, 360), 'RACE REPLAY · ' + LABEL[race].upper(), font('mono', 'SemiBold', 30), UP, 'lm')
 
