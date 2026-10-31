@@ -1,0 +1,839 @@
+{
+ "profiles_status": 200,
+ "brands": [
+  {
+   "id": 7772098,
+   "label": "Paper Trades",
+   "title": null,
+   "youtube": "UCjyaAQpH6WefwN688DZ4H-Q",
+   "youtubeChannelName": null,
+   "timezone": "America/Toronto",
+   "networks": [
+    "youtube"
+   ]
+  }
+ ],
+ "brand_keys": [
+  "adwords",
+  "adwordsAccountName",
+  "adwordsUserId",
+  "analyticModeWhitelabelLink",
+  "availableConnectors",
+  "bluesky",
+  "blueskyHandle",
+  "blueskyPicture",
+  "brandRole",
+  "deleteDate",
+  "deleted",
+  "description",
+  "engagementRatio",
+  "facebook",
+  "facebookAds",
+  "facebookAdsName",
+  "facebookAdsPicture",
+  "facebookGroup",
+  "facebookGroupId",
+  "facebookGroupPicture",
+  "facebookPageId",
+  "facebookPicture",
+  "fbBusinessId",
+  "fbUserId",
+  "feedRss",
+  "firstConnectionDate",
+  "frontendVersion",
+  "gmb",
+  "gmbAccountName",
+  "gmbAddress",
+  "gmbUrl",
+  "gmbUserId",
+  "googlePlus",
+  "hash",
+  "id",
+  "imageVariantsEnabled",
+  "inUserId",
+  "instagram",
+  "instagramConnectionType",
+  "instagramPicture",
+  "isDemo",
+  "isShared",
+  "isWhiteLabel",
+  "isWhiteLabelOnlyRead",
+  "joinDate",
+  "label",
+  "lastReadInboxMessageTimestamp",
+  "lastResolvedInboxMessageTimestamp",
+  "linkedInCompanyName",
+  "linkedInCompanyPicture",
+  "linkedInPicture",
+  "linkedInTokenExpiration",
+  "linkedInUserProfileURL",
+  "linkedinCompany",
+  "ownerUserId",
+  "ownerUsername",
+  "picture",
+  "pinterest",
+  "pinterestBusiness",
+  "pinterestPicture",
+  "role",
+  "threads",
+  "threadsAccountName",
+  "threadsPicture",
+  "tiktok",
+  "tiktokAccountType",
+  "tiktokBusinessTokenExpiration",
+  "tiktokPicture",
+  "tiktokUserProfileUrl",
+  "tiktokads",
+  "tiktokadsDisplayName",
+  "tiktokadsPicture",
+  "tiktokadsUserId",
+  "timezone",
+  "title",
+  "twitch",
+  "twitchChannelId",
+  "twitchName",
+  "twitchPicture",
+  "twitter",
+  "twitterPicture",
+  "twitterSubscriptionType",
+  "url",
+  "userId",
+  "version",
+  "whiteLabelAlias",
+  "whiteLabelLink",
+  "youtube",
+  "youtubeChannelName",
+  "youtubeChannelPicture"
+ ],
+ "connections_status": 404,
+ "connections": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n<!DOCTYPE html>\n<html>\n  <head>\n    <title>Metricool</title>\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta name=\"ROBOTS\" content=\"NOINDEX, NOFOLLOW\">\n    \n    \n    \n    \n    <meta property=\"og:type\" content=\"website\">\n    <link rel=\"icon\" href=\"https://static.metricool.com/resources/img/metricool-logo.svg\" type=\"image/svg+xml\">\n    <link rel=\"icon\" href=\"https://static.metricool.com/resources/img/metricool-squared-GRIS.png\" type=\"image/png\">\n    <link rel=stylesheet href=\"https://static.metricool.com/app-static-content/fonts/fontawesome-pro-6.6.0-web/css/all.min.css\"/>\n    <link rel=stylesheet href=\"https://static.metricool.com/app-static-content/fonts/MaterialDesi",
+ "schema_tries": [
+  [
+   "/v3/api-docs",
+   404
+  ],
+  [
+   "/v2/api-docs",
+   404
+  ]
+ ],
+ "schema_from": "/swagger.json",
+ "schemas": {
+  "YouTubeGlobalVideo": {
+   "type": "object",
+   "properties": {
+    "videoId": {
+     "type": "string"
+    },
+    "thumbnailUrl": {
+     "type": "string"
+    },
+    "title": {
+     "type": "string"
+    },
+    "description": {
+     "type": "string"
+    },
+    "publishedAt": {
+     "type": "integer",
+     "format": "int64"
+    },
+    "views": {
+     "type": "number",
+     "format": "double"
+    },
+    "engagedViews": {
+     "type": "number",
+     "format": "double"
+    },
+    "watchMinutes": {
+     "type": "number",
+     "format": "double"
+    },
+    "averageViewDuration": {
+     "type": "number",
+     "format": "double"
+    },
+    "likes": {
+     "type": "number",
+     "format": "double"
+    },
+    "dislikes": {
+     "type": "number",
+     "format": "double"
+    },
+    "comments": {
+     "type": "number",
+     "format": "double"
+    },
+    "shares": {
+     "type": "number",
+     "format": "double"
+    },
+    "estimatedRedPartnerRevenue": {
+     "type": "number",
+     "format": "double"
+    },
+    "estimatedAdRevenue": {
+     "type": "number",
+     "format": "double"
+    },
+    "adImpressions": {
+     "type": "number",
+     "format": "double"
+    },
+    "monetizedPlaybacks": {
+     "type": "number",
+     "format": "double"
+    },
+    "duration": {
+     "type": "object",
+     "properties": {
+      "seconds": {
+       "type": "integer",
+       "format": "int64"
+      },
+      "zero": {
+       "type": "boolean"
+      },
+      "nano": {
+       "type": "integer",
+       "format": "int32"
+      },
+      "negative": {
+       "type": "boolean"
+      },
+      "positive": {
+       "type": "boolean"
+      },
+      "units": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "properties": {
+         "durationEstimated": {
+          "type": "boolean"
+         },
+         "timeBased": {
+          "type": "boolean"
+         },
+         "dateBased": {
+          "type": "boolean"
+         }
+        }
+       }
+      }
+     }
+    },
+    "aspectRatio": {
+     "$ref": "#/components/schemas/AspectRatio"
+    },
+    "videoType": {
+     "type": "string",
+     "enum": [
+      "video",
+      "short",
+      "unknown"
+     ]
+    },
+    "ownerScreenName": {
+     "type": "string"
+    },
+    "ownerDisplayName": {
+     "type": "string"
+    },
+    "ownerPicture": {
+     "type": "string"
+    },
+    "channelId": {
+     "type": "string"
+    },
+    "watchUrl": {
+     "type": "string"
+    },
+    "hasRevenueData": {
+     "type": "boolean"
+    }
+   }
+  },
+  "JsonOkListResponseYoutubeCompetitor": {
+   "type": "object",
+   "properties": {
+    "metadata": {
+     "type": "object"
+    },
+    "page": {
+     "$ref": "#/components/schemas/JsonPaging"
+    },
+    "data": {
+     "type": "array",
+     "items": {
+      "$ref": "#/components/schemas/YoutubeCompetitor"
+     }
+    }
+   }
+  },
+  "YoutubeCompetitor": {
+   "type": "object",
+   "properties": {
+    "channelId": {
+     "type": "string"
+    },
+    "url": {
+     "type": "string"
+    },
+    "fullName": {
+     "type": "string"
+    },
+    "picture": {
+     "type": "string"
+    }
+   }
+  },
+  "JsonOkListResponseYouTubeCompetitorVideo": {
+   "type": "object",
+   "properties": {
+    "metadata": {
+     "type": "object"
+    },
+    "page": {
+     "$ref": "#/components/schemas/JsonPaging"
+    },
+    "data": {
+     "type": "array",
+     "items": {
+      "$ref": "#/components/schemas/YouTubeCompetitorVideo"
+     }
+    }
+   }
+  },
+  "YouTubeCompetitorVideo": {
+   "type": "object",
+   "properties": {
+    "videoId": {
+     "type": "string"
+    },
+    "thumbnailUrl": {
+     "type": "string"
+    },
+    "title": {
+     "type": "string"
+    },
+    "description": {
+     "type": "string"
+    },
+    "publishedAt": {
+     "type": "integer",
+     "format": "int64"
+    },
+    "publishedDate": {
+     "$ref": "#/components/schemas/DateTimeInfo"
+    },
+    "views": {
+     "type": "number",
+     "format": "double"
+    },
+    "watchMinutes": {
+     "type": "number",
+     "format": "double"
+    },
+    "averageViewDuration": {
+     "type": "number",
+     "format": "double"
+    },
+    "likes": {
+     "type": "number",
+     "format": "double"
+    },
+    "dislikes": {
+     "type": "number",
+     "format": "double"
+    },
+    "comments": {
+     "type": "number",
+     "format": "double"
+    },
+    "shares": {
+     "type": "number",
+     "format": "double"
+    },
+    "estimatedRedPartnerRevenue": {
+     "type": "number",
+     "format": "double"
+    },
+    "estimatedAdRevenue": {
+     "type": "number",
+     "format": "double"
+    },
+    "adImpressions": {
+     "type": "number",
+     "format": "double"
+    },
+    "monetizedPlaybacks": {
+     "type": "number",
+     "format": "double"
+    },
+    "ownerScreenName": {
+     "type": "string"
+    },
+    "ownerDisplayName": {
+     "type": "string"
+    },
+    "ownerPicture": {
+     "type": "string"
+    },
+    "channelId": {
+     "type": "string"
+    },
+    "tags": {
+     "type": "array",
+     "items": {
+      "$ref": "#/components/schemas/BrandTagDto"
+     }
+    },
+    "watchUrl": {
+     "type": "string"
+    },
+    "hasRevenueData": {
+     "type": "boolean"
+    },
+    "formattedWatchTime": {
+     "type": "string"
+    },
+    "formattedAvgViewDuration": {
+     "type": "string"
+    }
+   }
+  },
+  "YoutubeConfigurationDto": {
+   "type": "object",
+   "properties": {
+    "enabled": {
+     "type": "boolean"
+    },
+    "title": {
+     "type": "string"
+    },
+    "type": {
+     "type": "string"
+    },
+    "privacy": {
+     "type": "string"
+    },
+    "tags": {
+     "uniqueItems": true,
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "category": {
+     "type": "string"
+    },
+    "madeForKids": {
+     "type": "boolean"
+    },
+    "playlistId": {
+     "type": "string"
+    },
+    "isAiGeneratedContent": {
+     "type": "boolean"
+    },
+    "notifySubscribers": {
+     "type": "boolean"
+    }
+   }
+  },
+  "ProviderStatus": {
+   "type": "object",
+   "properties": {
+    "network": {
+     "type": "string"
+    },
+    "id": {
+     "type": "string"
+    },
+    "status": {
+     "type": "string",
+     "readOnly": true,
+     "enum": [
+      "PUBLISHED",
+      "PUBLISHING",
+      "PENDING",
+      "AWAITING_CONFIRMATION",
+      "ERROR",
+      "DRAFT"
+     ]
+    },
+    "publicUrl": {
+     "type": "string"
+    },
+    "detailedStatus": {
+     "type": "string"
+    }
+   }
+  },
+  "JsonOkResponseListYoutubeVideoCategory": {
+   "type": "object",
+   "properties": {
+    "metadata": {
+     "type": "object"
+    },
+    "page": {
+     "$ref": "#/components/schemas/JsonPaging"
+    },
+    "data": {
+     "type": "array",
+     "items": {
+      "$ref": "#/components/schemas/YoutubeVideoCategory"
+     }
+    }
+   }
+  },
+  "YoutubeVideoCategory": {
+   "type": "object",
+   "properties": {
+    "key": {
+     "type": "string"
+    },
+    "label": {
+     "type": "string"
+    }
+   }
+  },
+  "JsonOkResponseListYoutubePlaylistDto": {
+   "type": "object",
+   "properties": {
+    "metadata": {
+     "type": "object"
+    },
+    "page": {
+     "$ref": "#/components/schemas/JsonPaging"
+    },
+    "data": {
+     "type": "array",
+     "items": {
+      "$ref": "#/components/schemas/YoutubePlaylistDto"
+     }
+    }
+   }
+  },
+  "YoutubePlaylistDto": {
+   "type": "object",
+   "properties": {
+    "id": {
+     "type": "string",
+     "description": "Unique identifier of the playlist"
+    },
+    "title": {
+     "type": "string",
+     "description": "Playlist title (human readable)"
+    }
+   },
+   "description": "Represents a YouTube playlist linked to a channel. Contains the playlist id and its human readable title."
+  },
+  "ScheduledPost": {
+   "required": [
+    "providers",
+    "publicationDate",
+    "text"
+   ],
+   "type": "object",
+   "properties": {
+    "id": {
+     "type": "integer",
+     "format": "int32"
+    },
+    "publicationDate": {
+     "$ref": "#/components/schemas/DateTimeInfo"
+    },
+    "creationDate": {
+     "$ref": "#/components/schemas/DateTimeInfo"
+    },
+    "text": {
+     "type": "string"
+    },
+    "firstCommentText": {
+     "type": "string"
+    },
+    "providers": {
+     "minItems": 1,
+     "type": "array",
+     "items": {
+      "$ref": "#/components/schemas/ProviderStatus"
+     }
+    },
+    "media": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "autoPublish": {
+     "type": "boolean"
+    },
+    "saveExternalMediaFiles": {
+     "type": "boolean"
+    },
+    "mediaAltText": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "shortener": {
+     "type": "boolean"
+    },
+    "draft": {
+     "type": "boolean"
+    },
+    "location": {
+     "$ref": "#/components/schemas/ScheduledPostLocation"
+    },
+    "videoCoverMilliseconds": {
+     "type": "integer",
+     "format": "int64"
+    },
+    "videoThumbnailUrl": {
+     "type": "string"
+    },
+    "parentId": {
+     "type": "integer",
+     "format": "int32"
+    },
+    "twitterData": {
+     "$ref": "#/components/schemas/ScheduledPostTwitterData"
+    },
+    "facebookData": {
+     "$ref": "#/components/schemas/ScheduledPostFacebookData"
+    },
+    "smartLinkData": {
+     "$ref": "#/components/schemas/ScheduledPostSmartLinkData"
+    },
+    "instagramData": {
+     "$ref": "#/components/schemas/ScheduledPostInstagramData"
+    },
+    "pinterestData": {
+     "$ref": "#/components/schemas/ScheduledPostPinterestData"
+    },
+    "youtubeData": {
+     "$ref": "#/components/schemas/ScheduledPostYoutubeData"
+    },
+    "tiktokData": {
+     "$ref": "#/components/schemas/ScheduledPostTikTokData"
+    },
+    "linkedinData": {
+     "$ref": "#/components/schemas/ScheduledPostLinkedinData"
+    },
+    "autolistData": {
+     "$ref": "#/components/schemas/ScheduledPostAutolistData"
+    },
+    "brandName": {
+     "type": "string"
+    },
+    "targetBrandId": {
+     "type": "integer",
+     "format": "int32"
+    },
+    "gmbData": {
+     "$ref": "#/components/schemas/ScheduledPostGmbData"
+    },
+    "descendants": {
+     "type": "array",
+     "items": {
+      "$ref": "#/components/schemas/ScheduledPost"
+     }
+    },
+    "notes": {
+     "type": "array",
+     "items": {
+      "$ref": "#/components/schemas/ScheduledPostNote"
+     }
+    },
+    "hasNotReadNotes": {
+     "type": "boolean"
+    },
+    "uuid": {
+     "type": "string"
+    },
+    "copiedFrom": {
+     "type": "string"
+    },
+    "creatorUserMail": {
+     "type": "string"
+    },
+    "creatorUserId": {
+     "type": "integer",
+     "format": "int32"
+    },
+    "creatorAgencyUserMail": {
+     "type": "string"
+    },
+    "creatorAgencyId": {
+     "type": "integer",
+     "format": "int32"
+    },
+    "creatorAgencyUserId": {
+     "type": "integer",
+     "format": "int32"
+    },
+    "postApprovalData": {
+     "$ref": "#/components/schemas/ScheduledPostApprovalData"
+    },
+    "threadsData": {
+     "$ref": "#/components/schemas/ScheduledPostThreadsData"
+    },
+    "blueskyData": {
+     "$ref": "#/components/schemas/ScheduledPostBlueskyData"
+    },
+    "libraryPostId": {
+     "type": "integer",
+     "format": "int64"
+    },
+    "performanceDashboardIds": {
+     "type": "array",
+     "items": {
+      "type": "integer",
+      "format": "int64"
+     }
+    },
+    "brandTags": {
+     "type": "array",
+     "description": "Brand tags applied to the post, alphabetically. Empty when it has none.",
+     "readOnly": true,
+     "items": {
+      "$ref": "#/components/schemas/BrandTagDto"
+     }
+    },
+    "brandTagIds": {
+     "type": "array",
+     "description": "Ids of the brand tags to apply: absent keeps the current ones, empty removes them all, a list replaces them. Ids that are not live tags of the brand are ignored; at most 20.",
+     "writeOnly": true,
+     "items": {
+      "type": "integer",
+      "description": "Ids of the brand tags to apply: absent keeps the current ones, empty removes them all, a list replaces them. Ids that are not live tags of the brand are ignored; at most 20.",
+      "format": "int64",
+      "writeOnly": true
+     }
+    }
+   }
+  },
+  "ScheduledPostYoutubeData": {
+   "type": "object",
+   "properties": {
+    "title": {
+     "type": "string"
+    },
+    "type": {
+     "type": "string"
+    },
+    "privacy": {
+     "type": "string"
+    },
+    "tags": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "category": {
+     "type": "string"
+    },
+    "playlistId": {
+     "type": "string"
+    },
+    "madeForKids": {
+     "type": "boolean"
+    },
+    "isAiGeneratedContent": {
+     "type": "boolean"
+    },
+    "notifySubscribers": {
+     "type": "boolean"
+    }
+   }
+  },
+  "JsonOkResponseYouTubeFeedResponse": {
+   "type": "object",
+   "properties": {
+    "metadata": {
+     "type": "object"
+    },
+    "page": {
+     "$ref": "#/components/schemas/JsonPaging"
+    },
+    "data": {
+     "$ref": "#/components/schemas/YouTubeFeedResponse"
+    }
+   }
+  },
+  "YouTubeFeedMedia": {
+   "type": "object",
+   "properties": {
+    "videoId": {
+     "type": "string"
+    },
+    "thumbnailUrl": {
+     "type": "string"
+    },
+    "videoUrl": {
+     "type": "string"
+    },
+    "publishedAt": {
+     "$ref": "#/components/schemas/DateTimeInfo"
+    }
+   }
+  },
+  "YouTubeFeedResponse": {
+   "type": "object",
+   "properties": {
+    "feedUrl": {
+     "type": "string"
+    },
+    "videos": {
+     "type": "array",
+     "items": {
+      "$ref": "#/components/schemas/YouTubeFeedMedia"
+     }
+    }
+   }
+  },
+  "YoutubeData": {
+   "type": "object",
+   "properties": {
+    "username": {
+     "type": "string"
+    },
+    "providerUserId": {
+     "type": "string"
+    },
+    "picture": {
+     "type": "string"
+    }
+   }
+  }
+ },
+ "youtube_paths": [
+  "/actions/normalize/image/url",
+  "/stats/youtube/videos",
+  "/v2/analytics/catalogs/accounts/youtube",
+  "/v2/analytics/competitors/youtube/posts",
+  "/v2/analytics/competitors/youtube/{competitorId}/posts",
+  "/v2/scheduler/catalogs/youtube/categories",
+  "/v2/scheduler/catalogs/youtube/playlists",
+  "/v2/scheduler/posts",
+  "/v2/scheduler/posts/approvals-config",
+  "/v2/scheduler/posts/brand-tags",
+  "/v2/scheduler/posts/deleted",
+  "/v2/scheduler/posts/deleted/{id}",
+  "/v2/scheduler/posts/instagram-properties",
+  "/v2/scheduler/posts/template",
+  "/v2/scheduler/posts/{id}",
+  "/v2/scheduler/posts/{id}/approvals",
+  "/v2/scheduler/posts/{postId}/notes",
+  "/v2/scheduler/posts/{postId}/notes/status",
+  "/v2/scheduler/posts/{postId}/notes/{noteId}",
+  "/v2/scheduler/posts/{uuid}/events",
+  "/v2/settings/brands/connections/youtube/media-feed"
+ ]
+}
