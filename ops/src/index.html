@@ -301,6 +301,7 @@
   .st-score-h span { margin-left: 8px; letter-spacing: 0; text-transform: none; color: var(--color-fg-muted); font-weight: 400; font-size: 13px; }
   .st-riskaward { margin-top: 10px; }
   .gx-partly { color: #ffb000; }
+  .lg-rc-badge { display: inline-block; font-size: .82em; font-weight: 700; padding: 1px 7px; border-radius: 999px; border: 1px solid currentColor; margin-left: 4px; white-space: nowrap; }
   .st-show-g { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 12px; } .st-show-link { margin: 4px 0 0; font-size: .88em; }
   .pd-follow-list summary { cursor: pointer; } .pd-follow-list ul { margin: 4px 0; padding-left: 0; list-style: none; } .pd-follow-list li { margin: 2px 0; } .pd-follow-list li.is-live { font-weight: 600; }
   .st-s2 { margin: 8px 0 0; padding: 7px 10px; border: 1px dashed #ffb000; border-radius: var(--cds-radius); font-size: .88em; line-height: 1.4; }
@@ -4467,6 +4468,9 @@
   const renderReport = (box, v, withChart) => {
     const all = v.rows.find((r) => r.portfolio === 'All');
     const ul = mk('ul');
+    // the best and the worst race on this report card, marked with an icon (owner, Oct 30); compared in %, since China is in US$
+    const pctOf = {}; v.rows.forEach((r) => { if (r.portfolio === 'All') return; const x = valueAt(r.portfolio, v.t); if (x !== null) pctOf[r.portfolio] = x / START - 1; });
+    const ks = Object.keys(pctOf), best = ks.length > 1 ? ks.reduce((a, b) => (pctOf[b] > pctOf[a] ? b : a)) : null, worst = ks.length > 1 ? ks.reduce((a, b) => (pctOf[b] < pctOf[a] ? b : a)) : null;
     v.rows.filter((r) => r.portfolio !== 'All').sort((a, b) => PFS.indexOf(a.portfolio) - PFS.indexOf(b.portfolio)).forEach((r) => {
       const li = mk('li');
       if (r.grade) li.appendChild(mk('span', 'lg-grade', r.grade));
@@ -4475,6 +4479,8 @@
       if (val !== null) {
         const tot = mk('span', 'lg-rc-tot'); tot.append(document.createTextNode(' Total since start at that time: '));
         const b = mk('b', '', stFmt.signed(val - START, r.portfolio) + ' (' + stFmt.pct(val / START - 1) + ')'); tone(b, val - START); tot.appendChild(b);
+        if (r.portfolio === best && pctOf[best] > 0.00005) { const ic = mk('span', 'lg-rc-badge is-up', '🏆 Biggest profit'); ic.title = 'The best result of all its races on this report card'; tot.append(' ', ic); }
+        if (r.portfolio === worst && pctOf[worst] < -0.00005) { const ic = mk('span', 'lg-rc-badge is-down', '📉 Biggest loss'); ic.title = 'The worst result of all its races on this report card'; tot.append(' ', ic); }
         li.appendChild(tot);
       }
       { const say = (LABEL[r.portfolio] || r.portfolio) + '. ' + (r.grade && r.grade !== '—' ? 'Grade ' + r.grade + '. ' : '') + r.text;
