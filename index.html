@@ -1121,6 +1121,21 @@
 .tx-search button{padding:5px 10px;border-radius:6px;border:1px solid var(--line,#ccd);background:none;color:inherit;font:inherit;font-size:13px;cursor:pointer}.tx-msg{font-size:12px;opacity:.8}
 tr.lg-hit .tx-id{opacity:1}
 
+  /* W5 (owner, Oct 30; Claude, Gemini and ChatGPT all agreed, ops/review/WATCH_DECISIONS.md): on phones every table becomes a stack of
+     cards, one per row, each value under its column's name, at full width (before: the time wrapped into ~12 lines and text was cut off) */
+  @media (max-width: 600px) {
+    .st-wrap:has(> table.pt-cards) { overflow-x: visible; }
+    table.st-table.pt-cards, table.st-table.pt-cards > tbody, table.st-table.pt-cards > tbody > tr, table.st-table.pt-cards > tbody > tr > td { display: block; width: auto; }
+    table.st-table.pt-cards > thead { display: none; }
+    table.st-table.pt-cards > tbody > tr { padding: 10px 2px 12px; border-bottom: 1px solid var(--color-border-line); }
+    table.st-table.pt-cards > tbody > tr[hidden] { display: none !important; }
+    table.st-table.pt-cards > tbody > tr > td { border: 0; padding: 2px 0; min-width: 0 !important; max-width: none; text-align: left; white-space: normal; overflow-wrap: anywhere; }
+    table.st-table.pt-cards > tbody > tr > td:empty { display: none; }
+    table.st-table.pt-cards > tbody > tr > td[data-label]::before { content: attr(data-label); display: inline-block; min-width: 6.4em; margin-right: 8px; color: var(--color-fg-muted); font-size: 11.5px; letter-spacing: .03em; text-transform: uppercase; }
+    table.st-table.pt-cards > tbody > tr > td.wrap[data-label]::before { display: block; margin: 6px 0 2px; }
+    table.st-table.pt-cards > tbody > tr > td:first-child { font-weight: var(--cds-font-weight-medium, 500); }
+  }
+
 
 /* Dark is the default; the theme button switches to a soft light mode (remembered per viewer). */
 :root, :root { --font-sans: "IBM Plex Sans Condensed", system-ui, sans-serif; --font-serif: "IBM Plex Mono", ui-monospace, monospace;
@@ -1312,7 +1327,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'a243de7b13ab';</script>
+<script>window.PT_PAGE_VER = '08ef0e77bae9';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -3846,6 +3861,24 @@ body { background:var(--color-bg); }
       el.appendChild(tr);
     });
   };
+  // W5: phone cards for tables. Each cell gets its column's name (data-label) whenever a table body is redrawn; the CSS above shows
+  // it only under 600px. Rows with merged cells (a different cell count) are left as they are.
+  const ptLabelTable = (t) => {
+    const ths = [...t.querySelectorAll(':scope > thead th')].map((th) => th.textContent.replace(/\s+/g, ' ').trim());
+    if (!ths.length) return;
+    t.classList.add('pt-cards');
+    t.querySelectorAll(':scope > tbody > tr').forEach((tr) => {
+      const tds = [...tr.children].filter((c) => c.tagName === 'TD');
+      if (tds.length !== ths.length) return;
+      tds.forEach((td, i) => { if (ths[i] && td.dataset.label !== ths[i]) td.dataset.label = ths[i]; });
+    });
+  };
+  (() => {
+    const obs = new MutationObserver((ms) => { const seen = new Set(); ms.forEach((m) => { const t = m.target.closest && m.target.closest('table.st-table'); if (t && !seen.has(t)) { seen.add(t); ptLabelTable(t); } }); });
+    const hook = () => document.querySelectorAll('table.st-table').forEach((t) => { ptLabelTable(t); t.querySelectorAll(':scope > tbody').forEach((tb) => { if (!tb._ptObs) { tb._ptObs = 1; obs.observe(tb, { childList: true }); } }); });
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hook); else hook();
+    dash.onData(hook);
+  })();
   const pagerFor = (el, n, noun) => {
     n = n || 10; const rows = [...el.children].filter((r) => !r.classList.contains('bg-say')); const key = el.dataset.portfolio || '';
     if (el._pgKey !== key) { el._pgKey = key; el._pg = 0; }
