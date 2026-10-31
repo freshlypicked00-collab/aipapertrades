@@ -1082,6 +1082,20 @@
   .st-live-top .st-follow { display: flex; gap: 6px; flex-wrap: wrap; }
   .st-live-top .st-live-btn { padding: 5px 14px; font-size: 13px; gap: 6px; min-height: 34px; min-width: 96px; justify-content: center; }
   @media (max-width: 700px) { .st-live-top .st-lb-long { display: none; } .st-live.st-live-top { justify-content: flex-start; } .st-live-top .st-follow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; } .st-live-top .st-live-btn { padding: 5px 6px; min-width: 0; font-size: 12.5px; } }
+  @media (max-width: 700px) {   /* phones: Telegram and Discord get the full first row, bigger (owner, Oct 31: promote them more) */
+    .st-live-top .st-follow { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .st-live-top .st-tg-first { order: 1; } .st-live-top .st-follow-dc { order: 2; } .st-live-top .st-follow-ig { order: 3; } .st-live-top .st-follow-x { order: 4; }
+    .st-live-top .st-tg-first, .st-live-top .st-follow-dc { min-height: 46px; font-size: 15px; }
+    .st-live-top .st-follow-ig, .st-live-top .st-follow-x { min-height: 36px; font-size: 13px; }
+  }
+  .pt-join { margin-top: 28px; padding: 16px 18px; border: 1px solid var(--color-border, #2a2a26); border-radius: 14px; background: color-mix(in srgb, #2aabee 6%, transparent); display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; }
+  .pt-join-t { margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--color-fg); }
+  .pt-join-p { margin: 0; font-size: 13px; line-height: 1.45; color: var(--color-fg-muted); }
+  .pt-join-p b { color: var(--color-fg); font-weight: 600; }
+  .pt-join-b { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pt-join-b .st-live-btn { min-height: 42px; justify-content: center; min-width: 150px; }
+  .pt-join-n { width: 100%; margin: 0; font-size: 11.5px; color: var(--color-fg-muted); }
+  @media (max-width: 700px) { .pt-join-b { width: 100%; display: grid; grid-template-columns: 1fr 1fr; } .pt-join-b .st-live-btn { min-width: 0; } }
   .st-live-text { flex: 1 1 260px; display: flex; flex-direction: column; gap: 2px; }
   .st-live-h { margin: 0; font-size: 14px; font-weight: 600; color: var(--color-fg); display: flex; align-items: center; gap: 8px; }
   .st-live-h .st-live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ok) 25%, transparent); }
@@ -9112,6 +9126,31 @@ tr.lg-hit .tx-id{opacity:1}
   // O7 (all three AIs agreed, Oct 31; ops/MISSION.md): the 7-day return rate. The visitor's own browser keeps only the day of
   // its last visit (nothing personal, never sent anywhere); on a visit on a NEW day it counts one anonymous GoatCounter event:
   // visitor/new, visitor/return-7d (back within 7 days) or visitor/return-later. Return rate = return-7d / new, per week.
+  // Follow card at the bottom of every tab page, and follow clicks counted in GoatCounter as events
+  // (follow/telegram-top, follow/discord-card, ...), so we can see which button brings followers (owner, Oct 31).
+  (() => {
+    try {
+      const TG = 'https://t.me/PaperTradesAI', DC = 'https://discord.gg/PkqX3zstD';
+      const tgSvg = '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.3 13 1.5 11.5c-1-.3-1-1 .2-1.5L20.6 2.7c.9-.3 1.6.2 1.3 1.6z"/></svg>';
+      const dcSvg = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.3 4.4A19.8 19.8 0 0 0 15.4 3l-.6 1.3a18.3 18.3 0 0 0-5.5 0L8.7 3a19.7 19.7 0 0 0-4.9 1.5C.7 9.1-.2 13.6.3 18.1a19.9 19.9 0 0 0 6 3l1.3-2.1a12.9 12.9 0 0 1-2-1l.5-.4a14.2 14.2 0 0 0 12.2 0l.5.4c-.6.4-1.3.7-2 1l1.3 2.1a19.8 19.8 0 0 0 6-3c.5-5.2-.9-9.7-3.8-13.7zM8.5 15.3c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4zm7 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4z"/></svg>';
+      document.querySelectorAll('section.st-page').forEach((pg) => {
+        if (pg.querySelector('.pt-join')) return;
+        const c = document.createElement('aside'); c.className = 'pt-join'; c.setAttribute('aria-label', 'Follow the race');
+        c.innerHTML = '<div><p class="pt-join-t">🔔 Don’t miss the next move</p><p class="pt-join-p"><b>Telegram</b>: every trade and bet the second it happens.<br><b>Discord</b>: pick your AI team and get pinged when the lead changes.</p></div>'
+          + '<div class="pt-join-b"><a class="st-live-btn" data-follow="telegram-card" href="' + TG + '" target="_blank" rel="noopener">' + tgSvg + 'Join Telegram</a>'
+          + '<a class="st-live-btn st-follow-dc" data-follow="discord-card" href="' + DC + '" target="_blank" rel="noopener">' + dcSvg + 'Join Discord</a></div>'
+          + '<p class="pt-join-n">Free and read-only. Pretend money, not financial advice.</p>';
+        pg.appendChild(c);
+      });
+      const where = (a) => a.dataset.follow || ((/t\.me\//.test(a.href) ? 'telegram' : /discord\.gg/.test(a.href) ? 'discord' : /instagram\.com/.test(a.href) ? 'instagram' : 'x')
+        + '-' + (a.closest('.st-live-top') ? 'top' : a.closest('.st-tabs-tools') ? 'tabbar' : a.closest('.pt-join') ? 'card' : 'other'));
+      document.addEventListener('click', (e) => {
+        const a = e.target.closest && e.target.closest('a[href*="t.me/PaperTradesAI"], a[href*="discord.gg/"], a[href*="instagram.com/papertrades"], a[href*="x.com/papertradesai"]');
+        if (!a || !window.goatcounter || !window.goatcounter.count) return;
+        try { window.goatcounter.count({ path: 'follow/' + where(a), title: 'Follow click', event: true }); } catch (err) {}
+      }, true);
+    } catch (e) {}
+  })();
   // Devices excluded with #toggle-goatcounter are not counted (GoatCounter skips them).
   (() => {
     try {
