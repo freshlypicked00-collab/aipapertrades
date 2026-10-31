@@ -1013,8 +1013,9 @@
   .ai-hero-h { display: flex; align-items: center; gap: 4px; }
   .st-hook-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .st-bots { display: inline-flex; gap: 6px; flex: 0 0 auto; } .st-bots .ai-robot { --rs: 46px; margin: 0; }
+  .st-bot { background: none; border: 2px solid transparent; border-radius: 12px; padding: 2px; cursor: pointer; line-height: 0; } .st-bot:hover { border-color: var(--color-border-line); } .st-bot.is-on { border-color: #ffb000; } .st-bot:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   @media (max-width: 700px) { .st-bots .ai-robot { --rs: 30px; } .st-bots { gap: 3px; } }
-  @media (prefers-reduced-motion: no-preference) { .st-bots .ai-robot { animation: pt-bob 3.2s ease-in-out infinite; } .st-bots .ai-robot:nth-child(2) { animation-delay: -1.1s; } .st-bots .ai-robot:nth-child(3) { animation-delay: -2.2s; } }
+  @media (prefers-reduced-motion: no-preference) { .st-bots .ai-robot { animation: pt-bob 3.2s ease-in-out infinite; } .st-bots .st-bot:nth-child(2) .ai-robot { animation-delay: -1.1s; } .st-bots .st-bot:nth-child(3) .ai-robot { animation-delay: -2.2s; } }
   @keyframes pt-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
   #allin .h2h-cap { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: -4px; }
   .al-jump-b[hidden], #allin .h2h-exp[hidden] { display: none !important; }   /* only the selected part shows; the button switches to the other (owner, Oct 30) */
@@ -1265,7 +1266,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '1df253c3de84';</script>
+<script>window.PT_PAGE_VER = '6dd7903e0b5a';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -5504,8 +5505,15 @@ body { background:var(--color-bg); }
     const t = mk('small', 'ai-mdl', modelTag(id)); t.setAttribute('translate', 'no'); tx.appendChild(t); w.append(robotSVG(id, size, crown), tx); w.title = aiModelCo(id); return w;
   };
   const fillBots = () => { const b = document.querySelector('[data-bots]'); if (!b) return; let L = null; try { L = dash.baseData('leader'); } catch (e) {}
-    const key = 'b:' + L; if (b.dataset.k === key) return; b.dataset.k = key; b.replaceChildren(...['claude', 'gemini', 'chatgpt'].map((x) => { const r = robotSVG(x, 0, x === L); r.title = AIS[x].label; return r; })); };
-  window.ptFillBots = fillBots;
+    // tap a robot to switch the whole page to that AI, like the Model menu at the top (owner, Oct 30)
+    const cur = dash.model || 'claude', key = 'b:' + L + ':' + cur; if (b.dataset.k === key) return; b.dataset.k = key;
+    b.removeAttribute('aria-hidden'); b.setAttribute('role', 'group'); b.setAttribute('aria-label', 'Pick an AI');
+    b.replaceChildren(...['claude', 'gemini', 'chatgpt'].map((x) => { const btn = mk('button', 'st-bot' + (x === cur ? ' is-on' : '')); btn.type = 'button';
+      btn.setAttribute('aria-pressed', String(x === cur)); btn.title = 'Show ' + AIS[x].label + (x === cur ? ' (showing now)' : ''); btn.setAttribute('aria-label', btn.title);
+      btn.appendChild(robotSVG(x, 0, x === L));
+      btn.addEventListener('click', () => { const sel = document.getElementById('model-pick'); if (sel && sel.value !== x) { sel.value = x; sel.dispatchEvent(new Event('change', { bubbles: true })); } setTimeout(fillBots, 60); });
+      return btn; })); };
+  window.ptFillBots = fillBots; try { dash.onModel(() => setTimeout(fillBots, 0)); } catch (e) {}
   const aiBadge = (id, size) => {
     const w = document.createElement('span'); w.className = 'ai-badge'; w.setAttribute('aria-hidden', 'true');
     if (size) w.style.setProperty('--bs', size + 'px');
