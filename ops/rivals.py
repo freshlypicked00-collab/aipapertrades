@@ -152,7 +152,8 @@ def yahoo(symbol):
                     px, qt = float(lastbar[1]), int(lastbar[0])
                 reg = (m.get('currentTradingPeriod') or {}).get('regular') or {}
                 now_ts = int(NOW.timestamp())
-                _stale[symbol] = bool(reg.get('start') and reg.get('end') and int(reg['start']) <= now_ts <= int(reg['end']) and qt and qt < int(reg['start']))
+                _stale[symbol] = bool(reg.get('start') and reg.get('end') and int(reg['start']) <= now_ts <= int(reg['end']) and qt and qt < int(reg['start'])
+                                      and now_ts - qt > 900)   # a 24-hour market just past its day boundary (crypto at 00:00 UTC) is not stale
             except Exception:
                 _stale[symbol] = False
             if px:
