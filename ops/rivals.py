@@ -1864,6 +1864,14 @@ def main():
                 pg_text, pg_map = '', {}
             if pg_text:
                 daily_note += pg_text + ' '
+            try:   # looking back on completed trades (owner's idea; all three AIs agreed, Oct 31: ops/review/lookback-oct31.json)
+                import lookback as LB
+                lb_text, lb_ids = LB.tasks(mid, state)
+            except Exception as _e:
+                print('looking-back tasks failed:', _e)
+                lb_text, lb_ids = '', []
+            if lb_text:
+                daily_note += lb_text + ' '
             plan_info = daily_note + 'Your public profile page now: ' + '; '.join(f'{k}: "{clip(v, 400)}"' if v else f'{k}: (not written yet, please write it)' for k, v in myprof.items()) + '. ' + 'Your published plans and feeling: ' + '; '.join(f"{k}: \"{v}\"" if v else f'{k}: (none yet)' for k, v in myplans.items()) + '. ' + board + fc_task
             take_info = plan_info + ('Your current take (shown at the top of the site): "' + mine[-1]['text'] + '" written ' + mine[-1]['at'] + '. ' if mine else 'You have no current take yet. ') + \
                 f'You have written {len(today)} new take(s) today (UTC). Aim for about 3 to 5 a day, at key moments (after the US open, midday, after the US close, at the daily close, at the Shanghai open) or after a trade or event that matters, and only when your view has really changed; otherwise send "" to keep it. Each new take is shown publicly on the site.'
@@ -1907,6 +1915,11 @@ def main():
             take = clip(reply.get('take', ''), 600) or None
             try:
                 ng = PG.store(state, mid, reply.get('grades'), pg_map, iso())
+                if lb_ids:
+                    try:
+                        print(f'{mid}: {LB.store(state, mid, reply.get("looking_back"), lb_ids, iso())} of {len(lb_ids)} looking-back notes given')
+                    except Exception as _e:
+                        print('looking-back store failed:', _e)
                 if pg_map:
                     print(f'{mid}: {ng} of {len(pg_map)} peer grades given')
             except Exception as _e:

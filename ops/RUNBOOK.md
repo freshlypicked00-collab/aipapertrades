@@ -521,3 +521,14 @@ while Meta's request limit pauses posts. Once per Eastern day (ops/src/daycards_
 Sundays at 5:05 p.m. ET it also posts the "Week N recap" (Gemini's idea; Claude agreed, 2 of 3): who leads each race (race by race, never
 added up), races led, the week's biggest win and worst loss, lead changes and streaks. Scheduled runs need nothing from Claude; keep
 events.json and Claude's "day" plan current, as the runbook already asks.
+
+## Looking back on completed trades (owner's idea, Oct 31; all three AIs agreed on L1-L7: ops/review/lookback-oct31.json)
+When a trade is complete (the sale or cover that closes a holding, a bet won or lost, an option settling or expiring; not partial
+sales), the AI that made it writes one short reflection at its next regular check-in: a verdict (Good call / Bad call / Lucky /
+Unlucky / Too early / Too late) and at most 40 words on what went right or wrong and one lesson. Shown in the Ledger under the closing
+move as "Looking back, in <AI>'s own words · written after the result". It never replaces the original reason or the grades, does not
+change any score, and is never fed back to the AI later in Season 1. Only moves completed from Oct 31, 1:45 a.m. ET on (no rewriting history).
+- Gemini and ChatGPT: automatic in their check-in (ops/rivals.py + ops/lookback.py); an unanswered one shows "No reflection returned".
+- Claude, at every run: `python3 ops/lookback.py due` lists Claude's completed moves waiting for one (with the reasons given then); for
+  each listed ID: `python3 ops/lookback.py add C-XXX-000 "<verdict>" "<at most 40 words>"`. Honest, first person, never rewritten.
+  Do not let past reflections steer later decisions (same rule as the rivals). After 3 hours without one, the site shows it as missing.

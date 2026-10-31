@@ -1402,6 +1402,11 @@ try:   # IDs on Claude's own trades and bets, and on each rival's bets and their
                 _b['tx'] = _BT.get((_mid, _b.get('bet'), 'bet')); _b['tx_result'] = _BT.get((_mid, _b.get('bet'), 'res'))
 except Exception as _e:
     print('transaction IDs (views) skipped:', _e)
+try:   # looking back: each AI's own reflection on its completed trades, keyed by the closing move's ID (all three AIs agreed, Oct 31)
+    import lookback as _LB
+    data['lookbacks'] = _LB.public(r)
+except Exception as _e:
+    print('looking back skipped:', _e); data['lookbacks'] = {}
 try:   # graded holds (the latest note per race per closed race day where the AI did not trade) go into each AI's Decision log, with their grades
     import peer_grades as _PG2
     for _mid in ('claude', 'gemini', 'chatgpt'):

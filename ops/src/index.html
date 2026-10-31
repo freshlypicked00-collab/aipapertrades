@@ -1108,6 +1108,10 @@ tr.lg-hit .tx-id{opacity:1}
   .pt-gl-pop { position: absolute; z-index: 9999; max-width: min(340px, calc(100vw - 24px)); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--color-border-line); background: var(--cds-surface-popover, #1a1916); color: var(--color-fg); font-size: 13.5px; line-height: 1.45; box-shadow: 0 8px 28px rgba(0,0,0,.45); text-transform: none; letter-spacing: 0; }
   .pt-gl-pop b { display: block; margin-bottom: 3px; }
   .pt-gl-list dt { font-weight: 600; margin-top: 10px; } .pt-gl-list dd { margin: 2px 0 0; color: var(--color-fg-muted); }
+.lg-lb{margin-top:6px;padding:5px 8px;border-left:3px solid #ffb000;background:color-mix(in srgb,#ffb000 7%,transparent);border-radius:0 6px 6px 0;font-size:12.5px;line-height:1.45}
+.lg-lb-h{display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;opacity:.75;margin-bottom:2px}
+.lg-lb-v{margin-right:2px}.lg-lb-good-call,.lg-lb-lucky{color:#3ddc84}.lg-lb-bad-call,.lg-lb-unlucky{color:#ff6b6b}.lg-lb-too-early,.lg-lb-too-late{color:#ffb000}
+.lg-lb-miss{opacity:.6;font-style:italic}
 </style>
 
 <div class="st">
@@ -2851,6 +2855,20 @@ tr.lg-hit .tx-id{opacity:1}
     if (Date.parse(at) >= TX_RESTART) { const sp = document.createElement('span'); sp.className = 'tx-id tx-pending'; sp.textContent = 'ID pending'; sp.title = 'The race runner gives this move its ID at its next run'; return sp; }
     return document.createTextNode('');
   };
+  // Looking back (owner's idea; all three AIs agreed, Oct 31: ops/review/lookback-oct31.json): the AI's own reflection on a completed
+  // trade, written after the result, under the closing move. Never replaces its reason or the grades; the AI never sees it again this season.
+  window.ptLookback = (id, model) => {
+    const L = id ? (dash.baseData('lookbacks') || {})[id] : null; if (!L) return null;
+    const who = (AIS[L.model || model] || {}).label || 'The AI';
+    const b = document.createElement('div'); b.className = 'lg-lb';
+    const h = document.createElement('span'); h.className = 'lg-lb-h'; h.textContent = 'Looking back, in ' + who + '’s own words · written after the result';
+    h.title = 'Written by the AI that made the trade, at its next check-in after the trade was complete. It does not change the original reason, the grades or the score, and the AI does not see it again this season.';
+    b.appendChild(h);
+    const p = document.createElement('div');
+    if (L.missing) { p.className = 'lg-lb-miss'; p.textContent = 'No reflection returned at its next check-in.'; }
+    else { const v = document.createElement('b'); v.className = 'lg-lb-v lg-lb-' + String(L.verdict).toLowerCase().replace(/\s+/g, '-'); v.textContent = L.verdict; p.append(v, document.createTextNode(' ' + L.text)); }
+    b.appendChild(p); return b;
+  };
   window.ptTxWhen = (at, id) => { const td = document.createElement('td'); td.append(document.createTextNode(stFmt.when(at)), window.ptTxTag(id, at)); return td; };
   const txParse = (q) => { const m = /^\s*([CGX])\s*-?\s*([A-Z]{3})\s*-?\s*0*(\d{1,4})\s*$/i.exec(String(q || '')); if (!m || !TX_RACE[m[2].toUpperCase()]) return null;
     return { id: m[1].toUpperCase() + '-' + m[2].toUpperCase() + '-' + String(+m[3]).padStart(3, '0'), model: TX_AI[m[1].toUpperCase()], race: TX_RACE[m[2].toUpperCase()] }; };
@@ -3947,7 +3965,7 @@ tr.lg-hit .tx-id{opacity:1}
       rows.forEach((t) => {
         const r = mk('tr'); const ai = mk('td', '', AIS[t.model].label); ai.style.borderLeft = '3px solid ' + AIS[t.model].color; ai.style.paddingLeft = '6px';
         const bt = t.action === 'Bet' ? BETS[t.model + '|' + t.bet] : null;   // a bet says when its game starts, so the bet time and the game time are never confused
-        const pl = pnlOf(t); const why = mk('td', 'wrap', t.reason || '');
+        const pl = pnlOf(t); const why = mk('td', 'wrap', t.reason || ''); { const lb = window.ptLookback(t.tx, t.model); if (lb) setTimeout(() => why.appendChild(lb), 0); }
         { const n = /^(Buy|Sell|Short|Cover|Bet)$/.test(t.action) ? pgNode(PG_KEY(t)) : null; if (n) why.appendChild(n); }
         r.append(window.ptTxWhen(t.at, t.tx), ai, mk('td', '', ALLIN[t.experiment].replace('All in: ', '')), mk('td', 'wrap', t.action + ' ' + String(t.name || t.symbol).replace(/^[A-Z]{2,5}: /, '') + (bt && bt.starts_at ? ' · game starts ' + stFmt.whenET(bt.starts_at) + ' ET' : '')),
           mk('td', 'num', Number.isFinite(+t.amount) ? (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.0f')(Math.abs(t.amount)) : ''), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret || ''), why);
@@ -5330,6 +5348,7 @@ tr.lg-hit .tx-id{opacity:1}
         cells.forEach(([v, c]) => { const td = mk('td', c || ''); if (v instanceof Node) td.appendChild(v); else td.textContent = v; tr.appendChild(td); });
         { const gn = r.pg ? pgNode(r.pg) : null; if (gn) tr.lastElementChild.appendChild(gn); }   // the other AIs' grades (owner, Oct 29)
         if (/^(Buy|Sell|Short|Cover|Bet|Parlay)$/.test(r.action)) tr.lastElementChild.appendChild(lookedUp(dash.model || 'claude', r.at));   // the search source ledger (Oct 30)
+        { const lb = window.ptLookback(r.tx, dash.model || 'claude'); if (lb) tr.lastElementChild.appendChild(lb); }
         { const nx = nextNode(r, dash.model || 'claude'); if (nx) tr.lastElementChild.appendChild(nx); }   // what happened next (owner, Oct 30)
         tb.appendChild(tr);
         if (document.documentElement.dataset.beginner === '1') { const s2 = plainTrade(r); if (s2) { const tr2 = mk('tr', 'bg-say'); const td2 = mk('td', '', s2); td2.colSpan = 9; tr2.appendChild(td2); tb.appendChild(tr2); } }
@@ -6470,7 +6489,7 @@ tr.lg-hit .tx-id{opacity:1}
           const r = mk('tr');
           const ai = mk('td', '', AIS[t.model] ? AIS[t.model].label : t.model); ai.style.borderLeft = '3px solid ' + (AIS[t.model] || {}).color; ai.style.paddingLeft = '6px';
           const pl = pnlOf(t);
-          const why = mk('td', '', t.reason || ''); { const n = /^(Buy|Sell|Short|Cover|Bet)$/.test(t.action) ? pgNode(PG_KEY(t)) : null; if (n) why.appendChild(n); }
+          const why = mk('td', '', t.reason || ''); { const lb = window.ptLookback(t.tx, t.model); if (lb) setTimeout(() => why.appendChild(lb), 0); } { const n = /^(Buy|Sell|Short|Cover|Bet)$/.test(t.action) ? pgNode(PG_KEY(t)) : null; if (n) why.appendChild(n); }
           r.append(window.ptTxWhen(t.at, t.tx), ai, mk('td', '', t.action + ' ' + (t.name || t.symbol)), mk('td', '', (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.0f')(Math.abs(t.amount))), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), why);
           body.appendChild(r);
         });
