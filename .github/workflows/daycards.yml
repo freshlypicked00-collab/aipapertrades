@@ -1,0 +1,67 @@
+name: Daily cards (Tonight's slate, Day N preview)
+# W11 and W12 (owner, Oct 30; Claude, Gemini and ChatGPT all agreed: ops/review/WATCH_DECISIONS.md). Each schedule runs at both
+# possible UTC times because Eastern daylight time ends Nov 1; ops/daycards.py only acts inside its Eastern window, once a day.
+on:
+  schedule:
+    - cron: '30 22 * * *'     # Tonight's slate, 6:30 p.m. EDT (until Nov 1)
+    - cron: '30 23 * * *'     # Tonight's slate, 6:30 p.m. EST (from Nov 1)
+    - cron: '5 13 * * 1-5'    # Day N preview, 9:05 a.m. EDT
+    - cron: '5 14 * * 1-5'    # Day N preview, 9:05 a.m. EST
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'slate or preview'
+        default: slate
+        type: choice
+        options: [slate, preview]
+      force:
+        description: 'post even outside the time window (still once a day)'
+        type: boolean
+        default: false
+      dry:
+        description: 'build the card and print it, post nothing'
+        type: boolean
+        default: true
+permissions:
+  contents: write
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - run: pip install -q pillow
+      - name: Post the card
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_WEBHOOK_DAILY: ${{ secrets.DISCORD_WEBHOOK_DAILY }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          FORCE: ${{ github.event_name == 'workflow_dispatch' && inputs.force && '1' || '' }}
+          DRY: ${{ github.event_name == 'workflow_dispatch' && inputs.dry && '1' || '' }}
+        run: |
+          MODE="${{ inputs.mode }}"
+          case "${{ github.event.schedule }}" in
+            '30 22 * * *'|'30 23 * * *') MODE=slate ;;
+            '5 13 * * 1-5'|'5 14 * * 1-5') MODE=preview ;;
+          esac
+          python3 ops/daycards.py "$MODE"
+          python3 ops/daycards.py stash
+      - name: Save what was sent (merged with whatever other runs pushed)
+        run: |
+          [ -f /tmp/daycards_sent.json ] || exit 0
+          git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
+          for i in 1 2 3 4 5; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            python3 ops/daycards.py merge
+            git add ops/src/daycards_sent.json ops/src/x_sent.json 2>/dev/null
+            git diff --cached --quiet && exit 0
+            git commit -qm "Daily cards: sent" && git push -q origin HEAD:main && exit 0
+            sleep $((i * 7))
+          done

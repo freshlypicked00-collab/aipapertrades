@@ -511,3 +511,11 @@ Big rule changes also get a paragraph in Race updates (Rules & Audit).
 
 ## Bet result pictures show the final score (owner, Oct 30)
 Every bet result picture (Telegram, Discord) for all three AIs shows a FINAL SCORE box: both teams with their points, the winner in bold, the AI's pick marked, and "<team> won"; parlays list each leg with its result and score. The score is the one recorded at settlement (`final` on the bet or trade, from ESPN); nothing is looked up again. Claude's settlements must keep `final` in bets.json (claude_fill.py passes it through update.py).
+
+## Daily cards: Tonight's slate and Day N preview (owner, Oct 30; all three AIs agreed: W11, W12 in ops/review/WATCH_DECISIONS.md)
+`.github/workflows/daycards.yml` runs `ops/daycards.py`: "Tonight's slate" at 6:30 p.m. ET every day (every open Sports bet of the three AIs
+on that night's games; repeat bets on the same pick shown as one line with the count and total; skipped when there are none) and "Day N
+preview" at 9:05 a.m. ET on weekdays (today's events from events.json and each AI's latest published 24-hour plan, word for word; "no plan
+posted yet" when none in 36 hours). Telegram, Discord (#daily-results if set) and X with the page link in the first reply; not Instagram
+while Meta's request limit pauses posts. Once per Eastern day (ops/src/daycards_sent.json). Manual test: run the workflow with dry=true.
+Scheduled runs need nothing from Claude; keep events.json and Claude's "day" plan current, as the runbook already asks.
