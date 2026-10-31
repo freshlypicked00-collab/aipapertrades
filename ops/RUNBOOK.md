@@ -496,3 +496,13 @@ orders like `{"action": "buy", "symbol": "SPY", "amount": 10000, "reason": "..."
 Read your three accounts and the draft rules in `ops/src/s2test.json` and `ops/s2test.py` first. The daily workflow fills all three AIs at
 the same feed prices at 11:20 a.m. ET. This test is PRIVATE: never mention it on the site, Telegram, Discord or Instagram, and it has
 nothing to do with the current race.
+
+## Site updates log (ops/src/changelog.json, shown on About → Site updates; owner, Oct 30)
+Every change a visitor could notice gets one line here, in the same commit as the change: a site feature or fix, a new or
+changed account (Telegram, Instagram, X, Discord, domains), a change to what or how we post, a rule change. Append
+`{"at": <real ET time with offset, e.g. 2026-10-31T09:12:00-04:00>, "text": <one plain sentence, 30 words or fewer>,
+"by": "Owner's request" | "Owner's decision" | "All three AIs agreed" | "Owner's request; all three AIs agreed"}` (leave "by" out
+if nobody decided it, e.g. a bug fix). Facts only, no hype, no money totals across races. Never list anything private (the
+Season 2 test, keys, costs). Routine runs (prices, trades, bets, takes, reports) are NOT logged here; they have their own records.
+Big rule changes also get a paragraph in Race updates (Rules & Audit).
+

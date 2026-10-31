@@ -479,6 +479,10 @@ data = {}
 for name in ('holdings', 'history', 'bets', 'log', 'rules', 'benchmark', 'indexes', 'events', 'prices', 'trades', 'bench_history', 'ledger', 'review', 'take', 'report', 'factcheck', 'plans', 'profile'):
     data[name] = json.load(open(os.path.join(SRC, name + '.json')))
 data['sources'] = json.load(open(os.path.join(SRC, 'sources.json')))
+try:   # the public log of site, posting and account updates, newest last (owner, Oct 30)
+    data['changelog'] = json.load(open(os.path.join(SRC, 'changelog.json')))
+except Exception:
+    data['changelog'] = []
 rv = os.path.join(SRC, 'rivals.json')
 r = json.load(open(rv)) if os.path.exists(rv) else {'models': {}, 'trades': [], 'history': [], 'takes': []}
 try:   # the search source ledger's public day files, searchlog/<UTC day>.json (all three AIs agreed, Oct 30)
