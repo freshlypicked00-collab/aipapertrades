@@ -3,6 +3,12 @@ name: Full audit (every fill and bet against the feeds; read-only)
 # ops/review/full-audit-<time>.json with what it found.
 on:
   workflow_dispatch:
+    inputs:
+      what:
+        description: 'full = every fill and bet; crypto = only the 1-minute crypto bars for the Crypto standings check'
+        type: choice
+        default: full
+        options: [full, crypto]
 permissions:
   contents: write
 jobs:
@@ -14,9 +20,14 @@ jobs:
         with:
           ref: main
       - name: Check every fill and bet
+        if: ${{ inputs.what != 'crypto' }}
         run: python3 ops/full_audit.py
       - name: Explain the price flags (daily bars, the quote the runner reads)
+        if: ${{ inputs.what != 'crypto' }}
         run: python3 ops/audit_explain.py || true
+      - name: Crypto standings check (1-minute bars at the day closes and the Oct 28 moment)
+        if: ${{ inputs.what == 'crypto' }}
+        run: python3 ops/audit_crypto.py || true
       - name: Save the report
         run: |
           git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"

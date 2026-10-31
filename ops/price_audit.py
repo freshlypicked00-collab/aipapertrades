@@ -60,11 +60,15 @@ _bars = {}
 
 def bars(sym, t0, t1):
     """1-minute regular-session bars [(time, low, high, close)] for sym between t0 and t1 (cached per symbol and day)."""
-    key = (sym, t0.date(), t1.date())
+    # Full audit, Oct 31: the cache was keyed by day but filled with only the first window asked for, so later checks on the same day were
+    # compared with bars from another time of day (32 rows). Now whole UTC days are fetched once and the minutes asked for are kept.
+    d0 = datetime(t0.year, t0.month, t0.day, tzinfo=timezone.utc)
+    d1 = datetime(t1.year, t1.month, t1.day, tzinfo=timezone.utc) + timedelta(days=1)
+    key = (sym, d0, d1)
     if key in _bars:
-        return _bars[key]
-    url = (f'https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(sym)}?period1={int(t0.timestamp())}'
-           f'&period2={int(t1.timestamp())}&interval=1m&includePrePost=false')
+        return [b for b in _bars[key] if t0 <= b[0] <= t1]
+    url = (f'https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(sym)}?period1={int(d0.timestamp())}'
+           f'&period2={int(d1.timestamp())}&interval=1m&includePrePost=false')
     out = []
     try:
         j = R.get_json(url, timeout=25)['chart']['result'][0]
@@ -76,7 +80,7 @@ def bars(sym, t0, t1):
     except Exception as e:
         print(f'::warning::price check: no Yahoo bars for {sym}: {str(e)[:120]}')
     _bars[key] = out
-    return out
+    return [b for b in out if t0 <= b[0] <= t1]
 
 
 def feed_range(sym, t):
