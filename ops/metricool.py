@@ -20,14 +20,14 @@ TOKEN = os.environ.get('METRICOOL_TOKEN', '').strip()
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 
-def call(path, method='GET', body=None, blog=True, raw=False):
+def call(path, method='GET', body=None, blog=True, raw=False, accept='application/json'):
     """One API call. Never prints the address (it carries the token)."""
     q = {'userId': USER_ID, 'userToken': TOKEN}
     if blog:
         q['blogId'] = BLOG_ID
     url = BASE + path + ('&' if '?' in path else '?') + urllib.parse.urlencode(q)
     data = json.dumps(body).encode() if body is not None else None
-    req = urllib.request.Request(url, data=data, method=method, headers={'X-Mc-Auth': TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/json'})
+    req = urllib.request.Request(url, data=data, method=method, headers={'X-Mc-Auth': TOKEN, 'Content-Type': 'application/json', 'Accept': accept})
     try:
         with urllib.request.urlopen(req, timeout=90) as r:
             txt = r.read().decode('utf-8', 'replace')
@@ -86,7 +86,7 @@ def probe():
 
 def normalize(url):
     """Metricool copies the file to its own storage; the post must use the address it returns."""
-    st, r = call('/actions/normalize/image/url?' + urllib.parse.urlencode({'url': url}), raw=True)
+    st, r = call('/actions/normalize/image/url?' + urllib.parse.urlencode({'url': url}), raw=True, accept='*/*')   # it answers in plain text
     if st != 200:
         return None, f'normalize {st}: {str(r)[:300]}'
     r = r.strip()
