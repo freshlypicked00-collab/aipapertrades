@@ -322,6 +322,9 @@
   .st-callout .co-text { margin: 6px 0 0; font-size: 15px; line-height: 1.45; color: var(--color-fg); }
   .st-callout .co-foot { margin: 6px 0 0; font-size: 12px; color: var(--color-fg-muted); }
   .st-callout .co-foot a { color: inherit; }
+  .lg-act { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 7.5em; }
+  .lg-pl { font-size: 12px; font-weight: 700; white-space: nowrap; color: var(--color-fg-muted); } .lg-pl.is-up { color: #3ddc84; } .lg-pl.is-down { color: #ff5a4e; }
+  .lg-find { font: inherit; font-size: 11.5px; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg-muted); cursor: pointer; white-space: nowrap; } .lg-find:hover { color: var(--color-fg); border-color: var(--accent); }
   .st-podium .pd-live-b > span:not(.pd-live-now):not(.ai-badge) { flex: 1 1 0; min-width: 0; } .st-podium .pd-live-b > .ai-badge { flex: 0 0 auto; }
   .pd-live-now { display: block; flex-basis: 100%; font-size: 11.5px; font-weight: 700; margin: 1px 0 0 20px; } .pd-live-now.is-up { color: #3ddc84; } .pd-live-now.is-down { color: #ff5a4e; } .pd-live-now.is-tie { color: #ffb000; } .pd-live-now:empty { display: none; }
   .mkt:empty { display: none; } .mkt { margin: 10px 0 4px; }
@@ -1266,7 +1269,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '65fd89b4f2c9';</script>
+<script>window.PT_PAGE_VER = '573748b3f16f';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -5249,7 +5252,25 @@ body { background:var(--color-bg); }
       shown.forEach((r) => {
         const tr = mk('tr', F && !F.missing && hit ? (r === hit ? 'lg-hit' : (/^(Buy|Short|Bet)$/.test(r.action) && +new Date(r.at) <= +new Date(hit.at) ? 'lg-hit-soft' : '')) : '');
         const act = mk('span', 'st-pill' + (r.action === 'Buy' || r.action === 'Won' ? ' is-up' : r.action === 'Sell' || r.action === 'Lost' || r.action === 'Penalty' ? ' is-down' : ''), r.action);
-        const cells = [[stFmt.when(r.at)], [LABEL[r.portfolio] || r.portfolio], [act], [r.item], [r.detail, 'wrap'], [r.amount, 'num'], [r.cost || '', 'num'],
+        // under a buy or sell: profit or loss at a glance, and a button to its match (owner's idea; all three AIs agreed, Oct 30: ops/review/ledgerpl-r1-oct30.json).
+        // The amount sits only on the SALE (so nobody adds it twice); a buy says how it ended without the amount, or that it is still held.
+        const actBox = mk('div', 'lg-act'); actBox.appendChild(act);
+        if (/^(Buy|Sell|Short|Cover)$/.test(r.action) && !r.void) {
+          const cur = r.portfolio === 'China' ? 'US$' : 'C$', closing = /^(Sell|Cover)$/.test(r.action);
+          const v = closing ? r.profit : r.outcome;
+          let txt = '', cls = '';
+          if (closing && v != null) { txt = v > 0.5 ? '✓ Profit +' + cur + d3.format(',.0f')(v) : v < -0.5 ? '✗ Loss −' + cur + d3.format(',.0f')(-v) : 'Even'; cls = v > 0.5 ? 'is-up' : v < -0.5 ? 'is-down' : ''; }
+          else if (!closing) {
+            if (v == null) { if (r.open) txt = 'Still held'; }   // same rule as the Won/lost column: a result means it was sold
+            else { const mark = v > 0.5 ? '✓ ' : v < -0.5 ? '✗ ' : '', how = v > 0.5 ? 'at a profit' : v < -0.5 ? 'at a loss' : 'at about even';
+              txt = mark + (r.partly ? 'Part sold ' + how + '; rest still held' : 'Sold ' + how); cls = v > 0.5 ? 'is-up' : v < -0.5 ? 'is-down' : ''; }
+          }
+          if (txt) actBox.appendChild(mk('span', 'lg-pl ' + cls, txt));
+          const canFind = !(F && !F.missing) && (closing || v != null);
+          if (canFind && window.ptFindTrade) { const fb = mk('button', 'lg-find', closing ? '🔎 Find the buy(s)' : '🔎 Find the sale(s)'); fb.type = 'button'; fb.title = 'Show only this holding: the sale highlighted, the buys behind it softly';
+            fb.addEventListener('click', () => window.ptFindTrade(dash.model || 'claude', r.portfolio, r.at, String(r.item).replace(/ \(.*\)$/, ''), r.action)); actBox.appendChild(fb); }
+        }
+        const cells = [[stFmt.when(r.at)], [LABEL[r.portfolio] || r.portfolio], [actBox], [r.item], [r.detail, 'wrap'], [r.amount, 'num'], [r.cost || '', 'num'],
           (() => { const v = r.profit !== null ? r.profit : r.outcome != null ? r.outcome : null, cur = r.portfolio === 'China' ? 'US$' : 'C$';
             if (r.void) return ['Refunded', 'num st-open'];
             if (v === null) return [r.open ? 'open' : '', 'num st-open'];
