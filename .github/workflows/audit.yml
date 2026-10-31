@@ -1,0 +1,29 @@
+name: Full audit (every fill and bet against the feeds; read-only)
+# Owner, Oct 31: "make sure every number is correct, and that nobody has cheated". Changes no race data: it only writes
+# ops/review/full-audit-<time>.json with what it found.
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Check every fill and bet
+        run: python3 ops/full_audit.py
+      - name: Save the report
+        run: |
+          git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
+          mkdir -p /tmp/fa && cp ops/review/full-audit-*.json /tmp/fa/ 2>/dev/null || exit 0
+          for i in 1 2 3 4 5; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            cp /tmp/fa/*.json ops/review/
+            git add ops/review/full-audit-*.json
+            git diff --cached --quiet && exit 0
+            git commit -qm "Full audit: every fill and bet checked against the feeds (read-only)" && git push -q origin HEAD:main && exit 0
+            sleep $((i * 7))
+          done
