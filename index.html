@@ -1269,7 +1269,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'a414c93904d8';</script>
+<script>window.PT_PAGE_VER = 'cd710a44dd04';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -4165,6 +4165,25 @@ body { background:var(--color-bg); }
     if (d.status === 'ok') { const rows = d.data.filter(flt); [...el.children].forEach((tr, k) => { const r = rows[k]; if (!r || !r.pg_key || !tr.lastElementChild) return;
       const n = pgNode(r.pg_key); if (n) { tr.lastElementChild.appendChild(n); return; }
       if (Date.now() - Date.parse(r.at) < 3 * 3600e3) tr.lastElementChild.appendChild(mk('div', 'pg-out pg-wait', '⏳ The other AIs grade this at their next check-in, anonymously.')); }); }   // the other AIs' grades under each decision (G7)
+    // a way back from every decision to its trade (owner, Oct 30; Claude, Gemini and ChatGPT all agreed: ops/review/buylink-r1-oct30.json):
+    // a sale finds its buy(s), a buy that was sold finds its sale(s), a bet finds itself with its result. The entry is matched to its exact
+    // Ledger row (same race, within 3 minutes, the holding named in the entry); when the match is not certain, no button is shown.
+    if (d.status === 'ok' && window.ptFindTrade) {
+      const rows = d.data.filter(flt); let TR = []; try { TR = tradeRows() || []; } catch (e) { TR = []; }
+      const nm = (x) => String(x || '').replace(/ \(.*\)$/, '').replace(/^G\d+ /, '').toLowerCase().trim();
+      [...el.children].forEach((tr, k) => { const r = rows[k]; if (!r || !tr.lastElementChild) return;
+        const fam = /^(Sell|Cover)$/.test(r.action) ? 'close' : /^(Buy|Short)$/.test(r.action) ? 'open' : /^(Bet|Parlay|Settle|Won|Lost)$/.test(r.action) ? 'bet' : null; if (!fam) return;
+        const t0 = Date.parse(r.at), det = String(r.detail || '').toLowerCase();
+        const near = TR.filter((x) => x.portfolio === r.portfolio && Math.abs(Date.parse(x.at) - t0) <= 3 * 60e3
+          && (fam === 'close' ? /^(Sell|Cover)$/.test(x.action) : fam === 'open' ? /^(Buy|Short)$/.test(x.action) : /^(Bet|Parlay|Won|Lost|Settled)$/.test(x.action)));
+        const named = near.filter((x) => nm(x.item) && det.includes(nm(x.item)));
+        const m = named.length === 1 ? named[0] : near.length === 1 ? near[0] : null; if (!m) return;
+        if (fam === 'open' && m.outcome == null) return;   // still held: there is no sale to find yet
+        const b = mk('button', 'lg-find', fam === 'close' ? '🔎 Find the buy(s)' : fam === 'open' ? '🔎 Find the sale(s)' : '🔎 Find the bet in the Ledger'); b.type = 'button';
+        b.title = 'Open the Ledger on this holding: every buy and sale behind it, with times, prices and reasons';
+        b.addEventListener('click', () => window.ptFindTrade(dash.model || 'claude', m.portfolio, m.at, String(m.item).replace(/ \(.*\)$/, ''), m.action));
+        tr.lastElementChild.append(document.createTextNode(' '), b); });
+    }
     if (d.status === 'ok' && el.dataset.graded && !el.children.length) { const tr = mk('tr'); const td = mk('td', 'st-muted', 'No graded decisions here yet: the other AIs grade new trades and bets at each check-in.'); td.colSpan = 4; tr.appendChild(td); el.appendChild(tr); }
     pagerFor(el, Number(el.dataset.per) || 10, 'decisions');   // Recent decisions in the Ledger: 5 a page (owner, Oct 29); each race's Decision log: 10
   });
@@ -5946,6 +5965,10 @@ body { background:var(--color-bg); }
           const pl = pnlOf(t);
           [stFmt.when(t.at), LABEL[t.experiment] || t.experiment, what, px, Number.isFinite(t.amount) ? stFmt.money(t.amount, t.experiment) : ''].forEach((v) => tr.appendChild(mk('td', '', v)));
           tr.append(mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret), mk('td', '', t.reason || ''));
+          if (/^(Sell|Cover)$/.test(t.action) && window.ptFindTrade) {   // the way back to the buy(s) (owner, Oct 30; all three AIs agreed)
+            const fb = mk('button', 'lg-find', '🔎 Find the buy(s)'); fb.type = 'button'; fb.title = 'Open the Ledger on this holding: the sale and every buy behind it';
+            fb.addEventListener('click', () => window.ptFindTrade(id, t.experiment, t.at, String(t.name || t.symbol).replace(/ \(.*\)$/, '').replace(/ USD$/, ''), t.action));
+            tr.children[2].append(document.createElement('br'), fb); }
           tb.appendChild(tr);
         });
         wrap.appendChild(tb); rbox.appendChild(wrap);
