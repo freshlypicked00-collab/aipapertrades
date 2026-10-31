@@ -251,6 +251,8 @@
   .st-callout .co-text { margin: 6px 0 0; font-size: 15px; line-height: 1.45; color: var(--color-fg); }
   .st-callout .co-foot { margin: 6px 0 0; font-size: 12px; color: var(--color-fg-muted); }
   .st-callout .co-foot a { color: inherit; }
+  .st-podium .pd-live-b > span:not(.pd-live-now):not(.ai-badge) { flex: 1 1 0; min-width: 0; } .st-podium .pd-live-b > .ai-badge { flex: 0 0 auto; }
+  .pd-live-now { display: block; flex-basis: 100%; font-size: 11.5px; font-weight: 700; margin: 1px 0 0 20px; } .pd-live-now.is-up { color: #3ddc84; } .pd-live-now.is-down { color: #ff5a4e; } .pd-live-now.is-tie { color: #ffb000; } .pd-live-now:empty { display: none; }
   .mkt:empty { display: none; } .mkt { margin: 10px 0 4px; }
   .mkt-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0 0 6px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
   .mkt-h .pd-livebadge { letter-spacing: .08em; } .mkt-h small { letter-spacing: 0; text-transform: none; color: var(--color-fg-muted); font-size: 12px; }
@@ -597,7 +599,7 @@
   .st-podium .pd-live-sc .wait { grid-column: 1 / -1; font-size: 11.5px; color: var(--color-fg-muted); }
   .st-podium .pd-live-sc .n.pd-flash { animation: pd-flash 1.2s ease-out; } @keyframes pd-flash { 0% { color: #ffd166; transform: scale(1.35); } 100% { color: inherit; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .pd-livebadge, .pd-livebadge i, .st-podium .pd-live-sc .st::before, .st-podium .pd-live-sc .n.pd-flash { animation: none; } }
-  .st-podium .pd-live-b { display: flex; align-items: center; gap: 6px; border-left: 2px solid var(--ai); padding-left: 6px; color: var(--color-fg-muted); } .st-podium .pd-live-b .ai-badge { margin-right: 0; }
+  .st-podium .pd-live-b { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; border-left: 2px solid var(--ai); padding-left: 6px; color: var(--color-fg-muted); } .st-podium .pd-live-b .ai-badge { margin-right: 0; }
   .st-podium .pd-big { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
   .st-podium .pd-big-col > b { display: block; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
   .st-podium .pd-big ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
@@ -7071,6 +7073,18 @@
       sc.replaceChildren(...row(away, A, 'a'), ...row(home, Hm, 'h'), mk('span', 'st', (st.completed ? 'FINAL' : st.shortDetail || st.detail || 'In progress') + (st.completed ? ' · the bets settle at the next check-in' : '')));
       sc.classList.toggle('is-final', !!st.completed);
       sc._prev = { a: A, h: Hm };
+      // under each bet: is that AI's pick winning, losing or tied right now (owner, Oct 30)
+      const card = sc.closest('.pd-live-g');
+      if (card) card.querySelectorAll('.pd-live-b').forEach((r) => {
+        const pk = String(r._pick || '').toLowerCase(); if (!pk) return;
+        const is = (t) => { const tm = t.team || {}; return [tm.displayName, tm.shortDisplayName, tm.name, tm.location].some((n) => n && pk.includes(String(n).toLowerCase())) || pk.split(/\s+/).includes(nickOf(tm.displayName)); };
+        const mine = is(away) && !is(home) ? 'a' : is(home) && !is(away) ? 'h' : null;
+        let s2 = r.querySelector('.pd-live-now'); if (!s2) { s2 = mk('span', 'pd-live-now'); r.appendChild(s2); }
+        if (!mine) { s2.textContent = ''; return; }
+        const d = mine === 'a' ? A - Hm : Hm - A, pts = Math.abs(d) === 1 ? ' point' : ' points';
+        s2.className = 'pd-live-now ' + (d > 0 ? 'is-up' : d < 0 ? 'is-down' : 'is-tie');
+        s2.textContent = st.completed ? (d > 0 ? r._who + ' won this bet' : d < 0 ? r._who + ' lost this bet' : 'Tied at the end') : (d > 0 ? r._who + ' is winning by ' + d + pts : d < 0 ? r._who + ' is losing by ' + (-d) + pts : r._who + "'s pick is tied right now");
+      });
     });
   };
   if (!window._ptLiveTimer) window._ptLiveTimer = setInterval(() => { if (document.hidden) return; document.querySelectorAll('.pd-live-sc').forEach((sc) => { if (sc.offsetParent !== null) paintScore(sc, true); }); }, 30000);
@@ -7087,7 +7101,7 @@
       const lab = mk('small', 'pd-live-lg', (g.lg || '').toUpperCase() + (isLive ? ' · start time ' : ' · ') + stFmt.whenET(new Date(g.t).toISOString()) + ' ET'); lab._base = lab.textContent;
       d.append(lab, a);
       const sc = mk('div', 'pd-live-sc'); sc._lab = isLive ? lab : null; if (isLive) d.appendChild(sc);
-      g.bets.forEach((x) => { const r = mk('div', 'pd-live-b'); r.style.setProperty('--ai', AIS[x.id].color);
+      g.bets.forEach((x) => { const r = mk('div', 'pd-live-b'); r.style.setProperty('--ai', AIS[x.id].color); r._pick = x.pick; r._who = AIS[x.id].label;
         r.append(aiBadge(x.id, 14), mk('span', '', AIS[x.id].label + ': C$' + d3.format(',.0f')(x.stake) + ' on ' + x.pick + ' at ' + betOdds(x.odds) + (x.win ? ' · to win C$' + d3.format(',.0f')(x.win) : ''))); d.appendChild(r); });
       if (isLive) { d.classList.add('is-live'); sc._g = g; sc.appendChild(mk('span', 'wait', 'Getting the live score…')); paintScore(sc); }
       box.appendChild(d);
