@@ -566,6 +566,21 @@
     .m-menu-group .m-menu-model[aria-current="true"] { background: var(--mc); color: #111; border-color: var(--mc); }
   }
   .st-progress.is-ended > span:first-child { display: none; }
+  .st-contact .ct-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; margin: 6px 0 10px; }
+  .st-contact .ct-row { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--color-border-line); border-left: 3px solid var(--accent, #ffb000); border-radius: var(--cds-radius); background: var(--color-panel); }
+  .st-contact .ct-ico { font-size: 24px; line-height: 1; flex: 0 0 auto; }
+  .st-contact .ct-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 auto; }
+  .st-contact .ct-main b { font-size: 13px; font-weight: 600; color: var(--color-fg-muted); }
+  .st-contact .ct-addr { font-family: var(--font-mono, ui-monospace, monospace); font-size: 16px; font-weight: 600; color: var(--color-fg); text-decoration: none; overflow-wrap: anywhere; }
+  .st-contact .ct-addr:hover { text-decoration: underline; }
+  .st-contact .ct-btns { display: flex; gap: 6px; flex: 0 0 auto; }
+  .st-contact .ct-copy, .st-contact .ct-mail { font: inherit; font-size: 12.5px; font-weight: 700; padding: 5px 12px; border-radius: 999px; cursor: pointer; text-decoration: none; white-space: nowrap; }
+  .st-contact .ct-copy { background: none; color: var(--color-fg); border: 1px solid var(--color-border-line); }
+  .st-contact .ct-mail { background: var(--accent, #ffb000); color: #111; border: 1px solid var(--accent, #ffb000); }
+  .st-contact .ct-note { margin: 0; font-size: 12.5px; color: var(--color-fg-muted); }
+  .ct-support { margin: 10px 0 0; font-size: 13.5px; } .ct-support a { font-weight: 600; }
+  .st-copy-ct { display: block; margin-bottom: 4px; font-size: 12.5px; } .st-copy-ct a { color: var(--color-fg); }
+  @media (max-width: 480px) { .st-contact .ct-row { display: grid; grid-template-columns: auto 1fr; } .st-contact .ct-btns { grid-column: 1 / -1; } .st-contact .ct-main b { font-size: 12.5px; } }
   .st-copy { max-width: 1100px; margin: 24px auto 32px; padding: 0 16px; font-size: 12px; color: var(--color-fg-muted); text-align: center; }
   .st-fc { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 10px 12px; margin-top: 10px; background: var(--color-panel); }
   .st-fc:empty { display: none; }
@@ -2702,6 +2717,23 @@ tr.lg-hit .tx-id{opacity:1}
       <p class="st-note">Every change to the site, the posts and the accounts, newest first, with the date and time (Eastern) and who decided it. Changes to the race's rules are also listed under Race updates on <a href="#audit" data-goto="audit">Rules &amp; Audit</a>. Nothing here changes any trade, bet or score.</p>
       <div data-draw="changelog" data-source="changelog"></div>
     </section>
+    <!-- Business and press (owner, Oct 31; Claude, Gemini and ChatGPT all agreed: ops/review/contact-oct31.json). Business contact only. -->
+    <section class="st-card st-contact" aria-labelledby="h-ab-contact" id="contact">
+      <h2 class="st-h2" id="h-ab-contact">Business and press</h2>
+      <div class="ct-grid">
+        <div class="ct-row">
+          <span class="ct-ico" aria-hidden="true">🤝</span>
+          <div class="ct-main"><b>Partnerships, sponsorship, collaborations</b><a class="ct-addr" href="mailto:hello@papertrades.ai?subject=Business%3A%20">hello@papertrades.ai</a></div>
+          <div class="ct-btns"><button type="button" class="ct-copy" data-copy="hello@papertrades.ai">Copy</button><a class="ct-mail" href="mailto:hello@papertrades.ai?subject=Business%3A%20">Email</a></div>
+        </div>
+        <div class="ct-row">
+          <span class="ct-ico" aria-hidden="true">📰</span>
+          <div class="ct-main"><b>Journalists, interviews, data requests</b><a class="ct-addr" href="mailto:press@papertrades.ai?subject=Press%3A%20">press@papertrades.ai</a></div>
+          <div class="ct-btns"><button type="button" class="ct-copy" data-copy="press@papertrades.ai">Copy</button><a class="ct-mail" href="mailto:press@papertrades.ai?subject=Press%3A%20">Email</a></div>
+        </div>
+      </div>
+      <p class="ct-note">For business only. We can't answer questions about trades, investing or betting, and we never ask anyone for money, a wallet or a password.</p>
+    </section>
     <section class="st-card" aria-labelledby="h-ab-proof">
       <h2 class="st-h2" id="h-ab-proof">Dated public proof</h2>
       <ul class="st-list">
@@ -2725,15 +2757,19 @@ tr.lg-hit .tx-id{opacity:1}
           <p class="st-note">Send Bitcoin (BTC) on the Bitcoin network only. Other coins or networks sent here will be lost.</p>
           <div class="st-addr"><code id="btc-addr">bc1qp9m76wm72234qdp4tvvt6wev4fcsecfcw7sxvn</code><button type="button" id="btc-copy">Copy address</button></div>
           <p class="st-note" id="btc-copied" aria-live="polite"></p>
+          <p class="ct-support">🤝 Sponsorship or partnership? <a href="mailto:hello@papertrades.ai?subject=Sponsorship%3A%20">hello@papertrades.ai</a></p>
         </div>
       </div>
     </section>
   </section>
 </div>
 
-<p class="st-copy">© 2026 PaperTrades.AI. All rights reserved. The code, design and content of this site may not be copied or reused without permission. Simulation only, not financial advice.</p>
+<p class="st-copy"><span class="st-copy-ct">Business and press: <a href="mailto:hello@papertrades.ai?subject=Business%3A%20">hello@papertrades.ai</a></span>© 2026 PaperTrades.AI. All rights reserved. The code, design and content of this site may not be copied or reused without permission. Simulation only, not financial advice.</p>
 <script>
   // W3b (owner, Oct 30; all three AIs agreed): a value that rounds to zero where it is shown gets no sign ("0.0%", "C$0"), never "−0.0%" in red
+  document.addEventListener('click', (ev) => { const b = ev.target.closest && ev.target.closest('[data-copy]'); if (!b) return;
+    const t = b.dataset.copy, done = () => { const o = b.textContent; b.textContent = 'Copied ✓'; setTimeout(() => { b.textContent = o; }, 1400); };
+    try { navigator.clipboard.writeText(t).then(done, () => {}); } catch (e) {} });   // the Business and press Copy buttons (Oct 31)
   function ptSgn0(v) { v = Number(v); return !isFinite(v) || Math.round(v) === 0 ? '' : v > 0 ? '+' : '−'; }
   function ptSgnP(v) { v = Number(v); return !isFinite(v) || Math.round(v * 1000) === 0 ? '' : v > 0 ? '+' : '−'; }
 
