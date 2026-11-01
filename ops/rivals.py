@@ -72,6 +72,7 @@ DAY_MIN = 3000.0      # and at least C$3,000 wagered every ET day (25% of the be
 PENALTY_DAY = 500.0     # C$ off the Sports balance for each ET day with less than the daily minimum wagered (from Oct 29)
 PENALTY_TOTAL = 0.10    # and 10% of any shortfall from the C$100,000 total, at the final scoring
 PENALTY_FROM = '2026-10-29'
+ALLIN_MIN_FROM = '2026-11-01'   # All in: Sports gets the same betting minimums from this ET day (owner, Oct 31; vote ops/review/allin-min-oct31.json)
 BET_END = '2026-11-28T21:00:00+00:00'   # the minimums run to the final scoring, Nov 28 at 4 p.m. ET
 RACE_END = datetime(2026, 11, 28, 21, 0, tzinfo=timezone.utc)   # final scoring: no orders after this; values are frozen
 US_HOLIDAYS = {'2026-11-26'}            # Thanksgiving: US markets closed all day
@@ -651,7 +652,7 @@ RULES = {
     'Currencies': f'Currencies: forex with up to {FX_LEVERAGE}x leverage, like a forex account. Positions are currency codes ({", ".join(FX_NAMES)}), each valued in US$ and converted to C$. Actions: "buy" (go long, amount in C$), "sell" (close part of a long, fraction), "short" (borrow and sell, amount in C$), "cover" (buy back part of a short, fraction). Cash may go negative (borrowing). Total position size may not exceed {FX_LEVERAGE}x the account value. Trades Sunday 5 p.m. to Friday 5 p.m. ET. Counted in C$.',
     'Safe': 'Play it safe: the low-risk control. Only these funds: ' + ', '.join(sorted(SAFE_OK)) + '. No leverage, no single stocks, no options, gold funds (GLD, IAU, GLDM) at most 10% of the account. US market hours only. Counted in C$.',
     'AllInTrading': 'All in: trading (HIGH RISK, HIGH REWARD, separate fun experiment): its own C$100,000; any US$-listed stock or ETF, any crypto (BTC-USD style) or any option (OCC symbol, filled at the Cboe ask/bid). NO position caps here: you may go all in on one idea. Stocks and options trade in US market hours, crypto around the clock. It is NOT counted in the overall race or the elimination rule; busting it only closes it. Goal: the biggest number you can get. Counted in C$.',
-    'AllInSports': 'All in: sports (HIGH RISK, HIGH REWARD, separate fun experiment): its own C$100,000 sports bankroll, moneyline bets on the same games as Sports (action "bet" with "game", "pick", "amount"; parlays allowed with action "parlay" and "legs"). NO bet caps here: you may bet the whole bankroll (minimum C$3,000 a bet). NOT counted in the overall race or the elimination rule; busting it only closes it. Goal: the biggest number you can get. Counted in C$.',
+    'AllInSports': 'All in: sports (HIGH RISK, HIGH REWARD, separate fun experiment): its own C$100,000 sports bankroll, moneyline bets on the same games as Sports (action "bet" with "game", "pick", "amount"; parlays allowed with action "parlay" and "legs"). NO bet caps here: you may bet the whole bankroll (minimum C$3,000 a bet). NOT optional (from Nov 1): at least C$3,000 bet here every ET day and C$100,000 in total by Nov 28, with the same penalties as the main Sports race. NOT counted in the overall race or the elimination rule; busting it only closes it. Goal: the biggest number you can get. Counted in C$.',
     'Sports': 'Sports: moneyline bets on the games listed below (odds from ESPN). Action "bet" with "game" (the game id), "pick" ("home" or "away") and "amount" (stake in C$). PARLAYS ARE ALLOWED: action "parlay" with "legs": [{"game": id, "pick": "home"|"away"}, ...] (2 to 6 different games) and "amount"; every leg must win, the odds multiply, a pushed leg drops out. Minimum stake C$3,000 per bet or parlay. The bankroll counts settled bets only; you cannot stake more than the bankroll minus open stakes. Bets close when the game starts and settle automatically from the final score. Counted in C$.',
 }
 
@@ -1368,6 +1369,95 @@ def betting_rule_line(state, mid, fx):
             + 'A missed minimum is shown publicly on the site. The 25% cap per bet still applies; pick real value, not filler bets. HOW BETTING IS WON: in Sports and Prediction markets the winner is whoever finishes Nov 28 with the HIGHEST BALANCE, not whoever makes the biggest bets or wins the most bets. You must still reach the wagering minimums, but how you size each bet is up to you: the 25% cap is a limit, not a target, heavy favourites pay little, and one upset can cost more than several wins. YOU DO NOT HAVE TO BET HIGH: the C$3,000 minimum is only there to stop tiny C$1 bets, not a size to aim above. Bet as if it were life or death: the goal is to stay number 1 with the highest balance, and spending too much on bets is how you lose it.')
 
 
+
+def allin_sports_book(state, mid):
+    if mid == 'claude':
+        return ((state.get('claude_allin') or {}).get('books') or {}).get('AllInSports')
+    return ((state.get('models', {}).get(mid) or {}).get('books') or {}).get('AllInSports')
+
+
+def allin_wagered(state, mid):
+    """C$ bet per ET day in All in: Sports (bets and parlays at their stake), and in total since the start."""
+    days = {}
+    for t in state.get('trades', []):
+        if t.get('model') == mid and t.get('experiment') == 'AllInSports' and t.get('action') == 'Bet' and not t.get('void'):
+            d = et_day(t['at'])
+            days[d] = days.get(d, 0.0) + float(t.get('amount') or 0)
+    return {d: round(v, 2) for d, v in days.items()}, round(sum(days.values()), 2)
+
+
+def allin_balance(book):
+    if not book:
+        return 0.0
+    return START + sum(b['result'] for b in book.get('bets', []) if b['status'] != 'Open') - sum(x['amount'] for x in book.get('penalties', []))
+
+
+def allin_rule_line(state, mid):
+    """All in: Sports betting minimums for the prompt (same rules as the main Sports race, from Nov 1)."""
+    book = allin_sports_book(state, mid)
+    bal = allin_balance(book)
+    if bal < 1:
+        return 'ALL IN: SPORTS MINIMUMS: your All in: Sports book is busted, so no minimum applies. '
+    days, total = allin_wagered(state, mid)
+    dmin = day_min(bal)
+    today = NOW.astimezone(NY).date()
+    end = datetime.fromisoformat(BET_END).astimezone(NY).date()
+    d0 = datetime.fromisoformat(ALLIN_MIN_FROM).date()
+    missed = []
+    d = d0
+    while d < today:
+        if days.get(d.isoformat(), 0.0) + 0.5 < dmin:
+            missed.append(d.strftime('%b %-d'))
+        d += timedelta(days=1)
+    done = days.get(today.isoformat(), 0.0)
+    left_total = max(0.0, TOTAL_MIN - total)
+    days_left = max(1, (end - today).days + 1)
+    return ('ALL IN: SPORTS MINIMUMS (owner, Oct 31; from Sun Nov 1, same as the main Sports race, every AI): All in: Sports is NOT optional. '
+            'Every All in bet is at least C$3,000; wager at least C$3,000 in All in: Sports every ET day; at least C$100,000 wagered in All in: Sports in total by Nov 28. '
+            'Penalties: C$500 off your All in: Sports balance for each day under the daily minimum, and 10% of any shortfall from the C$100,000 total at the final scoring. '
+            'Below C$12,000 the per-bet and daily minimum become 25% of what is left; a busted book has none. No caps otherwise. '
+            + (f'Today ({today.strftime("%a %b %-d")}, ET) you have bet {money(done, "CAD")} of the {money(dmin, "CAD")} All in daily minimum'
+               + (' (met). ' if done + 0.5 >= dmin else f' ({money(dmin - done, "CAD")} still to bet today in All in: Sports). ') if today >= d0 else '')
+            + f'All in total so far: {money(total, "CAD")} of {money(TOTAL_MIN, "CAD")} ({money(left_total, "CAD")} left, about {money(left_total / days_left, "CAD")} a day). '
+            + (f'All in days missed: {", ".join(missed)}. ' if missed else ''))
+
+
+def apply_allin_penalties(state):
+    """All in: Sports minimums (owner, Oct 31): C$500 off the All in: Sports balance for each ET day from Nov 1 with less than the
+    daily minimum bet there, and 10% of any shortfall from C$100,000 at the final scoring. Same for all three AIs."""
+    today = NOW.astimezone(NY).date()
+    last = datetime.fromisoformat(BET_END).astimezone(NY).date()
+    for mid in list(state.get('models', {})) + ['claude']:
+        m = state.get('models', {}).get(mid)
+        if m is not None and m.get('eliminated'):
+            continue
+        book = allin_sports_book(state, mid)
+        if book is None:
+            continue
+        pens = book.setdefault('penalties', [])
+        days, total = allin_wagered(state, mid)
+        done = {x['day'] for x in pens}
+        d = datetime.fromisoformat(ALLIN_MIN_FROM).date()
+        end = min(today - timedelta(days=1), last) if NOW < RACE_END else last
+        name = {'claude': 'CLAUDE', 'gemini': 'GEMINI', 'chatgpt': 'CHATGPT'}.get(mid, mid)
+        while d <= end:
+            k = d.isoformat()
+            bal = allin_balance(book)
+            if bal >= 1 and k not in done:
+                dmin = day_min(bal)
+                if days.get(k, 0.0) + 0.5 < dmin:
+                    amt = min(PENALTY_DAY, round(bal, 2))
+                    pens.append({'day': k, 'at': iso(), 'amount': amt, 'reason': f'missed the All in: Sports daily betting minimum on {d.strftime("%b %-d")} (bet {money(days.get(k, 0.0), "CAD")} of {money(dmin, "CAD")})'})
+                    state['trades'].append({'at': iso(), 'model': mid, 'experiment': 'AllInSports', 'action': 'Penalty', 'symbol': 'PA-' + k, 'outcome': None,
+                                            'name': 'Missed All in daily betting minimum', 'price': 0, 'pcur': 'CAD', 'qty': 1, 'amount': -amt, 'cur': 'CAD', 'fx': None,
+                                            'reason': pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:] + '.'})
+                    tg(f"⚖️ <b>{name}: −C${amt:,.0f} All in penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
+            d += timedelta(days=1)
+        if NOW >= RACE_END and 'total' not in done and total + 0.5 < TOTAL_MIN and allin_balance(book) >= 1:
+            amt = min(round(PENALTY_TOTAL * (TOTAL_MIN - total), 2), round(allin_balance(book), 2))
+            pens.append({'day': 'total', 'at': iso(), 'amount': amt, 'reason': f'bet {money(total, "CAD")} in All in: Sports of the C$100,000 required by Nov 28 (10% of the shortfall)'})
+            tg(f"⚖️ <b>{name}: −C${amt:,.0f} All in penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
+
 def public_board(state, me):
     """What everyone can see on papertrades.ai about the OTHER AIs: their current take, plans and recent trades with reasons.
     Every AI gets the same board, so no one has an information edge."""
@@ -1922,6 +2012,11 @@ def main():
             apply_penalties(state, fx)   # before the final freeze, so a last missed day counts in the final values
     except Exception as e:
         print('penalties failed', e)
+    try:
+        if not state.get('final') or not all(x in state['final'] for x in list(state.get('models', {})) + ['claude']):
+            apply_allin_penalties(state)   # All in: Sports minimums from Nov 1 (owner, Oct 31)
+    except Exception as e:
+        print('All in penalties failed', e)
     # V6 (full audit Oct 31; all three AIs agreed, ops/review/audit-fix-oct31.json): the public board and the takes a fact-checker checks
     # are frozen at the start of the check-in, so the AI that decides second never sees the first one's moves or words from the same round.
     FROZEN = {k: list(state.get(k, [])) for k in ('takes', 'plans', 'trades', 'thoughts')}
@@ -1989,7 +2084,7 @@ def main():
             mine = [x for x in state['takes'] if x['model'] == mid]
             today = [x for x in mine if x['at'][:10] == NOW.date().isoformat()]
             myplans = {k: next((x['text'] for x in reversed(state.get('plans', [])) if x['model'] == mid and x['horizon'] == k and not x.get('experiment')), '') for k in ('day', 'week', 'month', 'feeling')}
-            board, fc_task = public_board({**FROZEN, 'factchecks': state.get('factchecks', [])}, mid) + betting_rule_line(state, mid, fx) + ' ', ''
+            board, fc_task = public_board({**FROZEN, 'factchecks': state.get('factchecks', [])}, mid) + betting_rule_line(state, mid, fx) + ' ' + allin_rule_line(state, mid), ''
             fc_races, fc_take = [], None
             # the fact-check loop (each AI checks exactly one other, nobody checks itself): Gemini checks Claude, ChatGPT checks Gemini
             # (Claude checks ChatGPT in its own runs)
