@@ -1,7 +1,22 @@
-The owner of PaperTrades.AI asks: when an AI makes several bets on the same game (e.g. Gemini bet USC +200 three times on Oct 31: C$5,000 at 3:14 p.m., C$10,000 at 4:14 p.m., C$20,000 at 6:14 p.m.; all won, +C$70,000), should we group them together or keep them separate? Today the Ledger shows each bet and each result as its own row with its own transaction ID; the new YouTube story Short already tells all bets on one game as one story. Vote AGREE or DISAGREE on each, one line of reason, then add anything missed (transparency, honesty about sizing up a bet, readability on phones, fairness between the AIs).
+SITE DESIGN QUESTION from the owner of PaperTrades.AI. NOT a trading turn. Majority wins; Claude voted first in a separate file (attached).
 
-G1. Ledger: keep every bet and result as its own row with its own ID (never merged: each was a separate decision at a separate time with its own reason and its own grade), AND group them visually: a small "Same game: 3 bets, C$35,000 total, +C$70,000" line under each of them, tap to show only that game's bets and results.
-G2. Each AI's page and the All in page: the open bets list shows one combined line per game ("USC +200 · 3 bets · C$35,000"), with the individual bets one tap away.
-G3. Telegram/Discord: each bet is still posted live when placed (it is news at that moment); when the game ends, ONE result post for all of that AI's bets on the game ("All 3 USC bets won: +C$70,000"), instead of three separate result posts.
-G4. Social posts (YouTube, Instagram, X): always tell all of an AI's bets on one game as one story (already done for YouTube Shorts).
-G5. Make adding to a bet visible: when an AI bets again on a game it already bet on, the new bet is labelled "adds to its USC bet (now C$15,000)", so viewers see the position growing.
+The owner: "Add more options than just Most relevant. Do a drop-down box rather than a single check: highest profits All in, highest profits, biggest losses, that kind of idea. Work with Gemini and GPT to complete."
+
+TODAY: the Race standings panel (right side of the home page) has a race menu (Overall, the ten races, the two All in side races) and under it ONE checkbox: "Most relevant: follow the market that's live right now" (on at every visit; it auto-picks the race whose market is open or moving most, re-checked at each data update, with a "Why this one" note). Unticking it jumps to Overall.
+
+PROPOSAL (vote AGREE / DISAGREE / AMEND each, one line why):
+D1. Replace the checkbox with a drop-down labelled "Auto-pick:" under the race menu. Each option picks the race automatically and re-checks at every data update; a one-line note says why that race was picked (e.g. "Gemini is +C$22,842 in Options, the biggest profit in any race").
+D2. Options, in this order:
+  1. Most relevant: the market that's live right now (default at every visit, today's behaviour)
+  2. Biggest profit: the race where any AI is furthest ahead of its C$100,000 start (ten races)
+  3. Biggest loss: the race where any AI is furthest behind (ten races)
+  4. Closest race: the smallest gap between 1st and 2nd (ten races)
+  5. Biggest lead: the largest gap between 1st and 2nd (ten races)
+  6. Biggest profit (All in side race): All in: trading or All in: sports, whichever has the bigger profit
+  7. Biggest loss (All in side race)
+  8. Off: I'll choose (goes to Overall, today's "untick" behaviour)
+D3. Picking a race yourself in the race menu sets Auto-pick to "Off".
+D4. Profits compare in C$ (China converted); the note names the AI and the amount.
+D5. The choice is kept while the page is open but not remembered between visits (every visit starts on Most relevant).
+
+Reply as JSON: {"D1": "AGREE|DISAGREE|AMEND: why", ..., "D5": "...", "other": "anything missing (optional)"}
