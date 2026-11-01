@@ -1229,6 +1229,8 @@ tr.lg-hit .tx-id{opacity:1}
 .st-score-cost{opacity:.8;font-size:11.5px}
 .pd-auto{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.pd-auto-l{font-weight:600;white-space:nowrap}.pd-auto-pick{flex:1;min-width:0;max-width:100%;font:inherit;padding:4px 6px;border-radius:6px;background:var(--color-bg,#111);color:inherit;border:1px solid var(--color-border,#444)}
 .st-luck{font-size:12px;line-height:1.45;opacity:.85;margin-top:6px}.st-luck summary{cursor:pointer}.st-luck p{margin:4px 0 0}.st-luck-t{opacity:.75}
+.lg-game{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:4px;font-size:12px;color:var(--color-fg-muted,#9b927f)}
+.lg-game span{border-left:2px solid #ffb000;padding-left:6px}
 </style>
 
 <div class="st">
@@ -4268,7 +4270,14 @@ tr.lg-hit .tx-id{opacity:1}
     const box = mk('div'); el.appendChild(box);
     const draw = () => {
       box.replaceChildren();
-      const base = TS.filter((t) => (!st.part || t.experiment === st.part) && (!st.ai || t.model === st.ai));
+      // several bets on one game (all three AIs agreed G1 and G5, Nov 1): own rows and IDs kept; a line under each, one tap shows only that game
+      const GK = (t) => /^(Bet|Won|Lost|Void|Push)$/.test(t.action) && t.experiment === 'AllInSports' ? t.model + '|' + t.experiment + '|' + (t.name || t.symbol) : null;
+      const GBA = {}; TS.forEach((t) => { const k = GK(t); if (k && t.action === 'Bet') (GBA[k] = GBA[k] || []).push(t); });
+      Object.values(GBA).forEach((L) => L.sort((a, b) => Date.parse(a.at) - Date.parse(b.at)));
+      const base = TS.filter((t) => (!st.part || t.experiment === st.part) && (!st.ai || t.model === st.ai) && (!el._game || GK(t) === el._game));
+      if (el._game) { const L = GBA[el._game] || []; const bn = mk('div', 'lg-focus'); bn.setAttribute('role', 'status');
+        bn.appendChild(mk('span', '', 'Showing only one game: ' + (AIS[L[0] && L[0].model] || {}).label + '’s ' + L.length + ' bets on ' + String((L[0] || {}).name || '').replace(/^[A-Z]{2,5}: /, '') + ', and their results.'));
+        const ab = mk('button', '', 'Show every move'); ab.type = 'button'; ab.addEventListener('click', () => { el._game = null; draw(); }); bn.appendChild(ab); box.appendChild(bn); }
       if (el._focus && MF_STATE['allin-ledger']) Object.assign(MF_STATE['allin-ledger'], { k: '', s: 'new' });   // a "Find" jump shows every move, newest first
       const MF = mfApply('allin-ledger', base, MF_RIV(), () => { el._pg = 0; draw(); }, { page: 10 }); box.append(MF.bar, MF.sum);
       const rows = MF.rows;
@@ -4289,7 +4298,17 @@ tr.lg-hit .tx-id{opacity:1}
         const bt = t.action === 'Bet' ? BETS[t.model + '|' + t.bet] : null;   // a bet says when its game starts, so the bet time and the game time are never confused
         const pl = pnlOf(t); const why = mk('td', 'wrap', t.reason || ''); { const lb = window.ptLookback(t.tx, t.model); if (lb) setTimeout(() => why.appendChild(lb), 0); }
         { const n = /^(Buy|Sell|Short|Cover|Bet)$/.test(t.action) ? pgNode(PG_KEY(t)) : null; if (n) why.appendChild(n); }
-        r.append(window.ptTxWhen(t.at, t.tx), ai, mk('td', '', ALLIN[t.experiment].replace('All in: ', '')), mk('td', 'wrap', t.action + ' ' + String(t.name || t.symbol).replace(/^[A-Z]{2,5}: /, '') + (bt && bt.starts_at ? ' · game starts ' + stFmt.whenET(bt.starts_at) + ' ET' : '')),
+        const mv = mk('td', 'wrap', t.action + ' ' + String(t.name || t.symbol).replace(/^[A-Z]{2,5}: /, '') + (bt && bt.starts_at ? ' · game starts ' + stFmt.whenET(bt.starts_at) + ' ET' : ''));
+        { const k = GK(t), L = k ? GBA[k] || [] : [];
+          if (L.length > 1) { const i = L.indexOf(t), tot = L.reduce((x, y) => x + (+y.amount || 0), 0);
+            const res = TS.filter((x) => GK(x) === k && /^(Won|Lost)$/.test(x.action)), net = res.reduce((x, y) => x + (+(y.pnl != null ? y.pnl : y.amount) || 0), 0);
+            const g = mk('div', 'lg-game');
+            g.appendChild(mk('span', '', i > 0 ? 'Adds to its bet on this game (now C$' + d3.format(',.0f')(L.slice(0, i + 1).reduce((x, y) => x + (+y.amount || 0), 0)) + ')' :
+              'Same game: ' + L.length + ' bets, C$' + d3.format(',.0f')(tot) + ' total' + (res.length === L.length ? ', ' + (net >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(net)) : '')));
+            if (!el._game) { const gb = mk('button', 'lg-find', '🔎 Show all ' + L.length); gb.type = 'button'; gb.title = 'Show only this game: every bet and its result';
+              gb.addEventListener('click', () => { el._game = k; el._focus = null; el._pg = 0; draw(); el.scrollIntoView({ block: 'start', behavior: 'smooth' }); }); g.appendChild(gb); }
+            mv.appendChild(g); } }
+        r.append(window.ptTxWhen(t.at, t.tx), ai, mk('td', '', ALLIN[t.experiment].replace('All in: ', '')), mv,
           mk('td', 'num', Number.isFinite(+t.amount) ? (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.0f')(Math.abs(t.amount)) : ''), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret || ''), why);
         // the way back and forth (owner, Oct 30; all three AIs agreed): a result finds its bet, a settled bet its result, a sale its buy,
         // a sold buy its sale. Nothing on a bet still open or a position still held.
@@ -5775,10 +5794,10 @@ tr.lg-hit .tx-id{opacity:1}
     B.data.forEach((b) => {
       const odds = (Number(b.odds) > 0 ? '+' : '') + b.odds, stake = Number(b.stake_cad);
       const res = b.status !== 'Open' ? Number(b.result_cad) : null;
-      rows.push({ tx: b.tx || null, holding: b.status === 'Open', pg: b.placed_at ? dash.model + '|' + new Date(b.placed_at).toISOString().slice(0, 19) + 'Z|Sports|' + b.bet + '|Bet' : null, at: b.placed_at || b.placed + 'T12:00:00-04:00', portfolio: 'Sports', action: 'Bet', item: b.bet + ' ' + b.pick, detail: b.event + ' at ' + odds + ' · to win C$' + d3.format(',.0f')(b.to_win_cad || 0), amount: 'C$' + d3.format(',.0f')(stake), cost: 'C$' + d3.format(',.0f')(stake), profit: null, ret: null, open: b.status === 'Open', outcome: res, void: b.status === 'Void', why: b.note || b.reason || ((lgRows.filter((l) => l.portfolio === 'Sports' && l.at === b.placed_at)[0] || {}).detail) || '' });
+      rows.push({ gk: b.pick + '|' + b.event, stk: stake, tx: b.tx || null, holding: b.status === 'Open', pg: b.placed_at ? dash.model + '|' + new Date(b.placed_at).toISOString().slice(0, 19) + 'Z|Sports|' + b.bet + '|Bet' : null, at: b.placed_at || b.placed + 'T12:00:00-04:00', portfolio: 'Sports', action: 'Bet', item: b.bet + ' ' + b.pick, detail: b.event + ' at ' + odds + ' · to win C$' + d3.format(',.0f')(b.to_win_cad || 0), amount: 'C$' + d3.format(',.0f')(stake), cost: 'C$' + d3.format(',.0f')(stake), profit: null, ret: null, open: b.status === 'Open', outcome: res, void: b.status === 'Void', why: b.note || b.reason || ((lgRows.filter((l) => l.portfolio === 'Sports' && l.at === b.placed_at)[0] || {}).detail) || '' });
       if (b.status !== 'Open') {
         const back = b.status === 'Won' ? stake + res : b.status === 'Lost' ? 0 : stake;
-        rows.push({ tx: b.tx_result || null, at: b.settled_at || (b.starts_at ? new Date(new Date(b.starts_at).getTime() + 3 * 3600e3).toISOString() : b.placed + 'T23:00:00-04:00'), portfolio: 'Sports', action: b.status, item: b.bet + ' ' + b.pick, detail: b.event + (b.final ? ' · ' + b.final : '') + ' · paid back C$' + d3.format(',.0f')(back), amount: 'C$' + d3.format(',.0f')(back), cost: 'C$' + d3.format(',.0f')(stake), profit: res, ret: stake ? res / stake : null, open: false, betAfter: { odds: Number(b.odds), closing: b.closing_odds != null ? Number(b.closing_odds) : null, final: b.final || '', status: b.status } });
+        rows.push({ gk: b.pick + '|' + b.event, net: res, tx: b.tx_result || null, at: b.settled_at || (b.starts_at ? new Date(new Date(b.starts_at).getTime() + 3 * 3600e3).toISOString() : b.placed + 'T23:00:00-04:00'), portfolio: 'Sports', action: b.status, item: b.bet + ' ' + b.pick, detail: b.event + (b.final ? ' · ' + b.final : '') + ' · paid back C$' + d3.format(',.0f')(back), amount: 'C$' + d3.format(',.0f')(back), cost: 'C$' + d3.format(',.0f')(stake), profit: res, ret: stake ? res / stake : null, open: false, betAfter: { odds: Number(b.odds), closing: b.closing_odds != null ? Number(b.closing_odds) : null, final: b.final || '', status: b.status } });
       }
     });
     // a buy (or short) that has since been sold (or covered): its result, from the sells that followed it
@@ -6053,6 +6072,12 @@ tr.lg-hit .tx-id{opacity:1}
       if (!rows) return;
       const p = el.dataset.portfolio;
       let inRace = rows.filter((r) => !p || r.portfolio === p);
+      // several bets on one game (owner, Nov 1; all three AIs agreed G1 and G5: ops/review/samegame-nov1.json): every bet keeps its own
+      // row and ID; a line under each says how many bets that game had, and one tap shows only that game
+      const GB = {}; inRace.forEach((r) => { if (r.gk && r.action === 'Bet') (GB[r.gk] = GB[r.gk] || []).push(r); });
+      Object.values(GB).forEach((L) => L.sort((a, b) => new Date(a.at) - new Date(b.at)));
+      const game = el.dataset.game || '';
+      if (game) inRace = inRace.filter((r) => r.gk === game);
       // a moment's "Find in Ledger": only that holding's trades, the trade itself highlighted, its buys (or the bet) softly
       let F = null; try { F = el.dataset.focus ? JSON.parse(el.dataset.focus) : null; } catch (e) { F = null; }
       if (F && (F.model !== (dash.model || 'claude') || F.race !== p)) F = null;
@@ -6073,6 +6098,11 @@ tr.lg-hit .tx-id{opacity:1}
       if (!(F && !F.missing)) el.append(MF.bar, MF.sum);
       const kind = MF.key;
       const shown = F && !F.missing ? inRace : MF.rows;
+      if (game) {
+        const L = GB[game] || []; const bn = mk('div', 'lg-focus'); bn.setAttribute('role', 'status');
+        bn.appendChild(mk('span', '', 'Showing only one game: ' + game.split('|')[0] + ' (' + game.split('|')[1] + '): ' + L.length + ' bets and their results.'));
+        const ab = mk('button', '', 'Show all trades'); ab.type = 'button'; ab.addEventListener('click', () => { delete el.dataset.game; run(); }); bn.appendChild(ab); el.appendChild(bn);
+      }
       if (F) {
         const bn = mk('div', 'lg-focus'); bn.setAttribute('role', 'status');
         bn.appendChild(mk('span', '', F.missing ? 'Could not find "' + F.item + '" in ' + AIS[F.model].label + "'s " + (LABEL[p] || p) + ' trades; showing all of them.'
@@ -6105,6 +6135,16 @@ tr.lg-hit .tx-id{opacity:1}
           const canFind = !(F && !F.missing) && (closing || v != null);
           if (canFind && window.ptFindTrade) { const fb = mk('button', 'lg-find', closing ? 'Find the buy(s)' : 'Find the sale(s)'); fb.type = 'button'; fb.title = 'Show only this holding: the sale highlighted, the buys behind it softly';
             fb.addEventListener('click', () => window.ptFindTrade(dash.model || 'claude', r.portfolio, r.at, String(r.item).replace(/ \(.*\)$/, ''), r.action)); actBox.appendChild(fb); }
+        }
+        if (r.gk && (GB[r.gk] || []).length > 1) {   // same game, several bets
+          const L = GB[r.gk], tot = L.reduce((x, y) => x + (y.stk || 0), 0), i = L.indexOf(r);
+          const res = inRace.filter((x) => x.gk === r.gk && x.net != null), net = res.reduce((x, y) => x + y.net, 0);
+          const g = mk('div', 'lg-game');
+          g.appendChild(mk('span', '', i > 0 ? 'Adds to its bet on this game (now C$' + d3.format(',.0f')(L.slice(0, i + 1).reduce((x, y) => x + (y.stk || 0), 0)) + ')' :
+            'Same game: ' + L.length + ' bets, C$' + d3.format(',.0f')(tot) + ' total' + (res.length === L.length ? ', ' + (net >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(net)) : '')));
+          if (!game) { const gb = mk('button', 'lg-find', '🔎 Show all ' + L.length); gb.type = 'button'; gb.title = 'Show only this game: every bet and its result';
+            gb.addEventListener('click', () => { el.dataset.game = r.gk; delete el.dataset.focus; run(); el.scrollIntoView({ block: 'start', behavior: 'smooth' }); }); g.appendChild(gb); }
+          actBox.appendChild(g);
         }
         const whenBox = mk('div'); whenBox.append(document.createTextNode(stFmt.when(r.at)), window.ptTxTag(r.tx, r.at)); if (r.tx) tr.dataset.tx = r.tx;
         const cells = [[whenBox], [LABEL[r.portfolio] || r.portfolio], [actBox], [r.item], [r.detail, 'wrap'], [r.amount, 'num'], [r.cost || '', 'num'],
