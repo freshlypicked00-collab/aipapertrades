@@ -164,7 +164,8 @@ def post(text, photo=None, key=None, reply_link=None):
         st = _load()
         now = datetime.now(timezone.utc)
         recent = [p for p in st['posts'] if now - datetime.fromisoformat(p['at']) < timedelta(hours=24)]
-        body = fit(text, '\n👇 Link in reply' if reply_link else '')
+        tags = '' if '#' in text else ' #AI'   # one searchable hashtag on every post, unless the text already has some (owner, Nov 1)
+        body = fit(text, tags + ('\n👇 Link in reply' if reply_link else ''))
         if not body:
             return False
         if key and any(p.get('key') == key for p in st['posts']):

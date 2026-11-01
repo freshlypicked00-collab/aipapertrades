@@ -227,6 +227,12 @@ def daily():
     day = (today - date(2026, 10, 28)).days + 1
     money = lambda v: ('+' if v > 0.5 else '−' if v < -0.5 else '') + 'C$' + f'{abs(v):,.0f}'
     title = f'Which AI is winning {lab}? Day {day} | Claude vs Gemini vs ChatGPT'
+    tag = {'Stocks': 'Stocks', 'Crypto': 'Crypto', 'China': 'ChinaStocks', 'Metals': 'Gold', 'Energy': 'Oil', 'Options': 'Options', 'Currencies': 'Forex',
+           'Safe': 'Investing', 'Sports': 'SportsBetting', 'Predictions': 'PredictionMarkets'}.get(race, 'Trading')   # searchable title hashtag (owner, Nov 1)
+    for tags in (f' #AI #{tag}', ' #AI', ''):
+        if len(title + tags) <= 100:
+            title += tags
+            break
     lines = [f'{i + 1}. {name.get(k, k)}: {money(v)}' for i, (k, v) in enumerate(fin)]
     text = (f'Day {day} of 32 in the {lab} race. Three AIs, C$100,000 of pretend money each, real prices, no humans picking trades.\n\n'
             + '\n'.join(lines) + ' (profit in this race so far)\n\n'
