@@ -905,16 +905,22 @@ def tg_album(token, chat, photos, caption='', silent=False):
     if not (token and chat) or len(photos) < 2:
         return False
     short = caption if len(caption) <= 1020 else ''
-    media = [dict({'type': 'photo', 'media': f'attach://p{i}'}, **({'caption': short, 'parse_mode': 'HTML'} if i == 0 and short else {})) for i in range(len(photos))]
+    try:   # animated cards (owner, Nov 1): a card with a GIF twin goes in the album as a short silent video
+        import animate as _an
+        files = [((_an.as_mp4(_an.gif_of(p)) if _an.gif_of(p) else None) or p) for p in photos]
+    except Exception:
+        files = list(photos)
+    media = [dict({'type': 'video' if f.endswith('.mp4') else 'photo', 'media': f'attach://p{i}'}, **({'supports_streaming': True} if f.endswith('.mp4') else {}), **({'caption': short, 'parse_mode': 'HTML'} if i == 0 and short else {})) for i, f in enumerate(files)]
     b = '----ptalbum'
     parts = [f'--{b}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode() for k, v in
              (('chat_id', chat), ('media', _j.dumps(media)), ('disable_notification', 'true' if silent else 'false'))]
-    for i, p in enumerate(photos):
-        parts.append(f'--{b}\r\nContent-Disposition: form-data; name="p{i}"; filename="p{i}.png"\r\nContent-Type: image/png\r\n\r\n'.encode() + open(p, 'rb').read() + b'\r\n')
+    for i, p in enumerate(files):
+        ext, ct = ('mp4', 'video/mp4') if p.endswith('.mp4') else ('png', 'image/png')
+        parts.append(f'--{b}\r\nContent-Disposition: form-data; name="p{i}"; filename="p{i}.{ext}"\r\nContent-Type: {ct}\r\n\r\n'.encode() + open(p, 'rb').read() + b'\r\n')
     parts.append(f'--{b}--\r\n'.encode())
     try:
         req = urllib.request.Request(f'https://api.telegram.org/bot{token}/sendMediaGroup', b''.join(parts), {'Content-Type': f'multipart/form-data; boundary={b}'})
-        urllib.request.urlopen(req, timeout=60).read()
+        urllib.request.urlopen(req, timeout=120).read()
     except Exception as e:
         print('telegram album failed:', e)
         return False

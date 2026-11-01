@@ -443,5 +443,69 @@ def samples():
     print(made)
 
 
+
+# ---------------------------------------------------------------- live posts (owner, Nov 1: "i dont think we should use still images there anymore")
+# install() wraps the card functions so every still card the posters draw also gets an animated twin next to it (same name, .gif).
+# Telegram (sendAnimation; albums as short videos) and Discord send the GIF when it exists, else the still card. A stale GIF from an
+# earlier post is always deleted first, so a still is never paired with the wrong animation. A time budget keeps runs within limits.
+import time as _time
+_BUDGET = float(os.environ.get('PT_GIF_BUDGET', '150'))   # seconds of GIF rendering per run
+_MAX = int(os.environ.get('PT_GIF_MAX', '14'))
+_SPENT, _MADE = [0.0], [0]
+
+
+def _wrap(orig, mpl=False):
+    def w(*a, **k):
+        path = k.get('path') or next((x for x in a if isinstance(x, str) and x.endswith('.png')), None)
+        if path and os.path.exists(path[:-4] + '.gif'):
+            os.remove(path[:-4] + '.gif')
+        res = orig(*a, **k)
+        out = res if isinstance(res, str) and res.endswith('.png') else path
+        if out and os.path.exists(out[:-4] + '.gif'):
+            os.remove(out[:-4] + '.gif')
+        if out and os.path.exists(out) and _MADE[0] < _MAX and _SPENT[0] < _BUDGET:
+            t0 = _time.time()
+            try:
+                g = (make_gif_mpl if mpl else make_gif)(orig, a, k, out[:-4] + '.gif')
+                if g and os.path.getsize(g) > 8 * 1024 * 1024:   # too big to send everywhere: keep the still
+                    os.remove(g)
+                _MADE[0] += 1
+            except Exception as e:
+                print('animated card skipped:', e)
+                if os.path.exists(out[:-4] + '.gif'):
+                    os.remove(out[:-4] + '.gif')
+            _SPENT[0] += _time.time() - t0
+        return res
+    w._animated = True
+    return w
+
+
+def install():
+    """Call once in a poster (telegram.py, rivals.py). Safe to call twice."""
+    if os.environ.get('PT_GIFS', '1') == '0':
+        return
+    import sharecard, racecard
+    for nm in ('_trade_card', 'moves_card', 'move_card', 'one_card'):
+        f = getattr(sharecard, nm, None)
+        if f and not getattr(f, '_animated', False):
+            setattr(sharecard, nm, _wrap(f))
+    for nm in ('races_card', 'race_card'):
+        f = getattr(racecard, nm, None)
+        if f and not getattr(f, '_animated', False):
+            setattr(racecard, nm, _wrap(f, mpl=True))
+
+
+def gif_of(photo):
+    """The animated twin of a still card, if there is one."""
+    return photo[:-4] + '.gif' if photo and photo.endswith('.png') and os.path.exists(photo[:-4] + '.gif') else None
+
+
+def as_mp4(gif):
+    """A GIF as a short silent MP4 (Telegram albums take videos, not GIFs). Returns the path or None."""
+    out = gif[:-4] + '.mp4'
+    r = subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', gif, '-movflags', '+faststart', '-pix_fmt', 'yuv420p', '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '22', out])
+    return out if r.returncode == 0 else None
+
+
 if __name__ == '__main__':
     {'samples': samples}[sys.argv[1] if len(sys.argv) > 1 else 'samples']()

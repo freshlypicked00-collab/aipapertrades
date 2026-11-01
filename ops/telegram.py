@@ -9,6 +9,12 @@ import json, os, subprocess, sys, urllib.parse, urllib.request
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import tgcharts  # noqa: E402
 import sharecard  # noqa: E402
+try:   # animated cards on Telegram and Discord instead of stills (owner, Nov 1)
+    import animate  # noqa: E402
+    animate.install()
+except Exception as _e:
+    animate = None
+    print('animated cards off:', _e)
 import discord  # noqa: E402
 from datetime import datetime, timezone, timedelta
 
@@ -57,9 +63,11 @@ def send(text, photo=None, silent=False, _dc=True):
         parts = []
         for k, v in (('chat_id', CHAT), ('caption', text), ('parse_mode', 'HTML'), ('disable_notification', 'true' if silent else 'false')):
             parts.append(f'--{b}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode())
-        parts.append(f'--{b}\r\nContent-Disposition: form-data; name="photo"; filename="c.png"\r\nContent-Type: image/png\r\n\r\n'.encode() + open(photo, 'rb').read() + f'\r\n--{b}--\r\n'.encode())
-        req = urllib.request.Request(f'https://api.telegram.org/bot{TOKEN}/sendPhoto', b''.join(parts), {'Content-Type': f'multipart/form-data; boundary={b}'})
-        with urllib.request.urlopen(req, timeout=30) as r:
+        gif = animate.gif_of(photo) if animate else None   # the animated card when there is one (owner, Nov 1)
+        f, kind, ct, meth = (gif, 'animation', 'image/gif', 'sendAnimation') if gif else (photo, 'photo', 'image/png', 'sendPhoto')
+        parts.append(f'--{b}\r\nContent-Disposition: form-data; name="{kind}"; filename="c.{ct[6:]}"\r\nContent-Type: {ct}\r\n\r\n'.encode() + open(f, 'rb').read() + f'\r\n--{b}--\r\n'.encode())
+        req = urllib.request.Request(f'https://api.telegram.org/bot{TOKEN}/{meth}', b''.join(parts), {'Content-Type': f'multipart/form-data; boundary={b}'})
+        with urllib.request.urlopen(req, timeout=60) as r:
             return json.loads(r.read())['result']['message_id']
     if photo:
         send(f'<b>PAPERTRADES.AI</b> · {SITE}', photo, silent, _dc=False)

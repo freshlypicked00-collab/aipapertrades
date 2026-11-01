@@ -18,6 +18,12 @@ from datetime import datetime, timezone, timedelta
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import tgcharts  # noqa: E402
 import sharecard  # noqa: E402
+try:   # animated cards on Telegram and Discord instead of stills (owner, Nov 1)
+    import animate  # noqa: E402
+    animate.install()
+except Exception as _e:
+    animate = None
+    print('animated cards off:', _e)
 import discord  # noqa: E402
 
 STATE = 'ops/src/rivals.json'
@@ -1160,10 +1166,12 @@ def tg_photo(text, photo, silent=False, _dc=True):   # every trade, bet and resu
         return tg(text, _dc=False)
     b = '----pt' + str(os.getpid())
     parts = [f'--{b}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode() for k, v in (('chat_id', chat), ('caption', text[:1020]), ('parse_mode', 'HTML'), ('disable_notification', 'true' if silent else 'false'))]
-    parts.append(f'--{b}\r\nContent-Disposition: form-data; name="photo"; filename="c.png"\r\nContent-Type: image/png\r\n\r\n'.encode() + open(photo, 'rb').read() + f'\r\n--{b}--\r\n'.encode())
+    gif = animate.gif_of(photo) if animate else None   # the animated card when there is one (owner, Nov 1)
+    f, kind, ct, meth = (gif, 'animation', 'image/gif', 'sendAnimation') if gif else (photo, 'photo', 'image/png', 'sendPhoto')
+    parts.append(f'--{b}\r\nContent-Disposition: form-data; name="{kind}"; filename="c.{ct[6:]}"\r\nContent-Type: {ct}\r\n\r\n'.encode() + open(f, 'rb').read() + f'\r\n--{b}--\r\n'.encode())
     try:
-        req = urllib.request.Request(f'https://api.telegram.org/bot{tok}/sendPhoto', b''.join(parts), {'Content-Type': f'multipart/form-data; boundary={b}'})
-        urllib.request.urlopen(req, timeout=30).read()
+        req = urllib.request.Request(f'https://api.telegram.org/bot{tok}/{meth}', b''.join(parts), {'Content-Type': f'multipart/form-data; boundary={b}'})
+        urllib.request.urlopen(req, timeout=60).read()
         TGSTAT['sent'] += 1
     except Exception as e:
         print('telegram photo failed', e)

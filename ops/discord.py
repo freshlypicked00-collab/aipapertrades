@@ -54,6 +54,8 @@ def post(text, photo=None, url=None, ping=None):
             body = f'--{b}\r\nContent-Disposition: form-data; name="payload_json"\r\nContent-Type: application/json\r\n\r\n{payload}\r\n'.encode()
             # an animated card (owner, Nov 1): a still card with a GIF next to it (same name, .gif) is sent as the GIF
             photos = [p[:-4] + '.gif' if p.endswith('.png') and os.path.exists(p[:-4] + '.gif') else p for p in photos]
+            if sum(os.path.getsize(p) for p in photos) > 9 * 1024 * 1024:   # over Discord's upload limit together: send the stills
+                photos = [p[:-4] + '.png' if p.endswith('.gif') and os.path.exists(p[:-4] + '.png') else p for p in photos]
             for i, p in enumerate(photos):
                 ext, ct = ('gif', 'image/gif') if p.endswith('.gif') else ('png', 'image/png')
                 body += (f'--{b}\r\nContent-Disposition: form-data; name="files[{i}]"; filename="{i + 1:02d}.{ext}"\r\nContent-Type: {ct}\r\n\r\n'.encode()
