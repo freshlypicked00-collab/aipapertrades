@@ -9860,3 +9860,31 @@ tr.lg-hit .tx-id{opacity:1}
     } catch (e) {}
   })();
 </script>
+<script>
+/* wide screens: Race standings runs beside the left column; the stretchy row must always be the LAST row, after every
+   left-column item, or it opens an empty gap in the middle of the column (owner, Nov 1). Counts the items each time
+   the block changes, so adding or removing a box never brings the gap back. */
+(function () {
+  var h = document.querySelector('.st-head2'); if (!h) return;
+  var mq = window.matchMedia('(min-width: 1000px)'), queued = false;
+  function shown(el) { return el.nodeType === 1 && getComputedStyle(el).display !== 'none' && !/^(absolute|fixed)$/.test(getComputedStyle(el).position); }
+  function fit() {
+    queued = false;
+    var pod = h.querySelector('.st-hook > .st-podium'); if (!pod) return;
+    if (!mq.matches) { if (h.style.gridTemplateRows) h.style.gridTemplateRows = ''; if (pod.style.gridRow) pod.style.gridRow = ''; return; }
+    var n = 0;
+    Array.prototype.forEach.call(h.children, function (k) {
+      if (k.classList.contains('st-hook')) Array.prototype.forEach.call(k.children, function (c) { if (c !== pod && shown(c)) n++; });
+      else if (shown(k)) n++;
+    });
+    var rows = 'repeat(' + Math.max(n, 1) + ', auto) 1fr', span = '1 / span ' + (Math.max(n, 1) + 1);
+    if (h.style.gridTemplateRows !== rows) h.style.gridTemplateRows = rows;
+    if (pod.style.gridRow !== span) pod.style.gridRow = span;
+  }
+  function later() { if (!queued) { queued = true; requestAnimationFrame(fit); } }
+  new MutationObserver(later).observe(h, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'hidden', 'style', 'open'] });
+  if (mq.addEventListener) mq.addEventListener('change', later); else mq.addListener(later);
+  window.addEventListener('resize', later); window.addEventListener('load', later);
+  fit();
+})();
+</script>
