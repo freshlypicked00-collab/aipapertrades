@@ -167,6 +167,12 @@
   .lg-today { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: baseline; }
   .lg-review { display: flex; flex-direction: column; gap: 12px; }
   .lg-review .lg-note { font-size: 15px; max-width: 80ch; }
+  .mf-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 8px 0 4px; }
+  .mf-sort { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
+  .mf-sort select { font: inherit; font-size: 14px; padding: 5px 8px; background: var(--color-bg); color: var(--color-fg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+  .mf-sum { margin: 2px 0 8px; }
+  .mf-clear { font: inherit; font-size: 13px; padding: 1px 10px; border-radius: 999px; border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg); cursor: pointer; }
+  .mf-clear:focus-visible, .mf-sort select:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
   .lg-pv-row { display: inline-flex; flex-wrap: wrap; gap: 6px; vertical-align: middle; }
   .lg-pv { font: inherit; font-size: 12px; line-height: 1.2; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg-muted); cursor: pointer; }
   .lg-pv[aria-expanded="true"] { color: var(--color-fg); border-color: var(--color-fg-muted); }
@@ -3973,13 +3979,13 @@ tr.lg-hit .tx-id{opacity:1}
     if (!bar) { bar = mk('div', 'st-pager'); host.after(bar); }
     bar.replaceChildren(); if (rows.length <= n) { bar.hidden = true; return; } bar.hidden = false;
     const lab = mk('label'); lab.append(document.createTextNode('Page '));
-    const sel = mk('select'); for (let k = 0; k < pages; k++) { const o = mk('option', '', (k + 1) + (k === 0 && (el.dataset.draw === 'log-body' || el.dataset.pgNewest === '1') ? ' · newest' : '') + ' (' + (k * n + 1) + '–' + Math.min(rows.length, (k + 1) * n) + ')'); o.value = k; if (k === el._pg) o.selected = true; sel.appendChild(o); }
+    const sel = mk('select'); for (let k = 0; k < pages; k++) { const o = mk('option', '', (k + 1) + (k === 0 && el.dataset.pgNewest !== '0' && (el.dataset.draw === 'log-body' || el.dataset.pgNewest === '1') ? ' · newest' : '') + ' (' + (k * n + 1) + '–' + Math.min(rows.length, (k + 1) * n) + ')'); o.value = k; if (k === el._pg) o.selected = true; sel.appendChild(o); }
     sel.addEventListener('change', () => { el._pg = Number(sel.value); pagerFor(el, n, noun); });
     lab.append(sel, document.createTextNode(' of ' + pages));
     const go = (k) => { el._pg = Math.max(0, Math.min(pages - 1, k)); pagerFor(el, n, noun); };
     const prev = mk('button', 'st-pg-btn', '‹ Previous'); prev.type = 'button'; prev.disabled = el._pg === 0; prev.addEventListener('click', () => go(el._pg - 1));
     const next = mk('button', 'st-pg-btn', 'Next ›'); next.type = 'button'; next.disabled = el._pg >= pages - 1; next.addEventListener('click', () => go(el._pg + 1));
-    const old = el.dataset.draw === 'log-body' || el.dataset.pgNewest === '1';
+    const old = el.dataset.pgNewest !== '0' && (el.dataset.draw === 'log-body' || el.dataset.pgNewest === '1');
     if (old) { prev.textContent = '‹ Newer'; next.textContent = 'Older ›'; }
     bar.append(prev, lab, next, mk('span', 'st-muted', ' · ' + rows.length + ' ' + (noun || 'rows') + (old ? ', newest first' : el.dataset.draw === 'events-body' ? ', soonest first' : '')));
   };
@@ -4072,7 +4078,7 @@ tr.lg-hit .tx-id{opacity:1}
     const k = dash.model + '|' + new Date(y.placed_at).toISOString().slice(0, 19) + 'Z|Sports|' + y.bet + '|Bet'; if (seen.has(k)) return; seen.add(k); const gn = pgNode(k); if (gn) cell.appendChild(gn); }); };
   dash.draw('bets-body', (el) => {
     el.replaceChildren();
-    const d = dash.data('bets'); const list = d.status === 'ok' ? d.data : [];
+    const d = dash.data('bets'); let list = d.status === 'ok' ? d.data : [];
     const c = dash.data('clv'); const clv = c.status === 'ok' ? c.data : [];
     const row = (cells, cls) => { const tr = mk('tr', cls || ''); cells.forEach(([v, cl]) => { const td = mk('td', cl || ''); if (v instanceof Node) td.appendChild(v); else td.textContent = v == null ? '' : v; tr.appendChild(td); }); return tr; };
     const pillOf = (st, settled) => { const f = document.createDocumentFragment(); const pill = mk('span', 'st-pill' + (st === 'Won' ? ' is-up' : st === 'Lost' ? ' is-down' : ''), st); f.appendChild(pill);
@@ -4091,7 +4097,17 @@ tr.lg-hit .tx-id{opacity:1}
         [resOf(r.result_cad), 'num ' + upDown(Number(r.result_cad))], [closeOf(r), 'num'], [vd, vd === 'Beat' ? 'is-up' : vd === 'Missed' ? 'is-down' : '']], sub ? 'bet-ticket' : '');
       tr.dataset.key = r.bet; if (!sub) betPg(tr.children[3], [r]); return tr;
     };
-    betGroups(list).forEach((g) => {
+    // Show and Sort (owner, Oct 31: "in bets a button to sort losses"): Won, Lost, Open, Push or void; biggest win, biggest loss, largest stake
+    const MFB = mfApply('bets-' + (dash.model || 'claude'), list, { at: (r) => r.placed_at || (r.placed + 'T12:00:00-04:00'),
+      kinds: (r) => [r.status === 'Open' ? 'open' : r.status === 'Won' ? 'won' : r.status === 'Lost' ? 'lost' : 'push'],
+      profit: (r) => (r.status === 'Open' || r.result_cad == null ? null : Number(r.result_cad)), amount: (r) => (r.stake_cad == null ? null : Number(r.stake_cad)), noun: ['bet', 'bets'] },
+      () => { BETS_PAGE.p = 0; el._redraw ? el._redraw() : dash.redraw(); }, { pills: ['', 'open', 'won', 'lost', 'push'], allLabel: 'All bets', page: BETS_PAGE.n });
+    mfMount(el, MFB);
+    { const order = new Map(MFB.rows.map((r, i) => [r, i]));
+      const gs = betGroups(MFB.rows); gs.sort((a, b) => Math.min(...a.items.map((x) => order.get(x))) - Math.min(...b.items.map((x) => order.get(x))));
+      gs.forEach((g) => g.items.sort((a, b) => order.get(a) - order.get(b)));
+      list = MFB.rows; el._groups = gs; }
+    el._groups.forEach((g) => {
       if (g.items.length === 1) { const tr = ticket(g.items[0]); tr._top = true; el.appendChild(tr); return; }
       const r0 = g.items[0], n = g.items.length, sum = (f) => g.items.reduce((a, x) => a + Number(x[f] || 0), 0);
       const open = BET_OPEN.has(g.key);
@@ -4241,21 +4257,14 @@ tr.lg-hit .tx-id{opacity:1}
       TS.forEach((t) => { t._held = lot.has(t) || (t.action === 'Bet' && OPEN.has(t.model + '|' + t.bet)); });
       KIND.hold = { test: (a, t) => !!(t && t._held) };   // the regular expressions above ignore the second argument
     }
-    if (st.kind === 'trade') st.kind = 'buy';   // the old "Buys and sells" choice
-    const sw = mk('div', 'lg-kinds'); sw.setAttribute('role', 'group'); sw.setAttribute('aria-label', 'Show');
-    sw.appendChild(mk('span', 'lg-kinds-l', 'Show:'));
-    const pills = [['', 'Every move'], ['buy', 'Buys'], ['sell', 'Sells'], ['bet', 'Bets and results'], ['hold', 'Holding now']].map(([v, t]) => {
-      const b = mk('button', 'lg-kind'); b.type = 'button'; b.dataset.k = v; b._t = t;
-      b.addEventListener('click', () => { st.kind = v; el._pg = 0; draw(); });
-      sw.appendChild(b); return b; });
-    bar.appendChild(sw);
     el.appendChild(bar);
     const box = mk('div'); el.appendChild(box);
     const draw = () => {
       box.replaceChildren();
       const base = TS.filter((t) => (!st.part || t.experiment === st.part) && (!st.ai || t.model === st.ai));
-      pills.forEach((b) => { const k = b.dataset.k; const n = k ? base.filter((t) => KIND[k].test(t.action, t)).length : base.length; b.textContent = b._t + ' (' + n + ')'; b.setAttribute('aria-pressed', String((st.kind || '') === k)); });
-      const rows = base.filter((t) => !st.kind || (KIND[st.kind] || /./).test(t.action, t)).sort((a, b) => new Date(b.at) - new Date(a.at));
+      if (el._focus && MF_STATE['allin-ledger']) Object.assign(MF_STATE['allin-ledger'], { k: '', s: 'new' });   // a "Find" jump shows every move, newest first
+      const MF = mfApply('allin-ledger', base, MF_RIV(), () => { el._pg = 0; draw(); }, { page: 10 }); box.append(MF.bar, MF.sum);
+      const rows = MF.rows;
       // a "🔎 Ledger" tap from the All in page: open the page this move is on and highlight it (owner, Oct 30)
       let hitT = null;
       if (el._focus) { const F = el._focus; const t0 = Date.parse(F.at);
@@ -4263,7 +4272,6 @@ tr.lg-hit .tx-id{opacity:1}
           .sort((a, b) => Math.abs(Date.parse(a.at) - t0) - Math.abs(Date.parse(b.at) - t0))[0] || null;
         if (hitT && Math.abs(Date.parse(hitT.at) - t0) > 6 * 3600e3) hitT = null;
         if (hitT) el._pg = Math.floor(rows.indexOf(hitT) / 10); }
-      box.appendChild(mk('p', 'st-note', rows.length + ' move' + (rows.length === 1 ? '' : 's') + ', newest first, 10 a page.'));
       if (!rows.length) return;
       const w = mk('div', 'h2h-scroll st-wrap'); const tb = mk('table', 'h2h-table');
       const hr = mk('tr'); ['When (placed, or settled for a result)', 'AI', 'Part', 'Move', 'Amount', 'Cost / stake', 'Profit', 'Return', 'Why'].forEach((h) => hr.appendChild(mk('th', '', h))); { const th = mk('thead'); th.appendChild(hr); tb.appendChild(th); }
@@ -4291,7 +4299,7 @@ tr.lg-hit .tx-id{opacity:1}
         body.appendChild(r);
       });
       w.appendChild(tb); box.appendChild(w);
-      body.dataset.pgNewest = '1'; body._pgKey = ''; body._pg = el._pg || 0; pagerFor(body, 10, 'moves');
+      body.dataset.pgNewest = MF.newest ? '1' : '0'; body._pgKey = ''; body._pg = el._pg || 0; pagerFor(body, 10, 'moves');
       if (el._focus) { const miss = !hitT; el._focus = null;
         setTimeout(() => requestAnimationFrame(() => { const row = body.querySelector('tr.lg-hit'); const target = row || box;
           let off = 0; document.querySelectorAll('.st-tabs, .pt-ticker, .pt-mtick, header').forEach((x) => { const cs = getComputedStyle(x); if ((cs.position === 'sticky' || cs.position === 'fixed') && x.getBoundingClientRect().top < 40) off = Math.max(off, x.getBoundingClientRect().bottom); });
@@ -4752,9 +4760,18 @@ tr.lg-hit .tx-id{opacity:1}
   const logWhen = (r) => { const id = txOfLog(r); if (!id) return stFmt.when(r.at); const f = document.createDocumentFragment(); f.append(stFmt.when(r.at), window.ptTxTag(id === 'pending' ? null : id, r.at)); return f; };
   dash.draw('log-body', (el) => {
     const d = dash.data('log');
-    if (d.status === 'ok') d.data.sort((a, b) => new Date(b.at) - new Date(a.at));
     const all = !el.dataset.portfolio || el.id === 'log-all-body';
-    const flt = (r) => byPortfolio(el)(r) && (!el.dataset.graded || (r.pg_key && pgFor(r.pg_key).length > 0));   // "Graded by the other AIs" (owner, Oct 29)
+    const flt0 = (r) => byPortfolio(el)(r) && (!el.dataset.graded || (r.pg_key && pgFor(r.pg_key).length > 0));   // "Graded by the other AIs" (owner, Oct 29)
+    // Show and Sort (owner, Oct 31): buys, sells, shorts, covers, bets and results, holds, other notes; newest or oldest first
+    let keep = null;
+    if (d.status === 'ok') {
+      const MF = mfApply('log-' + (el.id || el.dataset.portfolio || 'all') + '-' + (dash.model || 'claude'), d.data.filter(flt0),
+        { at: (r) => r.at, kinds: (r) => mfKinds(r.action, { text: r.detail }), noun: ['entry', 'entries'] }, () => { el._pgKey = null; dash.redraw(); }, { allLabel: 'Every entry', page: 10 });
+      mfMount(el, MF); keep = new Set(MF.rows);
+      d.data.sort((a, b) => (MF.newest ? new Date(b.at) - new Date(a.at) : new Date(a.at) - new Date(b.at)));
+      el.dataset.pgNewest = MF.newest ? '1' : '0'; el.dataset.pick = MF.key;
+    }
+    const flt = (r) => flt0(r) && (!keep || keep.has(r));
     fillBody(el, 'log', flt, (r) => encodeURIComponent(r.at) + ',' + encodeURIComponent(r.portfolio), (r) => all
       ? [[logWhen(r)], [r.portfolio], [r.action], [r.detail, 'wrap']]
       : [[logWhen(r)], [r.action], [r.detail, 'wrap']]);
@@ -5795,6 +5812,75 @@ tr.lg-hit .tx-id{opacity:1}
     hold: { label: 'Holding now', test: (r) => !!r.holding, noun: ['buy or bet still open', 'buys and bets still open'], tip: 'Only what it holds right now: the buys behind each position still open, and bets not settled yet' },
   };
   const lgOk = (k, r) => (LG_KINDS[k].test ? LG_KINDS[k].test(r) : LG_KINDS[k].re.test(r.action));
+  // ---------- MOVE FILTERS (owner, Oct 31: "in bets a button to sort losses, and for other things sort buys, sort sells; make filtering on the
+  // website very good"; F1-F7, all three AIs agreed except F6, ops/review/filters-oct31.json). ONE bar on every list of trades, bets or decisions:
+  // "Show:" pills with counts (Buys, Sells, Shorts and Covers apart; Won, Lost, Open; a pill with no match is hidden, "Every move" stays), "Sort:"
+  // (newest, oldest, biggest profit, biggest loss, largest amount; rows with no result go last, ties newest first), and a "Showing x of y · Clear"
+  // line. Each list remembers its choice while the page is open, not in the link (Claude and ChatGPT; Gemini wanted the link).
+  const MF_PILLS = [['', 'Every move'], ['buy', 'Buys'], ['sell', 'Sells'], ['short', 'Shorts'], ['cover', 'Covers'], ['bet', 'Bets placed'], ['open', 'Open bets'],
+    ['won', 'Won'], ['lost', 'Lost'], ['push', 'Push or void'], ['heldnote', 'Holds (no trade)'], ['hold', 'Holding now'], ['other', 'Other notes']];
+  const MF_TIPS = { buy: 'Buys only', sell: 'Sales of something it owned (and options or prediction shares that expired or settled)', short: 'New short sales: betting a price falls',
+    cover: 'Buying back a short', bet: 'Every bet placed', open: 'Bets not settled yet', won: 'Bets that won', lost: 'Bets that lost', push: 'Bets refunded (a push or a cancelled game)',
+    heldnote: 'Its decision not to trade in a race that day, with its reason', hold: 'Only what it holds right now: the buys behind each open position, and open bets', other: 'Check-ins, plans, rules and other notes' };
+  const MF_SORTS = [['new', 'Newest first'], ['old', 'Oldest first'], ['profit', 'Biggest profit'], ['loss', 'Biggest loss'], ['amount', 'Largest amount']];
+  const MF_STATE = {};
+  const mfNum = (v) => { if (typeof v === 'number') return isFinite(v) ? v : null; const m = String(v == null ? '' : v).replace(/−/g, '-').replace(/[^0-9.\-]/g, ''); const x = parseFloat(m); return isFinite(x) ? x : null; };
+  const mfKinds = (a, x) => {
+    x = x || {}; const k = [];
+    if (/^(Buy|Add)$/.test(a)) k.push('buy');
+    else if (/^(Sell|Trim|Settled|Expired)$/.test(a)) k.push('sell');
+    else if (a === 'Short') k.push('short');
+    else if (a === 'Cover') k.push('cover');
+    else if (/^(Bet|Parlay)$/.test(a)) { k.push('bet'); if (x.open) k.push('open'); }
+    else if (a === 'Won') k.push('won'); else if (a === 'Lost') k.push('lost'); else if (/^(Push|Void)$/.test(a)) k.push('push');
+    else if (a === 'Settle') { if (/\bwon\b/i.test(x.text || '')) k.push('won'); else if (/\blost\b/i.test(x.text || '')) k.push('lost'); else if (/\b(push|void|refund)/i.test(x.text || '')) k.push('push'); else k.push('other'); }
+    else if (a === 'Hold') k.push('heldnote');
+    else k.push('other');
+    if (x.held) k.push('hold');
+    return k;
+  };
+  // acc: { at(r), kinds(r) -> [keys], profit(r) -> number|null (realised only, so nothing is counted twice), amount(r) -> number|null, noun }
+  const mfApply = (key, rows, acc, redraw, opts) => {
+    opts = opts || {};
+    const st = (MF_STATE[key] = MF_STATE[key] || { k: '', s: 'new', pg: 0 });
+    const K = rows.map((r) => acc.kinds(r));
+    const count = (k) => (k ? K.filter((ks) => ks.includes(k)).length : rows.length);
+    const pills = MF_PILLS.filter(([k]) => (!opts.pills || opts.pills.includes(k)) && (k === '' || count(k) > 0));
+    if (st.k && !pills.some((x) => x[0] === st.k)) st.k = '';
+    const hasP = acc.profit && rows.some((r) => acc.profit(r) != null), hasA = acc.amount && rows.some((r) => acc.amount(r) != null);
+    const sorts = MF_SORTS.filter(([v]) => (!/^(profit|loss)$/.test(v) || hasP) && (v !== 'amount' || hasA));
+    if (!sorts.some((x) => x[0] === st.s)) st.s = 'new';
+    const go = () => { st.pg = 0; redraw(); };
+    const bar = mk('div', 'mf-bar');
+    const sw = mk('div', 'lg-kinds'); sw.setAttribute('role', 'group'); sw.setAttribute('aria-label', 'Show'); sw.appendChild(mk('span', 'lg-kinds-l', 'Show:'));
+    pills.forEach(([k, t]) => { const b = mk('button', 'lg-kind', (k === '' && opts.allLabel ? opts.allLabel : t) + ' (' + count(k) + ')'); b.type = 'button'; b.dataset.k = k;
+      if (MF_TIPS[k]) b.title = MF_TIPS[k]; b.setAttribute('aria-pressed', String(st.k === k)); b.addEventListener('click', () => { st.k = k; go(); }); sw.appendChild(b); });
+    bar.appendChild(sw);
+    if (sorts.length > 1) { const l = mk('label', 'mf-sort', 'Sort: '); const sl = mk('select'); sl.setAttribute('aria-label', 'Sort'); sl.dataset.order = 'keep';   // a sort menu keeps its own order (newest first on top)
+      sorts.forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; sl.appendChild(o); }); sl.value = st.s; sl.addEventListener('change', () => { st.s = sl.value; go(); }); l.appendChild(sl); bar.appendChild(l); }
+    const T = (r) => Date.parse(acc.at(r)) || 0, nil = (v) => v == null || !isFinite(v);
+    const P = (r) => acc.profit(r), A = (r) => acc.amount(r);
+    const cmp = { new: (a, b) => T(b) - T(a), old: (a, b) => T(a) - T(b),
+      profit: (a, b) => (nil(P(a)) - nil(P(b))) || (nil(P(a)) ? 0 : P(b) - P(a)) || T(b) - T(a),
+      loss: (a, b) => (nil(P(a)) - nil(P(b))) || (nil(P(a)) ? 0 : P(a) - P(b)) || T(b) - T(a),
+      amount: (a, b) => (nil(A(a)) - nil(A(b))) || (nil(A(a)) ? 0 : Math.abs(A(b)) - Math.abs(A(a))) || T(b) - T(a) }[st.s];
+    const out = rows.filter((r, i) => !st.k || K[i].includes(st.k)).sort(cmp);
+    const noun = acc.noun || ['move', 'moves'];
+    const sum = mk('p', 'st-note mf-sum');
+    const lab = st.k ? (pills.find((x) => x[0] === st.k) || ['', ''])[1] : '', so = (sorts.find((x) => x[0] === st.s) || ['', ''])[1].toLowerCase();
+    sum.append('Showing ' + out.length + ' of ' + rows.length + ' ' + (rows.length === 1 ? noun[0] : noun[1]) + (lab ? ': ' + lab : '') + ', ' + so + (opts.page ? ', ' + opts.page + ' a page' : '') + '.');
+    if (st.k || st.s !== 'new') { const c = mk('button', 'mf-clear', 'Clear'); c.type = 'button'; c.title = 'Back to every move, newest first'; c.addEventListener('click', () => { st.k = ''; st.s = 'new'; go(); }); sum.append(' ', c); }
+    return { bar, sum, rows: out, st, key: st.k + '|' + st.s, newest: st.s === 'new' };
+  };
+  // the bar above a table body (tbody), in its own box so redraws replace it
+  const mfMount = (el, MF) => { const host = el.closest('.st-wrap') || el.closest('table') || el; let box = host.previousElementSibling && host.previousElementSibling.classList.contains('mf-host') ? host.previousElementSibling : null;
+    if (!box) { box = mk('div', 'mf-host'); host.before(box); } box.replaceChildren(MF.bar, MF.sum); };
+  const mfCad = (v, race) => (v == null || !isFinite(v) ? null : race === 'China' ? v * (rates().CAD || 1.38) : v);   // China is in US$: sorted in C$
+  const MF_LG = { at: (r) => r.at, kinds: (r) => mfKinds(r.action, { open: /^(Bet|Parlay)$/.test(r.action) && r.open, held: !!r.holding }),
+    profit: (r) => mfCad(r.profit, r.portfolio), amount: (r) => mfCad(r.val != null && isFinite(r.val) ? Math.abs(r.val) : Math.abs(mfNum(r.amount) || 0) || null, r.portfolio), noun: ['trade or bet', 'trades and bets'] };
+  const MF_RIV = (noun) => ({ at: (t) => t.at, kinds: (t) => mfKinds(t.action, { open: t.action === 'Bet' && !!t._held, held: !!t._held }),
+    profit: (t) => (t.action === 'Bet' || t.action === 'Parlay' ? null : t.pnl != null ? mfCad(Number(t.pnl), t.experiment) : null),
+    amount: (t) => (Number.isFinite(+t.amount) && !/^(Won|Lost|Push|Void)$/.test(t.action) ? mfCad(Math.abs(+t.amount), t.experiment) : null), noun: noun || ['move', 'moves'] });
   // ---------- search source ledger (owner's proposal; all three AIs agreed, Oct 30): what an AI looked up at the check-in behind a trade.
   // searchlog/<UTC day>.json, fetched only when a visitor opens one. Links only. Recorded from Oct 31, 2026 (00:00 UTC).
   const SL_START = Date.parse('2026-10-31T00:00:00Z'), SLC = {};
@@ -5966,10 +6052,11 @@ tr.lg-hit .tx-id{opacity:1}
         { const gid = hit && /^(G\d+) /.exec(String(hit.item)); if (gid) mine = mine.filter((r) => String(r.item).startsWith(gid[1] + ' ')); }   // a bet: just that bet and its result
         if (mine.length) inRace = mine; else F.missing = true;
       }
-      // Show: one tap for every move, buys only, sells only, or bets and results (owner, Oct 30); the counts follow the experiment
-      const kind = LG_KINDS[el.dataset.kind || ''] ? el.dataset.kind || '' : '';
-      document.querySelectorAll('#lg-trades-kinds .lg-kind').forEach((b) => { const k = b.dataset.k; b.textContent = LG_KINDS[k].label + ' (' + inRace.filter((r) => lgOk(k, r)).length + ')'; b.setAttribute('aria-pressed', String(k === kind)); });
-      const shown = F && !F.missing ? inRace : inRace.filter((r) => lgOk(kind, r));
+      // Show and Sort: the shared move filters (owner, Oct 31; F1-F7); the counts follow the experiment. A "Find" view shows its own rows instead.
+      const MF = mfApply('lg-trades', inRace, MF_LG, () => run(), { page: 5 });
+      if (!(F && !F.missing)) el.append(MF.bar, MF.sum);
+      const kind = MF.key;
+      const shown = F && !F.missing ? inRace : MF.rows;
       if (F) {
         const bn = mk('div', 'lg-focus'); bn.setAttribute('role', 'status');
         bn.appendChild(mk('span', '', F.missing ? 'Could not find "' + F.item + '" in ' + AIS[F.model].label + "'s " + (LABEL[p] || p) + ' trades; showing all of them.'
@@ -6025,7 +6112,7 @@ tr.lg-hit .tx-id{opacity:1}
       // goes back to the newest when the AI or the experiment changes.
       if (shown.length) {
         const key = (dash.model || 'claude') + '|' + (p || '') + '|' + kind; if (el._tKey !== key) { el._tKey = key; el._tPg = 0; }
-        tb.dataset.pgNewest = '1'; tb._pgKey = ''; tb._pg = el._tPg || 0;
+        tb.dataset.pgNewest = MF.newest || (F && !F.missing) ? '1' : '0'; tb._pgKey = ''; tb._pg = el._tPg || 0;
         if (F && hit && !F.paged) { const k = shown.indexOf(hit); if (k >= 0) { tb._pg = Math.floor(k / 5); el._tPg = tb._pg; } }
         pagerFor(tb, 5, 'trades');
         if (F && !F.scrolled) {   // bring the Ledger into view, then a short pulse on the trade so the eye finds it
@@ -6042,7 +6129,7 @@ tr.lg-hit .tx-id{opacity:1}
         const bar = tw.nextElementSibling;
         if (bar && bar.classList.contains('st-pager')) { const keep = () => { el._tPg = tb._pg || 0; }; bar.addEventListener('click', keep); bar.addEventListener('change', keep); }
       }
-      el.appendChild(mk('p', 'st-note', shown.length + ' ' + LG_KINDS[kind].noun[shown.length === 1 ? 0 : 1] + (p ? ' in ' + (LABEL[p] || p) : ' in total') + '. The download below has all of them.'));
+      el.appendChild(mk('p', 'st-note', 'The download below has the ' + shown.length + (shown.length === 1 ? ' entry' : ' entries') + ' shown' + (p ? ' in ' + (LABEL[p] || p) : '') + ', in the same order.'));
       { const dl = mk('button', 'lg-csv', '⬇ Download this list (CSV)'); dl.type = 'button';
         dl.addEventListener('click', () => {
           const q = (x) => '"' + String(x == null ? '' : x).replace(/"/g, '""') + '"';
@@ -7033,20 +7120,14 @@ tr.lg-hit .tx-id{opacity:1}
     const mksel = (label, opts, key) => { const l = mk('label', '', label + ' '); const s = mk('select'); opts.forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; s.appendChild(o); }); s.value = String(el._f[key]); s.addEventListener('change', () => { el._f[key] = key === 'n' ? Number(s.value) : s.value; draw(); }); l.appendChild(s); bar.appendChild(l); };
     mksel('Experiment:', [['', 'All experiments']].concat(PFS_ALL.map((e) => [e, LABEL[e] || e])).concat([['AllInTrading', 'All in: trading'], ['AllInSports', 'All in: sports']]), 'exp');
     // Show: one tap each, the same buttons as the Ledger and All in ledger (owner, Oct 30), plus Holding now
-    const AK = { buy: (t) => /^(Buy|Short)$/.test(t.action), sell: (t) => /^(Sell|Cover|Expired|Settled)$/.test(t.action), bet: (t) => /^(Bet|Won|Lost|Push)$/.test(t.action), hold: (t) => !!t._held };
-    const sw = mk('div', 'lg-kinds'); sw.setAttribute('role', 'group'); sw.setAttribute('aria-label', 'Show'); sw.appendChild(mk('span', 'lg-kinds-l', 'Show:'));
-    const pills = [['', 'Everything'], ['buy', 'Buys'], ['sell', 'Sells and covers'], ['bet', 'Bets and results'], ['hold', 'Holding now']].map(([v, t]) => {
-      const b = mk('button', 'lg-kind'); b.type = 'button'; b.dataset.k = v; b._t = t; b.addEventListener('click', () => { el._f.kind = v; draw(); }); sw.appendChild(b); return b; });
-    bar.appendChild(sw);
     tc.appendChild(bar);
     const box = mk('div'); tc.appendChild(box);
     const draw = () => {
       box.replaceChildren();
       const f = el._f;
       const inExp = all.filter((t) => !f.exp || t.experiment === f.exp);
-      pills.forEach((b) => { const k = b.dataset.k; b.textContent = b._t + ' (' + (k ? inExp.filter(AK[k]).length : inExp.length) + ')'; b.setAttribute('aria-pressed', String((f.kind || '') === k)); });
-      const rows = inExp.filter((t) => !f.kind || (AK[f.kind] || (() => true))(t)).sort((a, b) => new Date(b.at) - new Date(a.at));
-      box.appendChild(mk('p', 'st-note', rows.length + ' matching trade' + (rows.length === 1 ? '' : 's') + ', newest first, 10 a page. Use Older and Newer to see the rest.'));
+      const MF = mfApply('aipage-' + id, inExp, MF_RIV(['trade or bet', 'trades and bets']), () => { el._tPg = 0; draw(); }, { page: 10 }); box.append(MF.bar, MF.sum);   // Show and Sort (owner, Oct 31)
+      const rows = MF.rows;
       if (!rows.length) return;
       const wrap = mk('div', 'h2h-scroll st-wrap'); const tb = mk('table', 'h2h-table');
       const hr = mk('tr'); ['When', 'Experiment', 'Trade', 'Amount', 'Cost / stake', 'Profit', 'Return', 'Why'].forEach((x) => hr.appendChild(mk('th', '', x))); { const th = mk('thead'); th.appendChild(hr); tb.appendChild(th); }
@@ -7054,8 +7135,8 @@ tr.lg-hit .tx-id{opacity:1}
       rows.forEach((t) => { const tr = mk('tr'); const pl = pnlOf(t); tr.appendChild(window.ptTxWhen(t.at, t.tx)); [LABEL[t.experiment] || String(t.experiment).replace('AllInTrading', 'All in: trading').replace('AllInSports', 'All in: sports'), t.action + ' ' + (t.name || t.symbol), Number.isFinite(+t.amount) ? (t.amount < 0 ? '−' : '') + (t.experiment === 'China' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(t.amount)) : ''].forEach((v) => tr.appendChild(mk('td', '', v))); tr.append(mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret), mk('td', '', t.reason || '')); body.appendChild(tr); });
       wrap.appendChild(tb); box.appendChild(wrap);
       // the 10 newest, then Older / Newer for the rest (owner, Oct 29); the page survives refreshes, and resets when a filter changes
-      const key = f.exp + '|' + f.kind; if (el._tKey !== key) { el._tKey = key; el._tPg = 0; }
-      body.dataset.pgNewest = '1'; body._pgKey = ''; body._pg = el._tPg || 0;
+      const key = f.exp + '|' + MF.key; if (el._tKey !== key) { el._tKey = key; el._tPg = 0; }
+      body.dataset.pgNewest = MF.newest ? '1' : '0'; body._pgKey = ''; body._pg = el._tPg || 0;
       pagerFor(body, 10, 'trades');
       const pbar = wrap.nextElementSibling; if (pbar && pbar.classList.contains('st-pager')) { const keep = () => { el._tPg = body._pg || 0; }; pbar.addEventListener('click', keep); pbar.addEventListener('change', keep); }
     };
@@ -7162,8 +7243,10 @@ tr.lg-hit .tx-id{opacity:1}
       const list = mk('div'); box.appendChild(list);
       const drawMoves = () => {
         list.replaceChildren();
-        const tr = TS.filter((t) => t.experiment === exp && (!stt.m || t.model === stt.m)).slice().sort((a, b) => new Date(b.at) - new Date(a.at));
-        if (!tr.length) { list.appendChild(mk('p', 'st-note', stt.m ? AIS[stt.m].label + ' has made no moves here yet.' : 'No moves yet.')); return; }
+        const tr0 = TS.filter((t) => t.experiment === exp && (!stt.m || t.model === stt.m));
+        if (!tr0.length) { list.appendChild(mk('p', 'st-note', stt.m ? AIS[stt.m].label + ' has made no moves here yet.' : 'No moves yet.')); return; }
+        const MF = mfApply('allin-moves-' + exp, tr0, MF_RIV(), () => { stt.pg = 0; drawMoves(); }, { page: 10 }); list.append(MF.bar, MF.sum);   // Show and Sort (owner, Oct 31)
+        const tr = MF.rows; if (!tr.length) return;
         const wrap = mk('div', 'h2h-scroll st-wrap'); const tb = mk('table', 'h2h-table');
         const hr = mk('tr'); ['When', 'AI', 'Move', 'Amount', 'Cost / stake', 'Profit', 'Why'].forEach((h) => hr.appendChild(mk('th', '', h))); { const th = mk('thead'); th.appendChild(hr); tb.appendChild(th); }
         const body = mk('tbody'); tb.appendChild(body);
@@ -7176,8 +7259,8 @@ tr.lg-hit .tx-id{opacity:1}
           body.appendChild(r);
         });
         wrap.appendChild(tb); list.appendChild(wrap);
-        if (stt.key !== stt.m) { stt.key = stt.m; stt.pg = 0; }
-        body.dataset.pgNewest = '1'; body._pgKey = ''; body._pg = stt.pg || 0;
+        if (stt.key !== stt.m + '|' + MF.key) { stt.key = stt.m + '|' + MF.key; stt.pg = 0; }
+        body.dataset.pgNewest = MF.newest ? '1' : '0'; body._pgKey = ''; body._pg = stt.pg || 0;
         pagerFor(body, 10, 'moves');
         const pbar = wrap.nextElementSibling; if (pbar && pbar.classList.contains('st-pager')) { const keep = () => { stt.pg = body._pg || 0; }; pbar.addEventListener('click', keep); pbar.addEventListener('change', keep); }
       };
@@ -9300,15 +9383,8 @@ tr.lg-hit .tx-id{opacity:1}
     if (g && t) g.addEventListener('change', () => { if (g.value) t.dataset.graded = '1'; else delete t.dataset.graded; t._pgKey = null; if (dash.redraw) dash.redraw(); }); }
   { const sel = document.getElementById('lg-trades-pick'), t = document.getElementById('lg-trades');
     if (sel && t) sel.addEventListener('change', () => { delete t.dataset.focus; if (window.ptClearFind) window.ptClearFind(); t.dataset.portfolio = sel.value; if (t._redraw) t._redraw(); });
-    // Show: Every move · Buys · Sells · Bets and results, one tap each (owner, Oct 30)
-    const bar = sel && sel.closest('.lg-pick');
-    if (bar && t && !document.getElementById('lg-trades-kinds')) {
-      const sw = document.createElement('div'); sw.className = 'lg-kinds'; sw.id = 'lg-trades-kinds'; sw.setAttribute('role', 'group'); sw.setAttribute('aria-label', 'Show');
-      const l = document.createElement('span'); l.className = 'lg-kinds-l'; l.textContent = 'Show:'; sw.appendChild(l);
-      Object.keys(LG_KINDS).forEach((k) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'lg-kind'; b.dataset.k = k; b.textContent = LG_KINDS[k].label; b.title = LG_KINDS[k].tip; b.setAttribute('aria-pressed', String(k === (t.dataset.kind || '')));
-        b.addEventListener('click', () => { delete t.dataset.focus; if (window.ptClearFind) window.ptClearFind(); t.dataset.kind = k; if (t._redraw) t._redraw(); }); sw.appendChild(b); });
-      bar.appendChild(sw); if (t._redraw) t._redraw();
-    } }
+    // (the Show pills now come from the shared move filters, drawn with the list: owner, Oct 31)
+  }
   document.querySelectorAll('[data-mode-for]').forEach((g) => {
     g.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
       g.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
@@ -9463,7 +9539,7 @@ tr.lg-hit .tx-id{opacity:1}
   // Every dropdown lists its choices in alphabetical order (owner, Oct 29). The catch-all choice ("All …", "Both parts", "Every move",
   // the own-currency default, "Races Led", "👑 Race leader") stays on top; lists that run in time order (days, reports, pages) keep it.
   (() => {
-    const PIN = /^(👑|All experiments|All decisions|All three|All days|Both parts|Every move|Each experiment|Own currency|Overall|Races Led)/;
+    const PIN = /^(👑|All experiments|All decisions|All three|All days|All races|All bets|Both parts|Every move|Every entry|Each experiment|Own currency|Overall|Races Led)/;
     const TIMED = /^(\d+ ·|\d+ \(|Day \d|Tuning)/;
     const key = (o) => o.textContent.replace(/[^\p{L}\p{N} ]/gu, '').trim();
     const cmp = (a, b) => key(a).localeCompare(key(b), 'en', { numeric: true, sensitivity: 'base' });
