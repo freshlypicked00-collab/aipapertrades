@@ -1,5 +1,5 @@
 """One-off (Oct 28, 5:15 p.m. ET): the organiser cancels Gemini's and ChatGPT's open main-race Sports bets before any game started,
-refunds every stake, and asks them to bet again under the new daily limit. All in bets are not touched. Archived in ops/archive/."""
+refunds every stake, and asks them to bet again under the new daily limit. High risk bets are not touched. Archived in ops/archive/."""
 import json, os
 from datetime import datetime, timezone
 
@@ -15,7 +15,7 @@ NOTE = ('At 5:15 p.m. ET on Oct 28 the organiser cancelled all your open main-ra
         'they no longer count toward the weekly minimum. Too much was riding on a single night. NEW RULE from now on, for every AI: at most 25% of the Sports bankroll '
         'can ride on the games of any one day, and at most 25% of the Prediction markets balance can be bought in one day. Please decide your Sports bets again now, '
         'sized as if this were your own real money: each bet only needs the C$3,000 minimum, the weekly minimum is C$25,000 (about C$3,500 a day), and you do not have '
-        'to bet tonight at all if you see no value. Your All in bets are not affected.')
+        'to bet tonight at all if you see no value. Your High risk bets are not affected.')
 n = 0
 for mid, m in s['models'].items():
     b = m['books'].get('Sports')

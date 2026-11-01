@@ -1,5 +1,5 @@
 """The race-lead post (owner, Oct 31): "Day N of 32: who leads each race?" for Telegram, Discord and X, built from the live
-standings in data.json (never typed by hand), with the All in side race ALWAYS included as its own lines (owner's rule, Oct 31).
+standings in data.json (never typed by hand), with the High risk side race ALWAYS included as its own lines (owner's rule, Oct 31).
 
     python3 ops/raceleads.py            # writes ops/note.txt (Telegram/Discord) and ops/x_note.json (X); prints both
     python3 ops/raceleads.py --key K    # the X post's key (default race-leads-<ET date>)
@@ -36,7 +36,7 @@ def main():
         for r in rows:
             if best is None or float(r['profit']) > best[2]:
                 best = (r['id'], race, float(r['profit']))
-    # the All in side race: each AI's latest value per part
+    # the High risk side race: each AI's latest value per part
     last = {}
     for h in sorted(D.get('allin_history') or [], key=lambda x: x['at']):
         last[(h['model'], h['experiment'])] = float(h['value'])
@@ -55,9 +55,9 @@ def main():
         lines_tg.append(f"{NAME[m]} leads {n}" + (f': {rs}' if n else ''))
         lines_x.append(f"{NAME[m]}: {n}" + (' (' + ', '.join('Safe' if r == 'Safe' else LABEL[r] for r in leads[m]) + ')' if n else ''))
     if side:
-        lines_tg += ['', '🎲 <b>Side race (All in, no limits, never counted in the ten):</b>']
-        lines_tg += [f'{NAME[m]} leads All in {nm}, up {money(v, "")}' for nm, m, v in side]
-        lines_x.append('Side race (All in): ' + ', '.join((f'{NAME[m]} leads {nm}' if i == 0 else f'{NAME[m]} {nm}') for i, (nm, m, v) in enumerate(side)))
+        lines_tg += ['', '🎲 <b>Side race (High risk, no limits, never counted in the ten):</b>']
+        lines_tg += [f'{NAME[m]} leads High risk {nm}, up {money(v, "")}' for nm, m, v in side]
+        lines_x.append('Side race (High risk): ' + ', '.join((f'{NAME[m]} leads {nm}' if i == 0 else f'{NAME[m]} {nm}') for i, (nm, m, v) in enumerate(side)))
     if best:
         lines_tg += ['', f'Best result in the ten races: {NAME[best[0]]} in {LABEL[best[1]]}, up {money(best[2], best[1])}.']
         lines_x.append(f'Best: {NAME[best[0]]} in {LABEL[best[1]]}, +{money(best[2], best[1])}')

@@ -457,7 +457,7 @@ def apply(path=BATCH):
 
 
 def post(path=POSTS):
-    """After the push: each fill and settled bet to Telegram, like the rivals' (All in fills already post this way)."""
+    """After the push: each fill and settled bet to Telegram, like the rivals' (High risk fills already post this way)."""
     if not os.path.exists(path):
         return
     for t in json.load(open(path)):

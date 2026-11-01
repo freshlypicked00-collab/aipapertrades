@@ -114,7 +114,7 @@ def _team_words(name):
 
 
 def open_bet_teams(state, claude_bets):
-    """{team: {'mids': who bet, 'lg': leagues}} for every open bet of any AI (main races and All in)."""
+    """{team: {'mids': who bet, 'lg': leagues}} for every open bet of any AI (main races and High risk)."""
     teams = {}
     def add(name, mid, lg):
         name = name.strip()

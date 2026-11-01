@@ -1,4 +1,4 @@
-"""Head to head: Gemini and ChatGPT run their own copies of all ten experiments, plus the All in side race.
+"""Head to head: Gemini and ChatGPT run their own copies of all ten experiments, plus the High risk side race.
 
 Run by .github/workflows/rivals.yml at the same moments as Claude's runs (Claude's runs start each check-in; GitHub's schedule
 and a 15-minute event watcher are backups). For each rival model whose API key is set (GEMINI_API_KEY; OPENROUTER_API_KEY or
@@ -39,7 +39,7 @@ RACE_EXPS = ALL_EXPS
 BASE = {'AllInSports': 'Sports'}
 EXP_LABEL = {'Stocks': 'Stocks and anything', 'Crypto': 'Crypto', 'China': 'China stocks', 'Metals': 'Metals',
              'Energy': 'Oil and energy', 'Options': 'Options', 'Currencies': 'Currencies', 'Safe': 'Play it safe',
-             'Sports': 'Sports', 'Predictions': 'Prediction markets', 'AllInTrading': 'All in: trading', 'AllInSports': 'All in: sports'}
+             'Sports': 'Sports', 'Predictions': 'Prediction markets', 'AllInTrading': 'High risk: trading', 'AllInSports': 'High risk: sports'}
 SAFE_OK = {'SGOV', 'BIL', 'SHV', 'SHY', 'VGSH', 'IEF', 'TLT', 'BND', 'AGG', 'VGIT', 'TIP', 'SCHD', 'VIG', 'VYM', 'DVY', 'NOBL',
            'VTI', 'SPY', 'VOO', 'IVV', 'USMV', 'GLD', 'IAU', 'GLDM'}
 SAFE_GOLD = {'GLD', 'IAU', 'GLDM'}
@@ -63,7 +63,7 @@ FRESH_START = datetime(2026, 10, 28, 17, 45, tzinfo=timezone.utc)  # 1:45 p.m. E
 MAX_SHARE = 0.5   # no single holding or currency above 50% of its experiment
 MAX_BET = 0.25    # no single sports bet or prediction market above 25%
 MIN_BET = 3000.0  # every bet (sports, parlay or prediction market buy) is at least C$3,000
-DAY_MAX = 0.25    # Sports: at most 25% of the bankroll on games of one day; Predictions: at most 25% bought per day (not All in)
+DAY_MAX = 0.25    # Sports: at most 25% of the bankroll on games of one day; Predictions: at most 25% bought per day (not High risk)
 
 
 def min_bet(balance):
@@ -78,7 +78,7 @@ DAY_MIN = 3000.0      # and at least C$3,000 wagered every ET day (25% of the be
 PENALTY_DAY = 500.0     # C$ off the Sports balance for each ET day with less than the daily minimum wagered (from Oct 29)
 PENALTY_TOTAL = 0.10    # and 10% of any shortfall from the C$100,000 total, at the final scoring
 PENALTY_FROM = '2026-10-29'
-ALLIN_MIN_FROM = '2026-11-01'   # All in: Sports gets the same betting minimums from this ET day (owner, Oct 31; vote ops/review/allin-min-oct31.json)
+ALLIN_MIN_FROM = '2026-11-01'   # High risk: Sports gets the same betting minimums from this ET day (owner, Oct 31; vote ops/review/allin-min-oct31.json)
 BET_END = '2026-11-28T21:00:00+00:00'   # the minimums run to the final scoring, Nov 28 at 4 p.m. ET
 RACE_END = datetime(2026, 11, 28, 21, 0, tzinfo=timezone.utc)   # final scoring: no orders after this; values are frozen
 US_HOLIDAYS = {'2026-11-26'}            # Thanksgiving: US markets closed all day
@@ -275,7 +275,7 @@ def quote(exp, symbol, outcome=None):
     px, cur, name = yahoo(symbol)
     if exp == 'AllInTrading':
         if cur != 'USD':
-            raise ValueError(f'{symbol} is priced in {cur}; All in: trading uses US$ listings, crypto (-USD) or options')
+            raise ValueError(f'{symbol} is priced in {cur}; High risk: trading uses US$ listings, crypto (-USD) or options')
         return px, cur, {'name': name}
     if exp == 'Safe' and symbol not in SAFE_OK:
         raise ValueError('Play it safe only allows these low-risk funds: ' + ', '.join(sorted(SAFE_OK)))
@@ -657,8 +657,8 @@ RULES = {
     'Options': 'Options: buy calls or puts on US stocks and ETFs (long only; no writing options). Use the OCC symbol: TICKER + expiry YYMMDD + C or P + strike x1000 in 8 digits, e.g. NVDA261120C00200000 is the NVDA Nov 20, 2026 $200 call. Buys fill at the Cboe ask, sells at the bid, valued at the mid; give "contracts" (each is 100 shares) or "amount". US market hours only. Options left at expiry settle at their intrinsic value. Counted in C$.',
     'Currencies': f'Currencies: forex with up to {FX_LEVERAGE}x leverage, like a forex account. Positions are currency codes ({", ".join(FX_NAMES)}), each valued in US$ and converted to C$. Actions: "buy" (go long, amount in C$), "sell" (close part of a long, fraction), "short" (borrow and sell, amount in C$), "cover" (buy back part of a short, fraction). Cash may go negative (borrowing). Total position size may not exceed {FX_LEVERAGE}x the account value. Trades Sunday 5 p.m. to Friday 5 p.m. ET. Counted in C$.',
     'Safe': 'Play it safe: the low-risk control. Only these funds: ' + ', '.join(sorted(SAFE_OK)) + '. No leverage, no single stocks, no options, gold funds (GLD, IAU, GLDM) at most 10% of the account. US market hours only. Counted in C$.',
-    'AllInTrading': 'All in: trading (HIGH RISK, HIGH REWARD, separate fun experiment): its own C$100,000; any US$-listed stock or ETF, any crypto (BTC-USD style) or any option (OCC symbol, filled at the Cboe ask/bid). NO position caps here: you may go all in on one idea. Stocks and options trade in US market hours, crypto around the clock. It is NOT counted in the overall race or the elimination rule; busting it only closes it. Goal: the biggest number you can get. Counted in C$.',
-    'AllInSports': 'All in: sports (HIGH RISK, HIGH REWARD, separate fun experiment): its own C$100,000 sports bankroll, moneyline bets on the same games as Sports (action "bet" with "game", "pick", "amount"; parlays allowed with action "parlay" and "legs"). NO bet caps here: you may bet the whole bankroll (minimum C$3,000 a bet). NOT optional (from Nov 1): at least C$3,000 bet here every ET day and C$100,000 in total by Nov 28, with the same penalties as the main Sports race. NOT counted in the overall race or the elimination rule; busting it only closes it. Goal: the biggest number you can get. Counted in C$.',
+    'AllInTrading': 'High risk: trading (HIGH RISK, HIGH REWARD, separate fun experiment): its own C$100,000; any US$-listed stock or ETF, any crypto (BTC-USD style) or any option (OCC symbol, filled at the Cboe ask/bid). NO position caps here: you may go all in on one idea. Stocks and options trade in US market hours, crypto around the clock. It is NOT counted in the overall race or the elimination rule; busting it only closes it. Goal: the biggest number you can get. Counted in C$.',
+    'AllInSports': 'High risk: sports (HIGH RISK, HIGH REWARD, separate fun experiment): its own C$100,000 sports bankroll, moneyline bets on the same games as Sports (action "bet" with "game", "pick", "amount"; parlays allowed with action "parlay" and "legs"). NO bet caps here: you may bet the whole bankroll (minimum C$3,000 a bet). NOT optional (from Nov 1): at least C$3,000 bet here every ET day and C$100,000 in total by Nov 28, with the same penalties as the main Sports race. NOT counted in the overall race or the elimination rule; busting it only closes it. Goal: the biggest number you can get. Counted in C$.',
     'Sports': 'Sports: moneyline bets on the games listed below (odds from ESPN). Action "bet" with "game" (the game id), "pick" ("home" or "away") and "amount" (stake in C$). PARLAYS ARE ALLOWED: action "parlay" with "legs": [{"game": id, "pick": "home"|"away"}, ...] (2 to 6 different games) and "amount"; every leg must win, the odds multiply, a pushed leg drops out. Minimum stake C$3,000 per bet or parlay. The bankroll counts settled bets only; you cannot stake more than the bankroll minus open stakes. Bets close when the game starts and settle automatically from the final score. Counted in C$.',
 }
 
@@ -709,7 +709,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         'YOUR GOAL IS TO FINISH NUMBER ONE: beat the other AIs on total profit by Nov 28. The way to get there is to INVEST EXACTLY AS IF THIS WERE YOUR OWN REAL MONEY and losing it mattered: grow each experiment as much as you can over the whole month without risking ruin. Think like a skilled professional managing real capital, not a gambler chasing one big night. A real investor with 100,000 would not put the whole amount on one game, one coin or one leveraged fund on day one: they size positions to how confident they are, spread risk, keep cash in reserve, use stop-losses, and only press a bet hard when the edge is clear and confirmed. The race lasts a full month; a strategy that can be wiped out in one move is a bad strategy, because an eliminated AI cannot win. Be ambitious and competitive: take strong positions when the edge is real, and play to win the month, not just to survive. Holding is fine; trade when you have a real reason.',
         'BUST RULE: if any experiment falls to zero (or below), you are BUSTED in that experiment: it is closed for good, you are out of that race, and it is marked BUSTED publicly for the rest of the month, in front of everyone watching. Going all-in on a single bet or a maximum-leverage position can end an experiment in one move. Bold is fine; reckless is not. You only win if you are still standing on Nov 28.',
         'HOLDING CASH IS ALLOWED: you never have to invest. You can keep any experiment fully or partly in cash for as long as you like. What counts is who has the highest number at the end on Nov 28. Chase that number too hard and you can bust an experiment or eliminate yourself; patience and waiting for a real edge are part of winning. But cash is a tool, not the goal: the aim is to MAKE AS MUCH MONEY AS POSSIBLE. Put money to work whenever you see a good, confirmed opportunity, size it sensibly, and avoid ridiculous bets.',
-        'HIGH RISK, HIGH REWARD EXCEPTION: the two "All in" experiments (All in: trading, All in: sports) are a separate fun side-race with its own leaderboard. There the caps do not apply and you are free to go all in; they never count toward the overall race or elimination. Every rule above about investing like real money applies to the ten main experiments. But All in is still a public competition you want to WIN: no caps does not mean careless. Busting All in on one bad bet (say 100,000 on a single game that loses) would be embarrassing in front of everyone watching. Go big only when you have real conviction and a real edge, and think about how you stay in the game long enough to finish with the biggest number.',
+        'HIGH RISK, HIGH REWARD EXCEPTION: the two "High risk" experiments (renamed from "All in" on Nov 1; same books, same rules) (High risk: trading, High risk: sports) are a separate fun side-race with its own leaderboard. There the caps do not apply and you are free to go all in; they never count toward the overall race or elimination. Every rule above about investing like real money applies to the ten main experiments. But High risk is still a public competition you want to WIN: no caps does not mean careless. Busting High risk on one bad bet (say 100,000 on a single game that loses) would be embarrassing in front of everyone watching. Go big only when you have real conviction and a real edge, and think about how you stay in the game long enough to finish with the biggest number.',
         'FACT CHECKS: Claude publicly fact-checks every AI\'s take and factual trade reasons against official and reputable sources at each check-in, and marks them Checks out, Some details inaccurate or Wrong on the site. Only state facts you have confirmed.',
         'POSITION CAPS (hard rules, apply to every AI): in the eight trading experiments no single holding may be more than 50% of its experiment (Currencies: total leverage at most 4x, one currency at most half of that). In Sports and Prediction markets no single bet or market may be more than 25% of the experiment. Orders that break a cap are refused.',
         'ELIMINATION RULE (new, applies to every AI, Claude included): if your TOTAL profit across all your experiments (in C$, China converted from US$) reaches -C$100,000 or worse, you are ELIMINATED from the whole race: every experiment is closed and frozen at once, no more trades or bets for the rest of the month, announced publicly. Keep your overall losses in mind, not just each experiment on its own.',
@@ -717,7 +717,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         'A suggestion you are free to take or ignore (it is your call): smarter decisions usually win. Before a trade you could ask what happens to that experiment if you are wrong, whether the reward is worth the risk, and whether one bad outcome could bust you. Viewers judge the quality of your decisions, not just the result.',
         'You do NOT have to put all the money at stake. Keeping some or most of an experiment in cash is allowed and fine, you can use any size from a small position to the whole amount, you do not need to use leverage, and you can spread money over several holdings or bets instead of one. Cash is safe: it never busts. Sizing is entirely your choice.',
         '',
-        'Rules (no fees; fills are at the live price when this run executes; except where an experiment below says otherwise, you buy with cash you have, no margin and no short selling: Currencies allow shorts and leverage, Options allow buying calls and puts, All in has no caps):',
+        'Rules (no fees; fills are at the live price when this run executes; except where an experiment below says otherwise, you buy with cash you have, no margin and no short selling: Currencies allow shorts and leverage, Options allow buying calls and puts, High risk has no caps):',
         '- US-listed stocks and ETFs fill only while the US market is open (9:30 a.m. to 4:00 p.m. ET, weekdays); crypto any time. Every fill needs a live price (at most 3 minutes old); otherwise it is refused and you can send it again next check-in.',
     ]
     lines += ['- ' + RULES[e] for e in exps]
@@ -820,7 +820,7 @@ def execute(model_id, exps, books, order, fx, state):
     exp = order.get('experiment')
     if exp not in exps:
         if exp in ALL_EXPS:
-            raise ValueError(f'{EXP_LABEL[exp]} is closed for you: you were ELIMINATED (C$100,000 total loss); only the All in side race is still open')
+            raise ValueError(f'{EXP_LABEL[exp]} is closed for you: you were ELIMINATED (C$100,000 total loss); only the High risk side race is still open')
         raise ValueError(f'unknown experiment {exp!r}')
     if NOW < FRESH_START:
         raise ValueError('the restart begins at 1:45 p.m. ET Oct 28; no trades before then')
@@ -1385,7 +1385,7 @@ def allin_sports_book(state, mid):
 
 
 def allin_wagered(state, mid):
-    """C$ bet per ET day in All in: Sports (bets and parlays at their stake), and in total since the start."""
+    """C$ bet per ET day in High risk: Sports (bets and parlays at their stake), and in total since the start."""
     days = {}
     for t in state.get('trades', []):
         if t.get('model') == mid and t.get('experiment') == 'AllInSports' and t.get('action') == 'Bet' and not t.get('void'):
@@ -1401,11 +1401,11 @@ def allin_balance(book):
 
 
 def allin_rule_line(state, mid):
-    """All in: Sports betting minimums for the prompt (same rules as the main Sports race, from Nov 1)."""
+    """High risk: Sports betting minimums for the prompt (same rules as the main Sports race, from Nov 1)."""
     book = allin_sports_book(state, mid)
     bal = allin_balance(book)
     if bal < 1:
-        return 'ALL IN: SPORTS MINIMUMS: your All in: Sports book is busted, so no minimum applies. '
+        return 'HIGH RISK: SPORTS MINIMUMS: your High risk: Sports book is busted, so no minimum applies. '
     days, total = allin_wagered(state, mid)
     dmin = day_min(bal)
     today = NOW.astimezone(NY).date()
@@ -1420,18 +1420,18 @@ def allin_rule_line(state, mid):
     done = days.get(today.isoformat(), 0.0)
     left_total = max(0.0, TOTAL_MIN - total)
     days_left = max(1, (end - today).days + 1)
-    return ('ALL IN: SPORTS MINIMUMS (owner, Oct 31; from Sun Nov 1, same as the main Sports race, every AI): All in: Sports is NOT optional. '
-            'Every All in bet is at least C$3,000; wager at least C$3,000 in All in: Sports every ET day; at least C$100,000 wagered in All in: Sports in total by Nov 28. '
-            'Penalties: C$500 off your All in: Sports balance for each day under the daily minimum, and 10% of any shortfall from the C$100,000 total at the final scoring. '
+    return ('HIGH RISK: SPORTS MINIMUMS (owner, Oct 31; from Sun Nov 1, same as the main Sports race, every AI): High risk: Sports is NOT optional. '
+            'Every High risk bet is at least C$3,000; wager at least C$3,000 in High risk: Sports every ET day; at least C$100,000 wagered in High risk: Sports in total by Nov 28. '
+            'Penalties: C$500 off your High risk: Sports balance for each day under the daily minimum, and 10% of any shortfall from the C$100,000 total at the final scoring. '
             'Below C$12,000 the per-bet and daily minimum become 25% of what is left; a busted book has none. No caps otherwise. '
-            + (f'Today ({today.strftime("%a %b %-d")}, ET) you have bet {money(done, "CAD")} of the {money(dmin, "CAD")} All in daily minimum'
-               + (' (met). ' if done + 0.5 >= dmin else f' ({money(dmin - done, "CAD")} still to bet today in All in: Sports). ') if today >= d0 else '')
-            + f'All in total so far: {money(total, "CAD")} of {money(TOTAL_MIN, "CAD")} ({money(left_total, "CAD")} left, about {money(left_total / days_left, "CAD")} a day). '
-            + (f'All in days missed: {", ".join(missed)}. ' if missed else ''))
+            + (f'Today ({today.strftime("%a %b %-d")}, ET) you have bet {money(done, "CAD")} of the {money(dmin, "CAD")} High risk daily minimum'
+               + (' (met). ' if done + 0.5 >= dmin else f' ({money(dmin - done, "CAD")} still to bet today in High risk: Sports). ') if today >= d0 else '')
+            + f'High risk total so far: {money(total, "CAD")} of {money(TOTAL_MIN, "CAD")} ({money(left_total, "CAD")} left, about {money(left_total / days_left, "CAD")} a day). '
+            + (f'High risk days missed: {", ".join(missed)}. ' if missed else ''))
 
 
 def apply_allin_penalties(state):
-    """All in: Sports minimums (owner, Oct 31): C$500 off the All in: Sports balance for each ET day from Nov 1 with less than the
+    """High risk: Sports minimums (owner, Oct 31): C$500 off the High risk: Sports balance for each ET day from Nov 1 with less than the
     daily minimum bet there, and 10% of any shortfall from C$100,000 at the final scoring. Same for all three AIs."""
     today = NOW.astimezone(NY).date()
     last = datetime.fromisoformat(BET_END).astimezone(NY).date()
@@ -1455,16 +1455,16 @@ def apply_allin_penalties(state):
                 dmin = day_min(bal)
                 if days.get(k, 0.0) + 0.5 < dmin:
                     amt = min(PENALTY_DAY, round(bal, 2))
-                    pens.append({'day': k, 'at': iso(), 'amount': amt, 'reason': f'missed the All in: Sports daily betting minimum on {d.strftime("%b %-d")} (bet {money(days.get(k, 0.0), "CAD")} of {money(dmin, "CAD")})'})
+                    pens.append({'day': k, 'at': iso(), 'amount': amt, 'reason': f'missed the High risk: Sports daily betting minimum on {d.strftime("%b %-d")} (bet {money(days.get(k, 0.0), "CAD")} of {money(dmin, "CAD")})'})
                     state['trades'].append({'at': iso(), 'model': mid, 'experiment': 'AllInSports', 'action': 'Penalty', 'symbol': 'PA-' + k, 'outcome': None,
-                                            'name': 'Missed All in daily betting minimum', 'price': 0, 'pcur': 'CAD', 'qty': 1, 'amount': -amt, 'cur': 'CAD', 'fx': None,
+                                            'name': 'Missed High risk daily betting minimum', 'price': 0, 'pcur': 'CAD', 'qty': 1, 'amount': -amt, 'cur': 'CAD', 'fx': None,
                                             'reason': pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:] + '.'})
-                    tg(f"⚖️ <b>{name}: −C${amt:,.0f} All in penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
+                    tg(f"⚖️ <b>{name}: −C${amt:,.0f} High risk penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
             d += timedelta(days=1)
         if NOW >= RACE_END and 'total' not in done and total + 0.5 < TOTAL_MIN and allin_balance(book) >= 1:
             amt = min(round(PENALTY_TOTAL * (TOTAL_MIN - total), 2), round(allin_balance(book), 2))
-            pens.append({'day': 'total', 'at': iso(), 'amount': amt, 'reason': f'bet {money(total, "CAD")} in All in: Sports of the C$100,000 required by Nov 28 (10% of the shortfall)'})
-            tg(f"⚖️ <b>{name}: −C${amt:,.0f} All in penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
+            pens.append({'day': 'total', 'at': iso(), 'amount': amt, 'reason': f'bet {money(total, "CAD")} in High risk: Sports of the C$100,000 required by Nov 28 (10% of the shortfall)'})
+            tg(f"⚖️ <b>{name}: −C${amt:,.0f} High risk penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
 
 def public_board(state, me):
     """What everyone can see on papertrades.ai about the OTHER AIs: their current take, plans and recent trades with reasons.
@@ -1508,7 +1508,7 @@ def public_board(state, me):
 
 
 def claude_allin(state, fx):
-    """Fill Claude's queued All in orders (ops/src/allin_orders.json), then value and settle Claude's All in books."""
+    """Fill Claude's queued High risk orders (ops/src/allin_orders.json), then value and settle Claude's High risk books."""
     c = state.setdefault('claude_allin', {'books': {}, 'started': {}, 'done': [], 'results': []})
     c.setdefault('done', []); c.setdefault('results', [])
     for e in ALLIN:
@@ -1614,7 +1614,7 @@ def apply_penalties(state, fx):
 
 
 def settle_watch(state):
-    """Settle every finished game's bets now (all three AIs, main races and All in), instead of waiting for the next check-in."""
+    """Settle every finished game's bets now (all three AIs, main races and High risk), instead of waiting for the next check-in."""
     def due(b):
         try:
             return b.get('status') == 'Open' and datetime.fromisoformat(str(b.get('starts_at')).replace('Z', '+00:00')) <= NOW - timedelta(minutes=100)
@@ -1634,7 +1634,7 @@ def settle_watch(state):
     n = 0
     for mid, e, bk in waiting:
         if mid == 'claude':
-            continue   # Claude's All in bets settle inside claude_allin below
+            continue   # Claude's High risk bets settle inside claude_allin below
         done = settle_bets(mid, bk, state, e)
         for t in done:
             try:
@@ -1645,7 +1645,7 @@ def settle_watch(state):
             state['history'].append({'at': iso(), 'model': mid, 'experiment': e, 'value': value_book(e, bk, fx, [])})
         n += len(done)
     try:
-        claude_allin(state, fx)   # Claude's All in bets (and any All in orders waiting)
+        claude_allin(state, fx)   # Claude's High risk bets (and any High risk orders waiting)
     except Exception as ex:
         print('claude all-in failed', ex)
     shared_steps(state, fx, games=False)   # Claude's main-race bets settle in its fill step
@@ -2022,9 +2022,9 @@ def main():
         print('penalties failed', e)
     try:
         if not state.get('final') or not all(x in state['final'] for x in list(state.get('models', {})) + ['claude']):
-            apply_allin_penalties(state)   # All in: Sports minimums from Nov 1 (owner, Oct 31)
+            apply_allin_penalties(state)   # High risk: Sports minimums from Nov 1 (owner, Oct 31)
     except Exception as e:
-        print('All in penalties failed', e)
+        print('High risk penalties failed', e)
     # V6 (full audit Oct 31; all three AIs agreed, ops/review/audit-fix-oct31.json): the public board and the takes a fact-checker checks
     # are frozen at the start of the check-in, so the AI that decides second never sees the first one's moves or words from the same round.
     FROZEN = {k: list(state.get(k, [])) for k in ('takes', 'plans', 'trades', 'thoughts')}
@@ -2042,7 +2042,7 @@ def main():
             if e not in m['books']:
                 m['books'][e] = new_book(e)
                 m['started'][e] = iso()
-        if m.get('eliminated'):   # lost C$100,000 overall: out of the whole race, frozen (All in still plays)
+        if m.get('eliminated'):   # lost C$100,000 overall: out of the whole race, frozen (High risk still plays)
             exps = [e for e in exps if e in ALLIN]
         notes = []
         day_posts = []

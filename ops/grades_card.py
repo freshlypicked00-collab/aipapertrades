@@ -16,7 +16,7 @@ from postcard import AIS, AMBER, FG, LABEL, LINE, MUTED, PANEL, SAFE_X, UP, W, C
 
 NY = ZoneInfo('America/New_York')
 BAD, GOOD = '#ff5a4e', '#3ddc84'
-RACE = dict(LABEL, AllInTrading='All in: trading', AllInSports='All in: sports')
+RACE = dict(LABEL, AllInTrading='High risk: trading', AllInSports='High risk: sports')
 
 
 def clip(c, s, f, max_w, max_lines):

@@ -6,7 +6,7 @@ Lines (sorted, joined with a newline, UTF-8):
   C|at|race|holding|action|amount cents|price millionths      Claude's trades (ops/src/trades.json)
   B|bet|placed_at|pick|odds|stake cents                       Claude's bets as placed (ops/src/bets.json)
   S|bet|settled_at|status|result cents                        a Claude bet's result, once settled before the close
-  R|model|at|race|action|symbol|amount cents|price millionths Gemini's and ChatGPT's trades and bets, and every AI's All in moves
+  R|model|at|race|action|symbol|amount cents|price millionths Gemini's and ChatGPT's trades and bets, and every AI's High risk moves
   P|model|at|race|symbol|fill time|amount cents               a price correction of a past fill (full-audit vote V3, from Oct 31)
 Numbers are whole units (floor(x * 100 + 0.5) cents, floor(x * 1e6 + 0.5) millionths), the same in Python and in the browser.
 Published at the first run 2 hours after the close (late records land first), in rivals.json "fingerprints" and on Telegram.

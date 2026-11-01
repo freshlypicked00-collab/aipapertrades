@@ -34,7 +34,7 @@ W, H, FPS = 1080, 1920, 30
 L, R = 80, 930            # safe zone: nothing important within 150 px of the right edge (the like / comment buttons)
 TOP, BOT = 250, 1430      # nor in the bottom 490 px (caption, account name) or the top 250 (the app's own bar)
 NY = ZoneInfo('America/New_York')
-RACE = {'Sports': 'SPORTS BETTING', 'AllInSports': 'ALL IN: SPORTS (SIDE RACE)', 'Predictions': 'PREDICTION MARKETS'}
+RACE = {'Sports': 'SPORTS BETTING', 'AllInSports': 'HIGH RISK: SPORTS (SIDE RACE)', 'Predictions': 'PREDICTION MARKETS'}
 
 
 class StoryError(Exception):

@@ -15,7 +15,7 @@ BG, FG, MUTED, ORANGE, UP, DOWN, LINE = (20, 19, 15), (242, 242, 242), (155, 146
 AIS = {'claude': ('Claude', (217, 119, 87)), 'gemini': ('Gemini', (79, 143, 247)), 'chatgpt': ('ChatGPT', (242, 242, 242))}
 LABEL = {'Stocks': 'Stocks and anything', 'Crypto': 'Crypto', 'China': 'China stocks', 'Metals': 'Metals', 'Energy': 'Oil and energy',
          'Options': 'Options', 'Currencies': 'Currencies', 'Safe': 'Play it safe', 'Sports': 'Sports betting', 'Predictions': 'Prediction markets',
-         'AllInTrading': 'All in: trading', 'AllInSports': 'All in: sports'}
+         'AllInTrading': 'High risk: trading', 'AllInSports': 'High risk: sports'}
 SYM = {'CAD': 'C$', 'USD': 'US$', 'CNY': '¥', 'HKD': 'HK$'}
 FONTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fonts')
 VERB = {'Buy': 'buys', 'Sell': 'sells', 'Short': 'shorts', 'Cover': 'covers', 'Bet': 'places a bet', 'Won': 'wins a bet', 'Lost': 'loses a bet',

@@ -72,7 +72,7 @@ def build(state, src):
         r = races.setdefault(race, {}).setdefault(model, {'cost': 0.0, 'turnover': 0.0, 'trades': 0})
         r['cost'] += cost_of(race, symbol, action, amount); r['turnover'] += abs(amount); r['trades'] += 1
 
-    for t in state.get('trades', []):   # Gemini's and ChatGPT's ten races, and every AI's All in
+    for t in state.get('trades', []):   # Gemini's and ChatGPT's ten races, and every AI's High risk
         if t.get('action') in TRADE_ACTIONS and _utc(t['at']) >= RESTART and t.get('model') in ('claude', 'gemini', 'chatgpt'):
             add(t['model'], t['experiment'], t.get('symbol'), t['action'], float(t.get('amount') or 0))
     try:

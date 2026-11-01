@@ -11,7 +11,7 @@ When (L3): at that AI's next regular check-in, no extra calls. Gemini and ChatGP
 (rivals.py); Claude gets the same task in its run (`python3 ops/lookback.py due`, then `add`). If an AI does not answer at that
 check-in, the site says so plainly ("No reflection returned at its next check-in"), as ChatGPT asked.
 
-Where they live: Gemini's and ChatGPT's (and every AI's All in) in rivals.json "lookbacks" {ID: {...}} (runner only);
+Where they live: Gemini's and ChatGPT's (and every AI's High risk) in rivals.json "lookbacks" {ID: {...}} (runner only);
 Claude's ten races in ops/src/lookbacks_claude.json (Claude's run only). Keyed by the public transaction ID of the closing move.
 
   python3 ops/lookback.py due            -> Claude's completed moves still waiting for a reflection, with the original reasons
@@ -62,7 +62,7 @@ def closings(model, state):
     id is None until the race runner gives the closing move its transaction ID."""
     reg = state.get('txids', {})
     out = []
-    # 1. moves in rivals.json: Gemini's and ChatGPT's ten races, and every AI's All in
+    # 1. moves in rivals.json: Gemini's and ChatGPT's ten races, and every AI's High risk
     rows = sorted([t for t in state.get('trades', []) if t.get('model') == model], key=lambda t: TX.utc(t['at']))
     held, cash_in, reasons, bets = {}, {}, {}, {}
     for t in rows:
@@ -144,7 +144,7 @@ def tasks(model, state):
 
 
 def LABEL_EXP(e):
-    return {'AllInTrading': 'All in: trading', 'AllInSports': 'All in: sports'}.get(e, e)
+    return {'AllInTrading': 'High risk: trading', 'AllInSports': 'High risk: sports'}.get(e, e)
 
 
 def store(state, model, reply, asked, at):

@@ -162,7 +162,7 @@ def start_here(out):
     steps = [('Every day', 'Each race has its own leader, shown live on the site.', AMBER),
              ('Nov 28, 4 p.m. ET', 'The ten results are added up in C$. Highest total profit wins the whole thing.', G),
              ('Lose C$100,000', 'An AI that loses C$100,000 in total across its races is eliminated.', DOWN),
-             ('All in side race', 'Separate, no limits, its own winner. Never counted in the main race.', (167, 139, 250))]
+             ('High risk side race', 'Separate, no limits, its own winner. Never counted in the main race.', (167, 139, 250))]
     y = 680
     for i, (a, b, c) in enumerate(steps):
         s.d.ellipse([X0, y + 8, X0 + 44, y + 52], fill=c)
@@ -423,7 +423,7 @@ def report_cards(out, data):
             s.arrow([(X0 + 50 + wgr, y + 50), (X0 + 100 + wgr, y + 25), (X0 + 150 + wgr, y + 75), (X0 + 200 + wgr, y + 50)], CREAM, 5, idx * 10 + len(picks))
             s.t((X0 + 230 + wgr, y + 50), NAME[g['model']], F('sans', 'Bold', 44), AIC[g['model']], 'lm')
             s.t((X1 - 40, y + 60), g['grade'], F('sans', 'Bold', 110), col, 'rm')
-            what = LBL.get(g['experiment'], g['experiment'].replace('AllInSports', 'All in: sports').replace('AllInTrading', 'All in: trading')) + ': ' + (g['action'] if g['action'] != 'Hold' else 'holding')
+            what = LBL.get(g['experiment'], g['experiment'].replace('AllInSports', 'High risk: sports').replace('AllInTrading', 'High risk: trading')) + ': ' + (g['action'] if g['action'] != 'Hold' else 'holding')
             s.t((X0 + 30, y + 115), what, F('mono', 'Medium', 26), MUTED, 'lm')
             s.para(X0 + 30, y + 150, '“' + g['text'].rstrip('.') + '.”', F('sans', 'Regular', 36), CREAM, X1 - X0 - 60)
             y += 360

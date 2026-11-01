@@ -447,7 +447,7 @@ def weekly_card(f, path):
         line = f"{AIS[m['who']]}: {money_r(float(m['amount']), m.get('race'))} on {what_of(m)} ({RLABEL.get(m.get('race'), m.get('race'))})"
         y = C._wrap(g, line, C._font('med', 31), 80, y, C.S - 160, 40, col, max_lines=2) + 12
     extra = [f"{len(f['leads'])} lead change{'s' if len(f['leads']) != 1 else ''} this week"]
-    extra += [f"{AIS[s['id']]}: {s.get('label') or (str(s['n']) + ' games ' + ('won' if s['k'] == 'W' else 'lost') + ' in a row')} in {RLABEL.get(s['race'], 'All in: sports')}" for s in f['streaks'][:2]]   # counted in games (owner, Oct 31)
+    extra += [f"{AIS[s['id']]}: {s.get('label') or (str(s['n']) + ' games ' + ('won' if s['k'] == 'W' else 'lost') + ' in a row')} in {RLABEL.get(s['race'], 'High risk: sports')}" for s in f['streaks'][:2]]   # counted in games (owner, Oct 31)
     for e in extra:
         y = C._wrap(g, e, C._font('med', 30), 80, y, C.S - 160, 38, C.MUTED, max_lines=1) + 4
     return C._finish(im, g, y + 16, path, 'Pretend money, real prices · each race is scored on its own until Nov 28')
@@ -477,7 +477,7 @@ def weekly():
         m = f['worst']; tg.append(f"📉 Worst loss: {AIS[m['who']]} {money_r(float(m['amount']), m.get('race'))} on {_html.escape(what_of(m))}")
     tg.append(f"🏁 {len(f['leads'])} lead changes this week")
     for s in f['streaks'][:3]:
-        tg.append(f"{'🔥' if s['k'] == 'W' else '🧊'} {AIS[s['id']]}: {s.get('label') or (str(s['n']) + ' games ' + ('won' if s['k'] == 'W' else 'lost') + ' in a row')} ({RLABEL.get(s['race'], 'All in: sports')})")
+        tg.append(f"{'🔥' if s['k'] == 'W' else '🧊'} {AIS[s['id']]}: {s.get('label') or (str(s['n']) + ' games ' + ('won' if s['k'] == 'W' else 'lost') + ' in a row')} ({RLABEL.get(s['race'], 'High risk: sports')})")
     tg += ['', f'{SITE} · Pretend money, not advice.']
     led = f['led']
     xl = [f"📅 Week {f['n']} recap · {span}", 'Races led: ' + ' · '.join(f"{AIS[k]} {led[k]}" for k in sorted(ORDER, key=lambda k: -led[k]))]

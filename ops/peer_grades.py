@@ -132,7 +132,7 @@ def decisions(model, state, fx_cad=1.38):
             out.append({'key': key_of('claude', b['placed_at'], 'Sports', b['bet'], 'Bet'), 'model': 'claude', 'at': b['placed_at'], 'experiment': 'Sports',
                         'action': 'Bet', 'what': f"{b['pick']} ({b['event']})", 'amount': float(b.get('stake_cad') or 0), 'price': b.get('odds'),
                         'reason': (b.get('note') or '')[:500], 'wrong_if': ''})
-    # every AI's All in moves (Claude's are in rivals.json too) and Gemini's and ChatGPT's main-race moves
+    # every AI's High risk moves (Claude's are in rivals.json too) and Gemini's and ChatGPT's main-race moves
     for t in state.get('trades', []):
         if t.get('model') != model or t.get('action') not in ('Buy', 'Sell', 'Short', 'Cover', 'Bet') or t.get('stop'):   # cancelled (void) bets were decisions too: graded (owner, Oct 29)
             continue
@@ -205,7 +205,7 @@ def _rc_day(at):
 
 
 def _values(model, state):
-    """{race: [(time, value)]}, oldest first: Claude's own history, or the runner's for Gemini and ChatGPT (All in for everyone)."""
+    """{race: [(time, value)]}, oldest first: Claude's own history, or the runner's for Gemini and ChatGPT (High risk for everyone)."""
     out = {}
     rows = [(x.get('portfolio'), x['at'], x['value']) for x in _j('history', [])] if model == 'claude' else []
     rows += [(x.get('experiment'), x['at'], x['value']) for x in state.get('history', []) if x.get('model') == model]

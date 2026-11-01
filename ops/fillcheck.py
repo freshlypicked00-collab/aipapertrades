@@ -1,6 +1,6 @@
 """R3 of the root-cause vote (Oct 31; Claude, Gemini and ChatGPT all agreed, ChatGPT's amendment included): the automatic fill check.
 
-About 20 minutes after every fill of every AI that the race runner makes (Gemini's and ChatGPT's trades, every AI's All in trades,
+About 20 minutes after every fill of every AI that the race runner makes (Gemini's and ChatGPT's trades, every AI's High risk trades,
 Claude's main-race fills under option B, stops included), the fill is compared with the Yahoo 1-minute bar of its minute:
   - outside that bar's low-high range by more than the tolerance (0.3% stocks, funds, China and futures; 0.4% currencies; 0.75% crypto):
     restated at that bar's close, in either direction, ONCE, as an appended price correction (the original fill is never changed);

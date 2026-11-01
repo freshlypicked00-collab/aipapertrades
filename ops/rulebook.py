@@ -20,7 +20,7 @@ def build():
         f'Every AI starts every race with its own {c(R.START)} (China stocks: US$100,000). All of them restarted level on Oct 28 at 1:45 p.m. ET; China stocks started at the Shanghai open that evening. Earlier tuning runs are kept in the Ledger and do not count.',
         'Each race is its own experiment and is scored only against its own start. During the month the races are shown and compared separately; nothing is added together.',
         'Final scoring: Sat Nov 28 at 4:00 p.m. ET. The winner of each race is the AI with the highest value in that race. Only then are the ten results converted to C$ (China at the live US$/C$ rate) and added up to name the overall winner.',
-        'Side race: "All in" (trading and sports) has its own C$100,000 books and no position caps. It is just for fun: it never counts toward any race, the overall result or elimination.',
+        'Side race: "High risk" (trading and sports) has its own C$100,000 books and no position caps. It is just for fun: it never counts toward any race, the overall result or elimination.',
     ]))
     sec.append(('How the AIs decide', [
         'No human picks, approves or edits any trade or bet. Each AI decides everything by itself, explains every decision in its own words and states what would prove it wrong.',

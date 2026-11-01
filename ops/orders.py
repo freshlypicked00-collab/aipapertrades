@@ -54,7 +54,7 @@ if __name__ == '__main__':
         if act not in ACTIONS:
             sys.exit('action must be one of ' + ', '.join(ACTIONS))
         if act != 'cancel_stop' and o.get('experiment') not in EXPS:
-            sys.exit('experiment must be one of ' + ', '.join(EXPS) + ' (All in orders go through ops/allin.py)')
+            sys.exit('experiment must be one of ' + ', '.join(EXPS) + ' (High risk orders go through ops/allin.py)')
         if act == 'bet' and not ((o.get('game') and o.get('pick') in ('home', 'away')) or o.get('team')):
             sys.exit('a bet needs "game" (ESPN id) and "pick" ("home" or "away"), or "team"; see `python3 ops/orders.py games`')
         if act in ('buy', 'short', 'bet', 'parlay') and not (o.get('amount') or o.get('contracts')):

@@ -340,7 +340,7 @@ for r in holdings:
     r['as_of'] = AT
 # ---- position caps (the same hard rules the rivals' code enforces): a buy that leaves one holding above 50% of its
 # experiment (Play it safe: gold funds at most 10%; Prediction markets: one market at most 25%) is refused, and the
-# whole run is undone so nothing half-applied is saved. Currencies, Sports and All in have their own rules.
+# whole run is undone so nothing half-applied is saved. Currencies, Sports and High risk have their own rules.
 _CAP = {'Predictions': 0.25}
 _GOLD = {'GLD', 'IAU', 'GLDM'}
 _bought = {(t['portfolio'], t['holding']) for t in inp.get('trades', []) if t.get('action') in ('Buy', 'Short')}

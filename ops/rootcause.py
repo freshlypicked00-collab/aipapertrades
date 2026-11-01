@@ -4,7 +4,7 @@ been). Writes ops/review/rootcause-<time>.json."""
 import json, os, time, urllib.request, urllib.parse
 from datetime import datetime, timezone, timedelta
 UA = {'User-Agent': 'Mozilla/5.0 (PaperTrades audit; papertrades.ai)'}
-FILLS = [('silver stop (Claude)', 'SI=F', '2026-10-30T13:52:17Z', 49.825), ('SQQQ buy (Gemini All in)', 'SQQQ', '2026-10-30T19:44:20Z', 42.795),
+FILLS = [('silver stop (Claude)', 'SI=F', '2026-10-30T13:52:17Z', 49.825), ('SQQQ buy (Gemini High risk)', 'SQQQ', '2026-10-30T19:44:20Z', 42.795),
          ('USO buy (Claude)', 'USO', '2026-10-30T14:31:56Z', 170.77), ('gold sell (Claude)', 'GC=F', '2026-10-30T18:14:52Z', 3887.7),
          ('QQQ sell (Claude)', 'QQQ', '2026-10-30T18:36:02Z', 684.97)]
 def get(url):

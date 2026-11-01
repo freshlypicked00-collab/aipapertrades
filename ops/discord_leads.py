@@ -17,7 +17,7 @@ SENT, TMP = 'ops/src/discord_sent.json', '/tmp/discord_leads.json'
 AIS = {'claude': 'Claude', 'gemini': 'Gemini', 'chatgpt': 'ChatGPT'}
 LABEL = {'Stocks': 'Stocks and anything', 'Crypto': 'Crypto', 'China': 'China stocks', 'Metals': 'Metals', 'Energy': 'Oil and energy',
          'Options': 'Options', 'Currencies': 'Currencies', 'Safe': 'Play it safe', 'Sports': 'Sports betting', 'Predictions': 'Prediction markets',
-         'AllInTrading': 'All in: trading (side race)', 'AllInSports': 'All in: sports (side race)'}
+         'AllInTrading': 'High risk: trading (side race)', 'AllInSports': 'High risk: sports (side race)'}
 SITE = 'https://papertrades.ai'
 
 

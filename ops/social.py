@@ -255,7 +255,7 @@ def prepare():
                 paths = FT.gemini_usc(f'social/{fid}', load('data.json', {}))
                 cap = ('Gemini bet C$35,000 of pretend money on one college football upset. All three bets won: +C$70,000. 🏈\n\n'
                        'USC at +200 against Ohio State, in three bets (C$5,000, C$10,000, then C$20,000). Final: USC 30, Ohio State 18. '
-                       'Gemini now leads the All in sports side race. Swipe for each bet and its own reasoning.\n\n'
+                       'Gemini now leads the High risk sports side race. Swipe for each bet and its own reasoning.\n\n'
                        'Genius or lucky? Comment one word. 👇' + FOOT)
                 if p['kind'].startswith('story-'):
                     pc.story(paths[0], img, top='GEMINI’S BIG NIGHT', bottom='Swipe through it on our page', glow_color=pc.AMBER)
@@ -274,7 +274,7 @@ def prepare():
                     pnl = next(x['pnl'] for x in bm['AllInTrading']['up'] if x['id'] == 'gemini' and 'SPY Nov 20 $760 put' in x['what'])
                     paths = FT.gemini_put_allin(f'social/{fid}', rv, pnl)
                     cap = (f'Gemini bet half its side-race money that US stocks would fall. It was right: +C${pnl:,.0f}. 📉➡️💰\n\n'
-                           'Oct 28 it bought 52 put options on the S&P 500 fund (SPY), C$49,816 of its C$100,000 All in bankroll. '
+                           'Oct 28 it bought 52 put options on the S&P 500 fund (SPY), C$49,816 of its C$100,000 High risk bankroll. '
                            'Today it sold three quarters of them into the drop and still holds the rest.\n\n'
                            'Half the bankroll on one bet: genius or reckless? Comment one word. 👇' + FOOT)
                 elif fid == 'feature-gemini-options-v1':
@@ -302,7 +302,7 @@ def prepare():
                     bet = next(b for b in rv['models']['chatgpt']['books']['AllInSports']['bets'] if b['id'] == 'C4')
                     paths = FT.chatgpt_oilers(f'social/{fid}', bet)
                     cap = (f"ChatGPT put C${bet['stake']:,.0f} on the Edmonton Oilers. They beat Calgary 4–0: +C${bet['result']:,.0f}. 🏒\n\n"
-                           f"All in: sports is the high-risk side race, with no cap on bet size. ChatGPT took the home favourite at {bet['odds']} "
+                           f"High risk: sports is the high-risk side race, with no cap on bet size. ChatGPT took the home favourite at {bet['odds']} "
                            'and risked only a quarter of its bankroll.\n\n'
                            'Smart or lucky? Comment one word. 👇' + FOOT)
                 if p['kind'].startswith('story-'):
@@ -361,9 +361,9 @@ def prepare():
                     def pick(gr, gd, grade, frag):
                         g = next(x for x in G if x['grader'] == gr and x['model'] == gd and x['grade'] == grade and frag in x['text'])
                         return (gr, gd, grade, g['_what'] if '_what' in g else frag, g['text'])
-                    picks = [('gemini', 'claude', 'D', 'All in: Claude put 40% of its side-race money into QQQ right before two mega-cap earnings reports.',
+                    picks = [('gemini', 'claude', 'D', 'High risk: Claude put 40% of its side-race money into QQQ right before two mega-cap earnings reports.',
                               next(x for x in G if x['grader'] == 'gemini' and x['model'] == 'claude' and x['grade'] == 'D' and 'QQQ' in x['text'])['text']),
-                             ('chatgpt', 'gemini', 'F', 'All in: Gemini bet C$30,000 on Notre Dame at −6500 to win about C$460.',
+                             ('chatgpt', 'gemini', 'F', 'High risk: Gemini bet C$30,000 on Notre Dame at −6500 to win about C$460.',
                               next(x for x in G if x['grader'] == 'chatgpt' and x['model'] == 'gemini' and x['grade'] == 'F' and 'C$30,000' in x['text'])['text']),
                              ('claude', 'chatgpt', 'D', 'Play it safe: ChatGPT bought an S&P 500 fund in the low-risk race.',
                               next(x for x in G if x['grader'] == 'claude' and x['model'] == 'chatgpt' and x['grade'] == 'D' and 'safe book' in x['text'])['text'])]

@@ -2,13 +2,13 @@
 has cheated"). Runs on GitHub's runner, which can reach the feeds (.github/workflows/audit.yml). READ-ONLY for race data: it only
 writes ops/review/full-audit-<day>.json.
 
-1. Every buy, sell, short and cover of all three AIs since the Oct 28 restart (the ten races and All in; Gemini's and ChatGPT's
-   fills from ops/src/rivals.json, Claude's All in fills there too; Claude's main-race prices are already checked hourly by
+1. Every buy, sell, short and cover of all three AIs since the Oct 28 restart (the ten races and High risk; Gemini's and ChatGPT's
+   fills from ops/src/rivals.json, Claude's High risk fills there too; Claude's main-race prices are already checked hourly by
    ops/price_audit.py): the fill price against the market at that minute.
      stocks, funds, crypto, futures, currencies, China: Yahoo Finance 1-minute bars within 5 minutes of the fill
      prediction markets: Polymarket's price history within 15 minutes
      options: Cboe keeps no history, so only what can be proven: a buy never below the option's intrinsic value at that minute
-2. Every sports bet of all three AIs (main Sports and All in: sports): the game's real start and final score from ESPN; placed before
+2. Every sports bet of all three AIs (main Sports and High risk: sports): the game's real start and final score from ESPN; placed before
    the start; the recorded result follows from the score; the payout follows from the stake and the odds.
 """
 import json

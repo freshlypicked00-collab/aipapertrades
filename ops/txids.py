@@ -2,7 +2,7 @@
 
 Every move since the Oct 28 restart gets a short ID that never changes and is never reused:
   AI letter + race code + number in that AI's race, e.g. G-MET-007 (Gemini's 7th move in Metals).
-  AI: C = Claude, G = Gemini, X = ChatGPT. Races: see RACE below (AIT / AIS = All in trading / sports).
+  AI: C = Claude, G = Gemini, X = ChatGPT. Races: see RACE below (AIT / AIS = High risk trading / sports).
 A move is one record: a buy, sell, short, cover, bet, or a bet's result (won, lost, void, push), an option settling or expiring.
 
 ONE writer: rivals.py calls assign() at every run (the race runner), so two runs can never hand out the same number.
@@ -59,7 +59,7 @@ def rival_key(t):
 def moves(state):
     """Every move that gets an ID, oldest first: (time, key, model, race)."""
     out = []
-    for t in state.get('trades', []):   # Gemini's and ChatGPT's moves, and every AI's All in moves
+    for t in state.get('trades', []):   # Gemini's and ChatGPT's moves, and every AI's High risk moves
         if t.get('model') in AI and t.get('experiment') in RACE:
             out.append((utc(t['at']), rival_key(t), t['model'], t['experiment']))
     for t in _j('trades.json'):   # Claude's ten races

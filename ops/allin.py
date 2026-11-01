@@ -1,6 +1,6 @@
-"""Claude's "All in" side-race (High risk, high reward), filled by the same GitHub job and price sources as Gemini and ChatGPT.
+"""Claude's "High risk" side-race (High risk, high reward), filled by the same GitHub job and price sources as Gemini and ChatGPT.
 
-Claude queues orders here; ops/rivals.py fills them at its next run (no caps in All in), values the books,
+Claude queues orders here; ops/rivals.py fills them at its next run (no caps in High risk), values the books,
 and posts them to Telegram. State: ops/src/rivals.json "claude_allin". Queue: ops/src/allin_orders.json.
 
   python3 ops/allin.py queue '{"experiment": "AllInTrading", "action": "buy", "symbol": "TSLA", "amount": 50000, "reason": "..."}'

@@ -1,6 +1,6 @@
-"""Odds check (owner, Nov 1: "double check the odds on all the website for the All in and sports... are they correct to the real world?").
+"""Odds check (owner, Nov 1: "double check the odds on all the website for the High risk and sports... are they correct to the real world?").
 
-For every moneyline bet of all three AIs (main Sports and All in: sports), from the Oct 28 restart on, read-only:
+For every moneyline bet of all three AIs (main Sports and High risk: sports), from the Oct 28 restart on, read-only:
   1. ESPN's own record of that game's moneyline (the game summary's betting lines: each provider's opening and closing line),
   2. compare the odds we recorded for the pick with that range.
 A line moves during the day, and past minute-by-minute odds are not public, so a bet is:

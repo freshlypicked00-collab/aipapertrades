@@ -681,7 +681,7 @@ data['fx_meta'] = [json.load(open(os.path.join(SRC, 'fx.json')))]
 _ai = [{'id': 'claude', 'started': (r.get('claude_allin') or {}).get('started'), 'books': (r.get('claude_allin') or {}).get('books', {})}] if r.get('claude_allin') else []
 data['allin_models'] = _ai + [{'id': k, 'started': v.get('started'), 'books': _nohist({e: b for e, b in v['books'].items() if e.startswith('AllIn')})} for k, v in r['models'].items()]
 data['allin_trades'] = [t for t in r['trades'] if str(t.get('experiment', '')).startswith('AllIn')]
-# All in: trading holdings with their own price at every check-in, so the per-holding price chart also works for the side race (owner, Oct 30)
+# High risk: trading holdings with their own price at every check-in, so the per-holding price chart also works for the side race (owner, Oct 30)
 data['allin_px'] = [{'model': k, 'exp': e, 'sym': sym, 'name': x.get('name') or sym, 'qty': x.get('qty'), 'entry': x.get('entry'), 'last': x.get('last'),
                      'priced_at': x.get('priced_at'), 'hist': x.get('hist') or []}
                     for k, v in r['models'].items() for e, b in (v.get('books') or {}).items() if e == 'AllInTrading'
@@ -722,7 +722,7 @@ def _nm_trades(spec):
             return True
         return bool(pats and any(p in str(n).lower() for p in pats for n in names if n)) or bool(cites and cites.search(reason or ''))
     out = {'claude': [], 'gemini': [], 'chatgpt': []}
-    for t in data['trades']:   # Claude's ten races (its All in trades are in rivals.json, below)
+    for t in data['trades']:   # Claude's ten races (its High risk trades are in rivals.json, below)
         if ok(t['at'], t.get('portfolio'), [t.get('holding')], t.get('note')):
             px = t.get('price_usd') if t.get('price_usd') is not None else t.get('price_local')
             out['claude'].append({'at': _nmw(t['at']).isoformat(), 'race': t.get('portfolio'), 'action': t.get('action'), 'what': t.get('holding'),
@@ -834,7 +834,7 @@ for _m in ('claude', 'gemini', 'chatgpt'):
                                 'wagered': round(sum(v for a, v in _rs if _a <= _when(a) < _b), 2)})
         _d += timedelta(days=1)
     data['betmins'].append({'model': _m, 'week': 'Total', 'start': _BFS, 'end': _BEND, 'min': 100000, 'wagered': round(sum(v for a, v in _rs), 2), 'day_min': _dmin})
-# All in: sports betting minimums from Nov 1 (owner, Oct 31; all three AIs agreed): progress per AI for the All in page
+# High risk: sports betting minimums from Nov 1 (owner, Oct 31; all three AIs agreed): progress per AI for the High risk page
 _AFROM = datetime(2026, 11, 1, tzinfo=_ny)
 data['allinmins'] = []
 for _m in ('claude', 'gemini', 'chatgpt'):
@@ -1143,7 +1143,7 @@ def _big_moves():
             bk = (m.get('books') or {}).get(e)
             if bk:
                 rival_book(e, mid, bk, [t for t in r.get('trades', []) if t.get('model') == mid and t.get('experiment') == e])
-    # the All in side race (Claude's books are in claude_allin)
+    # the High risk side race (Claude's books are in claude_allin)
     for am in data.get('allin_models') or []:
         for e, bk in (am.get('books') or {}).items():
             if e in ('AllInTrading', 'AllInSports') and isinstance(bk, dict):
@@ -1967,7 +1967,7 @@ _csvw('grades.csv', ['graded_utc', 'grader', 'about_ai', 'race', 'decision_utc',
        for g in data.get('peer_grades', [])])
 open(os.path.join(_dd, 'README.txt'), 'w').write(
     'PaperTrades.AI Season 1 data (pretend money, real prices; Oct 28 to Nov 28, 2026). Updated at every check-in.\n\n'
-    'moves.csv: every trade, bet and bet result of Claude, Gemini and ChatGPT in the ten races and the All in side race, with its own reason.\n'
+    'moves.csv: every trade, bet and bet result of Claude, Gemini and ChatGPT in the ten races and the High risk side race, with its own reason.\n'
     '  amount is in the race\'s currency (C$, or US$ for China stocks); for a bet result it is the profit or loss.\n'
     'values.csv: each AI\'s value in each race at every check-in.\nprices_claude.csv: every price Claude used, with its source.\n'
     'grades.csv: every grade one AI gave another, given anonymously and before the result.\n\n'

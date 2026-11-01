@@ -334,7 +334,7 @@ def gemini_put_allin(prefix, rv, pnl):
     buy = [t for t in tr if t['action'] == 'Buy'][0]
     sells = [t for t in tr if t['action'] == 'Sell']
     left = (sum(t['qty'] for t in tr if t['action'] == 'Buy') - sum(t['qty'] for t in sells)) / 100
-    paths = [_hook(prefix, 1, gem, 'ALL IN · SIDE RACE', 'ONE BET AGAINST THE MARKET', '+' + pc.money(pnl, 'Stocks').lstrip('+'),
+    paths = [_hook(prefix, 1, gem, 'HIGH RISK · SIDE RACE', 'ONE BET AGAINST THE MARKET', '+' + pc.money(pnl, 'Stocks').lstrip('+'),
                    'Gemini bet half its side-race money that US stocks would fall.', 'It was right. One trade: a put on the S&P 500 fund (SPY). Pretend money, real prices.')]
     rows = [(_et(buy['at']) + ' ET', f"Buys {buy['qty'] // 100} SPY puts at US${buy['price']:.2f}", f"C${buy['amount']:,.0f}, about half of its C$100,000. “{buy['reason']}”", gem)]
     for s in sells:
@@ -375,9 +375,9 @@ def gemini_put_options(prefix, rv, pnl, standings):
 
 def chatgpt_oilers(prefix, bet):
     gpt = AIS['chatgpt'][1]
-    paths = [_hook(prefix, 1, gpt, 'ALL IN · SPORTS', 'ONE BIG BET', f"+C${bet['result']:,.0f}",
+    paths = [_hook(prefix, 1, gpt, 'HIGH RISK · SPORTS', 'ONE BIG BET', f"+C${bet['result']:,.0f}",
                    f"ChatGPT put C${bet['stake']:,.0f} on the Oilers. They won {bet['final'].split(', ')[1].split()[-1]}–{bet['final'].split(', ')[0].split()[-1]}.",
-                   'All in: sports, the high-risk side race. Pretend money, real odds.', color=UP)]
+                   'High risk: sports, the high-risk side race. Pretend money, real odds.', color=UP)]
     rows = [(_et(bet['placed_at']) + ' ET', f"Bets C${bet['stake']:,.0f} on the {bet['pick_team']} at {bet['odds']}", '“' + bet['reason'] + '”', gpt),
             (_et(bet['starts_at']) + ' ET', bet['event'] + ': puck drop', 'Edmonton at home, the favourite', MUTED),
             ('Final', bet['final'], f"Won C${bet['result']:,.0f}, paid at the {bet['odds']} odds", UP)]
@@ -467,7 +467,7 @@ def grades_paradox(prefix, data):
 
 
 def gemini_usc(prefix, data):
-    """Gemini's three USC bets in All in sports, Oct 31 (owner: share it on every social). Ledger facts only; the QB detail is
+    """Gemini's three USC bets in High risk sports, Oct 31 (owner: share it on every social). Ledger facts only; the QB detail is
     Gemini's own quoted reason, not our claim."""
     gem = AIS['gemini'][1]
     rows_all = data.get('allin_trades', [])
@@ -480,9 +480,9 @@ def gemini_usc(prefix, data):
     fin = wins[0].get('final') or ''
     if '30' not in fin or '18' not in fin:
         raise QualityError('final score not in the ledger')
-    paths = [_hook(prefix, 1, gem, 'ALL IN · SIDE RACE', 'ONE GAME, THREE BETS', '+' + pc.money(pnl, 'Stocks').lstrip('+'),
+    paths = [_hook(prefix, 1, gem, 'HIGH RISK · SIDE RACE', 'ONE GAME, THREE BETS', '+' + pc.money(pnl, 'Stocks').lstrip('+'),
                    f'Gemini put C${stake:,.0f} of pretend money on USC at +200 against Ohio State.', 'Final: USC 30, Ohio State 18. All three bets won. Pretend money, real odds.')]
     rows = [(_et(b['at']) + ' ET', f"Bets C${b['amount']:,.0f} on USC at +200 ({b['tx']})", '“' + b['reason'] + '”', gem) for b in bets]
     paths.append(_timeline(prefix, 2, gem, 'THE BETS', 'IN GEMINI’S OWN WORDS', rows, f'Final: USC 30, Ohio State 18. +C${pnl:,.0f}.'))
-    paths.append(_ask(prefix, 3, gem, 'YOUR CALL', 'COMMENT ONE WORD', 'GENIUS', 'LUCKY?', 'Gemini now leads All in sports. Claude hasn’t placed a bet there yet.'))
+    paths.append(_ask(prefix, 3, gem, 'YOUR CALL', 'COMMENT ONE WORD', 'GENIUS', 'LUCKY?', 'Gemini now leads High risk sports. Claude hasn’t placed a bet there yet.'))
     return paths

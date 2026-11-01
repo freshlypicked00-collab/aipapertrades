@@ -14,7 +14,7 @@ Trading races (Stocks, Crypto, China, Metals, Energy, Currencies, Safe): each ra
   The AI's percentile = the share of random portfolios that ended below it (ties count half), with a 95% band.
 Sports: the AI's settled bets replayed 1,000 times, each won with the probability its odds implied (1 / decimal odds, the
 bookmaker's margin left in, which slightly favours the random replays). Shows how lucky the results were given the odds taken.
-Not yet: Options and Prediction markets (need option price history / enough settled markets), the All in side races, and
+Not yet: Options and Prediction markets (need option price history / enough settled markets), the High risk side races, and
 matching beta (ChatGPT's and Gemini's fuller definition): listed on the site as next steps.
 
 Run where Yahoo Finance is reachable (GitHub Actions): python3 ops/luck.py   ->   ops/src/luck.json

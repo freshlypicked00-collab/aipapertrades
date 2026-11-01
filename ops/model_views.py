@@ -45,7 +45,7 @@ def build(rivals, claude):
     out = {}
     fx_now = rivals.get('fx') or {'USDCAD': claude['fx'].get('usdcad'), 'USDCNY': claude['fx'].get('usdcny')}
     for mid, m in rivals.get('models', {}).items():
-        exps = [e for e in m.get('exps', list(m['books'])) if not e.startswith('AllIn')]   # All in has its own tab
+        exps = [e for e in m.get('exps', list(m['books'])) if not e.startswith('AllIn')]   # High risk has its own tab
         started = {e: _t(m.get('started', {}).get(e) or m.get('started_at') or rivals['history'][0]['at']) for e in exps}
         trades = [t for t in rivals['trades'] if t['model'] == mid and t['experiment'] in exps]
         hist = [h for h in rivals['history'] if h['model'] == mid and h['experiment'] in exps]
@@ -176,7 +176,7 @@ def build(rivals, claude):
         d['take'] = [{'at': x['at'], 'text': x['text']} for x in rivals.get('takes', []) if x['model'] == mid]
         # its stops and targets (option B, the same for all three AIs) as price rules, so "Distance to the next trade" works for it too
         for st in (rivals.get('stops') or {}).get(mid, []):
-            if st['experiment'] not in exps and not st['experiment'].startswith('AllIn'):   # All in stops too (owner, Oct 31: the All in ledger's own "Distance to the next trade")
+            if st['experiment'] not in exps and not st['experiment'].startswith('AllIn'):   # High risk stops too (owner, Oct 31: the High risk ledger's own "Distance to the next trade")
                 continue
             nm = _clean(st.get('name') or st['symbol'], st['experiment'])
             act = 'Sell' if st['direction'] == ('below' if st['kind'] == 'stop' else 'above') else 'Cover'
