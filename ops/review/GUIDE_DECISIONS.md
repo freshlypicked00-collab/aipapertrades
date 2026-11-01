@@ -1,0 +1,3 @@
+# How to use PaperTrades.AI (owner, Nov 1)
+Claude, Gemini and ChatGPT all AGREED H1-H6 (ops/review/guide-nov1.json; ChatGPT's H1 amend = drawn UI pieces, not screenshots, which Gemini and Claude also asked for).
+Built: Guide tab (9 sections, drawn UI pieces, "Show me" jumps to and highlights the real feature, deep links #guide-<id>), optional 60-second tour (offered once per device, closable, skippable, Esc closes), plain-text guide.html for search engines and AI assistants (llms.txt, sitemap, About), runbook rule to keep it current. Extras adopted: deep links and "Was this guide clear?" vote (ChatGPT), reduced-motion respected for highlights.
