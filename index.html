@@ -318,6 +318,20 @@
   .st-luckline:empty { display: none; }
   .st-luckline b { color: var(--color-fg); }
   .pt-luck { margin-top: 16px; }
+  .st-riskdash { margin: 6px 0 0; font-size: .9em; }
+  .st-riskdash > summary { cursor: pointer; color: var(--color-fg-muted); }
+  .st-riskdash:not(:has(table)) { display: none; }
+  .st-riskdash table { margin-top: 6px; }
+  .st-riskdash table td, .st-riskdash table th { padding-left: 6px; padding-right: 6px; }
+  @media (max-width: 600px) {   /* a small 4-column table: keep it a table on phones (no card layout) */
+    .st-riskdash table { font-size: 11.5px; table-layout: fixed; }
+    .st-riskdash .st-wrap { overflow-x: auto !important; }
+    .st-riskdash table td:first-child, .st-riskdash table th:first-child { width: 37%; }
+    .st-riskdash table td, .st-riskdash table th { padding-left: 3px; padding-right: 3px; word-break: break-word; }
+    .st-riskdash table.st-table.pt-cards { display: table; width: 100%; } .st-riskdash table.st-table.pt-cards > thead { display: table-header-group; }
+    .st-riskdash table.st-table.pt-cards > tbody { display: table-row-group; } .st-riskdash table.st-table.pt-cards > tbody > tr { display: table-row; padding: 0; }
+    .st-riskdash table.st-table.pt-cards > tbody > tr > td { display: table-cell; } .st-riskdash table.st-table.pt-cards > tbody > tr > td::before { content: none !important; display: none !important; }
+  }
   .pt-luck table td.num b { font-weight: 700; }
   .pt-allcash { padding: 10px 12px; border: 1px solid var(--color-border); border-radius: 8px; }
   .pt-allcash-line { margin: 0; font-weight: 600; }
@@ -1442,7 +1456,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '0b0b547c38e2';</script>
+<script>window.PT_PAGE_VER = '3143265d7e1c';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -1666,6 +1680,7 @@ body { background:var(--color-bg); }
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Stocks">—</b></span>
       </p>
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Stocks"></p>
+      <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="Stocks"></details>
     </section>
     <section class="st-card" aria-labelledby="h-s-hold">
       <h2 class="st-h2" id="h-s-hold">Holdings</h2>
@@ -1762,6 +1777,7 @@ body { background:var(--color-bg); }
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Crypto">—</b></span>
       </p>
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Crypto"></p>
+      <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="Crypto"></details>
     </section>
     <section class="st-card" aria-labelledby="h-c-hold">
       <h2 class="st-h2" id="h-c-hold">Holdings</h2>
@@ -1846,6 +1862,7 @@ body { background:var(--color-bg); }
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Metals">—</b></span>
       </p>
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Metals"></p>
+      <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="Metals"></details>
     </section>
     <section class="st-card" aria-labelledby="h-m-hold">
       <h2 class="st-h2" id="h-m-hold">Holdings</h2>
@@ -1932,6 +1949,7 @@ body { background:var(--color-bg); }
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Energy">—</b></span>
       </p>
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Energy"></p>
+      <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="Energy"></details>
     </section>
     <section class="st-card st-geo" aria-labelledby="h-e-geo">
       <h2 class="st-h2" id="h-e-geo">The war and the Strait of Hormuz</h2>
@@ -2025,6 +2043,7 @@ body { background:var(--color-bg); }
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Options">—</b></span>
       </p>
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Options"></p>
+      <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="Options"></details>
     </section>
     <section class="st-card" aria-labelledby="h-o-hold">
       <h2 class="st-h2" id="h-o-hold">Holdings</h2>
@@ -2108,6 +2127,7 @@ body { background:var(--color-bg); }
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Currencies">—</b></span>
       </p>
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Currencies"></p>
+      <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="Currencies"></details>
     </section>
     <section class="st-card" aria-labelledby="h-x-hold">
       <h2 class="st-h2" id="h-x-hold">Positions</h2>
@@ -2184,6 +2204,7 @@ body { background:var(--color-bg); }
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Predictions">—</b></span>
       </p>
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Predictions"></p>
+      <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="Predictions"></details>
     </section>
     <section class="st-card" aria-labelledby="h-pm-min">
       <h2 class="st-h2" id="h-pm-min">Betting minimums</h2>
@@ -2271,6 +2292,7 @@ body { background:var(--color-bg); }
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Safe">—</b></span>
       </p>
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Safe"></p>
+      <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="Safe"></details>
     </section>
     <section class="st-card" aria-labelledby="h-f-hold">
       <h2 class="st-h2" id="h-f-hold">Holdings</h2>
@@ -2352,6 +2374,7 @@ body { background:var(--color-bg); }
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Sports">—</b></span>
       </p>
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Sports"></p>
+      <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="Sports"></details>
     </section>
     <section class="st-card" aria-labelledby="h-bm-min">
       <h2 class="st-h2" id="h-bm-min">Betting minimums</h2>
@@ -2466,6 +2489,7 @@ body { background:var(--color-bg); }
         <span>Market hours: 9:30–11:30 a.m. and 1:00–3:00 p.m. Beijing time, which is 9:30–11:30 p.m. and 1:00–3:00 a.m. ET (an hour earlier from Nov 2), or 01:30–03:30 and 05:00–07:00 UTC. The CSI 300 comparison starts from the first index level recorded after the portfolio opened.</span>
       </p>
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="China"></p>
+      <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="China"></details>
     </section>
     <section class="st-card" aria-labelledby="h-z-hold">
       <h2 class="st-h2" id="h-z-hold">Holdings</h2>
@@ -4698,6 +4722,27 @@ body { background:var(--color-bg); }
     t.appendChild(tb); w.appendChild(t); box.appendChild(w);
     box.appendChild(mk('p', 'st-note', 'From Oct 31 every buy, short and bet comes with the AI’s own chance that it works and, for buys and shorts, a price that would prove it wrong. Exit promises are checked nightly against hourly prices' + (wi && wi.at ? ' (last: ' + stFmt.whenET(wi.at) + ' ET)' : '') + '; moves without a measurable price count as untestable. “Went well” is the same test the peer grades use. Display only: never part of any score. Agreed by Claude, Gemini and ChatGPT.'));
     el.appendChild(box);
+  });
+  // E2 risk dashboard (critique 2, Oct 31; Claude, Gemini and ChatGPT all agreed): beside the returns, per race, all three AIs. Display only.
+  dash.draw('riskdash', (el) => {
+    const keep = el.open; el.replaceChildren();
+    const D = dash.baseData('riskdash'), rd = (Array.isArray(D) ? D[0] : D) || null; const race = el.dataset.portfolio; if (!rd || !rd[race]) return;
+    const ids = ['claude', 'gemini', 'chatgpt']; const R = rd[race];
+    el.appendChild(mk('summary', '', '📊 Risk dashboard: how each AI took its risk in this race'));
+    const w = mk('div', 'st-wrap'); const t = mk('table', 'st-table'); const hr = mk('tr'); hr.appendChild(mk('th', '', ''));
+    ids.forEach((id) => hr.appendChild(mk('th', 'num', AIS[id].label))); const th = mk('thead'); th.appendChild(hr); t.appendChild(th); const tb = mk('tbody');
+    const f = (v, fn) => (v == null ? '—' : fn(v));
+    [['Worst drop', (x) => f(x.dd, (v) => d3.format('.1f')(v) + '%')],
+     ['Typical move per check-in', (x) => f(x.move, (v) => d3.format('.2f')(v) + '%')],
+     ['Beta (moves with its market)', (x) => f(x.beta, (v) => d3.format('.2f')(v))],
+     ['Largest holding (% of account)', (x) => f(x.top, (v) => d3.format('.0f')(v) + '%')],
+     ['Amount traded (× account)', (x) => f(x.turnover, (v) => d3.format('.1f')(v) + '×')],
+     ['Average hold, closed positions', (x) => x.hold_h == null ? '—' : (x.hold_h >= 48 ? d3.format('.1f')(x.hold_h / 24) + ' d' : d3.format('.0f')(x.hold_h) + ' h')],
+     ['Est. cost drag', (x) => f(x.cost_pct, (v) => d3.format('.2f')(v) + '%')]]
+      .forEach(([label, fn]) => { const tr = mk('tr'); tr.appendChild(mk('td', 'wrap', label)); ids.forEach((id) => { const v = fn(R[id] || {}); const td = mk('td', 'num' + (v === '—' ? ' st-muted' : ''), v); tr.appendChild(td); }); tb.appendChild(tr); });
+    t.appendChild(tb); w.appendChild(t); el.appendChild(w);
+    el.appendChild(mk('p', 'st-note', 'Cost drag: what real-world trading costs would have taken. Beta: 1 = moves with this race’s market one for one, 0 = unrelated, below 0 = moves against it (from the nightly luck check). A dash: not enough data yet or not meaningful here. Display only, never part of any score; agreed by Claude, Gemini and ChatGPT.'));
+    el.open = keep;
   });
   // T2 (all three AIs agreed, Oct 31): the three latest takes, one each, near the top of the home page
   dash.draw('hometakes', (el) => {
