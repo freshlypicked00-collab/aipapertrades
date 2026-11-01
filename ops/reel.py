@@ -138,18 +138,16 @@ def render(race, out_dir, sound=True):
     # 1. intro: the race, the three names
     for i in range(int(INTRO * FPS)):
         fr = Frame(glow); header(fr, race, day)
-        a = min(1.0, i / (0.5 * FPS))
+        # no fade-in and all three names from the first frame: YouTube and Instagram
+        # use an early frame as the thumbnail, and a faded one looked empty
         y = 500
         fr.text((X0, y), 'Who is winning', mid, FG); y += 92
         fr.text((X0, y), LABEL[race] + '?', mid, AMBER); y += 170
         for k in ('claude', 'gemini', 'chatgpt'):
-            if i >= (0.25 + 0.3 * list(AIS).index(k)) * FPS:
-                fr.text((X0, y), AIS[k][0], big, AIS[k][1])
+            fr.text((X0, y), AIS[k][0], big, AIS[k][1])
             y += 150
         fr.text((X0, 1420), 'C$100,000 of pretend money each.', small, MUTED)
         fr.text((X0, 1474), 'Real prices. Since Oct 28.', small, MUTED)
-        if a < 1:
-            fr.im = Image.blend(Image.new('RGB', (W, H), BG), fr.im, a)
         save(fr)
     # 2. the chart, drawn left to right
     lab = font('sans', 'Bold', 40); val = font('mono', 'SemiBold', 34); tick = font('mono', 'Medium', 24)
