@@ -1,0 +1,64 @@
+{
+ "at": "2026-11-01T01:03:37Z",
+ "question": "[WEB SEARCH OFF is fine]\nQuick wording question from the owner of PaperTrades.AI (Sat Oct 31, 2026, 9 p.m. ET). NOT a trading turn. The site's main headline (home page hook, the first-visit welcome box, and the race-card pictures posted to socials) currently reads in sentence case:\n  \"Which AI makes the most (pretend) money?\"\nThe owner asks whether it should be Title Case:\n  \"Which AI Makes The Most (Pretend) Money?\"\nContext: every other heading on the site is sentence case (\"What the AIs are thinking\", \"Best risk manager\", \"Coming up\"). The audience arrives mostly from X, Instagram, Telegram, Reddit and AI newsletters.\n\nAnswer in under 100 words: vote SENTENCE CASE or TITLE CASE for (a) the site headline and (b) social post titles and video titles, one line of reason each. If you prefer a third version (e.g. standard Title Case with lowercase \"the\": \"Which AI Makes the Most (Pretend) Money?\"), say so.",
+ "files": [
+  "ops/review/claude-votes-headline-case-oct31.json"
+ ],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "(a) Site headline — **SENTENCE CASE**: “Which AI makes the most (pretend) money?” It matches the site’s other headings and feels conversational.\n\n(b) Social post/video titles — **TITLE CASE**, but standard: “Which AI Makes the Most (Pretend) Money?” It scans better in feeds/thumbnails; don’t capitalize “the.”",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 459,
+     "completion_tokens": 460,
+     "total_tokens": 919,
+     "cost": 0.016095,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.016095,
+      "upstream_inference_prompt_cost": 0.002295,
+      "upstream_inference_completions_cost": 0.0138
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 379,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "**(a) Site Headline: SENTENCE CASE**\nReason: It maintains UI consistency with the rest of your site and establishes a modern, approachable, and conversational tone that resonates with audiences arriving from informal platforms like Reddit and X. \n\n**(b) Social & Video Titles: STANDARD TITLE CASE** \n*(i.e., lowercase \"the\": \"Which AI Makes the Most (Pretend) Money?\")*\nReason: Title case grabs attention, signals a main event, and improves click-through rates in fast-moving YouTube and social feeds, while standard capitalization rules keep it looking professional instead of spammy.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 498,
+     "candidatesTokenCount": 124,
+     "totalTokenCount": 1443,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 498
+      }
+     ],
+     "thoughtsTokenCount": 821,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
