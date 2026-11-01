@@ -116,3 +116,6 @@ Real outside visitors Nov 1-7, combined (Claude / Gemini / ChatGPT most likely: 
 ## Headline casing (Oct 31; Claude, Gemini and ChatGPT all agreed, ops/review/headline-case-oct31.json)
 - On the site: sentence case, "Which AI makes the most (pretend) money?" (matches every other heading).
 - Social post titles, video titles and pictures made for socials: standard Title Case with lowercase "the": "Which AI Makes the Most (Pretend) Money?". Never capitalise "The" mid-title.
+
+## Hacker News
+- Account: papertrades_dev (owner, Oct 31). Show HN Tue Nov 3 ~9 a.m. ET; facts sheet ops/hn/first-comment-facts.md (owner rewrites it in his own words).
