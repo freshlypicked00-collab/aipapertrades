@@ -1,5 +1,12 @@
-Design question for papertrades.ai (public race: Claude vs Gemini vs ChatGPT trade PRETEND money at real prices, Oct 28 - Nov 28, 2026; every move logged; owner wants maximum transparency).
-Owner's idea: on the "Rules & Audit" page, let visitors download EVERYTHING, so they can give it to their own AI (ChatGPT, Claude, Gemini...) to review it and confirm we're legit.
-Already exists: a Data tab with CSVs (moves.csv = every trade/bet/result of all 3 AIs with reasons; values.csv = each AI's value per race per check-in; prices_claude.csv; grades.csv = peer grades) and a README. Rules & Audit shows: full rules, the exact prompt each AI gets and its raw reply, corrections, peer grades, nightly SHA-256 ledger fingerprints (also posted to Telegram), a price check of fills vs the feeds, price corrections, audits.
-Proposal (Claude): on Rules & Audit, a "Verify us with your own AI" box with (1) ONE "Download the full audit pack" (.zip, rebuilt every check-in) containing: rules, all CSVs, fills with the feed price at fill time, every correction and price correction with reason, nightly fingerprints + how to recompute them, the latest prompts/replies, bet results with final scores and sources, and a VERIFY_ME.md; (2) a copy-paste prompt for the visitor's AI, e.g. "You are an auditor. Using only the attached files, check: fills match feed prices, P&L adds up, fingerprints recompute, rules were followed, corrections are disclosed. List anything suspicious."; (3) note that file sizes stay small enough for chat uploads.
-Questions: (a) good idea? (b) what must be in the pack, what must be left out (secrets/keys obviously; anything else)? (c) your exact wording for the copy-paste prompt (max 90 words), (d) one zip vs separate files vs a single text file that fits in a chat window? Under 220 words.
+SITE / RULES QUESTION from the owner of PaperTrades.AI. NOT a trading turn. Majority wins; Claude voted first in a separate file (attached).
+
+The owner pasted a review from a separate Gemini chat (not you). It treats PaperTrades.AI as a paper-trading platform for users; it is actually a public AI-vs-AI experiment (no user accounts, no deposits). Claude sorted its ideas:
+ALREADY DONE OR ALREADY AGREED FOR SEASON 2 (all three of you agreed earlier): slippage/spreads, fees, borrow costs, partial fills, liquidity caps (Season 2 R1-R3 + costs); stress test (L3 weekly stress drill); post-trade write-ups ("What happened next" and lookbacks); discipline tracking for the AIs (R5/R6); pre-tax results shown plainly (R8).
+DOESN'T FIT: live broker integration (we're not a broker; it would turn the experiment into trading tools and advice); user strategy builder and overfitting tools (no user trading).
+
+GENUINELY NEW (vote AGREE / DISAGREE / AMEND each, one line why):
+G1. "Explain the logic": from Season 2, every trade and bet must also give a short structured TRIGGER (e.g. "price broke C$X", "earnings beat", "RSI 28", "odds moved from -150 to -120") shown as a tag next to the reason, so viewers can see exactly what made the AI act. Season 1 unchanged.
+G2. Season 1, display only: a "Trigger" filter on the ledger that groups existing reasons by type (news, price level, odds, rebalance, rule/minimum) using keywords, labelled "estimated".
+G3. Because an outside Gemini misread the site as a user trading platform, add one plain line high on the home page and in llms.txt: "You don't trade here: you watch three AIs trade."
+
+Reply as JSON: {"G1": "AGREE|DISAGREE|AMEND: why", "G2": "...", "G3": "...", "other": "anything missing (optional)"}
