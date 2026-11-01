@@ -1,0 +1,73 @@
+{
+ "at": "2026-11-01T05:46:46Z",
+ "question": "[WEB SEARCH ON] SITE QUESTION from the owner of PaperTrades.AI. NOT a trading turn. Majority wins; Claude voted first in a separate file (attached).\n\nPROBLEM: in a fresh private Google tab, searching \"whats papertrades.ai\" gives an AI Overview describing Papertrade (papertrade.xyz), the unrelated real-money 1000x perpetual futures DEX on HyperEVM with a PAPER token (sources: Lex Sokolin Substack, KuCoin, Bitrue, Bankless, datawallet). The owner says this happens a lot. PaperTrades.AI is a 5-day-old public AI-vs-AI experiment (Claude vs Gemini vs ChatGPT, pretend money, real prices, Oct 28-Nov 28 2026; no deposits, no accounts, no token).\nWHAT THE SITE ALREADY HAS: title \"PaperTrades.AI: Three AIs, Pretend Money, No Deposits\"; meta description; WebSite JSON-LD with alternateName, sameAs (X, Telegram, Instagram, Discord), and disambiguatingDescription naming papertrade.xyz as unrelated; FAQPage JSON-LD incl. \"Is PaperTrades.AI the same as Papertrade? No\"; about.html; llms.txt; robots.txt allows all; sitemap.xml (3 URLs). A site banner says \"not associated with any similarly named site or app\" (the owner prefers not naming the other site in visible text).\nWHAT IS MISSING: Google Search Console was never set up; Bing Webmaster Tools never set up; search engines show almost no pages from papertrades.ai; YouTube is missing from sameAs; very few outside pages mention us (Show HN planned Tue Nov 3).\n\nVote AGREE / DISAGREE / AMEND on each, one line why:\nN1. Owner sets up Google Search Console today (DNS TXT record at Namecheap, or an HTML-tag token Claude adds), submits the sitemap, and uses URL Inspection > Request indexing on / and /about.html. Claude writes short beginner steps.\nN2. Bing Webmaster Tools (import from Search Console) plus IndexNow: a key file on the site and an automatic IndexNow ping on each publish (Bing feeds ChatGPT search, Copilot and DuckDuckGo).\nN3. A new plain static page /what-is-papertrades-ai.html (no JavaScript needed to read it): H1 \"What is PaperTrades.AI?\", a two-sentence answer first, then facts (who, dates, pretend money, official accounts), a dated \"last updated\" line, Article + Organization JSON-LD; linked from the home page, about page, llms.txt and sitemap.\nN4. Put one plain definition sentence as the FIRST text in the home page's raw HTML (before the menus): \"PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no money and has no token.\"\nN5. Structured data: a separate Organization node with @id, logo, foundingDate 2026-10-28, sameAs adding YouTube @PaperTradesAI and the Hacker News account once posted; keep the disambiguatingDescription that names papertrade.xyz in machine-readable data only (visible text stays generic, per the owner).\nN6. Outside mentions that search engines trust, all from the project's anonymous accounts: Show HN (Nov 3), Product Hunt, one Reddit post in a fitting subreddit, a Medium or Substack post titled \"What is PaperTrades.AI?\", a YouTube video description that starts with the definition sentence. No paid link schemes.\nN7. Owner reports the wrong AI Overview with Google's feedback button (\"Not accurate\") each time he sees it.\nN8. Do NOT rename the site or brand; the fix is helping search engines find and understand what already exists.\nAdd anything we missed in \"other\" (one or two items, most important first).\n\nReply with ONLY JSON: {\"N1\": \"...\", ..., \"N8\": \"...\", \"other\": \"...\"}",
+ "files": [
+  "ops/review/claude-votes-name-mixup-nov1.json"
+ ],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "{\n  \"N1\": \"AGREE: Google Search Console is mandatory to force Googlebot to crawl the new pages immediately and start indexing the correct domain.\",\n  \"N2\": \"AGREE: Bing powers ChatGPT Search and Copilot, so Webmaster Tools and IndexNow will ensure rapid indexing across alternative AI engines.\",\n  \"N3\": \"AGREE: A dedicated 'What is' page perfectly matches the exact user query, making it the ideal target for Google to pull for its AI Overviews.\",\n  \"N4\": \"AGREE: Placing the core definition at the very top of the DOM gives it maximum semantic weight for search engine snippets and bot summarization.\",\n  \"N5\": \"AGREE: A robust Organization schema with a machine-readable disambiguatingDescription tells search engines exactly how to separate the entities without violating the owner's UI preferences.\",\n  \"N6\": \"AGREE: AI Overviews synthesize external consensus; establishing clean, organic citations under the exact brand name will quickly override the DEX mentions.\",\n  \"N7\": \"AGREE: Consistently reporting the inaccurate AI Overview is a quick, free way to flag the entity confusion to Google's search quality systems.\",\n  \"N8\": \"AGREE: Entity mix-ups are common for fresh domains and will resolve once standard SEO is applied; rebranding now would needlessly waste established momentum.\",\n  \"other\": \"Create a Wikidata item for PaperTrades.AI (instance of: experiment/software project, with start date and official URL) to feed the Knowledge Graph directly; also, ensure all linked social media bios (X, YouTube, Telegram) lead with the exact same one-sentence definition.\"\n}",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 1300,
+     "candidatesTokenCount": 353,
+     "totalTokenCount": 3270,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 1300
+      }
+     ],
+     "thoughtsTokenCount": 1617,
+     "serviceTier": "standard"
+    }
+   }
+  },
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "{\"N1\":\"AGREE: highest-leverage first fix; verify via DNS TXT or HTML tag, submit the sitemap, and request indexing for / and /about.html, while noting Google says crawling/indexing can take days to weeks and is not guaranteed. ([support.google.com](https://support.google.com/webmasters/answer/9008080?hl=en&utm_source=openai))\",\"N2\":\"AMEND: do Bing Webmaster Tools plus IndexNow, but treat it as extra discovery rather than a guaranteed AI-answer fix; Bing can import GSC sites/sitemaps, and IndexNow uses a hosted key/keyLocation but does not guarantee indexing. ([www2.bing.com](https://www2.bing.com/webmasters/help/add-and-verify-site-12184f8b?utm_source=openai))\",\"N3\":\"AGREE: a plain, crawlable /what-is-papertrades-ai.html gives engines one exact answer target for the ambiguous query, and Article/Organization JSON-LD plus sitemap/request-indexing is the right packaging. ([developers.google.com](https://developers.google.com/search/docs/appearance/structured-data/article?amp_hsmi=8139423))\",\"N4\":\"AGREE: put the definition first in visible, crawlable HTML, not hidden SEO-only text, and make it match the schema so the page’s primary entity is unmistakable. ([developers.google.com](https://developers.google.com/search/docs/appearance/structured-data/sd-policies?isappinstalled=0&utm_source=openai))\",\"N5\":\"AMEND: add the Organization @id, logo, foundingDate and sameAs including YouTube/HN, but either make the exact disambiguation visible on a FAQ/about line or keep machine text no more specific than visible text, because Google says structured data should match user-visible content. ([developers.google.com](https://developers.google.com/search/docs/appearance/structured-data/organization?utm_source=openai))\",\"N6\":\"AMEND: yes to Show HN/Product Hunt/Reddit/Medium-or-Substack/YouTube from official accounts, but prioritize community-fit and useful explanations over self-promo, and keep no-paid-link-schemes because Google treats ranking-focused paid links as link spam. ([developers.google.com](https://developers.google.com/search/docs/essentials/spam-policies?utm_source=openai))\",\"N7\":\"AGREE: report the bad AI Overview whenever seen; Google says feedback on inaccurate/problematic AI Overviews helps improve them, though it is not an instant manual correction. ([support.google.com](https://support.google.com/websearch/answer/14901683?hl=en-Gen))\",\"N8\":\"AGREE: do not rename; the problem is weak indexing/entity disambiguation, and renaming now would discard the small amount of entity consistency already built.\",\"other\":\"1) After publishing, run Rich Results Test plus live URL Inspection and fix canonical/HTTP/robots/noindex/rendering issues before requesting indexing. 2) Make every official profile bio and YouTube description start with the same definition and link to /what-is-papertrades-ai.html; keep any old GitHub URL private/noindexed if anonymity matters. ([developers.google.com](https://developers.google.com/search/docs/appearance/structured-data/article?amp_hsmi=8139423))\"}",
+   "meta": {
+    "annotations": 7,
+    "urls": [
+     "https://support.google.com/webmasters/answer/9008080?hl=en&utm_source=openai",
+     "https://www2.bing.com/webmasters/help/add-and-verify-site-12184f8b?utm_source=openai",
+     "https://developers.google.com/search/docs/appearance/structured-data/article?amp_hsmi=8139423",
+     "https://developers.google.com/search/docs/appearance/structured-data/sd-policies?isappinstalled=0&utm_source=openai",
+     "https://developers.google.com/search/docs/appearance/structured-data/organization?utm_source=openai"
+    ],
+    "usage": {
+     "prompt_tokens": 37190,
+     "completion_tokens": 4650,
+     "total_tokens": 41840,
+     "cost": 0.368746,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 3712,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.368746,
+      "upstream_inference_prompt_cost": 0.169246,
+      "upstream_inference_completions_cost": 0.1395
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 4019,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     },
+     "server_tool_use_details": {
+      "web_search_requests": 6
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  }
+ }
+}
