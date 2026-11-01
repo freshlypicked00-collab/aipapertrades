@@ -1,0 +1,48 @@
+{
+ "at": "2026-11-01T19:27:06Z",
+ "question": "The owner of PaperTrades.AI asks: \"Start counting cents too everywhere a dollar is, going forward.\" Facts: the race runner already stores and computes every amount to the cent (e.g. a win of C$2,777.78, a fill of C$9,317.88); the site and posts round what they SHOW to whole dollars (C$2,778). Vote AGREE or DISAGREE on each, one line of reason, then add anything missed (readability on phones, honesty, rounding that can make totals look like they don't add up).\n\nK1. Keep calculating and storing everything to the cent (already done; never round before adding up).\nK2. Show cents in the exact records: the Ledger, the All in ledger, transaction details, bet slips, payouts, fills, the fingerprints/audit and the downloadable CSV (e.g. C$2,777.78).\nK3. Keep whole dollars in the big headline numbers (scoreboard cards, race standings, podium, social post headlines, YouTube Shorts), where cents add clutter and are hard to read at a glance, but show the exact amount with cents on tap/hover.\nK4. Show cents EVERYWHERE instead, including headlines and posts.\nK5. Wherever a total is shown next to its parts (e.g. \"3 bets, C$35,000 total, +C$70,000\"), the total is computed from the unrounded parts and the parts are shown with the same precision as the total, so they always add up visibly.",
+ "files": [
+  "ops/review/site-text-nov1c.txt",
+  "ops/review/site-overview-nov1c.txt"
+ ],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "",
+   "error": "HTTP 402: {\n  \"error\": {\n    \"code\": 402,\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\n    \"status\": \"RESOURCE_EXHAUSTED\"\n  }\n}\n"
+  },
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "K1. **AGREE** — The canonical record must stay cent-accurate and never round before summing; this is already the honest accounting base.\n\nK2. **AGREE** — Exact, auditable records should show cents: Ledger, All in ledger, transaction details, bet slips, payouts, fills, fingerprints/audit and CSV need reproducible C$2,777.78-style amounts.\n\nK3. **AGREE** — Keep big headline numbers whole-dollar for readability, especially on phones and social posts, but make the exact cents available on tap/hover/details.\n\nK4. **DISAGREE** — Cents everywhere would clutter cards, standings, posts and Shorts, and would make quick reading worse without adding much value.\n\nK5. **AGREE** — If a total appears next to its parts, compute from unrounded parts and show all those displayed amounts at the same precision so the visible math adds up.\n\nAnything missed: add a clear rule like **“records are exact; summaries are rounded.”** Keep a small note where needed: “Headline amounts are rounded; exact cents are in the Ledger/details.” Use tabular numbers and avoid wrapping on mobile. Do not let rounded rows create apparent mismatches; either show cents for both parts and totals in those contexts, or label totals as rounded. CSV/audit should remain the source of truth with exact cents and a stated rounding convention.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 311082,
+     "completion_tokens": 809,
+     "total_tokens": 311891,
+     "cost": 3.147225,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 3.147225,
+      "upstream_inference_prompt_cost": 3.11082,
+      "upstream_inference_completions_cost": 0.036405
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 516,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  }
+ }
+}
