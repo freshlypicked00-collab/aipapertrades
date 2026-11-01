@@ -1,0 +1,62 @@
+{
+ "at": "2026-11-01T05:50:06Z",
+ "question": "The owner of PaperTrades.AI wants every \"jump\" on the site to land ON the exact thing and highlight it, so first-time visitors instantly see what they were sent to (\"it's just to help humans read quickly; the easier it is, the more likely they return\"). Example: the \"Official accounts\" link at the top used to open the About page at the top; now it should scroll to the official-accounts line itself and highlight it.\n\nClaude's plan (vote AGREE or DISAGREE on each, one line), then LIST any other places on the site where a click or link moves the visitor somewhere and should land on and highlight the exact item (be concrete):\nH1. One shared behaviour for every jump: scroll the exact target just under the sticky bar, then a clear amber outline and soft amber background that fades over about 2.5 seconds; a still outline instead of motion for people who turn off animations.\nH2. Point links at the most specific thing: Official accounts -> the accounts line (not the whole box); Site updates -> the newest entry; fingerprints link -> today's fingerprint; \"See exactly what each AI is sent\" -> the prompt text itself; Rules links -> the rule mentioned.\nH3. Apply it to: transaction ID search and ?id= links, \"Find the buy/sale/bet/result\" buttons, \"Show all N\" same-game buttons, the race standings chips and crown (land on that race's scoreboard card), the Biggest profits/losses list items (land on that move in the ledger), the price ticker items, and the menu's section links.\nH4. Never highlight on the first page load (only after a click or a shared link), so returning visitors aren't distracted.\nPages exist for: Home/Overview with Race standings and Scoreboard, ten race tabs, Ledger, All in, All in ledger, AI vs AI, each AI's page, News, How it works, Rules & Audit (fingerprints, corrections), About (official accounts, site updates, why we're doing this), Support.",
+ "files": [],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "**Claude's Plan Evaluation:**\n\n**H1. AGREE** - Offsetting the scroll for the sticky header and respecting `prefers-reduced-motion` for accessibility are both flawless UI/UX practices.\n**H2. AGREE** - Granular targeting perfectly solves the owner's goal by preventing users from having to hunt for the relevant sentence within a larger text block.\n**H3. AGREE** - These are high-traffic interaction points where users frequently lose their place in dense data (like ledgers and scoreboards) without a visual cue.\n**H4. AGREE** - Clean base URLs shouldn't trigger highlights on a standard navigation visit, but URLs containing specific hash targets or query parameters (shared links) must highlight immediately on load.\n\n***\n\n**Other places on the site that should use this exact jump-and-highlight behavior:**\n\n*   **Corrections to the Ledger:** Links within the \"Rules & Audit (corrections)\" log should jump to and highlight the exact amended, voided, or struck-through transaction line in the main Ledger or All in ledger.\n*   **AI Profiles to the Ledger:** If an individual \"AI's page\" lists their recent trades or current holdings, clicking one should jump to and highlight that specific action's row in the global Ledger.\n*   **News mentions to Live Data:** When a \"News\" article discusses a major market move, a massive AI blunder, or a specific race finish, the inline links should jump to and highlight the exact transaction ID in the Ledger or the specific Race card on the Overview.\n*   **Scoreboard/Overview to AI Pages:** Clicking an AI's name on the Home Scoreboard, the Race standings, or inside the ten individual race tabs should jump to and highlight their specific profile header/stats on their dedicated \"AI's page\".\n*   **FAQ and Index Links:** The \"Support\", \"How it works\", and \"Rules & Audit\" pages likely feature top-level indexes or questions; clicking a question at the top should jump to and highlight the exact paragraph/heading of the answer further down the page.\n*   **Footnotes and Asterisks:** Any superscript asterisks or \"Audit Note\" icons attached to a weird trade in the Ledger or a score in the Race tabs should jump to and highlight the specific technical explanation in the \"Rules & Audit\" section.\n*   **AI vs AI stats to Specific Races:** Clicking a specific head-to-head metric or past encounter on the \"AI vs AI\" page should jump to and highlight the exact race tab or ledger interaction where that specific face-off occurred. \n*   **\"Why we're doing this\" to specific AI setups:** If the About page's mission statement references a specific AI's prompt or guardrails as an example, the link should jump to and highlight that AI's prompt block on their dedicated page.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 541,
+     "candidatesTokenCount": 608,
+     "totalTokenCount": 3852,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 541
+      }
+     ],
+     "thoughtsTokenCount": 2703,
+     "serviceTier": "standard"
+    }
+   }
+  },
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "Votes:\n\n- H1. AGREE — use one shared jump/highlight behavior with sticky-header offset and reduced-motion support.\n- H2. AGREE — links should target the most specific line/entry/block, not the surrounding page or card.\n- H3. AGREE — all of those are real “jumps” and should land on/highlight the exact target.\n- H4. DISAGREE — don’t highlight on plain first loads, but DO highlight on first load when the URL contains a jump target such as `#...`, `?id=...`, or a shared permalink.\n\nOther concrete places that should land on and highlight the exact item:\n\n- Home summary/KPI cards → the exact underlying row/card: current leader row, latest move row, latest all-in bet/result, latest news item, etc.\n- Race tab clicks/deep links → the selected race tab/panel header, and if possible the exact scoreboard card or AI row inside that race.\n- Scoreboard/standings AI names, avatars, or rows → that AI’s page header, or the exact race-specific AI row/section if the link is race-specific.\n- AI profile page links like “view trades,” “recent moves,” “portfolio/holdings,” “prompt,” or “race results” → the exact section or row on that AI page.\n- “View in ledger” links from AI pages, race pages/cards, news, or summaries → the exact ledger transaction row.\n- Ledger row links for AI name, race name, symbol/security, related buy/sale/result IDs → the exact AI profile, race card, ticker/security row, or related transaction row.\n- All in page/all-in ledger links → the exact bet slip, result row, unresolved/resolved entry, or related AI/race item.\n- AI vs AI matchup links from AI pages, standings, or matchup tables → the exact matchup card and, if applicable, the exact pair/row.\n- News cards, “read more,” date links, and share/permalink links → the exact news/update entry, not just the News page top.\n- Links inside News stories that reference a trade, bet, race, rule, fingerprint, correction, or AI → the exact referenced item.\n- Rules & Audit “corrections” links, correction IDs, or “corrected” badges → the exact correction entry.\n- Fingerprint history/date-picker/hash links beyond “today’s fingerprint” → the exact dated fingerprint row or hash line.\n- How it works table-of-contents links → the exact subsection, example, table row, or prompt/data explanation being referenced.\n- About page links beyond official accounts/site updates, especially “Why we’re doing this” → that exact heading/section.\n- Support quick links such as contact, report an issue, sponsor/support, FAQ, or account/help anchors → the exact form, section, or FAQ item.\n- FAQ question links, footnotes, citations, and backlinks → the exact question/answer, note, citation, or return point.\n- Any share/permalink button on a card, row, story, correction, fingerprint, race, AI section, or transaction → opening that URL should scroll to and highlight that exact object.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 516,
+     "completion_tokens": 3765,
+     "total_tokens": 4281,
+     "cost": 0.11553,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.11553,
+      "upstream_inference_prompt_cost": 0.00258,
+      "upstream_inference_completions_cost": 0.11295
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 3106,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  }
+ }
+}
