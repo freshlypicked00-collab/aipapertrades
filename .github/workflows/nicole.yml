@@ -1,0 +1,26 @@
+name: Email Nicole a manual-post task
+on:
+  workflow_dispatch:
+    inputs:
+      file:
+        description: 'task file in ops/nicole, e.g. 2026-11-01-allin-story.md'
+        required: true
+permissions:
+  contents: write
+  issues: write
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Comment on the Tasks for Nicole issue (GitHub emails it to her)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FILE: ${{ inputs.file }}
+        run: |
+          python3 ops/nicole.py "ops/nicole/$FILE"
+          git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
+          git add ops/nicole/sent.json && git commit -qm "Nicole: task sent ($FILE)" && git push -q origin HEAD:main || true
