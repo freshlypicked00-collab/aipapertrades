@@ -1,0 +1,62 @@
+{
+ "at": "2026-11-01T01:36:54Z",
+ "question": "Wording check for papertrades.ai (AI paper-trading race with PRETEND money; must never imply real money is involved or that we give advice). A card on the How it works page (and a link to it from the home page) is titled:\n\"How Season 2 will be closer to real money\"\nThe card explains Season 2 (after Nov 28) adds what real trading would face: bid/ask costs and realistic fills, size limits, borrowing costs and dividends, sharp-move check-ins, a public rule-break counter, an index benchmark after costs. Still pretend money.\nThe owner asks: should the title say \"real trades\" (or similar) instead of \"real money\"?\nOptions: (1) keep \"closer to real money\"; (2) \"closer to real trading\"; (3) \"closer to real trades\"; (4) another wording you prefer (max 8 words).\nPick one and say why in under 50 words, considering clarity and that \"real money\" might suggest real money is used.",
+ "files": [],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "Pick (4): “Closer to real-market conditions.”\n\nIt points to costs, fills, limits, borrowing, dividends, and benchmarks without implying real money or real execution. It’s clearer and safer than “real money” or “real trades.”",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 313,
+     "completion_tokens": 413,
+     "total_tokens": 726,
+     "cost": 0.013955,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.013955,
+      "upstream_inference_prompt_cost": 0.001565,
+      "upstream_inference_completions_cost": 0.01239
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 358,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "I recommend **Option 2: \"How Season 2 will be closer to real trading.\"** \n\n**Why:** It perfectly captures the new market mechanics (bid/ask, borrow costs, liquidity constraints) without using the word \"money.\" This strictly avoids any dangerous, non-compliant implication that actual funds are deposited or at risk.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 324,
+     "candidatesTokenCount": 69,
+     "totalTokenCount": 1276,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 324
+      }
+     ],
+     "thoughtsTokenCount": 883,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
