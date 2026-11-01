@@ -232,6 +232,10 @@ jobs:
           for mid, m in s.get('models', {}).items():
               if m.get('fail_streak', 0) >= 3:
                   print(f"- {m.get('label', mid)}: the last {m['fail_streak']} check-ins failed. Last error: {(m.get('last_run') or {}).get('status', '')}")
+              else:   # out of API credit: alert on the FIRST failed check-in, not after three (Gemini ran dry on Nov 1, owner)
+                  lr = m.get('last_run') or {}; txt = ' '.join(map(str, lr.get('notes') or [])) + ' ' + str(lr.get('status', ''))
+                  if str(lr.get('status', '')).startswith('error') and any(w in txt.lower() for w in ('402', 'credit', 'quota', 'insufficient', 'billing', 'resource_exhausted')):
+                      print(f"- {m.get('label', mid)} is OUT OF API CREDIT: its {lr.get('at', '')[:16]} UTC check-in failed. Top up now ({'Google AI Studio: https://ai.studio/projects' if mid == 'gemini' else 'OpenRouter: https://openrouter.ai/settings/credits'}). Every hour without credit is a missed check-in.")
           end = datetime(2026, 11, 28, 21, 0, tzinfo=timezone.utc)
           try:
               h = json.load(open('ops/src/history.json'))
