@@ -1,0 +1,64 @@
+{
+ "at": "2026-11-01T04:43:48Z",
+ "question": "[WEB SEARCH OFF is fine]\nSafety banner from the owner of PaperTrades.AI (Sun Nov 1, 2026, 12:45 a.m. ET). NOT a trading turn. The owner wants, now, a temporary banner for new visitors at the top of the site (phone and desktop) that says: no deposits are accepted; we will never ask for personal information or a password; we are not associated with any other \"paper trade\" site or service. It can be closed. Background: a crypto futures exchange called Papertrade (papertrade.xyz) has a similar name; the owner prefers a generic \"not associated with any similarly named site\" over naming it. The site already has an \"Official accounts and no-money\" section (#official). Only text all three of us agree on gets built.\n\nCLAUDE'S DRAFT (one line on desktop, two on phones; a ✕ to close; links to the official section):\n🔒 PaperTrades.AI never takes deposits or payments and will never ask for your password or personal information. We are not associated with any similarly named site or app. Official accounts →\n\nBEHAVIOUR PROPOSALS (AGREE/DISAGREE):\nB1. Shown at the very top of every page, above everything, on phones and computers, until the visitor closes it; closing is remembered only in that browser (no cookie, nothing sent).\nB2. \"New visitors\": shown to everyone who has not closed it yet (including returning visitors who never closed it), for the next 30 days; then it is removed.\nB3. Calm style (dark panel, a lock, no red or flashing), so it reads as information, not an alarm.\nB4. Also in the Telegram and Discord channel descriptions and pinned posts (same text).\n\nAnswer in under 120 words: your exact preferred text (or \"draft as is\"), B1-B4 AGREE/DISAGREE, and SATISFIED.",
+ "files": [
+  "ops/review/claude-votes-safety-banner-nov1.json"
+ ],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "Draft as is:\n\n🔒 PaperTrades.AI never takes deposits or payments and will never ask for your password or personal information. We are not associated with any similarly named site or app. Official accounts →\n\nB1 AGREE  \nB2 AGREE  \nB3 AGREE  \nB4 AGREE  \n\nSATISFIED",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 595,
+     "completion_tokens": 295,
+     "total_tokens": 890,
+     "cost": 0.011825,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.011825,
+      "upstream_inference_prompt_cost": 0.002975,
+      "upstream_inference_completions_cost": 0.00885
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 224,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "Text: Draft as is.\n\nB1: AGREE\nB2: AGREE\nB3: AGREE\nB4: AGREE\n\nSATISFIED",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 632,
+     "candidatesTokenCount": 34,
+     "totalTokenCount": 1309,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 632
+      }
+     ],
+     "thoughtsTokenCount": 643,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
