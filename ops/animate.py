@@ -1,0 +1,379 @@
+"""Animated GIF versions of the post cards (owner, Oct 31: "instead of still images gifs will be used going forward").
+
+How it works: the normal card function (sharecard / racecard) draws the card exactly as today, while every drawing step it makes is
+recorded. The steps are then replayed over time: the colour bar sweeps in, the robot pops in, lines slide up in reading order,
+amounts count up, the AI's own words type themselves out, and a win ends with a burst (a loss with a short shake). Nothing new is
+written or looked up: the GIF shows the same words and numbers as the still card, so it passes the same fact checks.
+
+  python3 ops/animate.py samples   -> social/gif-samples/*.gif from real recent posts
+"""
+import math
+import os
+import random
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+
+from PIL import Image, ImageDraw
+
+FPS = 20
+MONEY = re.compile(r'^([+−\-]?)(C\$|US\$|¥)([\d,]+(?:\.\d+)?)(.*)$')
+
+
+# ---------------------------------------------------------------- recording
+class _Rec:
+    def __init__(self):
+        self.ops, self.saved, self.alias = [], None, {}
+
+    def root(self, i):
+        while i in self.alias:
+            i = self.alias[i]
+        return i
+
+
+def record(fn, *a, **k):
+    """Run a card function; return (its result, [(target_id, kind, args, kwargs)], id of the image it saved)."""
+    rec = _Rec()
+    D, I = ImageDraw.ImageDraw, Image.Image
+    orig = {m: getattr(D, m) for m in ('text', 'rectangle', 'rounded_rectangle', 'line', 'ellipse', 'polygon', 'pieslice', 'arc', 'chord')}
+    o_paste, o_save, o_crop = I.paste, I.save, I.crop
+
+    def wrap(name):
+        f = orig[name]
+
+        def w(self, *aa, **kk):
+            rec.ops.append((id(getattr(self, '_image', None)), name, aa, kk))
+            return f(self, *aa, **kk)
+        return w
+    for m in orig:
+        setattr(D, m, wrap(m))
+
+    def paste(self, im, box=None, mask=None):
+        src = im.copy() if isinstance(im, Image.Image) else im
+        msk = mask.copy() if isinstance(mask, Image.Image) else mask
+        rec.ops.append((id(self), 'paste', (src, box, msk), {}))
+        return o_paste(self, im, box, mask)
+
+    def save(self, *aa, **kk):
+        rec.saved = (id(self), self.copy())
+        return o_save(self, *aa, **kk)
+    def crop(self, box=None):
+        out = o_crop(self, box)
+        if box is None or (box[0] == 0 and box[1] == 0):   # same origin: the card trimmed to fit
+            rec.alias[id(out)] = id(self)
+        return out
+    I.paste, I.save, I.crop = paste, save, crop
+    try:
+        out = fn(*a, **k)
+    finally:
+        for m, f in orig.items():
+            setattr(D, m, f)
+        I.paste, I.save, I.crop = o_paste, o_save, o_crop
+    return out, rec
+
+
+# ---------------------------------------------------------------- elements
+class El:
+    def __init__(self, kind, sprite, pos, info):
+        self.kind, self.sprite, self.pos, self.info = kind, sprite, pos, info
+        self.y = pos[1]; self.t0 = 0.0; self.fx = 'fade'
+
+
+def _sprite(size, kind, args, kwargs):
+    c = Image.new('RGBA', size, (0, 0, 0, 0))
+    if kind == 'paste':
+        src, box, msk = args
+        if isinstance(src, Image.Image):
+            if src.mode != 'RGBA' and msk is None:
+                src = src.convert('RGBA')
+            c.paste(src, box, msk if msk is not None else (src if src.mode == 'RGBA' else None))
+        else:
+            return None, None
+    else:
+        getattr(ImageDraw.Draw(c), kind)(*args, **kwargs)
+    bb = c.getbbox()
+    if not bb:
+        return None, None
+    return c.crop(bb), (bb[0], bb[1])
+
+
+def elements(rec):
+    target, final = rec.saved
+    W, H = final.size
+    bg = final.convert('RGB').getpixel((3, H // 2))
+    els = []
+    root = rec.root(target)
+    for tid, kind, a, k in rec.ops:
+        if rec.root(tid) != root:
+            continue
+        if kind == 'rectangle' and a and _covers(a[0], W, H):
+            continue   # the background fill
+        sp, pos = _sprite((W, H), kind, a, k)
+        if sp is None:
+            continue
+        info = {}
+        if kind == 'text':
+            txt = a[1] if len(a) > 1 else k.get('text', '')
+            f = k.get('font'); info = {'text': str(txt), 'size': getattr(f, 'size', 20), 'font': f, 'fill': k.get('fill'), 'xy': a[0], 'anchor': k.get('anchor')}
+        els.append(El(kind, sp, pos, info))
+    return els, final.convert('RGB'), bg
+
+
+def _covers(box, W, H):
+    try:
+        x0, y0, x1, y1 = [float(v) for v in (box if len(box) == 4 else (*box[0], *box[1]))]
+        return x0 <= 0 and y0 <= 0 and x1 >= W - 1 and y1 >= H - 1
+    except Exception:
+        return False
+
+
+# ---------------------------------------------------------------- choreography
+def plan(els, W, H):
+    """Give each element a start time and an effect, in reading order."""
+    t = 0.0
+    rows = sorted(els, key=lambda e: (e.y, e.pos[0]))
+    last_y, slot = None, 0.15
+    for e in rows:
+        w, h = e.sprite.size
+        if e.kind in ('rectangle', 'rounded_rectangle') and e.y <= 2 and h <= 24 and w > W * 0.6:
+            e.fx, e.t0 = 'wipe', 0.0; continue
+        if e.kind == 'paste':
+            e.fx, e.t0 = 'pop', 0.25; continue
+        if e.y > H - 175 and e.kind == 'text':
+            e.fx = 'fade'; e.t0 = None; continue   # the footer: after everything else
+        if last_y is None or abs(e.y - last_y) > 14:
+            slot += 0.09 if (last_y is None or e.y - last_y < 120) else 0.16
+            last_y = e.y
+        e.t0 = slot
+        if e.kind == 'text':
+            m = MONEY.match(e.info['text'].strip())
+            if m and e.info['size'] >= 18:
+                e.fx = 'count'; e.info['m'] = m
+                if e.info['size'] >= 100:
+                    e.info['hero'] = True
+            elif e.info['size'] >= 70:
+                e.fx = 'rise'
+            elif e.info['text'].lstrip().startswith(('“', '"')) or (34 <= e.info['size'] <= 52 and len(e.info['text']) >= 28 and e.pos[0] > 95):
+                e.fx = 'type'
+            else:
+                e.fx = 'rise'
+    # typed lines follow one another; everything after them waits its turn
+    cur = 0.0
+    for e in sorted([x for x in els if x.t0 is not None], key=lambda x: (x.y, x.pos[0])):
+        if e.fx in ('wipe', 'pop'):
+            continue
+        e.t0 = max(e.t0, cur)
+        if e.fx == 'type':
+            e.dur = max(0.25, len(e.info['text']) / 55.0); cur = e.t0 + e.dur
+        elif e.fx == 'count':
+            e.dur = 1.1 if e.info.get('hero') else 0.6; cur = max(cur, e.t0 + (0.45 if e.info.get('hero') else 0.05))
+        else:
+            e.dur = 0.35
+    end = max([x.t0 + getattr(x, 'dur', 0.35) for x in els if x.t0 is not None] + [0.8])
+    for e in els:
+        if e.t0 is None:
+            e.t0, e.dur = end + 0.05, 0.4
+    return end + 0.5
+
+
+def ease(u):
+    u = max(0.0, min(1.0, u)); return 1 - (1 - u) ** 3
+
+
+def back(u):
+    u = max(0.0, min(1.0, u)); c = 1.7
+    return 1 + (c + 1) * (u - 1) ** 3 + c * (u - 1) ** 2
+
+
+def _fmt_money(m, frac):
+    sign, cur, num, rest = m.groups()
+    v = float(num.replace(',', '')) * frac
+    dec = num.split('.')[1] if '.' in num else ''
+    s = f'{v:,.{len(dec)}f}'
+    return f'{sign}{cur}{s}{rest}'
+
+
+def _text_sprite(e, txt, W, H):
+    c = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    kw = {'font': e.info['font'], 'fill': e.info['fill']}
+    if e.info.get('anchor'):
+        kw['anchor'] = e.info['anchor']
+    ImageDraw.Draw(c).text(e.info['xy'], txt, **kw)
+    bb = c.getbbox()
+    return (c.crop(bb), (bb[0], bb[1])) if bb else (None, None)
+
+
+def frame(els, bg, W, H, t, total, win=None, hero=None):
+    im = Image.new('RGBA', (W, H), bg + (255,) if len(bg) == 3 else bg)
+    for e in els:
+        u = (t - e.t0) / max(0.01, getattr(e, 'dur', 0.35))
+        if u <= 0:
+            continue
+        sp, (x, y) = e.sprite, e.pos
+        a = 1.0
+        if e.fx == 'wipe':
+            w = int(sp.width * ease(u * 1.0))
+            if w <= 0:
+                continue
+            sp = sp.crop((0, 0, w, sp.height))
+        elif e.fx == 'pop':
+            s = back(u) if u < 1 else 1.0
+            bob = 0 if u < 1 else 4 * math.sin((t - e.t0) * 3.2)
+            if s <= 0.02:
+                continue
+            sp2 = sp.resize((max(1, int(sp.width * s)), max(1, int(sp.height * s))), Image.BILINEAR)
+            x += (sp.width - sp2.width) / 2; y += (sp.height - sp2.height) / 2 + bob; sp = sp2
+        elif e.fx == 'rise':
+            a = ease(u); y += (1 - ease(u)) * 26
+        elif e.fx == 'fade':
+            a = ease(u)
+        elif e.fx == 'type':
+            n = int(len(e.info['text']) * min(1.0, u))
+            if n <= 0:
+                continue
+            sp, pos = _text_sprite(e, e.info['text'][:n], W, H)
+            if sp is None:
+                continue
+            x, y = pos
+        elif e.fx == 'count':
+            frac = ease(u) if u < 1 else 1.0
+            sp, pos = _text_sprite(e, _fmt_money(e.info['m'], frac), W, H)
+            if sp is None:
+                continue
+            x, y = pos
+            a = min(1.0, u * 4)
+        if a < 1:
+            sp = sp.copy(); sp.putalpha(sp.getchannel('A').point(lambda v: int(v * a)))
+        im.alpha_composite(sp, (int(round(x)), int(round(y))))
+    # the payoff: a burst of sparks around a win, a short shake on a loss
+    if hero is not None:
+        hu = t - (hero.t0 + hero.dur)
+        if win and 0 <= hu <= 1.2:
+            d = ImageDraw.Draw(im, 'RGBA'); r = random.Random(7)
+            cx, cy = hero.pos[0] + hero.sprite.width / 2, hero.pos[1] + hero.sprite.height / 2
+            col = hero.info['fill'] if isinstance(hero.info['fill'], tuple) else (61, 220, 132)
+            for k in range(28):
+                ang = r.uniform(0, 2 * math.pi); sp_ = r.uniform(180, 420); rr = ease(hu / 1.2) * sp_
+                px, py = cx + math.cos(ang) * (hero.sprite.width / 2 + rr * 0.6), cy + math.sin(ang) * (hero.sprite.height / 2 + rr * 0.35)
+                al = int(255 * (1 - hu / 1.2)); s = 5
+                d.ellipse([px - s, py - s, px + s, py + s], fill=tuple(col[:3]) + (al,))
+        if win is False and 0 <= hu <= 0.35:
+            im = im.transform(im.size, Image.AFFINE, (1, 0, 9 * math.sin(hu * 60), 0, 1, 0), fillcolor=bg + (255,))
+    return im.convert('RGB')
+
+
+def make_gif(card_fn, args, kwargs, out, width=720, hold=2.6):
+    """Draw the card (still image too), then the GIF. Returns the GIF path or None."""
+    res, rec = record(card_fn, *args, **kwargs)
+    if not rec.saved:
+        return None
+    els, final, bg = elements(rec)
+    W, H = final.size
+    total = plan(els, W, H) + hold
+    heroes = [e for e in els if e.fx == 'count' and e.info.get('hero')]
+    hero = heroes[0] if heroes else None
+    win = None
+    if hero:
+        win = hero.info['m'].group(1) in ('+',) or (hero.info['m'].group(1) == '' and False)
+        if hero.info['m'].group(1) in ('−', '-'):
+            win = False
+        elif hero.info['m'].group(1) != '+':
+            win = None
+    tmp = tempfile.mkdtemp()
+    n = int(total * FPS)
+    for i in range(n):
+        frame(els, bg, W, H, i / FPS, total, win, hero).save(os.path.join(tmp, f'{i:04d}.png'))
+    final.save(os.path.join(tmp, 'final.png'))
+    h = int(H * width / W) // 2 * 2
+    vf = f'fps={FPS},scale={width}:{h}:flags=lanczos,split[a][b];[a]palettegen=max_colors=200:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle'
+    os.makedirs(os.path.dirname(out) or '.', exist_ok=True)
+    r = subprocess.run(['ffmpeg', '-y', '-v', 'error', '-framerate', str(FPS), '-i', os.path.join(tmp, '%04d.png'), '-vf', vf, '-loop', '0', out])
+    shutil.rmtree(tmp)
+    return out if r.returncode == 0 else None
+
+
+def make_gif_mpl(card_fn, args, kwargs, out, width=960, hold=2.6):
+    """For cards drawn with matplotlib: rows light up from the top one after another, amounts count up."""
+    import io
+    import numpy as np
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    from matplotlib.figure import Figure
+    cap = {}
+    o_save, o_close = Figure.savefig, plt.close
+
+    def savefig(self, *a, **k):
+        cap['fig'], cap['kw'] = self, {kk: v for kk, v in k.items() if kk in ('dpi', 'facecolor')}
+        return o_save(self, *a, **k)
+    Figure.savefig, plt.close = savefig, (lambda *a, **k: None)
+    try:
+        card_fn(*args, **kwargs)
+    finally:
+        Figure.savefig, plt.close = o_save, o_close
+    fig = cap.get('fig')
+    if fig is None:
+        return None
+    dpi = cap['kw'].get('dpi', fig.dpi); fig.set_dpi(dpi)
+    fig.canvas.draw(); rend = fig.canvas.get_renderer(); Hpx = fig.bbox.height
+    arts = []
+    for ax in fig.axes:
+        arts += list(ax.texts) + list(ax.patches) + list(ax.lines)
+    arts += list(fig.texts)
+    rows = []
+    for a in arts:
+        try:
+            bb = a.get_window_extent(rend)
+        except Exception:
+            continue
+        y = Hpx - bb.y1
+        txt = a.get_text() if hasattr(a, 'get_text') else None
+        rows.append({'a': a, 'y': y, 'x': bb.x0, 'txt': txt, 'm': MONEY.match(txt.strip()) if txt else None, 'alpha': a.get_alpha() if a.get_alpha() is not None else 1.0})
+    ys = sorted(set(round(r['y'] / 22) for r in rows))
+    slot = {v: 0.2 + 0.11 * i for i, v in enumerate(ys)}
+    for r in rows:
+        r['t0'] = slot[round(r['y'] / 22)] + (0.0 if r['txt'] is None else 0.03); r['dur'] = 0.7 if r['m'] else 0.3
+    total = max(r['t0'] + r['dur'] for r in rows) + 0.4 + hold
+    tmp = tempfile.mkdtemp(); n = int(total * FPS)
+    for i in range(n):
+        t = i / FPS
+        for r in rows:
+            u = (t - r['t0']) / r['dur']; a = max(0.0, min(1.0, u * (3 if r['m'] else 1)))
+            r['a'].set_alpha(r['alpha'] * ease(a) if a < 1 else r['alpha'])
+            if r['m']:
+                r['a'].set_text(_fmt_money(r['m'], ease(u) if u < 1 else 1.0))
+        buf = io.BytesIO(); o_save(fig, buf, format='png', **cap['kw']); buf.seek(0)
+        Image.open(buf).convert('RGB').save(os.path.join(tmp, f'{i:04d}.png'))
+    o_close(fig)
+    W0, H0 = Image.open(os.path.join(tmp, '0000.png')).size
+    h = int(H0 * width / W0) // 2 * 2
+    vf = f'fps={FPS},scale={width}:{h}:flags=lanczos,split[a][b];[a]palettegen=max_colors=200:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle'
+    r = subprocess.run(['ffmpeg', '-y', '-v', 'error', '-framerate', str(FPS), '-i', os.path.join(tmp, '%04d.png'), '-vf', vf, '-loop', '0', out])
+    shutil.rmtree(tmp)
+    return out if r.returncode == 0 else None
+
+
+def samples():
+    """GIFs of three real recent posts: Gemini's USC win, the Day 4 standings, Gemini's Bengals bet."""
+    import json
+    here = os.path.dirname(os.path.abspath(__file__)); root = os.path.dirname(here)
+    os.chdir(root); sys.path.insert(0, here)
+    import sharecard, racecard
+    d = json.load(open('data.json'))
+    out = os.path.join(root, 'social', 'gif-samples'); os.makedirs(out, exist_ok=True)
+    made = []
+    usc = [t for t in d.get('allin_trades', []) if t.get('model') == 'gemini' and t.get('bet') == 'G40' and t.get('action') == 'Won']
+    if usc:
+        made.append(make_gif(sharecard._trade_card, ('gemini', usc[-1]), {'path': '/tmp/gif_usc.png'}, os.path.join(out, 'win-gemini-usc.gif')))
+    table, big = racecard.races()
+    made.append(make_gif_mpl(racecard.races_card, (table, big, 'After Day 4 · Sat Oct 31', '/tmp/gif_races.png'), {}, os.path.join(out, 'standings-day4.gif')))
+    ben = [t for t in d.get('rivals_trades', []) if t.get('model') == 'gemini' and t.get('bet') == 'G41' and t.get('action') == 'Bet']
+    if ben:
+        made.append(make_gif(sharecard.move_card, ('gemini', ben[-1]), {'path': '/tmp/gif_bengals.png', 'idx': 1, 'total': 2}, os.path.join(out, 'bet-gemini-bengals.gif')))
+    print(made)
+
+
+if __name__ == '__main__':
+    {'samples': samples}[sys.argv[1] if len(sys.argv) > 1 else 'samples']()
