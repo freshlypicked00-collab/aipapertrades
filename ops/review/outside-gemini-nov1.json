@@ -1,0 +1,64 @@
+{
+ "at": "2026-11-01T04:54:33Z",
+ "question": "SITE / RULES QUESTION from the owner of PaperTrades.AI. NOT a trading turn. Majority wins; Claude voted first in a separate file (attached).\n\nThe owner pasted a review from a separate Gemini chat (not you). It treats PaperTrades.AI as a paper-trading platform for users; it is actually a public AI-vs-AI experiment (no user accounts, no deposits). Claude sorted its ideas:\nALREADY DONE OR ALREADY AGREED FOR SEASON 2 (all three of you agreed earlier): slippage/spreads, fees, borrow costs, partial fills, liquidity caps (Season 2 R1-R3 + costs); stress test (L3 weekly stress drill); post-trade write-ups (\"What happened next\" and lookbacks); discipline tracking for the AIs (R5/R6); pre-tax results shown plainly (R8).\nDOESN'T FIT: live broker integration (we're not a broker; it would turn the experiment into trading tools and advice); user strategy builder and overfitting tools (no user trading).\n\nGENUINELY NEW (vote AGREE / DISAGREE / AMEND each, one line why):\nG1. \"Explain the logic\": from Season 2, every trade and bet must also give a short structured TRIGGER (e.g. \"price broke C$X\", \"earnings beat\", \"RSI 28\", \"odds moved from -150 to -120\") shown as a tag next to the reason, so viewers can see exactly what made the AI act. Season 1 unchanged.\nG2. Season 1, display only: a \"Trigger\" filter on the ledger that groups existing reasons by type (news, price level, odds, rebalance, rule/minimum) using keywords, labelled \"estimated\".\nG3. Because an outside Gemini misread the site as a user trading platform, add one plain line high on the home page and in llms.txt: \"You don't trade here: you watch three AIs trade.\"\n\nReply as JSON: {\"G1\": \"AGREE|DISAGREE|AMEND: why\", \"G2\": \"...\", \"G3\": \"...\", \"other\": \"anything missing (optional)\"}",
+ "files": [
+  "ops/review/claude-votes-outside-gemini-nov1.json"
+ ],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "```json\n{\n  \"G1\": \"AGREE: Explicitly defining the trigger in a structured tag will vastly improve transparency and help viewers track exactly what catalysts drive our decisions in Season 2.\",\n  \"G2\": \"AMEND: I agree with Claude; this must be prominently labeled as 'estimated' or 'auto-generated' so viewers do not mistake keyword-based guesses for our actual Season 1 logic.\",\n  \"G3\": \"AGREE: A clear, upfront disclaimer is the most effective way to prevent both human users and AI crawlers from misunderstanding the platform's experimental, watch-only nature.\",\n  \"other\": \"For G1, we will need to ensure the Season 2 system prompts are updated with a specific JSON key for the TRIGGER field so we consistently format it.\"\n}\n```",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 739,
+     "candidatesTokenCount": 174,
+     "totalTokenCount": 1815,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 739
+      }
+     ],
+     "thoughtsTokenCount": 902,
+     "serviceTier": "standard"
+    }
+   }
+  },
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "{\n  \"G1\": \"AGREE: a structured trigger makes each Season 2 decision easier to audit while leaving Season 1 unchanged.\",\n  \"G2\": \"AGREE: useful for browsing Season 1 history as long as it is clearly labelled estimated and never presented as the AI's own stated trigger.\",\n  \"G3\": \"AGREE: the misread shows the site needs a blunt crawler-friendly sentence explaining that viewers watch AIs trade, not trade themselves.\",\n  \"other\": \"Keep the original free-text reason visible beside any trigger/tag so the tag cannot replace the actual decision record.\"\n}",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 705,
+     "completion_tokens": 646,
+     "total_tokens": 1351,
+     "cost": 0.022905,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.022905,
+      "upstream_inference_prompt_cost": 0.003525,
+      "upstream_inference_completions_cost": 0.01938
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 516,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  }
+ }
+}
