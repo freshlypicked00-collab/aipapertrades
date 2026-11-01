@@ -1,11 +1,17 @@
-[WEB SEARCH OFF is fine]
-Hacker News prep, round 2 (Sat Oct 31, 2026, ~10 p.m. ET). NOT a trading turn. Both of you said NOT YET; draft 2 (attached, ops/hn/first-comment-facts.md) applies your fixes:
-- Gemini 3.1 Pro Preview; 100,000 per race in C$, or US$ for China stocks; "China stocks"; All in = separate high-risk side races (trading and sports) (ChatGPT).
-- "No human picks trades. Corrections and restatements are logged publicly." (ChatGPT)
-- "same feed and pricing rules"; "one canonical pricing path per instrument"; "not broker-executable"; "not affiliated with Anthropic, Google or OpenAI" (ChatGPT).
-- Futures: "No new futures positions (2 of 3 AIs)" (Gemini).
-- The 20-minute re-check is framed as a safety net after the upfront rejection of stale quotes (Gemini).
-- Costs: options already pay the bid-ask spread in Season 1 (ChatGPT); Season 2 cut to one "plans" line (both).
-- Gemini's GitHub-link idea is NOT possible: the repo is private, so the sheet now says plainly that the code is not public and lists what is. Transaction IDs and downloads stay: they are real and visible on the site.
-- A "hardest questions" section with honest answers, from both of you.
-Answer in under 100 words: SATISFIED, or NOT YET with the exact remaining fix.
+[WEB SEARCH ON]
+Critique round from the owner (founder) of PaperTrades.AI (Sat Oct 31, 2026, 9:55 p.m. ET). NOT a trading turn. He asked a Gemini chat (it cannot see the site) what it dislikes. Its points: (1) a one-month race rewards randomness: the leader is often whoever stumbled into the most beta or volatility; (2) standalone LLMs lack structural safeguards (position sizing, over-trading, systemic risk) and real financial AI is not built as an LLM stock-picker; (3) confirmation bias: an LLM writes a confident, articulate story for a bad trade, so it looks smart even when entry or math is flawed; it suggested forced macro shocks and drawdown limits. The owner wants all three of us to decide whether solutions are needed and agree on them. Season 1's rules and scoring do not change.
+
+WHAT ALREADY EXISTS: a luck caveat on the scoreboard; a separate Best risk manager award; peer grades (A-F, given before the result) and a grading record; each trade records its reason and "what would prove it wrong"; "Looking back" reviews; profit after estimated costs; Season 2 (agreed): Strict/Standard/Unrestricted with code-enforced position and drawdown limits, scored on return / max(drawdown, floor), rule breach = ineligible, plus the real-world rules R1-R8 (costs, next-quote fills, liquidity caps, event check-ins, public rule-break count, losers-vs-winners hold time, index benchmark).
+
+CLAUDE'S PROPOSALS (vote AGREE/DISAGREE, one line each; improve them):
+L1. LUCK CHECK (answers 1): for each AI and race, simulate 1,000 random portfolios with the same risk (same asset universe, same number of trades, same average exposure/volatility, same dates) and show the AI's percentile ("beat 87% of random portfolios"). Display only, Season 1 too; methodology published.
+L2. "DID IT HONOR ITS OWN WRONG-IF?" (answers 3): when a trade's stated "what would prove it wrong" condition happened (checked against the ledger and the news log), record whether the AI exited within its next two check-ins or held on. Shown per AI as "kept X of Y exit promises". Display only.
+L3. WEEKLY STRESS DRILL (answers 2 and the "macro shock" idea without faking prices): once a week all three AIs get the same made-up scenario (e.g. "surprise 100 bp hike", "a major exchange halts withdrawals") and say exactly what they would do with their current books; answers published side by side and peer-graded. Never affects any score or trade.
+L4. NO forced fake shocks in the real race: real prices are the core promise; shocks live only in L3.
+L5. Answer (2) in public plainly: "This tests what happens when an LLM is the portfolio manager, not how production trading AI is built"; the safeguards question is Season 2's job (code-enforced limits).
+
+PLEASE ANSWER, under 300 words:
+1. Is each criticism FAIR, PARTLY FAIR or WRONG (one line each)?
+2. L1-L5: AGREE/DISAGREE, one line each, with concrete fixes (e.g. how to define "same risk" in L1).
+3. Anything missing (max 2).
+4. Which ONE matters most?
