@@ -1,0 +1,64 @@
+{
+ "at": "2026-11-01T07:06:02Z",
+ "question": "SEASON 2 DESIGN, ROUND 2: VOTES (owner of PaperTrades.AI, Sun Nov 1, 2026). NOT a trading turn. Round 1 answers (Claude's, Gemini's and ChatGPT's) were merged into the items below. Majority wins; the owner wants to know which items ALL THREE agree on. Claude voted first in a separate file (attached).\n\nVote AGREE / DISAGREE / AMEND (one line, say why) on EVERY item. Keep the item numbers.\n\nFORMAT\nF1. Season 2 runs 8 weeks: Mon Jan 11 to Fri Mar 5, 2027, with a public pre-season dry run Jan 4-8 under the final rules. (all three said 8 weeks in round 1)\nF2. Lineup: 6 or 7 AIs. Proposals: Gemini: + DeepSeek, Grok, Qwen (6); ChatGPT: + Grok, DeepSeek, Llama, Mistral (7), Qwen as exhibition; Claude: 5-6. Give your final list (max 7).\nF3. Models: system prompts frozen on day 1; the exact API model version logged on every call; a model changes only if its provider retires it, announced the same day.\nF4. Benchmarks competing under the same rules and costs: an index fund, a 60/40 portfolio, and a \"random trader\" (Gemini disagreed in round 1: dilutes the tone).\nF5. Championship: Strict / Standard / Unrestricted (already agreed, scoring Return / max(worst drop, 5% / 10% / 20%), equal rank points).\nF6. Betting (Sports, Prediction markets) becomes a separate Betting track with its own scoring (profit and closing-line value), never in the championship. (Gemini and ChatGPT said cut betting from the championship; Claude: own track)\nF7. All in: dropped from Season 2 entirely (Gemini), or kept only as a non-headline extra (ChatGPT, Claude: \"not a headline\"). The Small account track runs only if the Nov 13-28 trial has no audit issues.\n\nTRUST AND INTEGRITY\nT1. The operator is code: no AI session writes race data; Claude trades through the same runner as every other AI.\nT2. Sealed orders: each decision is hashed and the hash published before it fills; revealed after.\nT3. One shared, timestamped market and news pack per check-in; the same tools, search access and token budget for every AI; prompts public.\nT4. Open-source the race runner; a daily downloadable replay file (orders, quotes, fills, costs, hashes, prompts, grades) and a public dataset/API; fingerprints anchored to an outside timestamp (e.g. OpenTimestamps).\nT5. A named outside reviewer (quant or researcher) with read access, named BEFORE launch, who adjudicates disputed corrections.\nT6. Public correction protocol: every incident gets a ticket, the diff, the affected scores and the reviewer's sign-off.\nT7. A \"golden test\" simulator before launch: fake splits, halts, bad ticks, wide spreads, borrow failures; plus the Jan 4-8 dry run.\nT8. The site shows each AI's written rationale summary, never hidden chain-of-thought.\n\nREALISM (in addition to the agreed costs, fills, liquidity caps, borrow, dividends, event check-ins)\nR1. Market impact: slippage from live order-book depth where available, otherwise a labelled size-based estimate (Gemini; ChatGPT raised it Oct 31).\nR2. Brokerage commissions by asset class on top of bid/ask (Gemini).\nR3. Breaking its own written risk rules: forced auto-liquidation (Gemini) vs the runner refusing orders that would break them, every break counted (Claude).\nR4. A minimum latency between the AI's answer and the fill (Gemini), on top of \"first live quote after the decision, never older than 60 s\".\n\nEXPOSURE\nE1. \"AI Fund Draft Day\" launch: each AI reveals its manifesto, risk rules and first trades (all three).\nE2. A citable public dataset and a postseason research report (attribution, turnover, drawdown, luck bands vs the random trader), aimed at AI researchers and journalists (all three).\nE3. Weekly Race Report: best trade, worst trade, biggest dispute, a quote from each AI, leaderboard moves.\nE4. Viewer prediction game with badges, email reminders and a \"beat the AIs\" board (no money, no prizes).\nE5. Gemini: visitors link their own paper-trading accounts to compare themselves with the AIs.\nE6. Open-source the agent prompts and architecture on GitHub for developer attention (Gemini).\nE7. Guest graders and outside auditors with bylines (ChatGPT).\n\nCUT\nX1. Cut: futures without a reliable real-time feed, illiquid instruments, overall totals mixing tracks, any real-money or advice claim, more than 7 models.\n\nBUDGET\nB1. Before building, estimate the API and data cost of the whole season per AI and set a hard cap; build the integrity core (T1-T4) first, then add AIs and tracks.\n\nFinally: ONE: which single item matters most?\nAnswer in at most 400 words, one line per item.",
+ "files": [
+  "ops/review/claude-votes-season2-r2-nov1.json"
+ ],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "F1. AGREE. 8 weeks plus a dry run ensures robust, tested data collection.\nF2. AMEND. 7 AIs total: ChatGPT, Claude, Gemini, Grok, DeepSeek, Llama, Qwen. Maximum diverse representation pushes the frontier.\nF3. AGREE. Exact API version logging prevents silent model updates from skewing results.\nF4. AGREE. The \"random trader\" is the ultimate baseline to prove true alpha over pure luck.\nF5. AGREE. Equal rank points across risk tiers balances the championship perfectly.\nF6. AGREE. Betting requires different mechanics and must stay strictly separated from the core championship.\nF7. AMEND. Drop \"All in\" completely; keep the Small account track only if the Nov 13-28 trial is flawless.\nT1. AGREE. Absolute code/agent separation is non-negotiable for competitive integrity.\nT2. AGREE. Cryptographic hashing before fills provides undeniable mathematical proof against hindsight bias.\nT3. AGREE. Uniform data feeds and token budgets guarantee a strictly level playing field.\nT4. AGREE. Daily downloadable replays and an open-source runner allow total community verification.\nT5. AGREE. An independent named adjudicator eliminates bias in dispute resolution.\nT6. AGREE. Public correction tickets with reviewer sign-off maintain absolute transparency during inevitable glitches.\nT7. AGREE. Simulator stress-testing ensures market anomalies don't ruin the live season.\nT8. AGREE. Public rationale drives audience engagement; hidden chain-of-thought defeats the purpose of AI transparency.\nR1. AGREE. Live depth where available and labelled estimates elsewhere accurately model real-world slippage.\nR2. AGREE. Factoring in brokerage commissions is essential for calculating realistic net returns.\nR3. AMEND. The runner should block violating orders and log the break, mirroring real institutional pre-trade risk checks.\nR4. AGREE. A latency floor prevents unrealistic high-frequency exploitation of the data feed.\nE1. AGREE. \"Draft Day\" builds hype and firmly locks in each AI's overarching strategy.\nE2. AGREE. Citable datasets attract valuable academic and journalistic validation.\nE3. AGREE. Weekly reports distill complex metrics into an engaging, digestible audience narrative.\nE4. AGREE. A no-stakes prediction game drives engagement without inviting regulatory risks.\nE5. DISAGREE. Linking personal brokerage accounts introduces massive security, privacy, and regulatory liabilities.\nE6. AGREE. Open-sourcing prompts builds developer goodwill and crowd-sources future improvements.\nE7. AGREE. Guest auditors provide vital credibility and fresh analytical perspectives.\nX1. AGREE. Cutting unreliable instruments keeps the core competition clean, focused, and legally safe.\nB1. AGREE. Hard cost caps and prioritizing the integrity core ensures the project remains viable.\n\nONE: T2 Sealed orders matters most; cryptographic hashing before execution is the ultimate, unforgeable proof of legitimacy.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 1733,
+     "candidatesTokenCount": 646,
+     "totalTokenCount": 4453,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 1733
+      }
+     ],
+     "thoughtsTokenCount": 2074,
+     "serviceTier": "standard"
+    }
+   }
+  },
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "F1. AGREE — right length; dry run de-risks launch.  \nF2. AMEND — 6: Claude, ChatGPT, Gemini, Grok, DeepSeek, Qwen; add Llama only if B1 allows.  \nF3. AGREE — frozen prompts plus logged model versions preserves comparability.  \nF4. AGREE — benchmarks, including random, are necessary context.  \nF5. AGREE — three divisions and risk-adjusted scoring are clean.  \nF6. AGREE — betting is interesting, but not championship-comparable.  \nF7. AMEND — drop All-in; Small account only if Nov 13-28 audit is clean.  \n\nT1. AGREE — operator/code separation is foundational.  \nT2. AGREE — sealed orders prevent hindsight suspicion.  \nT3. AGREE — equal inputs are mandatory fairness.  \nT4. AGREE — replayability and timestamp anchoring build trust.  \nT5. AGREE — name the reviewer before launch.  \nT6. AGREE — corrections need public, reviewable trails.  \nT7. AGREE — golden tests catch realism bugs early.  \nT8. AGREE — summaries yes; hidden chain-of-thought no.  \n\nR1. AGREE — depth where available; labelled estimates elsewhere.  \nR2. AGREE — commissions matter for realistic comparisons.  \nR3. AMEND — refuse violating orders; count each attempted breach.  \nR4. AGREE — latency closes “instant fill” loopholes.  \n\nE1. AGREE — Draft Day is a strong launch hook.  \nE2. AGREE — dataset/report makes the season citable.  \nE3. AGREE — weekly narrative keeps viewers engaged.  \nE4. AGREE — prediction game is safe engagement.  \nE5. DISAGREE — account linking adds privacy/compliance/platform burden.  \nE6. AGREE — open prompts/architecture attract developers.  \nE7. AGREE — bylined graders/auditors increase credibility.  \n\nX1. AGREE — cut complexity, bad feeds, advice claims, and model sprawl.  \nB1. AGREE — budget and integrity core must precede expansion.  \n\nONE. T1 matters most: if the operator is not code-separated and equal for all AIs, every result is disputable.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 1660,
+     "completion_tokens": 2043,
+     "total_tokens": 3703,
+     "cost": 0.06959,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.06959,
+      "upstream_inference_prompt_cost": 0.0083,
+      "upstream_inference_completions_cost": 0.06129
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 1552,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  }
+ }
+}
