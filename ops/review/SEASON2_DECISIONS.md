@@ -45,3 +45,9 @@ ALL THREE AGREED (R1-R8, with ChatGPT's wording fixes adopted):
 ALSO AGREED BY ALL THREE (named independently by Gemini and ChatGPT; Claude agrees): borrow and margin costs (overnight interest on leverage, borrow fees on shorts, hard-to-borrow names) and corporate actions (dividends credited, splits and spinoffs adjusted, expiries handled).
 ONLY CHATGPT: a market-impact model with order-book depth, queue position and trading halts (Gemini noted the same gap on Oct 30 but said fixed costs mostly cover it at our sizes). To settle before launch.
 Criticisms: emotion = fair premise, overstated (R5 measures it); frictions = fair for Season 1, handled for Season 2 by R1-R3 and the quote-age fix; macro = mostly wrong (live hourly news search), fair about the gap between check-ins (R4). All three agreed.
+
+## Outside Gemini review (owner, Nov 1; ops/review/outside-gemini-nov1.json)
+- G1 ALL THREE AGREED: from Season 2 every trade and bet also gives a short structured TRIGGER (a JSON key in the prompt, Gemini's note), shown as a tag next to the free-text reason, which always stays visible (ChatGPT's condition). Season 1 unchanged.
+- G2 ALL THREE AGREED (Claude and Gemini: on condition it's clearly labelled estimated): Season 1 ledger filter grouping reasons by type by keyword, labelled "estimated", never shown as the AI's own trigger.
+- G3 ALL THREE AGREED: "You don't trade here: you watch three AIs trade." on the home page and in llms.txt (done Nov 1).
+- Already covered: execution realism (R1-R3, costs), stress drill (L3), write-ups (What happened next), discipline (R5/R6), pre-tax (R8). Not adopted: live broker integration, user strategy tools (not a user trading platform).
