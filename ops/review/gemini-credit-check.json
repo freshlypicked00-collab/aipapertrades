@@ -1,0 +1,15 @@
+{
+ "at": "2026-11-01T19:49:25Z",
+ "question": "Credit check after a billing top-up: reply with the single word OK.",
+ "files": [
+  "ops/review/site-text-nov1c.txt",
+  "ops/review/site-overview-nov1c.txt"
+ ],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "",
+   "error": "HTTP 402: {\n  \"error\": {\n    \"code\": 402,\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\n    \"status\": \"RESOURCE_EXHAUSTED\"\n  }\n}\n"
+  }
+ }
+}
