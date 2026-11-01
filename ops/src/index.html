@@ -8261,7 +8261,7 @@ tr.lg-hit .tx-id{opacity:1}
     const EXPS = [first, 'Overall'].concat(['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'].filter((e) => e !== first), ['AllInTrading', 'AllInSports']);   // plus the All in side race (owner, Oct 29)
     if (el._first !== first) { el._first = first; if (el._follow !== false) el._exp = null; }   // a market opening or closing moves the page to that race (only while Most relevant is on)
     if (!el._exp) el._exp = first;
-    if (el._follow == null) el._follow = true;   // owner's choice: Most relevant is on at every visit
+    if (el._follow == null) el._follow = true;   // auto-pick is on at every visit (opens on the biggest profit anywhere, owner Nov 1)
     { // Race standings follow the tab you are on: a race's tab shows that race, All in shows the side race, other pages go back to Most relevant (owner, Oct 29)
       const tab = (document.querySelector('.st-tab[aria-selected="true"]') || {}).dataset; const t = (tab && tab.tab) || 'overview';
       if (el._tab !== t) {
@@ -8284,17 +8284,19 @@ tr.lg-hit .tx-id{opacity:1}
       const allin = () => { let R; try { R = allinRows; } catch (e) { return []; }
         return ['AllInTrading', 'AllInSports'].map((r) => { const srt = R(r).slice().sort((a, b) => b.profit - a.profit); return srt.length ? { r, hi: srt[0], lo: srt[srt.length - 1], c: 1 } : null; }).filter(Boolean); };
       const best = (arr, f) => arr.reduce((a, x) => (a == null || f(x) > f(a) + 0.5 || (Math.abs(f(x) - f(a)) <= 0.5 && x.r === el._exp) ? x : a), null);   // a tie keeps the race already shown, then menu order (ChatGPT's tie-break)
-      if (mode === 'profit') { const x = best(ten, (q) => q.hi.profit * q.c); return x && x.hi.profit > 0.5 ? { race: x.r, why: nm(x.hi.id) + ' is ' + m(x.hi.profit * x.c) + ' in ' + lab(x.r) + ', the biggest profit in any of the ten races.' } : { race: null, why: 'No AI is in profit in any of the ten races right now.' }; }
+      if (mode === 'profit') { const x = best(ten, (q) => q.hi.profit * q.c); return x && x.hi.profit > 0.5 ? { race: x.r, v: x.hi.profit * x.c, why: nm(x.hi.id) + ' is ' + m(x.hi.profit * x.c) + ' in ' + lab(x.r) + ', the biggest profit in any of the ten races.' } : { race: null, why: 'No AI is in profit in any of the ten races right now.' }; }
       if (mode === 'loss') { const x = best(ten, (q) => -q.lo.profit * q.c); return x && x.lo.profit < -0.5 ? { race: x.r, why: nm(x.lo.id) + ' is ' + m(x.lo.profit * x.c) + ' in ' + lab(x.r) + ', the biggest loss in any of the ten races.' } : { race: null, why: 'No AI is in a loss in any of the ten races right now.' }; }
       if (mode === 'close') { const x = best(ten.filter((q) => q.gap >= 0), (q) => -q.gap); return x ? { race: x.r, why: 'Only ' + 'C$' + d3.format(',.0f')(x.gap) + ' between 1st and 2nd in ' + lab(x.r) + ', the closest of the ten races.' } : null; }
       if (mode === 'lead') { const x = best(ten, (q) => q.gap); return x && x.gap > 0.5 ? { race: x.r, why: nm(x.hi.id) + ' leads ' + lab(x.r) + ' by C$' + d3.format(',.0f')(x.gap) + ', the biggest lead in the ten races.' } : null; }
-      if (mode === 'aprofit') { const x = best(allin(), (q) => q.hi.profit); return x && x.hi.profit > 0.5 ? { race: x.r, why: nm(x.hi.id) + ' is ' + m(x.hi.profit) + ' in ' + ALLIN[x.r] + ', the biggest profit in the All in side race.' } : { race: null, why: 'No AI is in profit in the All in side race right now.' }; }
+      if (mode === 'aprofit') { const x = best(allin(), (q) => q.hi.profit); return x && x.hi.profit > 0.5 ? { race: x.r, v: x.hi.profit, why: nm(x.hi.id) + ' is ' + m(x.hi.profit) + ' in ' + ALLIN[x.r] + ', the biggest profit in the All in side race.' } : { race: null, why: 'No AI is in profit in the All in side race right now.' }; }
       if (mode === 'aloss') { const x = best(allin(), (q) => -q.lo.profit); return x && x.lo.profit < -0.5 ? { race: x.r, why: nm(x.lo.id) + ' is ' + m(x.lo.profit) + ' in ' + ALLIN[x.r] + ', the biggest loss in the All in side race.' } : { race: null, why: 'No AI is in a loss in the All in side race right now.' }; }
       return null;
     };
     const AUTO = [['live', 'Most relevant (live market)'], ['profit', 'Biggest profit (ten races)'], ['loss', 'Biggest loss (ten races)'], ['close', 'Closest race'], ['lead', 'Biggest lead'],
       ['aprofit', 'Biggest profit (All in side race)'], ['aloss', 'Biggest loss (All in side race)'], ['off', 'Off: I’ll choose']];
-    if (!el._mode) el._mode = 'live';
+    // every visit opens on the race with the biggest profit anywhere (owner, Nov 1): whichever of the two profit options is bigger is
+    // selected, the ten races or the All in side race; no extra option is added
+    if (!el._mode) { const a = autoPick('profit'), b = autoPick('aprofit'); el._mode = (b && b.v || 0) > (a && a.v || 0) ? 'aprofit' : a && a.v ? 'profit' : 'live'; }
     const hot = el._follow ? (el._mode === 'live' ? hottestRace() : autoPick(el._mode)) : null;   // re-checked at every data update
     if (hot && hot.race) el._exp = hot.race;   // every visit opens on the race whose market is open (China, then US, else Crypto); nothing is remembered
     if (window.ptStandRace !== el._exp) { window.ptStandRace = el._exp; setTimeout(() => { if (dash.redraw) dash.redraw(); }, 0); }   // "How each simulation is doing" follows this pick (owner, Oct 30)
