@@ -1510,7 +1510,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '33fc16aa668b';</script>
+<script>window.PT_PAGE_VER = '5ad393b4f990';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -7404,7 +7404,11 @@ body { background:var(--color-bg); }
   // How it works and About: each section can be read aloud in one tap (owner, Oct 30: "anything that would be way more helpful with audio")
   (() => {
     if (!('speechSynthesis' in window)) return;
-    const read = (card) => { const c = card.cloneNode(true); c.querySelectorAll('button, select, svg, table, .listen-pair, .say-pair, .st-sources').forEach((x) => x.remove());
+    const read = (card) => { const c = card.cloneNode(true); c.querySelectorAll('button, select, svg, .listen-pair, .say-pair, .st-sources').forEach((x) => x.remove());
+      c.querySelectorAll('table').forEach((tb) => {   // tables are read row by row ("Oct 28, 2026, 1:45 p.m.: The race starts…"), header row skipped (owner, Nov 1: Timeline read only its title)
+        const rows = [...tb.querySelectorAll('tr')].filter((tr) => !tr.closest('thead') && tr.querySelector('td'));
+        const p = document.createElement('p'); p.textContent = rows.map((tr) => [...tr.children].map((td) => td.textContent.replace(/\s+/g, ' ').trim()).filter(Boolean).join(': ')).join('. ');
+        tb.replaceWith(p); });
       c.querySelectorAll('li, p, h2, h3').forEach((x) => x.append('. ')); return c.textContent.replace(/\s+/g, ' ').replace(/\.\s*\./g, '.').replace(/\s+([,.;:!?)])/g, '$1').trim(); };
     const add = () => document.querySelectorAll('#rules .st-card > h2, #about-pt .st-card > h2').forEach((h) => {
       const card = h.closest('.st-card'); if (!card || card.dataset.listen) return; card.dataset.listen = '1';
