@@ -121,7 +121,7 @@ def main():
     now = datetime.now(timezone.utc).strftime('%Y-%m-%d-%H%M')
     out = {'at': now, 'method': __doc__.split('\n\n')[1] if '\n\n' in __doc__ else '', 'counts': n, 'bets': rows}
     os.makedirs(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'review'), exist_ok=True)
-    p = os.path.join(FA.HERE, 'review', f'odds-audit-{now}.json')
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'review', f'odds-audit-{now}.json')
     json.dump(out, open(p, 'w'), indent=1, ensure_ascii=False)
     md = [f'# Odds check {now} UTC', '', 'Counts: ' + ', '.join(f'{k} {v}' for k, v in n.items()), '']
     for r in rows:
