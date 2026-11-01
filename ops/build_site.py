@@ -943,8 +943,11 @@ def _closed_claude(e):
             L['u'] += u; L['c'] += amt
         elif a in ('Sell', 'Cover', 'Settled', 'Expired') and L['u'] > 1e-12:
             f = min(1.0, u / L['u']) if a in ('Sell', 'Cover') else 1.0
+            if t.get('held_after') is not None and float(t['held_after']) <= 1e-9:
+                f = 1.0   # sold out: the whole remaining cost (units from amount / price drift with the exchange rate)
             part = L['c'] * f
-            out.append({'name': t['holding'], 'pnl': (amt - part) if side == 'long' else (part - amt), 'at': t['at']})
+            pnl = float(t['pnl_cad']) if t.get('pnl_cad') is not None else ((amt - part) if side == 'long' else (part - amt))   # the profit the ledger recorded at the sale
+            out.append({'name': t['holding'], 'pnl': pnl, 'at': t['at']})
             L['u'] -= L['u'] * f; L['c'] -= part
     return out
 
@@ -1019,19 +1022,20 @@ def _big_moves():
                 f = min(1.0, (q or c['qty']) / c['qty']); part = c['cost'] * f
                 out[key] = out.get(key, 0.0) + (-float(t['amount']) if t['action'] == 'Cover' else float(t['amount'])) - part
                 c['cost'] -= part; c['qty'] -= c['qty'] * f
+        names['__cost__'] = {k: v['cost'] for k, v in cost.items()}   # what is still invested in each holding, in the book's currency at the rates paid
         return out, names
     big = {}
-    def add(race, mid, what, pnl, state, n=1):
-        if abs(pnl) >= 0.5:
+    def add(race, mid, what, pnl, state, n=1, k=None, kind='pos'):
+        if abs(pnl) >= 0.5:   # k + kind: the exact position or bet group, so the site's move story panel finds its trades (owner, Oct 31)
             big.setdefault(race, []).append({'id': mid, 'race': race, 'what': str(what)[:80], 'pnl': round(pnl, 2), 'state': state, 'n': n,
-                                             'cur': 'USD' if race == 'China' else 'CAD'})
+                                             'cur': 'USD' if race == 'China' else 'CAD', 'k': k, 'kind': kind})
     def bets(race, mid, rows):   # rows: (pick, event, profit, status)
         g = {}
         for pick, ev, p, st in rows:
             k = (pick, ev)
             x = g.setdefault(k, [0.0, 0, set()]); x[0] += p; x[1] += 1; x[2].add(st)
         for (pick, ev), (p, n, sts) in g.items():
-            add(race, mid, f'{pick} ({ev})', p, 'won' if p > 0 else 'lost', n)
+            add(race, mid, f'{pick} ({ev})', p, 'won' if p > 0 else 'lost', n, k=[pick, ev], kind='bet')
     def rival_book(race, mid, bk, trades):
         cur = bk.get('cur', 'CAD')
         if race in ('Sports', 'AllInSports'):
@@ -1039,13 +1043,17 @@ def _big_moves():
                              for b in bk.get('bets', []) if b.get('status') in ('Won', 'Lost')])
             return
         rz, names = realized(trades)
-        keys = set(rz) | {k for k, q in (bk.get('positions') or {}).items() if abs(float(q.get('qty') or 0)) > 1e-9}
+        keys = (set(rz) | {k for k, q in (bk.get('positions') or {}).items() if abs(float(q.get('qty') or 0)) > 1e-9}) - {'__cost__'}
         for k in keys:
             q = (bk.get('positions') or {}).get(k) or {}
             held = abs(float(q.get('qty') or 0)) > 1e-9
-            un = conv(float(q['qty']) * (float(q.get('last', q['entry'])) - float(q['entry'])), q.get('pcur', 'USD'), cur) if held else 0.0
+            # profit still open = value now (latest price, today's rate) - what is still invested (at the rates actually paid): the real
+            # result in the race's currency, the same sum the move story panel shows (owner, Oct 31); before, the cost was converted at today's rate
+            left = names.get('__cost__', {}).get(k)
+            un = ((conv(float(q['qty']) * float(q.get('last', q['entry'])), q.get('pcur', 'USD'), cur) - left) if left is not None
+                  else conv(float(q['qty']) * (float(q.get('last', q['entry'])) - float(q['entry'])), q.get('pcur', 'USD'), cur)) if held else 0.0
             nm = (q.get('name') if held else None) or names.get(k) or k
-            add(race, mid, nm + (' (short)' if held and float(q['qty']) < 0 else ''), rz.get(k, 0.0) + un, 'held' if held else 'closed')
+            add(race, mid, nm + (' (short)' if held and float(q['qty']) < 0 else ''), rz.get(k, 0.0) + un, 'held' if held else 'closed', k=k)
     for e in _EXPS:
         # Claude
         if e == 'Sports':
@@ -1063,9 +1071,21 @@ def _big_moves():
                 if v is None or c is None:
                     continue
                 held[h['holding']] = (float(v) - float(c), float(v) < 0)
+            # cash flow (owner, Oct 31: the move story panel's check): everything received - everything paid + value still held now, in
+            # the race's currency at the rates actually used; it never depends on how a partial sale's cost was split
+            flow, vnow = {}, {}
+            for t in data['trades']:
+                if t['portfolio'] != e or _when(t['at']) < _FS or str(t.get('holding', '')).startswith('[') or t['action'] not in ('Buy', 'Sell', 'Short', 'Cover', 'Settled', 'Expired'):
+                    continue
+                amt = float((t.get('usd') if e == 'China' else t.get('cad')) or 0)
+                flow[t['holding']] = flow.get(t['holding'], 0.0) + (amt if t['action'] in ('Sell', 'Short', 'Settled', 'Expired') else -amt)
+            for h in data['holdings']:
+                if h['portfolio'] == e and h['holding'] in held:
+                    vnow[h['holding']] = float((h.get('value_usd') if e == 'China' else h.get('value_cad')) or 0)
             for nm in set(rz) | set(held):
                 un, short = held.get(nm, (0.0, False))
-                add(e, 'claude', nm + (' (short)' if short and '(short)' not in nm else ''), rz.get(nm, 0.0) + un, 'held' if nm in held else 'closed')
+                tot = flow[nm] + vnow.get(nm, 0.0) if nm in flow else rz.get(nm, 0.0) + un
+                add(e, 'claude', nm + (' (short)' if short and '(short)' not in nm else ''), tot, 'held' if nm in held else 'closed', k=nm)
         # Gemini and ChatGPT
         for mid, m in (r.get('models') or {}).items():
             bk = (m.get('books') or {}).get(e)
