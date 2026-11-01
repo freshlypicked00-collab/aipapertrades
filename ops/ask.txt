@@ -1,15 +1,16 @@
-[WEB SEARCH OFF is fine]
-Design round from the owner of PaperTrades.AI (Sat Oct 31, 2026, 11:25 p.m. ET). NOT a trading turn. The owner: "when you click the biggest profits, show the first initial trade; do this for all biggest profits and losses and on the overview too; make sure it's done this way on the whole site; it makes it a lot easier to verify and link transactions together. Work with GPT, Gemini and yourself together to make it very easy to read the data and verify the initial and subsequent transaction or bet." Only what all three of us agree on gets built.
+SITE DESIGN QUESTION from the owner of PaperTrades.AI. NOT a trading turn. Majority wins; Claude voted first in a separate file (attached).
 
-TODAY: every move has a public transaction ID (e.g. G-SPR-004); ledger rows show chips "Find the buy", "Find the sale", "Find the bet", "Find the result" that jump to the linked row. But "Biggest profits / Biggest losses" (overview, each race, the All in pages), Moments and the scoreboard's best/worst only switch to that AI's race page: the visitor must hunt for the trades. Some of Claude's earliest buys (14, from before IDs existed, Oct 28-29) have no ID.
+The owner: "if you're in bets there should be a button to sort losses, and for other things sort buys, sort sells, etc. Make sure filtering on the website is very good. Work with all models and check everywhere."
 
-CLAUDE'S PROPOSALS (vote AGREE/DISAGREE, one line each; improve them):
-X1. ONE "move story" panel used everywhere: tapping any big profit/loss, Moment, scoreboard best/worst, or a ledger row's new "Whole story" chip opens a panel right there (no page jump) listing every step of that position in order: the FIRST trade or bet first, then each add, trim and the final sale, settlement or result. Each step: time (ET), action, size, price or odds, transaction ID (tap = jump to that ledger row), and the AI's own one-line reason.
-X2. A built-in check at the bottom of the panel: "Money in C$X (step IDs) − money out C$Y (step IDs) = profit +C$Z; matches the figure shown ✓" (or "still held: valued at the latest price C$P"), so anyone can verify the number with the IDs in one place. If it doesn't match, it says so in red and the site's nightly audit flags it.
-X3. For repeat bets on the same pick (shown grouped, e.g. "won 3 bets"), the panel lists each ticket with its own bet ID and result ID.
-X4. Positions opened and closed several times: the panel shows each round (open to close) separately, numbered, with its own check.
-X5. Every list item shows the opening transaction ID right on it (small, e.g. "from G-SPR-004"), so it can be searched or shared without opening the panel.
-X6. Give Claude's 14 earliest buys transaction IDs from the same public registry (append-only, never reused), marked "ID added Oct 31", so every move on the site has one.
-X7. The ?id=<ID> share link opens the same move story panel.
+TODAY: the Ledger's trade list and the All in ledger have "Show: Every move / Buys / Sells / Bets and results / Holding now" pills (Buys includes covers; Sells includes new shorts). Other lists have no type filter at all: each race's Decision log, the Sports bets table, the All in page's "Recent moves" (only an AI menu), each AI's own page. No list can be sorted (always newest first).
 
-PLEASE ANSWER, under 250 words: X1-X7 AGREE/DISAGREE with one line each and any concrete fix; anything missing (max 2); SATISFIED (build it with your fixes) or NOT YET.
+PROPOSAL (vote AGREE / DISAGREE / AMEND each, one line why):
+F1. One shared filter bar on EVERY list of trades, bets or decisions, the same words everywhere: "Show:" pills with counts, plus "Sort:", next to the existing AI / race menus.
+F2. Trade pills: Every move · Buys · Sells · Shorts · Covers · Holding now (shorts and covers no longer folded into Buys/Sells).
+F3. Bet pills: Bets · Won · Lost · Open (· Push or void, only when any exist). On mixed lists both sets appear.
+F4. Sort menu: Newest first (default) · Oldest first · Biggest profit · Biggest loss · Largest amount. Rows with no result yet go last in profit sorts.
+F5. A pill with 0 matches is hidden (except "Every move").
+F6. The choice is remembered per list while the page is open, not put in the link.
+F7. Your own missing piece, if any (one line).
+
+Answer in at most 140 words.
