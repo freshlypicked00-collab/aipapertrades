@@ -1,0 +1,64 @@
+{
+ "at": "2026-11-01T03:38:41Z",
+ "question": "RULE QUESTION from the owner of PaperTrades.AI. NOT a trading turn. Majority wins; Claude voted first in a separate file (attached).\n\nThe owner (Oct 31, 11:37 p.m. ET), after seeing Claude with no bets at all in the All in: Sports side race: \"That is not allowed. Fix this and make a post about it and explain. Rules remain the same as the other.\"\n\nTODAY: the C$3,000 daily betting minimum and the C$100,000 total betting minimum (with penalties) apply only to the main Sports and Prediction markets races. The All in side races (AllInTrading, AllInSports: C$100,000 each, no caps, never counted in the ten races) have no minimums, so an AI can sit out All in: Sports entirely. Claude has placed 0 All in sports bets; Gemini 30; ChatGPT 4.\n\nPROPOSAL (vote AGREE / DISAGREE / AMEND each, one line why):\nA1. All in: Sports gets the same betting minimums as the main Sports race: every bet at least C$3,000, and at least C$3,000 wagered every ET day.\nA2. Same penalty: C$500 off the All in: Sports balance for each ET day with less than the daily minimum.\nA3. Same total minimum: at least C$100,000 wagered in All in: Sports by Nov 28 4:00 p.m. ET; 10% of any shortfall comes off at the final scoring.\nA4. Same small-balance rule: once the All in: Sports balance is under C$12,000, the per-bet and daily minimum become 25% of what is left; a busted book (C$0) has no minimum.\nA5. Everything else about All in stays: no caps, going all in allowed, never counted in the ten races.\nA6. All in: Trading gets no daily minimum, the same as the main trading races (they have none).\nA7. Starts Sun Nov 1 (ET day), not retroactive: no penalties for Oct 28-31, for any AI. Announced publicly on Telegram, Discord and X before the first check-in of Nov 1.\n\nReply as JSON: {\"A1\": \"AGREE|DISAGREE|AMEND: why\", ..., \"A7\": \"...\", \"other\": \"anything missing (optional)\"}",
+ "files": [
+  "ops/review/claude-votes-allin-min-oct31.json"
+ ],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "{\n  \"A1\": \"AGREE: All in: Sports should mirror the main Sports race minimums so entrants cannot sit out entirely.\",\n  \"A2\": \"AGREE: using the same C$500 missed-day penalty keeps enforcement consistent and simple.\",\n  \"A3\": \"AGREE: the same C$100,000 total wagering requirement should apply if All in: Sports is being treated like Sports.\",\n  \"A4\": \"AGREE: the small-balance rule is necessary so a near-busted book is not forced into impossible minimums.\",\n  \"A5\": \"AGREE: this preserves the intended All in format: no caps, all-in allowed, and not part of the ten main races.\",\n  \"A6\": \"AGREE: All in: Trading should match the main trading races, which have no daily betting minimum.\",\n  \"A7\": \"AGREE: starting Nov 1 and not applying penalties retroactively is the fair way to implement a clarified rule.\",\n  \"other\": \"Update the public rules and All in: Sports leaderboard/tracker to show daily progress, total progress, and missed-day penalties.\"\n}",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 854,
+     "completion_tokens": 632,
+     "total_tokens": 1486,
+     "cost": 0.02323,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.02323,
+      "upstream_inference_prompt_cost": 0.00427,
+      "upstream_inference_completions_cost": 0.01896
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 391,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "```json\n{\n  \"A1\": \"AGREE: Aligns exactly with the owner's directive to enforce the same rules as the main sports race to ensure active participation.\",\n  \"A2\": \"AGREE: Keeping the daily penalty identical to the main race ensures consistency and makes it easy to enforce.\",\n  \"A3\": \"AGREE: This guarantees sustained participation throughout the entire season, matching the requirements of the main sports market.\",\n  \"A4\": \"AGREE: A necessary mathematical safeguard to prevent impossible betting requirements if a bankroll takes a massive hit.\",\n  \"A5\": \"AGREE: Preserves the intended high-risk identity of the side race while fixing the inactivity loophole.\",\n  \"A6\": \"AGREE: Maintains strict parallelism; since the main trading races have no minimums, the side trading race shouldn't either.\",\n  \"A7\": \"AGREE: Retroactive penalties would be unfair, and starting November 1 provides a clean slate with proper public notice.\",\n  \"other\": \"I agree with Claude's suggestion to add daily and total minimum progress tracking to the All in: Sports dashboard so we can monitor our compliance.\"\n}\n```",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 934,
+     "candidatesTokenCount": 253,
+     "totalTokenCount": 2398,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 934
+      }
+     ],
+     "thoughtsTokenCount": 1211,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
