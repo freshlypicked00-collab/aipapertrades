@@ -9,7 +9,8 @@ Trading races (Stocks, Crypto, China, Metals, Energy, Currencies, Safe): each ra
     its holdings at exactly the AI's trade times (same number of trades);
   - holds k equal-weight positions (k = how many different holdings the AI traded, at most 4), long only unless the AI shorted;
   - is scaled so its hour-to-hour ups and downs (volatility) over those invested hours equal the AI's, capped at 5x;
-  - pays the same costs as Season 1 (none on these races).
+  - pays the same costs as Season 1 (none on these races), and is valued in the race's own currency like the AI (C$; US$ for China).
+  Shown first: the gap in percentage points between the AI and the typical (median) random portfolio; then the percentile.
   The AI's percentile = the share of random portfolios that ended below it (ties count half), with a 95% band.
 Sports: the AI's settled bets replayed 1,000 times, each won with the probability its odds implied (1 / decimal odds, the
 bookmaker's margin left in, which slightly favours the random replays). Shows how lucky the results were given the odds taken.
@@ -42,6 +43,9 @@ UNIVERSE = {
     'Safe': ['BIL', 'SHV', 'SGOV', 'TLT', 'IEF', 'AGG', 'BND', 'GLD'],
 }
 AIS = ('claude', 'gemini', 'chatgpt')
+# Each race is valued in its own currency (C$, or US$ for China), so every random portfolio is converted the same way the AI's is.
+FX_EXTRA = ['CAD=X', 'CNY=X']   # USD->CAD and USD->CNY
+QUOTED_PER_USD = {'JPY=X', 'CHF=X', 'MXN=X', 'CAD=X', 'CNY=X'}   # these quote foreign units per US$
 
 
 def ts(s):
@@ -138,6 +142,21 @@ def trading(hist, trades, prices, now):
         mats = {s: ffill(sorted(prices[s].items()), g) for s in syms if prices.get(s)}
         uni = [s for s, col in mats.items() if sum(1 for v in col if v) > len(g) * 0.3]   # enough data to use
         ur = {s: rets([v if v else None for v in mats[s]]) for s in uni}
+        usdcad = rets(ffill(sorted((prices.get('CAD=X') or {}).items()), g)) if prices.get('CAD=X') else [0.0] * (len(g) - 1)
+        usdcny = rets(ffill(sorted((prices.get('CNY=X') or {}).items()), g)) if prices.get('CNY=X') else [0.0] * (len(g) - 1)
+        for sym in uni:   # into the race's own currency
+            r0 = ur[sym]
+            if race == 'China':   # CNY-priced funds, race in US$
+                ur[sym] = [(1 + a) / (1 + c) - 1 for a, c in zip(r0, usdcny)]
+            elif race == 'Currencies':   # holding that currency, valued in C$
+                if sym == 'CAD=X':
+                    ur[sym] = list(usdcad)   # stands for holding US$
+                elif sym in QUOTED_PER_USD:
+                    ur[sym] = [(1 / (1 + a)) * (1 + c) - 1 for a, c in zip(r0, usdcad)]
+                else:
+                    ur[sym] = [(1 + a) * (1 + c) - 1 for a, c in zip(r0, usdcad)]
+            else:   # US$-priced assets, race in C$
+                ur[sym] = [(1 + a) * (1 + c) - 1 for a, c in zip(r0, usdcad)]
         for ai in AIS:
             key = (ai, race)
             pts = sorted(p for p in hist.get(key, []) if p[0] >= RESTART - timedelta(minutes=5))
@@ -202,6 +221,7 @@ def trading(hist, trades, prices, now):
             ss = sorted(sims)
             rec.update({'status': 'ok', 'percentile': p, 'band': band, 'k': k, 'shorts_allowed': shorts, 'universe': uni,
                         'random_median': round(ss[len(ss) // 2], 5), 'random_p10': round(ss[len(ss) // 10], 5), 'random_p90': round(ss[9 * len(ss) // 10], 5),
+                        'gap_pts': round(100 * (ai_total - ss[len(ss) // 2]), 2), 'spread_pts': round(100 * (ss[9 * len(ss) // 10] - ss[len(ss) // 10]), 2),
                         'capped_share': round(sum(1 for s in scales if s >= 5.0) / len(scales), 3)})
             out.setdefault(race, {})[ai] = rec
     return out
@@ -237,7 +257,7 @@ def main(prices=None, now=None):
     hist, trades, bets = load()
     if prices is None:
         prices, missing = {}, []
-        for s in sorted({s for v in UNIVERSE.values() for s in v}):
+        for s in sorted({s for v in UNIVERSE.values() for s in v} | set(FX_EXTRA)):
             try:
                 prices[s] = fetch_hourly(s)
             except Exception as e:

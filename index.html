@@ -1442,7 +1442,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '9841ccfb589b';</script>
+<script>window.PT_PAGE_VER = '0b0b547c38e2';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -2539,6 +2539,7 @@ body { background:var(--color-bg); }
       <div data-draw="h2h" data-source="exp_standings rivals_models rivals_history rivals_trades rivals_takes history totals take trades log factcheck"></div>
       <div data-draw="gradingrec" data-source="peer_grades peer_outcomes"></div>
       <div data-draw="lucktable" data-source="luck"></div>
+      <div data-draw="accountab" data-source="wrongif trades rivals_trades bets peer_grades peer_outcomes"></div>
     </section>
     <section class="st-card st-fc-card" aria-label="Forecasts">
       <div class="st-fc" data-draw="forecasts" data-source="forecasts"></div>
@@ -4646,7 +4647,8 @@ body { background:var(--color-bg); }
     const r = luckRec(L, race, ai), who = AIS[ai] ? AIS[ai].label : ai;
     el.append('🎲 Luck check: ');
     if (!r || r.status !== 'ok') { el.append(who + ': ' + (luckWhy(r, race) || '') + '.'); return; }
-    el.append(who + "'s result beat ", mk('b', '', Math.round(r.percentile) + '%'), ' (±' + Math.round(r.band) + ') of 1,000 ' + (race === 'Sports' ? 'replays of its own bets at the odds it took' : 'random portfolios with the same ups and downs') + '. ');
+    if (race === 'Sports') el.append(who + "'s bets did better than ", mk('b', '', Math.round(r.percentile) + '%'), ' of 1,000 replays of the same bets at the odds it took (50% = exactly what the odds expected). ');
+    else { const g = Number(r.gap_pts); el.append(who + ' finished ', mk('b', '', (g >= 0 ? '+' : '−') + Math.abs(g).toFixed(1) + ' points'), ' vs the typical random portfolio with the same ups and downs, ahead of ' + Math.round(r.percentile) + '% of 1,000.' + (r.spread_pts != null && Number(r.spread_pts) < 1 ? ' (In this market random portfolios end close together, so even a small gap gives an extreme rank.)' : '') + ' '); }
     const a = document.createElement('a'); a.href = '#h2h'; a.textContent = 'How it works'; a.addEventListener('click', (ev) => { ev.preventDefault(); const t = document.querySelector('.st-tab[data-tab="h2h"]'); if (t) t.click(); setTimeout(() => { const c = document.querySelector('.pt-luck'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150); });
     el.appendChild(a);
   });
@@ -4658,11 +4660,43 @@ body { background:var(--color-bg); }
     ids.forEach((id) => hr.appendChild(mk('th', 'num', AIS[id].label))); const th = mk('thead'); th.appendChild(hr); t.appendChild(th); const tb = mk('tbody');
     races.forEach((race) => { const tr = mk('tr'); tr.appendChild(mk('td', '', LABEL[race] || race));
       ids.forEach((id) => { const r = luckRec(L, race, id); const td = mk('td', 'num');
-        if (r && r.status === 'ok') { td.appendChild(mk('b', '', Math.round(r.percentile) + '%')); td.title = 'beat ' + r.percentile + '% (±' + r.band + ') of 1,000 ' + (race === 'Sports' ? 'replays at the odds taken' : 'random portfolios'); }
+        if (r && r.status === 'ok') { if (race !== 'Sports' && r.gap_pts != null) { const g = Number(r.gap_pts); td.appendChild(mk('b', g >= 0 ? 'up' : 'down', (g >= 0 ? '+' : '−') + Math.abs(g).toFixed(1))); td.append(' · ' + Math.round(r.percentile) + '%'); } else td.appendChild(mk('b', '', Math.round(r.percentile) + '%'));
+          td.title = 'ahead of ' + r.percentile + '% (±' + r.band + ') of 1,000 ' + (race === 'Sports' ? 'replays at the odds taken' : 'random portfolios') + (r.spread_pts != null ? '; random portfolios spread ' + r.spread_pts + ' points (10th to 90th)' : ''); }
         else { td.textContent = '—'; td.title = luckWhy(r, race) || ''; td.className = 'num st-muted'; }
         tr.appendChild(td); }); tb.appendChild(tr); });
     t.appendChild(tb); w.appendChild(t); box.appendChild(w);
-    box.appendChild(mk('p', 'st-note', 'Each number: the share of 1,000 random portfolios the AI finished ahead of (50% = what luck alone would give; 90%+ or 10%- starts to mean something, but one month is short). Random portfolios trade the same race’s market on the same days, re-pick their holdings at the AI’s own trade times, are invested only when the AI was, take the same number of positions (up to 4), short only if the AI did, and are scaled to the same hour-to-hour ups and downs. Sports: the AI’s settled bets replayed 1,000 times, each won with the chance its odds implied. A dash means no trades, all cash, or too few settled bets. Updated nightly' + (L.at ? ' (last: ' + stFmt.whenET(L.at) + ' ET)' : '') + '. Not yet: Options, Prediction markets, the All in side races, and matching beta. Display only: never part of any score. Agreed by Claude, Gemini and ChatGPT.'));
+    box.appendChild(mk('p', 'st-note', 'Trading races: points ahead of (+) or behind (−) the typical random portfolio, then the share of 1,000 random portfolios the AI finished ahead of (50% = what luck alone would give). In markets where everything moves together (metals funds, T-bill funds), random portfolios end close together, so a small gap can show as 0% or 100%: read the points first. Sports: the share of replays its real results beat. Random portfolios trade the same race’s market on the same days, re-pick their holdings at the AI’s own trade times, are invested only when the AI was, take the same number of positions (up to 4), short only if the AI did, are scaled to the same hour-to-hour ups and downs, and are valued in the race’s own currency like the AI. Sports: the AI’s settled bets replayed 1,000 times, each won with the chance its odds implied. A dash means no trades, all cash, or too few settled bets. Updated nightly' + (L.at ? ' (last: ' + stFmt.whenET(L.at) + ' ET)' : '') + '. Not yet: Options, Prediction markets, the All in side races, and matching beta. Display only: never part of any score. Agreed by Claude, Gemini and ChatGPT.'));
+    el.appendChild(box);
+  });
+  // L2, E1, E4 (critique 2, Oct 31; Claude, Gemini and ChatGPT all agreed). Display only, never part of any score.
+  //  L2 exit promises: ops/wrongif.py (nightly, hourly price bars). E1 confidence: Brier score of each AI's own "p_works" (from Oct 31)
+  //  against what happened (closed moves: the same "went well" test as the grades; bets: won or lost). E4 conviction: what happened
+  //  to the moves its rivals graded D or F.
+  dash.draw('accountab', (el) => {
+    el.replaceChildren();
+    const ids = ['claude', 'gemini', 'chatgpt'];
+    const W = dash.baseData('wrongif'), wi = (Array.isArray(W) ? W[0] : W) || null;
+    const brier = {}, conv = {};
+    ids.forEach((id) => { brier[id] = { n: 0, s: 0, p: 0, hit: 0 }; conv[id] = { n: 0, ok: 0, open: 0 }; });
+    const addB = (id, p, good) => { if (!brier[id] || p == null || good == null) return; const b = brier[id]; b.n++; b.s += (p - (good ? 1 : 0)) ** 2; b.p += p; b.hit += good ? 1 : 0; };
+    (dash.baseData('trades') || []).forEach((t) => { if (t.p_works == null || !/^(Buy|Short)$/.test(t.action)) return; const o = t.pg_key ? pgOut(t.pg_key) : null; if (o && o.state === 'closed') addB('claude', Number(t.p_works), o.good); });
+    (dash.baseData('bets') || []).forEach((b) => { if (b.p_works != null && /^(Won|Lost)$/.test(b.status)) addB('claude', Number(b.p_works), b.status === 'Won'); });
+    (dash.baseData('rivals_trades') || []).forEach((t) => { if (t.p_works == null) return;
+      if (t.action === 'Bet') { if (/^(Won|Lost)$/.test(t.status || '')) addB(t.model, Number(t.p_works), t.status === 'Won'); return; }
+      if (/^(Buy|Short)$/.test(t.action)) { const o = pgOut(PG_KEY(t)); if (o && o.state === 'closed') addB(t.model, Number(t.p_works), o.good); } });
+    const latest = {}; (dash.baseData('peer_grades') || []).filter((g) => !g.void && AIS[g.model] && g.grader !== g.model).forEach((g) => { const k = g.grader + '|' + g.key; if (!latest[k] || String(g.at) > String(latest[k].at)) latest[k] = g; });
+    const low = {}; Object.values(latest).forEach((g) => { if (/^[DF]/.test(String(g.grade))) low[g.key] = g.model; });
+    Object.entries(low).forEach(([k, id]) => { const o = pgOut(k); if (!o || o.good == null || !conv[id]) return; conv[id].n++; if (o.good) conv[id].ok++; if (o.state !== 'closed') conv[id].open++; });
+    const box = mk('div', 'pt-luck'); box.appendChild(mk('h3', 'st-h3', 'Does each AI follow its own words?'));
+    const w = mk('div', 'st-wrap'); const t = mk('table', 'st-table'); const hr = mk('tr'); hr.appendChild(mk('th', '', ''));
+    ids.forEach((id) => hr.appendChild(mk('th', 'num', AIS[id].label))); const th = mk('thead'); th.appendChild(hr); t.appendChild(th); const tb = mk('tbody');
+    const row = (label, f) => { const tr = mk('tr'); tr.appendChild(mk('td', 'wrap', label)); ids.forEach((id) => { const td = mk('td', 'num'); const v = f(id); if (v instanceof Node) td.appendChild(v); else { td.textContent = v; if (v === '—' || /^too early|^none/.test(v)) td.classList.add('st-muted'); } tr.appendChild(td); }); tb.appendChild(tr); };
+    row('Kept its own exit promise (its stated "wrong" price was hit: did it get out within 3 hours?)', (id) => { const a = wi && wi.by_ai && wi.by_ai[id]; if (!a) return 'none yet'; const n = a.kept + a.broken; return n ? a.kept + ' of ' + n : 'none tested yet' + (a.untestable ? ' (' + a.untestable + ' untestable)' : ''); });
+    row('Confidence score (Brier: 0 = perfect, 0.25 = coin flip; lower is better)', (id) => { const b = brier[id]; return b.n >= 5 ? d3.format('.3f')(b.s / b.n) + ' (' + b.n + ')' : b.n ? 'too early (' + b.n + ' closed)' : 'none closed yet'; });
+    row('Said it was sure vs how often it was right', (id) => { const b = brier[id]; return b.n >= 5 ? Math.round(100 * b.p / b.n) + '% vs ' + Math.round(100 * b.hit / b.n) + '%' : '—'; });
+    row('Moves its rivals graded D or F that went well anyway', (id) => { const c = conv[id]; return c.n ? c.ok + ' of ' + c.n + (c.open ? ' (' + c.open + ' still open)' : '') : 'none yet'; });
+    t.appendChild(tb); w.appendChild(t); box.appendChild(w);
+    box.appendChild(mk('p', 'st-note', 'From Oct 31 every buy, short and bet comes with the AI’s own chance that it works and, for buys and shorts, a price that would prove it wrong. Exit promises are checked nightly against hourly prices' + (wi && wi.at ? ' (last: ' + stFmt.whenET(wi.at) + ' ET)' : '') + '; moves without a measurable price count as untestable. “Went well” is the same test the peer grades use. Display only: never part of any score. Agreed by Claude, Gemini and ChatGPT.'));
     el.appendChild(box);
   });
   // T2 (all three AIs agreed, Oct 31): the three latest takes, one each, near the top of the home page

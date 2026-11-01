@@ -581,6 +581,10 @@ try:   # L1 luck check (critique 2, Oct 31; all three AIs agreed): written night
     data['luck'] = [json.load(open(os.path.join(SRC, 'luck.json')))]
 except Exception:
     data['luck'] = []
+try:   # L2 wrong-if tracker (critique 2, Oct 31; all three AIs agreed): written nightly by ops/wrongif.py; display only
+    data['wrongif'] = [json.load(open(os.path.join(SRC, 'wrongif.json')))]
+except Exception:
+    data['wrongif'] = []
 # Profit on every closed trade (average cost) and every settled bet, so every trade table can show what went in,
 # what came back and the profit. Buys and open bets are marked open. Sells carry "cost" (what that part cost) and "pnl".
 def _annotate_rivals(r):
