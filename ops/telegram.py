@@ -480,7 +480,7 @@ for day, n in race_days[-1:]:
             _cl2 = datetime.fromisoformat(day).replace(tzinfo=timezone.utc) + timedelta(days=1)
             from zoneinfo import ZoneInfo as _ZI2
             _et2 = _cl2.astimezone(_ZI2('America/New_York')).strftime('%-I %p').lower().replace('m', '.m.')
-            txt.append(f"\n⏱ Trading never stops: this is the daily snapshot at {_et2} ET (00:00 UTC). The AIs keep going, and anything after the close counts toward the next day.")
+            txt.append(f"\n⏱ <b>Trading never stops.</b> This is the daily snapshot, taken at the same moment worldwide: {_et2} ET (00:00 UTC). The AIs keep trading through it: crypto, prediction markets and sports 24/7; stocks, metals and China stocks whenever those real markets are open. Anything after the close counts toward the next day.")
             txt.append(f"\nThe races are only added together at the final scoring on Nov 28.\nShare it 👉 {SITE}")
             send('\n'.join(txt), pic, silent=False)
             discord.post('\n'.join(txt), pic, url=discord.DAILY, ping=discord.ROLE_DAILY)   # also in #daily-results (owner, Oct 30)
