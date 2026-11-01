@@ -3930,7 +3930,11 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       .forEach((r) => {
         const tr = document.createElement('tr');
         tr.dataset.key = encodeURIComponent(r.at) + ',' + encodeURIComponent(r.event);
-        const dIn = new Date(r.at) - Date.now(), rel = dIn > 0 && dIn < 48 * 3600e3 ? ' · in ' + (dIn < 3600e3 ? Math.max(1, Math.round(dIn / 60000)) + ' min' : Math.round(dIn / 3600e3) + ' h') : '';   // countdown (2 of 3, owner Oct 30)
+        // an AI-written date that disagrees with the event's own timestamp (Gemini, Nov 1: 'Sun Nov 1, 8:30 p.m.' with a timestamp for Monday night)
+        // gets no countdown and a note, instead of 'Sun … · in 31 h' (owner, Nov 1: number check)
+        const md = /([A-Z][a-z]{2}) (\d{1,2})/.exec(r.when || ''), atMD = r.at ? new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric' }).format(new Date(r.at)) : '';
+        const clash = !!(md && atMD && atMD !== md[1] + ' ' + md[2]);
+        const dIn = new Date(r.at) - Date.now(), rel = clash ? ' (date unclear in this AI’s plan)' : dIn > 0 && dIn < 48 * 3600e3 ? ' · in ' + (dIn < 3600e3 ? Math.max(1, Math.round(dIn / 60000)) + ' min' : Math.round(dIn / 3600e3) + ' h') : '';   // countdown (2 of 3, owner Oct 30)
         const wt = (/[ap]\.m\./.test(r.when) && r.at ? r.when.replace(/ ET$/, '') + ' ET' : r.when) + rel;   // W6: one time zone; UTC and Hong Kong on tap
         const cells = p ? [wt, r.event, r.why] : [wt, r.event, r.affects, r.why];
         cells.forEach((text, i) => {
@@ -9302,7 +9306,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const p = mk('p', 'st-note');
     if (!n) { p.textContent = 'Nightly full audit (all three AIs agreed, Oct 31): every night after the close, every fill and bet of the last two days is re-checked against Yahoo, Polymarket and ESPN. The first one runs tonight.'; el.appendChild(p); return; }
     const flags = (n.open_flags || []).length;
-    p.textContent = 'Nightly full audit, ' + stFmt.when(n.at) + ': ' + n.fills_checked + ' fills and ' + n.bets_checked + ' bets of the last two days re-checked against Yahoo, Polymarket and ESPN; ' + (flags ? flags + ' open to review (listed in the next correction or note).' : 'nothing open.');
+    p.textContent = 'Nightly full audit, ' + stFmt.when(n.at) + ': ' + n.fills_checked + ' fills and ' + n.bets_checked + ' bets of the last two days re-checked against Yahoo, Polymarket and ESPN; ' + (flags ? flags + ' price problem' + (flags === 1 ? '' : 's') + ' to review (listed in the next correction or note).' : 'every one matched; no price problems found.');
     el.appendChild(p);
   });
   dash.draw('pricecorr', (el) => {   // full-audit vote V3 (Oct 31): fills made at a stale or rounded feed price, restated at the 1-minute bar
@@ -9443,11 +9447,12 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       if (!today && now < endAll && Date.parse((tot || {}).start) <= now) today = { wagered: 0, min: (tot && tot.day_min) || 3000, end: new Date(now + 3.6e6).toISOString() };   // a new day before the next update
       if (today) box.appendChild(line('Placed today', today));
       { const B = id === 'claude' ? dash.baseData('bets') : ((dash.models()[id] || {}).bets || []); const g = {}; B.filter((b) => b.status !== 'Void' && b.starts_at).forEach((b) => { const k = new Date(b.starts_at).toLocaleDateString('en-CA', { timeZone: 'America/New_York' }); g[k] = (g[k] || 0) + Number(b.stake_cad || 0); });
-        const top = Object.entries(g).sort((a, b) => b[1] - a[1])[0]; if (top) { const d = mk('div', 'bm-row'); d.appendChild(document.createTextNode('Busiest game day: ' + money(top[1]) + ' on ' + new Date(top[0] + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }) + ' games (the 25% cap counts each game day, not the day a bet is placed)')); box.appendChild(d); } }
+        const top = Object.entries(g).sort((a, b) => b[1] - a[1])[0]; if (top) { const d = mk('div', 'bm-row'); const nTop = Object.values(g).filter((v) => Math.abs(v - top[1]) < 1).length; const dTop = new Date(top[0] + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+          d.appendChild(document.createTextNode('Busiest game day: ' + money(top[1]) + (nTop > 1 ? ' on each of ' + nTop + ' game days (first: ' + dTop + ')' : ' on ' + dTop + ' games') + ' (the 25% cap counts each game day, not the day a bet is placed)'));   /* ties named (owner, Nov 1: Gemini hit C$25,000 on five game days but only Oct 28 was shown) */ box.appendChild(d); } }
       const past = days.filter((r) => Date.parse(r.end) <= now);
       if (past.length) {
         const missed = past.filter((r) => r.wagered + 0.5 < r.min);
-        const d = mk('div', 'bm-row'); d.appendChild(document.createTextNode('Daily minimum met on ' + (past.length - missed.length) + ' of ' + past.length + ' day' + (past.length > 1 ? 's' : '') + ' '));
+        const d = mk('div', 'bm-row'); d.appendChild(document.createTextNode('Daily minimum met on ' + (past.length - missed.length) + ' of ' + past.length + ' finished day' + (past.length > 1 ? 's' : '') + ' '));   /* 'finished': today is shown above (owner, Nov 1: '4 of 4 days' on day 5 read as a miscount) */
         d.appendChild(missed.length ? mk('span', 'bm-miss', '✗ missed ' + missed.map((r) => day(r.day)).join(', ')) : mk('span', 'bm-ok', '✓'));
         box.appendChild(d);
       }
@@ -9526,12 +9531,12 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       const who = mk('span', 'gr-who'); const b1 = mk('b', '', nm(c.by)), b2 = mk('b', '', nm(c.about)); b1.style.color = col(c.by); b2.style.color = col(c.about);
       who.append(b1, document.createTextNode(' on '), b2, document.createTextNode(race(c, bad.own)));
       rows.push(row('gr-bad', '🎯', 'Worst · ' + c.grade, who, '“' + c.text + '”',
-        [c.said ? mk('p', '', nm(c.about) + '’s trade: ' + c.said) : null, mk('p', 'gr-foot', 'Call-out of the day · ' + when(c.at))].filter(Boolean))); }
+        [c.said ? mk('p', '', nm(c.about) + '’s decision: ' + c.said) : null, mk('p', 'gr-foot', 'Call-out of the day · ' + when(c.at))].filter(Boolean))); }
     if (good.c && (good.c.grades || []).length >= 2) { const c = good.c;
       const who = mk('span', 'gr-who'); const b2 = mk('b', '', nm(c.about)); b2.style.color = col(c.about);
       who.append(document.createTextNode('Both rivals on '), b2, document.createTextNode(race(c, good.own)));
       rows.push(row('gr-good', '👏', 'Best · ' + c.grades.map((g) => g.grade).join(' & '), who, '“' + c.grades[0].text + '”',
-        [c.said ? mk('p', '', nm(c.about) + '’s trade: ' + c.said) : null].concat(c.grades.map((g) => { const q = mk('p', ''); const n = mk('b', '', nm(g.by) + ' (' + g.grade + '): '); n.style.color = col(g.by); q.append(n, document.createTextNode('“' + g.text + '”')); return q; }),
+        [c.said ? mk('p', '', nm(c.about) + '’s decision: ' + c.said) : null].concat(c.grades.map((g) => { const q = mk('p', ''); const n = mk('b', '', nm(g.by) + ' (' + g.grade + '): '); n.style.color = col(g.by); q.append(n, document.createTextNode('“' + g.text + '”')); return q; }),
           [mk('p', 'gr-foot', 'Praise of the day · decision ' + when(c.at) + ' · graded anonymously, before the result · never a score')]).filter(Boolean))); }
     // the selected AI's own best and worst grades received (owner, Oct 30; Claude, Gemini and ChatGPT all agreed: ops/review/aigrades-r1-oct30.json):
     // decisions it made in the last 24 hours, in the race being viewed or all races; how many grades it got is on the line, so one grade
@@ -9695,11 +9700,11 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     two.appendChild(col('By races won', 'How many races it has the best risk score in (Gemini’s pick: one extreme race can’t swing it). Ties go to the higher average.', ordW, byWins));
     el.appendChild(two);
     // W10 (owner, Oct 30; all three AIs agreed): say which way is better and what a negative score means; the formula is unchanged
-    el.appendChild(mk('p', 'ra-sub ra-key', 'Higher is better. A score is return ÷ worst drop: above 0 means the race made money; below 0 means it lost money, and closer to 0 is better.'));
+    el.appendChild(mk('p', 'ra-sub ra-key', 'Higher is better. Made money: return ÷ worst drop. Lost money: % lost × worst drop % ÷ 4, so a bigger drop scores worse. Above 0 means the race made money; below 0 means it lost money, and closer to 0 is better.'));
     if (R.order[0] === ordW[0] && AIS[R.order[0]]) el.appendChild(mk('p', 'ra-sub ra-both', '🛡️ ' + AIS[R.order[0]].label + ' leads both ways right now.'));
     else el.appendChild(mk('p', 'ra-sub ra-both', 'The two ways disagree right now: ' + (AIS[R.order[0]] || {}).label + ' leads on average, ' + (AIS[ordW[0]] || {}).label + ' on races won.'));
     const d = mk('details', 'ra-how'); d.appendChild(mk('summary', '', 'How the risk score works, and every race'));
-    d.appendChild(mk('p', '', 'For each race: the return since the start divided by the worst drop (the biggest fall from a high point). A worst drop under ' + R.floor_pct + '% counts as ' + R.floor_pct + '%, so a tiny gain with almost no movement can’t look like genius. For a loss, a bigger drop makes the score worse. The award is shown two ways: the highest average over the ten races, and the most races with the best risk score. Only percentages are shown here.'));
+    d.appendChild(mk('p', '', 'For each race: the return since the start divided by the worst drop (the biggest fall from a high point). A worst drop under ' + R.floor_pct + '% counts as ' + R.floor_pct + '%, so a tiny gain with almost no movement can’t look like genius. For a race that lost money the score is the % lost times the worst drop % divided by 4 (both at least ' + R.floor_pct + '%), e.g. −4.5% lost with a 5% worst drop scores −4.5 × 5 ÷ 4 = −5.6, so a bigger drop always scores worse (a plain ratio would reward it). The award is shown two ways: the highest average over the ten races, and the most races with the best risk score. Only percentages are shown here.'));
     const t = mk('table', 'ra-t'); const hd = mk('tr'); hd.appendChild(mk('th', '', 'Race')); R.order.forEach((id) => hd.appendChild(mk('th', '', AIS[id] ? AIS[id].label : id))); const th = mk('thead'); th.appendChild(hd); t.appendChild(th);
     const tb = mk('tbody'); races.forEach((e) => { const tr = mk('tr'); tr.appendChild(mk('td', '', (LABEL[e] || e).replace(' (US$)', '')));
       R.order.forEach((id) => { const x = R.races[e][id] || {}; const td = mk('td', '', f(x.score || 0)); td.title = 'Return ' + (x.ret >= 0 ? '+' : '') + (x.ret || 0).toFixed(2) + '% · worst drop −' + (x.dd || 0).toFixed(2) + '%'; tr.appendChild(td); }); tb.appendChild(tr); });

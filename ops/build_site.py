@@ -814,6 +814,12 @@ def _betbal(mid):
             return usd if pb['cur'] == 'USD' else usd * fxr.get('USDCAD', 1.4)
         tot += pb['cash'] + sum(_cad(q) for q in pb['positions'].values())
     return tot or 200000.0
+def _said(x):   # what the graded decision was; a hold keeps the positions already open, which is often what got graded (owner, Nov 1: an F on a "no trade" hold read as nonsense)
+    if str(x.get('action', '')).lower() == 'hold':
+        return 'Hold: no new trade or bet at that check-in; it kept the positions and bets it already had in this race'
+    return f"{x.get('action', '')} {x.get('what', '')}".strip()
+
+
 data['betmins'] = []
 _today = datetime.now(_ny).date()
 for _m in ('claude', 'gemini', 'chatgpt'):
@@ -1753,7 +1759,7 @@ try:
     for x in data.get('peer_grades') or []:
         if x.get('grade') in ('D', 'F') and x.get('text') and x.get('grader') != x.get('model') and not x.get('void'):   # a withdrawn grade is never the call-out
             _cand.append({'kind': 'grade', 'at': x['at'], 'by': x['grader'], 'about': x['model'], 'race': x.get('experiment'), 'grade': x['grade'],
-                          'said': f"{x.get('action', '')} {x.get('what', '')}".strip(), 'text': x['text'], 'score': 3 if x['grade'] == 'F' else 2})
+                          'said': _said(x), 'text': x['text'], 'score': 3 if x['grade'] == 'F' else 2})
     _co = None
     for _hrs in (24, 72):
         _p = [c for c in _cand if _now - _ts(c['at']) <= timedelta(hours=_hrs)]
@@ -1797,7 +1803,7 @@ try:
             gs = sorted(gs, key=lambda g: g['grader'])
             x = gs[0]
             _pc.append({'kind': 'praise', 'at': x.get('decision_at') or x['at'], 'graded_at': max(g['at'] for g in gs), 'about': x['model'], 'race': x.get('experiment'),
-                        'said': f"{x.get('action', '')} {x.get('what', '')}".strip(), 'grades': [{'by': g['grader'], 'grade': g['grade'], 'text': g['text']} for g in gs],
+                        'said': _said(x), 'grades': [{'by': g['grader'], 'grade': g['grade'], 'text': g['text']} for g in gs],
                         'score': sum(_PTS[g['grade']] for g in gs)})
     def _pick(pool):
         for _hrs in (24, 72):
