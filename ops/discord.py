@@ -52,8 +52,11 @@ def post(text, photo=None, url=None, ping=None):
         if photos:
             b = '----ptdc' + str(os.getpid())
             body = f'--{b}\r\nContent-Disposition: form-data; name="payload_json"\r\nContent-Type: application/json\r\n\r\n{payload}\r\n'.encode()
+            # an animated card (owner, Nov 1): a still card with a GIF next to it (same name, .gif) is sent as the GIF
+            photos = [p[:-4] + '.gif' if p.endswith('.png') and os.path.exists(p[:-4] + '.gif') else p for p in photos]
             for i, p in enumerate(photos):
-                body += (f'--{b}\r\nContent-Disposition: form-data; name="files[{i}]"; filename="{i + 1:02d}.png"\r\nContent-Type: image/png\r\n\r\n'.encode()
+                ext, ct = ('gif', 'image/gif') if p.endswith('.gif') else ('png', 'image/png')
+                body += (f'--{b}\r\nContent-Disposition: form-data; name="files[{i}]"; filename="{i + 1:02d}.{ext}"\r\nContent-Type: {ct}\r\n\r\n'.encode()
                          + open(p, 'rb').read() + b'\r\n')
             body += f'--{b}--\r\n'.encode()
             req = urllib.request.Request(URL + '?wait=true', body, {'Content-Type': f'multipart/form-data; boundary={b}', 'User-Agent': UA})

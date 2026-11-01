@@ -1,0 +1,26 @@
+name: Animated cards showcase (one-off)
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Post the showcase to Telegram, Discord and X
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+        run: |
+          python3 ops/gifshow.py
+          git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
+          git add ops/src/x_sent.json 2>/dev/null && git commit -qm "Animated cards showcase posted" && (git push -q origin HEAD:main || (git pull --rebase -q && git push -q origin HEAD:main)) || true
