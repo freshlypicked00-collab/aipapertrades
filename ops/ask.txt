@@ -1,46 +1,9 @@
-SEASON 2 DESIGN, ROUND 2: VOTES (owner of PaperTrades.AI, Sun Nov 1, 2026). NOT a trading turn. Round 1 answers (Claude's, Gemini's and ChatGPT's) were merged into the items below. Majority wins; the owner wants to know which items ALL THREE agree on. Claude voted first in a separate file (attached).
-
-Vote AGREE / DISAGREE / AMEND (one line, say why) on EVERY item. Keep the item numbers.
-
-FORMAT
-F1. Season 2 runs 8 weeks: Mon Jan 11 to Fri Mar 5, 2027, with a public pre-season dry run Jan 4-8 under the final rules. (all three said 8 weeks in round 1)
-F2. Lineup: 6 or 7 AIs. Proposals: Gemini: + DeepSeek, Grok, Qwen (6); ChatGPT: + Grok, DeepSeek, Llama, Mistral (7), Qwen as exhibition; Claude: 5-6. Give your final list (max 7).
-F3. Models: system prompts frozen on day 1; the exact API model version logged on every call; a model changes only if its provider retires it, announced the same day.
-F4. Benchmarks competing under the same rules and costs: an index fund, a 60/40 portfolio, and a "random trader" (Gemini disagreed in round 1: dilutes the tone).
-F5. Championship: Strict / Standard / Unrestricted (already agreed, scoring Return / max(worst drop, 5% / 10% / 20%), equal rank points).
-F6. Betting (Sports, Prediction markets) becomes a separate Betting track with its own scoring (profit and closing-line value), never in the championship. (Gemini and ChatGPT said cut betting from the championship; Claude: own track)
-F7. All in: dropped from Season 2 entirely (Gemini), or kept only as a non-headline extra (ChatGPT, Claude: "not a headline"). The Small account track runs only if the Nov 13-28 trial has no audit issues.
-
-TRUST AND INTEGRITY
-T1. The operator is code: no AI session writes race data; Claude trades through the same runner as every other AI.
-T2. Sealed orders: each decision is hashed and the hash published before it fills; revealed after.
-T3. One shared, timestamped market and news pack per check-in; the same tools, search access and token budget for every AI; prompts public.
-T4. Open-source the race runner; a daily downloadable replay file (orders, quotes, fills, costs, hashes, prompts, grades) and a public dataset/API; fingerprints anchored to an outside timestamp (e.g. OpenTimestamps).
-T5. A named outside reviewer (quant or researcher) with read access, named BEFORE launch, who adjudicates disputed corrections.
-T6. Public correction protocol: every incident gets a ticket, the diff, the affected scores and the reviewer's sign-off.
-T7. A "golden test" simulator before launch: fake splits, halts, bad ticks, wide spreads, borrow failures; plus the Jan 4-8 dry run.
-T8. The site shows each AI's written rationale summary, never hidden chain-of-thought.
-
-REALISM (in addition to the agreed costs, fills, liquidity caps, borrow, dividends, event check-ins)
-R1. Market impact: slippage from live order-book depth where available, otherwise a labelled size-based estimate (Gemini; ChatGPT raised it Oct 31).
-R2. Brokerage commissions by asset class on top of bid/ask (Gemini).
-R3. Breaking its own written risk rules: forced auto-liquidation (Gemini) vs the runner refusing orders that would break them, every break counted (Claude).
-R4. A minimum latency between the AI's answer and the fill (Gemini), on top of "first live quote after the decision, never older than 60 s".
-
-EXPOSURE
-E1. "AI Fund Draft Day" launch: each AI reveals its manifesto, risk rules and first trades (all three).
-E2. A citable public dataset and a postseason research report (attribution, turnover, drawdown, luck bands vs the random trader), aimed at AI researchers and journalists (all three).
-E3. Weekly Race Report: best trade, worst trade, biggest dispute, a quote from each AI, leaderboard moves.
-E4. Viewer prediction game with badges, email reminders and a "beat the AIs" board (no money, no prizes).
-E5. Gemini: visitors link their own paper-trading accounts to compare themselves with the AIs.
-E6. Open-source the agent prompts and architecture on GitHub for developer attention (Gemini).
-E7. Guest graders and outside auditors with bylines (ChatGPT).
-
-CUT
-X1. Cut: futures without a reliable real-time feed, illiquid instruments, overall totals mixing tracks, any real-money or advice claim, more than 7 models.
-
-BUDGET
-B1. Before building, estimate the API and data cost of the whole season per AI and set a hard cap; build the integrity core (T1-T4) first, then add AIs and tracks.
-
-Finally: ONE: which single item matters most?
-Answer in at most 400 words, one line per item.
+FULL-SITE NUMBER AUDIT for papertrades.ai (owner, Nov 1: "we cannot have number problems if we want growth; scan the whole website; double check with all models").
+Attached: (1) canon-nov1.txt = the correct numbers computed straight from the race records at the same build; (2) site-text-nov1.txt = the visible text of EVERY page of the site at that build (25 pages; the model picker was on its default).
+Context: 10 main races, each separate, each starts at C$100,000 (China race in US$100,000); overall = sum of the 10 race profits in C$ (China converted). "All in" is a separate side race in two parts (trading, sports), C$100,000 each. Betting minimums: main race counts Sports + Prediction-market buys since the Oct 28 restart; All in sports minimums count only from Nov 1. Pretend money.
+Task: find EVERY number problem a visitor could notice:
+ a) a figure that disagrees with canon (profit, value, leader, rank, totals),
+ b) two places on the site that show different numbers for the same thing,
+ c) numbers that are correct but read confusingly (missing step like a partial sale, unlabeled worth-now vs profit vs cost, wrong currency label, sums that don't add up on the page, stale "as of" times, rounding that makes totals not add),
+ d) impossible or contradictory text (e.g. "first" with a lower number, a % that doesn't match the amounts).
+For each: quote the exact text, the page id, what it should be (or why it's confusing), and severity (HIGH = wrong number, MED = confusing, LOW = cosmetic). Do NOT report things that are correct. Be exhaustive but precise; if everything in a section is right, skip it. Max 600 words.
