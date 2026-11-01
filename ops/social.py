@@ -143,8 +143,6 @@ def due_posts(state):
         for i in range(1, 5):
             if f'story-meet-{wk}-{i}' not in done:
                 out.append({'id': f'story-meet-{wk}-{i}', 'kind': 'story-meet', 'n': i})
-    if 'feature-gemini-usc-v1' not in done and NOW < datetime(2026, 11, 3, 4, 0, tzinfo=timezone.utc):   # Gemini's USC night (owner, Oct 31: share it on all socials)
-        out.insert(0, {'id': 'feature-gemini-usc-v1', 'kind': 'feature-gemini-usc-v1'})
     if 'story-feature-gemini-usc-v1' not in done and NOW < datetime(2026, 11, 3, 4, 0, tzinfo=timezone.utc):
         out.append({'id': 'story-feature-gemini-usc-v1', 'kind': 'story-feature-gemini-usc-v1'})
     for fid in ('feature-chatgpt-oilers-v1', 'feature-gemini-options-v1', 'feature-gemini-allin-v1', 'feature-grades-paradox-v1'):   # inserted at the front in turn: the last one goes first   # Oct 30 big wins, one post each (owner); one goes out per run, Gemini's +C$35k first
@@ -152,6 +150,8 @@ def due_posts(state):
             out.insert(0, {'id': fid, 'kind': fid})
         if 'story-' + fid not in done and NOW < datetime(2026, 11, 2, 4, 0, tzinfo=timezone.utc):
             out.append({'id': 'story-' + fid, 'kind': 'story-' + fid})
+    if 'feature-gemini-usc-v1' not in done and NOW < datetime(2026, 11, 3, 4, 0, tzinfo=timezone.utc):   # Gemini's USC night (owner, Oct 31: share it on all socials)
+        out.insert(0, {'id': 'feature-gemini-usc-v1', 'kind': 'feature-gemini-usc-v1'})
     if 'feature-season2-v1' not in done and NOW < datetime(2026, 11, 2, 4, 0, tzinfo=timezone.utc):   # Season 2 teaser (owner, Oct 30; all three AIs agreed)
         out.insert(0, {'id': 'feature-season2-v1', 'kind': 'feature-season2-v1'})
     if 'story-feature-season2-v1' not in done and NOW < datetime(2026, 11, 2, 4, 0, tzinfo=timezone.utc):
