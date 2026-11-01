@@ -1353,6 +1353,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
 .ai-rk-l{font-size:12px;color:var(--color-fg-muted)}.ai-rk-r{font-size:16px}.ai-rk-p{font-family:var(--font-mono,monospace);font-size:13px}
 .ai-rk-1{border-color:var(--ai,#ffb000)}
 @media (max-width:700px){.ai-rk-grid{grid-template-columns:repeat(2,1fr)}}
+.lg-money{margin-top:4px;font-size:12.5px;font-weight:600}.lg-odds{font-size:11.5px;color:var(--color-fg-muted)}
 
 
 /* Dark is the default; the theme button switches to a soft light mode (remembered per viewer). */
@@ -1545,7 +1546,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '504948fe8a5c';</script>
+<script>window.PT_PAGE_VER = '491017751baf';</script>
 <!-- the first text on the page says plainly what this is, so search engines and AI assistants stop mixing the name up with a similarly named exchange (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json) -->
 <p class="pt-def" id="what-is">PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no deposits and has no token. <a href="/what-is-papertrades-ai.html">What is PaperTrades.AI?</a></p>
 <style>.pt-def { margin: 0; padding: 5px 14px; font-size: 12px; line-height: 1.4; text-align: center; color: var(--color-fg-muted, #a9a495); background: var(--color-bg, #0b0b0a); } .pt-def a { color: inherit; text-decoration: underline; white-space: nowrap; }</style>
@@ -4819,7 +4820,7 @@ body { background:var(--color-bg); }
         if (hitT) el._pg = Math.floor(rows.indexOf(hitT) / 10); }
       if (!rows.length) return;
       const w = mk('div', 'h2h-scroll st-wrap'); const tb = mk('table', 'h2h-table');
-      const hr = mk('tr'); ['When (placed, or settled for a result)', 'AI', 'Part', 'Move', 'Amount', 'Cost / stake', 'Profit', 'Return', 'Why'].forEach((h) => hr.appendChild(mk('th', '', h))); { const th = mk('thead'); th.appendChild(hr); tb.appendChild(th); }
+      const hr = mk('tr'); ['When (placed, or settled for a result)', 'AI', 'Part', 'Move', 'Money', 'Cost / stake', 'Profit', 'Return', 'Why'].forEach((h) => hr.appendChild(mk('th', '', h))); { const th = mk('thead'); th.appendChild(hr); tb.appendChild(th); }
       const body = mk('tbody'); tb.appendChild(body);
       const BETS = {}; (dash.baseData('allin_models') || []).forEach((m) => Object.values(m.books || {}).forEach((bk) => ((bk || {}).bets || []).forEach((b) => { BETS[m.id + '|' + b.id] = b; })));
       rows.forEach((t) => {
@@ -4837,8 +4838,11 @@ body { background:var(--color-bg); }
             if (!el._game) { const gb = mk('button', 'lg-find', '🔎 Show all ' + L.length); gb.type = 'button'; gb.title = 'Show only this game: every bet and its result';
               gb.addEventListener('click', () => { el._game = k; el._focus = null; el._pg = 0; draw(); window.ptSpot(el.querySelector('tbody tr') || el); }); g.appendChild(gb); }
             mv.appendChild(g); } }
+        { const bm = /^(Bet|Won|Lost|Void|Push)$/.test(t.action) ? betMoney(t) : ''; if (bm) { mv.appendChild(mk('div', 'lg-money', bm)); if (t.action === 'Bet') mv.appendChild(mk('div', 'lg-odds', oddsPlain(t.price))); } }
+        const mlab = t.action === 'Bet' ? 'staked ' : t.action === 'Won' ? 'paid back ' : t.action === 'Lost' ? 'back ' : /^(Void|Push)$/.test(t.action) ? 'refunded ' : t.action === 'Buy' || t.action === 'Short' ? 'put in ' : /^(Sell|Cover)$/.test(t.action) ? 'took out ' : '';
+        const mval = t.action === 'Won' ? Number(t.stake || 0) + Number(t.pnl != null ? t.pnl : t.amount) : t.action === 'Lost' ? 0 : Math.abs(+t.amount);
         r.append(window.ptTxWhen(t.at, t.tx), ai, mk('td', '', ALLIN[t.experiment].replace('High risk: ', '')), mv,
-          mk('td', 'num', Number.isFinite(+t.amount) ? (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.2f')(Math.abs(t.amount)) : ''), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret || ''), why);
+          mk('td', 'num', Number.isFinite(+t.amount) ? mlab + 'C$' + d3.format(',.2f')(mval) : ''), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret || ''), why);
         // the way back and forth (owner, Oct 30; all three AIs agreed): a result finds its bet, a settled bet its result, a sale its buy,
         // a sold buy its sale. Nothing on a bet still open or a position still held.
         { const tAt = Date.parse(t.at), RES = /^(Won|Lost|Push|Void)$/; let pt = null, lab = '';
@@ -6313,11 +6317,26 @@ body { background:var(--color-bg); }
 
   // ---------- every trade, from trades.json and bets.json
   // What went in, and the profit, for one trade in the raw trade format (used by every trade table)
+  // bets in plain words (owner, Nov 1: "+102 ... it's unclear how much is actually profit"; all three AIs agreed O1-O6)
+  const cad2 = (v) => 'C$' + d3.format(',.2f')(Math.abs(Number(v) || 0));
+  const oddsPlain = (o) => { o = Number(o); if (!Number.isFinite(o) || !o) return '';
+    const p = o > 0 ? 100 / (o + 100) : -o / (-o + 100);
+    return (o > 0 ? '+' + o + ': wins C$' + o + ' profit for every C$100 bet' : '−' + Math.abs(o) + ': bet C$' + Math.abs(o) + ' to win C$100 profit') + ' · the bookmaker’s price says about ' + Math.round(p * 100) + '% chance'; };
+  window.ptOddsPlain = oddsPlain;
+  const betMoney = (t) => {   // one plain line for a bet or its result
+    const a = t.action, st = Number(t.stake != null ? t.stake : t.amount);
+    if (a === 'Bet') { const o = Number(t.price), win = t.to_win != null ? Number(t.to_win) : (o > 0 ? st * o / 100 : st * 100 / Math.abs(o));
+      return 'Bet ' + cad2(st) + ' at ' + (o > 0 ? '+' : '−') + Math.abs(o) + ' · to win ' + cad2(win) + ' profit'; }
+    const pr = Number(t.pnl != null ? t.pnl : t.amount);
+    if (a === 'Won') return 'Won · profit +' + cad2(pr) + ' · paid back ' + cad2(st + pr) + ' (the ' + cad2(st) + ' stake + the profit)';
+    if (a === 'Lost') return 'Lost the ' + cad2(st) + ' stake';
+    if (a === 'Void' || a === 'Push') return 'Stake refunded · C$0.00 profit';
+    return ''; };
   const pnlOf = (t) => {
     const a = t.action, sym = t.experiment === 'China' ? 'US$' : 'C$', f = (x) => sym + d3.format(',.2f')(Math.abs(x));
     const sg = (x) => (x >= 0 ? '+' : '−') + f(x);
     if (a === 'Buy' || a === 'Short') return { cost: '', profit: 'open', ret: '' };
-    if (a === 'Bet' || a === 'Parlay') return { cost: t.stake != null ? f(t.stake) : '', profit: t.result != null ? sg(t.result) : 'open', p: t.result, ret: t.result != null && t.stake ? d3.format('+.1%')(t.result / t.stake) : '' };
+    if (a === 'Bet' || a === 'Parlay') return { cost: t.stake != null ? f(t.stake) : '', profit: t.result != null ? sg(t.result) + (t.status === 'Won' ? ', won' : t.status === 'Lost' ? ', lost' : t.status === 'Void' || t.status === 'Push' ? ', refunded' : '') : 'open', p: t.result, ret: t.result != null && t.stake ? d3.format('+.1%')(t.result / t.stake) : '' };
     if (t.pnl != null) return { cost: t.cost != null ? f(t.cost) : t.stake != null ? f(t.stake) : '', profit: sg(t.pnl), p: t.pnl, ret: (t.cost || t.stake) ? d3.format('+.1%')(t.pnl / (t.cost || t.stake)) : '' };
     if (a === 'Void') return { cost: '', profit: 'refunded', ret: '' };
     return { cost: '', profit: '', ret: '' };
@@ -6356,10 +6375,10 @@ body { background:var(--color-bg); }
     B.data.forEach((b) => {
       const odds = (Number(b.odds) > 0 ? '+' : '') + b.odds, stake = Number(b.stake_cad);
       const res = b.status !== 'Open' ? Number(b.result_cad) : null;
-      rows.push({ gk: b.pick + '|' + b.event, stk: stake, tx: b.tx || null, holding: b.status === 'Open', pg: b.placed_at ? dash.model + '|' + new Date(b.placed_at).toISOString().slice(0, 19) + 'Z|Sports|' + b.bet + '|Bet' : null, at: b.placed_at || b.placed + 'T12:00:00-04:00', portfolio: 'Sports', action: 'Bet', item: b.bet + ' ' + b.pick, detail: b.event + ' at ' + odds + ' · to win C$' + d3.format(',.2f')(b.to_win_cad || 0), amount: 'C$' + d3.format(',.2f')(stake), cost: 'C$' + d3.format(',.2f')(stake), profit: null, ret: null, open: b.status === 'Open', outcome: res, void: b.status === 'Void', why: b.note || b.reason || ((lgRows.filter((l) => l.portfolio === 'Sports' && l.at === b.placed_at)[0] || {}).detail) || '' });
+      rows.push({ gk: b.pick + '|' + b.event, stk: stake, tx: b.tx || null, holding: b.status === 'Open', pg: b.placed_at ? dash.model + '|' + new Date(b.placed_at).toISOString().slice(0, 19) + 'Z|Sports|' + b.bet + '|Bet' : null, at: b.placed_at || b.placed + 'T12:00:00-04:00', portfolio: 'Sports', action: 'Bet', item: b.bet + ' ' + b.pick, detail: b.event + ' · bet ' + cad2(stake) + ' at ' + odds + ' · to win ' + cad2(b.to_win_cad || 0) + ' profit (' + oddsPlain(b.odds) + ')', amount: 'C$' + d3.format(',.2f')(stake), cost: 'C$' + d3.format(',.2f')(stake), profit: null, ret: null, open: b.status === 'Open', outcome: res, void: b.status === 'Void', why: b.note || b.reason || ((lgRows.filter((l) => l.portfolio === 'Sports' && l.at === b.placed_at)[0] || {}).detail) || '' });
       if (b.status !== 'Open') {
         const back = b.status === 'Won' ? stake + res : b.status === 'Lost' ? 0 : stake;
-        rows.push({ gk: b.pick + '|' + b.event, net: res, tx: b.tx_result || null, at: b.settled_at || (b.starts_at ? new Date(new Date(b.starts_at).getTime() + 3 * 3600e3).toISOString() : b.placed + 'T23:00:00-04:00'), portfolio: 'Sports', action: b.status, item: b.bet + ' ' + b.pick, detail: b.event + (b.final ? ' · ' + b.final : '') + ' · paid back C$' + d3.format(',.2f')(back), amount: 'C$' + d3.format(',.2f')(back), cost: 'C$' + d3.format(',.2f')(stake), profit: res, ret: stake ? res / stake : null, open: false, betAfter: { odds: Number(b.odds), closing: b.closing_odds != null ? Number(b.closing_odds) : null, final: b.final || '', status: b.status } });
+        rows.push({ gk: b.pick + '|' + b.event, net: res, tx: b.tx_result || null, at: b.settled_at || (b.starts_at ? new Date(new Date(b.starts_at).getTime() + 3 * 3600e3).toISOString() : b.placed + 'T23:00:00-04:00'), portfolio: 'Sports', action: b.status, item: b.bet + ' ' + b.pick, detail: b.event + (b.final ? ' · ' + b.final : '') + ' · ' + (b.status === 'Won' ? 'profit +' + cad2(res) + ' · paid back ' + cad2(back) + ' (the ' + cad2(stake) + ' stake + the profit)' : b.status === 'Lost' ? 'lost the ' + cad2(stake) + ' stake' : 'stake refunded, C$0.00 profit'), amount: 'C$' + d3.format(',.2f')(back), cost: 'C$' + d3.format(',.2f')(stake), profit: res, ret: stake ? res / stake : null, open: false, betAfter: { odds: Number(b.odds), closing: b.closing_odds != null ? Number(b.closing_odds) : null, final: b.final || '', status: b.status } });
       }
     });
     // a buy (or short) that has since been sold (or covered): its result, from the sells that followed it
@@ -6689,7 +6708,7 @@ body { background:var(--color-bg); }
         bn.appendChild(ab); el.appendChild(bn);
       }
       const table = mk('table', 'st-table');
-      table.innerHTML = '<thead><tr><th>When</th><th>Experiment</th><th>Action</th><th>What</th><th>Details</th><th class="num">Amount</th><th class="num">Cost / stake</th><th class="num">Won / lost</th><th class="num">Return</th><th>Why</th></tr></thead>';
+      table.innerHTML = '<thead><tr><th>When</th><th>Experiment</th><th>Action</th><th>What</th><th>Details</th><th class="num">Money</th><th class="num">Cost / stake</th><th class="num">Profit</th><th class="num">Return</th><th>Why</th></tr></thead>';
       const tb = mk('tbody');
       if (!shown.length) { const tr = mk('tr'); const td = mk('td', '', 'No trades yet.'); td.colSpan = 10; tr.appendChild(td); tb.appendChild(tr); }
       shown.forEach((r) => {

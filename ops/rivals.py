@@ -1261,6 +1261,27 @@ def fmt_price(t):
     return CUR_SYM[t['pcur']] + (f"{t['price']:,.2f}" if t['price'] >= 100 else f"{t['price']:,.4f}".rstrip('0').rstrip('.')) + unit
 
 
+def _bet_money(t):
+    """A bet or its result in plain words (owner, Nov 1; all three AIs agreed O1, O2, O6): stake, odds, profit, paid back."""
+    if BASE.get(t.get('experiment'), t.get('experiment')) != 'Sports' or t.get('action') not in ('Bet', 'Won', 'Lost', 'Push', 'Void'):
+        return ''
+    try:
+        o = float(t.get('price') or 0)
+        m = lambda v: money(abs(v), t.get('cur') or 'CAD')
+        if t['action'] == 'Bet':
+            st = float(t['amount']); win = st * o / 100 if o > 0 else st * 100 / abs(o)
+            return f"Bet {m(st)} at {int(o):+d} · to win {m(win)} profit ({int(o):+d}: {'wins C$' + str(int(o)) + ' for every C$100 bet' if o > 0 else 'bet C$' + str(int(abs(o))) + ' to win C$100'})"
+        pr = float(t['amount'])
+        st = float(t.get('stake') or 0) or (abs(pr) if t['action'] == 'Lost' else (pr * 100 / o if o > 0 else pr * abs(o) / 100) if o else 0)
+        if t['action'] == 'Won':
+            return f"Profit +{m(pr)} · paid back {m(st + pr)} (the {m(st)} stake + the profit)"
+        if t['action'] == 'Lost':
+            return f"Lost the {m(st)} stake"
+        return "Stake refunded · C$0 profit"
+    except Exception:
+        return ''
+
+
 def tg_trade(label, t, source=None, photo=None):
     icon = {'Buy': '🟢', 'Sell': '🔴', 'Short': '🔻', 'Cover': '🔺', 'Settled': '🏁', 'Expired': '⌛', 'Bet': '🎯', 'Won': '✅', 'Lost': '❌', 'Push': '➖'}.get(t['action'], '•')
     what = f"{t['symbol']} {t['outcome']}" if t.get('outcome') else t['symbol']
@@ -1268,7 +1289,7 @@ def tg_trade(label, t, source=None, photo=None):
         what = t['name']
     head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)', 'Claude': '🟠 <b>CLAUDE</b> (Anthropic)'}.get(label, f'<b>{label.upper()}</b>')
     msg = (f"{head}\n{icon} <b>{EXP_LABEL[t['experiment']]}: {t['action']} {esc(what)}</b>\n" + ('' if BASE.get(t['experiment'], t['experiment']) == 'Sports' else f"{esc(t['name'])}\n") +
-           f"{fmt_price(t)}, {(('+' if t['amount'] >= 0 else '−') + money(abs(t['amount']), t['cur'])) if t['action'] in ('Won', 'Lost', 'Push') else money(t['amount'], t['cur'])}\n<i>{esc(t['reason'])}</i>")
+           f"{_bet_money(t) or (fmt_price(t) + ', ' + ((('+' if t['amount'] >= 0 else '−') + money(abs(t['amount']), t['cur'])) if t['action'] in ('Won', 'Lost', 'Push') else money(t['amount'], t['cur'])))}\n<i>{esc(t['reason'])}</i>")
     if source:
         msg += f"\nSource: <a href=\"{esc(source['url'])}\">{esc(source['title'][:80])}</a>"
     tg_photo(msg + f'\n⚔️ AI vs AI: Claude vs Gemini vs ChatGPT · {SITE}', photo)

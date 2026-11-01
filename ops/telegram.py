@@ -371,13 +371,13 @@ for b in load(S + 'bets.json'):
     o = oldb.get(b['bet'])
     odds = ('+' if float(b['odds']) > 0 else '') + str(b['odds'])
     if o is None:
-        msgs.append((f"🎯 <b>Sports: new bet {b['bet']}</b>\n{esc(b['pick'])} ({esc(b['event'])}) at {odds}, stake C${b['stake_cad']:,.0f} to win C${b['to_win_cad']:,.0f}",
+        msgs.append((f"🎯 <b>Sports: new bet {b['bet']}</b>\n{esc(b['pick'])} ({esc(b['event'])}) at {odds}: bet C${b['stake_cad']:,.0f} to win C${b['to_win_cad']:,.0f} profit",
                      ('trade', 'Sports', None, None, 'Bet', {'experiment': 'Sports', 'action': 'Bet', 'name': f"{b['pick']} ({b['event']})", 'amount': float(b['stake_cad']), 'price': float(b['odds']), 'to_win': float(b['to_win_cad']), 'cur': 'CAD', 'at': b.get('placed_at')})))
     elif o['status'] == 'Open' and b['status'] != 'Open':
         icon = {'Won': '✅', 'Lost': '❌', 'Push': '➖'}.get(b['status'], '🏁')
         _sc = sharecard.score_of({'final': b.get('final')}) if b.get('final') else None
         _fin = (f"\nFinal: {esc(b['final'])}" + (f" · <b>{esc(_sc['winner'])} won</b>" if _sc and _sc['winner'] else '')) if b.get('final') else ''
-        msgs.append((f"{icon} <b>Sports: {b['bet']} {b['status'].lower()}</b>\n{esc(b['pick'])} ({esc(b['event'])}): {money(b['result_cad'] or 0, 'Sports')}{_fin}",
+        msgs.append((f"{icon} <b>Sports: {b['bet']} {b['status'].lower()}</b>\n{esc(b['pick'])} ({esc(b['event'])}): {('Profit +C$' + format(float(b['result_cad'] or 0), ',.0f') + ' · paid back C$' + format(float(b['stake_cad']) + float(b['result_cad'] or 0), ',.0f') + ' (the C$' + format(float(b['stake_cad']), ',.0f') + ' stake + the profit)') if b['status'] == 'Won' else ('Lost the C$' + format(float(b['stake_cad']), ',.0f') + ' stake') if b['status'] == 'Lost' else 'Stake refunded · C$0 profit'}{_fin}",
                      ('trade', 'Sports', None, None, b['status'], {'experiment': 'Sports', 'action': b['status'], 'name': f"{b['pick']} ({b['event']})", 'stake': float(b['stake_cad']),
                                                                   'pnl': float(b['result_cad'] or 0) if b['status'] == 'Won' else -float(b['stake_cad']) if b['status'] == 'Lost' else 0.0, 'cur': 'CAD', 'at': b.get('settled_at'), 'final': b.get('final'), 'streak': sharecard.streak_of(load(S + 'bets.json'))})))
 

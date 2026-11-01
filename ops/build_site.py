@@ -620,6 +620,8 @@ except Exception:
 def _annotate_rivals(r):
     lots = {}
     bets = {(mid, b['id']): b for mid, m in (r.get('models') or {}).items() for e, bk in (m.get('books') or {}).items() for b in bk.get('bets', [])}
+    # Claude's All in book lives apart from Gemini's and ChatGPT's: without it, a settled Claude bet kept showing "open" (owner, Nov 1)
+    bets.update({('claude', b['id']): b for e, bk in ((r.get('claude_allin') or {}).get('books') or {}).items() for b in (bk or {}).get('bets', [])})
     for t in sorted(r.get('trades', []), key=lambda t: t['at']):
         a = t['action']
         if a in ('Bet', 'Parlay'):
