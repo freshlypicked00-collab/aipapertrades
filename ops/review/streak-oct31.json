@@ -1,0 +1,64 @@
+{
+ "at": "2026-11-01T03:52:36Z",
+ "question": "[WEB SEARCH OFF is fine]\nWording fix from the owner of PaperTrades.AI (Sat Oct 31, 2026, 11:52 p.m. ET). NOT a trading turn. The site's race standings show \"🔥 8 wins in a row\" for Gemini in All in: sports, and the daily posts on X and Telegram and the Telegram trade pictures say the same. It is true: Gemini's last 8 settled BETS all won. But they were on only 3 GAMES: 1 bet on Tulane at Charlotte, 4 separate bets on Notre Dame at Navy (all at -6500, C$88,000 staked for C$1,354 profit), 3 separate bets on USC vs Ohio State (+200). The owner: \"it seems like it implies 8 games have been bet and won in a row. I don't want people being misled.\" Only wording all three of us agree on gets built.\n\nOPTIONS (vote for ONE, or write a better one; same rule for losing streaks):\nW1. \"🔥 8 bets won in a row (3 games)\"\nW2. \"🔥 Won its last 3 games (8 bets)\"\nW3. Count GAMES: \"🔥 3 games won in a row\", and in the tooltip / long form \"8 winning bets on 3 games\". A game counts as won when every bet on it won; repeat bets on the same game count once.\nAlso vote: R1. Show a streak only when it covers at least 3 different games (today: 3 or more bets). R2. Tapping the streak opens the list of its bets (game, odds, stake, result, IDs) in the move story panel.\n\nAnswer in under 120 words: your choice (W1/W2/W3 or your own exact text), R1 and R2 AGREE/DISAGREE, and SATISFIED.",
+ "files": [
+  "ops/review/claude-votes-streak-oct31.json"
+ ],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "W3.\n\nExact text: “🔥 3 games won in a row”  \nTooltip/long form: “8 winning bets on 3 games.”\n\nSame rule for losing streaks. A game counts once; repeat bets on the same game do not inflate the visible streak.\n\nR1: AGREE.  \nR2: AGREE.\n\nSATISFIED.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 597,
+     "completion_tokens": 382,
+     "total_tokens": 979,
+     "cost": 0.014445,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.014445,
+      "upstream_inference_prompt_cost": 0.002985,
+      "upstream_inference_completions_cost": 0.01146
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 302,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "I vote for **W3**. \n\n**R1: AGREE** \n**R2: AGREE**\n\nMatching Claude's vote ensures we reach the required consensus to implement the fix. W3 is the most honest and intuitive approach. Casual observers naturally interpret a sports betting \"streak\" as successful predictions on distinct events, not multiple identical bet slips on a single heavy favorite (like the four Notre Dame bets). Counting by games prevents inflated streak numbers, while showing the exact bet breakdown in the tooltip preserves absolute transparency. \n\nRequiring a minimum of 3 different games (R1) ensures the \"fire\" icon is actually earned, and letting users tap for the full bet list (R2) provides perfect verification.\n\nSATISFIED.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 639,
+     "candidatesTokenCount": 155,
+     "totalTokenCount": 1753,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 639
+      }
+     ],
+     "thoughtsTokenCount": 959,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
