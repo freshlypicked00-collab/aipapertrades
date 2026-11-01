@@ -330,30 +330,30 @@
   .st-luckline b { color: var(--color-fg); }
   .pt-luck { margin-top: 16px; }
   /* move story panel (X1-X7, Oct 31; all three AIs agreed) */
-  .pt-story { position: fixed; inset: 0; z-index: 9000; display: flex; justify-content: flex-end; }
-  .pt-story-bg { position: absolute; inset: 0; background: rgba(0,0,0,.55); z-index: 0; }
-  .pt-story-top, .pt-story-b { position: relative; z-index: 1; }
-  .pt-story-b .pt-story-top { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; gap: 10px; margin: 0 -16px 12px; padding: 14px 16px 10px; background: var(--color-panel, #141413); border-bottom: 1px solid var(--color-border-line); }
-  .pt-story > .pt-story-b { width: min(560px, 100%); height: 100%; overflow-y: auto; background: var(--color-panel, #141413); padding: 0 16px 28px; border-left: 1px solid var(--color-border-line); box-shadow: -20px 0 40px rgba(0,0,0,.4); }
-  .pt-story-h b { display: block; font-size: 16px; } .pt-story-h small { color: var(--color-fg-muted); }
-  .pt-story-x { font: inherit; background: none; border: 1px solid var(--color-border-line); color: var(--color-fg); border-radius: 999px; width: 34px; height: 34px; cursor: pointer; flex: none; }
-  .pt-story-round { margin: 0 0 14px; } .pt-story-round h4 { margin: 0 0 6px; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: var(--color-fg-muted); }
-  .pt-story-tl { list-style: none; margin: 0; padding: 0 0 0 18px; position: relative; }
-  .pt-story-tl::before { content: ''; position: absolute; left: 5px; top: 6px; bottom: 6px; width: 2px; background: var(--color-border-line); }
-  .pt-story-step { position: relative; padding: 0 0 12px; }
-  .pt-story-step::before { content: ''; position: absolute; left: -17px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--color-fg-muted); border: 2px solid var(--color-panel, #141413); }
-  .pt-story-step:first-child::before { background: #f5c542; }
-  .pt-story-step.is-hl { background: color-mix(in srgb, #f5c542 12%, transparent); border-radius: 8px; padding: 6px 8px 10px; margin-left: -8px; }
-  .pt-story-step.is-open { color: var(--color-fg-muted); font-style: italic; }
-  .pt-story-when { font-size: 12px; color: var(--color-fg-muted); } .pt-story-line { margin: 2px 0 4px; }
-  .pt-story-ids { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 2px 0 4px; } .pt-story-p { font-size: 12px; color: var(--color-fg-muted); }
-  .pt-story-why { display: block; font-size: 13px; color: var(--color-fg); margin: 0; quotes: '\201C' '\201D'; } .pt-story-why.is-missing { color: #ff9b6b; font-style: italic; }
-  .pt-story-check { margin: 4px 0 0; padding: 8px 10px; border: 1px dashed var(--color-border-line); border-radius: 8px; font-size: 13px; line-height: 1.5; }
-  .pt-story-verdict { margin: 10px 0; font-weight: 600; } .pt-story-verdict.is-ok { color: #2bd576; } .pt-story-verdict.is-off { color: #ff6b6b; }
-  .pt-story-acts { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
-  .pt-story-act { font: inherit; font-size: 13px; background: none; border: 1px solid var(--color-border-line); color: var(--color-fg); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+  .pt-mvs { position: fixed; inset: 0; z-index: 9000; display: flex; justify-content: flex-end; }
+  .pt-mvs-bg { position: absolute; inset: 0; background: rgba(0,0,0,.55); z-index: 0; }
+  .pt-mvs-top, .pt-mvs-b { position: relative; z-index: 1; }
+  .pt-mvs-b .pt-mvs-top { position: sticky; top: 0; z-index: 2; display: flex; justify-content: space-between; gap: 10px; margin: 0 -16px 12px; padding: 14px 16px 10px; background: var(--color-panel, #141413); border-bottom: 1px solid var(--color-border-line); }
+  .pt-mvs > .pt-mvs-b { width: min(560px, 100%); height: 100%; overflow-y: auto; background: var(--color-panel, #141413); padding: 0 16px 28px; border-left: 1px solid var(--color-border-line); box-shadow: -20px 0 40px rgba(0,0,0,.4); }
+  .pt-mvs-h b { display: block; font-size: 16px; } .pt-mvs-h small { color: var(--color-fg-muted); }
+  .pt-mvs-x { font: inherit; background: none; border: 1px solid var(--color-border-line); color: var(--color-fg); border-radius: 999px; width: 34px; height: 34px; cursor: pointer; flex: none; }
+  .pt-mvs-round { margin: 0 0 14px; } .pt-mvs-round h4 { margin: 0 0 6px; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: var(--color-fg-muted); }
+  .pt-mvs-tl { list-style: none; margin: 0; padding: 0 0 0 18px; position: relative; }
+  .pt-mvs-tl::before { content: ''; position: absolute; left: 5px; top: 6px; bottom: 6px; width: 2px; background: var(--color-border-line); }
+  .pt-mvs-step { position: relative; padding: 0 0 12px; }
+  .pt-mvs-step::before { content: ''; position: absolute; left: -17px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--color-fg-muted); border: 2px solid var(--color-panel, #141413); }
+  .pt-mvs-step:first-child::before { background: #f5c542; }
+  .pt-mvs-step.is-hl { background: color-mix(in srgb, #f5c542 12%, transparent); border-radius: 8px; padding: 6px 8px 10px; margin-left: -8px; }
+  .pt-mvs-step.is-open { color: var(--color-fg-muted); font-style: italic; }
+  .pt-mvs-when { font-size: 12px; color: var(--color-fg-muted); } .pt-mvs-line { margin: 2px 0 4px; }
+  .pt-mvs-ids { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 2px 0 4px; } .pt-mvs-p { font-size: 12px; color: var(--color-fg-muted); }
+  .pt-mvs-why { display: block; font-size: 13px; color: var(--color-fg); margin: 0; quotes: '\201C' '\201D'; } .pt-mvs-why.is-missing { color: #ff9b6b; font-style: italic; }
+  .pt-mvs-check { margin: 4px 0 0; padding: 8px 10px; border: 1px dashed var(--color-border-line); border-radius: 8px; font-size: 13px; line-height: 1.5; }
+  .pt-mvs-verdict { margin: 10px 0; font-weight: 600; } .pt-mvs-verdict.is-ok { color: #2bd576; } .pt-mvs-verdict.is-off { color: #ff6b6b; }
+  .pt-mvs-acts { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .pt-mvs-act { font: inherit; font-size: 13px; background: none; border: 1px solid var(--color-border-line); color: var(--color-fg); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
   .pd-big-from { display: block; font-size: 10.5px; color: var(--color-fg-muted); font-family: var(--font-mono, monospace); }
-  html.pt-story-open { overflow: hidden; }
+  html.pt-mvs-open { overflow: hidden; }
 
   .st-riskdash { margin: 6px 0 0; font-size: .9em; }
   .st-riskdash > summary { cursor: pointer; color: var(--color-fg-muted); }
@@ -1503,7 +1503,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '6de3914944ab';</script>
+<script>window.PT_PAGE_VER = '31bd6f96507b';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -4998,32 +4998,32 @@ body { background:var(--color-bg); }
     };
     // --- the panel
     let panel = null;
-    const close = () => { if (panel) { panel.remove(); panel = null; document.documentElement.classList.remove('pt-story-open'); } };
+    const close = () => { if (panel) { panel.remove(); panel = null; document.documentElement.classList.remove('pt-mvs-open'); } };
     document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') close(); });
     const txChip = (id, label) => { const b = mk('button', 'tx-id', (label ? label + ' ' : '') + id); b.type = 'button'; b.title = 'Go to ' + id + ' in the ledger';
       b.addEventListener('click', (ev) => { ev.stopPropagation(); close(); if (window.ptGoTx) window.ptGoTx(id); }); return b; };
     const shell = (title, sub, shown) => {
-      close(); panel = mk('aside', 'pt-story'); panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'Move story');
-      const top = mk('div', 'pt-story-top'); const h = mk('div', 'pt-story-h'); h.append(mk('b', '', title), mk('small', '', sub));
-      const x = mk('button', 'pt-story-x', '✕'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); x.addEventListener('click', close); top.append(h, x);
-      const body = mk('div', 'pt-story-b'); panel.appendChild(body); body.appendChild(top);   // the title bar sticks to the top of the scrolling panel
-      const bg = mk('div', 'pt-story-bg'); bg.addEventListener('click', close); panel.appendChild(bg);
-      document.body.appendChild(panel); document.documentElement.classList.add('pt-story-open'); return body;
+      close(); panel = mk('aside', 'pt-mvs'); panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'Move story');
+      const top = mk('div', 'pt-mvs-top'); const h = mk('div', 'pt-mvs-h'); h.append(mk('b', '', title), mk('small', '', sub));
+      const x = mk('button', 'pt-mvs-x', '✕'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); x.addEventListener('click', close); top.append(h, x);
+      const body = mk('div', 'pt-mvs-b'); panel.appendChild(body); body.appendChild(top);   // the title bar sticks to the top of the scrolling panel
+      const bg = mk('div', 'pt-mvs-bg'); bg.addEventListener('click', close); panel.appendChild(bg);
+      document.body.appendChild(panel); document.documentElement.classList.add('pt-mvs-open'); return body;
     };
-    const csvBtn = (rows) => { const b = mk('button', 'pt-story-act', '⧉ Copy as CSV'); b.type = 'button';
+    const csvBtn = (rows) => { const b = mk('button', 'pt-mvs-act', '⧉ Copy as CSV'); b.type = 'button';
       b.addEventListener('click', () => { const q = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
         const txt = [['round', 'step', 'time_utc', 'action', 'size', 'price_or_odds', 'amount', 'transaction_id', 'reason'].join(',')].concat(rows.map((r) => r.map(q).join(','))).join('\n');
         try { navigator.clipboard.writeText(txt).then(() => { b.textContent = 'Copied'; setTimeout(() => { b.textContent = '⧉ Copy as CSV'; }, 1400); }); } catch (e) {} }); return b; };
-    const linkBtn = (id) => { const b = mk('button', 'pt-story-act', '🔗 Copy link'); b.type = 'button';
+    const linkBtn = (id) => { const b = mk('button', 'pt-mvs-act', '🔗 Copy link'); b.type = 'button';
       b.addEventListener('click', () => { try { navigator.clipboard.writeText(location.origin + location.pathname + '?id=' + id).then(() => { b.textContent = 'Link copied'; setTimeout(() => { b.textContent = '🔗 Copy link'; }, 1400); }); } catch (e) {} }); return b; };
     const stepEl = (s, race, verb, size, priceTxt, amtTxt, hl) => {
-      const li = mk('li', 'pt-story-step' + (hl ? ' is-hl' : '')); const t = mk('div', 'pt-story-when', stFmt.whenET(new Date(s.at).toISOString()) + ' ET');
-      const line = mk('div', 'pt-story-line'); line.append(mk('b', '', verb), document.createTextNode(' ' + [size, priceTxt].filter(Boolean).join(' at ') + (amtTxt ? ' · ' + amtTxt : '')));
+      const li = mk('li', 'pt-mvs-step' + (hl ? ' is-hl' : '')); const t = mk('div', 'pt-mvs-when', stFmt.whenET(new Date(s.at).toISOString()) + ' ET');
+      const line = mk('div', 'pt-mvs-line'); line.append(mk('b', '', verb), document.createTextNode(' ' + [size, priceTxt].filter(Boolean).join(' at ') + (amtTxt ? ' · ' + amtTxt : '')));
       li.append(t, line);
-      const ids = mk('div', 'pt-story-ids'); if (s.tx) ids.appendChild(txChip(s.tx)); else ids.appendChild(mk('span', 'st-muted', s.tuning ? 'Tuning run before the Oct 28 restart: not counted, no ID' : 'ID pending (given at the next run)'));
-      if (s.p != null) ids.appendChild(mk('span', 'pt-story-p', 'its chance: ' + Math.round(100 * s.p) + '%'));
+      const ids = mk('div', 'pt-mvs-ids'); if (s.tx) ids.appendChild(txChip(s.tx)); else ids.appendChild(mk('span', 'st-muted', s.tuning ? 'Tuning run before the Oct 28 restart: not counted, no ID' : 'ID pending (given at the next run)'));
+      if (s.p != null) ids.appendChild(mk('span', 'pt-mvs-p', 'its chance: ' + Math.round(100 * s.p) + '%'));
       li.appendChild(ids);
-      li.appendChild(s.why ? mk('q', 'pt-story-why', s.why) : mk('p', 'pt-story-why is-missing', 'Reason not recorded with this move.'));
+      li.appendChild(s.why ? mk('q', 'pt-mvs-why', s.why) : mk('p', 'pt-mvs-why is-missing', 'Reason not recorded with this move.'));
       return li;
     };
     const openPos = (model, race, key, shown, hlTx) => {
@@ -5032,8 +5032,8 @@ body { background:var(--color-bg); }
       const body = shell((AISL[model] || model) + ': ' + what, (ALLIN[race] || LABEL[race] || race) + ' · ' + steps.length + (steps.length === 1 ? ' move' : ' moves') + (R.length > 1 ? ' in ' + R.length + ' rounds' : ''), shown);
       const csv = []; let total = 0, anyValue = false;
       R.forEach((rd, i) => {
-        const box = mk('section', 'pt-story-round'); box.appendChild(mk('h4', '', (R.length > 1 ? 'Round ' + (i + 1) + ': ' : '') + (rd.short ? 'short ' : '') + (rd.open ? 'still open' : 'closed')));
-        const ol = mk('ol', 'pt-story-tl'); let inn = 0, out = 0; const inIds = [], outIds = [];
+        const box = mk('section', 'pt-mvs-round'); box.appendChild(mk('h4', '', (R.length > 1 ? 'Round ' + (i + 1) + ': ' : '') + (rd.short ? 'short ' : '') + (rd.open ? 'still open' : 'closed')));
+        const ol = mk('ol', 'pt-mvs-tl'); let inn = 0, out = 0; const inIds = [], outIds = [];
         rd.steps.forEach((s, j) => {
           const opening = /^(Buy|Short)$/.test(s.act);
           const verb = { Buy: j === 0 ? 'First buy' : 'Added', Sell: 'Sold', Short: j === 0 ? 'First short' : 'Shorted more', Cover: 'Covered', Settled: 'Settled', Expired: 'Expired' }[s.act] || s.act;
@@ -5047,13 +5047,13 @@ body { background:var(--color-bg); }
         let val = 0, vtxt = '';
         if (rd.open) { const v = holdValue(model, race, key, what); if (v != null) { val = rd.short ? -Math.abs(v) : Math.abs(v); anyValue = true; vtxt = (rd.short ? ' − still owed now ' : ' + value still held now ') + m0(Math.abs(v), race) + ' (latest price)'; } else vtxt = ' (value still held: not found, see the race page)'; }
         const pnl = inn - out + val; total += pnl;
-        const ck = mk('p', 'pt-story-check'); ck.append(mk('b', '', 'Check: '), document.createTextNode((rd.short ? 'raised by shorting ' : 'proceeds ') + m0(inn, race) + (inIds.length ? ' (' + inIds.join(', ') + ')' : '') + ' − ' + (rd.short ? 'cost to cover ' : 'cost ') + m0(out, race) + (outIds.length ? ' (' + outIds.join(', ') + ')' : '') + vtxt + ' = '), mk('b', pnl >= 0 ? 'up' : 'down', ms(pnl, race)));
+        const ck = mk('p', 'pt-mvs-check'); ck.append(mk('b', '', 'Check: '), document.createTextNode((rd.short ? 'raised by shorting ' : 'proceeds ') + m0(inn, race) + (inIds.length ? ' (' + inIds.join(', ') + ')' : '') + ' − ' + (rd.short ? 'cost to cover ' : 'cost ') + m0(out, race) + (outIds.length ? ' (' + outIds.join(', ') + ')' : '') + vtxt + ' = '), mk('b', pnl >= 0 ? 'up' : 'down', ms(pnl, race)));
         box.appendChild(ck); body.appendChild(box);
       });
       if (shown != null) { const ok = Math.abs(total - shown) <= Math.max(5, 0.01 * Math.abs(shown));
-        const v = mk('p', 'pt-story-verdict ' + (ok ? 'is-ok' : 'is-off'), ok ? '✓ Matches the ' + ms(shown, race) + ' shown (Season 1 has no fees; options include their spread in the fill price).' : '⚠ The steps add up to ' + ms(total, race) + ', the list shows ' + ms(shown, race) + ': a difference of ' + m0(Math.abs(total - shown), race) + '. ' + (anyValue ? 'Usually currency conversion at different times; ' : '') + 'the nightly audit checks it.');
+        const v = mk('p', 'pt-mvs-verdict ' + (ok ? 'is-ok' : 'is-off'), ok ? '✓ Matches the ' + ms(shown, race) + ' shown (Season 1 has no fees; options include their spread in the fill price).' : '⚠ The steps add up to ' + ms(total, race) + ', the list shows ' + ms(shown, race) + ': a difference of ' + m0(Math.abs(total - shown), race) + '. ' + (anyValue ? 'Usually currency conversion at different times; ' : '') + 'the nightly audit checks it.');
         body.appendChild(v); }
-      const acts = mk('div', 'pt-story-acts'); const first = steps.find((s) => s.tx); if (first) { acts.appendChild(txChip(first.tx, 'Open the first trade')); acts.appendChild(linkBtn(first.tx)); } acts.appendChild(csvBtn(csv)); body.appendChild(acts);
+      const acts = mk('div', 'pt-mvs-acts'); const first = steps.find((s) => s.tx); if (first) { acts.appendChild(txChip(first.tx, 'Open the first trade')); acts.appendChild(linkBtn(first.tx)); } acts.appendChild(csvBtn(csv)); body.appendChild(acts);
       body.appendChild(mk('p', 'st-note', 'Every step of this holding in order, from the first trade. Tap a transaction ID to see that row in the ledger. Agreed by Claude, Gemini and ChatGPT.'));
       if (hlTx) setTimeout(() => { const e = panel && panel.querySelector('.is-hl'); if (e) e.scrollIntoView({ block: 'center' }); }, 60);
       return true;
@@ -5061,7 +5061,7 @@ body { background:var(--color-bg); }
     const openBets = (key, shown, hlTx) => {
       const I = index(); const tk = I.bets[key] || []; if (!tk.length) return false; const s0 = tk[0]; const race = s0.race;
       const body = shell((AISL[s0.model] || s0.model) + ': ' + s0.what, (ALLIN[race] || LABEL[race] || race) + ' · ' + tk.length + (tk.length === 1 ? ' bet' : ' bets'), shown);
-      const ol = mk('ol', 'pt-story-tl'); const csv = []; let total = 0, staked = 0, done = 0;
+      const ol = mk('ol', 'pt-mvs-tl'); const csv = []; let total = 0, staked = 0, done = 0;
       tk.forEach((b, i) => {
         const odds = b.odds != null ? (Number(b.odds) > 0 ? '+' : '') + b.odds : '';
         ol.appendChild(stepEl(b, race, i === 0 ? 'First bet' : 'Bet again', 'C$' + d3.format(',.0f')(b.stake), odds, '', hlTx && b.tx === hlTx));
@@ -5071,13 +5071,13 @@ body { background:var(--color-bg); }
           const res = b.result == null ? 0 : b.result; if (b.status !== 'Open') { total += res; done++; }
           ol.appendChild(stepEl(r, race, b.status === 'Won' ? 'Won' : b.status === 'Lost' ? 'Lost' : b.status || 'Result', '', '', (res >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(res)), hlTx && r.tx === hlTx));
           csv.push([1, i * 2 + 2, new Date(r.at).toISOString(), b.status, '', '', res, r.tx || '', r.why]);
-        } else ol.appendChild(mk('li', 'pt-story-step is-open', 'Not settled yet'));
+        } else ol.appendChild(mk('li', 'pt-mvs-step is-open', 'Not settled yet'));
       });
       body.appendChild(ol);
-      const ck = mk('p', 'pt-story-check'); ck.append(mk('b', '', 'Check: '), document.createTextNode(done + ' settled ' + (done === 1 ? 'bet' : 'bets') + ': results ' + tk.filter((b) => b.status !== 'Open').map((b) => (b.result >= 0 ? '+' : '−') + d3.format(',.0f')(Math.abs(b.result || 0))).join(' ') + ' = '), mk('b', total >= 0 ? 'up' : 'down', ms(total, race)));
+      const ck = mk('p', 'pt-mvs-check'); ck.append(mk('b', '', 'Check: '), document.createTextNode(done + ' settled ' + (done === 1 ? 'bet' : 'bets') + ': results ' + tk.filter((b) => b.status !== 'Open').map((b) => (b.result >= 0 ? '+' : '−') + d3.format(',.0f')(Math.abs(b.result || 0))).join(' ') + ' = '), mk('b', total >= 0 ? 'up' : 'down', ms(total, race)));
       body.appendChild(ck);
-      if (shown != null) { const ok = Math.abs(total - shown) <= Math.max(2, 0.005 * Math.abs(shown)); body.appendChild(mk('p', 'pt-story-verdict ' + (ok ? 'is-ok' : 'is-off'), ok ? '✓ Matches the ' + ms(shown, race) + ' shown (a win pays stake × odds; a loss is the stake; voids and pushes return the stake).' : '⚠ The bets add up to ' + ms(total, race) + ', the list shows ' + ms(shown, race) + '; the nightly audit checks it.')); }
-      const acts = mk('div', 'pt-story-acts'); if (s0.tx) { acts.appendChild(txChip(s0.tx, 'Open the first bet')); acts.appendChild(linkBtn(s0.tx)); } acts.appendChild(csvBtn(csv)); body.appendChild(acts);
+      if (shown != null) { const ok = Math.abs(total - shown) <= Math.max(2, 0.005 * Math.abs(shown)); body.appendChild(mk('p', 'pt-mvs-verdict ' + (ok ? 'is-ok' : 'is-off'), ok ? '✓ Matches the ' + ms(shown, race) + ' shown (a win pays stake × odds; a loss is the stake; voids and pushes return the stake).' : '⚠ The bets add up to ' + ms(total, race) + ', the list shows ' + ms(shown, race) + '; the nightly audit checks it.')); }
+      const acts = mk('div', 'pt-mvs-acts'); if (s0.tx) { acts.appendChild(txChip(s0.tx, 'Open the first bet')); acts.appendChild(linkBtn(s0.tx)); } acts.appendChild(csvBtn(csv)); body.appendChild(acts);
       body.appendChild(mk('p', 'st-note', 'Each ticket with its bet ID and result ID. Tap an ID to see it in the ledger. Agreed by Claude, Gemini and ChatGPT.'));
       if (hlTx) setTimeout(() => { const e = panel && panel.querySelector('.is-hl'); if (e) e.scrollIntoView({ block: 'center' }); }, 60);
       return true;
@@ -5110,7 +5110,7 @@ body { background:var(--color-bg); }
       if (!tk.length) return false; tk.sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
       const key = model + '|' + race + '|streak'; I.bets[key] = tk; const won = st.k === 'W';
       const ok = openBets(key, null); if (!ok) return false;
-      const h = panel && panel.querySelector('.pt-story-h'); if (h) { h.querySelector('b').textContent = (AISL[model] || model) + ': ' + (st.games != null ? st.games : st.n) + ' games ' + (won ? 'won' : 'lost') + ' in a row';
+      const h = panel && panel.querySelector('.pt-mvs-h'); if (h) { h.querySelector('b').textContent = (AISL[model] || model) + ': ' + (st.games != null ? st.games : st.n) + ' games ' + (won ? 'won' : 'lost') + ' in a row';
         h.querySelector('small').textContent = (ALLIN[race] || LABEL[race] || race) + ' · ' + tk.length + (won ? ' winning' : ' losing') + ' bets on ' + (st.games != null ? st.games : st.n) + ' games: repeat bets on the same game count once'; }
       return true; };
     return { openBig, openTx, openAt, openStreak, firstTx, close, index };
