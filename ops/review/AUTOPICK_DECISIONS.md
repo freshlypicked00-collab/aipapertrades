@@ -1,0 +1,2 @@
+# Race standings Auto-pick drop-down (owner, Nov 1)
+Claude, Gemini and ChatGPT all AGREED on D1-D5 (ops/review/autopick-nov1.json). Built: "Auto-pick:" drop-down replaces the Most relevant box: Most relevant (default each visit), Biggest profit / Biggest loss / Closest race / Biggest lead (ten races, C$), Biggest profit / Biggest loss (All in side race), Off. Picking a race by hand sets Off. Extras adopted: ChatGPT's tie-break (keep the race already shown, then menu order); Gemini's and Claude's short labels for phones.

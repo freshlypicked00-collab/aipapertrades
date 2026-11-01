@@ -1300,6 +1300,7 @@ tr.lg-hit .tx-id{opacity:1}
 .lg-lb-v{margin-right:2px}.lg-lb-good-call,.lg-lb-lucky{color:#3ddc84}.lg-lb-bad-call,.lg-lb-unlucky{color:#ff6b6b}.lg-lb-too-early,.lg-lb-too-late{color:#ffb000}
 .lg-lb-miss{opacity:.6;font-style:italic}
 .st-score-cost{opacity:.8;font-size:11.5px}
+.pd-auto{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.pd-auto-l{font-weight:600;white-space:nowrap}.pd-auto-pick{flex:1;min-width:0;max-width:100%;font:inherit;padding:4px 6px;border-radius:6px;background:var(--color-bg,#111);color:inherit;border:1px solid var(--color-border,#444)}
 .st-luck{font-size:12px;line-height:1.45;opacity:.85;margin-top:6px}.st-luck summary{cursor:pointer}.st-luck p{margin:4px 0 0}.st-luck-t{opacity:.75}
 
 
@@ -1493,7 +1494,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '3a181aa1a7f4';</script>
+<script>window.PT_PAGE_VER = '48821e983512';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -8552,8 +8553,30 @@ body { background:var(--color-bg); }
       }
       if (!el._tabHook) { el._tabHook = true; window.addEventListener('pt-tab', () => { if (dash.redraw) dash.redraw(); }); }
     }
-    const hot = el._follow ? hottestRace() : null;   // "Most relevant": the race with the biggest move in the last 2 hours, re-checked at every data update
-    if (hot) el._exp = hot.race;   // every visit opens on the race whose market is open (China, then US, else Crypto); nothing is remembered
+    // Auto-pick (owner, Nov 1; agreed with Gemini and ChatGPT): a drop-down instead of the single "Most relevant" box. Each mode picks
+    // the race by itself and re-checks at every data update; "Off" means the visitor chooses.
+    const autoPick = (mode) => {
+      const k = rates().CAD || 1.38, m = (v) => (v < 0 ? '−' : '+') + 'C$' + d3.format(',.0f')(Math.abs(v)), nm = (id) => (AIS[id] || {}).label || id;
+      const lab = (r) => (LABEL[r] || r).replace(' (US$)', '');
+      const ten = Object.entries(ES).filter(([, rows]) => rows && rows.length).map(([r, rows]) => {
+        const c = r === 'China' ? k : 1, srt = rows.slice().sort((a, b) => b.profit - a.profit);
+        return { r, hi: srt[0], lo: srt[srt.length - 1], c, gap: srt.length > 1 ? (srt[0].profit - srt[1].profit) * c : 0 }; });
+      const allin = () => { let R; try { R = allinRows; } catch (e) { return []; }
+        return ['AllInTrading', 'AllInSports'].map((r) => { const srt = R(r).slice().sort((a, b) => b.profit - a.profit); return srt.length ? { r, hi: srt[0], lo: srt[srt.length - 1], c: 1 } : null; }).filter(Boolean); };
+      const best = (arr, f) => arr.reduce((a, x) => (a == null || f(x) > f(a) + 0.5 || (Math.abs(f(x) - f(a)) <= 0.5 && x.r === el._exp) ? x : a), null);   // a tie keeps the race already shown, then menu order (ChatGPT's tie-break)
+      if (mode === 'profit') { const x = best(ten, (q) => q.hi.profit * q.c); return x && x.hi.profit > 0.5 ? { race: x.r, why: nm(x.hi.id) + ' is ' + m(x.hi.profit * x.c) + ' in ' + lab(x.r) + ', the biggest profit in any of the ten races.' } : { race: null, why: 'No AI is in profit in any of the ten races right now.' }; }
+      if (mode === 'loss') { const x = best(ten, (q) => -q.lo.profit * q.c); return x && x.lo.profit < -0.5 ? { race: x.r, why: nm(x.lo.id) + ' is ' + m(x.lo.profit * x.c) + ' in ' + lab(x.r) + ', the biggest loss in any of the ten races.' } : { race: null, why: 'No AI is in a loss in any of the ten races right now.' }; }
+      if (mode === 'close') { const x = best(ten.filter((q) => q.gap >= 0), (q) => -q.gap); return x ? { race: x.r, why: 'Only ' + 'C$' + d3.format(',.0f')(x.gap) + ' between 1st and 2nd in ' + lab(x.r) + ', the closest of the ten races.' } : null; }
+      if (mode === 'lead') { const x = best(ten, (q) => q.gap); return x && x.gap > 0.5 ? { race: x.r, why: nm(x.hi.id) + ' leads ' + lab(x.r) + ' by C$' + d3.format(',.0f')(x.gap) + ', the biggest lead in the ten races.' } : null; }
+      if (mode === 'aprofit') { const x = best(allin(), (q) => q.hi.profit); return x && x.hi.profit > 0.5 ? { race: x.r, why: nm(x.hi.id) + ' is ' + m(x.hi.profit) + ' in ' + ALLIN[x.r] + ', the biggest profit in the All in side race.' } : { race: null, why: 'No AI is in profit in the All in side race right now.' }; }
+      if (mode === 'aloss') { const x = best(allin(), (q) => -q.lo.profit); return x && x.lo.profit < -0.5 ? { race: x.r, why: nm(x.lo.id) + ' is ' + m(x.lo.profit) + ' in ' + ALLIN[x.r] + ', the biggest loss in the All in side race.' } : { race: null, why: 'No AI is in a loss in the All in side race right now.' }; }
+      return null;
+    };
+    const AUTO = [['live', 'Most relevant (live market)'], ['profit', 'Biggest profit (ten races)'], ['loss', 'Biggest loss (ten races)'], ['close', 'Closest race'], ['lead', 'Biggest lead'],
+      ['aprofit', 'Biggest profit (All in side race)'], ['aloss', 'Biggest loss (All in side race)'], ['off', 'Off: I’ll choose']];
+    if (!el._mode) el._mode = 'live';
+    const hot = el._follow ? (el._mode === 'live' ? hottestRace() : autoPick(el._mode)) : null;   // re-checked at every data update
+    if (hot && hot.race) el._exp = hot.race;   // every visit opens on the race whose market is open (China, then US, else Crypto); nothing is remembered
     if (window.ptStandRace !== el._exp) { window.ptStandRace = el._exp; setTimeout(() => { if (dash.redraw) dash.redraw(); }, 0); }   // "How each simulation is doing" follows this pick (owner, Oct 30)
     const want = el._exp === 'Overall' ? null : el._exp;   // Overall: the take, plans, feelings and opinions across all races
     if (!ALLIN[el._exp] && ((window.ptRace || null) !== want || !!window.ptOverall !== (el._exp === 'Overall'))) { window.ptRace = want; window.ptOverall = el._exp === 'Overall'; setTimeout(() => { if (dash.redraw) dash.redraw(); }, 0); }   // the goals and feelings cards follow this race (the All in side race has none, so they stay put)
@@ -8572,16 +8595,19 @@ body { background:var(--color-bg); }
       if (dash.redraw) dash.redraw();
     });
     el.appendChild(sel);
-    { const lab = mk('label', 'pd-follow'); const cb = mk('input'); cb.type = 'checkbox'; cb.checked = !!el._follow;
-      cb.addEventListener('change', () => {
-        el._follow = cb.checked;
-        // Most relevant off: straight to Overall; the visitor then picks where to go from the menu (owner, Oct 30)
-        if (!cb.checked) { el._exp = 'Overall'; window.ptRace = null; window.ptOverall = true; el._tab = 'overview'; el._ctx = false; const y = window.scrollY; goTab('overview', false); requestAnimationFrame(() => window.scrollTo(0, y)); }
-        // back on Most relevant: back to Home, so the Scoreboard shows every race again (owner, Oct 29)
-        if (cb.checked) { el._tab = 'overview'; el._ctx = false; const y = window.scrollY; goTab('overview', false); requestAnimationFrame(() => window.scrollTo(0, y)); }
+    { const lab = mk('label', 'pd-follow pd-auto'); lab.appendChild(mk('span', 'pd-auto-l', 'Auto-pick:'));
+      const dd = mk('select', 'pd-auto-pick'); dd.setAttribute('aria-label', 'Pick the race automatically by');
+      AUTO.forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; if ((el._follow ? el._mode : 'off') === v) o.selected = true; dd.appendChild(o); });
+      dd.addEventListener('change', () => {
+        const v = dd.value, y = window.scrollY;
+        el._tab = 'overview'; el._ctx = false;
+        // Off: straight to Overall; the visitor then picks where to go from the menu (owner, Oct 30)
+        if (v === 'off') { el._follow = false; el._exp = 'Overall'; window.ptRace = null; window.ptOverall = true; }
+        else { el._follow = true; el._mode = v; }
+        goTab('overview', false); requestAnimationFrame(() => window.scrollTo(0, y));
         dash.redraw ? dash.redraw() : null; });
-      lab.append(cb, document.createTextNode(' Most relevant: follow the market that’s live right now')); el.appendChild(lab);
-      if (el._follow && hot) { el.appendChild(mk('p', 'pd-note pd-follow-why', '📡 ' + hot.why + ' Switches by itself.'));
+      lab.appendChild(dd); el.appendChild(lab);
+      if (el._follow && hot) { el.appendChild(mk('p', 'pd-note pd-follow-why', (el._mode === 'live' ? '📡 ' : '🔎 ') + hot.why + ' Switches by itself.'));
         if (hot.checks) { const d = mk('details', 'pd-note pd-follow-list'); d.appendChild(mk('summary', '', 'Why this one: what was checked'));
           const ul = mk('ul'); hot.checks.forEach(([t, on]) => ul.appendChild(mk('li', on ? 'is-live' : '', (on ? '🟢 ' : '⚪ ') + t))); d.appendChild(ul);
           d.appendChild(mk('small', '', 'Order: big news first, then a sharp swing, then Shanghai, New York, games being played, and crypto when everything else is closed.')); el.appendChild(d); } } }
