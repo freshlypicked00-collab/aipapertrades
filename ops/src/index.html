@@ -279,6 +279,7 @@
   .pt-mvs-verdict { margin: 10px 0; font-weight: 600; } .pt-mvs-verdict.is-ok { color: #2bd576; } .pt-mvs-verdict.is-off { color: #ff6b6b; }
   .pt-mvs-acts { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
   .pt-mvs-act { font: inherit; font-size: 13px; background: none; border: 1px solid var(--color-border-line); color: var(--color-fg); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+  .pt-hold-tx { display: inline-flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; } .pt-alloc-tx { margin: 4px 0 0 17px; } .pt-hold-line { display: block; } .pt-hold-link { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-decoration: underline dotted; text-underline-offset: 3px; cursor: pointer; }
   .pd-big-from { display: block; font-size: 10.5px; color: var(--color-fg-muted); font-family: var(--font-mono, monospace); }
   html.pt-mvs-open { overflow: hidden; }
 
@@ -4173,6 +4174,11 @@ tr.lg-hit .tx-id{opacity:1}
         const td = mk('td', 'st-muted pt-cash-cell', 'Cash, ready to invest'); td.colSpan = 4;
         for (let k = 0; k < 4; k++) tr.children[at].remove();
         tr.insertBefore(td, tr.children[at]); }); }
+    // Find the buy on every holding (owner, Nov 1): the first buy of the round still open, more buys, and the whole story
+    if (window.ptStory) { const at = el.dataset.all ? 1 : 0;
+      [...el.children].forEach((tr) => { if (!tr.dataset.key) return; const [pf, h] = tr.dataset.key.split(',').map(decodeURIComponent); if (/^Cash\b|^USDC$/.test(h)) return;
+        const row = (dash.data('holdings').data || []).find((x) => x.portfolio === pf && x.holding === h) || {};
+        const ch = window.ptStory.holdingChips(dash.model || 'claude', pf, h, row.code); if (!ch) return; const cell = tr.children[at]; if (cell) { const after = cell.childNodes[1] || null; cell.insertBefore(ch, after); cell.insertBefore(document.createElement('br'), ch); } }); }
     pagerFor(el, 10, 'holdings'); });
   // "Show:" experiment menus on the overview tables
   const fillPf = () => document.querySelectorAll('select.pf-filter').forEach((sel) => {
@@ -4870,7 +4876,32 @@ tr.lg-hit .tx-id{opacity:1}
       const h = panel && panel.querySelector('.pt-mvs-h'); if (h) { h.querySelector('b').textContent = (AISL[model] || model) + ': ' + (st.games != null ? st.games : st.n) + ' games ' + (won ? 'won' : 'lost') + ' in a row';
         h.querySelector('small').textContent = (ALLIN[race] || LABEL[race] || race) + ' · ' + tk.length + (won ? ' winning' : ' losing') + ' bets on ' + (st.games != null ? st.games : st.n) + ' games: repeat bets on the same game count once'; }
       return true; };
-    return { openBig, openTx, openAt, openStreak, firstTx, close, index };
+    // a holding shown anywhere (name and/or code): its position key and the first buy (or short) of the round still open (owner, Nov 1)
+    const findPos = (model, race, name, code) => { const I = index(); const pre = model + '|' + race + '|'; const nm = String(name || '').replace(/^(Short |Long )/, '').replace(/ \(short\)$/, '');
+      const keys = Object.keys(I.pos).filter((k) => k.startsWith(pre));
+      return keys.find((k) => k === pre + nm) || keys.find((k) => code && (k === pre + code || k.startsWith(pre + code + '|'))) || keys.find((k) => { const l = I.pos[k]; return l.length && l[l.length - 1].what === nm; }) || keys.find((k) => { const l = I.pos[k]; return l.some((x) => x.what === nm); }) || null; };
+    const holdingBuys = (key) => { const I = index(); const st = I.pos[key] || []; if (!st.length) return null; const R = rounds(st); const rd = R[R.length - 1];
+      return { first: (rd.steps.find((x) => /^(Buy|Short)$/.test(x.act) && x.tx) || {}).tx, buys: rd.steps.filter((x) => /^(Buy|Short)$/.test(x.act) && x.tx).map((x) => x.tx), short: rd.short, open: rd.open }; };
+    // the chips placed under a holding: "Find the buy <ID>" (first buy of the open round), "+N more buys" and "Whole story"
+    const holdingChips = (model, race, name, code) => { const key = findPos(model, race, name, code); if (!key) return null; const hb = holdingBuys(key); if (!hb || !hb.first) return null;
+      const w = mk('span', 'tx-wrap pt-hold-tx'); const a = mk('button', 'tx-id tx-go', (hb.short ? 'Find the short ' : 'Find the buy ') + hb.first); a.type = 'button'; a.title = 'Go to the first ' + (hb.short ? 'short' : 'buy') + ' of this holding in the ledger';
+      a.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); close(); if (window.ptGoTx) window.ptGoTx(hb.first); }); w.appendChild(a);
+      if (hb.buys.length > 1) { const m = mk('button', 'tx-id tx-go', '+' + (hb.buys.length - 1) + (hb.short ? ' more shorts' : ' more buys')); m.type = 'button'; m.title = hb.buys.slice(1).join(', ');
+        m.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); openPos(model, race, key, null, hb.buys[1]); }); w.appendChild(m); }
+      const sb = mk('button', 'tx-id tx-go tx-story', '📜 Whole story'); sb.type = 'button'; sb.title = 'Every move of this holding, from the first trade, with a check of the sum';
+      sb.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); openPos(model, race, key, null, hb.first); }); w.appendChild(sb);
+      return w; };
+    const holdingLink = (model, race, name, label) => { const key = findPos(model, race, name); const hb = key && holdingBuys(key);
+      if (!hb || !hb.first) {   // open bets (Sports, All in sports): the first open ticket on that game
+        const I = index(); const pre = model + '|' + race + '|'; let bt = null;
+        Object.keys(I.bets).forEach((k) => { if (bt || !k.startsWith(pre)) return; const [, , team, ev] = k.split('|'); const nT = name.split(' (')[0].replace(/ moneyline$/, ''); const nE = (name.match(/\(([^()]*@[^()]*)\)/) || [])[1];
+          const hit = name === team || (ev && name.includes(ev) && name.includes(team)) || (nE && ev && ev.includes(nE) && (ev.includes(nT + ' ') || team.includes(nT))); if (!hit) return; bt = (I.bets[k] || []).find((x) => x.status === 'Open' && x.tx) || null; });
+        if (!bt) return document.createTextNode(label || name);
+        const b = mk('button', 'pt-hold-link', label || name); b.type = 'button'; b.title = 'Whole story, from the bet ' + bt.tx;
+        b.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); openTx(bt.tx); }); return b; }
+      const b = mk('button', 'pt-hold-link', label || name); b.type = 'button'; b.title = 'Whole story, from ' + (hb.short ? 'the first short ' : 'the first buy ') + hb.first;
+      b.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); openPos(model, race, key, null, hb.first); }); return b; };
+    return { openBig, openTx, openAt, openStreak, firstTx, findPos, holdingBuys, holdingChips, holdingLink, close, index };
   })();
   window.ptStory = STORY;
   // T2 (all three AIs agreed, Oct 31): the three latest takes, one each, near the top of the home page
@@ -6544,14 +6575,16 @@ tr.lg-hit .tx-id{opacity:1}
       const li = mk('li');
       const sw = mk('i'); sw.style.background = col(r, i);
       li.append(sw, mk('b', '', r.holding + ' '), document.createTextNode(d3.format('.0%')(r.value_cad / total) + ' · ' + (pf === 'China' ? stFmt.money(vOf(r), pf) : stFmt.cad(r.value_cad))));
-      if (!cash(r)) { li.appendChild(buysOf(r)); const w = whyOf(r); if (w) { li.appendChild(w); li.dataset.say = 'no'; } }
+      if (!cash(r)) { li.appendChild(buysOf(r)); { const ch = window.ptStory && window.ptStory.holdingChips(dash.model || 'claude', pf, r.holding, r.code); if (ch) { ch.classList.add('pt-alloc-tx'); li.appendChild(ch); } }
+        const w = whyOf(r); if (w) { li.appendChild(w); li.dataset.say = 'no'; } }
       key.appendChild(li);
     });
     // shorts and borrowed money aren't slices of the pie, but they are holdings: list them with when and at what price
     d.data.filter((r) => r.portfolio === pf && Number(r.value_cad) < 0 && !cash(r) && Math.abs(Number(r.quantity)) > 1e-9).forEach((r) => {
       const li = mk('li'); const sw = mk('i', 'st-alloc-hollow');
       li.append(sw, mk('b', '', (Number(r.quantity) < 0 ? 'Short ' : '') + r.holding + ' '), document.createTextNode((Number(r.quantity) < 0 ? 'owes ' : '') + (pf === 'China' ? stFmt.money(Math.abs(vOf(r)), pf) : stFmt.cad(Math.abs(r.value_cad))) + ' (not in the chart)'));
-      li.appendChild(buysOf(r)); { const w = whyOf(r); if (w) { li.appendChild(w); li.dataset.say = 'no'; } } key.appendChild(li);
+      li.appendChild(buysOf(r)); { const ch = window.ptStory && window.ptStory.holdingChips(dash.model || 'claude', pf, r.holding, r.code); if (ch) { ch.classList.add('pt-alloc-tx'); li.appendChild(ch); } }
+      { const w = whyOf(r); if (w) { li.appendChild(w); li.dataset.say = 'no'; } } key.appendChild(li);
     });
     row.appendChild(key);
   });
@@ -7405,7 +7438,15 @@ tr.lg-hit .tx-id{opacity:1}
         Object.entries(x.book.positions || {}).forEach(([k, p]) => { const v = Number(p.qty) * Number(p.last != null ? p.last : p.entry) * (p.pcur === 'USD' ? usdcad : 1); hold.push((p.name || k) + ' C$' + d3.format(',.0f')(v)); });
         (x.book.bets || []).filter((b) => b.status === 'Open').forEach((b) => hold.push(b.pick_team + ' (' + b.event + ') ' + (b.odds > 0 ? '+' : '') + b.odds + ', C$' + d3.format(',.0f')(b.stake)));
         if (Number(x.book.cash) > 1 && exp === 'AllInTrading') hold.push('Cash C$' + d3.format(',.0f')(x.book.cash));
-        li.appendChild(mk('span', 'h2h-sub', hold.length ? 'Holding: ' + hold.join(' · ') : 'Holding: all cash, no bets yet'));
+        { const hs = mk('span', 'h2h-sub'); hs.appendChild(document.createTextNode(hold.length ? 'Holding: ' + hold.join(' · ') : 'Holding: all cash, no bets yet')); li.appendChild(hs);
+          // Find the buy on every All in holding too (owner, Nov 1)
+          if (window.ptStory && exp === 'AllInTrading') Object.entries(x.book.positions || {}).forEach(([k, p]) => { const ch = window.ptStory.holdingChips(x.id, exp, p.name || k, k); if (ch) { const ln = mk('span', 'h2h-sub pt-hold-line'); ln.append(mk('b', '', (p.name || k) + ': ')); ln.appendChild(ch); li.appendChild(ln); } });
+          // open bets are holdings too: Find the bet + Whole story
+          if (exp === 'AllInSports') (x.book.bets || []).filter((b) => b.status === 'Open').forEach((b) => { const t = (dash.baseData('allin_trades') || []).find((q) => q.model === x.id && q.experiment === exp && q.bet === b.id && q.tx); if (!t) return;
+            const ln = mk('span', 'h2h-sub pt-hold-line'); ln.append(mk('b', '', b.pick_team + ' C$' + d3.format(',.0f')(b.stake) + ': ')); const w = mk('span', 'tx-wrap pt-hold-tx');
+            const a1 = mk('button', 'tx-id tx-go', 'Find the bet ' + t.tx); a1.type = 'button'; a1.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); if (window.ptGoTx) window.ptGoTx(t.tx); }); w.appendChild(a1);
+            if (window.ptStory) { const sb = mk('button', 'tx-id tx-go tx-story', '📜 Whole story'); sb.type = 'button'; sb.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); window.ptStory.openTx(t.tx); }); w.appendChild(sb); }
+            ln.appendChild(w); li.appendChild(ln); }); }
         { // the most recent win and the most recent loss (owner, Oct 30): settled bets, or closed trades with their profit
           const res = (t) => (t.action === 'Won' || t.action === 'Lost') ? Number(t.amount) : (t.action === 'Sell' || t.action === 'Cover') && t.pnl != null ? Number(t.pnl) : null;
           const done = (TS || []).filter((t) => t.model === x.id && t.experiment === exp && res(t) != null && Math.abs(res(t)) >= 0.5).sort((a, b) => new Date(b.at) - new Date(a.at));
@@ -7610,10 +7651,12 @@ tr.lg-hit .tx-id{opacity:1}
     const all = dash.baseData('exp_standings'); const ES = Array.isArray(all) ? all[0] : all; if (!ES) return null;
     const list = (e) => { const h = ((ES[e] || []).find((r) => r.id === id) || {}).holds || []; const c = {}; h.forEach((x) => { c[x] = (c[x] || 0) + 1; }); return Object.keys(c).map((x) => (c[x] > 1 ? x + ' (' + c[x] + ' bets)' : x)); };
     const wrap = mk('div', 'h2h-holds');
-    if (exp) { const h = list(exp); wrap.appendChild(mk('span', 'h2h-sub', h.length ? 'Holding: ' + h.join(' · ') : 'Holding: all cash')); return wrap; }
+    // each holding name opens its whole story, from the first buy (owner, Nov 1)
+    const names = (e, h, into) => h.forEach((x, i) => { if (i) into.append(' · '); const nm = x.replace(/ \(\d+ bets\)$/, ''); into.appendChild(window.ptStory ? window.ptStory.holdingLink(id, e, nm, x) : document.createTextNode(x)); });
+    if (exp) { const h = list(exp); const sp = mk('span', 'h2h-sub', h.length ? 'Holding: ' : 'Holding: all cash'); names(exp, h, sp); wrap.appendChild(sp); return wrap; }
     wrap.appendChild(mk('b', '', 'Holding now'));
     const ul = mk('ul');
-    Object.keys(ES).forEach((e) => { const h = list(e); const li = mk('li'); li.append(mk('b', '', (LABEL[e] || e) + ': '), document.createTextNode(h.length ? h.join(' · ') : 'all cash')); ul.appendChild(li); });
+    Object.keys(ES).forEach((e) => { const h = list(e); const li = mk('li'); li.append(mk('b', '', (LABEL[e] || e) + ': ')); if (h.length) names(e, h, li); else li.append('all cash'); ul.appendChild(li); });
     wrap.appendChild(ul); return wrap;
   };
   // the log entry that explains one of Claude's trades: same time and experiment, then the same action and holding if several match
