@@ -5887,10 +5887,17 @@ tr.lg-hit .tx-id{opacity:1}
     if (x.held) k.push('hold');
     return k;
   };
+  // "Why (estimated)" (outside-Gemini review G2, Nov 1; Claude, Gemini and ChatGPT all agreed): groups moves by the kind of reason given,
+  // guessed from words in the AI's own reason. Always labelled estimated; never shown as the AI's own trigger; the reason stays visible.
+  const MF_WHY = [['rule', 'Rules and minimums', /\b(minimum|required|requirement|penalt|rule|cap\b|daily limit|must)/i], ['odds', 'Odds and value', /\b(odds|favou?rite|underdog|moneyline|implied|value bet|line moved|spread|parlay|price of yes|cents)/i],
+    ['news', 'News and events', /\b(news|earnings|report|cpi|fed\b|fomc|rate (cut|hike|decision)|jobs|payroll|guidance|announce|headline|hack|tariff|election|war|sanction|opec|data release|inflation)/i],
+    ['price', 'Price moves and levels', /\b(support|resistance|breakout|broke|level|rsi|oversold|overbought|momentum|trend|moving average|dip|rally|bounce|sell-?off|drop|fell|surge|rose|high|low)\b/i],
+    ['risk', 'Risk and rebalancing', /\b(rebalanc|diversif|trim|hedge|exposure|allocation|stop|take profit|target|protect|reduce risk|cash|lock in|drawdown|volatil)/i]];
+  const mfWhy = (r) => { const t = String(r.why || r.reason || r.text || ''); if (!t) return ''; for (const [k, , re] of MF_WHY) if (re.test(t)) return k; return 'other'; };
   // acc: { at(r), kinds(r) -> [keys], profit(r) -> number|null (realised only, so nothing is counted twice), amount(r) -> number|null, noun }
   const mfApply = (key, rows, acc, redraw, opts) => {
     opts = opts || {};
-    const st = (MF_STATE[key] = MF_STATE[key] || { k: '', s: 'new', pg: 0 });
+    const st = (MF_STATE[key] = MF_STATE[key] || { k: '', s: 'new', pg: 0, w: '' });
     const K = rows.map((r) => acc.kinds(r));
     const count = (k) => (k ? K.filter((ks) => ks.includes(k)).length : rows.length);
     const pills = MF_PILLS.filter(([k]) => (!opts.pills || opts.pills.includes(k)) && (k === '' || count(k) > 0));
@@ -5906,19 +5913,27 @@ tr.lg-hit .tx-id{opacity:1}
     bar.appendChild(sw);
     if (sorts.length > 1) { const l = mk('label', 'mf-sort', 'Sort: '); const sl = mk('select'); sl.setAttribute('aria-label', 'Sort'); sl.dataset.order = 'keep';   // a sort menu keeps its own order (newest first on top)
       sorts.forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; sl.appendChild(o); }); sl.value = st.s; sl.addEventListener('change', () => { st.s = sl.value; go(); }); l.appendChild(sl); bar.appendChild(l); }
+    const W = rows.map(mfWhy), wc = (k) => W.filter((x) => x === k).length;
+    const whys = MF_WHY.map(([k, t]) => [k, t]).concat([['other', 'Other reasons']]).filter(([k]) => wc(k) > 0);
+    if (st.w && !whys.some((x) => x[0] === st.w)) st.w = '';
+    if (whys.length > 1) { const l = mk('label', 'mf-sort mf-why', 'Why (estimated): '); l.title = 'Grouped by words in each AI’s own reason. An estimate, not the AI’s own label; the reason itself is always shown.';
+      const sl = mk('select'); sl.setAttribute('aria-label', 'Why (estimated)'); sl.dataset.order = 'keep';
+      [['', 'Any reason (' + W.filter(Boolean).length + ')']].concat(whys.map(([k, t]) => [k, t + ' (' + wc(k) + ')'])).forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; sl.appendChild(o); });
+      sl.value = st.w; sl.addEventListener('change', () => { st.w = sl.value; go(); }); l.appendChild(sl); bar.appendChild(l); }
     const T = (r) => Date.parse(acc.at(r)) || 0, nil = (v) => v == null || !isFinite(v);
     const P = (r) => acc.profit(r), A = (r) => acc.amount(r);
     const cmp = { new: (a, b) => T(b) - T(a), old: (a, b) => T(a) - T(b),
       profit: (a, b) => (nil(P(a)) - nil(P(b))) || (nil(P(a)) ? 0 : P(b) - P(a)) || T(b) - T(a),
       loss: (a, b) => (nil(P(a)) - nil(P(b))) || (nil(P(a)) ? 0 : P(a) - P(b)) || T(b) - T(a),
       amount: (a, b) => (nil(A(a)) - nil(A(b))) || (nil(A(a)) ? 0 : Math.abs(A(b)) - Math.abs(A(a))) || T(b) - T(a) }[st.s];
-    const out = rows.filter((r, i) => !st.k || K[i].includes(st.k)).sort(cmp);
+    const out = rows.filter((r, i) => (!st.k || K[i].includes(st.k)) && (!st.w || W[i] === st.w)).sort(cmp);
     const noun = acc.noun || ['move', 'moves'];
     const sum = mk('p', 'st-note mf-sum');
     const lab = st.k ? (pills.find((x) => x[0] === st.k) || ['', ''])[1] : '', so = (sorts.find((x) => x[0] === st.s) || ['', ''])[1].toLowerCase();
-    sum.append('Showing ' + out.length + ' of ' + rows.length + ' ' + (rows.length === 1 ? noun[0] : noun[1]) + (lab ? ': ' + lab : '') + ', ' + so + (opts.page ? ', ' + opts.page + ' a page' : '') + '.');
-    if (st.k || st.s !== 'new') { const c = mk('button', 'mf-clear', 'Clear'); c.type = 'button'; c.title = 'Back to every move, newest first'; c.addEventListener('click', () => { st.k = ''; st.s = 'new'; go(); }); sum.append(' ', c); }
-    return { bar, sum, rows: out, st, key: st.k + '|' + st.s, newest: st.s === 'new' };
+    const wl = st.w ? ((whys.find((x) => x[0] === st.w) || ['', ''])[1].toLowerCase() + ' (estimated)') : '';
+    sum.append('Showing ' + out.length + ' of ' + rows.length + ' ' + (rows.length === 1 ? noun[0] : noun[1]) + (lab ? ': ' + lab : '') + (wl ? (lab ? ', ' : ': ') + wl : '') + ', ' + so + (opts.page ? ', ' + opts.page + ' a page' : '') + '.');
+    if (st.k || st.w || st.s !== 'new') { const c = mk('button', 'mf-clear', 'Clear'); c.type = 'button'; c.title = 'Back to every move, newest first'; c.addEventListener('click', () => { st.k = ''; st.w = ''; st.s = 'new'; go(); }); sum.append(' ', c); }
+    return { bar, sum, rows: out, st, key: st.k + '|' + st.w + '|' + st.s, newest: st.s === 'new' };
   };
   // the bar above a table body (tbody), in its own box so redraws replace it
   const mfMount = (el, MF) => { const host = el.closest('.st-wrap') || el.closest('table') || el; let box = host.previousElementSibling && host.previousElementSibling.classList.contains('mf-host') ? host.previousElementSibling : null;
