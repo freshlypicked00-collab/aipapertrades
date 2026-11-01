@@ -1545,7 +1545,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '287722eb6c13';</script>
+<script>window.PT_PAGE_VER = 'e00f2ad7de83';</script>
 <!-- the first text on the page says plainly what this is, so search engines and AI assistants stop mixing the name up with a similarly named exchange (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json) -->
 <p class="pt-def" id="what-is">PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no deposits and has no token. <a href="/what-is-papertrades-ai.html">What is PaperTrades.AI?</a></p>
 <style>.pt-def { margin: 0; padding: 5px 14px; font-size: 12px; line-height: 1.4; text-align: center; color: var(--color-fg-muted, #a9a495); background: var(--color-bg, #0b0b0a); } .pt-def a { color: inherit; text-decoration: underline; white-space: nowrap; }</style>
@@ -2603,7 +2603,7 @@ body { background:var(--color-bg); }
       <p class="st-meta">
         <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=China">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=China">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=China">—</b></span>
-        <span>Market hours: 9:30–11:30 a.m. and 1:00–3:00 p.m. Beijing time, which is 9:30–11:30 p.m. and 1:00–3:00 a.m. ET (an hour earlier from Nov 2), or 01:30–03:30 and 05:00–07:00 UTC. The CSI 300 comparison starts from the first index level recorded after the portfolio opened.</span>
+        <span>Market hours: 9:30–11:30 a.m. and 1:00–3:00 p.m. Beijing time, which is 8:30–10:30 p.m. and 12:00–2:00 a.m. ET since the clock change on Nov 1 (before that, 9:30–11:30 p.m. and 1:00–3:00 a.m. ET), or 01:30–03:30 and 05:00–07:00 UTC. The CSI 300 comparison starts from the first index level recorded after the portfolio opened.</span>
       </p>
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="China"></p>
       <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="China"></details>
@@ -2890,7 +2890,7 @@ body { background:var(--color-bg); }
     <section class="st-card gd-sec" id="guide-winning" aria-labelledby="h-gd-winning">
       <h2 class="st-h2" id="h-gd-winning">Who’s winning</h2>
       <div class="gd-mock" aria-hidden="true"><span class="gd-sel">Options ▾</span><span class="gd-lab">Auto-pick:</span><span class="gd-sel">Biggest profit (ten races) ▾</span></div>
-      <p><b>Race standings</b> (right side on a computer, lower down on a phone) shows who is ahead in one race: 1st, 2nd, 3rd, with each AI’s profit or loss since Oct 28.</p><ul><li><b>The race menu</b> picks the race: any of the ten, the All in side race, or <b>Overall</b> (ranked by total profit; the amounts stay hidden until Nov 28).</li><li><b>Auto-pick</b> chooses the race for you and keeps it current: Most relevant (the live market), Biggest profit, Biggest loss, Closest race, Biggest lead, or the All in side race. Every visit opens on the biggest profit anywhere. Pick a race yourself and Auto-pick switches to Off.</li><li><b>Scoreboard</b> on the Overview lists the best results in every race at once.</li></ul>
+      <p><b>Race standings</b> (right side on a computer, lower down on a phone) shows who is ahead in one race: 1st, 2nd, 3rd, with each AI’s profit or loss since Oct 28.</p><ul><li><b>The race menu</b> picks the race: any of the ten, the All in side race, or <b>Overall</b> (ranked by total profit across all ten races).</li><li><b>Auto-pick</b> chooses the race for you and keeps it current: Most relevant (the live market), Biggest profit, Biggest loss, Closest race, Biggest lead, or the All in side race. Every visit opens on the biggest profit anywhere. Pick a race yourself and Auto-pick switches to Off.</li><li><b>Scoreboard</b> on the Overview lists the best results in every race at once.</li></ul>
       <button type="button" class="gd-show" data-gd-tab="overview" data-gd-sel=".pd-auto-pick">Show me →</button> <a class="gd-link" href="#guide-winning" title="Link to this section">#</a>
     </section>
     <section class="st-card gd-sec" id="guide-ai" aria-labelledby="h-gd-ai">
@@ -5658,7 +5658,7 @@ body { background:var(--color-bg); }
           const od = [...new Set(g.items.map((y) => betOdds(y.odds)))]; td(tr, od.length > 1 ? od[od.length - 1] + ' to ' + od[0] : od[0], 'num', 'Odds');
           const res = x.status === 'Open' ? 'Open: to win ' + money(sum('to_win')) : x.status === 'Won' ? 'Won +' + money(sum('result')) : x.status === 'Lost' ? 'Lost ' + money(-Math.abs(sum('stake'))) : x.status === 'Void' ? 'Cancelled, stake' + (n > 1 ? 's' : '') + ' refunded' : String(x.status || '—');
           td(tr, res, 'num ' + (x.status === 'Won' ? 'is-up' : x.status === 'Lost' ? 'is-down' : ''), 'Result'); tb.appendChild(tr); });
-        if (groups.length > 5) { tb.dataset.pgNewest = '1'; pagerFor(tb, 5, 'bets'); } }
+        if (groups.length > 5) { tb.dataset.pgNewest = '1'; pagerFor(tb, 5, groups.length < bets.length ? 'rows (' + bets.length + ' bets; repeats of the same pick grouped)' : 'bets'); } }
     } else {
       box.appendChild(mk('h3', 'st-h3', 'What ' + nm + ' holds in ' + ALLIN[exp] + ' now'));
       const pos = Object.entries(bk.positions || {}).filter(([, q]) => Math.abs(Number(q.qty)) > 1e-9);
@@ -5783,7 +5783,8 @@ body { background:var(--color-bg); }
       });
     }
     const cs = cash.reduce((a, r) => a + valOf(r), 0);
-    box.appendChild(mk('p', 'st-note', (cash.length ? 'Cash not invested: ' + money(cs) + '. ' : '') + 'Every trade, with ' + (dash.model === 'claude' ? 'Claude' : AIS[dash.model].label) + '’s own reason, is in the Ledger and on the ' + race + ' page. Times are Eastern (ET), with UTC and Hong Kong in brackets.'));
+    const owes = pos.reduce((a, r) => a + Math.min(0, valOf(r)), 0);   /* shorts / borrowed currency count as money owed back (number audit, Nov 1) */
+    box.appendChild(mk('p', 'st-note', (cash.length ? (owes < -0.5 ? 'Cash balance: ' + money(cs) + '. This includes money from positions it borrowed and sold, which it still owes back (' + money(-owes) + ' at today’s prices), so it is not all spare cash; the race’s overall value is shown at the top. ' : 'Cash not invested: ' + money(cs) + '. ') : '') + 'Every trade, with ' + (dash.model === 'claude' ? 'Claude' : AIS[dash.model].label) + '’s own reason, is in the Ledger and on the ' + race + ' page. Times are Eastern (ET), with UTC and Hong Kong in brackets.'));
   };
   dash.draw('perf-chart', (el) => {
     const run = () => {
@@ -6783,7 +6784,7 @@ body { background:var(--color-bg); }
     const rows = d.data.filter((r) => r.portfolio === 'Currencies');
     const pos = rows.filter((r) => r.holding !== 'Cash (CAD)' && Math.abs(Number(r.quantity)) > 1e-9);
     const equity = d3.sum(rows, (r) => Number(r.value_cad));
-    const pl = (r) => Number(r.value_cad) - Number(r.cost_cad) + Number(r.realized_cad || 0);
+    const pl = (r) => Number(r.value_cad) - Number(r.cost_cad);   /* open part only, so the rows add up to 'Open profit or loss'; closed parts are in 'Closed profit or loss' (owner, Nov 1 number check) */
     const open = d3.sum(pos, (r) => Number(r.value_cad) - Number(r.cost_cad));
     const realized = d3.sum(rows, (r) => Number(r.realized_cad || 0));
     const size = d3.sum(pos, (r) => Math.abs(Number(r.value_cad)));
@@ -6793,11 +6794,12 @@ body { background:var(--color-bg); }
     cell('Deposit', 'C$100,000');
     cell('Open profit or loss', stFmt.signed(open, 'Currencies'), upDown(open));
     cell('Closed profit or loss', stFmt.signed(realized, 'Currencies'), upDown(realized));
+    { const adj = equity - 100000 - open - realized; if (Math.abs(adj) >= 1) cell('Price corrections', stFmt.signed(adj, 'Currencies'), upDown(adj)); }   /* e.g. Gemini's yen fills restated in the Oct 31 audit (−C$200): without this line the four figures didn't add up */
     cell('Positions held', stFmt.money(size, 'Currencies') + ' (' + d3.format('.1f')(equity ? size / equity : 0) + '× the account)');
     el.appendChild(bench);
     const wrap = mk('div', 'st-wrap');
     const t = mk('table', 'st-table');
-    t.innerHTML = '<thead><tr><th>Position</th><th class="num">Amount</th><th class="num">Entry rate</th><th class="num">Rate now</th><th class="num">Size (C$)</th><th class="num">Profit or loss (C$)</th><th>Price source</th></tr></thead>';
+    t.innerHTML = '<thead><tr><th>Position</th><th class="num">Amount</th><th class="num">Entry rate</th><th class="num">Rate now</th><th class="num">Size (C$)</th><th class="num">Open profit or loss (C$)</th><th>Price source</th></tr></thead>';
     const tb = mk('tbody');
     const rate = (r, which) => {
       const q = Math.abs(Number(r.quantity));
@@ -7798,13 +7800,15 @@ body { background:var(--color-bg); }
   // a donut of what one AI holds, with a legend; colorOf(name, i) lets several donuts use the same colour for the same holding
   const pieNode = (pie, colorOf, W) => {
     W = W || 120; const R = W / 2 - 4, tot = d3.sum(pie, (x) => x.value);
+    /* whole percents that add up to exactly 100 (largest remainder; number audit, Nov 1: 36+25+25+14+1 = 101) */
+    const pcts = (() => { const raw = pie.map((x) => tot ? 100 * x.value / tot : 0), out = raw.map(Math.floor); let left = Math.round(d3.sum(raw)) - d3.sum(out); raw.map((v, i) => [v - out[i], i]).sort((a, b) => b[0] - a[0]).forEach(([, i]) => { if (left > 0) { out[i]++; left--; } }); return out; })();
     const col = (x, i) => (isCashSlice(x.name) ? '#3a3833' : colorOf ? colorOf(x.name, i) : PIE_COL[i % PIE_COL.length]);
-    const svg = d3.create('svg').attr('viewBox', `0 0 ${W} ${W}`).attr('width', W).attr('height', W).attr('role', 'img').attr('aria-label', 'Holdings: ' + pie.map((x) => x.name + ' ' + Math.round(100 * x.value / tot) + '%').join(', '));
+    const svg = d3.create('svg').attr('viewBox', `0 0 ${W} ${W}`).attr('width', W).attr('height', W).attr('role', 'img').attr('aria-label', 'Holdings: ' + pie.map((x, i) => x.name + ' ' + pcts[i] + '%').join(', '));
     svg.append('g').attr('transform', `translate(${W / 2},${W / 2})`).selectAll('path').data(d3.pie().sort(null).value((x) => x.value)(pie)).join('path')
-      .attr('d', d3.arc().innerRadius(R * 0.55).outerRadius(R)).attr('fill', (x, i) => col(x.data, i)).append('title').text((x) => x.data.name + ' ' + Math.round(100 * x.data.value / tot) + '%');
+      .attr('d', d3.arc().innerRadius(R * 0.55).outerRadius(R)).attr('fill', (x, i) => col(x.data, i)).append('title').text((x) => x.data.name + ' ' + pcts[x.index] + '%');
     const wrap = mk('div', 'pd-pie'); wrap.appendChild(svg.node());
     const ul = mk('ul');
-    pie.forEach((x, i) => { const li = mk('li'); const sw = mk('i'); sw.style.background = col(x, i); li.append(sw, document.createTextNode(x.name + ' ' + Math.round(100 * x.value / tot) + '%')); ul.appendChild(li); });
+    pie.forEach((x, i) => { const li = mk('li'); const sw = mk('i'); sw.style.background = col(x, i); li.append(sw, document.createTextNode(x.name + ' ' + pcts[i] + '%')); ul.appendChild(li); });
     wrap.appendChild(ul); return wrap;
   };
   dash.draw('allin', (el) => {
