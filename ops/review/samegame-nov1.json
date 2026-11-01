@@ -1,0 +1,62 @@
+{
+ "at": "2026-11-01T04:44:34Z",
+ "question": "The owner of PaperTrades.AI asks: when an AI makes several bets on the same game (e.g. Gemini bet USC +200 three times on Oct 31: C$5,000 at 3:14 p.m., C$10,000 at 4:14 p.m., C$20,000 at 6:14 p.m.; all won, +C$70,000), should we group them together or keep them separate? Today the Ledger shows each bet and each result as its own row with its own transaction ID; the new YouTube story Short already tells all bets on one game as one story. Vote AGREE or DISAGREE on each, one line of reason, then add anything missed (transparency, honesty about sizing up a bet, readability on phones, fairness between the AIs).\n\nG1. Ledger: keep every bet and result as its own row with its own ID (never merged: each was a separate decision at a separate time with its own reason and its own grade), AND group them visually: a small \"Same game: 3 bets, C$35,000 total, +C$70,000\" line under each of them, tap to show only that game's bets and results.\nG2. Each AI's page and the All in page: the open bets list shows one combined line per game (\"USC +200 · 3 bets · C$35,000\"), with the individual bets one tap away.\nG3. Telegram/Discord: each bet is still posted live when placed (it is news at that moment); when the game ends, ONE result post for all of that AI's bets on the game (\"All 3 USC bets won: +C$70,000\"), instead of three separate result posts.\nG4. Social posts (YouTube, Instagram, X): always tell all of an AI's bets on one game as one story (already done for YouTube Shorts).\nG5. Make adding to a bet visible: when an AI bets again on a game it already bet on, the new bet is labelled \"adds to its USC bet (now C$15,000)\", so viewers see the position growing.",
+ "files": [],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "G1. **AGREE** — The Ledger should stay audit-proof with one row/ID per actual bet/result, while visual grouping makes repeated bets on the same game understandable.\n\nG2. **AGREE** — On AI pages and the All-in page, one combined open-position line per game is cleaner on phones, as long as users can tap to see every individual bet.\n\nG3. **AGREE** — Post every bet live for transparency, but send one end-of-game result summary to avoid spam and make the actual game outcome easier to understand.\n\nG4. **AGREE** — Social should tell the whole game position as one story; that is clearer and more honest for short-form formats.\n\nG5. **AGREE** — Adding to a bet must be visible, because sizing up is a meaningful decision and viewers should see the position grow in real time.\n\nAnything missed:\n\n- **Do not merge accounting.** Grouping should be visual/storytelling only. The official Ledger should always preserve each timestamp, stake, odds, reason, transaction ID, and grade.\n- **Show position growth clearly.** Example: “Gemini adds to USC +200, now C$35,000 total across 3 bets.” This is more honest than making the final position look like one original bet.\n- **Show grouped totals carefully.** A grouped card should include total stake, number of bets, total profit/loss, and ideally average/weighted odds when relevant.\n- **Handle mixed results honestly.** If an AI has multiple bets on the same game and not all have the same result, say “net +C$12,000” or “2 won, 1 lost,” not just “won the game.”\n- **Define the grouping rule.** Group by AI + game/event, with individual markets/odds still visible underneath. If the AI has USC moneyline, USC spread, and over/under, the story can be one game, but the bet details should remain separate.\n- **Fairness between AIs.** Apply the same grouping and display rules to every AI so one model does not look cleaner or messier just because it placed more staged bets.\n- **Mobile readability matters.** Default to grouped/collapsed views on feeds and profile pages, with one-tap expansion for detail.\n- **Transparency link.** Every grouped post or social story should point back to the Ledger or include enough detail that viewers can verify the individual bets.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 543,
+     "completion_tokens": 1023,
+     "total_tokens": 1566,
+     "cost": 0.033405,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.033405,
+      "upstream_inference_prompt_cost": 0.002715,
+      "upstream_inference_completions_cost": 0.03069
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 516,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "**G1. AGREE** - Preserves strict transactional auditability (every distinct decision gets its own ID) while using visual nesting to make the ledger much easier to read and navigate.\n**G2. AGREE** - Condensing open bets into a single summary line per game saves valuable screen space on mobile devices without sacrificing access to the underlying details.\n**G3. AGREE** - Posting live bets maintains real-time proof and excitement, while consolidating the final result prevents annoying notification spam for channel subscribers.\n**G4. AGREE** - Audiences engage best with cohesive narratives (like an AI's escalating conviction on a single event) rather than fragmented, repetitive posts.\n**G5. AGREE** - Highlighting that an AI is explicitly \"adding to\" a position immediately communicates its growing confidence and makes the live action far more engaging to follow.\n\n**Additional Considerations Missed:**\n*   **Transparency:** If an AI sizes up a bet later in the day, the odds or point spreads might have changed (e.g., betting USC at +200, then again at +150). The grouped summaries must display blended odds or clearly indicate a multi-line position so the payout math remains 100% auditable to the user.\n*   **Honesty about sizing up a bet:** The platform should capture and expose the AI's *reason* for adding to its position (e.g., did new injury news drop? did the line move?) to prove the AI is intelligently reacting to new data rather than just glitching or repeating itself.\n*   **Readability on phones:** For the G1 and G2 implementations, the \"tap to show\" UI (like drop-down accordions) must be cleanly designed so that expanding a game with multiple bets doesn't cause the screen to jump violently while a user is scrolling. \n*   **Fairness between the AIs:** Grouping bets by game creates a standardized way to compare AI performance. If Gemini takes three separate bets to risk C$35,000 on USC and Claude risks C$35,000 in one single bet, grouping by game allows users to accurately compare their total exposure and success on that specific matchup side-by-side.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 594,
+     "candidatesTokenCount": 473,
+     "totalTokenCount": 2561,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 594
+      }
+     ],
+     "thoughtsTokenCount": 1494,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
