@@ -1,0 +1,64 @@
+{
+ "at": "2026-11-01T05:43:27Z",
+ "question": "SITE DESIGN QUESTION from the owner of PaperTrades.AI. NOT a trading turn. Majority wins; Claude voted first in a separate file (attached).\n\nThe owner: \"Should we work with ChatGPT and Gemini to make a how-to-use section for the website, or documentation or something?\"\n\nTODAY: \"How it works\" explains the RULES (prices, check-ins, scoring). \"Rules & Audit\" has the raw prompts and corrections. A 5-step \"New here? Start here\" box shows only in Beginner mode. Nothing explains how to USE the site: the race menu and Auto-pick drop-down, the AI menu (view the page as Claude/Gemini/ChatGPT), the tabs, the Ledger's Show/Sort/\"Why (estimated)\" filters, transaction IDs and \"Whole story\", \"What happened next\", tap-to-explain words, Beginner mode, language/currency, sound/theme/contrast, following on Telegram/Discord/X, and checking the record yourself (fingerprints, audit pack, CSV downloads).\n\nPROPOSAL (vote AGREE / DISAGREE / AMEND each, one line why):\nH1. A new \"Guide\" page (its own tab next to How it works, also linked from the menu and footer): \"How to use PaperTrades.AI\", short sections with one small screenshot each, in this order: 1 The 30-second version; 2 Who's winning (Race standings, Auto-pick, Overall); 3 Looking at one AI (the AI menu, AI pages, AI vs AI); 4 Every trade and bet (Ledger, filters, transaction IDs, Whole story, What happened next); 5 Understanding the words (tap-to-explain, Beginner mode, glossary); 6 Check it yourself (fingerprints, audit pack, downloads, raw prompts); 7 Make it yours (language, currency, theme, sound, contrast); 8 Follow along (Telegram, Discord, X, Instagram, YouTube); 9 FAQ (is it real money? can I copy trades? who runs it? how is the winner decided?).\nH2. Each section ends with a \"Show me\" button that jumps to the real feature and briefly highlights it.\nH3. An optional 60-second tour for first-time visitors (5 steps highlighting the real page), offered once in a small closable box; never forced; skippable at any step.\nH4. Plain words, short sentences, no trading jargon without an explanation; the same \"pretend money, not advice\" line at the top.\nH5. A plain-text copy for search engines and AI assistants: papertrades.ai/guide.html (crawlable, linked in llms.txt and the sitemap).\nH6. Kept current: whenever a feature is added or changed, the chat that changes it updates the Guide in the same change (runbook rule).\n\nReply as JSON: {\"H1\": \"AGREE|DISAGREE|AMEND: why\", ..., \"H6\": \"...\", \"other\": \"anything missing (optional)\"}",
+ "files": [
+  "ops/review/claude-votes-guide-nov1.json"
+ ],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "{\n  \"H1\": \"AMEND: yes to a dedicated Guide page and this order, but use small annotated crops or regeneratable UI drawings so screenshots do not go stale.\",\n  \"H2\": \"AGREE: jumping to the real feature with a brief highlight is the fastest way to teach the site.\",\n  \"H3\": \"AGREE: a once-only, closable, skippable tour helps new visitors without annoying returning ones.\",\n  \"H4\": \"AGREE: plain language and the same pretend-money/not-advice line keep expectations clear.\",\n  \"H5\": \"AGREE: a crawlable guide linked from llms.txt and the sitemap will help search engines and AI assistants describe the site correctly.\",\n  \"H6\": \"AGREE: documentation must be updated in the same change as the feature or it will become misleading.\",\n  \"other\": \"Add deep links to each Guide section, accessibility checks for highlights/tour, and a small feedback link like “Was this guide clear?”\"\n}",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 923,
+     "completion_tokens": 731,
+     "total_tokens": 1654,
+     "cost": 0.026545,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.026545,
+      "upstream_inference_prompt_cost": 0.004615,
+      "upstream_inference_completions_cost": 0.02193
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 516,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "{\n  \"H1\": \"AGREE: A dedicated, well-structured guide is essential to help users navigate the complex UI without cluttering the main trading data pages.\",\n  \"H2\": \"AGREE: Interactive 'Show me' buttons create a vastly superior user experience and help users learn the actual interface rather than just reading about it.\",\n  \"H3\": \"AGREE: An unobtrusive, strictly opt-in tour is perfect for quick onboarding without frustrating power users or returning visitors.\",\n  \"H4\": \"AGREE: Plain language is crucial since the primary audience is likely tech-curious individuals following the AI experiment, not experienced day traders.\",\n  \"H5\": \"AGREE: Including an llms.txt and plain HTML guide is a highly effective modern SEO strategy to ensure AI search engines accurately summarize the site.\",\n  \"H6\": \"AGREE: Tying documentation updates directly to feature deployments as a runbook rule is the only reliable way to prevent documentation drift.\",\n  \"other\": \"I strongly second Claude's point regarding screenshots in H1; consider using simplified SVGs or CSS-styled UI replicas instead of raster images so they scale well and are easier to update.\"\n}",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 965,
+     "candidatesTokenCount": 255,
+     "totalTokenCount": 2349,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 965
+      }
+     ],
+     "thoughtsTokenCount": 1129,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
