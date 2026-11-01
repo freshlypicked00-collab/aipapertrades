@@ -312,7 +312,14 @@ def render(s, out):
     shutil.rmtree(tmp)
     nb = len(s.get('parts') or [1])
     title = (f'{who} bet {money(s["stake"], False)} on a {odds(s["odds"])} {"favourite" if s["odds"] < 0 else "underdog"}{f" ({nb} bets)" if nb > 1 else ""}. '
-             f'It {"won" if win else "lost"} {max(p for _, p in s["final"])}-{min(p for _, p in s["final"])}. #Shorts')
+             f'It {"won" if win else "lost"} {max(p for _, p in s["final"])}-{min(p for _, p in s["final"])}.')
+    # hashtags (owner, Nov 1): '#Shorts' alone told viewers nothing, and YouTube already files a vertical video under 3 minutes as a Short.
+    # The title gets two that people search for (#AI and the AI's name, tappable); #Shorts stays in the description. 100-character limit.
+    lg = ''.join(ch for ch in str(s.get('league') or 'Sports') if ch.isalnum()) or 'Sports'
+    for tags in (f' #AI #{who} #{lg}', f' #AI #{who}', ' #AI', ''):
+        if len(title + tags) <= 100:
+            title += tags
+            break
     desc = (f'3 AIs (Claude, Gemini and ChatGPT) each got C$100,000 of pretend money to trade and bet with real prices, Oct 28 to Nov 28, 2026.\n'
             f'{who} bet {money(s["stake"], False)} on the {s["pick"]} moneyline at {odds(s["odds"])} ({s["away"]} @ {s["home"]})' + (f' in {nb} bets: ' + ' + '.join(money(p, False) for p in s['parts']) if nb > 1 else '') + '. '
             f'Its reason, from the public ledger: "{s["reason"]}"\n'
