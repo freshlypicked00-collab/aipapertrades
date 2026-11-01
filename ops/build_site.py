@@ -802,6 +802,25 @@ for _m in ('claude', 'gemini', 'chatgpt'):
                                 'wagered': round(sum(v for a, v in _rs if _a <= _when(a) < _b), 2)})
         _d += timedelta(days=1)
     data['betmins'].append({'model': _m, 'week': 'Total', 'start': _BFS, 'end': _BEND, 'min': 100000, 'wagered': round(sum(v for a, v in _rs), 2), 'day_min': _dmin})
+# All in: sports betting minimums from Nov 1 (owner, Oct 31; all three AIs agreed): progress per AI for the All in page
+_AFROM = datetime(2026, 11, 1, tzinfo=_ny)
+data['allinmins'] = []
+for _m in ('claude', 'gemini', 'chatgpt'):
+    _bk = ((r.get('claude_allin') or {}).get('books') or {}).get('AllInSports') if _m == 'claude' else (((r.get('models') or {}).get(_m) or {}).get('books') or {}).get('AllInSports')
+    _bal = 100000.0 + sum(x['result'] for x in (_bk or {}).get('bets', []) if x['status'] not in ('Open', 'Void')) - sum(float(x['amount']) for x in (_bk or {}).get('penalties', []))
+    _amin = 0.0 if _bal < 1 else (3000.0 if _bal >= 12000 else max(1.0, round(_bal * 0.25, 2)))
+    _ad = {}
+    for _t in r.get('trades', []):
+        if _t.get('model') == _m and _t.get('experiment') == 'AllInSports' and _t.get('action') == 'Bet' and not _t.get('void'):
+            _k = _when(_t['at']).astimezone(_ny).date().isoformat(); _ad[_k] = _ad.get(_k, 0.0) + float(_t.get('amount') or 0)
+    _miss, _d = [], _AFROM.date()
+    while _d < min(_today, _when(_BEND).astimezone(_ny).date() + timedelta(days=1)):
+        if _ad.get(_d.isoformat(), 0.0) + 0.5 < _amin:
+            _miss.append(_d.isoformat())
+        _d += timedelta(days=1)
+    data['allinmins'].append({'model': _m, 'balance': round(_bal, 2), 'day_min': _amin, 'today': round(_ad.get(_today.isoformat(), 0.0), 2),
+                              'total': round(sum(_ad.values()), 2), 'missed': _miss, 'started': _today >= _AFROM.date(),
+                              'penalties': round(sum(float(x['amount']) for x in (_bk or {}).get('penalties', [])), 2)})
 data['betmin_items'] = sorted([dict(_it, day=_when(_it['at']).astimezone(_ny).date().isoformat(), amount=round(_it['amount'], 2)) for _it in _bm_items if _when(_it['at']) >= _when(_BFS)],
                               key=lambda x: _when(x['at']), reverse=True)
 # which experiments each AI leads right now (highest value of the three; ties lead nothing)

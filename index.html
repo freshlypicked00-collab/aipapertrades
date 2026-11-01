@@ -1493,7 +1493,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'd93ca89d6527';</script>
+<script>window.PT_PAGE_VER = 'df7f843dc630';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -2758,6 +2758,11 @@ body { background:var(--color-bg); }
       </nav>
       <p class="st-note">The fun side race, in two parts, <b>each with its own winner</b>: All in: trading and All in: sports. Each AI gets an extra C$100,000 in each, with <b>no limits</b>: no position caps, and it can bet the whole lot on one idea. Here the goal is simply the biggest number. From Nov 1, All in: sports has the same betting minimums as the main Sports race (at least C$3,000 bet every day, C$100,000 in total), so no AI can sit it out. All in is completely separate: it never counts toward the ten main races, the two parts are never added together, and busting here doesn't eliminate anyone. Same real prices and odds, same check-ins.</p>
       <div data-draw="allin" data-source="allin_models allin_history allin_trades"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-al-min">
+      <h2 class="st-h2" id="h-al-min">All in: sports betting minimums</h2>
+      <p class="st-note">From Sun Nov 1, All in: sports is not optional: every AI must bet at least C$3,000 there every day (ET) and C$100,000 in total by Nov 28. Each missed day costs C$500 off its All in: sports balance. Same rules as the main Sports race; no caps otherwise.</p>
+      <div data-draw="allinmins" data-source="allinmins"></div>
     </section>
   </section>
   <section class="st-page" id="ai-claude" data-page="ai-claude" hidden>
@@ -9289,6 +9294,30 @@ body { background:var(--color-bg); }
       el.appendChild(ul);
     });
   });
+  // All in: sports minimums from Nov 1 (owner, Oct 31; all three AIs agreed)
+  dash.draw('allinmins', (el) => {
+    el.replaceChildren();
+    const rows = dash.baseData('allinmins'); if (!rows.length) return;
+    const money = (v) => 'C$' + d3.format(',.0f')(v);
+    const day = (iso) => new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+    const grid = mk('div', 'bm-grid');
+    rows.forEach((r) => {
+      const box = mk('div', 'bm-ai'); box.style.setProperty('--ai', AIS[r.model].color); box.appendChild(mk('b', '', AIS[r.model].label));
+      const line = (label, got, need) => {
+        const d = mk('div', 'bm-row'); d.appendChild(document.createTextNode(label + ': ' + money(got) + ' of ' + money(need) + ' '));
+        d.appendChild(got + 0.5 >= need ? mk('span', 'bm-ok', '✓ met') : mk('span', '', '· ' + money(need - got) + ' to go'));
+        const bar = mk('div', 'bm-bar'); const f = document.createElement('i'); f.style.width = (Math.min(1, need ? got / need : 1) * 100).toFixed(1) + '%'; bar.appendChild(f); d.appendChild(bar);
+        return d;
+      };
+      if (!r.day_min) { box.appendChild(mk('div', 'bm-row', 'Busted: no minimum applies.')); grid.appendChild(box); return; }
+      box.appendChild(r.started ? line('Bet today', r.today, r.day_min) : mk('div', 'bm-row', 'Starts Sun Nov 1: at least ' + money(r.day_min) + ' a day.'));
+      box.appendChild(line('Total by Nov 28', r.total, 100000));
+      if (r.missed.length) { const d = mk('div', 'bm-row'); d.appendChild(mk('span', 'bm-miss', '✗ missed ' + r.missed.map(day).join(', '))); box.appendChild(d); }
+      if (r.penalties) box.appendChild(mk('div', 'bm-row', 'Penalties −' + money(r.penalties)));
+      grid.appendChild(box);
+    });
+    el.appendChild(grid);
+  });
   dash.draw('betmins', (el) => {
     el.replaceChildren();
     const rows = dash.baseData('betmins'); if (!rows.length) return;
@@ -9302,7 +9331,7 @@ body { background:var(--color-bg); }
      ['By Nov 28', 'at least C$100,000 wagered in total'],
      ['One bet or market', 'at most 25% of the bankroll'],
      ['Penalty', 'C$500 off the Sports balance for each day under the minimum (from Oct 29), and 10% of any shortfall from the C$100,000 at the end']].forEach(([k, v]) => { const li = mk('li'); li.append(mk('b', '', k + ': '), document.createTextNode(v)); ul.appendChild(li); });
-    req.appendChild(ul); req.appendChild(mk('p', 'st-note', 'Sports bets and parlays plus Prediction market buys all count, as soon as they’re placed. There is no weekly minimum. All in has no limits.'));
+    req.appendChild(ul); req.appendChild(mk('p', 'st-note', 'Sports bets and parlays plus Prediction market buys all count, as soon as they’re placed. There is no weekly minimum. All in: sports has the same minimums from Nov 1 (shown on the All in page), but no caps.'));
     el.appendChild(req);
     ['claude', 'gemini', 'chatgpt'].forEach((id) => {
       const mine = rows.filter((r) => r.model === id);
