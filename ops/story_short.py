@@ -92,10 +92,19 @@ def bet_story(result_tx, data):
     for k in ('reason', 'amount', 'price', 'tx'):
         if bet.get(k) in (None, ''):
             raise StoryError(f'the bet has no {k}')
+    # every bet this AI made on the same game, told as one story (Gemini's three USC bets, owner, Oct 31)
+    same = lambda t: t.get('model') == res['model'] and t.get('experiment') == res['experiment'] and t.get('name') == bet.get('name')
+    bets = sorted([t for t in rows if t.get('action') == 'Bet' and same(t)], key=lambda t: t['at'])
+    results = [t for t in rows if t.get('action') in ('Won', 'Lost') and same(t)]
+    if len(bets) < 1 or len(results) != len(bets) or len({t['action'] for t in results}) != 1:
+        bets, results = [bet], [res]
+    stake = sum(float(t['amount']) for t in bets); pnl = sum(float(t.get('pnl', t.get('amount', 0))) for t in results)
+    top = max(bets, key=lambda t: float(t['amount']))
     return {'model': res['model'], 'race': res['experiment'], 'league': league, 'pick': pick, 'away': away, 'home': home,
-            'odds': int(bet['price']), 'stake': float(bet['amount']), 'reason': bet['reason'].strip(), 'bet_tx': bet['tx'], 'res_tx': result_tx,
-            'won': res['action'] == 'Won', 'pnl': float(res.get('pnl', res.get('amount', 0))), 'final': [(fin[1], int(fin[2])), (fin[3], int(fin[4]))],
-            'placed': bet['at'], 'settled': res['at'], 'standings': st, 'day': pc.day_of(datetime.fromisoformat(res['at'].replace('Z', '+00:00')))}
+            'odds': int(top['price']), 'stake': stake, 'parts': [float(t['amount']) for t in bets], 'reason': top['reason'].strip(),
+            'bet_tx': ', '.join(t['tx'] for t in bets), 'res_tx': result_tx, 'res_txs': [t['tx'] for t in results],
+            'won': res['action'] == 'Won', 'pnl': pnl, 'final': [(fin[1], int(fin[2])), (fin[3], int(fin[4]))],
+            'placed': bets[0]['at'], 'settled': res['at'], 'standings': st, 'day': pc.day_of(datetime.fromisoformat(res['at'].replace('Z', '+00:00')))}
 
 
 def claude_bet_story(b, data):
@@ -194,7 +203,7 @@ def render(s, out):
         frames = int(round(dur * FPS))
         for i in range(frames):
             u = i / max(1, frames - 1); a = ease(u * 3)   # quick ease-in over the first third
-            fr = F(); bug(fr, s); y = {'premise': 360, 'hook': 420, 'bet': 360, 'reason': 380, 'final': 440, 'money': 420, 'race': 330, 'end': 420}[name]
+            fr = F(); bug(fr, s); y = {'premise': 360, 'hook': 420, 'bet': 320, 'reason': 380, 'final': 440, 'money': 420, 'race': 330, 'end': 420}[name]
             if name == 'premise':
                 y = block(fr, y, ['3 AIs got', 'C$100,000 each'], big, FG)
                 y = block(fr, y + 10, ['of pretend money', 'to trade and bet', 'at real prices.'], mid, MUTED)
@@ -208,6 +217,9 @@ def render(s, out):
                 if 'very safe' in s['reason'].lower():
                     y = block(fr, y + 10, wrap(fr.d, f'called a {odds(s["odds"])} {kind} “very safe”…', big, R - L), big, FG)
                     y = block(fr, y + 30, [f'and bet {money(s["stake"], False)}', 'on it.'], big, AMBER)
+                elif s['odds'] > 0 and len(s.get('parts') or []) > 1:
+                    y = block(fr, y + 10, wrap(fr.d, f'bet {money(s["stake"], False)} on a {odds(s["odds"])} underdog, in {len(s["parts"])} bets.', big, R - L), big, FG)
+                    y = block(fr, y + 30, ['Upset or bust?'], big, AMBER)
                 elif s['odds'] > 0:   # varied hooks so the Shorts never look interchangeable (variety rule, all three AIs, Oct 31)
                     y = block(fr, y + 10, wrap(fr.d, f'took a {odds(s["odds"])} underdog for {money(s["stake"], False)}.', big, R - L), big, FG)
                     y = block(fr, y + 30, ['Upset or bust?'], big, AMBER)
@@ -219,7 +231,7 @@ def render(s, out):
                     y = block(fr, y + 30, ['Did it pay off?'], big, AMBER)
             elif name == 'bet':
                 fr.t((L, y), 'THE BET', font('mono', 'SemiBold', 40), MUTED); y += 80
-                box = (L, y, R, y + 900)
+                box = (L, y, R, y + (930 if len(s.get('parts') or []) > 1 else 900))
                 fr.d.rounded_rectangle(box, radius=26, fill=PANEL, outline=col, width=4)
                 yy = y + 60
                 fr.t((L + 40, yy), f'{who} · {s["league"] or "Sports"}', font('mono', 'SemiBold', 44), col); yy += 100
@@ -229,8 +241,13 @@ def render(s, out):
                 opp = s['home'] if s['pick'] == s['away'] else s['away']
                 fr.t((L + 40, yy), ('at ' if s['pick'] == s['away'] else 'vs ') + opp, font('sans', 'SemiBold', 60), FG); yy += 130
                 fr.t((L + 40, yy), f'Odds {odds(s["odds"])}', font('mono', 'Bold', 64), AMBER); yy += 96
-                fr.t((L + 40, yy), f'Stake {money(s["stake"], False)}', font('mono', 'Bold', 64), FG); yy += 110
-                fr.t((L + 40, yy), f'Transaction ID {s["bet_tx"]}', font('mono', 'Medium', 34), MUTED)
+                parts = s.get('parts') or [s['stake']]
+                if len(parts) > 1:
+                    fr.t((L + 40, yy), f'{len(parts)} bets: ' + ' + '.join(f'{p / 1000:,.0f}k' for p in parts), font('mono', 'Bold', 50), FG); yy += 80
+                fr.t((L + 40, yy), f'Total {money(s["stake"], False)}' if len(parts) > 1 else f'Stake {money(s["stake"], False)}', font('mono', 'Bold', 64), FG); yy += 110
+                _ids = s['bet_tx'].split(', ')
+                ids = _ids[0] + ''.join(', -' + i.rsplit('-', 1)[1] for i in _ids[1:])   # G-AIS-019, -024, -026
+                fr.t((L + 40, yy), f'Transaction IDs {ids}' if len(parts) > 1 else f'Transaction ID {ids}', font('mono', 'Medium', 30), MUTED)
             elif name == 'reason':
                 fr.t((L, y), f'{who.upper()}’S REASON, FROM THE LEDGER', font('mono', 'SemiBold', 38), MUTED); y += 100
                 q = '“' + s['reason'] + '”'
@@ -255,11 +272,12 @@ def render(s, out):
                     fr.t((L, y + 20), f'{s["pick"].split()[0]} {"won" if win else "lost"} by {margin}.', font('sans', 'Bold', 84), UP if win else DOWN)
             elif name == 'money':
                 fr.t((L, y), 'THE RESULT', font('mono', 'SemiBold', 40), MUTED); y += 110
-                fr.t((L, y), 'BET WON' if win else 'BET LOST', font('sans', 'Bold', 170), UP if win else DOWN); y += 230
+                n_b = len(s.get('parts') or [1])
+                fr.t((L, y), (f'ALL {n_b} WON' if win else f'ALL {n_b} LOST') if n_b > 1 else ('BET WON' if win else 'BET LOST'), font('sans', 'Bold', 170), UP if win else DOWN); y += 230
                 v = s['pnl'] * ease(u * 1.4)
                 fr.t((L, y), money(v), font('mono', 'Bold', 150), UP if win else DOWN); y += 210
                 fr.t((L, y), f'for {who}', font('sans', 'Bold', 96), col); y += 150
-                fr.t((L, y), f'Result: transaction ID {s["res_tx"]}', font('mono', 'Medium', 34), MUTED)
+                fr.t((L, y), ('Results: ' + ', '.join(s['res_txs'])) if len(s.get('res_txs') or []) > 1 else f'Result: transaction ID {s["res_tx"]}', font('mono', 'Medium', 30 if len(s.get('res_txs') or []) > 2 else 34), MUTED)
             elif name == 'race':
                 fr.t((L, y), 'WHERE IT LEAVES THE RACE', font('mono', 'SemiBold', 40), MUTED); y += 100
                 fr.t((L, y), RACE.get(s['race'], s['race']).title().replace('(Side Race)', '(side race)'), font('sans', 'Bold', 76), FG); y += 140
@@ -292,13 +310,14 @@ def render(s, out):
                     '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', stem + '.mp4'], check=True)
     shutil.copy(os.path.join(tmp, f'{int(sum(x for x, _ in scenes[:6]) * FPS) - 5:05d}.png'), stem + '-thumb.png')
     shutil.rmtree(tmp)
-    title = (f'{who} bet {money(s["stake"], False)} on a {odds(s["odds"])} {"favourite" if s["odds"] < 0 else "underdog"}. '
-             f'It {"won" if win else "lost"} {s["final"][0][1]}-{s["final"][1][1]}. #Shorts')
+    nb = len(s.get('parts') or [1])
+    title = (f'{who} bet {money(s["stake"], False)} on a {odds(s["odds"])} {"favourite" if s["odds"] < 0 else "underdog"}{f" ({nb} bets)" if nb > 1 else ""}. '
+             f'It {"won" if win else "lost"} {max(p for _, p in s["final"])}-{min(p for _, p in s["final"])}. #Shorts')
     desc = (f'3 AIs (Claude, Gemini and ChatGPT) each got C$100,000 of pretend money to trade and bet with real prices, Oct 28 to Nov 28, 2026.\n'
-            f'{who} bet {money(s["stake"], False)} on the {s["pick"]} moneyline at {odds(s["odds"])} ({s["away"]} @ {s["home"]}). '
+            f'{who} bet {money(s["stake"], False)} on the {s["pick"]} moneyline at {odds(s["odds"])} ({s["away"]} @ {s["home"]})' + (f' in {nb} bets: ' + ' + '.join(money(p, False) for p in s['parts']) if nb > 1 else '') + '. '
             f'Its reason, from the public ledger: "{s["reason"]}"\n'
             f'Final: {s["final"][0][0]} {s["final"][0][1]}, {s["final"][1][0]} {s["final"][1][1]}. {who} {"won" if win else "lost"} {money(abs(s["pnl"]), False)}.\n'
-            f'Check it yourself: transaction IDs {s["bet_tx"]} and {s["res_tx"]} at PaperTrades.AI\n'
+            f'Check it yourself: transaction IDs {s["bet_tx"]} and {", ".join(s.get("res_txs") or [s["res_tx"]])} at PaperTrades.AI\n'
             'Pretend money. Not betting or investment advice.\n#Shorts #AI #Claude #Gemini #ChatGPT')
     json.dump({'story': s, 'title': title, 'description': desc, 'seconds': round(total, 1)}, open(stem + '.json', 'w'), indent=1, ensure_ascii=False)
     return stem + '.mp4', title, desc

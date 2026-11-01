@@ -290,7 +290,7 @@ def story():
         print('last story Short was under 4 hours ago; waiting'); return
     root = os.path.dirname(HERE)
     d = json.load(open(os.path.join(root, 'data.json')))
-    posted = {p.get('tx') for p in log['posts'] if p.get('status') != 'ERROR'}
+    posted = {t for p in log['posts'] if p.get('status') != 'ERROR' for t in ([p.get('tx')] + list(p.get('txs') or []))}   # a game told once covers all its bets
     since = (datetime.now(timezone.utc) - timedelta(hours=36)).strftime('%Y-%m-%dT%H:%M:%SZ')
     picks = [want] if want else [tx for _, tx in SS.candidates(d, since) if tx not in posted]
     if not want and mine:   # variety (all three AIs): never the same AI, then never the same race, as the last Short when another story exists
@@ -309,7 +309,7 @@ def story():
     rel = os.path.relpath(mp4, root); stem = rel[:-4]
     if not _push(f'YouTube story Short: {st_["res_tx"]} ({today})', [rel, stem + '.json', stem + '-thumb.png']):
         print('could not push the video'); sys.exit(1)
-    out = {'kind': 'story', 'tx': st_['res_tx'], 'day': today.isoformat(), 'at': datetime.now(NY).isoformat(timespec='seconds'),
+    out = {'kind': 'story', 'tx': st_['res_tx'], 'txs': st_.get('res_txs') or [st_['res_tx']], 'day': today.isoformat(), 'at': datetime.now(NY).isoformat(timespec='seconds'),
            'race': st_['race'], 'video': rel, 'title': title}
     import subprocess
     subprocess.run(['gh', 'workflow', 'run', 'deploy.yml', '--ref', 'main'], capture_output=True)
