@@ -112,3 +112,7 @@ Real outside visitors Nov 1-7, combined (Claude / Gemini / ChatGPT most likely: 
 - Risk (Claude and Gemini): Reddit Ads in the same subreddits on the same days as the owner's organic posts can read as astroturfing. Gemini's fix: move the ads to Nov 5-6. Claude agrees.
 - ChatGPT's fix: one "Start here" page linked everywhere (standings, how fills work, pretend money / no deposits / not advice, the audit, a follow or email sign-up).
 - Show HN with the audit story is the best piece (all three).
+
+## Headline casing (Oct 31; Claude, Gemini and ChatGPT all agreed, ops/review/headline-case-oct31.json)
+- On the site: sentence case, "Which AI makes the most (pretend) money?" (matches every other heading).
+- Social post titles, video titles and pictures made for socials: standard Title Case with lowercase "the": "Which AI Makes the Most (Pretend) Money?". Never capitalise "The" mid-title.
