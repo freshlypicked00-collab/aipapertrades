@@ -1193,6 +1193,7 @@
   [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
 .tx-id{display:block;margin-top:2px;padding:0 4px;border:1px solid var(--line,#ccd);border-radius:4px;background:none;color:inherit;font:600 10.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.02em;opacity:.75;cursor:pointer;width:max-content}
 .tx-id:hover{opacity:1}.tx-wrap{display:block}.tx-link{display:block;margin-top:0}.tx-link .tx-go{margin-top:3px}[data-draw="allin-ledger"] .tx-link{display:none}.tx-link a{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.tx-pending{opacity:.45;font-weight:400;cursor:default}
+.tx-link .tx-go,.pt-hold-tx .tx-go:not(.tx-story),.lg-find,.tx-go.tx-orig{opacity:1;border-color:#4da3ff;background:rgba(77,163,255,.14);color:#9cc9ff;border-radius:999px;padding:1px 9px}.tx-link .tx-go:hover,.pt-hold-tx .tx-go:not(.tx-story):hover,.lg-find:hover,.tx-go.tx-orig:hover{background:rgba(77,163,255,.28);color:#fff}.tx-next{display:block;margin-top:3px;font:600 10.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;opacity:.5;width:max-content}
 .tx-search{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 8px}.tx-search input{flex:1 1 180px;max-width:280px;min-width:0;padding:5px 8px;font:13px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;border:1px solid var(--line,#ccd);border-radius:6px;background:transparent;color:inherit}
 .tx-search button{padding:5px 10px;border-radius:6px;border:1px solid var(--line,#ccd);background:none;color:inherit;font:inherit;font-size:13px;cursor:pointer}.tx-msg{font-size:12px;opacity:.8}
 tr.lg-hit .tx-id{opacity:1}
@@ -2556,7 +2557,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     <section class="st-card gd-sec" id="guide-ledger" aria-labelledby="h-gd-ledger">
       <h2 class="st-h2" id="h-gd-ledger">Every trade and bet</h2>
       <div class="gd-mock" aria-hidden="true"><span class="gd-lab">Show:</span><span class="gd-pill gd-on">Every move</span><span class="gd-pill">Buys</span><span class="gd-pill">Won</span><span class="gd-lab">Sort:</span><span class="gd-sel">Biggest profit ▾</span><span class="gd-tx">G-CRY-013</span></div>
-      <p>The <b>Ledger</b> lists every move, newest first, each with the AI’s reason in its own words.</p><ul><li><b>Show:</b> Buys, Sells, Shorts, Covers, Bets, Won, Lost, Open bets, Holding now.</li><li><b>Sort:</b> newest, oldest, biggest profit, biggest loss, largest amount.</li><li><b>Why (estimated):</b> groups moves by the kind of reason given (news, price moves, odds, risk, rules). It’s a guess from the words, never the AI’s own label.</li><li>Every move has a <b>transaction ID</b> (like G-CRY-013). <b>Find the buy</b> and <b>Find the sale</b> jump between the two halves of a trade; <b>Whole story</b> shows every step from the first buy with a sum check; <b>What happened next</b> shows the price after it was sold.</li><li><b>Download this list (CSV)</b> gives you exactly the rows shown.</li></ul>
+      <p>The <b>Ledger</b> lists every move, newest first, each with the AI’s reason in its own words.</p><ul><li><b>Show:</b> Buys, Sells, Shorts, Covers, Bets, Won, Lost, Open bets, Holding now.</li><li><b>Sort:</b> newest, oldest, biggest profit, biggest loss, largest amount.</li><li><b>Why (estimated):</b> groups moves by the kind of reason given (news, price moves, odds, risk, rules). It’s a guess from the words, never the AI’s own label.</li><li>Every move has a <b>transaction ID</b> (like G-CRY-013). <b>↩ View original buy / bet</b> and <b>View sale / result →</b> jump between the two halves of a trade or bet (open bets say “Result: not settled yet”); <b>Whole story</b> shows every step from the first buy with a sum check; <b>What happened next</b> shows the price after it was sold.</li><li><b>Download this list (CSV)</b> gives you exactly the rows shown.</li></ul>
       <button type="button" class="gd-show" data-gd-tab="ledger" data-gd-sel=".mf-bar">Show me →</button> <a class="gd-link" href="#guide-ledger" title="Link to this section">#</a>
     </section>
     <section class="st-card gd-sec" id="guide-words" aria-labelledby="h-gd-words">
@@ -3212,7 +3213,10 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const k = C.length + '|' + R.length + '|' + A.length + '|' + B.length; if (TXL && TXL_K === k) return TXL; TXL_K = k;
     const L = {}, add = (a, rel, b) => { if (!a || !b) return; const o = (L[a] = L[a] || { sold: [], buys: [], bet: null, result: null });
       if (Array.isArray(o[rel])) { if (!o[rel].includes(b)) o[rel].push(b); } else o[rel] = b; };
-    const moves = [];
+    const moves = []; const ACT = {}; const BET = new Set();
+    C.forEach((t) => { if (t.tx) ACT[t.tx] = t.action; });
+    R.concat(A).forEach((t) => { if (!t.tx) return; ACT[t.tx] = t.action; if (t.bet && t.action === 'Bet') BET.add(t.tx); });
+    B.forEach((b) => { if (b.tx) { ACT[b.tx] = 'Bet'; BET.add(b.tx); } if (b.tx_result) ACT[b.tx_result] = b.status; });
     C.forEach((t) => { if (t.tx) moves.push({ id: t.tx, at: t.at, key: 'claude|' + t.portfolio + '|' + t.holding, a: t.action, q: Number(t.shares || t.qty || (t.price_usd ? (t.cad || t.usd || 0) / t.price_usd : 0)) }); });
     R.concat(A).forEach((t) => { if (!t.tx) return; if (t.bet) { if (t.action === 'Bet') moves.push({ bet: t.model + '|' + t.bet, id: t.tx, a: 'Bet', at: t.at }); else moves.push({ bet: t.model + '|' + t.bet, id: t.tx, a: 'Result', at: t.at }); return; }
       moves.push({ id: t.tx, at: t.at, key: t.model + '|' + t.experiment + '|' + t.symbol + (t.outcome ? '|' + t.outcome : ''), a: t.action, q: Number(t.qty || 0) }); });
@@ -3224,7 +3228,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       if (/^(Buy|Short)$/.test(m.a)) { if (m.q && Math.abs(s2.q) <= 0.02 * Math.max(s2.peak, 1e-9)) s2.lot = []; s2.lot.push(m.id); s2.q += m.a === 'Short' ? -m.q : m.q; s2.peak = Math.max(s2.peak, Math.abs(s2.q)); }
       else if (/^(Sell|Cover|Settled|Expired)$/.test(m.a)) { s2.lot.forEach((b) => { add(m.id, 'buys', b); add(b, 'sold', m.id); }); if (m.q) s2.q = s2.q > 0 ? Math.max(0, s2.q - m.q) : Math.min(0, s2.q + m.q); }
     });
-    TXL = L; return L;
+    L.__act = ACT; L.__bet = BET; TXL = L; return L;
   };
   window.ptTxLinks = txLinks;
   window.ptTxTag = (id, at) => {
@@ -3234,10 +3238,18 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         try { navigator.clipboard.writeText(u).then(() => { b.textContent = 'Link copied'; setTimeout(() => { b.textContent = 'Transaction ID ' + id; }, 1400); }, () => {}); } catch (e) {} });
       w.appendChild(b);
       // the links to related moves are chips styled like the Transaction ID one (owner, Oct 31: "make the find buy button the same as the other ones")
-      try { const x = txLinks()[id]; const go = (lab, ids) => { if (!ids || !ids.length) return; const ln = document.createElement('span'); ln.className = 'tx-link';
-          ids.forEach((t) => { const a = document.createElement('button'); a.type = 'button'; a.className = 'tx-id tx-go'; a.textContent = lab + ' ' + t; a.title = 'Go to ' + t;
+      try { const LL = txLinks(); const x = LL[id]; const ACT = LL.__act || {};
+        // say exactly what each button opens: the earlier move (↩) or the later one (→) (owner, Nov 1: "view the original bet should be a button")
+        const labOf = (rel, t, i) => { const a = ACT[t] || '';
+          if (rel === 'buys') return '↩ View ' + (i ? 'added ' : 'original ') + (a === 'Short' ? 'short ' : 'buy ') + t;
+          if (rel === 'sold') return 'View ' + ({ Cover: 'cover', Settled: 'settlement', Expired: 'expiry' }[a] || 'sale') + ' ' + t + ' →';
+          if (rel === 'result') return 'View result' + (/^(Won|Lost|Void|Push)$/.test(a) ? ' (' + a + ')' : '') + ' ' + t + ' →';
+          return '↩ View original bet ' + t; };
+        const go = (rel, ids) => { if (!ids || !ids.length) return; const ln = document.createElement('span'); ln.className = 'tx-link';
+          ids.forEach((t, i) => { const a = document.createElement('button'); a.type = 'button'; a.className = 'tx-id tx-go'; a.textContent = labOf(rel, t, i); a.title = 'Go to ' + t + ' in the ledger';
             a.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); if (window.ptGoTx) window.ptGoTx(t); }); ln.appendChild(a); }); w.appendChild(ln); };
-        if (x) { go('Find the buy', x.buys); go('Find the sale', x.sold); go('Find the result', x.result ? [x.result] : null); go('Find the bet', x.bet ? [x.bet] : null); }
+        if (x) { go('bet', x.bet ? [x.bet] : null); go('buys', x.buys); go('sold', x.sold); go('result', x.result ? [x.result] : null); }
+        if ((LL.__bet || new Set()).has(id) && !(x && x.result)) { const nx = document.createElement('span'); nx.className = 'tx-next'; nx.textContent = 'Result: not settled yet'; nx.title = 'The result gets its own transaction ID, linked here, once the game or market settles'; w.appendChild(nx); }
         if (window.ptStory) { const sb = document.createElement('button'); sb.type = 'button'; sb.className = 'tx-id tx-go tx-story'; sb.textContent = '📜 Whole story'; sb.title = 'Every move of this holding or bet, from the first trade, with a check of the sum';
           sb.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); window.ptStory.openTx(id); }); w.appendChild(sb); } } catch (e) {}
       return w; }
@@ -4468,11 +4480,11 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         // a sold buy its sale. Nothing on a bet still open or a position still held.
         { const tAt = Date.parse(t.at), RES = /^(Won|Lost|Push|Void)$/; let pt = null, lab = '';
           const same = (x) => x !== t && x.model === t.model && x.experiment === t.experiment;
-          if (RES.test(t.action)) { pt = TS.find((x) => same(x) && x.action === 'Bet' && x.bet && x.bet === t.bet); lab = 'Find the bet'; }
-          else if (t.action === 'Bet' && !t._held) { pt = TS.find((x) => same(x) && RES.test(x.action) && x.bet === t.bet); lab = 'Find the result'; }
-          else if (/^(Sell|Cover)$/.test(t.action)) { pt = TS.filter((x) => same(x) && x.symbol === t.symbol && /^(Buy|Short)$/.test(x.action) && Date.parse(x.at) <= tAt).sort((a, b) => Date.parse(b.at) - Date.parse(a.at))[0]; lab = 'Find the buy'; }
-          else if (/^(Buy|Short)$/.test(t.action) && !t._held) { pt = TS.filter((x) => same(x) && x.symbol === t.symbol && /^(Sell|Cover)$/.test(x.action) && Date.parse(x.at) >= tAt).sort((a, b) => Date.parse(a.at) - Date.parse(b.at))[0]; lab = 'Find the sale'; }
-          if (pt) { const fb = mk('button', 'lg-find', lab); fb.type = 'button'; fb.title = 'Jump to the matching move in this ledger, highlighted';
+          if (RES.test(t.action)) { pt = TS.find((x) => same(x) && x.action === 'Bet' && x.bet && x.bet === t.bet); lab = '↩ View original bet'; }
+          else if (t.action === 'Bet' && !t._held) { pt = TS.find((x) => same(x) && RES.test(x.action) && x.bet === t.bet); lab = 'View result' + (pt ? ' (' + pt.action + ')' : ''); }
+          else if (/^(Sell|Cover)$/.test(t.action)) { pt = TS.filter((x) => same(x) && x.symbol === t.symbol && /^(Buy|Short)$/.test(x.action) && Date.parse(x.at) <= tAt).sort((a, b) => Date.parse(b.at) - Date.parse(a.at))[0]; lab = pt && pt.action === 'Short' ? '↩ View original short' : '↩ View original buy'; }
+          else if (/^(Buy|Short)$/.test(t.action) && !t._held) { pt = TS.filter((x) => same(x) && x.symbol === t.symbol && /^(Sell|Cover)$/.test(x.action) && Date.parse(x.at) >= tAt).sort((a, b) => Date.parse(a.at) - Date.parse(b.at))[0]; lab = pt && pt.action === 'Cover' ? 'View cover' : 'View sale'; }
+          if (pt) { const fwd = !/^↩/.test(lab); const fb = mk('button', 'lg-find', lab + (pt.tx ? ' ' + pt.tx : '') + (fwd ? ' →' : '')); fb.type = 'button'; fb.title = 'Jump to the matching move in this ledger, highlighted';
             fb.addEventListener('click', () => { st.kind = ''; el._focus = { model: pt.model, exp: pt.experiment, key: pt.bet || pt.symbol, at: pt.at, tx: pt.tx || null }; draw(); });
             r.children[3].append(document.createElement('br'), fb); } }
         if (t === hitT) r.classList.add('lg-hit');
@@ -4912,9 +4924,9 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       return { first: (rd.steps.find((x) => /^(Buy|Short)$/.test(x.act) && x.tx) || {}).tx, buys: rd.steps.filter((x) => /^(Buy|Short)$/.test(x.act) && x.tx).map((x) => x.tx), short: rd.short, open: rd.open }; };
     // the chips placed under a holding: "Find the buy <ID>" (first buy of the open round), "+N more buys" and "Whole story"
     const holdingChips = (model, race, name, code) => { const key = findPos(model, race, name, code); if (!key) return null; const hb = holdingBuys(key); if (!hb || !hb.first) return null;
-      const w = mk('span', 'tx-wrap pt-hold-tx'); const a = mk('button', 'tx-id tx-go', (hb.short ? 'Find the short ' : 'Find the buy ') + hb.first); a.type = 'button'; a.title = 'Go to the first ' + (hb.short ? 'short' : 'buy') + ' of this holding in the ledger';
+      const w = mk('span', 'tx-wrap pt-hold-tx'); const a = mk('button', 'tx-id tx-go', (hb.short ? '↩ View original short ' : '↩ View original buy ') + hb.first); a.type = 'button'; a.title = 'Go to the first ' + (hb.short ? 'short' : 'buy') + ' of this holding in the ledger';
       a.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); close(); if (window.ptGoTx) window.ptGoTx(hb.first); }); w.appendChild(a);
-      if (hb.buys.length > 1) { const m = mk('button', 'tx-id tx-go', '+' + (hb.buys.length - 1) + (hb.short ? ' more shorts' : ' more buys')); m.type = 'button'; m.title = hb.buys.slice(1).join(', ');
+      if (hb.buys.length > 1) { const m = mk('button', 'tx-id tx-go', '+' + (hb.buys.length - 1) + (hb.short ? ' added shorts' : ' added buys')); m.type = 'button'; m.title = hb.buys.slice(1).join(', ');
         m.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); openPos(model, race, key, null, hb.buys[1]); }); w.appendChild(m); }
       const sb = mk('button', 'tx-id tx-go tx-story', '📜 Whole story'); sb.type = 'button'; sb.title = 'Every move of this holding, from the first trade, with a check of the sum';
       sb.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); openPos(model, race, key, null, hb.first); }); w.appendChild(sb);
@@ -5013,7 +5025,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         const named = near.filter((x) => nm(x.item) && det.includes(nm(x.item)));
         const m = named.length === 1 ? named[0] : near.length === 1 ? near[0] : null; if (!m) return;
         if (fam === 'open' && m.outcome == null) return;   // still held: there is no sale to find yet
-        const b = mk('button', 'lg-find', fam === 'close' ? 'Find the buy(s)' : fam === 'open' ? 'Find the sale(s)' : 'Find the bet'); b.type = 'button';
+        const b = mk('button', 'lg-find', fam === 'close' ? '↩ View original buy(s)' : fam === 'open' ? 'View sale(s) →' : '↩ View original bet'); b.type = 'button';
         b.title = 'Open the Ledger on this holding: every buy and sale behind it, with times, prices and reasons';
         b.addEventListener('click', () => window.ptFindTrade(dash.model || 'claude', m.portfolio, m.at, String(m.item).replace(/ \(.*\)$/, ''), m.action));
         tr.lastElementChild.append(document.createTextNode(' '), b); });
@@ -5279,7 +5291,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           const c = td(tr, '', 'wrap'); c.append(mk('b', '', x.pick_team || x.pick), mk('small', 'st-muted gx-sub', x.event || ''));
           { const seen = new Set(); g.items.forEach((y) => { const t = TS.find((q) => q.action === 'Bet' && (q.symbol === (y.bet || y.id) || (y.placed_at && Math.abs(Date.parse(q.at) - Date.parse(y.placed_at)) < 120e3 && Math.abs(Number(q.amount) - Number(y.stake)) < 1)));
               if (!t) return; const k = PG_KEY(t); if (seen.has(k)) return; seen.add(k); c.appendChild(window.ptTxTag(t.tx, t.at)); const gn = pgNode(k); if (gn) c.appendChild(gn);
-              if (!c._led) { c._led = 1; const lb = mk('button', 'tx-id tx-go', 'Find the bet' + (t.tx ? ' ' + t.tx : '')); lb.type = 'button'; lb.title = 'Show this bet in the All in ledger, highlighted'; lb.addEventListener('click', () => window.ptGoAllinLedger(id, exp, t.at, t.bet || t.symbol)); c.appendChild(lb); } }); }   // the other AIs' grades (owner, Oct 29); a button to the bet in the ledger (owner, Oct 30)
+              if (!c._led) { c._led = 1; const lb = mk('button', 'tx-id tx-go tx-orig', '↩ View original bet' + (t.tx ? ' ' + t.tx : '')); lb.type = 'button'; lb.title = 'Show this bet in the All in ledger, highlighted'; lb.addEventListener('click', () => window.ptGoAllinLedger(id, exp, t.at, t.bet || t.symbol)); c.appendChild(lb); } }); }   // the other AIs' grades (owner, Oct 29); a button to the bet in the ledger (owner, Oct 30)
           if (n > 1) { const dt = mk('details', 'bet-list'); dt.appendChild(mk('summary', '', 'The same pick ' + n + ' times · see each bet'));
             g.items.forEach((y) => dt.appendChild(mk('span', '', (y.placed_at ? stFmt.whenET(y.placed_at) + ' ET' : '') + ' · ' + money(y.stake) + ' at ' + betOdds(y.odds)))); c.appendChild(dt); }
           td(tr, n > 1 ? n + ' times, latest ' + stFmt.when(x.placed_at) : x.placed_at ? stFmt.when(x.placed_at) : '—', 'wrap', 'Placed'); td(tr, money(sum('stake')), 'num', 'Stake');
@@ -5307,7 +5319,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           { const pc = td(tr, (pl >= 0 ? '+' : '') + money(pl) + ' (' + stFmt.pct(cost ? pl / cost : 0) + ')', 'num ' + upDown(pl), 'Profit or loss');
             if (sells.length) pc.appendChild(mk('small', 'st-muted gx-sub', 'on the ' + money(cost) + ' still held')); }
           { const w = td(tr, (buys[0] || {}).reason || '', 'wrap gx-why', 'Why'); if (buys[0]) { const gn = pgNode(PG_KEY(buys[0])); if (gn) w.appendChild(gn); } } tb.appendChild(tr);
-          if (buys[0]) { const lb = mk('button', 'tx-id tx-go', (buys[0].action === 'Short' ? 'Find the short' : 'Find the buy') + (buys[0].tx ? ' ' + buys[0].tx : '')); lb.type = 'button'; lb.title = 'Show this buy in the All in ledger, highlighted'; lb.addEventListener('click', () => window.ptGoAllinLedger(id, exp, buys[0].at, buys[0].symbol)); h.appendChild(lb); }   // owner, Oct 30
+          if (buys[0]) { const lb = mk('button', 'tx-id tx-go tx-orig', (buys[0].action === 'Short' ? '↩ View original short' : '↩ View original buy') + (buys[0].tx ? ' ' + buys[0].tx : '')); lb.type = 'button'; lb.title = 'Show this buy in the All in ledger, highlighted'; lb.addEventListener('click', () => window.ptGoAllinLedger(id, exp, buys[0].at, buys[0].symbol)); h.appendChild(lb); }   // owner, Oct 30
         });
       }
       if (Number(bk.cash) > 0.5) box.appendChild(mk('p', 'st-note', 'Cash not invested: ' + money(bk.cash) + '.'));
@@ -5395,7 +5407,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           { const c = td(tr, t ? stFmt.when(t.at) : '—', 'wrap', 1, 'When');
             if (t) c.appendChild(window.ptTxTag(t.tx, t.at));
             // owner, Nov 1: the button says what it finds ("Find the buy G-STK-006"), the same chip as everywhere else, not "Ledger ›"
-            if (t) { const a = mk('button', 'tx-id tx-go gx-led', (t.action === 'Short' ? 'Find the short' : 'Find the buy') + (t.tx ? ' ' + t.tx : '')); a.type = 'button'; a.title = 'Show this ' + (t.action === 'Short' ? 'short' : 'buy') + ' in the Ledger, highlighted'; a.addEventListener('click', (ev) => { ev.preventDefault(); if (t.tx && window.ptFindTrade) window.ptFindTrade(dash.model || 'claude', p, t.at, String(r.holding).replace(/ \(.*\)$/, ''), t.action, t.tx); else window.ptGoLedgerTrade(p, t.at, r.holding); }); c.appendChild(a); } }
+            if (t) { const a = mk('button', 'tx-id tx-go gx-led tx-orig', (t.action === 'Short' ? '↩ View original short' : '↩ View original buy') + (t.tx ? ' ' + t.tx : '')); a.type = 'button'; a.title = 'Show this ' + (t.action === 'Short' ? 'short' : 'buy') + ' in the Ledger, highlighted'; a.addEventListener('click', (ev) => { ev.preventDefault(); if (t.tx && window.ptFindTrade) window.ptFindTrade(dash.model || 'claude', p, t.at, String(r.holding).replace(/ \(.*\)$/, ''), t.action, t.tx); else window.ptGoLedgerTrade(p, t.at, r.holding); }); c.appendChild(a); } }
           if (i === 0) {
             td(tr, isFinite(v) ? money(v) : '—', 'num', n, 'Worth now');
             const pc = td(tr, isFinite(pl) && isFinite(c) ? (pl >= 0 ? '+' : '') + money(pl) + ' (' + stFmt.pct(c ? pl / Math.abs(c) : 0) + ')' : '—', 'num ' + upDown(pl), n, 'Profit or loss');
@@ -6328,7 +6340,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           }
           if (txt) actBox.appendChild(mk('span', 'lg-pl ' + cls, txt));
           const canFind = !(F && !F.missing) && (closing || v != null);
-          if (canFind && window.ptFindTrade) { const fb = mk('button', 'lg-find', closing ? 'Find the buy(s)' : 'Find the sale(s)'); fb.type = 'button'; fb.title = 'Show only this holding: the sale highlighted, the buys behind it softly';
+          if (canFind && window.ptFindTrade) { const fb = mk('button', 'lg-find', closing ? '↩ View original buy(s)' : 'View sale(s) →'); fb.type = 'button'; fb.title = 'Show only this holding: the sale highlighted, the buys behind it softly';
             fb.addEventListener('click', () => window.ptFindTrade(dash.model || 'claude', r.portfolio, r.at, String(r.item).replace(/ \(.*\)$/, ''), r.action)); actBox.appendChild(fb); }
         }
         if (r.gk && (GB[r.gk] || []).length > 1) {   // same game, several bets
@@ -7083,7 +7095,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           tr.appendChild(window.ptTxWhen(t.at, t.tx)); [LABEL[t.experiment] || t.experiment, what, px, Number.isFinite(t.amount) ? stFmt.money(t.amount, t.experiment) : ''].forEach((v) => tr.appendChild(mk('td', '', v)));
           tr.append(mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret), mk('td', '', t.reason || ''));
           if (/^(Sell|Cover)$/.test(t.action) && window.ptFindTrade) {   // the way back to the buy(s) (owner, Oct 30; all three AIs agreed)
-            const fb = mk('button', 'lg-find', 'Find the buy(s)'); fb.type = 'button'; fb.title = 'Open the Ledger on this holding: the sale and every buy behind it';
+            const fb = mk('button', 'lg-find', '↩ View original buy(s)'); fb.type = 'button'; fb.title = 'Open the Ledger on this holding: the sale and every buy behind it';
             fb.addEventListener('click', () => window.ptFindTrade(id, t.experiment, t.at, String(t.name || t.symbol).replace(/ \(.*\)$/, '').replace(/ USD$/, ''), t.action));
             tr.children[2].append(document.createElement('br'), fb); }
           tb.appendChild(tr);
@@ -7480,7 +7492,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           // open bets are holdings too: Find the bet + Whole story
           if (exp === 'AllInSports') (x.book.bets || []).filter((b) => b.status === 'Open').forEach((b) => { const t = (dash.baseData('allin_trades') || []).find((q) => q.model === x.id && q.experiment === exp && q.bet === b.id && q.tx); if (!t) return;
             const ln = mk('span', 'h2h-sub pt-hold-line'); ln.append(mk('b', '', b.pick_team + ' C$' + d3.format(',.0f')(b.stake) + ': ')); const w = mk('span', 'tx-wrap pt-hold-tx');
-            const a1 = mk('button', 'tx-id tx-go', 'Find the bet ' + t.tx); a1.type = 'button'; a1.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); if (window.ptGoTx) window.ptGoTx(t.tx); }); w.appendChild(a1);
+            const a1 = mk('button', 'tx-id tx-go', '↩ View original bet ' + t.tx); a1.type = 'button'; a1.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); if (window.ptGoTx) window.ptGoTx(t.tx); }); w.appendChild(a1);
             if (window.ptStory) { const sb = mk('button', 'tx-id tx-go tx-story', '📜 Whole story'); sb.type = 'button'; sb.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); window.ptStory.openTx(t.tx); }); w.appendChild(sb); }
             ln.appendChild(w); li.appendChild(ln); }); }
         { // the most recent win and the most recent loss (owner, Oct 30): settled bets, or closed trades with their profit
@@ -8826,7 +8838,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       // Find in Ledger: jump to this trade, showing only that holding with the trade highlighted (all three AIs agreed, owner, Oct 30)
       const canFind = (m.type === 'win' || m.type === 'loss') && m.what && document.querySelector('#lg-trades-pick option[value="' + m.race + '"]');
       if (canFind) {
-        const fLab = /^(Bet|Won|Lost|Push|Void|Settled)$/.test(m.action || '') || m.race === 'Sports' ? 'Find the bet' : /^(Buy|Short)$/.test(m.action || '') ? 'Find the buy' : 'Find the sale';   // owner, Nov 1: say what it finds
+        const fLab = /^(Bet|Won|Lost|Push|Void|Settled)$/.test(m.action || '') || m.race === 'Sports' ? 'View this bet' : /^(Buy|Short)$/.test(m.action || '') ? 'View this buy' : 'View this sale';   // owner, Nov 1: say what it finds
         const f = mk('button', 'pd-mom-find', fLab + (m.tx ? ' ' + m.tx : '')); f.type = 'button'; f.title = fLab + ' in the Ledger, highlighted'; f.setAttribute('aria-label', fLab + ': ' + momentText(m));
         f.addEventListener('click', () => window.ptFindTrade(m.who, m.race, m.at, String(m.what).replace(/ \(.*\)$/, ''), m.action, m.tx || null));
         const bx = mk('div', 'pd-mom-btns');
