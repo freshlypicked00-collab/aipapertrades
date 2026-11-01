@@ -1178,6 +1178,7 @@ tr.lg-hit .tx-id{opacity:1}
     <p class="st-progress" data-phase="live">
       <span><b class="st-season">Season 1</b> · Day <b data-draw="day-num">—</b> of <b data-draw="day-total">—</b></span>
       <span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 28</span>
+      <span class="st-dayclose" data-draw="dayclose" title="Each race day closes at 00:00 UTC, the same moment worldwide. Trading never stops: anything after the close counts toward the next day.">—</span>
     </p>
     <p class="st-progress" data-phase="ended" hidden><span>The experiment has ended. Final results are below.</span></p>
     <div class="pt-news" data-draw="newsline" data-source="pulse events geo facts moments_all" aria-live="off" aria-label="Headlines"></div>
@@ -3522,6 +3523,28 @@ tr.lg-hit .tx-id{opacity:1}
       };
       tick();
       return setInterval(tick, 60 * 1000);
+    },
+    update: () => {},
+    unmount: (el, id) => clearInterval(id)
+  });
+  // the daily close (00:00 UTC) in the visitor's own time, with a countdown; display only, scoring unchanged (owner, Oct 31)
+  dash.draw('dayclose', {
+    mount: (el) => {
+      const tick = () => {
+        const now = Date.now();
+        if (now >= EXP_END) { el.hidden = true; return; }
+        const n = new Date(now), next = Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate() + 1);
+        const ms = next - now, h = Math.floor(ms / 3600e3), m = Math.floor((ms % 3600e3) / 60000);
+        let t;
+        try { t = new Date(next).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }); }
+        catch (e) { t = new Date(next).toLocaleTimeString(); }
+        const nd = new Date(next), same = nd.toDateString() === n.toDateString();
+        let day = '';
+        if (!same) { try { day = nd.toLocaleDateString([], { weekday: 'short' }) + ' '; } catch (e) {} }
+        el.innerHTML = 'Next daily close: <b>' + day + t + '</b> your time (in ' + (h ? h + 'h ' : '') + m + 'm) · trading never stops';
+      };
+      tick();
+      return setInterval(tick, 30 * 1000);
     },
     update: () => {},
     unmount: (el, id) => clearInterval(id)

@@ -1435,7 +1435,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'cbd2b246f5af';</script>
+<script>window.PT_PAGE_VER = 'd63ab11d44c1';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -1492,6 +1492,7 @@ body { background:var(--color-bg); }
       <button type="button" class="st-status-dot" data-draw="statusdot" data-source="status" title="System status">—</button>
       <span class="st-clock"><span class="st-mkt" data-draw="market">—</span> <span class="st-mkt" data-draw="market-cn">—</span></span>
       <label class="st-lang notranslate" translate="no" title="Language"><span aria-hidden="true">🌐</span><select id="lang-pick" aria-label="Language"><option value="en">English</option><option value="zh-CN">中文 (简体)</option><option value="zh-TW">中文 (繁體)</option><option value="hi">हिन्दी</option><option value="es">Español</option><option value="fr">Français</option><option value="ar">العربية</option><option value="bn">বাংলা</option><option value="pt">Português</option><option value="ru">Русский</option><option value="id">Bahasa Indonesia</option><option value="ur">اردو</option><option value="de">Deutsch</option><option value="ja">日本語</option><option value="ko">한국어</option><option value="tr">Türkçe</option></select></label> <button type="button" class="st-theme" id="sound-btn" aria-pressed="false" title="Play a cha-ching when an AI makes C$100 or more">🔈 Sound off</button> <button type="button" class="st-theme" id="beginner-btn" aria-pressed="false" title="Plain-English explanations for people new to markets and betting">🎓 Beginner</button> <label class="st-lang st-themepick notranslate" translate="no" title="Colour theme: Terminal on your first visit, then the one you pick is remembered in this browser"><span aria-hidden="true">🎨</span><span class="st-themepick-l">Colour theme</span><select id="theme-pick" aria-label="Colour theme"><optgroup label="Dark"><option value="dark" data-short="Terminal">Terminal (dark)</option><option value="midnight" data-short="Midnight">Midnight (dark)</option><option value="evergreen" data-short="Evergreen">Evergreen (dark)</option><option value="contrast" data-short="High contrast">High contrast (dark)</option></optgroup><optgroup label="Light"><option value="light" data-short="Paper">Paper (light)</option><option value="reader" data-short="Reader">Reader (light)</option><option value="cloud" data-short="Cloud">Cloud (light)</option><option value="sage" data-short="Sage">Sage (light)</option></optgroup></select></label> <button type="button" class="st-theme" id="fs-btn" hidden title="Full screen (Esc to leave)">⛶ Full screen</button>
+      <span class="st-dayclose" data-draw="dayclose" title="Each race day closes at 00:00 UTC, the same moment worldwide. Trading never stops: anything after the close counts toward the next day.">—</span>
     </p>
     <p class="st-progress" data-phase="ended" hidden></p>
     <div class="pt-news" data-draw="newsline" data-source="pulse events geo facts moments_all" aria-live="off" aria-label="Headlines"></div>
@@ -3842,6 +3843,28 @@ body { background:var(--color-bg); }
       };
       tick();
       return setInterval(tick, 1000);
+    },
+    update: () => {},
+    unmount: (el, id) => clearInterval(id)
+  });
+  // the daily close (00:00 UTC) in the visitor's own time, with a countdown; display only, scoring unchanged (owner, Oct 31)
+  dash.draw('dayclose', {
+    mount: (el) => {
+      const tick = () => {
+        const now = Date.now();
+        if (now >= EXP_END) { el.hidden = true; return; }
+        const n = new Date(now), next = Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate() + 1);
+        const ms = next - now, h = Math.floor(ms / 3600e3), m = Math.floor((ms % 3600e3) / 60000);
+        let t;
+        try { t = new Date(next).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }); }
+        catch (e) { t = new Date(next).toLocaleTimeString(); }
+        const nd = new Date(next), same = nd.toDateString() === n.toDateString();
+        let day = '';
+        if (!same) { try { day = nd.toLocaleDateString([], { weekday: 'short' }) + ' '; } catch (e) {} }
+        el.innerHTML = 'Next daily close: <b>' + day + t + '</b> your time (in ' + (h ? h + 'h ' : '') + m + 'm) · trading never stops';
+      };
+      tick();
+      return setInterval(tick, 30 * 1000);
     },
     update: () => {},
     unmount: (el, id) => clearInterval(id)
