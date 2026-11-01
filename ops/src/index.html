@@ -282,6 +282,9 @@
   .ai-pf-btn { display: block; margin-top: 8px; background: none; border: 1px solid var(--ai, #888); color: var(--ai, inherit); border-radius: 999px; padding: 3px 10px; font: inherit; font-size: 12px; cursor: pointer; text-align: left; } .ai-pf-btn:hover { background: color-mix(in srgb, var(--ai, #888) 18%, transparent); }
   .ai-pf-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 12px; font-size: 13px; } .ai-pf-row > b { margin-right: 4px; font-weight: 600; }
   .ai-pf-chip { background: none; border: 1px solid rgba(255,255,255,.22); color: inherit; border-radius: 999px; padding: 3px 10px; font: inherit; font-size: 12px; cursor: pointer; } .ai-pf-chip:hover { border-color: var(--ai, #888); color: var(--ai, inherit); }
+  .pt-odds { position: relative; margin: 0 0 12px; padding: 10px 44px 10px 14px; border: 1px solid #2f6f4a; border-left: 4px solid #3fb950; border-radius: 8px; background: rgba(63,185,80,.08); font-size: 13.5px; line-height: 1.45; }
+  .pt-odds b { color: #56d364; } .pt-odds[hidden] { display: none; }
+  .pt-odds-x { position: absolute; right: 8px; top: 8px; font: inherit; background: none; border: 1px solid rgba(255,255,255,.25); color: inherit; border-radius: 999px; width: 26px; height: 26px; cursor: pointer; }
   .pt-hold-tx { display: inline-flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; } .pt-alloc-tx { margin: 4px 0 0 17px; } .pt-hold-line { display: block; } .pt-hold-link { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-decoration: underline dotted; text-underline-offset: 3px; cursor: pointer; }
   .pd-big-from { display: block; font-size: 10.5px; color: var(--color-fg-muted); font-family: var(--font-mono, monospace); }
   html.pt-mvs-open { overflow: hidden; }
@@ -2133,6 +2136,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
 
   <!-- Sports -->
   <section class="st-page" id="sports" data-page="sports" hidden>
+    <div class="pt-odds" role="note"><span>🎯 <b>The odds are real.</b> Every bet uses the live moneyline from ESPN’s public scoreboards (its sportsbook partner’s line) at the moment the AI bets, and ESPN’s final score settles it. Same odds and results for all three AIs. Only the money is pretend: a real sportsbook could offer a slightly different line or limit big bets.</span><button type="button" class="pt-odds-x" aria-label="Close this note">✕</button></div>
     <section class="st-card" aria-labelledby="h-b-bench">
       <h2 class="st-h2" id="h-b-bench">Sports bankroll</h2>
       <p class="st-note">Bankroll counts settled bets only. <span data-claude-only>Restarted Oct 28 at 1:45 p.m. ET (17:45 UTC · 1:45 a.m. HKT).</span><span data-model-start="Sports" hidden></span> On open bets: <span data-draw="at-risk" data-source="totals" data-field="at_risk" data-where="portfolio=Sports">—</span>.</p>
@@ -2465,6 +2469,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     </section>
   </section>
   <section class="st-page" id="allin" data-page="allin" hidden>
+    <div class="pt-odds" role="note"><span>🎯 <b>The odds are real.</b> <i>All in: sports</i> bets the same way. Every bet uses the live moneyline from ESPN’s public scoreboards (its sportsbook partner’s line) at the moment the AI bets, and ESPN’s final score settles it. Same odds and results for all three AIs. Only the money is pretend: a real sportsbook could offer a slightly different line or limit big bets.</span><button type="button" class="pt-odds-x" aria-label="Close this note">✕</button></div>
     <section class="st-card" aria-labelledby="h-allin">
       <h2 class="st-h2" id="h-allin">All in</h2>
       <!-- two big buttons that jump to each part of the side race (owner, Oct 30) -->
@@ -3163,6 +3168,11 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     }), 120);   // after the page has redrawn for the AI that was just picked
   };
   window.ptGoAllin = goAllin;
+
+  // "The odds are real" note on Sports and All in (owner, Nov 1): closable, remembered in this browser
+  (() => { const K = 'pt-odds-closed'; let off = false; try { off = localStorage.getItem(K) === '1'; } catch (e) {}
+    document.querySelectorAll('.pt-odds').forEach((b) => { if (off) b.hidden = true;
+      b.querySelector('.pt-odds-x').addEventListener('click', () => { document.querySelectorAll('.pt-odds').forEach((x) => { x.hidden = true; }); try { localStorage.setItem(K, '1'); } catch (e) {} }); }); })();
   // "See my … portfolio" (owner, Nov 1): pick that AI, open the race and land on its holdings (Sports: its bets)
   const PF_TAB = { Stocks: 'stocks', Crypto: 'crypto', China: 'china', Metals: 'metals', Energy: 'energy', Options: 'options', Currencies: 'currencies', Safe: 'safe', Sports: 'sports', Predictions: 'predictions' };
   window.ptGoPortfolio = (model, exp) => {
