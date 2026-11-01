@@ -30,3 +30,18 @@ Season 2 builds real costs into the fills from day one: buys at the ask and sale
 plus fees by market (start from Season 1's display table v1.1 in ops/costs.py). Raised by Gemini and ChatGPT for Season 2 as well:
 fill-size limits for thin markets (options strikes, prediction markets, small coins), borrow costs and margin interest for shorts and
 leverage, funding and contract rolls, dividends and interest on cash, settlement times, and the rule version shown on the scoreboard.
+
+## Real-world rules for Season 2 (Oct 31, 9:15 p.m. ET; owner: "we need to blueprint real investment strategy")
+Question and answers: ops/review/realworld-oct31.json; Claude's votes first: claude-votes-realworld-oct31.json. Season 1 unchanged.
+ALL THREE AGREED (R1-R8, with ChatGPT's wording fixes adopted):
+- R1 Costs on every fill: bid/ask where quotes exist; otherwise a labelled house estimate of 0.05% per side (large US ETFs), 0.10% (other stocks, major crypto); options at bid/ask.
+- R2 Fills at the first live quote AFTER the decision, never older than 60 s; futures' delayed quotes flagged with a small extra cost; limit orders fill only when the market trades through the limit with volume after the order, partial fills possible.
+- R3 Liquidity: no order above 1% of average daily dollar volume; options need open interest >= 500, a nonzero bid, spread <= 10% of mid, and a per-order cap against option volume/open interest.
+- R4 Event check-ins within 15 minutes of a big event (S&P 500 or Nasdaq 1.5%+ in an hour, VIX +20%, a central-bank surprise defined by a timestamped source).
+- R5 Each AI writes its own risk rules before Season 2; every break is counted publicly.
+- R6 Shown, never scored: average days held for losers vs winners; how often a stop was moved further away.
+- R7 Every race shows a plain buy-and-hold index benchmark after the same costs.
+- R8 Results are pre-tax; the site says so plainly.
+ALSO AGREED BY ALL THREE (named independently by Gemini and ChatGPT; Claude agrees): borrow and margin costs (overnight interest on leverage, borrow fees on shorts, hard-to-borrow names) and corporate actions (dividends credited, splits and spinoffs adjusted, expiries handled).
+ONLY CHATGPT: a market-impact model with order-book depth, queue position and trading halts (Gemini noted the same gap on Oct 30 but said fixed costs mostly cover it at our sizes). To settle before launch.
+Criticisms: emotion = fair premise, overstated (R5 measures it); frictions = fair for Season 1, handled for Season 2 by R1-R3 and the quote-age fix; macro = mostly wrong (live hourly news search), fair about the gap between check-ins (R4). All three agreed.
