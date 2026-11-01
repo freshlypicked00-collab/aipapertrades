@@ -1,22 +1,5 @@
-SITE DESIGN QUESTION from the owner of PaperTrades.AI. NOT a trading turn. Majority wins; Claude voted first in a separate file (attached).
-
-The owner: "Add more options than just Most relevant. Do a drop-down box rather than a single check: highest profits All in, highest profits, biggest losses, that kind of idea. Work with Gemini and GPT to complete."
-
-TODAY: the Race standings panel (right side of the home page) has a race menu (Overall, the ten races, the two All in side races) and under it ONE checkbox: "Most relevant: follow the market that's live right now" (on at every visit; it auto-picks the race whose market is open or moving most, re-checked at each data update, with a "Why this one" note). Unticking it jumps to Overall.
-
-PROPOSAL (vote AGREE / DISAGREE / AMEND each, one line why):
-D1. Replace the checkbox with a drop-down labelled "Auto-pick:" under the race menu. Each option picks the race automatically and re-checks at every data update; a one-line note says why that race was picked (e.g. "Gemini is +C$22,842 in Options, the biggest profit in any race").
-D2. Options, in this order:
-  1. Most relevant: the market that's live right now (default at every visit, today's behaviour)
-  2. Biggest profit: the race where any AI is furthest ahead of its C$100,000 start (ten races)
-  3. Biggest loss: the race where any AI is furthest behind (ten races)
-  4. Closest race: the smallest gap between 1st and 2nd (ten races)
-  5. Biggest lead: the largest gap between 1st and 2nd (ten races)
-  6. Biggest profit (All in side race): All in: trading or All in: sports, whichever has the bigger profit
-  7. Biggest loss (All in side race)
-  8. Off: I'll choose (goes to Overall, today's "untick" behaviour)
-D3. Picking a race yourself in the race menu sets Auto-pick to "Off".
-D4. Profits compare in C$ (China converted); the note names the AI and the amount.
-D5. The choice is kept while the page is open but not remembered between visits (every visit starts on Most relevant).
-
-Reply as JSON: {"D1": "AGREE|DISAGREE|AMEND: why", ..., "D5": "...", "other": "anything missing (optional)"}
+Design question for papertrades.ai (public race: Claude vs Gemini vs ChatGPT trade PRETEND money at real prices, Oct 28 - Nov 28, 2026; every move logged; owner wants maximum transparency).
+Owner's idea: on the "Rules & Audit" page, let visitors download EVERYTHING, so they can give it to their own AI (ChatGPT, Claude, Gemini...) to review it and confirm we're legit.
+Already exists: a Data tab with CSVs (moves.csv = every trade/bet/result of all 3 AIs with reasons; values.csv = each AI's value per race per check-in; prices_claude.csv; grades.csv = peer grades) and a README. Rules & Audit shows: full rules, the exact prompt each AI gets and its raw reply, corrections, peer grades, nightly SHA-256 ledger fingerprints (also posted to Telegram), a price check of fills vs the feeds, price corrections, audits.
+Proposal (Claude): on Rules & Audit, a "Verify us with your own AI" box with (1) ONE "Download the full audit pack" (.zip, rebuilt every check-in) containing: rules, all CSVs, fills with the feed price at fill time, every correction and price correction with reason, nightly fingerprints + how to recompute them, the latest prompts/replies, bet results with final scores and sources, and a VERIFY_ME.md; (2) a copy-paste prompt for the visitor's AI, e.g. "You are an auditor. Using only the attached files, check: fills match feed prices, P&L adds up, fingerprints recompute, rules were followed, corrections are disclosed. List anything suspicious."; (3) note that file sizes stay small enough for chat uploads.
+Questions: (a) good idea? (b) what must be in the pack, what must be left out (secrets/keys obviously; anything else)? (c) your exact wording for the copy-paste prompt (max 90 words), (d) one zip vs separate files vs a single text file that fits in a chat window? Under 220 words.
