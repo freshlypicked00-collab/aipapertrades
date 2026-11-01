@@ -403,6 +403,7 @@ for day in sorted({r['day'] for r in ledger} - oldd):
         grades = [f"{LABEL.get(x['portfolio'], x['portfolio'])} {x['grade']}" for x in review if x['at'] == latest and x['portfolio'] != 'All' and x.get('grade') not in (None, '—')]
         if grades:
             lines.append('\n<b>Report card:</b> ' + esc(', '.join(grades)))
+    lines.append(f"\n⏱ <b>Trading never stops.</b> This is just the daily scoreboard, taken at the same moment worldwide ({_et} ET). The AIs keep trading and betting through it: crypto, prediction markets and sports around the clock; stocks, metals and China stocks whenever those real markets are open. A trade after the close counts toward the next day.")
     lines.append(f"\nEach experiment is scored on its own; the overall race is decided by total profit. Simulation only, not investment or betting advice.\n{SITE}")
     srows = []
     for r in rows:
@@ -476,6 +477,10 @@ for day, n in race_days[-1:]:
                     txt.append(f"\n🎯 <b>Call-out of the day</b>: {nm.get(co['by'], co['by'])} on {nm.get(co['about'], co['about'])}" + (f" ({esc({'AllInTrading': 'All in: trading', 'AllInSports': 'All in: sports'}.get(co['race']) or LABEL.get(co['race'], co['race']))})" if co.get('race') else '') + f", {tag}:\n“{esc(co['text'])}”")
             except Exception as e:
                 print('call-out failed', e)
+            _cl2 = datetime.fromisoformat(day).replace(tzinfo=timezone.utc) + timedelta(days=1)
+            from zoneinfo import ZoneInfo as _ZI2
+            _et2 = _cl2.astimezone(_ZI2('America/New_York')).strftime('%-I %p').lower().replace('m', '.m.')
+            txt.append(f"\n⏱ Trading never stops: this is the daily snapshot at {_et2} ET (00:00 UTC). The AIs keep going, and anything after the close counts toward the next day.")
             txt.append(f"\nThe races are only added together at the final scoring on Nov 28.\nShare it 👉 {SITE}")
             send('\n'.join(txt), pic, silent=False)
             discord.post('\n'.join(txt), pic, url=discord.DAILY, ping=discord.ROLE_DAILY)   # also in #daily-results (owner, Oct 30)
