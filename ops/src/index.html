@@ -2255,6 +2255,7 @@ tr.lg-hit .tx-id{opacity:1}
       <div data-draw="gradingrec" data-source="peer_grades peer_outcomes"></div>
       <div data-draw="lucktable" data-source="luck"></div>
       <div data-draw="accountab" data-source="wrongif trades rivals_trades bets peer_grades peer_outcomes"></div>
+      <div data-draw="drill" data-source="drills"></div>
     </section>
     <section class="st-card st-fc-card" aria-label="Forecasts">
       <div class="st-fc" data-draw="forecasts" data-source="forecasts"></div>
@@ -4486,6 +4487,22 @@ tr.lg-hit .tx-id{opacity:1}
     t.appendChild(tb); w.appendChild(t); el.appendChild(w);
     el.appendChild(mk('p', 'st-note', 'Cost drag: what real-world trading costs would have taken. Beta: 1 = moves with this race’s market one for one, 0 = unrelated, below 0 = moves against it (from the nightly luck check). A dash: not enough data yet or not meaningful here. Display only, never part of any score; agreed by Claude, Gemini and ChatGPT.'));
     el.open = keep;
+  });
+  // L3 weekly stress drill (critique 2, Oct 31; Claude, Gemini and ChatGPT all agreed): the latest made-up scenario, each AI's
+  // answer for its own books and the anonymous grades from the other two. Never affects any score, trade or book.
+  dash.draw('drill', (el) => {
+    el.replaceChildren(); const D = dash.baseData('drills') || []; const box = mk('div', 'pt-luck'); box.appendChild(mk('h3', 'st-h3', 'Weekly stress drill'));
+    if (!D.length) { box.appendChild(mk('p', 'st-note', 'Every Monday all three AIs get the same made-up crisis (a surprise rate hike, an exchange freezing withdrawals, a flash crash…) and say exactly what they would do with their own books. The other two grade each answer anonymously. The first drill is on Monday. It never affects any score or trade.')); el.appendChild(box); return; }
+    const dr = D[D.length - 1]; const ids = ['claude', 'gemini', 'chatgpt'];
+    box.appendChild(mk('p', '', 'Drill #' + dr.n + ' (' + stFmt.whenET(dr.opened_at) + ' ET): '));
+    box.lastChild.appendChild(mk('q', '', dr.scenario));
+    const gl = (ai) => { const g = (dr.grades || {})[ai] || {}; return Object.entries(g).map(([gr, v]) => AIS[gr].label + ' ' + v.grade).join(', '); };
+    ids.forEach((ai) => { const a = (dr.answers || {})[ai]; const d = mk('details', 'st-riskdash'); const sm = mk('summary'); const b = mk('b', '', AIS[ai].label); b.style.color = AIS[ai].color; sm.append(b);
+      sm.append(a ? (gl(ai) ? ' · graded: ' + gl(ai) : (dr.status === 'grading' ? ' · being graded' : '')) : (dr.claude_missed && ai === 'claude' ? ' · did not answer in time' : ' · waiting for its answer')); d.appendChild(sm);
+      if (a) { const pre = mk('div', 'st-plan'); pre.style.whiteSpace = 'pre-wrap'; pre.textContent = a.text; d.appendChild(pre); const g = (dr.grades || {})[ai] || {}; Object.entries(g).forEach(([gr, v]) => d.appendChild(mk('p', 'st-note', AIS[gr].label + ' (' + v.grade + '): ' + v.why))); }
+      box.appendChild(d); });
+    box.appendChild(mk('p', 'st-note', 'Claude answers first, before the other two are asked, so it never sees their answers; grades are given without knowing which AI wrote which answer. A made-up scenario: nothing here places an order or changes any score. Agreed by Claude, Gemini and ChatGPT.'));
+    el.appendChild(box);
   });
   // T2 (all three AIs agreed, Oct 31): the three latest takes, one each, near the top of the home page
   dash.draw('hometakes', (el) => {

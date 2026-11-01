@@ -134,7 +134,8 @@ json.dump(diag, open('ops/review/diag.json', 'w'), indent=1, ensure_ascii=False)
 print('::notice title=diag::' + json.dumps({k: (v if not isinstance(v, dict) else {x: v[x] for x in v if x in ('queries', 'chunks', 'annotations', 'search_calls', 'error', 'urls', 'data')}) for k, v in diag.items()})[:3800])
 
 # ---- 2. the question, with the attached files
-q = open('ops/ask.txt').read().strip()
+ASK_FILE = os.environ.get('ASK_FILE') or 'ops/ask.txt'   # the weekly stress drill uses its own question file (Oct 31)
+q = open(ASK_FILE).read().strip()
 SEARCH = q.startswith('[WEB SEARCH ON]')   # an audit that must check prices and results online (owner, Oct 30); off by default
 if SEARCH:
     q = q[len('[WEB SEARCH ON]'):].strip()
@@ -193,7 +194,7 @@ for t in threads:
     t.start()
 for t in threads:
     t.join()
-out = {'at': R.iso(), 'question': open('ops/ask.txt').read().strip(), 'files': files, 'answers': answers}
+out = {'at': R.iso(), 'question': open(ASK_FILE).read().strip(), 'files': files, 'answers': answers}
 json.dump(out, open(f'ops/review/{NAME}.json', 'w'), indent=1, ensure_ascii=False)
 for mid, a in answers.items():
     head = a.get('error') or a['answer']

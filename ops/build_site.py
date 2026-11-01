@@ -585,6 +585,10 @@ try:   # L2 wrong-if tracker (critique 2, Oct 31; all three AIs agreed): written
     data['wrongif'] = [json.load(open(os.path.join(SRC, 'wrongif.json')))]
 except Exception:
     data['wrongif'] = []
+try:   # L3 weekly stress drill (critique 2, Oct 31; all three AIs agreed): ops/drill.py; display only
+    data['drills'] = json.load(open(os.path.join(SRC, 'drills.json')))[-4:]
+except Exception:
+    data['drills'] = []
 # Profit on every closed trade (average cost) and every settled bet, so every trade table can show what went in,
 # what came back and the profit. Buys and open bets are marked open. Sells carry "cost" (what that part cost) and "pnl".
 def _annotate_rivals(r):
