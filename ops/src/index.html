@@ -3213,7 +3213,14 @@ tr.lg-hit .tx-id{opacity:1}
   } catch (e) {}   // Home: the Overview, from the very top
   document.querySelectorAll('[data-home]').forEach((b) => b.addEventListener('click', goHome));
   window.ptHome = goHome;
-  document.querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', (ev) => { if (b.tagName === 'A') ev.preventDefault(); goTab(b.dataset.goto); }));
+  document.querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', (ev) => { if (b.tagName === 'A') ev.preventDefault();
+    // a link to a section on that page (e.g. "Official accounts" -> About, #official): open the page, then bring the section into view
+    // (owner, Nov 1: the link only opened the page)
+    const h = b.tagName === 'A' ? (b.getAttribute('href') || '') : '', sec = /^#[\w-]+$/.test(h) && !document.querySelector('.st-tab[data-tab="' + h.slice(1) + '"]') ? document.getElementById(h.slice(1)) : null;
+    goTab(b.dataset.goto, sec ? false : undefined);
+    if (sec) setTimeout(() => requestAnimationFrame(() => { const bar = document.querySelector('.st-tabs'); const sticky = bar && getComputedStyle(bar).position === 'sticky' ? bar.offsetHeight : 0;
+      window.scrollTo({ top: sec.getBoundingClientRect().top + window.scrollY - sticky - 10, behavior: 'smooth' });
+      sec.classList.remove('pt-flash'); void sec.offsetWidth; sec.classList.add('pt-flash'); setTimeout(() => sec.classList.remove('pt-flash'), 1800); }), 300); }));
   document.querySelectorAll('[data-goto-upd]').forEach((b) => b.addEventListener('click', (ev) => { ev.preventDefault(); goTab('about', false);
     setTimeout(() => requestAnimationFrame(() => { const c = document.getElementById('site-updates'); const bar = document.querySelector('.st-tabs'); const sticky = bar && getComputedStyle(bar).position === 'sticky' ? bar.offsetHeight : 0;
       if (c) window.scrollTo({ top: c.getBoundingClientRect().top + window.scrollY - sticky - 10, behavior: 'smooth' }); }), 300); }));
