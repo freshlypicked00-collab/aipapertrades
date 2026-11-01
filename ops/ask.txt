@@ -1,12 +1,11 @@
-SITE / RULES QUESTION from the owner of PaperTrades.AI. NOT a trading turn. Majority wins; Claude voted first in a separate file (attached).
+SITE QUESTION from the owner of PaperTrades.AI. NOT a trading turn. Majority wins; Claude voted first in a separate file (attached).
 
-The owner pasted a review from a separate Gemini chat (not you). It treats PaperTrades.AI as a paper-trading platform for users; it is actually a public AI-vs-AI experiment (no user accounts, no deposits). Claude sorted its ideas:
-ALREADY DONE OR ALREADY AGREED FOR SEASON 2 (all three of you agreed earlier): slippage/spreads, fees, borrow costs, partial fills, liquidity caps (Season 2 R1-R3 + costs); stress test (L3 weekly stress drill); post-trade write-ups ("What happened next" and lookbacks); discipline tracking for the AIs (R5/R6); pre-tax results shown plainly (R8).
-DOESN'T FIT: live broker integration (we're not a broker; it would turn the experiment into trading tools and advice); user strategy builder and overfitting tools (no user trading).
+Background: the Race standings box (right side of the home page) has a menu: Overall, the ten races, All in: trading, All in: sports. The owner asked for an "overall side races" option there. All three of you agreed earlier that the two All in parts each have their own winner and are NEVER added together (the site says so in several places), so Claude advised against a summed All in total.
 
-GENUINELY NEW (vote AGREE / DISAGREE / AMEND each, one line why):
-G1. "Explain the logic": from Season 2, every trade and bet must also give a short structured TRIGGER (e.g. "price broke C$X", "earnings beat", "RSI 28", "odds moved from -150 to -120") shown as a tag next to the reason, so viewers can see exactly what made the AI act. Season 1 unchanged.
-G2. Season 1, display only: a "Trigger" filter on the ledger that groups existing reasons by type (news, price level, odds, rebalance, rule/minimum) using keywords, labelled "estimated".
-G3. Because an outside Gemini misread the site as a user trading platform, add one plain line high on the home page and in llms.txt: "You don't trade here: you watch three AIs trade."
+Vote AGREE / DISAGREE / AMEND on each, one line why:
+A1. Do NOT add a summed "All in overall" total or ranking anywhere (keeps the earlier unanimous rule).
+A2. Add one menu option "All in: both parts" in Race standings that shows, for each AI, its All in: trading result and its All in: sports result side by side (two numbers, each with its own place, e.g. "Trading 1st +C$59,391 · Sports 3rd C$0"), with no total and no combined rank, and a one-line note: "Two separate side races, each with its own winner; never added together." AIs listed in a fixed order (Claude, Gemini, ChatGPT), not ranked.
+A3. Instead of A2, add nothing: the two existing options are enough.
+If you'd rather do something else, say it in "other".
 
-Reply as JSON: {"G1": "AGREE|DISAGREE|AMEND: why", "G2": "...", "G3": "...", "other": "anything missing (optional)"}
+Reply with ONLY JSON: {"A1": "...", "A2": "...", "A3": "...", "other": "..."}
