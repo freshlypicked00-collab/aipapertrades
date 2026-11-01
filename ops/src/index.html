@@ -279,6 +279,9 @@
   .pt-mvs-verdict { margin: 10px 0; font-weight: 600; } .pt-mvs-verdict.is-ok { color: #2bd576; } .pt-mvs-verdict.is-off { color: #ff6b6b; }
   .pt-mvs-acts { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
   .pt-mvs-act { font: inherit; font-size: 13px; background: none; border: 1px solid var(--color-border-line); color: var(--color-fg); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+  .ai-pf-btn { display: block; margin-top: 8px; background: none; border: 1px solid var(--ai, #888); color: var(--ai, inherit); border-radius: 999px; padding: 3px 10px; font: inherit; font-size: 12px; cursor: pointer; text-align: left; } .ai-pf-btn:hover { background: color-mix(in srgb, var(--ai, #888) 18%, transparent); }
+  .ai-pf-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 12px; font-size: 13px; } .ai-pf-row > b { margin-right: 4px; font-weight: 600; }
+  .ai-pf-chip { background: none; border: 1px solid rgba(255,255,255,.22); color: inherit; border-radius: 999px; padding: 3px 10px; font: inherit; font-size: 12px; cursor: pointer; } .ai-pf-chip:hover { border-color: var(--ai, #888); color: var(--ai, inherit); }
   .pt-hold-tx { display: inline-flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; } .pt-alloc-tx { margin: 4px 0 0 17px; } .pt-hold-line { display: block; } .pt-hold-link { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-decoration: underline dotted; text-underline-offset: 3px; cursor: pointer; }
   .pd-big-from { display: block; font-size: 10.5px; color: var(--color-fg-muted); font-family: var(--font-mono, monospace); }
   html.pt-mvs-open { overflow: hidden; }
@@ -3159,6 +3162,22 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     }), 120);   // after the page has redrawn for the AI that was just picked
   };
   window.ptGoAllin = goAllin;
+  // "See my … portfolio" (owner, Nov 1): pick that AI, open the race and land on its holdings (Sports: its bets)
+  const PF_TAB = { Stocks: 'stocks', Crypto: 'crypto', China: 'china', Metals: 'metals', Energy: 'energy', Options: 'options', Currencies: 'currencies', Safe: 'safe', Sports: 'sports', Predictions: 'predictions' };
+  window.ptGoPortfolio = (model, exp) => {
+    const mp = document.getElementById('model-pick'); const setM = () => { if (mp && mp.value !== model) { mp.value = model; mp.dispatchEvent(new Event('change')); } else if ((dash.model || 'claude') !== model) dash.useModel(model); };
+    if (/^AllIn/.test(exp)) { setM(); goAllin(exp); return; }
+    const tab = PF_TAB[exp]; if (!tab) return;
+    goTab(tab, false); setM();
+    const land = (smooth) => {
+      const pg = document.getElementById(tab) || document.querySelector('.st-page:not([hidden])'); if (!pg) return null;
+      const h = pg.querySelector(exp === 'Sports' ? '#h-b-bets' : 'h2[id$="-hold"]'); if (!h) return null;
+      const bar = document.querySelector('.st-tabs'); const sticky = bar && getComputedStyle(bar).position === 'sticky' ? bar.offsetHeight : 0;
+      window.scrollTo({ top: h.getBoundingClientRect().top + window.scrollY - sticky - 10, behavior: smooth ? 'smooth' : 'auto' }); return h.closest('section') || h; };
+    // land once the race has redrawn for that AI, then once more in case charts above it grew
+    setTimeout(() => requestAnimationFrame(() => { const c = land(true); if (c) { c.classList.remove('pt-flash'); void c.offsetWidth; c.classList.add('pt-flash'); setTimeout(() => c.classList.remove('pt-flash'), 1800); } }), 300);
+    setTimeout(() => requestAnimationFrame(() => land(false)), 1200);
+  };
   // Find in Ledger from a moment (all three AIs agreed, owner, Oct 30): that AI, that race, only that holding, the trade highlighted.
   // The view lives in the address (?find=...) so a shared link, and Back, work.
   const FIND_KEY = 'find';
@@ -7272,22 +7291,19 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const aiTot = Object.values(ai).reduce((a, v) => a + Math.max(0, v) - 100000, 0);
     const ck = (dash.baseData('checkins').find((x) => x.id === id) || {});
     const stats = mk('div', 'ai-stats');
-    const stat = (k, v, t) => { const d = mk('div', 'ai-stat'); d.appendChild(mk('b', '', k)); const sp = mk('span', '', v); if (t !== undefined) tone(sp, t); d.appendChild(sp); stats.appendChild(d); };
+    const PF_WORD = { Stocks: 'stocks', Crypto: 'crypto', China: 'China stocks', Metals: 'metals', Energy: 'oil and energy', Options: 'options', Currencies: 'currencies', Safe: 'play it safe', Sports: 'sports', Predictions: 'prediction', AllInTrading: 'All in trading', AllInSports: 'All in sports' };
+    const pfBtn = (e, cls) => { const b = mk('button', 'ai-pf-btn ' + (cls || ''), 'See my ' + PF_WORD[e] + (/Sports$/.test(e) ? ' bets' : ' portfolio') + ' →'); b.type = 'button';
+      b.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); if (window.ptGoPortfolio) window.ptGoPortfolio(id, e); }); return b; };
+    const stat = (k, v, t, e) => { const d = mk('div', 'ai-stat'); d.appendChild(mk('b', '', k)); const sp = mk('span', '', v); if (t !== undefined) tone(sp, t); d.appendChild(sp); if (e && PF_WORD[e]) d.appendChild(pfBtn(e)); stats.appendChild(d); };
     { const all = dash.baseData('exp_standings'); const ES = (Array.isArray(all) ? all[0] : all) || {};
       const led = Object.entries(ES).filter(([race, rows]) => race !== 'Overall' && rows && rows.length > 1 && rows[0].id === id && rows[0].profit - rows[1].profit >= 0.5).map(([race]) => race);
       stat('Races led', led.length + ' of 10'); }
     stat('Races up', up + ' of ' + n);
     { const pr = Object.entries(lastV).filter(([e]) => PFS_ALL.includes(e)).map(([e, v]) => [e, Math.max(0, v) - 100000]).sort((a, b) => b[1] - a[1]);
       const fmtR = ([e, x]) => (LABEL[e] || e).replace(' (US$)', '') + ' ' + (x >= 0 ? '+' : '−') + (e === 'China' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(x));
-      if (pr.length) { stat('Best race', fmtR(pr[0]), pr[0][1]); stat('Worst race', fmtR(pr[pr.length - 1]), pr[pr.length - 1][1]); } }
-    // the side race: best and worst part (owner, Nov 1); the two parts' full standings are listed separately below
-    const AIT = dash.baseData('allin_trades') || [];
-    const sideMoved = (e) => AIT.some((t) => t.model === id && t.experiment === e);
-    { const g = (e) => (ai[e] != null && sideMoved(e) ? Math.max(0, ai[e]) - 100000 : null), f = (x) => ptSgn0(x) + 'C$' + d3.format(',.0f')(Math.abs(x));
-      const sd = [['All in: trading', g('AllInTrading')], ['All in: sports', g('AllInSports')]].filter((x) => x[1] !== null).sort((a, b) => b[1] - a[1]);
-      if (sd.length === 2) { stat('Best side race', sd[0][0] + ' ' + f(sd[0][1]), sd[0][1]); stat('Worst side race', sd[1][0] + ' ' + f(sd[1][1]), sd[1][1]); }
-      else if (sd.length === 1) { stat('Side race', sd[0][0] + ' ' + f(sd[0][1]), sd[0][1]); stat('Not started', sd[0][0] === 'All in: trading' ? 'All in: sports' : 'All in: trading'); }
-      else stat('Side race', 'Not started yet'); }
+      if (pr.length) { stat('Best race', fmtR(pr[0]), pr[0][1], pr[0][0]); stat('Worst race', fmtR(pr[pr.length - 1]), pr[pr.length - 1][1], pr[pr.length - 1][0]); } }
+    { const g = (e) => (ai[e] != null ? Math.max(0, ai[e]) - 100000 : null), f = (x) => ptSgn0(x) + 'C$' + d3.format(',.0f')(Math.abs(x)); const tr = g('AllInTrading'), sp = g('AllInSports');
+      if (tr !== null) stat('All in: trading', f(tr), tr, 'AllInTrading'); if (sp !== null) stat('All in: sports', f(sp), sp, 'AllInSports'); }
     { // each race is its own experiment: no total across races here (owner's rule); drops are shown per race in Race standings
       let w = 0, l = 0;
       if (id === 'claude') dash.baseData('bets').forEach((b) => { if (b.status === 'Won') w++; else if (b.status === 'Lost') l++; });
@@ -7296,33 +7312,11 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     }
     stat('Last check-in', ck.at ? new Date(ck.at).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) + ' ET' : '—');
     hero.appendChild(stats);
-    { // all its standings at a glance (owner, Nov 1): the ten races, then the All in side race on its own, never mixed into one total
-      const all = dash.baseData('exp_standings'); const ES = (Array.isArray(all) ? all[0] : all) || {};
-      const TAB = { Stocks: 'stocks', Crypto: 'crypto', China: 'china', Metals: 'metals', Energy: 'energy', Options: 'options', Currencies: 'currencies', Safe: 'safe', Sports: 'sports', Predictions: 'predictions' };
-      const ord = (n) => n + (n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th');
-      const rankOf = (rows) => { const me = rows.find((r) => r.id === id); if (!me) return null; return { r: 1 + rows.filter((r) => r.profit - me.profit >= 0.5).length, n: rows.length, p: me.profit, tie: rows.some((r) => r.id !== id && Math.abs(r.profit - me.profit) < 0.5) }; };
-      const chip = (label, R, cur, go) => { const b = mk(go ? 'button' : 'div', 'ai-rk' + (R && R.r === 1 && !R.tie ? ' ai-rk-1' : ''));
-        if (go) { b.type = 'button'; b.title = 'Open this race'; b.addEventListener('click', go); }
-        b.appendChild(mk('span', 'ai-rk-l', label));
-        if (!R) b.appendChild(mk('b', 'ai-rk-r', '—'));
-        else { b.appendChild(mk('b', 'ai-rk-r', (R.r === 1 && !R.tie ? '👑 ' : '') + (R.tie ? 'tied ' : '') + ord(R.r))); const pv = mk('span', 'ai-rk-p', ptSgn0(R.p) + cur + d3.format(',.0f')(Math.abs(R.p))); tone(pv, R.p); b.appendChild(pv); }
-        return b; };
-      const box = mk('div', 'ai-rks');
-      box.appendChild(mk('h3', 'ai-rks-h', 'Standings in the ten races'));
-      const g1 = mk('div', 'ai-rk-grid');
-      PFS_ALL.forEach((race) => { const rows = ES[race]; g1.appendChild(chip((LABEL[race] || race).replace(' (US$)', ''), rows && rows.length ? rankOf(rows) : null, race === 'China' ? 'US$' : 'C$', TAB[race] ? () => goTab(TAB[race]) : null)); });
-      box.appendChild(g1);
-      box.appendChild(mk('h3', 'ai-rks-h', 'Side race (All in): its own standings, never counted in the ten races'));
-      const g2 = mk('div', 'ai-rk-grid ai-rk-side');
-      ['AllInTrading', 'AllInSports'].forEach((e) => {
-        const L = {}; (dash.baseData('allin_history') || []).forEach((h) => { if (h.experiment === e) L[h.model] = +h.value; });
-        const rows = Object.entries(L).filter(([m]) => AIT.some((t) => t.model === m && t.experiment === e)).map(([m, v]) => ({ id: m, profit: Math.max(0, v) - 100000 }));
-        const mine = rows.find((r) => r.id === id);
-        const c = chip(e === 'AllInTrading' ? 'All in: trading' : 'All in: sports', mine ? rankOf(rows) : null, 'C$', () => { if (window.ptGoAllin) window.ptGoAllin(e); });
-        if (!mine) c.appendChild(mk('span', 'ai-rk-p', 'no move yet'));
-        g2.appendChild(c); });
-      box.appendChild(g2);
-      hero.appendChild(box); }
+    // every portfolio of this AI, one tap each (owner, Nov 1)
+    { const row = mk('div', 'ai-pf-row'); row.appendChild(mk('b', '', 'See my portfolio:'));
+      Object.keys(PF_WORD).forEach((e) => { const b = mk('button', 'ai-pf-chip', /^AllIn/.test(e) ? PF_WORD[e] : (LABEL[e] || e).replace(' (US$)', '')); b.type = 'button'; b.title = pfBtn(e).textContent.replace(' →', '');
+        b.addEventListener('click', (ev) => { ev.preventDefault(); if (window.ptGoPortfolio) window.ptGoPortfolio(id, e); }); row.appendChild(b); });
+      hero.appendChild(row); }
     // in its own words
     const words = card('ai-words');
     const prof = dash.baseData('profiles').filter((x) => x.model === id);
