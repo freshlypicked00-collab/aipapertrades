@@ -167,6 +167,11 @@
   .lg-today { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: baseline; }
   .lg-review { display: flex; flex-direction: column; gap: 12px; }
   .lg-review .lg-note { font-size: 15px; max-width: 80ch; }
+  .lg-pv-row { display: inline-flex; flex-wrap: wrap; gap: 6px; vertical-align: middle; }
+  .lg-pv { font: inherit; font-size: 12px; line-height: 1.2; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--color-border-line); background: transparent; color: var(--color-fg-muted); cursor: pointer; }
+  .lg-pv[aria-expanded="true"] { color: var(--color-fg); border-color: var(--color-fg-muted); }
+  .lg-pv:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .lg-pv-why:not([hidden]) { display: block; } .lg-pv-why { margin-top: 4px; font-size: 13px; color: var(--color-fg-muted); }
   .lg-grade { display: inline-block; min-width: 2.2em; text-align: center; padding: 1px 8px; border: 1px solid var(--color-border-line); border-radius: 999px; font-weight: 600; margin-right: 8px; }
   .lg-review ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; max-width: 80ch; font-size: var(--cds-font-size-body); line-height: 1.55; }
   .st-page#ledger .lg-sim .lg-sim-pnl { font-size: 22px; }
@@ -2643,17 +2648,17 @@ tr.lg-hit .tx-id{opacity:1}
 
     <section class="st-card" aria-labelledby="h-trig-all">
       <h2 class="st-h2" id="h-trig-all">Distance to the next trade</h2>
-      <p class="st-note">Every stop and target order, across all ten races, closest first. They are held by the race runner, the same for all three AIs: checked at every run (about every 30 to 60 minutes) and filled at the live price then. Each race's page shows only its own.</p>
-      <div class="st-trig" data-draw="triggers" data-source="triggers" data-limit="6"></div>
+      <p class="st-note">Every stop and target order, across all ten races and All in, closest first; pick one race to see only its own. They are held by the race runner, the same for all three AIs: checked at every run (about every 30 to 60 minutes) and filled at the live price then. Each race's page shows only its own.</p>
+      <div class="st-trig" data-draw="triggers" data-source="triggers" data-limit="6" data-racepick="main"></div>
     </section>
 
     <section class="st-card" aria-labelledby="h-events-all">
       <h2 class="st-h2" id="h-events-all">Coming up</h2>
-      <p class="st-note">The next events that could move these simulations, as each AI sees them, 10 a page: switch the Model menu to see Gemini’s or ChatGPT’s own watchlist. Each race's page shows only its own. Times are Eastern (ET); tap or point at a time for UTC and Hong Kong time.</p>
+      <p class="st-note">The next events that could move these simulations, as each AI sees them, 10 a page: pick one race to see only its events, and switch the Model menu to see Gemini’s or ChatGPT’s own watchlist. Times are Eastern (ET); tap or point at a time for UTC and Hong Kong time.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="events" data-row-key="at,event">
           <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="affects">Affects</th><th data-field="why">Why it matters</th></tr></thead>
-          <tbody data-draw="events-body" data-limit="8"></tbody>
+          <tbody data-draw="events-body" data-limit="8" data-racepick="main"></tbody>
         </table>
       </div>
     </section>
@@ -2719,6 +2724,27 @@ tr.lg-hit .tx-id{opacity:1}
   <!-- Support -->
   <!-- the All in side race's own ledger, in the High risk, high reward group (owner; all three AIs voted for it, Oct 29) -->
   <section class="st-page" id="allinledger" data-page="allinledger" hidden>
+    <!-- the same three tools as the main Ledger, for All in only (owner, Oct 31: "do this for all ledgers including all in") -->
+    <section class="st-card st-side-card" aria-labelledby="h-l-allin-trig">
+      <h2 class="st-h2" id="h-l-allin-trig">Distance to the next trade <span class="st-side-tag">Side race</span></h2>
+      <p class="st-note">Every stop and target order in All in for the AI picked in the Model menu, closest first. Held by the race runner and checked at every run.</p>
+      <div class="st-trig" data-draw="triggers" data-source="triggers" data-racepick="allin"></div>
+    </section>
+    <section class="st-card st-side-card" aria-labelledby="h-l-allin-events">
+      <h2 class="st-h2" id="h-l-allin-events">Coming up <span class="st-side-tag">Side race</span></h2>
+      <p class="st-note">The next events that could move All in, as the AI picked in the Model menu sees them. Times are Eastern (ET); tap or point at a time for UTC and Hong Kong time.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="events" data-row-key="at,event">
+          <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="affects">Affects</th><th data-field="why">Why it matters</th></tr></thead>
+          <tbody data-draw="events-body" data-limit="8" data-racepick="allin"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card st-side-card" aria-labelledby="h-l-allin-rc">
+      <h2 class="st-h2" id="h-l-allin-rc">Report card: how I think I'm doing in All in <span class="st-side-tag">Side race</span></h2>
+      <p class="st-note">The AI picked in the Model menu grades itself on each part of All in every day, and the other two AIs grade that report card too (their view, shown as a competitor's opinion; it never changes a score).</p>
+      <div class="lg-review" data-draw="lg-review" data-source="review history" data-only="allin"></div>
+    </section>
     <section class="st-card st-side-card" id="allin-ledger" aria-labelledby="h-l-allin">
       <h2 class="st-h2" id="h-l-allin">All in side race ledger <span class="st-side-tag">Side race</span></h2>
       <p class="st-note">The side race's own record: every move and result of all three AIs in All in: trading and All in: sports, newest first. It is kept apart from the ten races: never counted in them or in anything above, each part has its own winner, and the two parts are never added together. Each AI started with C$100,000 in each part, with no caps. Times are Eastern (ET), with UTC and Hong Kong in brackets.</p>
@@ -3493,7 +3519,9 @@ tr.lg-hit .tx-id{opacity:1}
       const h = holdings.find((x) => x.portfolio === r.portfolio && x.holding === r.asset);
       // a stop can watch another price than the holding's own (the US-dollar short watches USD/CAD; gold and silver stops the futures the runner uses)
       const tk = (sym) => { const q = (dash.baseData('ticker') || []).find((x) => x.sym === sym); return q ? Number(q.price) : null; };
-      const raw = r.watch ? (tk(r.watch) ?? (r.watch === 'CAD=X' ? rates().CAD : null)) : h ? (h.price_local ?? h.price_usd) : null;
+      // All in has no holdings table here: its stops are priced from the All in price feed (allin_px, the runner's own last price)
+      const aiPx = () => { if (!/^AllIn/.test(r.portfolio) || !r.sym) return null; const q = (dash.baseData('allin_px') || []).find((x) => x.model === (dash.model || 'claude') && x.exp === r.portfolio && x.sym === r.sym) || (dash.baseData('allin_px') || []).find((x) => x.sym === r.sym); return q ? Number(q.last) : null; };
+      const raw = r.watch ? (tk(r.watch) ?? (r.watch === 'CAD=X' ? rates().CAD : null)) : h ? (h.price_local ?? h.price_usd) : aiPx();
       const price = raw !== null && raw !== undefined ? Number(raw) : null;
       const level = Number(r.level);
       const dist = price ? (level - price) / price : null;
@@ -3680,9 +3708,11 @@ tr.lg-hit .tx-id{opacity:1}
     const p = el.dataset.portfolio;
     const limit = Number(el.dataset.limit) || 8;
     const now = Date.now() - 30 * 60 * 1000;
+    const pk = racePick(el);   // race picker on the Ledger and All in ledger (owner, Oct 31): '' = every race, or one race
     d.data
       .filter((r) => new Date(r.at).getTime() >= now)
       .filter((r) => !p || r.affects.split(', ').includes(p))
+      .filter(pk)
       .sort((a, b) => new Date(a.at) - new Date(b.at))
       .forEach((r) => {
         const tr = document.createElement('tr');
@@ -3699,6 +3729,7 @@ tr.lg-hit .tx-id{opacity:1}
         el.appendChild(tr);
       });
     pagerFor(el, 10, 'events');
+    racePickEmpty(el, 'Nothing scheduled for this race in the coming days.');
   });
   dash.draw('last-trade', (el) => {
     const r = rowFor('lasts', stFmt.whereOf(el));
@@ -3716,11 +3747,12 @@ tr.lg-hit .tx-id{opacity:1}
     const d = dash.data('triggers');
     el.replaceChildren();
     if (d.status !== 'ok') return;
-    const p = el.dataset.portfolio, limit = Number(el.dataset.limit) || 99;
+    const pk = racePick(el);   // race picker (owner, Oct 31)
+    const p = el.dataset.portfolio, limit = el._race ? 99 : Number(el.dataset.limit) || 99;
     const fmtP = (v, c, pf) => (pf === 'Predictions' ? d3.format('.1f')(v * 100) + '¢' : v < 0.1 ? '$' + d3.format('.5~r')(v) : c === 'CNY' ? '¥' + d3.format(',.3f')(v) : v >= 1000 ? '$' + d3.format(',.0f')(v) : '$' + d3.format(',.2f')(v));
-    const rows = d.data.filter((r) => !p || r.portfolio === p).filter((r) => r.price !== null)
+    const rows = d.data.filter((r) => !p || r.portfolio === p).filter(pk).filter((r) => r.price !== null)
       .sort((a, b) => (a.hit === b.hit ? a.away - b.away : a.hit ? -1 : 1)).slice(0, limit);
-    if (!rows.length) { const n = document.createElement('p'); n.className = 'st-note pt-norules'; n.textContent = 'No price rules right now.'; el.appendChild(n); return; }
+    if (!rows.length) { const n = document.createElement('p'); n.className = 'st-note pt-norules'; n.textContent = el.dataset.racepick ? (el._race ? 'No stop or target orders in this race right now.' : 'No stop or target orders right now.') : 'No price rules right now.'; el.appendChild(n); return; }
     rows.forEach((r) => {
       const row = document.createElement('div'); row.className = 'st-trow';
       const near = !r.hit && r.away < 0.05;
@@ -3871,8 +3903,39 @@ tr.lg-hit .tx-id{opacity:1}
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hook); else hook();
     dash.onData(hook);
   })();
+  // Race picker (owner, Oct 31: "make it so you can select the race you want", on Coming up and Distance to the next trade, every
+  // ledger incl. All in, every model). An element with data-racepick="main" (all ten races + both All in parts) or "allin" (the two
+  // All in parts only) gets a menu above it; racePick(el) returns the row filter. Rows carry the race in .portfolio or .affects.
+  const RP_ALLIN = { AllInTrading: 'All in: trading', AllInSports: 'All in: sports' };
+  const racePick = (el) => {
+    const set = el.dataset.racepick;
+    if (!set) return () => true;
+    const races = set === 'allin' ? Object.keys(RP_ALLIN) : PFS.concat(Object.keys(RP_ALLIN));
+    if (el._race && !races.includes(el._race)) el._race = '';   // e.g. another model without that race
+    const host = el.closest('.st-wrap') || el;
+    let bar = host.previousElementSibling && host.previousElementSibling.classList.contains('rp-bar') ? host.previousElementSibling : null;
+    if (!bar) { bar = mk('div', 'lg-pick rp-bar'); host.before(bar); }
+    bar.replaceChildren();
+    const lab = mk('label', '', 'Race: '); const sel = mk('select'); sel.setAttribute('aria-label', 'Show one race');
+    const o0 = mk('option', '', set === 'allin' ? 'Both parts of All in' : 'All races'); o0.value = ''; sel.appendChild(o0);
+    races.forEach((r) => { const o = mk('option', '', RP_ALLIN[r] || LABEL[r] || r); o.value = r; sel.appendChild(o); });
+    sel.value = el._race || '';
+    sel.addEventListener('change', () => { el._race = sel.value; el._pg = 0; if (dash.redraw) dash.redraw(); });
+    lab.appendChild(sel); bar.appendChild(lab);
+    el.dataset.pick = el._race || '';
+    const pick = el._race || '';
+    const of = (r) => (r.portfolio !== undefined ? [r.portfolio] : String(r.affects || '').split(', '));
+    return (r) => (pick ? of(r).includes(pick) : set === 'allin' ? of(r).some((x) => x in RP_ALLIN) : true);
+  };
+  const racePickEmpty = (el, msg) => {
+    if (!el.dataset.racepick) return;
+    const host = el.closest('.st-wrap') || el;
+    let n = host.nextElementSibling && host.nextElementSibling.classList.contains('rp-empty') ? host.nextElementSibling : null;
+    if (!n) { n = mk('p', 'st-note rp-empty'); host.after(n); }
+    n.textContent = msg; n.hidden = el.children.length > 0;
+  };
   const pagerFor = (el, n, noun) => {
-    n = n || 10; const rows = [...el.children].filter((r) => !r.classList.contains('bg-say')); const key = el.dataset.portfolio || '';
+    n = n || 10; const rows = [...el.children].filter((r) => !r.classList.contains('bg-say')); const key = (el.dataset.portfolio || '') + '|' + (el.dataset.pick || '');
     if (el._pgKey !== key) { el._pgKey = key; el._pg = 0; }
     const pages = Math.max(1, Math.ceil(rows.length / n)); if ((el._pg || 0) >= pages) el._pg = pages - 1;
     rows.forEach((tr, k) => { const hid = Math.floor(k / n) !== (el._pg || 0); tr.hidden = hid; let nx = tr.nextElementSibling; while (nx && nx.classList.contains('bg-say')) { nx.hidden = hid; nx = nx.nextElementSibling; } });   // a Beginner explanation row moves with its trade
@@ -5106,10 +5169,10 @@ tr.lg-hit .tx-id{opacity:1}
   const dayShort = (x) => new Date(x.day + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' });
 
   // report cards: every saved version, grouped by the ledger day it covers
-  const reviewVersions = () => {
+  const reviewVersions = (onlyAllin) => {
     const d = dash.data('review');
     if (d.status !== 'ok') return null;
-    const groups = d3.groups(d.data, (r) => r.at).map(([at, rows]) => {
+    const groups = d3.groups(d.data.filter((r) => !onlyAllin || /^AllIn/.test(r.portfolio)), (r) => r.at).map(([at, rows]) => {
       const t = new Date(at);
       // written in the first 3 hours after midnight UTC = the report for the day that just closed
       const ref = new Date(+t - 6 * 3600e3);  // written within 6 hours after midnight UTC = report for the day that just closed
@@ -5121,8 +5184,17 @@ tr.lg-hit .tx-id{opacity:1}
   const histPts = (p) => { const h = dash.data('history'); return h.status === 'ok' ? h.data.filter((r) => r.portfolio === p).map((r) => ({ t: new Date(r.at), v: Number(r.value) })).sort((a, b) => a.t - b.t) : []; };
   const valueAt = (p, T) => { const s = histPts(p).filter((q) => +q.t <= +T); return s.length ? s[s.length - 1].v : null; };
   const dayName = (day) => new Date(day + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' });
-  const renderReport = (box, v, withChart) => {
-    const all = v.rows.find((r) => r.portfolio === 'All');
+  // report-card grades by the other two AIs, for one line of the report card shown (data.report_grades; key as in ops/peer_grades.py)
+  const rcGrades = (r) => {
+    const t = new Date(r.at); if (isNaN(t)) return [];
+    const key = (dash.model || 'claude') + '|' + t.toISOString().slice(0, 19) + 'Z|' + r.portfolio + '|report|Report';
+    const latest = {};
+    (dash.baseData('report_grades') || []).forEach((g) => { if (g.key === key && !g.void && (!latest[g.grader] || g.at > latest[g.grader].at)) latest[g.grader] = g; });
+    return Object.keys(latest).sort().map((k) => latest[k]);
+  };
+  const renderReport = (box, v, withChart, only) => {
+    if (only === 'allin') v = Object.assign({}, v, { rows: v.rows.filter((r) => /^AllIn/.test(r.portfolio)) });
+    const all = only === 'allin' ? null : v.rows.find((r) => r.portfolio === 'All');
     const ul = mk('ul');
     // the best and the worst race on this report card, marked with an icon (owner, Oct 30); compared in %, since China is in US$
     const pctOf = {}; v.rows.forEach((r) => { if (r.portfolio === 'All') return; const x = valueAt(r.portfolio, v.t); if (x !== null) pctOf[r.portfolio] = x / START - 1; });
@@ -5130,7 +5202,20 @@ tr.lg-hit .tx-id{opacity:1}
     v.rows.filter((r) => r.portfolio !== 'All').sort((a, b) => PFS.indexOf(a.portfolio) - PFS.indexOf(b.portfolio)).forEach((r) => {
       const li = mk('li');
       if (r.grade) li.appendChild(mk('span', 'lg-grade', r.grade));
-      li.append(mk('b', '', (LABEL[r.portfolio] || r.portfolio) + ': '), document.createTextNode(r.text));
+      li.append(mk('b', '', (RP_ALLIN[r.portfolio] || LABEL[r.portfolio] || r.portfolio) + ': '), document.createTextNode(r.text));
+      // the other two AIs' grades of this report card line (owner, Oct 31; option B + D, all three AIs agreed; shown anonymously as
+      // Competitor A and B, as Gemini and ChatGPT asked); tap a chip for the one-sentence reason
+      const pv = rcGrades(r);
+      if (pv.length) {
+        const row = mk('span', 'lg-pv-row'); const why = mk('span', 'lg-pv-why'); why.hidden = true;
+        pv.forEach((g, i) => {
+          const b = mk('button', 'lg-pv', 'Competitor ' + 'AB'[i] + '’s view: ' + g.grade); b.type = 'button'; b.setAttribute('aria-expanded', 'false');
+          b.title = 'Another AI graded this report card (a competitor’s opinion; it never changes any score). Tap for its reason.';
+          b.addEventListener('click', () => { const open = b.getAttribute('aria-expanded') !== 'true'; row.querySelectorAll('.lg-pv').forEach((x) => x.setAttribute('aria-expanded', 'false')); b.setAttribute('aria-expanded', String(open)); why.hidden = !open; why.textContent = open ? 'Competitor ' + 'AB'[i] + ': “' + (g.text || 'no reason given') + '”' : ''; });
+          row.appendChild(b);
+        });
+        li.append(' ', row, why);
+      }
       const val = valueAt(r.portfolio, v.t);
       if (val !== null) {
         const tot = mk('span', 'lg-rc-tot'); tot.append(document.createTextNode(' Total since start at that time: '));
@@ -5139,7 +5224,7 @@ tr.lg-hit .tx-id{opacity:1}
         if (r.portfolio === worst && pctOf[worst] < -0.00005) { const ic = mk('span', 'lg-rc-badge is-down', '📉 Biggest loss'); ic.title = 'The worst result of all its races on this report card'; tot.append(' ', ic); }
         li.appendChild(tot);
       }
-      { const say = (LABEL[r.portfolio] || r.portfolio) + '. ' + (r.grade && r.grade !== '—' ? 'Grade ' + r.grade + '. ' : '') + r.text;
+      { const say = (LABEL[r.portfolio] || r.portfolio) + '. ' + (r.grade && r.grade !== '—' ? 'Grade ' + r.grade + '. ' : '') + r.text + (pv.length ? ' The competitors graded this report card ' + pv.map((g) => g.grade).join(' and ') + '.' : '');
         li.appendChild(document.createTextNode(' ')); li.appendChild(playBtn(() => say, li)); li.dataset.say = '1'; li._say = say; }
       ul.appendChild(li);
     });
@@ -5151,7 +5236,7 @@ tr.lg-hit .tx-id{opacity:1}
       p.appendChild(playBtn(() => 'General notes. ' + all.text, p)); p.dataset.say = '1';
       box.appendChild(p);
     }
-    box.appendChild(mk('p', 'st-note', 'Written by the AI on ' + stFmt.when(v.t) + '.'));
+    box.appendChild(mk('p', 'st-note', 'Written by the AI on ' + stFmt.when(v.t) + '. The other two AIs grade each day’s final report card a few hours after the day closes (shown as Competitor A and B; their opinion, never part of the score).'));
     if (withChart) {
       // 24-hour chart before this report, one simulation at a time
       const wrap = mk('div', 'lg-rc-chart');
@@ -5177,11 +5262,12 @@ tr.lg-hit .tx-id{opacity:1}
   };
   dash.draw('lg-review', (el) => {
     el.replaceChildren();
-    const vs = reviewVersions();
-    if (!vs || !vs.length) { el.appendChild(mk('p', 'st-note', 'The first report card is written at the end of the first full day.')); return; }
+    const only = el.dataset.only || '';
+    const vs = reviewVersions(only === 'allin');
+    if (!vs || !vs.length) { el.appendChild(mk('p', 'st-note', only === 'allin' ? 'This AI has not graded itself on All in yet.' : 'The first report card is written at the end of the first full day.')); return; }
     const bar = mk('div', 'lg-pick');
     const lab = mk('label', '', 'Show report card: ');
-    const sel = mk('select'); sel.id = 'lg-review-pick';
+    const sel = mk('select'); sel.id = only ? 'lg-review-pick-' + only : 'lg-review-pick';
     vs.forEach((v, i) => {
       const o = mk('option', '', (v.n < 1 ? 'Tuning and practice runs · Oct 27–28 (don’t count)' : dayLabel(v.n) + ' · ' + dayName(v.day)) + ' (written ' + stFmt.when(v.t) + ')' + (i === 0 ? ', latest' : ''));
       o.value = v.at; sel.appendChild(o);
@@ -5191,7 +5277,7 @@ tr.lg-hit .tx-id{opacity:1}
     bar.appendChild(mk('span', 'st-note', vs.length + (vs.length === 1 ? ' report card saved' : ' report cards saved') + '. Every version is kept; new ones are added at the end of each day.'));
     el.appendChild(bar);
     const box = mk('div', 'lg-review-box'); el.appendChild(box);
-    const show = () => { box.replaceChildren(); renderReport(box, vs.find((v) => v.at === sel.value) || vs[0], true); };
+    const show = () => { box.replaceChildren(); renderReport(box, vs.find((v) => v.at === sel.value) || vs[0], !only, only); };
     sel.addEventListener('change', () => { el._pick = sel.value; show(); });
     show();
   });

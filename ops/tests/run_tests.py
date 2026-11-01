@@ -239,5 +239,19 @@ def test_calibration_fields_are_cleaned():
     assert R.clean_lvl({'symbol': 'SPY', 'below': 735}) == {'symbol': 'SPY', 'below': 735.0}
     assert R.clean_lvl({'symbol': 'SPY', 'below': 1, 'above': 2}) is None and R.clean_lvl({'symbol': '', 'below': 1}) is None and R.clean_lvl('SPY<735') is None
 
+def test_report_cards_are_graded_once_per_closed_day():
+    """Oct 31 (all three AIs agreed): only the latest report card of each race and CLOSED race day is graded; never the "All" notes."""
+    import peer_grades as PG
+    from datetime import datetime as _d, timezone as _tz
+    st = {'reviews': [
+        {'at': '2026-10-30T00:20:00Z', 'model': 'gemini', 'experiment': 'Stocks', 'grade': 'B', 'text': 'first'},
+        {'at': '2026-10-30T01:10:00Z', 'model': 'gemini', 'experiment': 'Stocks', 'grade': 'A', 'text': 'final'},
+        {'at': '2026-10-30T01:10:00Z', 'model': 'gemini', 'experiment': 'All', 'grade': None, 'text': 'notes'},
+        {'at': '2026-10-31T15:00:00Z', 'model': 'gemini', 'experiment': 'Stocks', 'grade': 'C', 'text': 'still open'}],
+        'history': [{'at': '2026-10-29T00:00:00Z', 'model': 'gemini', 'experiment': 'Stocks', 'value': 100000},
+                    {'at': '2026-10-30T00:00:00Z', 'model': 'gemini', 'experiment': 'Stocks', 'value': 101000}]}
+    rs = PG._reports('gemini', st, _d(2026, 10, 31, 20, 0, tzinfo=_tz.utc))
+    assert len(rs) == 1 and rs[0]['day'] == '2026-10-29' and 'final' in rs[0]['reason'] and '+1,000 that day' in rs[0]['result'], rs
+
 if __name__ == '__main__':
     main()

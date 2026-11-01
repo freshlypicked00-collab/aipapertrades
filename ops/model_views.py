@@ -176,7 +176,7 @@ def build(rivals, claude):
         d['take'] = [{'at': x['at'], 'text': x['text']} for x in rivals.get('takes', []) if x['model'] == mid]
         # its stops and targets (option B, the same for all three AIs) as price rules, so "Distance to the next trade" works for it too
         for st in (rivals.get('stops') or {}).get(mid, []):
-            if st['experiment'] not in exps:
+            if st['experiment'] not in exps and not st['experiment'].startswith('AllIn'):   # All in stops too (owner, Oct 31: the All in ledger's own "Distance to the next trade")
                 continue
             nm = _clean(st.get('name') or st['symbol'], st['experiment'])
             act = 'Sell' if st['direction'] == ('below' if st['kind'] == 'stop' else 'above') else 'Cover'
@@ -184,7 +184,8 @@ def build(rivals, claude):
             move = 'falls' if st['direction'] == 'below' else 'rises'
             d['rules'].append({'portfolio': st['experiment'], 'rule': f"{act} {share} {nm} if it {move} to {st['level']:g} ({st['kind']}, checked at every run by the race runner).",
                                'asset': nm, 'level': st['level'], 'direction': st['direction'], 'label': st['kind'].capitalize(), 'stop_id': st['id'],
-                               **({'watch': st['watch']} if st.get('watch') else {}), **({'why': st['reason']} if st.get('reason') else {})})
+                               **({'watch': st['watch']} if st.get('watch') else {}), **({'why': st['reason']} if st.get('reason') else {}),
+                               **({'sym': st['symbol']} if st['experiment'].startswith('AllIn') else {})})
         d['sources'] = [{'title': s['title'], 'url': s['url'], 'portfolios': exps} for s in lr.get('sources', [])]
 
         # daily ledger at 00:00 UTC, from the hourly check-ins

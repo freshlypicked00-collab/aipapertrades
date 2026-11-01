@@ -1661,6 +1661,9 @@ def _peer():
 
 
 data['peer_grades'], data['peer_outcomes'] = _peer()
+# report-card grades (owner, Oct 31; all three AIs agreed) travel separately, so trade-grade averages, bias checks and stories never mix them in
+data['report_grades'] = [g for g in data['peer_grades'] if g.get('action') == 'Report']
+data['peer_grades'] = [g for g in data['peer_grades'] if g.get('action') != 'Report']
 # A US dollar position is always worth US$1 in US dollars; what moves its C$ value is USD/CAD, so its price source is the
 # exchange rate and where it came from (Oct 29 review: it said only "fixed")
 try:

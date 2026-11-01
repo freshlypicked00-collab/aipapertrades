@@ -34,6 +34,16 @@ RUBRIC = ('PEER GRADES (agreed by all three AIs): grade every one of the other A
           'the risk; generic filler like "good trade" is not allowed. Be fair: the same standard for every competitor. Your grade is shown publicly '
           'as your opinion, labelled as a competitor\'s view; it never changes any score.')
 WORDS = re.compile(r'\S+')
+# REPORT-CARD GRADES (owner, Oct 31: "make the other models make a grade here"; option B, all three AIs agreed, with ChatGPT's and
+# Gemini's rubric additions; ops/review/reportcard-grades-oct31.json). Each AI's final report card of each closed race day is graded,
+# race by race, by the other two, in the same anonymous queue as trades and holds. Unlike decisions, the grader SEES the day's result:
+# a review is judged against what happened. Stored with action "Report"; build_site.py moves them to data["report_grades"].
+RUBRIC_RC = ('REPORT CARDS (agreed by all three AIs): some items below are a competitor\'s own end-of-day REPORT CARD for one race, not a trade. '
+             'Grade the report card itself, using the day\'s result shown with it: (1) honesty: does its self-grade match the result and the quality '
+             'of its decisions that day? (2) accuracy: are its facts and numbers right? (3) the plan: specific, sensible and within the race\'s rules. '
+             'Judge candor and reasoning, not the outcome alone; penalise hindsight excuses and unjustified overconfidence in the plan. A material factual '
+             'error caps the grade at C; a materially misleading claim can be F. A excellent, B good, C acceptable, D poor, F misleading; "no view" only '
+             'when the information is insufficient. One sentence, 20 words or fewer, naming the specific strength or flaw.')
 
 
 def _when(s):
@@ -189,14 +199,81 @@ def last_graded(grader, state):
     return (state.get('peer_grades_meta') or {}).get(grader)
 
 
+def _rc_day(at):
+    """The race day a report card covers: written within 6 hours after 00:00 UTC = the day that just closed (the site's own rule)."""
+    return (_when(at) - timedelta(hours=6)).date()
+
+
+def _values(model, state):
+    """{race: [(time, value)]}, oldest first: Claude's own history, or the runner's for Gemini and ChatGPT (All in for everyone)."""
+    out = {}
+    rows = [(x.get('portfolio'), x['at'], x['value']) for x in _j('history', [])] if model == 'claude' else []
+    rows += [(x.get('experiment'), x['at'], x['value']) for x in state.get('history', []) if x.get('model') == model]
+    for e, at, v in rows:
+        try:
+            out.setdefault(e, []).append((_when(at), float(v)))
+        except Exception:
+            pass
+    for e in out:
+        out[e].sort()
+    return out
+
+
+def _result(series, day):
+    """What happened in a race on one race day (00:00 to 00:00 UTC), in plain words, from its value history."""
+    t0 = datetime(day.year, day.month, day.day, tzinfo=timezone.utc)
+    t1 = t0 + timedelta(days=1)
+    v0 = [v for t, v in series if t <= t0] or [100000.0]
+    v1 = [v for t, v in series if t <= t1]
+    if not v1:
+        return 'no value recorded for that day'
+    a, b = v0[-1], v1[-1]
+    return f'value {a:,.0f} at the start of the day and {b:,.0f} at the end ({b - a:+,.0f} that day; {b - 100000:+,.0f} since the start of 100,000)'
+
+
+def _reports(model, state, now):
+    """Every final report card line (latest version per race and closed race day) of one AI, as gradable items."""
+    rows = [{'at': x['at'], 'experiment': x.get('portfolio'), 'grade': x.get('grade'), 'text': x.get('text', '')} for x in _j('review', [])] if model == 'claude' else \
+        [{'at': x['at'], 'experiment': x.get('experiment'), 'grade': x.get('grade'), 'text': x.get('text', '')} for x in state.get('reviews', []) if x.get('model') == model]
+    last = {}
+    today = (now - timedelta(hours=6)).date()
+    for x in rows:
+        try:
+            at = _when(x['at'])
+        except Exception:
+            continue
+        if not x['experiment'] or x['experiment'] == 'All' or at < RESTART or not str(x['text']).strip():
+            continue
+        d = _rc_day(at)
+        if d >= today:   # the day is still open (a later version may follow)
+            continue
+        k = (x['experiment'], d)
+        if k not in last or at > _when(last[k]['at']):
+            last[k] = x
+    vals = _values(model, state)
+    out = []
+    for (e, d), x in last.items():
+        out.append({'key': key_of(model, x['at'], e, 'report', 'Report'), 'model': model, 'at': _when(x['at']).strftime('%Y-%m-%dT%H:%M:%SZ'),
+                    'experiment': e, 'action': 'Report', 'what': f'report card for {d.isoformat()}', 'amount': 0.0, 'price': None,
+                    'reason': f"Self-grade {x.get('grade') or '(none)'}: {str(x['text'])[:600]}", 'wrong_if': '', 'day': d.isoformat(),
+                    'result': _result(vals.get(e, []), d) + (' (amounts in US$)' if e == 'China' else ' (amounts in C$)')})
+    return out
+
+
 def tasks(grader, state, now, fx_cad=1.38):
     """(text for the grader, {gid: decision}) or ('', {}) when nothing is new. G2 selection, G3 no hindsight, G4 anonymous."""
     others = [m for m in ('claude', 'gemini', 'chatgpt') if m != grader]
     done = graded_keys(grader, state)
-    pool = [d for m in others for d in decisions(m, state, fx_cad) if d['key'] not in done and RESTART <= _when(d['at']) <= now]
+    pool = [d for m in others for d in decisions(m, state, fx_cad) + _reports(m, state, now) if d['key'] not in done and RESTART <= _when(d['at']) <= now]
     if not pool:
         return '', {}
-    pick = sorted(pool, key=lambda d: _when(d['at']), reverse=True)[:MAX]   # every decision gets graded: the newest first, the rest over the next check-ins
+    # every decision gets graded: the newest first, the rest over the next check-ins; report cards take at most 20 of the places, so a
+    # backlog of them never delays the grading of new trades
+    newest = lambda xs: sorted(xs, key=lambda d: _when(d['at']), reverse=True)
+    rcs = newest([d for d in pool if d['action'] == 'Report'])[:20]
+    pick = (newest([d for d in pool if d['action'] != 'Report'])[:MAX - len(rcs)] + rcs)
+    if len(pick) < MAX:   # room left: more report cards
+        pick += newest([d for d in pool if d['action'] == 'Report'])[len(rcs):len(rcs) + MAX - len(pick)]
     pick.sort(key=lambda d: _when(d['at']))
     letters = ['Competitor A', 'Competitor B']
     rnd = random.Random(f'{grader}|{now.isoformat()}')
@@ -208,6 +285,10 @@ def tasks(grader, state, now, fx_cad=1.38):
         mapping[gid] = d
         px = d['price']
         pxs = (f'{int(px):+d} (American odds)' if d['action'] == 'Bet' and px is not None else f'{float(px):,.6g}' if px is not None else 'n/a')
+        if d['action'] == 'Report':
+            lines.append(f"  - {gid}: {alias[d['model']]}'s REPORT CARD for {d['experiment']}, race day {d['day']} (written {d['at'][:16].replace('T', ' ')} UTC; "
+                         f"judge it with the REPORT-CARD rubric). It wrote: \"{d['reason']}\" What actually happened in that race that day: {d['result']}.")
+            continue
         if d['action'] == 'Hold':
             lines.append(f"  - {gid}: {alias[d['model']]}, {d['at'][:16].replace('T', ' ')} UTC, {d['experiment']}: HOLD (it chose not to trade in this race "
                          f"that day; judge whether waiting was the right call given what was known). Its view then: \"{d['reason']}\"")
@@ -215,7 +296,7 @@ def tasks(grader, state, now, fx_cad=1.38):
         lines.append(f"  - {gid}: {alias[d['model']]}, {d['at'][:16].replace('T', ' ')} UTC, {d['experiment']}: {d['action']} {d['what']}, "
                      f"about C${d['amount']:,.0f} at {pxs}. Its reason then: \"{d['reason'] or '(none given)'}\""
                      + (f" What it said would prove it wrong: \"{d['wrong_if']}\"" if d['wrong_if'] else ''))
-    text = (RUBRIC + f' Decisions to grade now ({len(pick)}' + (f' newest of {len(pool)} not yet graded by you; the rest come at your next check-ins' if len(pool) > MAX else ' not yet graded by you') + '; the competitors are anonymous and reshuffled each time; grade each only on what was known when it was made, even if it was made a while ago):\n'
+    text = (RUBRIC + (' ' + RUBRIC_RC if any(d['action'] == 'Report' for d in pick) else '') + f' Decisions to grade now ({len(pick)}' + (f' newest of {len(pool)} not yet graded by you; the rest come at your next check-ins' if len(pool) > MAX else ' not yet graded by you') + '; the competitors are anonymous and reshuffled each time; grade each trade, bet and hold only on what was known when it was made, even if it was made a while ago, and each report card against the result of its day):\n'
             + '\n'.join(lines) + '\nAdd a top-level field "grades": {"g1": {"grade": "A" | "B" | "C" | "D" | "F" | "no view", "text": "one sentence, 25 words or fewer"}, ...} covering every id above.')
     return text, mapping
 
