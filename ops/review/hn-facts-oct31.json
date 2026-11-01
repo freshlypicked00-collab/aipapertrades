@@ -1,0 +1,70 @@
+{
+ "at": "2026-11-01T01:42:59Z",
+ "question": "[WEB SEARCH ON]\nHacker News prep from the owner of PaperTrades.AI (Sat Oct 31, 2026, 9:45 p.m. ET). NOT a trading turn. All three of us agreed on a Show HN for Tue Nov 3, about 9 a.m. ET. The owner created the account papertrades_dev. Attached: a FACTS sheet for his first comment (ops/hn/first-comment-facts.md). He will rewrite it in his own words (HN expects human-written comments), so this round is about ACCURACY and WHAT HN WILL ATTACK, not polish. Only a version all three of us are satisfied with goes to him.\n\nPLEASE ANSWER, under 300 words:\n1. Any fact that is wrong, overstated or risky to claim (quote it, give the fix). Check against what you know of the site and your own runs.\n2. The 3 hardest questions HN commenters will ask, each with the honest one-line answer.\n3. Anything to cut (too long, too promotional) or add (max 2).\n4. SATISFIED or NOT YET.",
+ "files": [
+  "ops/hn/first-comment-facts.md",
+  "ops/review/ROOTCAUSE_DECISIONS.md"
+ ],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "**1. Wrong, Overstated, or Risky Facts**\n*   **Wrong:** *\"Fixes, all agreed by the three AIs: ... no new futures positions.\"* \n    *   **Fix:** Change to \"Fixes, passed by AI majority.\" Claude actually voted to *keep* futures (AGREE: keep, restate); Gemini and ChatGPT outvoted it 2-1.\n*   **Risky:** *\"every fill is re-checked 20 minutes later and corrected either way\"*\n    *   **Fix:** HN will roast you for retroactively changing executed trades, as that breaks standard trading mechanics. Clarify that the system now *rejects* stale quotes upfront, and the retroactive check is purely an audit safety net, not the primary mechanism. \n\n**2. The 3 Hardest HN Questions**\n*   **Q: If Claude built the site and already maliciously edited rival text, how do we know it isn't rigging the trades right now?**\n    *   *A:* The runner code is public on GitHub, the ledger is append-only with nightly SHA-256 hashes, and code now hard-blocks Claude from touching rival data.\n*   **Q: How can you claim \"real prices\" when you rely on notoriously delayed, free Yahoo Finance quotes?**\n    *   *A:* We admit the feed plumbing is flawed; we've now added strict `<3 min` age guards and provenance logs, but this remains an entertainment experiment, not HFT.\n*   **Q: Why didn't you just use a paper-trading API like Alpaca instead of building a broken custom runner?**\n    *   *A:* We needed total control over the rules, exact AI prompt transparency, and unified cross-asset trading (stocks, crypto, betting) that standard broker APIs don't support.\n\n**3. Cut or Add**\n*   **Cut:** The entire sentence about Season 2. It sounds like a product roadmap/pitch. Keep HN focused on the current, messy experiment.\n*   **Add:** A direct link to the GitHub repository so commenters can immediately verify the code, audits, and SHA-256 ledger.\n\n**4. SATISFIED or NOT YET**\nNOT YET.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 2351,
+     "candidatesTokenCount": 482,
+     "totalTokenCount": 5917,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 2351
+      }
+     ],
+     "thoughtsTokenCount": 3084,
+     "serviceTier": "standard"
+    }
+   }
+  },
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "**1. Wrong/overstated/risky**\n\n- “**Gemini 3.1 Pro**” → **Gemini 3.1 Pro Preview**. Public site says Preview. ([papertrades.ai](https://papertrades.ai/?utm_source=hn))  \n- “**C$100,000 … in ten separate races**” → **C$100,000 per race, except China shown/scored in US$**. Site says C$, or US$ for China. ([papertrades.ai](https://papertrades.ai/?utm_source=hn))  \n- “**China A-shares**” → safer: **China stocks** unless you want HN arguing access/venue mechanics.  \n- “**All in side race with no limits**” → site shows **All in: trading** and **All in: sports** side races; “no limits” needs exact rule citation or soften to “separate high-risk All in side races.” ([papertrades.ai](https://papertrades.ai/?utm_source=hn))  \n- “**No human picks or edits trades**” → say **no human picks; corrections/restatements are logged publicly**. Otherwise it conflicts with the 11 restatements.  \n- “**at the same live quote**” → say **same runner/feed/pricing rules**; “same quote” is brittle.  \n- “**one price source for everything**” → better: **one canonical pricing path per instrument**.  \n- “**Static site on GitHub Pages; every trade has a transaction ID**” → I could not verify from public crawl; cut unless visibly true.  \n- “**Season 1 has no trading costs**” → overstated: public site says stocks/ETFs/crypto have no spread/slippage/fees, but **options do pay bid-ask spread**. ([papertrades.ai](https://papertrades.ai/?utm_source=hn))  \n- Season 2 promises: make them **planned**, not guaranteed.\n\n**2. Hardest HN questions**\n\n- “Why trust Claude if it runs the site and competes?” — You shouldn’t fully; inspect raw prompts/replies, ledger, fingerprints, corrections, and same-runner fills since Oct 29.  \n- “Are the fills executable?” — No; it’s public-feed paper trading, now with stale-quote guards and restatements.  \n- “Is this a model benchmark?” — Not rigorous; it’s an inspectable entertainment experiment under shared rules.\n\n**3. Cut/add**\n\nCut GitHub Pages/transaction-ID line and most Season 2 detail.  \nAdd: **“not affiliated with Anthropic/Google/OpenAI”** and **“public-feed fills are not broker-executable.”**\n\n**4. NOT YET.**",
+   "meta": {
+    "annotations": 1,
+    "urls": [
+     "https://papertrades.ai/?utm_source=hn"
+    ],
+    "usage": {
+     "prompt_tokens": 30860,
+     "completion_tokens": 3311,
+     "total_tokens": 34171,
+     "cost": 0.276926,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 3712,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.276926,
+      "upstream_inference_prompt_cost": 0.137596,
+      "upstream_inference_completions_cost": 0.09933
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 2732,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     },
+     "server_tool_use_details": {
+      "web_search_requests": 4
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  }
+ }
+}
