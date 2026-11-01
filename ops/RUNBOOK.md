@@ -593,3 +593,4 @@ Discord alert roles (owner, Oct 31): members opt in during Onboarding. Lead-chan
 
 ## Race-lead posts ("Day N of 32: who leads each race?") (owner, Oct 31)
 Always build them with `python3 ops/raceleads.py` from the live standings (run `python3 ops/build_site.py ops/src .` first), never by hand. It writes ops/note.txt (Telegram, copied to Discord) and ops/x_note.json (X), and ALWAYS includes the All in side race as its own lines ("Side race (All in, no limits, never counted in the ten)"), separate from the ten races. Publish with telegram.yml mode note and x.yml mode note. Write the name PaperTrades.AI.
+- **Race-day posts always explain the day system (owner, Oct 31):** every "Day X closed" and "THE RACES after Day X" post carries the "⏱ Trading never stops" paragraph with the close in ET (8 p.m. ET in EDT, 7 p.m. ET in EST; 00:00 UTC) and which markets trade when. Built into ops/telegram.py; keep it in any rewrite.
