@@ -46,6 +46,7 @@ AIS = ('claude', 'gemini', 'chatgpt')
 # Each race is valued in its own currency (C$, or US$ for China), so every random portfolio is converted the same way the AI's is.
 FX_EXTRA = ['CAD=X', 'CNY=X']   # USD->CAD and USD->CNY
 QUOTED_PER_USD = {'JPY=X', 'CHF=X', 'MXN=X', 'CAD=X', 'CNY=X'}   # these quote foreign units per US$
+BENCH = {'Stocks': 'SPY', 'Crypto': 'BTC-USD', 'China': '510300.SS', 'Metals': 'GLD', 'Energy': 'XLE', 'Currencies': 'CAD=X', 'Safe': 'SPY'}   # beta: vs this, over the AI's invested hours
 
 
 def ts(s):
@@ -219,6 +220,17 @@ def trading(hist, trades, prices, now):
                 sims.append(tot - 1)
             p, band = pct_rank(sims, ai_total)
             ss = sorted(sims)
+            bsym = BENCH.get(race)
+            br = ur.get(bsym)
+            if br is None and prices.get(bsym):   # benchmark outside the race's list (Safe: S&P 500), in C$
+                b0 = rets(ffill(sorted(prices[bsym].items()), g))
+                br = [(1 + x) * (1 + c) - 1 for x, c in zip(b0, usdcad)]
+            if br and len(ih) > 5:
+                xb = [br[h] for h in ih]; ya = [ai_r[h] for h in ih]
+                mb, ma = sum(xb) / len(xb), sum(ya) / len(ya)
+                vb = sum((x - mb) ** 2 for x in xb)
+                rec['beta'] = round(sum((x - mb) * (y - ma) for x, y in zip(xb, ya)) / vb, 2) if vb > 0 else None
+                rec['beta_vs'] = bsym
             rec.update({'status': 'ok', 'percentile': p, 'band': band, 'k': k, 'shorts_allowed': shorts, 'universe': uni,
                         'random_median': round(ss[len(ss) // 2], 5), 'random_p10': round(ss[len(ss) // 10], 5), 'random_p90': round(ss[9 * len(ss) // 10], 5),
                         'gap_pts': round(100 * (ai_total - ss[len(ss) // 2]), 2), 'spread_pts': round(100 * (ss[9 * len(ss) // 10] - ss[len(ss) // 10]), 2),

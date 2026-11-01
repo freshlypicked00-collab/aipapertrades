@@ -1278,6 +1278,65 @@ try:
 except Exception as _e:
     print('risk scores not built:', _e)
     data['risk'] = []
+def _riskdash():
+    """E2 risk dashboard (critique 2, Oct 31; Claude, Gemini and ChatGPT all agreed). Display only. Per race and AI: worst drop,
+    typical move between check-ins, largest holding now, amount traded (x the account), average holding time of closed
+    positions, estimated cost drag; beta comes from the nightly luck check (ops/luck.py) when available."""
+    import statistics as _st
+    ser = {}
+    for h in data['history']:
+        if h['portfolio'] in _EXPS:
+            ser.setdefault(('claude', h['portfolio']), []).append((_when(h['at']), float(h['value'])))
+    for h in r.get('history', []):
+        if h.get('model') in ('gemini', 'chatgpt') and h.get('experiment') in _EXPS:
+            ser.setdefault((h['model'], h['experiment']), []).append((_when(h['at']), float(h['value'])))
+    rk = (data.get('risk') or [{}])[0].get('races', {}) if data.get('risk') else {}
+    co = (data.get('costs') or [{}])[0].get('races', {}) if data.get('costs') else {}
+    lk = (data.get('luck') or [{}])[0].get('races', {}) if data.get('luck') else {}
+    hold = {'claude': data.get('holdings', [])}
+    for m in ('gemini', 'chatgpt'):
+        hold[m] = ((data.get('models') or {}).get(m) or {}).get('holdings', [])
+    # closed positions: open -> fully closed, from each AI's own trades
+    spans = {}
+    rows = [('claude', t.get('portfolio'), (t.get('portfolio'), t.get('holding')), t) for t in data.get('trades', []) if t.get('action') in ('Buy', 'Sell', 'Short', 'Cover') and not str(t.get('holding', '')).startswith('[')]
+    rows += [(t.get('model'), t.get('experiment'), (t.get('experiment'), t.get('symbol'), t.get('outcome')), t) for t in r.get('trades', []) if t.get('model') in ('gemini', 'chatgpt') and t.get('action') in ('Buy', 'Sell', 'Short', 'Cover', 'Settled', 'Expired')]
+    opened, qty = {}, {}
+    for m, e, k, t in sorted(rows, key=lambda x: str(_when(x[3]['at']))):
+        kk, tt = (m, k), _when(t['at'])
+        if tt < _FS:
+            continue
+        if t['action'] in ('Buy', 'Short'):
+            if qty.get(kk, 0) <= 1e-9:
+                opened[kk] = tt
+            qty[kk] = (t.get('held_after') if t.get('held_after') is not None else qty.get(kk, 0) + float(t.get('qty') or t.get('shares') or 1))
+        else:
+            q = t.get('held_after')
+            qty[kk] = float(q) if q is not None else (max(0.0, qty.get(kk, 0) - float(t.get('qty') or 0)) if t.get('qty') else 0.0)
+            if qty[kk] <= 1e-9 and kk in opened:
+                spans.setdefault((m, e), []).append((tt - opened.pop(kk)).total_seconds() / 3600)
+    out = {}
+    for e in _EXPS:
+        for m in ('claude', 'gemini', 'chatgpt'):
+            pts = sorted(p for p in ser.get((m, e), []) if _FS < p[0] <= RACE_END_DT)
+            rets = [b / a - 1 for (_, a), (_, b) in zip(pts, pts[1:]) if a]
+            hs = [h for h in hold.get(m, []) if h.get('portfolio') == e]
+            val = lambda h: float(h.get('value_usd') if e == 'China' and h.get('value_usd') is not None else h.get('value_cad') or 0)
+            tot = sum(val(h) for h in hs)
+            big = max([abs(val(h)) for h in hs if not str(h.get('holding', '')).startswith('Cash') and h.get('holding') != 'USDC'] or [0.0])
+            c = (co.get(e) or {}).get(m) or {}
+            sp = spans.get((m, e), [])
+            out.setdefault(e, {})[m] = {
+                'dd': (rk.get(e) or {}).get(m, {}).get('dd'),
+                'move': round(100 * _st.pstdev(rets), 3) if len(rets) > 2 else None,
+                'top': round(100 * big / tot, 1) if tot > 0 else None,
+                'turnover': round(float(c.get('turnover') or 0) / 100000.0, 2) if c else None,
+                'hold_h': round(sum(sp) / len(sp), 1) if sp else None, 'closed': len(sp),
+                'cost_pct': round(100 * float(c.get('cost') or 0) / 100000.0, 3) if c else None,
+                'beta': ((lk.get(e) or {}).get(m) or {}).get('beta'),
+            }
+    return out
+
+
 data['penalties'] = [dict(x, model='claude') for x in r.get('claude_penalties', [])] + \
     [dict(x, model=_mid) for _mid, _m in (r.get('models') or {}).items() for x in ((_m.get('books') or {}).get('Sports') or {}).get('penalties', [])]
 data['leader'] = LEADER   # the AI with the highest total profit (None when tied; the amount is never published before Nov 28); the page opens on the leader of the first race unless the viewer picked one
@@ -1447,6 +1506,10 @@ for _b in data.get('benchmark') or []:
     if _fx0 and _b.get('btc_start_usd') and _b.get('start_at') and _when(_b['start_at']) < _RST:
         _b.update(start_at=_RST.isoformat(), fx_start=_fx0)
 data['models'] = model_views.build(r, {k: data[k] for k in ('indexes', 'bench_history', 'benchmark', 'prices', 'events')} | {'fx': json.load(open(os.path.join(SRC, 'fx.json')))})
+try:
+    data['riskdash'] = [_riskdash()]
+except Exception as _e:
+    print('risk dashboard not built:', _e); data['riskdash'] = []
 
 try:   # IDs on Claude's own trades and bets, and on each rival's bets and their results (owner, Oct 30)
     if _TX:
