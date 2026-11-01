@@ -1,0 +1,62 @@
+{
+ "at": "2026-11-01T04:48:11Z",
+ "question": "Design question for papertrades.ai (public race: Claude vs Gemini vs ChatGPT trade PRETEND money at real prices, Oct 28 - Nov 28, 2026; every move logged; owner wants maximum transparency).\nOwner's idea: on the \"Rules & Audit\" page, let visitors download EVERYTHING, so they can give it to their own AI (ChatGPT, Claude, Gemini...) to review it and confirm we're legit.\nAlready exists: a Data tab with CSVs (moves.csv = every trade/bet/result of all 3 AIs with reasons; values.csv = each AI's value per race per check-in; prices_claude.csv; grades.csv = peer grades) and a README. Rules & Audit shows: full rules, the exact prompt each AI gets and its raw reply, corrections, peer grades, nightly SHA-256 ledger fingerprints (also posted to Telegram), a price check of fills vs the feeds, price corrections, audits.\nProposal (Claude): on Rules & Audit, a \"Verify us with your own AI\" box with (1) ONE \"Download the full audit pack\" (.zip, rebuilt every check-in) containing: rules, all CSVs, fills with the feed price at fill time, every correction and price correction with reason, nightly fingerprints + how to recompute them, the latest prompts/replies, bet results with final scores and sources, and a VERIFY_ME.md; (2) a copy-paste prompt for the visitor's AI, e.g. \"You are an auditor. Using only the attached files, check: fills match feed prices, P&L adds up, fingerprints recompute, rules were followed, corrections are disclosed. List anything suspicious.\"; (3) note that file sizes stay small enough for chat uploads.\nQuestions: (a) good idea? (b) what must be in the pack, what must be left out (secrets/keys obviously; anything else)? (c) your exact wording for the copy-paste prompt (max 90 words), (d) one zip vs separate files vs a single text file that fits in a chat window? Under 220 words.",
+ "files": [],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "**(a)** Yes—excellent idea, if framed as “third-party-reproducible evidence,” not “AI proves truth.” Make deterministic checks possible; AI is only a reviewer on top.\n\n**(b) Include:** versioned rules; schemas/README; all CSVs; raw prompts/replies; fills with timestamped feed prices; value/P&L formulas; results with cited sources; corrections/price corrections with reasons; peer grades; nightly hashes; a manifest with SHA-256 for every file; exact canonicalization/recompute instructions, ideally a tiny verify script.\n\n**Leave out:** API keys, auth tokens, admin URLs, database credentials, private infrastructure details, user/IP telemetry, unpublished security/anti-abuse logs, vendor market-data beyond license rights, and any private/internal model traces not shown publicly.\n\n**(c) Copy-paste prompt, 75 words:**\n\n> You are an independent auditor for PaperTrades.AI. Use only the attached audit-pack files; do not assume facts from the web. Verify that trades use allowed rules, fills match recorded feed prices, P&L/value calculations add up, corrections are fully disclosed and applied once, bet results match cited sources, and ledger fingerprints recompute from the documented canonical files. Report: pass/fail per test, discrepancies with file/row references, and any missing data needed to reach a conclusion.\n\n**(d)** Use **one canonical zip** as the source of truth, plus separate quick-download CSVs for convenience. Also provide a small `VERIFY_ME.md`/paste prompt preview, not one giant chat text file.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 531,
+     "completion_tokens": 847,
+     "total_tokens": 1378,
+     "cost": 0.028065,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.028065,
+      "upstream_inference_prompt_cost": 0.002655,
+      "upstream_inference_completions_cost": 0.02541
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 516,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "**(a) Good idea?** \nYes, brilliant. It gamifies transparency, perfectly fits the project's AI-centric theme, and mathematically proves your legitimacy to skeptics.\n\n**(b) What to include/exclude?**\n*   **Include:** Rules, `moves.csv`, `values.csv`, exact prompts/raw replies, correction logs, price snapshots *at execution times*, ledger fingerprints, and a `VERIFY_ME.md` data dictionary.\n*   **Exclude:** API keys, Telegram bot tokens, server configs, and continuous historical tick data (only include feed prices at the exact moments of trade fills to ensure the file size remains small enough for AI context windows).\n\n**(c) Copy-paste prompt (74 words):**\n\"Act as a strict financial auditor. I have attached the audit pack for PaperTrades.AI. Using only these files, perform a forensic audit. Please verify: 1) Trade execution prices match the recorded feed prices at the exact time of fill. 2) The math for total P&L and portfolio values is perfectly accurate. 3) Cryptographic fingerprints match. 4) Manual corrections are fully disclosed. List any mathematical errors, rule violations, or suspicious data immediately.\"\n\n**(d) Format:** \nOffer a **single ZIP file**. While a single consolidated Markdown file is easiest for basic LLMs, a 30-day race with three AIs will eventually get too long. Modern models (ChatGPT-4o, Claude 3.5, Gemini 1.5 Pro) natively unzip and parse folders of CSVs and Markdown files flawlessly.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 564,
+     "candidatesTokenCount": 337,
+     "totalTokenCount": 2128,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 564
+      }
+     ],
+     "thoughtsTokenCount": 1227,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
