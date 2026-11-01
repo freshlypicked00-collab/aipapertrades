@@ -366,7 +366,7 @@ def _parse_game(ev, sport, league, short):
         return {'id': str(ev['id']), 'sport': sport, 'league': league, 'short': short, 'name': ev.get('name') or ev.get('shortName'),
                 'start': ev['date'], 'state': st.get('state'), 'completed': bool(st.get('completed')), 'status_name': st.get('name'),
                 'home': teams['home']['team']['displayName'], 'away': teams['away']['team']['displayName'],
-                'home_ml': _ml(odds, 'home'), 'away_ml': _ml(odds, 'away'),
+                'home_ml': _ml(odds, 'home'), 'away_ml': _ml(odds, 'away'), 'odds_by': ((odds.get('provider') or {}).get('name') or ''),   # which sportsbook ESPN quoted (odds check, Nov 1)
                 'home_score': teams['home'].get('score'), 'away_score': teams['away'].get('score'),
                 'winner': next((k for k, t in teams.items() if t.get('winner')), None)}
     except Exception:
@@ -996,7 +996,7 @@ def _leg(gid, pick):
     if not ml:
         raise ValueError('no moneyline for that game')
     return {'game': gid, 'sport': g['sport'], 'league': g['league'], 'short': g['short'], 'event': f"{g['away']} @ {g['home']}",
-            'pick': pick, 'pick_team': g[pick], 'odds': ml, 'starts_at': g['start'], 'status': 'Open'}
+            'pick': pick, 'pick_team': g[pick], 'odds': ml, 'odds_source': 'ESPN' + (f" ({g['odds_by']})" if g.get('odds_by') else ''), 'starts_at': g['start'], 'status': 'Open'}
 
 
 def place_bet(model_id, book, order, reason, state, exp='Sports'):

@@ -606,3 +606,9 @@ highlight it with window.ptSpot(element or () => element) in ops/src/index.html:
 fading over ~2.5 s (a still outline when animations are off). Point links at the most specific element (give it an id; data-spot="id"
 on a data-goto button). Never highlight on a plain page load. Ideas from Gemini and ChatGPT still to do: standings chips and crown ->
 that race's scoreboard card; AI names -> that AI's page header; corrections -> the corrected ledger row; news links -> the exact move.
+
+## Odds check (owner, Nov 1)
+`audit.yml` with what=odds runs ops/odds_audit.py: every Sports and All in sports bet's odds against ESPN's own opening and closing
+moneyline for that game (ok / close = within 3 points of implied probability / flag). First run Nov 1: 43 ok, 17 close, 1 flag (Gemini
+G7 Brewers at -163 vs ESPN DraftKings -140/-137; that bet was voided and refunded, so no money changed), 2 of Claude's first bets have
+no ESPN game id. New bets record which sportsbook ESPN quoted ("odds_source").
