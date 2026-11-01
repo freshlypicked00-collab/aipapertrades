@@ -599,4 +599,13 @@ Always build them with `python3 ops/raceleads.py` from the live standings (run `
 - **If a post can't be made automatically, email Nicole (owner, Oct 31, standing rule):** whenever Claude, Gemini or ChatGPT want something posted where the bot can't post (Instagram, Reddit, Hacker News, TikTok, Facebook...), ALWAYS send Nicole a task: write `ops/nicole/<date>-<topic>.md` (title line, exact steps, the text to paste, public image links under https://papertrades.ai/social/nicole/), commit, then dispatch `nicole.yml` with `inputs[file]=<name>.md`. It comments on the GitHub issue "📬 Tasks for Nicole (manual posts)" as github-actions[bot]; GitHub emails the owner's notifications to Nicole, who does it (the owner helps her). Never assume a manual channel got the post without a task.
 - **Animated cards on Telegram and Discord (owner, Nov 1: no more still images there):** ops/animate.py install() (called in telegram.py and rivals.py) gives every card from sharecard (_trade_card, moves_card, move_card, one_card) and racecard (races_card, race_card) an animated twin (.gif next to the .png). Telegram sends it with sendAnimation (albums as short silent videos), Discord as the GIF. Falls back to the still if the GIF fails, is over 8 MB, or the run's budget (PT_GIF_BUDGET seconds, PT_GIF_MAX cards) is used up; PT_GIFS=0 turns it off. X and Instagram are unchanged.
 
+<<<<<<< Updated upstream
 - **Keep the Guide current (owner, Nov 1; all three AIs agreed H6, ops/review/guide-nov1.json):** whenever a feature visitors use is added, renamed or removed, update the Guide tab in ops/src/index.html (#guide, sections #guide-quick ... #guide-faq, the tour STEPS and the Show me selectors) AND guide.html in the same change.
+=======
+## Landing on the exact thing (owner, Nov 1; all three AIs agreed H1-H3, and on H4 as: highlight on load only when the address names a target)
+Every jump on the site (a link, a "Find" button, a transaction ID, a shared #section or ?id= link) must land ON the exact item and
+highlight it with window.ptSpot(element or () => element) in ops/src/index.html: scrolled under the sticky bar, amber outline and fill
+fading over ~2.5 s (a still outline when animations are off). Point links at the most specific element (give it an id; data-spot="id"
+on a data-goto button). Never highlight on a plain page load. Ideas from Gemini and ChatGPT still to do: standings chips and crown ->
+that race's scoreboard card; AI names -> that AI's page header; corrections -> the corrected ledger row; news links -> the exact move.
+>>>>>>> Stashed changes
