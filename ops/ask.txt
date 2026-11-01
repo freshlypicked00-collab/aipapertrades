@@ -1,11 +1,15 @@
-SITE QUESTION from the owner of PaperTrades.AI. NOT a trading turn. Majority wins; Claude voted first in a separate file (attached).
+SITE DESIGN QUESTION from the owner of PaperTrades.AI. NOT a trading turn. Majority wins; Claude voted first in a separate file (attached).
 
-Background: the Race standings box (right side of the home page) has a menu: Overall, the ten races, All in: trading, All in: sports. The owner asked for an "overall side races" option there. All three of you agreed earlier that the two All in parts each have their own winner and are NEVER added together (the site says so in several places), so Claude advised against a summed All in total.
+The owner: "Should we work with ChatGPT and Gemini to make a how-to-use section for the website, or documentation or something?"
 
-Vote AGREE / DISAGREE / AMEND on each, one line why:
-A1. Do NOT add a summed "All in overall" total or ranking anywhere (keeps the earlier unanimous rule).
-A2. Add one menu option "All in: both parts" in Race standings that shows, for each AI, its All in: trading result and its All in: sports result side by side (two numbers, each with its own place, e.g. "Trading 1st +C$59,391 · Sports 3rd C$0"), with no total and no combined rank, and a one-line note: "Two separate side races, each with its own winner; never added together." AIs listed in a fixed order (Claude, Gemini, ChatGPT), not ranked.
-A3. Instead of A2, add nothing: the two existing options are enough.
-If you'd rather do something else, say it in "other".
+TODAY: "How it works" explains the RULES (prices, check-ins, scoring). "Rules & Audit" has the raw prompts and corrections. A 5-step "New here? Start here" box shows only in Beginner mode. Nothing explains how to USE the site: the race menu and Auto-pick drop-down, the AI menu (view the page as Claude/Gemini/ChatGPT), the tabs, the Ledger's Show/Sort/"Why (estimated)" filters, transaction IDs and "Whole story", "What happened next", tap-to-explain words, Beginner mode, language/currency, sound/theme/contrast, following on Telegram/Discord/X, and checking the record yourself (fingerprints, audit pack, CSV downloads).
 
-Reply with ONLY JSON: {"A1": "...", "A2": "...", "A3": "...", "other": "..."}
+PROPOSAL (vote AGREE / DISAGREE / AMEND each, one line why):
+H1. A new "Guide" page (its own tab next to How it works, also linked from the menu and footer): "How to use PaperTrades.AI", short sections with one small screenshot each, in this order: 1 The 30-second version; 2 Who's winning (Race standings, Auto-pick, Overall); 3 Looking at one AI (the AI menu, AI pages, AI vs AI); 4 Every trade and bet (Ledger, filters, transaction IDs, Whole story, What happened next); 5 Understanding the words (tap-to-explain, Beginner mode, glossary); 6 Check it yourself (fingerprints, audit pack, downloads, raw prompts); 7 Make it yours (language, currency, theme, sound, contrast); 8 Follow along (Telegram, Discord, X, Instagram, YouTube); 9 FAQ (is it real money? can I copy trades? who runs it? how is the winner decided?).
+H2. Each section ends with a "Show me" button that jumps to the real feature and briefly highlights it.
+H3. An optional 60-second tour for first-time visitors (5 steps highlighting the real page), offered once in a small closable box; never forced; skippable at any step.
+H4. Plain words, short sentences, no trading jargon without an explanation; the same "pretend money, not advice" line at the top.
+H5. A plain-text copy for search engines and AI assistants: papertrades.ai/guide.html (crawlable, linked in llms.txt and the sitemap).
+H6. Kept current: whenever a feature is added or changed, the chat that changes it updates the Guide in the same change (runbook rule).
+
+Reply as JSON: {"H1": "AGREE|DISAGREE|AMEND: why", ..., "H6": "...", "other": "anything missing (optional)"}
