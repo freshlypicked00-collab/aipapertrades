@@ -1,0 +1,64 @@
+{
+ "at": "2026-11-01T04:46:32Z",
+ "question": "SITE DESIGN QUESTION from the owner of PaperTrades.AI. NOT a trading turn. Majority wins; Claude voted first in a separate file (attached).\n\nThe owner: \"Add more options than just Most relevant. Do a drop-down box rather than a single check: highest profits All in, highest profits, biggest losses, that kind of idea. Work with Gemini and GPT to complete.\"\n\nTODAY: the Race standings panel (right side of the home page) has a race menu (Overall, the ten races, the two All in side races) and under it ONE checkbox: \"Most relevant: follow the market that's live right now\" (on at every visit; it auto-picks the race whose market is open or moving most, re-checked at each data update, with a \"Why this one\" note). Unticking it jumps to Overall.\n\nPROPOSAL (vote AGREE / DISAGREE / AMEND each, one line why):\nD1. Replace the checkbox with a drop-down labelled \"Auto-pick:\" under the race menu. Each option picks the race automatically and re-checks at every data update; a one-line note says why that race was picked (e.g. \"Gemini is +C$22,842 in Options, the biggest profit in any race\").\nD2. Options, in this order:\n  1. Most relevant: the market that's live right now (default at every visit, today's behaviour)\n  2. Biggest profit: the race where any AI is furthest ahead of its C$100,000 start (ten races)\n  3. Biggest loss: the race where any AI is furthest behind (ten races)\n  4. Closest race: the smallest gap between 1st and 2nd (ten races)\n  5. Biggest lead: the largest gap between 1st and 2nd (ten races)\n  6. Biggest profit (All in side race): All in: trading or All in: sports, whichever has the bigger profit\n  7. Biggest loss (All in side race)\n  8. Off: I'll choose (goes to Overall, today's \"untick\" behaviour)\nD3. Picking a race yourself in the race menu sets Auto-pick to \"Off\".\nD4. Profits compare in C$ (China converted); the note names the AI and the amount.\nD5. The choice is kept while the page is open but not remembered between visits (every visit starts on Most relevant).\n\nReply as JSON: {\"D1\": \"AGREE|DISAGREE|AMEND: why\", ..., \"D5\": \"...\", \"other\": \"anything missing (optional)\"}",
+ "files": [
+  "ops/review/claude-votes-autopick-nov1.json"
+ ],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "{\n  \"D1\": \"AGREE: a drop-down is the right control once there are multiple auto-pick modes, and keeping the one-line reason makes the automatic choice understandable.\",\n  \"D2\": \"AGREE: the list covers relevance, profit, loss, competitiveness, dominance, All in side races, and an explicit Off state.\",\n  \"D3\": \"AGREE: a manual race selection should mean the user has taken control, so auto-pick should stop moving the panel.\",\n  \"D4\": \"AGREE: comparing everything in C$ is fair and naming the AI plus amount makes the pick transparent.\",\n  \"D5\": \"AGREE: keeping it only for the open page preserves user intent during a session while making every new visit start with the live-market default.\",\n  \"other\": \"Add a simple tie-break rule for equal picks, such as prefer the race already selected, then Most relevant, then the race menu order.\"\n}",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 816,
+     "completion_tokens": 495,
+     "total_tokens": 1311,
+     "cost": 0.01893,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.01893,
+      "upstream_inference_prompt_cost": 0.00408,
+      "upstream_inference_completions_cost": 0.01485
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 292,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "```json\n{\n  \"D1\": \"AGREE: A drop-down menu neatly organizes multiple dynamic choices without cluttering the sidebar, while maintaining the helpful 'why' context.\",\n  \"D2\": \"AGREE: The options precisely fulfill the owner's request while adding excellent competitive metrics like 'Closest race' and 'Biggest lead'.\",\n  \"D3\": \"AGREE: This is an essential UX rule; manual selection must override and disable automatic switching to prevent user frustration.\",\n  \"D4\": \"AGREE: Normalizing all numbers to a uniform C$ baseline ensures cross-market profit and loss comparisons are mathematically fair and easy to read.\",\n  \"D5\": \"AGREE: Resetting to 'Most relevant' ensures returning visitors always immediately see the most active and exciting market upon arrival.\",\n  \"other\": \"I agree with Claude regarding mobile formatting; keep the visible drop-down text concise so it doesn't break styling on smaller screens.\"\n}\n```",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 857,
+     "candidatesTokenCount": 209,
+     "totalTokenCount": 2229,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 857
+      }
+     ],
+     "thoughtsTokenCount": 1163,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
