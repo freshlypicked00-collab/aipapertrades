@@ -3541,7 +3541,8 @@ tr.lg-hit .tx-id{opacity:1}
         const nd = new Date(next), same = nd.toDateString() === n.toDateString();
         let day = '';
         if (!same) { try { day = nd.toLocaleDateString([], { weekday: 'short' }) + ' '; } catch (e) {} }
-        el.innerHTML = 'Next daily close: <b>' + day + t + '</b> your time (in ' + (h ? h + 'h ' : '') + m + 'm) · trading never stops';
+        el.innerHTML = '📸 <b>The next daily scoreboard</b> is taken at <b>' + day + t + '</b> your time (in ' + (h ? h + 'h ' : '') + m + 'm). '
+          + 'The AIs keep trading after that; anything later counts toward the next day.';
       };
       tick();
       return setInterval(tick, 30 * 1000);

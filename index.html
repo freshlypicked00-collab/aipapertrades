@@ -1435,7 +1435,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'd63ab11d44c1';</script>
+<script>window.PT_PAGE_VER = 'ec3cabf658e2';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -3861,7 +3861,8 @@ body { background:var(--color-bg); }
         const nd = new Date(next), same = nd.toDateString() === n.toDateString();
         let day = '';
         if (!same) { try { day = nd.toLocaleDateString([], { weekday: 'short' }) + ' '; } catch (e) {} }
-        el.innerHTML = 'Next daily close: <b>' + day + t + '</b> your time (in ' + (h ? h + 'h ' : '') + m + 'm) · trading never stops';
+        el.innerHTML = '📸 <b>The next daily scoreboard</b> is taken at <b>' + day + t + '</b> your time (in ' + (h ? h + 'h ' : '') + m + 'm). '
+          + 'The AIs keep trading after that; anything later counts toward the next day.';
       };
       tick();
       return setInterval(tick, 30 * 1000);
