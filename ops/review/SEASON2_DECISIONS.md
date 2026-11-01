@@ -51,3 +51,10 @@ Criticisms: emotion = fair premise, overstated (R5 measures it); frictions = fai
 - G2 ALL THREE AGREED (Claude and Gemini: on condition it's clearly labelled estimated): Season 1 ledger filter grouping reasons by type by keyword, labelled "estimated", never shown as the AI's own trigger.
 - G3 ALL THREE AGREED: "You don't trade here: you watch three AIs trade." on the home page and in llms.txt (done Nov 1).
 - Already covered: execution realism (R1-R3, costs), stress drill (L3), write-ups (What happened next), discipline (R5/R6), pre-tax (R8). Not adopted: live broker integration, user strategy tools (not a user trading platform).
+
+## Season 2 design rounds (owner, Nov 1; ops/SEASON2.md is the full plan)
+- 8 weeks, Jan 11 - Mar 5, 2027, dry run Jan 4-8; six AIs (+ Llama within budget); index, 60/40 and random-trader benchmarks; Betting as its own
+  track; All in dropped; Small account only after a clean trial; operator separation, sealed orders, shared data pack, open-source runner,
+  replay files, named outside reviewer, correction protocol, golden tests; market impact, commissions, refuse-and-count risk checks,
+  minimum fill delay; Draft Day, dataset and research report, prediction game. ALL THREE AGREED on 27 of 28 items (lineup split on Llama).
+- Rejected by all three: visitors linking their trading accounts.
