@@ -4285,7 +4285,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       const vd = verdictOf(r);
       const idc = document.createDocumentFragment(); idc.append(sub ? '↳ ' + r.bet : r.bet, window.ptTxTag(r.tx, r.placed_at || r.placed)); if (r.tx_result) idc.appendChild(window.ptTxTag(r.tx_result, r.settled_at));
       const tr = row([[idc], [placed], [sub ? mk('small', 'st-muted', 'same pick, ticket ' + r.bet) : gameOf(r), 'wrap'], [sub ? '' : r.pick], [betOdds(r.odds), 'num'],
-        [d3.format(',.0f')(Number(r.stake_cad)), 'num'], [d3.format(',.0f')(Number(r.to_win_cad)), 'num'], [pillOf(r.status, r.settled_at)],
+        [d3.format(',.2f')(Number(r.stake_cad)), 'num'], [d3.format(',.2f')(Number(r.to_win_cad)), 'num'], [pillOf(r.status, r.settled_at)],
         [resOf(r.result_cad), 'num ' + upDown(Number(r.result_cad))], [closeOf(r), 'num'], [vd, vd === 'Beat' ? 'is-up' : vd === 'Missed' ? 'is-down' : '']], sub ? 'bet-ticket' : '');
       tr.dataset.key = r.bet; if (!sub) betPg(tr.children[3], [r]); return tr;
     };
@@ -4309,7 +4309,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       const results = g.items.filter((x) => x.result_cad !== null && x.result_cad !== undefined);
       const closes = [...new Set(g.items.map(closeOf))], vds = [...new Set(g.items.map(verdictOf))];
       const settled = g.items.map((x) => x.settled_at).filter(Boolean).sort().pop();
-      const tr = row([[tg], [placed], [gameOf(r0), 'wrap'], [pick], [oddsSpan(g.items), 'num'], [d3.format(',.0f')(sum('stake_cad')), 'num'], [d3.format(',.0f')(sum('to_win_cad')), 'num'],
+      const tr = row([[tg], [placed], [gameOf(r0), 'wrap'], [pick], [oddsSpan(g.items), 'num'], [d3.format(',.2f')(sum('stake_cad')), 'num'], [d3.format(',.2f')(sum('to_win_cad')), 'num'],
         [pillOf(r0.status, settled)], [results.length ? resOf(sum('result_cad')) : '', 'num ' + (results.length ? upDown(sum('result_cad')) : '')], [closes.length === 1 ? closes[0] : 'varies', 'num'], [vds.length === 1 ? vds[0] : 'mixed', vds.length === 1 ? (vds[0] === 'Beat' ? 'is-up' : vds[0] === 'Missed' ? 'is-down' : '') : 'st-muted']], 'bet-group');
       betPg(tr.children[3], g.items);
       tr._top = true; tr._key = g.key; tr._kids = g.items.map((x) => ticket(x, true));
@@ -4486,13 +4486,13 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           if (L.length > 1) { const i = L.indexOf(t), tot = L.reduce((x, y) => x + (+y.amount || 0), 0);
             const res = TS.filter((x) => GK(x) === k && /^(Won|Lost)$/.test(x.action)), net = res.reduce((x, y) => x + (+(y.pnl != null ? y.pnl : y.amount) || 0), 0);
             const g = mk('div', 'lg-game');
-            g.appendChild(mk('span', '', i > 0 ? 'Adds to its bet on this game (now C$' + d3.format(',.0f')(L.slice(0, i + 1).reduce((x, y) => x + (+y.amount || 0), 0)) + ')' :
-              'Same game: ' + L.length + ' bets, C$' + d3.format(',.0f')(tot) + ' total' + (res.length === L.length ? ', ' + (net >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(net)) : '')));
+            g.appendChild(mk('span', '', i > 0 ? 'Adds to its bet on this game (now C$' + d3.format(',.2f')(L.slice(0, i + 1).reduce((x, y) => x + (+y.amount || 0), 0)) + ')' :
+              'Same game: ' + L.length + ' bets, C$' + d3.format(',.2f')(tot) + ' total' + (res.length === L.length ? ', ' + (net >= 0 ? '+' : '−') + 'C$' + d3.format(',.2f')(Math.abs(net)) : '')));
             if (!el._game) { const gb = mk('button', 'lg-find', '🔎 Show all ' + L.length); gb.type = 'button'; gb.title = 'Show only this game: every bet and its result';
               gb.addEventListener('click', () => { el._game = k; el._focus = null; el._pg = 0; draw(); window.ptSpot(el.querySelector('tbody tr') || el); }); g.appendChild(gb); }
             mv.appendChild(g); } }
         r.append(window.ptTxWhen(t.at, t.tx), ai, mk('td', '', ALLIN[t.experiment].replace('High risk: ', '')), mv,
-          mk('td', 'num', Number.isFinite(+t.amount) ? (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.0f')(Math.abs(t.amount)) : ''), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret || ''), why);
+          mk('td', 'num', Number.isFinite(+t.amount) ? (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.2f')(Math.abs(t.amount)) : ''), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret || ''), why);
         // the way back and forth (owner, Oct 30; all three AIs agreed): a result finds its bet, a settled bet its result, a sale its buy,
         // a sold buy its sale. Nothing on a bet still open or a position still held.
         { const tAt = Date.parse(t.at), RES = /^(Won|Lost|Push|Void)$/; let pt = null, lab = '';
@@ -5441,7 +5441,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     }
     const cs = cash.reduce((a, r) => a + valOf(r), 0);
     const owes = pos.reduce((a, r) => a + Math.min(0, valOf(r)), 0);   /* shorts / borrowed currency count as money owed back (number audit, Nov 1) */
-    box.appendChild(mk('p', 'st-note', (cash.length ? (owes < -0.5 ? 'Cash balance: ' + money(cs) + '. This includes money from positions it borrowed and sold, which it still owes back (' + money(-owes) + ' at today’s prices), so it is not all spare cash; the race’s overall value is shown at the top. ' : 'Cash not invested: ' + money(cs) + '. ') : '') + (pos.length > 1 ? 'Amounts are rounded to the dollar, so the rows can add up to a dollar or two more or less than the total. ' : '') + 'Every trade, with ' + (dash.model === 'claude' ? 'Claude' : AIS[dash.model].label) + '’s own reason, is in the Ledger and on the ' + race + ' page. Times are Eastern (ET), with UTC and Hong Kong in brackets.'));
+    box.appendChild(mk('p', 'st-note', (cash.length ? (owes < -0.5 ? 'Cash balance: ' + money(cs) + '. This includes money from positions it borrowed and sold, which it still owes back (' + money(-owes) + ' at today’s prices), so it is not all spare cash; the race’s overall value is shown at the top. ' : 'Cash not invested: ' + money(cs) + '. ') : '') + 'Every trade, with ' + (dash.model === 'claude' ? 'Claude' : AIS[dash.model].label) + '’s own reason, is in the Ledger and on the ' + race + ' page. Times are Eastern (ET), with UTC and Hong Kong in brackets.'));
   };
   dash.draw('perf-chart', (el) => {
     const run = () => {
@@ -5512,7 +5512,9 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         base: START, baseLabel: 'Started with ' + sym + d3.format(',.0f')(cvp(START))
       });
       const hb = el.id ? document.getElementById(el.id + '-hold') : null;
-      if (hb) { if (AL) allinHold(hb, p, money); else holdList(hb, p, TR, money); }
+      // holdings are exact records: cents, so the rows add up to the total (owner, Nov 1; all three AIs agreed K2 and K5)
+      const moneyC = (v) => (Number(v) < 0 ? '−' : '') + sym + d3.format(',.2f')(Math.abs(cvp(Number(v))));
+      if (hb) { if (AL) allinHold(hb, p, moneyC); else holdList(hb, p, TR, moneyC); }
       { const px = el.id ? document.getElementById(el.id + '-px') : null, pw = el.id ? document.getElementById(el.id + '-pxw') : null;
         // High risk: trading has holdings too, so its price chart shows (owner, Oct 30: "where did the market prices chart go?"); sports bets have none
         const pxOk = p !== 'Sports' && p !== 'AllInSports';
@@ -5966,7 +5968,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
   // ---------- every trade, from trades.json and bets.json
   // What went in, and the profit, for one trade in the raw trade format (used by every trade table)
   const pnlOf = (t) => {
-    const a = t.action, sym = t.experiment === 'China' ? 'US$' : 'C$', f = (x) => sym + d3.format(',.0f')(Math.abs(x));
+    const a = t.action, sym = t.experiment === 'China' ? 'US$' : 'C$', f = (x) => sym + d3.format(',.2f')(Math.abs(x));
     const sg = (x) => (x >= 0 ? '+' : '−') + f(x);
     if (a === 'Buy' || a === 'Short') return { cost: '', profit: 'open', ret: '' };
     if (a === 'Bet' || a === 'Parlay') return { cost: t.stake != null ? f(t.stake) : '', profit: t.result != null ? sg(t.result) : 'open', p: t.result, ret: t.result != null && t.stake ? d3.format('+.1%')(t.result / t.stake) : '' };
@@ -5989,7 +5991,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       const unit = COIN[t.holding] ? ' per ' + COIN[t.holding] : t.portfolio === 'Crypto' ? ' per coin' : t.portfolio === 'Metals' && dash.model === 'claude' ? ' per ounce' : t.portfolio === 'Metals' ? '' : t.portfolio === 'Options' ? ' per share (100 shares per contract)' : ' per share';
       return num + unit;
     };
-    const C = (x, p) => (p === 'China' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(x));
+    const C = (x, p) => (p === 'China' ? 'US$' : 'C$') + d3.format(',.2f')(Math.abs(x));
     const qtyTxt = (t) => t.shares ? d3.format(',')(t.shares) + ' shares at ' : t.qty ? d3.format(',.6~r')(t.qty) + (t.portfolio === 'Crypto' ? ' coins' : t.portfolio === 'Currencies' ? ' units' : ' shares') + ' at ' : 'at ';
     const LG = dash.data('log'), lgRows = LG.status === 'ok' ? LG.data : [];
     const why = (t) => t.note || t.reason || (logFor(lgRows, t) || {}).detail || '';
@@ -5999,7 +6001,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       return {
         at: t.at, portfolio: t.portfolio, action: t.action, item: t.holding, why: why(t), pg: t.pg_key, tx: t.tx || null,
         detail: qtyTxt(t) + px(t),
-        amount: t.portfolio === 'China' ? '¥' + d3.format(',.0f')(t.cny) + ' (US$' + d3.format(',.0f')(t.usd) + ')' : 'C$' + d3.format(',.0f')(t.cad),
+        amount: t.portfolio === 'China' ? '¥' + d3.format(',.2f')(t.cny) + ' (US$' + d3.format(',.2f')(t.usd) + ')' : 'C$' + d3.format(',.2f')(t.cad),
         cost: sell && t.cost != null ? C(t.cost, t.portfolio) : '', profit: sell && t.pnl != null ? Number(t.pnl) : null,
         ret: sell && t.pnl != null && t.cost ? t.pnl / t.cost : null, open: !sell, val, q: Number(t.shares || t.qty || 0),
         px0: t.portfolio === 'China' ? Number(t.price_local) : Number(t.price_usd), pxTxt: px(t)
@@ -6008,10 +6010,10 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     B.data.forEach((b) => {
       const odds = (Number(b.odds) > 0 ? '+' : '') + b.odds, stake = Number(b.stake_cad);
       const res = b.status !== 'Open' ? Number(b.result_cad) : null;
-      rows.push({ gk: b.pick + '|' + b.event, stk: stake, tx: b.tx || null, holding: b.status === 'Open', pg: b.placed_at ? dash.model + '|' + new Date(b.placed_at).toISOString().slice(0, 19) + 'Z|Sports|' + b.bet + '|Bet' : null, at: b.placed_at || b.placed + 'T12:00:00-04:00', portfolio: 'Sports', action: 'Bet', item: b.bet + ' ' + b.pick, detail: b.event + ' at ' + odds + ' · to win C$' + d3.format(',.0f')(b.to_win_cad || 0), amount: 'C$' + d3.format(',.0f')(stake), cost: 'C$' + d3.format(',.0f')(stake), profit: null, ret: null, open: b.status === 'Open', outcome: res, void: b.status === 'Void', why: b.note || b.reason || ((lgRows.filter((l) => l.portfolio === 'Sports' && l.at === b.placed_at)[0] || {}).detail) || '' });
+      rows.push({ gk: b.pick + '|' + b.event, stk: stake, tx: b.tx || null, holding: b.status === 'Open', pg: b.placed_at ? dash.model + '|' + new Date(b.placed_at).toISOString().slice(0, 19) + 'Z|Sports|' + b.bet + '|Bet' : null, at: b.placed_at || b.placed + 'T12:00:00-04:00', portfolio: 'Sports', action: 'Bet', item: b.bet + ' ' + b.pick, detail: b.event + ' at ' + odds + ' · to win C$' + d3.format(',.2f')(b.to_win_cad || 0), amount: 'C$' + d3.format(',.2f')(stake), cost: 'C$' + d3.format(',.2f')(stake), profit: null, ret: null, open: b.status === 'Open', outcome: res, void: b.status === 'Void', why: b.note || b.reason || ((lgRows.filter((l) => l.portfolio === 'Sports' && l.at === b.placed_at)[0] || {}).detail) || '' });
       if (b.status !== 'Open') {
         const back = b.status === 'Won' ? stake + res : b.status === 'Lost' ? 0 : stake;
-        rows.push({ gk: b.pick + '|' + b.event, net: res, tx: b.tx_result || null, at: b.settled_at || (b.starts_at ? new Date(new Date(b.starts_at).getTime() + 3 * 3600e3).toISOString() : b.placed + 'T23:00:00-04:00'), portfolio: 'Sports', action: b.status, item: b.bet + ' ' + b.pick, detail: b.event + (b.final ? ' · ' + b.final : '') + ' · paid back C$' + d3.format(',.0f')(back), amount: 'C$' + d3.format(',.0f')(back), cost: 'C$' + d3.format(',.0f')(stake), profit: res, ret: stake ? res / stake : null, open: false, betAfter: { odds: Number(b.odds), closing: b.closing_odds != null ? Number(b.closing_odds) : null, final: b.final || '', status: b.status } });
+        rows.push({ gk: b.pick + '|' + b.event, net: res, tx: b.tx_result || null, at: b.settled_at || (b.starts_at ? new Date(new Date(b.starts_at).getTime() + 3 * 3600e3).toISOString() : b.placed + 'T23:00:00-04:00'), portfolio: 'Sports', action: b.status, item: b.bet + ' ' + b.pick, detail: b.event + (b.final ? ' · ' + b.final : '') + ' · paid back C$' + d3.format(',.2f')(back), amount: 'C$' + d3.format(',.2f')(back), cost: 'C$' + d3.format(',.2f')(stake), profit: res, ret: stake ? res / stake : null, open: false, betAfter: { odds: Number(b.odds), closing: b.closing_odds != null ? Number(b.closing_odds) : null, final: b.final || '', status: b.status } });
       }
     });
     // a buy (or short) that has since been sold (or covered): its result, from the sells that followed it
@@ -6354,7 +6356,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           const cur = r.portfolio === 'China' ? 'US$' : 'C$', closing = /^(Sell|Cover)$/.test(r.action);
           const v = closing ? r.profit : r.outcome;
           let txt = '', cls = '';
-          if (closing && v != null) { txt = v > 0.5 ? '✓ Profit +' + cur + d3.format(',.0f')(v) : v < -0.5 ? '✗ Loss −' + cur + d3.format(',.0f')(-v) : 'Even'; cls = v > 0.5 ? 'is-up' : v < -0.5 ? 'is-down' : ''; }
+          if (closing && v != null) { txt = v > 0.5 ? '✓ Profit +' + cur + d3.format(',.2f')(v) : v < -0.5 ? '✗ Loss −' + cur + d3.format(',.2f')(-v) : 'Even'; cls = v > 0.5 ? 'is-up' : v < -0.5 ? 'is-down' : ''; }
           else if (!closing) {
             if (v == null) { if (r.open) txt = 'Still held'; }   // same rule as the Won/lost column: a result means it was sold
             else { const mark = v > 0.5 ? '✓ ' : v < -0.5 ? '✗ ' : '', how = v > 0.5 ? 'at a profit' : v < -0.5 ? 'at a loss' : 'at about even';
@@ -6380,7 +6382,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           (() => { const v = r.profit !== null ? r.profit : r.outcome != null ? r.outcome : null, cur = r.portfolio === 'China' ? 'US$' : 'C$';
             if (r.void) return ['Refunded', 'num st-open'];
             if (v === null) return [r.open ? 'open' : '', 'num st-open'];
-            const txt = v > 0.5 ? 'Won +' + cur + d3.format(',.0f')(v) : v < -0.5 ? 'Lost −' + cur + d3.format(',.0f')(-v) : 'Even';
+            const txt = v > 0.5 ? 'Won +' + cur + d3.format(',.2f')(v) : v < -0.5 ? 'Lost −' + cur + d3.format(',.2f')(-v) : 'Even';
             return [txt + (r.profit === null ? (r.action === 'Bet' ? ' (game over)' : r.partly ? ' (partly sold)' : ' (sold)') : ''), 'num ' + upDown(v)]; })(),
           [r.ret === null || r.ret === undefined ? '' : d3.format('+.1%')(r.ret), 'num ' + (r.ret == null ? '' : upDown(r.ret * 1000))], [r.why || '', 'wrap lg-why']];
         cells.forEach(([v, c]) => { const td = mk('td', c || ''); if (v instanceof Node) td.appendChild(v); else td.textContent = v; tr.appendChild(td); });
@@ -9769,7 +9771,8 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       const nm = mk('span', 'st-score-name'); nm.appendChild(mk('b', rank === 1 ? 'st-rank-1' : '', rank === 1 ? '👑 1st' : ORD(rank))); nm.appendChild(document.createTextNode(rn)); b.appendChild(nm);
       b.appendChild(whoNode(r.id, 16, 'pd-who st-score-who'));
       const pc = mk('span', 'st-score-pct', stFmt.pct(r.pct)); tone(pc, r.profit); b.appendChild(pc);
-      b.appendChild(mk('span', 'st-score-amt', stFmt.signed(r.profit, cp) + ' · now ' + stFmt.money(r.value, cp)));
+      { const am = mk('span', 'st-score-amt', stFmt.signed(r.profit, cp) + ' · now ' + stFmt.money(r.value, cp));   // headline in whole dollars; the exact cents on hover (all three AIs agreed K3, Nov 1)
+        const cs = (v) => (v < 0 ? '−' : '') + (cp === 'China' ? 'US$' : 'C$') + d3.format(',.2f')(Math.abs(v)); am.title = 'Exact: ' + (r.profit >= 0 ? '+' : '') + cs(r.profit) + ' profit, ' + cs(r.value) + ' now'; b.appendChild(am); }
       { // the last 24 hours and the worst drop, on every card including the High risk side races (owner, Oct 30)
         const ser = scoreSeries(r.id, r.race), now = Date.now(), v = Number(r.value);
         const before = ser.filter((p) => p[0] <= now - 864e5), then = before.length ? before[before.length - 1][1] : 100000;
