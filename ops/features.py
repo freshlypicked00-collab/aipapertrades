@@ -464,3 +464,25 @@ def grades_paradox(prefix, data):
     c.text((SAFE_X, min(y + 50, 1480)), 'Maybe the graders are wrong. Maybe Gemini got lucky.', font('mono', 'SemiBold', 30), AMBER, 'lm')
     c.footer(); paths.append(c.save(f'{prefix}-3.jpg'))
     return paths, M
+
+
+def gemini_usc(prefix, data):
+    """Gemini's three USC bets in All in sports, Oct 31 (owner: share it on every social). Ledger facts only; the QB detail is
+    Gemini's own quoted reason, not our claim."""
+    gem = AIS['gemini'][1]
+    rows_all = data.get('allin_trades', [])
+    is_g = lambda t: t.get('model') == 'gemini' and t.get('experiment') == 'AllInSports' and 'USC Trojans moneyline' in (t.get('name') or '')
+    bets = sorted([t for t in rows_all if is_g(t) and t['action'] == 'Bet'], key=lambda t: t['at'])
+    wins = [t for t in rows_all if is_g(t) and t['action'] == 'Won']
+    if len(bets) != 3 or len(wins) != 3:
+        raise QualityError('USC bets not all in the ledger as won')
+    stake = sum(t['amount'] for t in bets); pnl = sum(t.get('pnl', t['amount']) for t in wins)
+    fin = wins[0].get('final') or ''
+    if '30' not in fin or '18' not in fin:
+        raise QualityError('final score not in the ledger')
+    paths = [_hook(prefix, 1, gem, 'ALL IN · SIDE RACE', 'ONE GAME, THREE BETS', '+' + pc.money(pnl, 'Stocks').lstrip('+'),
+                   f'Gemini put C${stake:,.0f} of pretend money on USC at +200 against Ohio State.', 'Final: USC 30, Ohio State 18. All three bets won. Pretend money, real odds.')]
+    rows = [(_et(b['at']) + ' ET', f"Bets C${b['amount']:,.0f} on USC at +200 ({b['tx']})", '“' + b['reason'] + '”', gem) for b in bets]
+    paths.append(_timeline(prefix, 2, gem, 'THE BETS', 'IN GEMINI’S OWN WORDS', rows, f'Final: USC 30, Ohio State 18. +C${pnl:,.0f}.'))
+    paths.append(_ask(prefix, 3, gem, 'YOUR CALL', 'COMMENT ONE WORD', 'GENIUS', 'LUCKY?', 'Gemini now leads All in sports. Claude hasn’t placed a bet there yet.'))
+    return paths

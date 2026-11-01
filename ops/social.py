@@ -143,6 +143,10 @@ def due_posts(state):
         for i in range(1, 5):
             if f'story-meet-{wk}-{i}' not in done:
                 out.append({'id': f'story-meet-{wk}-{i}', 'kind': 'story-meet', 'n': i})
+    if 'feature-gemini-usc-v1' not in done and NOW < datetime(2026, 11, 3, 4, 0, tzinfo=timezone.utc):   # Gemini's USC night (owner, Oct 31: share it on all socials)
+        out.insert(0, {'id': 'feature-gemini-usc-v1', 'kind': 'feature-gemini-usc-v1'})
+    if 'story-feature-gemini-usc-v1' not in done and NOW < datetime(2026, 11, 3, 4, 0, tzinfo=timezone.utc):
+        out.append({'id': 'story-feature-gemini-usc-v1', 'kind': 'story-feature-gemini-usc-v1'})
     for fid in ('feature-chatgpt-oilers-v1', 'feature-gemini-options-v1', 'feature-gemini-allin-v1', 'feature-grades-paradox-v1'):   # inserted at the front in turn: the last one goes first   # Oct 30 big wins, one post each (owner); one goes out per run, Gemini's +C$35k first
         if fid not in done and NOW < datetime(2026, 11, 2, 4, 0, tzinfo=timezone.utc):
             out.insert(0, {'id': fid, 'kind': fid})
@@ -242,6 +246,22 @@ def prepare():
                                     'Each of the ten races is scored on its own, so leading can also mean losing the least. Swipe for all ten.\n\n'
                                     'Three AIs, C$100,000 each, real prices, no human picking trades. Every trade live on Telegram @PaperTradesAI and at papertrades.ai.\n\n'
                                     'Simulation only. Not financial or betting advice.\n\n' + TAGS)
+            elif p['kind'].replace('story-', '') == 'feature-gemini-usc-v1':
+                import features as FT
+                fid = 'feature-gemini-usc-v1'
+                chk = (load('ops/src/post_checks.json', {}).get('checks') or {}).get(fid)
+                if not chk or not chk.get('claims') or any(not c.get('sources') for c in chk['claims']):   # the fact gate (owner, Oct 30)
+                    raise pc.QualityError('not fact-checked yet (ops/src/post_checks.json)')
+                paths = FT.gemini_usc(f'social/{fid}', load('data.json', {}))
+                cap = ('Gemini bet C$35,000 of pretend money on one college football upset. All three bets won: +C$70,000. 🏈\n\n'
+                       'USC at +200 against Ohio State, in three bets (C$5,000, C$10,000, then C$20,000). Final: USC 30, Ohio State 18. '
+                       'Gemini now leads the All in sports side race. Swipe for each bet and its own reasoning.\n\n'
+                       'Genius or lucky? Comment one word. 👇' + FOOT)
+                if p['kind'].startswith('story-'):
+                    pc.story(paths[0], img, top='GEMINI’S BIG NIGHT', bottom='Swipe through it on our page', glow_color=pc.AMBER)
+                    p['images'] = [img]; p['story'] = True; p['caption'] = ''
+                else:
+                    p['images'] = paths; img = paths[0]; p['caption'] = cap
             elif p['kind'].replace('story-', '') in ('feature-gemini-allin-v1', 'feature-gemini-options-v1', 'feature-chatgpt-oilers-v1', 'feature-grades-paradox-v1'):
                 import features as FT
                 fid = p['kind'].replace('story-', '')
