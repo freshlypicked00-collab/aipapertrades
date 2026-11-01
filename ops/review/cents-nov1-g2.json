@@ -1,0 +1,32 @@
+{
+ "at": "2026-11-01T19:54:49Z",
+ "question": "The owner of PaperTrades.AI asks: \"Start counting cents too everywhere a dollar is, going forward.\" Facts: the race runner already stores and computes every amount to the cent (e.g. a win of C$2,777.78, a fill of C$9,317.88); the site and posts round what they SHOW to whole dollars (C$2,778). Vote AGREE or DISAGREE on each, one line of reason, then add anything missed (readability on phones, honesty, rounding that can make totals look like they don't add up).\n\nK1. Keep calculating and storing everything to the cent (already done; never round before adding up).\nK2. Show cents in the exact records: the Ledger, the All in ledger, transaction details, bet slips, payouts, fills, the fingerprints/audit and the downloadable CSV (e.g. C$2,777.78).\nK3. Keep whole dollars in the big headline numbers (scoreboard cards, race standings, podium, social post headlines, YouTube Shorts), where cents add clutter and are hard to read at a glance, but show the exact amount with cents on tap/hover.\nK4. Show cents EVERYWHERE instead, including headlines and posts.\nK5. Wherever a total is shown next to its parts (e.g. \"3 bets, C$35,000 total, +C$70,000\"), the total is computed from the unrounded parts and the parts are shown with the same precision as the total, so they always add up visibly.",
+ "files": [
+  "ops/review/site-text-nov1c.txt",
+  "ops/review/site-overview-nov1c.txt"
+ ],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "**K1.** AGREE\n**Reason:** Keeping all background calculations and storage to the exact cent prevents compounding rounding errors and ensures perfect mathematical accuracy.\n\n**K2.** AGREE\n**Reason:** Transaction-level details, the Ledger, and downloadable CSVs are meant for deep auditing, where users expect and need to see the exact, penny-perfect numbers.\n\n**K3.** AGREE\n**Reason:** High-level overview cards and social media posts need to be instantly scannable, so rounding to the dollar keeps them clean while a tap/hover securely provides the exact data.\n\n**K4.** DISAGREE\n**Reason:** Forcing cents into every single headline and YouTube Short adds unnecessary visual clutter, overwhelming the user and making the main takeaway harder to read.\n\n**K5.** AGREE\n**Reason:** If visible parts don't mathematically match the visible total due to rounding (the \"2 + 2 = 5\" illusion), users will immediately assume the site's code is broken and lose trust.\n\n***\n\n**Anything Missed (Readability, Honesty, and Rounding):**\n\n*   **Readability on Phones:** Adding \".XX\" to every number adds three characters. On narrow mobile screens, this seemingly small change can force tables to scroll horizontally, break CSS layouts, or cause awkward line-wrapping on scoreboards. Keeping cents hidden behind a tap on mobile overviews saves vital screen real estate.\n*   **Honesty & Trust:** In the trading and crypto space, precision matters. Exposing the exact cents in the Ledger proves to users that the race runner is executing fills accurately and not skimming or miscalculating. It reinforces the \"clean experiment\" ethos of Season 1.\n*   **Eliminating the Rounding Disclaimer:** Right now, the site has to display an awkward disclaimer on its pages: *\"Amounts are rounded to the dollar, so the rows can add up to a dollar or two more or less than the total.\"* By showing cents in the detailed breakdowns (like the Holdings tables), you can completely remove this confusing disclaimer because the exact parts will finally add up to the exact total perfectly.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 348800,
+     "candidatesTokenCount": 444,
+     "totalTokenCount": 350731,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 348800
+      }
+     ],
+     "thoughtsTokenCount": 1487,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
