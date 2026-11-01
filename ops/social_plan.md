@@ -106,3 +106,9 @@ Measure in GoatCounter: visits per utm_source, follow/<channel>-<place> events, 
 - **Check results:** Tue Nov 3 or Wed Nov 4.
 - **Oct 31, 7:51 p.m. ET:** Reddit Ads campaign "Reddit test 1" published (status Processing, under Reddit review). Objective Traffic, lowest-cost bid, C$70 daily budget, Nov 2 12:00 a.m. to Nov 3 11:59 p.m. EST (about C$140 total; the C$140 campaign cap was not shown on the review page, so the end date is the limit). Link https://papertrades.ai/?utm_source=redditads&utm_campaign=reddit-test-1. Communities r/ChatGPT, r/ClaudeAI, r/singularity, r/artificial, r/OpenAI, r/GeminiAI. Canada, US, UK, Australia. 3 headlines, ad-1-feed.jpg, icon-512.png thumbnail, Learn More button. Owner's card (not prepaid; Reddit refuses prepaid). Reddit Ads email still to verify.
 - **Reddit check:** Wed Nov 4 / Thu Nov 5. Scale only if under about US$2 per real visitor (redditads tag in the visitor counter).
+
+## Week 1 traffic estimate, Oct 31, 8:30 p.m. ET (ops/review/week-estimate-oct31.json)
+Real outside visitors Nov 1-7, combined (Claude / Gemini / ChatGPT most likely: 1,000 / 700 / 700): low about 300, most likely about 800, high 7,000-15,000 only if Show HN reaches the front page (Gemini <10%, ChatGPT 5-8%, Claude ~20%); without that, the practical ceiling is about 1,500-2,000.
+- Risk (Claude and Gemini): Reddit Ads in the same subreddits on the same days as the owner's organic posts can read as astroturfing. Gemini's fix: move the ads to Nov 5-6. Claude agrees.
+- ChatGPT's fix: one "Start here" page linked everywhere (standings, how fills work, pretend money / no deposits / not advice, the audit, a follow or email sign-up).
+- Show HN with the audit story is the best piece (all three).
