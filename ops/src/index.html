@@ -678,6 +678,13 @@
   .au-pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 420px; overflow: auto; font-size: 12px; line-height: 1.45; background: var(--card-inset, #1d1c18); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 8px; }
   .au-corr { padding-left: 18px; } .au-corr li { margin: 6px 0; font-size: 14px; }
   .st-podium:empty { display: none; }
+  .st-podium .pd-both { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .st-podium .pd-both-ai { border: 1px solid var(--color-border-line); border-left: 3px solid var(--ai); border-radius: var(--cds-radius); padding: 6px 8px; display: flex; flex-direction: column; gap: 4px; }
+  .st-podium .pd-both-ai[aria-current="true"] { background: color-mix(in srgb, var(--ai) 7%, transparent); }
+  .st-podium .pd-both-part { font: inherit; display: grid; grid-template-columns: 56px 52px minmax(0, 1fr); align-items: center; gap: 6px; min-height: 32px; padding: 3px 6px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: transparent; color: var(--color-fg); cursor: pointer; text-align: left; font-size: 12.5px; }
+  .st-podium .pd-both-part:hover { border-color: var(--ai); }
+  .st-podium .pd-both-l { color: var(--color-fg-muted); } .st-podium .pd-both-pl { font-weight: 700; white-space: nowrap; }
+  .st-podium .pd-both-amt { text-align: right; font-family: var(--font-serif, monospace); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .st-podium { border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 12px 14px; background: var(--color-panel); align-self: start; }
   .st-podium h2 { margin: 0 0 2px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
   .st-podium .pd-pick { font: inherit; font-size: 13px; margin: 4px 0 6px; padding: 6px 8px; min-height: 36px; width: 100%; background: var(--color-panel); color: var(--color-fg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
@@ -8293,7 +8300,7 @@ tr.lg-hit .tx-id{opacity:1}
     const all = dash.baseData('exp_standings'); const ES = Array.isArray(all) ? all[0] : all;
     if (!ES) return;
     const first = window.ptFirstRace();
-    const EXPS = [first, 'Overall'].concat(['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'].filter((e) => e !== first), ['AllInTrading', 'AllInSports']);   // plus the All in side race (owner, Oct 29)
+    const EXPS = [first, 'Overall'].concat(['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'].filter((e) => e !== first), ['AllInTrading', 'AllInSports', 'AllInBoth']);   // plus the All in side race (owner, Oct 29); AllInBoth = both parts side by side, never added (owner Nov 1, all three AIs agreed)
     if (el._first !== first) { el._first = first; if (el._follow !== false) el._exp = null; }   // a market opening or closing moves the page to that race (only while Most relevant is on)
     if (!el._exp) el._exp = first;
     if (el._follow == null) el._follow = true;   // auto-pick is on at every visit (opens on the biggest profit anywhere, owner Nov 1)
@@ -8303,7 +8310,7 @@ tr.lg-hit .tx-id{opacity:1}
         el._tab = t;
         const race = PFS_ALL.find((k) => k.toLowerCase() === t);
         if (race) { el._exp = race; el._follow = false; el._ctx = true; }
-        else if (t === 'allin' || t === 'allinledger') { if (!ALLIN[el._exp]) el._exp = 'AllInTrading'; el._follow = false; el._ctx = true; }
+        else if (t === 'allin' || t === 'allinledger') { if (!ALLIN[el._exp] && el._exp !== 'AllInBoth') el._exp = 'AllInTrading'; el._follow = false; el._ctx = true; }
         else if (el._ctx) { el._ctx = false; el._follow = true; el._exp = first; }
       }
       if (!el._tabHook) { el._tabHook = true; window.addEventListener('pt-tab', () => { if (dash.redraw) dash.redraw(); }); }
@@ -8336,16 +8343,16 @@ tr.lg-hit .tx-id{opacity:1}
     if (hot && hot.race) el._exp = hot.race;   // every visit opens on the race whose market is open (China, then US, else Crypto); nothing is remembered
     if (window.ptStandRace !== el._exp) { window.ptStandRace = el._exp; setTimeout(() => { if (dash.redraw) dash.redraw(); }, 0); }   // "How each simulation is doing" follows this pick (owner, Oct 30)
     const want = el._exp === 'Overall' ? null : el._exp;   // Overall: the take, plans, feelings and opinions across all races
-    if (!ALLIN[el._exp] && ((window.ptRace || null) !== want || !!window.ptOverall !== (el._exp === 'Overall'))) { window.ptRace = want; window.ptOverall = el._exp === 'Overall'; setTimeout(() => { if (dash.redraw) dash.redraw(); }, 0); }   // the goals and feelings cards follow this race (the All in side race has none, so they stay put)
+    if (!ALLIN[el._exp] && el._exp !== 'AllInBoth' && ((window.ptRace || null) !== want || !!window.ptOverall !== (el._exp === 'Overall'))) { window.ptRace = want; window.ptOverall = el._exp === 'Overall'; setTimeout(() => { if (dash.redraw) dash.redraw(); }, 0); }   // the goals and feelings cards follow this race (the All in side race has none, so they stay put)
     el.appendChild(mk('h2', '', 'Race standings'));
     const sel = mk('select', 'pd-pick'); sel.setAttribute('aria-label', 'Choose the race');
     const TITLE = (x) => x.replace(/\b([a-z])([a-z]*)/g, (m, a, b) => (['and', 'of', 'it'].includes(m) && m !== 'it' ? m : a.toUpperCase() + b)).replace(/^./, (c) => c.toUpperCase());   // Title Case for the menu
-    EXPS.forEach((e) => { const o = mk('option', '', e === 'Overall' ? 'Overall: Ranked by Total Profit (Amounts Hidden Until Nov 28)' : ALLIN[e] ? TITLE(ALLIN[e]) + ' (Side Race)' : TITLE(LABEL[e] || e)); o.value = e; if (e === el._exp) o.selected = true; sel.appendChild(o); });
+    EXPS.forEach((e) => { const o = mk('option', '', e === 'AllInBoth' ? 'All In: Both Parts (Side Race)' : e === 'Overall' ? 'Overall: Ranked by Total Profit (Amounts Hidden Until Nov 28)' : ALLIN[e] ? TITLE(ALLIN[e]) + ' (Side Race)' : TITLE(LABEL[e] || e)); o.value = e; if (e === el._exp) o.selected = true; sel.appendChild(o); });
     // picking a race here also switches the page to that race's own section (owner, Oct 29): a race to its tab, All in to the All in page,
     // the overall view to the Overview; the page does not scroll
     sel.addEventListener('change', () => {
       const v = sel.value; el._exp = v; el._follow = false;
-      const to = ALLIN[v] ? 'allin' : v === 'Overall' ? 'overview' : v.toLowerCase();
+      const to = ALLIN[v] || v === 'AllInBoth' ? 'allin' : v === 'Overall' ? 'overview' : v.toLowerCase();
       el._tab = to; el._ctx = to !== 'overview';
       const y = window.scrollY; goTab(to, false);   // switch the section without moving the page (owner, Oct 29)
       requestAnimationFrame(() => window.scrollTo(0, y));
@@ -8401,6 +8408,32 @@ tr.lg-hit .tx-id{opacity:1}
       { const bx = mk('div', 'bg-only bg-plain'); bx.appendChild(mk('b', '', '🎓 In plain words'));
         bx.appendChild(mk('p', '', 'There are 10 separate races. Whoever has made the most money across all of them wins on Nov 28, so this is the order right now. The exact amounts are kept secret until the end; pick one race from the menu above to see its money.')); el.appendChild(bx); }
       momentsBox(el);
+      return;
+    }
+    if (el._exp === 'AllInBoth') {   // both parts side by side: each part's own place and amount, NO total and NO combined rank (owner Nov 1; Claude, Gemini and ChatGPT all agreed)
+      el.appendChild(mk('p', 'pd-note', 'Two separate side races, each with its own winner; never added together. Each AI is shown with its place and profit in each part. Tap a part to open it.'));
+      const P = ['AllInTrading', 'AllInSports'].map((part) => ({ part, rows: allinRows(part) }));
+      if (!P.some((x) => x.rows.length)) { el.appendChild(mk('p', 'pd-note', 'All in starts at the next check-in.')); return; }
+      const placeOf = (rows, id) => { const i = rows.findIndex((r) => r.id === id); if (i < 0) return null; const r = rows[i];
+        const crown = i === 0 && rows.length > 1 && rows[0].profit - rows[1].profit >= 0.5;
+        const first = rows.findIndex((x) => Math.abs(x.profit - r.profit) < 0.5), tied = rows.filter((x) => Math.abs(x.profit - r.profit) < 0.5).length > 1;
+        return { r, txt: crown ? '👑 1st' : (tied ? '=' : '') + (['1st', '2nd', '3rd'][first] || (first + 1) + 'th') }; };
+      const ul = mk('ul', 'pd-both');
+      ['claude', 'gemini', 'chatgpt'].forEach((id) => {   // fixed order, not ranked
+        const li = mk('li', 'pd-both-ai'); li.style.setProperty('--ai', AIS[id].color); if (dash.model === id) li.setAttribute('aria-current', 'true');
+        const n = mk('span', 'pd-name'); n.appendChild(whoRobot(id, 30, false)); li.appendChild(n);
+        P.forEach(({ part, rows }) => {
+          const q = placeOf(rows, id); const bt = mk('button', 'pd-both-part'); bt.type = 'button';
+          bt.appendChild(mk('span', 'pd-both-l', part === 'AllInSports' ? 'Sports' : 'Trading'));
+          bt.appendChild(mk('span', 'pd-both-pl', q ? q.txt : '—'));
+          const am = mk('span', 'pd-both-amt', q ? ptSgn0(q.r.profit) + 'C$' + d3.format(',.0f')(Math.abs(q.r.profit)) + (q.r.busted ? ' · BUSTED' : '') : 'not started'); if (q) tone(am, q.r.profit); bt.appendChild(am);
+          bt.setAttribute('aria-label', AIS[id].label + ', ' + ALLIN[part] + ': ' + (q ? q.txt.replace('👑 ', '') + ', ' + am.textContent : 'not started'));
+          bt.addEventListener('click', () => { const s2 = document.getElementById('model-pick'); if (s2 && s2.value !== id) { s2.value = id; s2.dispatchEvent(new Event('change')); } goAllin(part); });
+          li.appendChild(bt);
+        });
+        ul.appendChild(li);
+      });
+      el.appendChild(ul);
       return;
     }
     if (ALLIN[el._exp]) {   // the All in side race: no caps, everything in; not one of the ten races
