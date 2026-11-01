@@ -471,6 +471,29 @@ html = f"""<!doctype html>
 <body>
 <script>window.PT_PAGE_VER = '__PAGE_VER__';</script>
 {SPLASH}
+<!-- Safety banner for new visitors (owner, Nov 1, 2026; text and behaviour agreed by Claude, Gemini and ChatGPT: ops/review/safety-banner-nov1.json).
+     Shown until the visitor closes it (remembered only in that browser), until Dec 1, 2026. -->
+<div id="pt-safety" class="pt-safety" role="note" hidden><span class="pt-safety-t">🔒 PaperTrades.AI never takes deposits or payments and will never ask for your password or personal information. We are not associated with any similarly named site or app. <a href="#official" data-goto="about">Official accounts →</a></span><button type="button" class="pt-safety-x" aria-label="Close this notice">✕</button></div>
+<style>
+  .pt-safety {{ display: flex; align-items: center; gap: 12px; justify-content: center; padding: 8px 44px 8px 14px; background: #15181d; color: #e8e6df; border-bottom: 1px solid #2a2f37; font-size: 13px; line-height: 1.4; text-align: center; position: relative; z-index: 60; }}
+  .pt-safety[hidden] {{ display: none; }}
+  .pt-safety a {{ color: #f5c542; white-space: nowrap; }}
+  .pt-safety-x {{ position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font: inherit; background: none; border: 1px solid #3a404a; color: #e8e6df; border-radius: 999px; width: 28px; height: 28px; cursor: pointer; }}
+  @media (max-width: 700px) {{ .pt-safety {{ font-size: 12.5px; justify-content: flex-start; padding: 8px 42px 8px 12px; }} }}
+</style>
+<script>
+  (function () {{
+    try {{
+      var b = document.getElementById('pt-safety'); if (!b) return;
+      if (Date.now() > Date.parse('2026-12-01T05:00:00Z')) {{ b.remove(); return; }}
+      var closed = null; try {{ closed = localStorage.getItem('pt-safety-closed'); }} catch (e) {{}}
+      if (closed) {{ b.remove(); return; }}
+      b.hidden = false;
+      b.querySelector('.pt-safety-x').addEventListener('click', function () {{ try {{ localStorage.setItem('pt-safety-closed', '1'); }} catch (e) {{}} b.remove(); }});
+      b.querySelector('a').addEventListener('click', function () {{ setTimeout(function () {{ var o = document.getElementById('official'); if (o) o.scrollIntoView({{ behavior: 'smooth', block: 'start' }}); }}, 200); }});
+    }} catch (e) {{}}
+  }})();
+</script>
 <div id="dash-root">
 {markup.strip()}
 </div>

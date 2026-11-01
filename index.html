@@ -1219,13 +1219,6 @@
     .st-live-top .st-tg-first, .st-live-top .st-follow-dc { min-height: 46px; font-size: 15px; }
     .st-live-top .st-follow-ig, .st-live-top .st-follow-x { min-height: 36px; font-size: 13px; }
   }
-  .pt-verify { margin: 14px 0 18px; padding: 14px 16px; border: 1px solid var(--color-border, #2a2a26); border-radius: 12px; background: color-mix(in srgb, #3ddc84 6%, transparent); }
-  .pt-verify-t { margin: 0 0 4px; font-weight: 700; font-size: 15px; color: var(--color-fg); }
-  .pt-verify-p { margin: 0 0 10px; font-size: 13px; line-height: 1.45; color: var(--color-fg-muted); }
-  .pt-verify-b { display: flex; flex-wrap: wrap; gap: 8px; }
-  .pt-verify-dl { background: #1f8f55 !important; } .pt-verify-cp { background: #3a3a34 !important; border: 0; cursor: pointer; font: inherit; font-weight: 600; }
-  .pt-verify-d { margin-top: 8px; font-size: 12.5px; color: var(--color-fg-muted); } .pt-verify-d p { margin: 6px 0 0; line-height: 1.45; }
-  @media (max-width: 700px) { .pt-verify-b { display: grid; grid-template-columns: 1fr; } .pt-verify-b .st-live-btn { justify-content: center; } }
   .pt-join { margin-top: 28px; padding: 16px 18px; border: 1px solid var(--color-border, #2a2a26); border-radius: 14px; background: color-mix(in srgb, #2aabee 6%, transparent); display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; }
   .pt-join-t { margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--color-fg); }
   .pt-join-p { margin: 0; font-size: 13px; line-height: 1.45; color: var(--color-fg-muted); }
@@ -1309,8 +1302,6 @@ tr.lg-hit .tx-id{opacity:1}
 .st-score-cost{opacity:.8;font-size:11.5px}
 .pd-auto{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.pd-auto-l{font-weight:600;white-space:nowrap}.pd-auto-pick{flex:1;min-width:0;max-width:100%;font:inherit;padding:4px 6px;border-radius:6px;background:var(--color-bg,#111);color:inherit;border:1px solid var(--color-border,#444)}
 .st-luck{font-size:12px;line-height:1.45;opacity:.85;margin-top:6px}.st-luck summary{cursor:pointer}.st-luck p{margin:4px 0 0}.st-luck-t{opacity:.75}
-.lg-game{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:4px;font-size:12px;color:var(--color-fg-muted,#9b927f)}
-.lg-game span{border-left:2px solid #ffb000;padding-left:6px}
 
 
 /* Dark is the default; the theme button switches to a soft light mode (remembered per viewer). */
@@ -1503,7 +1494,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '5eae31b55da8';</script>
+<script>window.PT_PAGE_VER = 'c0de14f64f65';</script>
 <div id="pt-splash" aria-hidden="true">
   <style>
     #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }
@@ -1546,6 +1537,29 @@ body { background:var(--color-bg); }
   </script>
 </div>
 
+<!-- Safety banner for new visitors (owner, Nov 1, 2026; text and behaviour agreed by Claude, Gemini and ChatGPT: ops/review/safety-banner-nov1.json).
+     Shown until the visitor closes it (remembered only in that browser), until Dec 1, 2026. -->
+<div id="pt-safety" class="pt-safety" role="note" hidden><span class="pt-safety-t">🔒 PaperTrades.AI never takes deposits or payments and will never ask for your password or personal information. We are not associated with any similarly named site or app. <a href="#official" data-goto="about">Official accounts →</a></span><button type="button" class="pt-safety-x" aria-label="Close this notice">✕</button></div>
+<style>
+  .pt-safety { display: flex; align-items: center; gap: 12px; justify-content: center; padding: 8px 44px 8px 14px; background: #15181d; color: #e8e6df; border-bottom: 1px solid #2a2f37; font-size: 13px; line-height: 1.4; text-align: center; position: relative; z-index: 60; }
+  .pt-safety[hidden] { display: none; }
+  .pt-safety a { color: #f5c542; white-space: nowrap; }
+  .pt-safety-x { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font: inherit; background: none; border: 1px solid #3a404a; color: #e8e6df; border-radius: 999px; width: 28px; height: 28px; cursor: pointer; }
+  @media (max-width: 700px) { .pt-safety { font-size: 12.5px; justify-content: flex-start; padding: 8px 42px 8px 12px; } }
+</style>
+<script>
+  (function () {
+    try {
+      var b = document.getElementById('pt-safety'); if (!b) return;
+      if (Date.now() > Date.parse('2026-12-01T05:00:00Z')) { b.remove(); return; }
+      var closed = null; try { closed = localStorage.getItem('pt-safety-closed'); } catch (e) {}
+      if (closed) { b.remove(); return; }
+      b.hidden = false;
+      b.querySelector('.pt-safety-x').addEventListener('click', function () { try { localStorage.setItem('pt-safety-closed', '1'); } catch (e) {} b.remove(); });
+      b.querySelector('a').addEventListener('click', function () { setTimeout(function () { var o = document.getElementById('official'); if (o) o.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200); });
+    } catch (e) {}
+  })();
+</script>
 <div id="dash-root">
 <div class="st">
   <header class="st-head">
@@ -2806,12 +2820,6 @@ body { background:var(--color-bg); }
     <section class="st-card" aria-labelledby="h-audit">
       <h2 class="st-h2" id="h-audit">Rules and audit</h2>
       <p class="st-note">Every rule of the race, then proof that nobody steers the AIs: exactly what each AI is told at its latest check-in, word for word, and the raw reply it sent back, plus every correction made by hand. How prices and fills work is in <a href="#" data-goto="rules">How it works</a>; every trade, price and reason is in the Ledger.</p>
-      <div class="pt-verify" id="verify">
-        <p class="pt-verify-t">🔍 Check us with your own AI</p>
-        <p class="pt-verify-p">Download everything in one file: every rule, trade, bet, price check, correction, prompt and raw reply, and the nightly fingerprints with a script that recomputes them. Upload it to ChatGPT, Claude, Gemini or any AI that reads files, paste the prompt, and see what it finds. Rebuilt with every update.</p>
-        <div class="pt-verify-b"><a class="st-live-btn pt-verify-dl" href="data/papertrades-audit-pack.zip" download data-follow="audit-pack">⬇ Download the audit pack (.zip)</a><button type="button" class="st-live-btn pt-verify-cp" onclick="(function(b){var t=document.getElementById('pt-verify-prompt').textContent;var done=function(){b.textContent='✓ Prompt copied';setTimeout(function(){b.textContent='📋 Copy the prompt for your AI'},2500)};try{navigator.clipboard.writeText(t).then(done,function(){window.prompt('Copy this prompt:',t)})}catch(e){window.prompt('Copy this prompt:',t)}})(this)">📋 Copy the prompt for your AI</button></div>
-        <details class="pt-verify-d"><summary>See the prompt</summary><p id="pt-verify-prompt">You are an independent auditor for PaperTrades.AI. Use only the attached audit-pack files; do not assume facts from the web. Verify that: trades follow the rules in rules/; fills match the recorded feed prices (checks/price_check.json); P&amp;L and values add up (ledger/moves.csv, ledger/values.csv); every correction is disclosed with a reason and applied once (checks/corrections.json, checks/price_corrections.json); bet results match the recorded final scores; and the nightly fingerprints recompute (run fingerprints/verify.py, or follow fingerprints/HOW.md). Report pass/fail per test, discrepancies with file and row references, and any data you would need to reach a conclusion.</p></details>
-      </div>
       <div data-draw="audit" data-source="checkins"></div>
       <div data-draw="pricecorr" data-source="price_corrections"></div>
     </section>
@@ -4603,14 +4611,7 @@ body { background:var(--color-bg); }
     const box = mk('div'); el.appendChild(box);
     const draw = () => {
       box.replaceChildren();
-      // several bets on one game (all three AIs agreed G1 and G5, Nov 1): own rows and IDs kept; a line under each, one tap shows only that game
-      const GK = (t) => /^(Bet|Won|Lost|Void|Push)$/.test(t.action) && t.experiment === 'AllInSports' ? t.model + '|' + t.experiment + '|' + (t.name || t.symbol) : null;
-      const GBA = {}; TS.forEach((t) => { const k = GK(t); if (k && t.action === 'Bet') (GBA[k] = GBA[k] || []).push(t); });
-      Object.values(GBA).forEach((L) => L.sort((a, b) => Date.parse(a.at) - Date.parse(b.at)));
-      const base = TS.filter((t) => (!st.part || t.experiment === st.part) && (!st.ai || t.model === st.ai) && (!el._game || GK(t) === el._game));
-      if (el._game) { const L = GBA[el._game] || []; const bn = mk('div', 'lg-focus'); bn.setAttribute('role', 'status');
-        bn.appendChild(mk('span', '', 'Showing only one game: ' + (AIS[L[0] && L[0].model] || {}).label + '’s ' + L.length + ' bets on ' + String((L[0] || {}).name || '').replace(/^[A-Z]{2,5}: /, '') + ', and their results.'));
-        const ab = mk('button', '', 'Show every move'); ab.type = 'button'; ab.addEventListener('click', () => { el._game = null; draw(); }); bn.appendChild(ab); box.appendChild(bn); }
+      const base = TS.filter((t) => (!st.part || t.experiment === st.part) && (!st.ai || t.model === st.ai));
       if (el._focus && MF_STATE['allin-ledger']) Object.assign(MF_STATE['allin-ledger'], { k: '', s: 'new' });   // a "Find" jump shows every move, newest first
       const MF = mfApply('allin-ledger', base, MF_RIV(), () => { el._pg = 0; draw(); }, { page: 10 }); box.append(MF.bar, MF.sum);
       const rows = MF.rows;
@@ -4631,17 +4632,7 @@ body { background:var(--color-bg); }
         const bt = t.action === 'Bet' ? BETS[t.model + '|' + t.bet] : null;   // a bet says when its game starts, so the bet time and the game time are never confused
         const pl = pnlOf(t); const why = mk('td', 'wrap', t.reason || ''); { const lb = window.ptLookback(t.tx, t.model); if (lb) setTimeout(() => why.appendChild(lb), 0); }
         { const n = /^(Buy|Sell|Short|Cover|Bet)$/.test(t.action) ? pgNode(PG_KEY(t)) : null; if (n) why.appendChild(n); }
-        const mv = mk('td', 'wrap', t.action + ' ' + String(t.name || t.symbol).replace(/^[A-Z]{2,5}: /, '') + (bt && bt.starts_at ? ' · game starts ' + stFmt.whenET(bt.starts_at) + ' ET' : ''));
-        { const k = GK(t), L = k ? GBA[k] || [] : [];
-          if (L.length > 1) { const i = L.indexOf(t), tot = L.reduce((x, y) => x + (+y.amount || 0), 0);
-            const res = TS.filter((x) => GK(x) === k && /^(Won|Lost)$/.test(x.action)), net = res.reduce((x, y) => x + (+(y.pnl != null ? y.pnl : y.amount) || 0), 0);
-            const g = mk('div', 'lg-game');
-            g.appendChild(mk('span', '', i > 0 ? 'Adds to its bet on this game (now C$' + d3.format(',.0f')(L.slice(0, i + 1).reduce((x, y) => x + (+y.amount || 0), 0)) + ')' :
-              'Same game: ' + L.length + ' bets, C$' + d3.format(',.0f')(tot) + ' total' + (res.length === L.length ? ', ' + (net >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(net)) : '')));
-            if (!el._game) { const gb = mk('button', 'lg-find', '🔎 Show all ' + L.length); gb.type = 'button'; gb.title = 'Show only this game: every bet and its result';
-              gb.addEventListener('click', () => { el._game = k; el._focus = null; el._pg = 0; draw(); el.scrollIntoView({ block: 'start', behavior: 'smooth' }); }); g.appendChild(gb); }
-            mv.appendChild(g); } }
-        r.append(window.ptTxWhen(t.at, t.tx), ai, mk('td', '', ALLIN[t.experiment].replace('All in: ', '')), mv,
+        r.append(window.ptTxWhen(t.at, t.tx), ai, mk('td', '', ALLIN[t.experiment].replace('All in: ', '')), mk('td', 'wrap', t.action + ' ' + String(t.name || t.symbol).replace(/^[A-Z]{2,5}: /, '') + (bt && bt.starts_at ? ' · game starts ' + stFmt.whenET(bt.starts_at) + ' ET' : '')),
           mk('td', 'num', Number.isFinite(+t.amount) ? (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.0f')(Math.abs(t.amount)) : ''), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret || ''), why);
         // the way back and forth (owner, Oct 30; all three AIs agreed): a result finds its bet, a settled bet its result, a sale its buy,
         // a sold buy its sale. Nothing on a bet still open or a position still held.
@@ -6127,10 +6118,10 @@ body { background:var(--color-bg); }
     B.data.forEach((b) => {
       const odds = (Number(b.odds) > 0 ? '+' : '') + b.odds, stake = Number(b.stake_cad);
       const res = b.status !== 'Open' ? Number(b.result_cad) : null;
-      rows.push({ gk: b.pick + '|' + b.event, stk: stake, tx: b.tx || null, holding: b.status === 'Open', pg: b.placed_at ? dash.model + '|' + new Date(b.placed_at).toISOString().slice(0, 19) + 'Z|Sports|' + b.bet + '|Bet' : null, at: b.placed_at || b.placed + 'T12:00:00-04:00', portfolio: 'Sports', action: 'Bet', item: b.bet + ' ' + b.pick, detail: b.event + ' at ' + odds + ' · to win C$' + d3.format(',.0f')(b.to_win_cad || 0), amount: 'C$' + d3.format(',.0f')(stake), cost: 'C$' + d3.format(',.0f')(stake), profit: null, ret: null, open: b.status === 'Open', outcome: res, void: b.status === 'Void', why: b.note || b.reason || ((lgRows.filter((l) => l.portfolio === 'Sports' && l.at === b.placed_at)[0] || {}).detail) || '' });
+      rows.push({ tx: b.tx || null, holding: b.status === 'Open', pg: b.placed_at ? dash.model + '|' + new Date(b.placed_at).toISOString().slice(0, 19) + 'Z|Sports|' + b.bet + '|Bet' : null, at: b.placed_at || b.placed + 'T12:00:00-04:00', portfolio: 'Sports', action: 'Bet', item: b.bet + ' ' + b.pick, detail: b.event + ' at ' + odds + ' · to win C$' + d3.format(',.0f')(b.to_win_cad || 0), amount: 'C$' + d3.format(',.0f')(stake), cost: 'C$' + d3.format(',.0f')(stake), profit: null, ret: null, open: b.status === 'Open', outcome: res, void: b.status === 'Void', why: b.note || b.reason || ((lgRows.filter((l) => l.portfolio === 'Sports' && l.at === b.placed_at)[0] || {}).detail) || '' });
       if (b.status !== 'Open') {
         const back = b.status === 'Won' ? stake + res : b.status === 'Lost' ? 0 : stake;
-        rows.push({ gk: b.pick + '|' + b.event, net: res, tx: b.tx_result || null, at: b.settled_at || (b.starts_at ? new Date(new Date(b.starts_at).getTime() + 3 * 3600e3).toISOString() : b.placed + 'T23:00:00-04:00'), portfolio: 'Sports', action: b.status, item: b.bet + ' ' + b.pick, detail: b.event + (b.final ? ' · ' + b.final : '') + ' · paid back C$' + d3.format(',.0f')(back), amount: 'C$' + d3.format(',.0f')(back), cost: 'C$' + d3.format(',.0f')(stake), profit: res, ret: stake ? res / stake : null, open: false, betAfter: { odds: Number(b.odds), closing: b.closing_odds != null ? Number(b.closing_odds) : null, final: b.final || '', status: b.status } });
+        rows.push({ tx: b.tx_result || null, at: b.settled_at || (b.starts_at ? new Date(new Date(b.starts_at).getTime() + 3 * 3600e3).toISOString() : b.placed + 'T23:00:00-04:00'), portfolio: 'Sports', action: b.status, item: b.bet + ' ' + b.pick, detail: b.event + (b.final ? ' · ' + b.final : '') + ' · paid back C$' + d3.format(',.0f')(back), amount: 'C$' + d3.format(',.0f')(back), cost: 'C$' + d3.format(',.0f')(stake), profit: res, ret: stake ? res / stake : null, open: false, betAfter: { odds: Number(b.odds), closing: b.closing_odds != null ? Number(b.closing_odds) : null, final: b.final || '', status: b.status } });
       }
     });
     // a buy (or short) that has since been sold (or covered): its result, from the sells that followed it
@@ -6405,12 +6396,6 @@ body { background:var(--color-bg); }
       if (!rows) return;
       const p = el.dataset.portfolio;
       let inRace = rows.filter((r) => !p || r.portfolio === p);
-      // several bets on one game (owner, Nov 1; all three AIs agreed G1 and G5: ops/review/samegame-nov1.json): every bet keeps its own
-      // row and ID; a line under each says how many bets that game had, and one tap shows only that game
-      const GB = {}; inRace.forEach((r) => { if (r.gk && r.action === 'Bet') (GB[r.gk] = GB[r.gk] || []).push(r); });
-      Object.values(GB).forEach((L) => L.sort((a, b) => new Date(a.at) - new Date(b.at)));
-      const game = el.dataset.game || '';
-      if (game) inRace = inRace.filter((r) => r.gk === game);
       // a moment's "Find in Ledger": only that holding's trades, the trade itself highlighted, its buys (or the bet) softly
       let F = null; try { F = el.dataset.focus ? JSON.parse(el.dataset.focus) : null; } catch (e) { F = null; }
       if (F && (F.model !== (dash.model || 'claude') || F.race !== p)) F = null;
@@ -6431,11 +6416,6 @@ body { background:var(--color-bg); }
       if (!(F && !F.missing)) el.append(MF.bar, MF.sum);
       const kind = MF.key;
       const shown = F && !F.missing ? inRace : MF.rows;
-      if (game) {
-        const L = GB[game] || []; const bn = mk('div', 'lg-focus'); bn.setAttribute('role', 'status');
-        bn.appendChild(mk('span', '', 'Showing only one game: ' + game.split('|')[0] + ' (' + game.split('|')[1] + '): ' + L.length + ' bets and their results.'));
-        const ab = mk('button', '', 'Show all trades'); ab.type = 'button'; ab.addEventListener('click', () => { delete el.dataset.game; run(); }); bn.appendChild(ab); el.appendChild(bn);
-      }
       if (F) {
         const bn = mk('div', 'lg-focus'); bn.setAttribute('role', 'status');
         bn.appendChild(mk('span', '', F.missing ? 'Could not find "' + F.item + '" in ' + AIS[F.model].label + "'s " + (LABEL[p] || p) + ' trades; showing all of them.'
@@ -6468,16 +6448,6 @@ body { background:var(--color-bg); }
           const canFind = !(F && !F.missing) && (closing || v != null);
           if (canFind && window.ptFindTrade) { const fb = mk('button', 'lg-find', closing ? 'Find the buy(s)' : 'Find the sale(s)'); fb.type = 'button'; fb.title = 'Show only this holding: the sale highlighted, the buys behind it softly';
             fb.addEventListener('click', () => window.ptFindTrade(dash.model || 'claude', r.portfolio, r.at, String(r.item).replace(/ \(.*\)$/, ''), r.action)); actBox.appendChild(fb); }
-        }
-        if (r.gk && (GB[r.gk] || []).length > 1) {   // same game, several bets
-          const L = GB[r.gk], tot = L.reduce((x, y) => x + (y.stk || 0), 0), i = L.indexOf(r);
-          const res = inRace.filter((x) => x.gk === r.gk && x.net != null), net = res.reduce((x, y) => x + y.net, 0);
-          const g = mk('div', 'lg-game');
-          g.appendChild(mk('span', '', i > 0 ? 'Adds to its bet on this game (now C$' + d3.format(',.0f')(L.slice(0, i + 1).reduce((x, y) => x + (y.stk || 0), 0)) + ')' :
-            'Same game: ' + L.length + ' bets, C$' + d3.format(',.0f')(tot) + ' total' + (res.length === L.length ? ', ' + (net >= 0 ? '+' : '−') + 'C$' + d3.format(',.0f')(Math.abs(net)) : '')));
-          if (!game) { const gb = mk('button', 'lg-find', '🔎 Show all ' + L.length); gb.type = 'button'; gb.title = 'Show only this game: every bet and its result';
-            gb.addEventListener('click', () => { el.dataset.game = r.gk; delete el.dataset.focus; run(); el.scrollIntoView({ block: 'start', behavior: 'smooth' }); }); g.appendChild(gb); }
-          actBox.appendChild(g);
         }
         const whenBox = mk('div'); whenBox.append(document.createTextNode(stFmt.when(r.at)), window.ptTxTag(r.tx, r.at)); if (r.tx) tr.dataset.tx = r.tx;
         const cells = [[whenBox], [LABEL[r.portfolio] || r.portfolio], [actBox], [r.item], [r.detail, 'wrap'], [r.amount, 'num'], [r.cost || '', 'num'],
@@ -8438,7 +8408,7 @@ body { background:var(--color-bg); }
   });
   dash.draw('dq-dl', (el) => {
     el.replaceChildren(); const D = dash.baseData('downloads') || []; if (!D.length) return;
-    const ABOUT = { 'papertrades-audit-pack.zip': 'everything in one file for your own AI to check: rules, every move, price checks, corrections, prompts and replies, fingerprints with a script that recomputes them (see Rules & Audit)', 'moves.csv': 'every trade, bet and bet result of all three AIs, with its own reason', 'values.csv': 'each AI’s value in each race at every check-in', 'prices_claude.csv': 'every price Claude used, with its source', 'grades.csv': 'every grade one AI gave another, before the result', 'README.txt': 'what each column means' };
+    const ABOUT = { 'moves.csv': 'every trade, bet and bet result of all three AIs, with its own reason', 'values.csv': 'each AI’s value in each race at every check-in', 'prices_claude.csv': 'every price Claude used, with its source', 'grades.csv': 'every grade one AI gave another, before the result', 'README.txt': 'what each column means' };
     const ul = mk('ul', 'nm-list'); D.forEach((f) => { const li = mk('li', ''); const a = mk('a', '', f.file); a.href = 'data/' + f.file; a.setAttribute('download', ''); li.append(a, document.createTextNode(' · ' + (ABOUT[f.file] || '') + ' · ' + (f.bytes > 1024 ? d3.format(',.0f')(f.bytes / 1024) + ' KB' : f.bytes + ' bytes'))); ul.appendChild(li); });
     el.appendChild(ul);
   });
@@ -8594,7 +8564,7 @@ body { background:var(--color-bg); }
     const EXPS = [first, 'Overall'].concat(['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions'].filter((e) => e !== first), ['AllInTrading', 'AllInSports']);   // plus the All in side race (owner, Oct 29)
     if (el._first !== first) { el._first = first; if (el._follow !== false) el._exp = null; }   // a market opening or closing moves the page to that race (only while Most relevant is on)
     if (!el._exp) el._exp = first;
-    if (el._follow == null) el._follow = true;   // auto-pick is on at every visit (opens on the biggest profit anywhere, owner Nov 1)
+    if (el._follow == null) el._follow = true;   // owner's choice: Most relevant is on at every visit
     { // Race standings follow the tab you are on: a race's tab shows that race, All in shows the side race, other pages go back to Most relevant (owner, Oct 29)
       const tab = (document.querySelector('.st-tab[aria-selected="true"]') || {}).dataset; const t = (tab && tab.tab) || 'overview';
       if (el._tab !== t) {
@@ -8617,19 +8587,17 @@ body { background:var(--color-bg); }
       const allin = () => { let R; try { R = allinRows; } catch (e) { return []; }
         return ['AllInTrading', 'AllInSports'].map((r) => { const srt = R(r).slice().sort((a, b) => b.profit - a.profit); return srt.length ? { r, hi: srt[0], lo: srt[srt.length - 1], c: 1 } : null; }).filter(Boolean); };
       const best = (arr, f) => arr.reduce((a, x) => (a == null || f(x) > f(a) + 0.5 || (Math.abs(f(x) - f(a)) <= 0.5 && x.r === el._exp) ? x : a), null);   // a tie keeps the race already shown, then menu order (ChatGPT's tie-break)
-      if (mode === 'profit') { const x = best(ten, (q) => q.hi.profit * q.c); return x && x.hi.profit > 0.5 ? { race: x.r, v: x.hi.profit * x.c, why: nm(x.hi.id) + ' is ' + m(x.hi.profit * x.c) + ' in ' + lab(x.r) + ', the biggest profit in any of the ten races.' } : { race: null, why: 'No AI is in profit in any of the ten races right now.' }; }
+      if (mode === 'profit') { const x = best(ten, (q) => q.hi.profit * q.c); return x && x.hi.profit > 0.5 ? { race: x.r, why: nm(x.hi.id) + ' is ' + m(x.hi.profit * x.c) + ' in ' + lab(x.r) + ', the biggest profit in any of the ten races.' } : { race: null, why: 'No AI is in profit in any of the ten races right now.' }; }
       if (mode === 'loss') { const x = best(ten, (q) => -q.lo.profit * q.c); return x && x.lo.profit < -0.5 ? { race: x.r, why: nm(x.lo.id) + ' is ' + m(x.lo.profit * x.c) + ' in ' + lab(x.r) + ', the biggest loss in any of the ten races.' } : { race: null, why: 'No AI is in a loss in any of the ten races right now.' }; }
       if (mode === 'close') { const x = best(ten.filter((q) => q.gap >= 0), (q) => -q.gap); return x ? { race: x.r, why: 'Only ' + 'C$' + d3.format(',.0f')(x.gap) + ' between 1st and 2nd in ' + lab(x.r) + ', the closest of the ten races.' } : null; }
       if (mode === 'lead') { const x = best(ten, (q) => q.gap); return x && x.gap > 0.5 ? { race: x.r, why: nm(x.hi.id) + ' leads ' + lab(x.r) + ' by C$' + d3.format(',.0f')(x.gap) + ', the biggest lead in the ten races.' } : null; }
-      if (mode === 'aprofit') { const x = best(allin(), (q) => q.hi.profit); return x && x.hi.profit > 0.5 ? { race: x.r, v: x.hi.profit, why: nm(x.hi.id) + ' is ' + m(x.hi.profit) + ' in ' + ALLIN[x.r] + ', the biggest profit in the All in side race.' } : { race: null, why: 'No AI is in profit in the All in side race right now.' }; }
+      if (mode === 'aprofit') { const x = best(allin(), (q) => q.hi.profit); return x && x.hi.profit > 0.5 ? { race: x.r, why: nm(x.hi.id) + ' is ' + m(x.hi.profit) + ' in ' + ALLIN[x.r] + ', the biggest profit in the All in side race.' } : { race: null, why: 'No AI is in profit in the All in side race right now.' }; }
       if (mode === 'aloss') { const x = best(allin(), (q) => -q.lo.profit); return x && x.lo.profit < -0.5 ? { race: x.r, why: nm(x.lo.id) + ' is ' + m(x.lo.profit) + ' in ' + ALLIN[x.r] + ', the biggest loss in the All in side race.' } : { race: null, why: 'No AI is in a loss in the All in side race right now.' }; }
       return null;
     };
     const AUTO = [['live', 'Most relevant (live market)'], ['profit', 'Biggest profit (ten races)'], ['loss', 'Biggest loss (ten races)'], ['close', 'Closest race'], ['lead', 'Biggest lead'],
       ['aprofit', 'Biggest profit (All in side race)'], ['aloss', 'Biggest loss (All in side race)'], ['off', 'Off: I’ll choose']];
-    // every visit opens on the race with the biggest profit anywhere (owner, Nov 1): whichever of the two profit options is bigger is
-    // selected, the ten races or the All in side race; no extra option is added
-    if (!el._mode) { const a = autoPick('profit'), b = autoPick('aprofit'); el._mode = (b && b.v || 0) > (a && a.v || 0) ? 'aprofit' : a && a.v ? 'profit' : 'live'; }
+    if (!el._mode) el._mode = 'live';
     const hot = el._follow ? (el._mode === 'live' ? hottestRace() : autoPick(el._mode)) : null;   // re-checked at every data update
     if (hot && hot.race) el._exp = hot.race;   // every visit opens on the race whose market is open (China, then US, else Crypto); nothing is remembered
     if (window.ptStandRace !== el._exp) { window.ptStandRace = el._exp; setTimeout(() => { if (dash.redraw) dash.redraw(); }, 0); }   // "How each simulation is doing" follows this pick (owner, Oct 30)
@@ -10179,34 +10147,6 @@ body { background:var(--color-bg); }
       send();
     } catch (e) {}
   })();
-</script>
-<script>
-/* wide screens: Race standings runs beside the left column; the stretchy row must always be the LAST row, after every
-   left-column item, or it opens an empty gap in the middle of the column (owner, Nov 1). Counts the items each time
-   the block changes, so adding or removing a box never brings the gap back. */
-(function () {
-  var h = document.querySelector('.st-head2'); if (!h) return;
-  var mq = window.matchMedia('(min-width: 1000px)'), queued = false;
-  function shown(el) { return el.nodeType === 1 && getComputedStyle(el).display !== 'none' && !/^(absolute|fixed)$/.test(getComputedStyle(el).position); }
-  function fit() {
-    queued = false;
-    var pod = h.querySelector('.st-hook > .st-podium'); if (!pod) return;
-    if (!mq.matches) { if (h.style.gridTemplateRows) h.style.gridTemplateRows = ''; if (pod.style.gridRow) pod.style.gridRow = ''; return; }
-    var n = 0;
-    Array.prototype.forEach.call(h.children, function (k) {
-      if (k.classList.contains('st-hook')) Array.prototype.forEach.call(k.children, function (c) { if (c !== pod && shown(c)) n++; });
-      else if (shown(k)) n++;
-    });
-    var rows = 'repeat(' + Math.max(n, 1) + ', auto) 1fr', span = '1 / span ' + (Math.max(n, 1) + 1);
-    if (h.style.gridTemplateRows !== rows) h.style.gridTemplateRows = rows;
-    if (pod.style.gridRow !== span) pod.style.gridRow = span;
-  }
-  function later() { if (!queued) { queued = true; requestAnimationFrame(fit); } }
-  new MutationObserver(later).observe(h, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'hidden', 'style', 'open'] });
-  if (mq.addEventListener) mq.addEventListener('change', later); else mq.addListener(later);
-  window.addEventListener('resize', later); window.addEventListener('load', later);
-  fit();
-})();
 
   dash.draw('refreshed', (el) => {
     const d = dash.data('meta');
