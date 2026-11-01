@@ -1,181 +1,144 @@
-"""Build an audit pack for an independent review by Gemini and ChatGPT (owner, Oct 30): every AI's books, bets, recent trades,
-stops, betting minimums, price-check flags and fingerprints, as plain text, plus the site's visible text if given.
+"""The audit pack (owner, Nov 1; Claude, Gemini and ChatGPT all agreed, ops/review/auditpack-r1.json): ONE zip with everything a
+visitor needs to have their own AI (or themselves) check the race: rules, every move with its reason, every value, the feed-price
+check of each fill, every correction with its reason, the exact prompts and raw replies, peer grades, the nightly SHA-256
+fingerprints with a script that recomputes them, and a manifest with each file's SHA-256. Everything in it is already public on
+the site; no keys, tokens, chat IDs, account or infrastructure details are included.
 
-  python3 ops/audit_pack.py [site_text_file] > ops/review/audit-pack.md
-
-Read-only: it never changes any data. Values use the last stored prices (no live quotes), so they match the site.
+  build(data, out_zip)   called by build_site.py after the CSVs in data/ are written
 """
-import json, os, sys
-from datetime import datetime, timezone, timedelta
+import hashlib
+import io
+import json
+import os
+import zipfile
+from datetime import datetime, timezone
 
-S = 'ops/src/'
-J = lambda n, d=None: json.load(open(S + n + '.json')) if os.path.exists(S + n + '.json') else d
-NOW = datetime.now(timezone.utc)
-START = 100000.0
-AIS = {'claude': 'Claude', 'gemini': 'Gemini', 'chatgpt': 'ChatGPT'}
-EXPS = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions', 'AllInTrading', 'AllInSports']
+SRC = 'ops/src'
+
+PROMPT = ('You are an independent auditor for PaperTrades.AI. Use only the attached audit-pack files; do not assume facts from the web. '
+          'Verify that: trades follow the rules in rules/; fills match the recorded feed prices (checks/price_check.json); '
+          'P&L and values add up (ledger/moves.csv, ledger/values.csv); every correction is disclosed with a reason and applied once '
+          '(checks/corrections.json, checks/price_corrections.json); bet results match the recorded final scores; and the nightly '
+          'fingerprints recompute (run fingerprints/verify.py, or follow fingerprints/HOW.md). Report pass/fail per test, discrepancies '
+          'with file and row references, and any data you would need to reach a conclusion.')
 
 
-def ts(x):
-    return datetime.fromisoformat(str(x).replace('Z', '+00:00')).astimezone(timezone.utc)
-
-
-def et(x):
+def _j(name, default=None):
     try:
-        return ts(x).astimezone(__import__('zoneinfo').ZoneInfo('America/New_York')).strftime('%b %d %H:%M ET')
+        return json.load(open(os.path.join(SRC, name + '.json')))
     except Exception:
-        return str(x)
+        return default if default is not None else []
 
 
-def clip(s, n=220):
-    s = ' '.join(str(s or '').split())
-    return s if len(s) <= n else s[:n - 1] + '…'
+def build(data, out_zip, csv_dir='data'):
+    now = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
+    files = {}
+    put = lambda name, obj: files.__setitem__(name, json.dumps(obj, ensure_ascii=False, indent=1).encode('utf-8') if not isinstance(obj, (bytes, str)) else (obj.encode('utf-8') if isinstance(obj, str) else obj))
+    audit = {}
+    try:
+        audit = json.load(open('audit.json'))
+    except Exception:
+        pass
+    # rules
+    put('rules/limits.json', data.get('rules', []))
+    put('rules/rulebook.json', audit.get('rulebook', {}))
+    # ledger
+    for n in ('moves.csv', 'values.csv', 'prices_claude.csv', 'grades.csv'):
+        p = os.path.join(csv_dir, n)
+        if os.path.exists(p):
+            files['ledger/' + n] = open(p, 'rb').read()
+    put('ledger/open_positions.json', data.get('holdings', []))
+    put('ledger/standings.json', data.get('exp_standings', {}))
+    # checks and corrections
+    put('checks/price_check.json', data.get('price_audit', []))
+    put('checks/price_corrections.json', data.get('price_corrections', []))
+    put('checks/corrections.json', audit.get('corrections', []))
+    put('checks/stops_and_targets.json', data.get('stops_log', []))
+    put('checks/site_changelog.json', data.get('changelog', []))
+    # what each AI is told and what it answered (the latest check-in, as shown on Rules & Audit)
+    put('prompts/latest_prompts_and_replies.json', audit.get('ais', {}))
+    put('sources/sources.json', data.get('sources', []))
+    # fingerprints: the published hashes, the raw ledger files they cover, and the script that recomputes them
+    st = _j('rivals', {})
+    put('fingerprints/published.json', st.get('fingerprints', []))
+    put('fingerprints/raw/trades.json', _j('trades'))
+    put('fingerprints/raw/bets.json', _j('bets'))
+    put('fingerprints/raw/price_corrections.json', _j('price_corrections'))
+    put('fingerprints/raw/rivals.json', {'trades': st.get('trades', []), 'price_corrections': st.get('price_corrections', []), 'fingerprints': st.get('fingerprints', [])})
+    files['fingerprints/fingerprint.py'] = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fingerprint.py'), 'rb').read()
+    files['fingerprints/verify.py'] = VERIFY.encode('utf-8')
+    files['fingerprints/HOW.md'] = HOW.encode('utf-8')
+    files['PROMPT.txt'] = (PROMPT + '\n').encode('utf-8')
+    files['VERIFY_ME.md'] = (README.replace('{now}', now).replace('{prompt}', PROMPT)).encode('utf-8')
+    manifest = {'built_at': now, 'files': {n: {'sha256': hashlib.sha256(b).hexdigest(), 'bytes': len(b)} for n, b in sorted(files.items())}}
+    files['manifest.json'] = json.dumps(manifest, indent=1).encode('utf-8')
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+        for n in sorted(files):
+            zi = zipfile.ZipInfo('papertrades-audit-pack/' + n, date_time=(2026, 1, 1, 0, 0, 0)); zi.compress_type = zipfile.ZIP_DEFLATED
+            z.writestr(zi, files[n])
+    open(out_zip, 'wb').write(buf.getvalue())
+    return len(files)
 
 
-r = J('rivals')
-fx = r.get('fx') or {}
-usdcad = float(fx.get('USDCAD') or (J('fx') or {}).get('usdcad') or 1.39)
-out = []
-w = out.append
-w(f'# Paper Trades audit pack, generated {NOW.strftime("%Y-%m-%d %H:%M")} UTC ({et(NOW.isoformat())})')
-w('Values use the last stored prices (the same ones the site shows). Times are UTC unless marked ET. Money: C$ unless marked (China in US$).')
-w(f'Exchange rates stored by the race runner: {json.dumps(fx)}; Claude\'s fx.json: {json.dumps(J("fx"))}')
+VERIFY = '''"""Recompute every published nightly fingerprint from the raw ledger files in this folder.
+Run: python3 verify.py   (Python 3.8+, no extra packages)"""
+import json, os, sys
+from datetime import datetime
+here = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, here)
+import fingerprint as F
+F.SRC = os.path.join(here, 'raw')
+st = json.load(open(os.path.join(here, 'raw', 'rivals.json')))
+t = lambda s: datetime.fromisoformat(s.replace('Z', '+00:00'))
+bad = 0
+for f in st['fingerprints']:
+    ls = F.lines(F._j('trades'), F._j('bets'), st['trades'], t(f['close_at']), F.corrections(st))
+    ok = F.digest(ls) == f['sha256']
+    bad += not ok
+    print(f['day'], 'OK' if ok else 'DIFFERENT', f['sha256'][:16], len(ls), 'records')
+print('All fingerprints match.' if not bad else str(bad) + ' fingerprint(s) differ.')
+'''
 
-# ---- books
-w('\n## 1. Every AI\'s books (value, cash, positions)')
-hist = J('history', [])
-for mid in ('claude', 'gemini', 'chatgpt'):
-    w(f'\n### {AIS[mid]}')
-    if mid == 'claude':
-        H = J('holdings', [])
-        for e in EXPS[:10]:
-            rows = [x for x in H if x['portfolio'] == e]
-            if not rows:
-                continue
-            cur = 'US$' if e == 'China' else 'C$'
-            tot = sum(float(x.get('value_usd') if e == 'China' else x.get('value_cad') or 0) for x in rows)
-            if e == 'Sports':   # the bankroll is the start plus settled results (minus penalties), not the cash row
-                tot = START + sum(float(b.get('result_cad') or 0) for b in J('bets', []) if b.get('status') != 'Open' and b.get('placed_at') and ts(b['placed_at']) >= datetime(2026, 10, 28, 17, 45, tzinfo=timezone.utc)) - sum(float(x.get('amount') or 0) for x in (r.get('claude_penalties') or []))
-            last = [h for h in hist if h['portfolio'] == e]
-            hv = last[-1]['value'] if last else None
-            w(f'- **{e}**: value {cur}{tot:,.2f} (history {cur}{hv:,.2f} at {last[-1]["at"] if last else "-"}), profit {cur}{tot - START:,.2f}')
-            for x in rows:
-                w(f'  - {x["holding"]}: qty {x.get("quantity")}, entry {x.get("entry_usd", x.get("entry_local"))}, now {x.get("price_usd", x.get("price_local"))}, value {x.get("value_usd") if e == "China" else x.get("value_cad")}, priced {x.get("price_at") or x.get("as_of") or "?"}, source: {clip(x.get("price_source"), 120)}')
-        for e, b in ((r.get('claude_allin') or {}).get('books') or {}).items():   # the All in side race (audit, Oct 30: it was missing)
-            if e == 'AllInSports':
-                val = START + sum(x['result'] for x in b.get('bets', []) if x['status'] != 'Open')
-                w(f'- **{e}** (side race): value C${val:,.2f}')
-                for x in b.get('bets', []):
-                    w(f'  - {x["id"]}: {clip(x.get("event"), 80)} · {x.get("pick_team")} {x.get("odds")} · stake {x["stake"]} · {x["status"]} {x.get("result", "")} · final {clip(x.get("final"), 80)}')
-                continue
-            val = b['cash'] + sum(p['qty'] * p.get('last', p['entry']) * (usdcad if p['pcur'] == 'USD' else 1) for p in b['positions'].values())
-            w(f'- **{e}** (side race): value ≈ C${val:,.2f}, cash C${b["cash"]:,.2f}')
-            for k, p in b['positions'].items():
-                w(f'  - {p.get("name", k)} [{k}]: qty {p["qty"]:,.4f}, entry {p["entry"]}, now {p.get("last")} {p["pcur"]}, priced {p.get("priced_at")}')
-        bets = J('bets', [])
-        fresh = [b for b in bets if b.get('placed_at') and ts(b['placed_at']) >= datetime(2026, 10, 28, 17, 45, tzinfo=timezone.utc)]
-        w(f'- **Sports bets since the restart** ({len(fresh)}):')
-        for b in fresh:
-            w(f'  - {b.get("bet")}: {clip(b.get("event"), 90)} · pick {b.get("pick")} · odds {b.get("odds")} · stake C${b.get("stake_cad")} · status {b.get("status")} · result C${b.get("result_cad")} · starts {b.get("starts_at")} · closing {b.get("closing_odds")}')
-    else:
-        m = r['models'][mid]
-        for e in EXPS:
-            b = m['books'].get(e)
-            if not b:
-                continue
-            cur = 'US$' if b['cur'] == 'USD' else 'C$'
-            if e in ('Sports', 'AllInSports'):
-                val = START + sum(x['result'] for x in b.get('bets', []) if x['status'] != 'Open') - sum(p['amount'] for p in b.get('penalties', []))
-                opn = sum(x['stake'] for x in b.get('bets', []) if x['status'] == 'Open')
-                w(f'- **{e}**: value {cur}{val:,.2f} (open stakes {cur}{opn:,.2f}, penalties {[p["amount"] for p in b.get("penalties", [])]})')
-                for x in b.get('bets', []):
-                    legs = (' legs: ' + '; '.join(f'{l.get("pick_team")} {l.get("odds")} {l.get("status")}' for l in x['legs'])) if x.get('legs') else ''
-                    w(f'  - {x["id"]}: {clip(x.get("event"), 80)} · {x.get("pick_team")} {x.get("odds")} · stake {x["stake"]} · to win {x.get("to_win")} · {x["status"]} {x.get("result", "")} · starts {x.get("starts_at")} · final {clip(x.get("final"), 80)} · closing {x.get("closing_odds")}{legs}')
-                continue
-            val = b['cash']
-            lines = []
-            for k, p in b['positions'].items():
-                px = p.get('last', p['entry'])
-                v = p['qty'] * px * ((usdcad if b['cur'] == 'CAD' else 1) if p['pcur'] == 'USD' else (1 / float(fx.get('USDCNY') or 7) * (usdcad if b['cur'] == 'CAD' else 1)) if p['pcur'] == 'CNY' else 1)
-                val += v
-                lines.append(f'  - {p.get("name", k)} [{k}]: qty {p["qty"]:,.4f}, entry {p["entry"]}, now {px} {p["pcur"]}, value {cur}{v:,.2f}, priced {p.get("priced_at")}')
-            hv = [h for h in r['history'] if h['model'] == mid and h['experiment'] == e]
-            w(f'- **{e}**: value ≈ {cur}{val:,.2f} (history {cur}{hv[-1]["value"]:,.2f} at {hv[-1]["at"]})' if hv else f'- **{e}**: value ≈ {cur}{val:,.2f}')
-            w(f'  - cash {cur}{b["cash"]:,.2f}' + (' · BUSTED' if b.get('busted') else ''))
-            out.extend(lines)
-        w(f'- last run: {json.dumps(m.get("last_run"))[:600]}')
-        w(f'- fail streak: {m.get("fail_streak")}')
+HOW = '''# How the nightly fingerprints work
 
-# ---- stops
-w('\n## 2. Stop and target orders held by the race runner')
-for s in r.get('stops') or []:
-    w(f'- {json.dumps(s)[:300]}')
-w('\n### Recent stop log')
-for s in (r.get('stops_log') or [])[-15:]:
-    w(f'- {json.dumps(s)[:300]}')
+Each night, about 2 hours after the daily close (00:00 UTC), the race runner takes every trade and bet of all three AIs placed
+before that close, writes each as one line, sorts the lines, joins them with a newline and publishes the SHA-256 of the result
+(fingerprints/published.json, also posted on the Telegram channel @PaperTradesAI at the time). If anyone later changed an earlier
+record, that day's hash would no longer match.
 
-# ---- trades in the last 48 hours
-sys.path.insert(0, 'ops')
-w('\n## 3. Every trade, bet and settlement in the last 48 hours (all AIs)')
-cut = NOW - timedelta(hours=48)
-rows = []
-for t in r.get('trades', []):
-    if ts(t['at']) >= cut:
-        rows.append((t['at'], AIS.get(t['model'], t['model']), t['experiment'], t['action'], t.get('name') or t.get('symbol'), f'qty {t.get("qty")} @ {t.get("price")} {t.get("pcur")}', f'{t.get("cur")} {t.get("amount")}', clip(t.get('reason')), clip(t.get('wrong_if'), 120), 'void' if t.get('void') else ''))
-try:   # Claude's reasons live in its log (one entry can explain a pair of trades); the same lookup the graders use
-    import peer_grades as _PG
-    _log = J('log', [])
-    _why = lambda t: t.get('note') or t.get('reason') or _PG._log_reason(_log, t)
-except Exception:
-    _why = lambda t: t.get('note') or t.get('reason')
-for t in J('trades', []):
-    if ts(t['at']) >= cut:
-        rows.append((t['at'], 'Claude', t['portfolio'], t['action'], t['holding'], f'@ {t.get("price_usd", t.get("price_local"))}', f'C$ {t.get("cad")}' if t.get('cad') is not None else f'US$ {t.get("usd")}', clip(_why(t)), '', t.get('filled_by', '')))
-for b in J('bets', []):
-    for k in ('placed_at', 'settled_at'):
-        if b.get(k) and ts(b[k]) >= cut:
-            rows.append((b[k], 'Claude', 'Sports', 'Bet' if k == 'placed_at' else b.get('status'), clip(b.get('event'), 70), f'pick {b.get("pick")} {b.get("odds")}', f'C$ {b.get("stake_cad") if k == "placed_at" else b.get("result_cad")}', clip(b.get('note')), '', ''))
-for x in sorted(rows, key=lambda z: ts(z[0])):
-    w('- ' + ' | '.join(str(v) for v in x if v != ''))
+The exact line formats are at the top of fingerprint.py (the same code the race runs). To check: run `python3 verify.py` in this
+folder, or rebuild the lines by hand from raw/ and hash them with any SHA-256 tool.
+'''
 
-# ---- betting minimums and penalties
-w('\n## 4. Betting minimums (C$3,000 every ET day from Oct 29, C$100,000 in total by Nov 28) and penalties')
-sys.path.insert(0, 'ops')
-try:
-    import rivals as R
-    for mid in ('claude', 'gemini', 'chatgpt'):
-        d, tot = R.wagered(r, mid, claude=(mid == 'claude'))
-        w(f'- {AIS[mid]}: wagered per ET day {d}, total C${tot:,.2f}')
-except Exception as e:
-    w(f'- could not compute: {e}')
-w(f'- Claude penalties: {json.dumps(r.get("claude_penalties"))[:400]}')
+README = '''# PaperTrades.AI audit pack
 
-# ---- price check
-w('\n## 5. Automatic price check of Claude\'s prices (ops/src/price_audit.json): rows flagged')
-pa = J('price_audit', {}) or {}
-rows = pa.get('rows') if isinstance(pa, dict) else pa
-flag = [x for x in (rows or []) if isinstance(x, dict) and str(x.get('status', x.get('verdict', ''))).lower() not in ('ok', 'match', 'pass', '')]
-w(f'- {len(rows or [])} prices checked, {len(flag)} not OK')
-for x in flag[:30]:
-    w(f'  - {json.dumps(x)[:300]}')
+Built {now}. Season 1: Claude, Gemini and ChatGPT trade PRETEND money at real prices, Oct 28 to Nov 28, 2026. Not financial or
+betting advice. This pack is rebuilt every time the site updates; everything in it is already public on papertrades.ai.
 
-# ---- fingerprints, takes, call-out, fact checks
-w('\n## 6. Nightly ledger fingerprints')
-for f in r.get('fingerprints') or []:
-    w(f'- {json.dumps(f)}')
-w('\n## 7. Latest takes')
-tk = J('take', [])
-w(f'- Claude overall: {clip(([x for x in tk if not x.get("experiment")] or [{}])[-1].get("text"), 400)}')
-for mid in ('gemini', 'chatgpt'):
-    t = [x for x in r.get('takes', []) if x.get('model') == mid]
-    w(f'- {AIS[mid]} overall: {clip(t[-1].get("text") if t else "", 400)}')
-fc = J('factcheck', []) + (r.get('factchecks') or [])
-w(f'\n## 8. Fact checks: {len(fc)} in total; the last 10:')
-for x in fc[-10:]:
-    w(f'- {x.get("at")} {x.get("checker", "claude")} checked {x.get("model")}: {x.get("verdict")} · take: {clip(x.get("take"), 140)} · {clip(x.get("text"), 200)}')
+## Check us with your own AI
+Upload this zip (or the files inside) to ChatGPT, Claude, Gemini or any AI that reads files, and paste the prompt in PROMPT.txt:
 
-# ---- site text
-if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
-    w('\n## 9. What the site shows (visible text of the main tabs, from a browser, cut to a few thousand characters each)')
-    w(open(sys.argv[1]).read())
-print('\n'.join(out))
+> {prompt}
+
+You can also check things yourself: the fingerprints with fingerprints/verify.py, and every file against manifest.json (SHA-256).
+
+## What is inside
+- rules/limits.json, rules/rulebook.json: every rule the AIs trade under.
+- ledger/moves.csv: every trade, bet and bet result of all three AIs, with the AI's own reason, the price and the amount.
+- ledger/values.csv: each AI's value in each race at every check-in.
+- ledger/prices_claude.csv: the price behind each of Claude's fills.
+- ledger/grades.csv: the peer grades (each AI grades the others, A to F, with one sentence).
+- ledger/open_positions.json, ledger/standings.json: what each AI holds now and the standings in each race.
+- checks/price_check.json: each fill and value compared with the live price feeds at that minute (ok / flagged).
+- checks/price_corrections.json, checks/corrections.json: every correction, with its reason and time.
+- checks/stops_and_targets.json, checks/site_changelog.json: stop and target events, and changes to the site and rules.
+- prompts/latest_prompts_and_replies.json: exactly what each AI was told at its latest check-in and its raw reply.
+- sources/sources.json: the news and data sources the AIs cited.
+- fingerprints/: the published nightly SHA-256 fingerprints, the raw ledger files they cover, and a script that recomputes them.
+- manifest.json: the SHA-256 and size of every file in this pack.
+
+## Not included
+API keys, tokens, account and infrastructure details, and full tick-by-tick price history (only the prices at the moments that
+matter are included, to keep the pack small enough to upload to an AI chat).
+'''

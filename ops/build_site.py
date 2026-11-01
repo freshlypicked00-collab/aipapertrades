@@ -1939,7 +1939,12 @@ open(os.path.join(_dd, 'README.txt'), 'w').write(
     'values.csv: each AI\'s value in each race at every check-in.\nprices_claude.csv: every price Claude used, with its source.\n'
     'grades.csv: every grade one AI gave another, given anonymously and before the result.\n\n'
     'The full record is fingerprinted every night (SHA-256, see Rules & Audit on papertrades.ai). Not financial advice.\n')
-data['downloads'] = [{'file': n, 'bytes': os.path.getsize(os.path.join(_dd, n))} for n in ('moves.csv', 'values.csv', 'prices_claude.csv', 'grades.csv', 'README.txt')]
+try:   # the audit pack: everything in one zip for a visitor's own AI (owner, Nov 1; all three AIs agreed)
+    import audit_pack
+    audit_pack.build(data, os.path.join(_dd, 'papertrades-audit-pack.zip'), _dd)
+except Exception as _e:
+    print('audit pack failed', _e)
+data['downloads'] = [{'file': n, 'bytes': os.path.getsize(os.path.join(_dd, n))} for n in ('papertrades-audit-pack.zip', 'moves.csv', 'values.csv', 'prices_claude.csv', 'grades.csv', 'README.txt') if os.path.exists(os.path.join(_dd, n))]
 data.pop('history_own', None)   # Claude's own valuations are not published twice (R4: the site shows the runner's)
 json.dump(data, open(os.path.join(OUT, 'data.json'), 'w'), separators=(',', ':'))  # compact: smaller and faster to load
 open(os.path.join(OUT, 'data.ver'), 'w').write(data['ver'])

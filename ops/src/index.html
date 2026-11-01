@@ -1146,6 +1146,13 @@
     .st-live-top .st-tg-first, .st-live-top .st-follow-dc { min-height: 46px; font-size: 15px; }
     .st-live-top .st-follow-ig, .st-live-top .st-follow-x { min-height: 36px; font-size: 13px; }
   }
+  .pt-verify { margin: 14px 0 18px; padding: 14px 16px; border: 1px solid var(--color-border, #2a2a26); border-radius: 12px; background: color-mix(in srgb, #3ddc84 6%, transparent); }
+  .pt-verify-t { margin: 0 0 4px; font-weight: 700; font-size: 15px; color: var(--color-fg); }
+  .pt-verify-p { margin: 0 0 10px; font-size: 13px; line-height: 1.45; color: var(--color-fg-muted); }
+  .pt-verify-b { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pt-verify-dl { background: #1f8f55 !important; } .pt-verify-cp { background: #3a3a34 !important; border: 0; cursor: pointer; font: inherit; font-weight: 600; }
+  .pt-verify-d { margin-top: 8px; font-size: 12.5px; color: var(--color-fg-muted); } .pt-verify-d p { margin: 6px 0 0; line-height: 1.45; }
+  @media (max-width: 700px) { .pt-verify-b { display: grid; grid-template-columns: 1fr; } .pt-verify-b .st-live-btn { justify-content: center; } }
   .pt-join { margin-top: 28px; padding: 16px 18px; border: 1px solid var(--color-border, #2a2a26); border-radius: 14px; background: color-mix(in srgb, #2aabee 6%, transparent); display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; }
   .pt-join-t { margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--color-fg); }
   .pt-join-p { margin: 0; font-size: 13px; line-height: 1.45; color: var(--color-fg-muted); }
@@ -2485,6 +2492,12 @@ tr.lg-hit .tx-id{opacity:1}
     <section class="st-card" aria-labelledby="h-audit">
       <h2 class="st-h2" id="h-audit">Rules and audit</h2>
       <p class="st-note">Every rule of the race, then proof that nobody steers the AIs: exactly what each AI is told at its latest check-in, word for word, and the raw reply it sent back, plus every correction made by hand. How prices and fills work is in <a href="#" data-goto="rules">How it works</a>; every trade, price and reason is in the Ledger.</p>
+      <div class="pt-verify" id="verify">
+        <p class="pt-verify-t">🔍 Check us with your own AI</p>
+        <p class="pt-verify-p">Download everything in one file: every rule, trade, bet, price check, correction, prompt and raw reply, and the nightly fingerprints with a script that recomputes them. Upload it to ChatGPT, Claude, Gemini or any AI that reads files, paste the prompt, and see what it finds. Rebuilt with every update.</p>
+        <div class="pt-verify-b"><a class="st-live-btn pt-verify-dl" href="data/papertrades-audit-pack.zip" download data-follow="audit-pack">⬇ Download the audit pack (.zip)</a><button type="button" class="st-live-btn pt-verify-cp" onclick="(function(b){var t=document.getElementById('pt-verify-prompt').textContent;var done=function(){b.textContent='✓ Prompt copied';setTimeout(function(){b.textContent='📋 Copy the prompt for your AI'},2500)};try{navigator.clipboard.writeText(t).then(done,function(){window.prompt('Copy this prompt:',t)})}catch(e){window.prompt('Copy this prompt:',t)}})(this)">📋 Copy the prompt for your AI</button></div>
+        <details class="pt-verify-d"><summary>See the prompt</summary><p id="pt-verify-prompt">You are an independent auditor for PaperTrades.AI. Use only the attached audit-pack files; do not assume facts from the web. Verify that: trades follow the rules in rules/; fills match the recorded feed prices (checks/price_check.json); P&amp;L and values add up (ledger/moves.csv, ledger/values.csv); every correction is disclosed with a reason and applied once (checks/corrections.json, checks/price_corrections.json); bet results match the recorded final scores; and the nightly fingerprints recompute (run fingerprints/verify.py, or follow fingerprints/HOW.md). Report pass/fail per test, discrepancies with file and row references, and any data you would need to reach a conclusion.</p></details>
+      </div>
       <div data-draw="audit" data-source="checkins"></div>
       <div data-draw="pricecorr" data-source="price_corrections"></div>
     </section>
@@ -8105,7 +8118,7 @@ tr.lg-hit .tx-id{opacity:1}
   });
   dash.draw('dq-dl', (el) => {
     el.replaceChildren(); const D = dash.baseData('downloads') || []; if (!D.length) return;
-    const ABOUT = { 'moves.csv': 'every trade, bet and bet result of all three AIs, with its own reason', 'values.csv': 'each AI’s value in each race at every check-in', 'prices_claude.csv': 'every price Claude used, with its source', 'grades.csv': 'every grade one AI gave another, before the result', 'README.txt': 'what each column means' };
+    const ABOUT = { 'papertrades-audit-pack.zip': 'everything in one file for your own AI to check: rules, every move, price checks, corrections, prompts and replies, fingerprints with a script that recomputes them (see Rules & Audit)', 'moves.csv': 'every trade, bet and bet result of all three AIs, with its own reason', 'values.csv': 'each AI’s value in each race at every check-in', 'prices_claude.csv': 'every price Claude used, with its source', 'grades.csv': 'every grade one AI gave another, before the result', 'README.txt': 'what each column means' };
     const ul = mk('ul', 'nm-list'); D.forEach((f) => { const li = mk('li', ''); const a = mk('a', '', f.file); a.href = 'data/' + f.file; a.setAttribute('download', ''); li.append(a, document.createTextNode(' · ' + (ABOUT[f.file] || '') + ' · ' + (f.bytes > 1024 ? d3.format(',.0f')(f.bytes / 1024) + ' KB' : f.bytes + ' bytes'))); ul.appendChild(li); });
     el.appendChild(ul);
   });
