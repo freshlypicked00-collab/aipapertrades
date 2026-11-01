@@ -845,7 +845,8 @@ for _m in ('claude', 'gemini', 'chatgpt'):
             _miss.append(_d.isoformat())
         _d += timedelta(days=1)
     data['allinmins'].append({'model': _m, 'balance': round(_bal, 2), 'day_min': _amin, 'today': round(_ad.get(_today.isoformat(), 0.0), 2),
-                              'total': round(sum(_ad.values()), 2), 'missed': _miss, 'started': _today >= _AFROM.date(),
+                              'total': round(sum(v for k, v in _ad.items() if k >= _AFROM.date().isoformat()), 2), 'missed': _miss,   # only bets from Nov 1, when the rule starts (owner, Nov 1: Gemini showed C$331,000 counting Oct bets)
+                               'started': _today >= _AFROM.date(),
                               'penalties': round(sum(float(x['amount']) for x in (_bk or {}).get('penalties', [])), 2)})
 data['betmin_items'] = sorted([dict(_it, day=_when(_it['at']).astimezone(_ny).date().isoformat(), amount=round(_it['amount'], 2)) for _it in _bm_items if _when(_it['at']) >= _when(_BFS)],
                               key=lambda x: _when(x['at']), reverse=True)
