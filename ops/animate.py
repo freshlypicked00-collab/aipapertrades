@@ -308,7 +308,8 @@ def frame(els, bg, W, H, t, total, win=None, hero=None):
         if typing or int(t * 2) % 2 == 0:
             _cursor(im, x_, y_, h_, col)
     _prompt(im, t, next((e for e in els if e.info.get('headline')), None), W)
-    _scanline(im, t, W, H)
+    if t < total - 6.0:   # the faint sweep runs while the card builds, then stops so the long reading hold stays still and the file small
+        _scanline(im, t, W, H)
     # the payoff: a burst of sparks around a win, a short shake on a loss
     if hero is not None:
         hu = t - (hero.t0 + hero.dur)
@@ -334,7 +335,7 @@ def make_gif(card_fn, args, kwargs, out, width=720, hold=None):
     els, final, bg = elements(rec)
     W, H = final.size
     if hold is None:   # time to read before it loops: longer when there is a quote to read (Gemini and ChatGPT)
-        hold = 4.5 if any(e.fx == 'type' for e in els) else 3.0
+        hold = 9.0 if any(e.fx == 'type' for e in els) else 6.5   # owner, Nov 1: more time to read everything (was 4.5 / 3.0)
     total = plan(els, W, H) + hold
     heroes = [e for e in els if e.fx == 'count' and e.info.get('hero')]
     hero = heroes[0] if heroes else None
@@ -358,7 +359,7 @@ def make_gif(card_fn, args, kwargs, out, width=720, hold=None):
     return out if r.returncode == 0 else None
 
 
-def make_gif_mpl(card_fn, args, kwargs, out, width=960, hold=4.5):
+def make_gif_mpl(card_fn, args, kwargs, out, width=960, hold=9.0):   # owner, Nov 1: more time to read (was 4.5)
     """For cards drawn with matplotlib: rows light up from the top one after another, amounts count up."""
     import io
     import numpy as np
@@ -407,7 +408,9 @@ def make_gif_mpl(card_fn, args, kwargs, out, width=960, hold=4.5):
             u = (t - r['t0']) / r['dur']; a = max(0.0, min(1.0, u))
             r['a'].set_alpha(r['alpha'] * ease(a) if a < 1 else r['alpha'])
         buf = io.BytesIO(); o_save(fig, buf, format='png', **cap['kw']); buf.seek(0)
-        fr = Image.open(buf).convert('RGBA'); _scanline(fr, t, fr.width, fr.height)
+        fr = Image.open(buf).convert('RGBA')
+        if t < total - (hold - 0.5):
+            _scanline(fr, t, fr.width, fr.height)
         fr.convert('RGB').save(os.path.join(tmp, f'{i:04d}.png'))
     o_close(fig)
     W0, H0 = Image.open(os.path.join(tmp, '0000.png')).size
