@@ -1,15 +1,18 @@
-SITE DESIGN QUESTION from the owner of PaperTrades.AI. NOT a trading turn. Majority wins; Claude voted first in a separate file (attached).
+[WEB SEARCH ON] SITE QUESTION from the owner of PaperTrades.AI. NOT a trading turn. Majority wins; Claude voted first in a separate file (attached).
 
-The owner: "Should we work with ChatGPT and Gemini to make a how-to-use section for the website, or documentation or something?"
+PROBLEM: in a fresh private Google tab, searching "whats papertrades.ai" gives an AI Overview describing Papertrade (papertrade.xyz), the unrelated real-money 1000x perpetual futures DEX on HyperEVM with a PAPER token (sources: Lex Sokolin Substack, KuCoin, Bitrue, Bankless, datawallet). The owner says this happens a lot. PaperTrades.AI is a 5-day-old public AI-vs-AI experiment (Claude vs Gemini vs ChatGPT, pretend money, real prices, Oct 28-Nov 28 2026; no deposits, no accounts, no token).
+WHAT THE SITE ALREADY HAS: title "PaperTrades.AI: Three AIs, Pretend Money, No Deposits"; meta description; WebSite JSON-LD with alternateName, sameAs (X, Telegram, Instagram, Discord), and disambiguatingDescription naming papertrade.xyz as unrelated; FAQPage JSON-LD incl. "Is PaperTrades.AI the same as Papertrade? No"; about.html; llms.txt; robots.txt allows all; sitemap.xml (3 URLs). A site banner says "not associated with any similarly named site or app" (the owner prefers not naming the other site in visible text).
+WHAT IS MISSING: Google Search Console was never set up; Bing Webmaster Tools never set up; search engines show almost no pages from papertrades.ai; YouTube is missing from sameAs; very few outside pages mention us (Show HN planned Tue Nov 3).
 
-TODAY: "How it works" explains the RULES (prices, check-ins, scoring). "Rules & Audit" has the raw prompts and corrections. A 5-step "New here? Start here" box shows only in Beginner mode. Nothing explains how to USE the site: the race menu and Auto-pick drop-down, the AI menu (view the page as Claude/Gemini/ChatGPT), the tabs, the Ledger's Show/Sort/"Why (estimated)" filters, transaction IDs and "Whole story", "What happened next", tap-to-explain words, Beginner mode, language/currency, sound/theme/contrast, following on Telegram/Discord/X, and checking the record yourself (fingerprints, audit pack, CSV downloads).
+Vote AGREE / DISAGREE / AMEND on each, one line why:
+N1. Owner sets up Google Search Console today (DNS TXT record at Namecheap, or an HTML-tag token Claude adds), submits the sitemap, and uses URL Inspection > Request indexing on / and /about.html. Claude writes short beginner steps.
+N2. Bing Webmaster Tools (import from Search Console) plus IndexNow: a key file on the site and an automatic IndexNow ping on each publish (Bing feeds ChatGPT search, Copilot and DuckDuckGo).
+N3. A new plain static page /what-is-papertrades-ai.html (no JavaScript needed to read it): H1 "What is PaperTrades.AI?", a two-sentence answer first, then facts (who, dates, pretend money, official accounts), a dated "last updated" line, Article + Organization JSON-LD; linked from the home page, about page, llms.txt and sitemap.
+N4. Put one plain definition sentence as the FIRST text in the home page's raw HTML (before the menus): "PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no money and has no token."
+N5. Structured data: a separate Organization node with @id, logo, foundingDate 2026-10-28, sameAs adding YouTube @PaperTradesAI and the Hacker News account once posted; keep the disambiguatingDescription that names papertrade.xyz in machine-readable data only (visible text stays generic, per the owner).
+N6. Outside mentions that search engines trust, all from the project's anonymous accounts: Show HN (Nov 3), Product Hunt, one Reddit post in a fitting subreddit, a Medium or Substack post titled "What is PaperTrades.AI?", a YouTube video description that starts with the definition sentence. No paid link schemes.
+N7. Owner reports the wrong AI Overview with Google's feedback button ("Not accurate") each time he sees it.
+N8. Do NOT rename the site or brand; the fix is helping search engines find and understand what already exists.
+Add anything we missed in "other" (one or two items, most important first).
 
-PROPOSAL (vote AGREE / DISAGREE / AMEND each, one line why):
-H1. A new "Guide" page (its own tab next to How it works, also linked from the menu and footer): "How to use PaperTrades.AI", short sections with one small screenshot each, in this order: 1 The 30-second version; 2 Who's winning (Race standings, Auto-pick, Overall); 3 Looking at one AI (the AI menu, AI pages, AI vs AI); 4 Every trade and bet (Ledger, filters, transaction IDs, Whole story, What happened next); 5 Understanding the words (tap-to-explain, Beginner mode, glossary); 6 Check it yourself (fingerprints, audit pack, downloads, raw prompts); 7 Make it yours (language, currency, theme, sound, contrast); 8 Follow along (Telegram, Discord, X, Instagram, YouTube); 9 FAQ (is it real money? can I copy trades? who runs it? how is the winner decided?).
-H2. Each section ends with a "Show me" button that jumps to the real feature and briefly highlights it.
-H3. An optional 60-second tour for first-time visitors (5 steps highlighting the real page), offered once in a small closable box; never forced; skippable at any step.
-H4. Plain words, short sentences, no trading jargon without an explanation; the same "pretend money, not advice" line at the top.
-H5. A plain-text copy for search engines and AI assistants: papertrades.ai/guide.html (crawlable, linked in llms.txt and the sitemap).
-H6. Kept current: whenever a feature is added or changed, the chat that changes it updates the Guide in the same change (runbook rule).
-
-Reply as JSON: {"H1": "AGREE|DISAGREE|AMEND: why", ..., "H6": "...", "other": "anything missing (optional)"}
+Reply with ONLY JSON: {"N1": "...", ..., "N8": "...", "other": "..."}
