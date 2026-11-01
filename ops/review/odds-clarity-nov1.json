@@ -1,0 +1,65 @@
+{
+ "at": "2026-11-01T23:18:15Z",
+ "question": "The owner of PaperTrades.AI looked at Claude's All in sports bet in the ledger on his phone: \"Bet Las Vegas Raiders moneyline at +102\", Amount C$5,000.00, Cost/stake C$5,000.00, Profit \"open\" (still \"open\" even though the game is over), and below it the result row \"Won ... Amount C$5,100.00\". He says: the odds say +102 and it's unclear how much is actually profit. Facts: stake C$5,000 at +102 -> profit C$5,100, paid back C$10,100 (stake + profit). Vote AGREE or DISAGREE on each, one line of reason, then add anything missed (first-time visitors who don't know American odds, phones, consistency with Telegram/Discord/YouTube/Instagram).\n\nO1. Next to every odds number, a plain explanation: \"+102: wins C$102 for every C$100 bet\" / \"-360: bet C$360 to win C$100\"; and on every bet row \"Bet C$5,000 to win C$5,100\" (the profit if it wins, never the total payout).\nO2. Every result row spells out the money with labels, never a bare amount: Won: \"Profit +C$5,100.00 · paid back C$10,100.00 (the C$5,000.00 stake + the profit)\"; Lost: \"Lost the C$5,000.00 stake\"; Void/push: \"Stake refunded, C$0 profit\".\nO3. Once a bet is settled, its bet row's Profit column shows the final result (\"+C$5,100.00, won\") instead of \"open\".\nO4. Rename the ambiguous \"Amount\" column header to \"Money\" with each row saying what it is (staked, paid back, bought, sold), and keep \"Profit\" always meaning profit only.\nO5. Optionally show the implied chance under the odds (\"+102 = about a 50% chance by the bookmaker's price\") to help first-time visitors.\nO6. The same wording everywhere: Ledger, All in ledger, AI pages, Telegram/Discord posts, YouTube Shorts and Instagram.",
+ "files": [
+  "ops/review/site-text-nov1c.txt",
+  "ops/review/site-overview-nov1c.txt"
+ ],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "O1. **AGREE** — First-time visitors should not have to know American odds; “+102: wins C$102 for every C$100 bet” and “Bet C$5,000 to win C$5,100” makes the profit clear.\n\nO2. **AGREE** — A result row should never show a bare amount; “Profit +C$5,100.00 · paid back C$10,100.00” removes the stake-vs-profit confusion.\n\nO3. **AGREE** — If the game is settled, the original bet row should not still say “open”; it should show “+C$5,100.00, won” or “−C$5,000.00, lost.”\n\nO4. **AGREE** — “Amount” is doing too many jobs; rename or label it so each row says whether the number is staked, paid back, bought, sold, refunded, or profit.\n\nO5. **AGREE** — Optional implied chance is useful for beginners, as long as it is clearly “bookmaker price before vig,” not the AI’s true win probability.\n\nO6. **AGREE** — The same wording must appear in the Ledger, All in ledger, AI pages, Telegram, Discord, YouTube Shorts, and Instagram so screenshots do not contradict the site.\n\nMissed / add:\n\n- **Fix the stale settlement bug first:** if the Raiders game is over and the result row says won, the bet row cannot still say “open.”\n- **Use three separate concepts everywhere:**  \n  **Stake:** C$5,000.00  \n  **Profit if/won:** +C$5,100.00  \n  **Paid back / returned:** C$10,100.00\n- **Mobile matters:** on phones, columns collapse and labels disappear, so each money figure needs its own label inline; do not rely on a header the user may not see.\n- **Avoid “winnings” unless defined:** many people use “winnings” to mean total payout; prefer “profit” and “paid back.”\n- **For American odds, add tap/hover text and plain inline text:** “+102 means a C$100 bet wins C$102 profit; stake also comes back if it wins.”\n- **Telegram/Discord/social posts should match exactly:** e.g. “Claude won Raiders +102: staked C$5,000, profit +C$5,100, paid back C$10,100.”\n- **Best compact row wording:**  \n  Bet row: `Bet C$5,000 at +102 · to win C$5,100 profit`  \n  Result row: `Won · profit +C$5,100 · paid back C$10,100, including the C$5,000 stake`",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 311236,
+     "completion_tokens": 1104,
+     "total_tokens": 312340,
+     "cost": 3.16204,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 3.16204,
+      "upstream_inference_prompt_cost": 3.11236,
+      "upstream_inference_completions_cost": 0.04968
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 516,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "**O1. AGREE**\n**Reason:** Spelling out exactly what the odds mean and clearly defining \"to win\" as net profit removes the steep learning curve for first-time visitors who are unfamiliar with American odds.\n\n**O2. AGREE**\n**Reason:** Distinguishing \"profit\" from \"paid back\" completely eliminates the ambiguity of whether the payout amount includes the original stake, leaving zero room for misinterpretation.\n\n**O3. AGREE**\n**Reason:** Leaving a bet's original status as \"open\" after the result row is logged creates a contradictory, disconnected ledger that is confusing to scan.\n\n**O4. AGREE**\n**Reason:** \"Amount\" is a notoriously vague term in betting and trading; changing it to a contextual label (like \"Money: Staked\" or \"Money: Paid back\") clarifies exactly what the cash flow represents.\n\n**O5. AGREE**\n**Reason:** Because the site is translated into 16 languages, translating obscure American odds (+102, -6500) into universal implied probabilities (%) is the best way to communicate the exact risk/reward to a global audience.\n\n**O6. AGREE**\n**Reason:** Maintaining identical terminology across the site ledgers, Telegram alerts, Discord, and social media prevents users from having to learn multiple formats to follow the race.\n\n***\n\n### Anything Missed:\n\n*   **Mobile Screen Clutter:** The proposed text strings for O1 and O2 (e.g., *\"paid back C$10,100.00 (the C$5,000.00 stake + the profit)\"*) are highly verbose. On narrow phone screens, this will likely cause awkward line breaks or horizontal scrolling. You may need abbreviated versions or tooltip tap-to-expand features for mobile.\n*   **International Odds Toggle:** Since you offer the site in languages like Français, Deutsch, and Türkçe, American odds will still look alien to those users regardless of the English explanations. Offering a simple toggle to Decimal odds (e.g., +102 becomes 2.02) would permanently solve the \"payout vs. profit\" confusion for your global audience, as Decimal odds inherently include the returned stake.\n*   **Settlement Latency:** The owner is complaining that the game is over but the bet says \"Open\". At 6:18 PM ET, the 1:00 PM ET Raiders game is indeed over in real life, but the site files still list it as \"Result: not settled yet\". If there is a delay in the API fetching final scores, a \"Pending Settlement\" status would be much better than leaving it as \"Open\" when users know the game has ended.\n*   **Glossary Updates:** If you adopt O1 and O2, the site's Beginner mode and Glossary section need to be updated to match this exact new terminology (specifically defining \"Money\", \"Profit\", and \"Paid back\").",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 348998,
+     "candidatesTokenCount": 624,
+     "totalTokenCount": 352173,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 348998
+      }
+     ],
+     "thoughtsTokenCount": 2551,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
