@@ -1531,7 +1531,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '2f52b1002e1a';</script>
+<script>window.PT_PAGE_VER = 'c3ce112756f0';</script>
 <!-- the first text on the page says plainly what this is, so search engines and AI assistants stop mixing the name up with a similarly named exchange (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json) -->
 <p class="pt-def" id="what-is">PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no money and has no token. <a href="/what-is-papertrades-ai.html">What is PaperTrades.AI?</a></p>
 <style>.pt-def { margin: 0; padding: 5px 14px; font-size: 12px; line-height: 1.4; text-align: center; color: var(--color-fg-muted, #a9a495); background: var(--color-bg, #0b0b0a); } .pt-def a { color: inherit; text-decoration: underline; white-space: nowrap; }</style>
@@ -4447,7 +4447,9 @@ body { background:var(--color-bg); }
   };
   const pagerFor = (el, n, noun) => {
     n = n || 10; const rows = [...el.children].filter((r) => !r.classList.contains('bg-say')); const key = (el.dataset.portfolio || '') + '|' + (el.dataset.pick || '');
-    if (el._pgKey !== key) { el._pgKey = key; el._pg = 0; }
+    // '' = the caller just set the page itself (a jump to one move): keep that page instead of going back to page 1 (owner, Nov 1:
+    // "Open the first bet" landed on page 1 while the bet was on page 4)
+    if (el._pgKey === '') el._pgKey = key; else if (el._pgKey !== key) { el._pgKey = key; el._pg = 0; }
     const pages = Math.max(1, Math.ceil(rows.length / n)); if ((el._pg || 0) >= pages) el._pg = pages - 1;
     rows.forEach((tr, k) => { const hid = Math.floor(k / n) !== (el._pg || 0); tr.hidden = hid; let nx = tr.nextElementSibling; while (nx && nx.classList.contains('bg-say')) { nx.hidden = hid; nx = nx.nextElementSibling; } });   // a Beginner explanation row moves with its trade
     const tbl = el.closest('table'); if (!tbl) return; const host = tbl.closest('.st-wrap') || tbl;

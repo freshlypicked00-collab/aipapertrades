@@ -4101,7 +4101,9 @@ tr.lg-hit .tx-id{opacity:1}
   };
   const pagerFor = (el, n, noun) => {
     n = n || 10; const rows = [...el.children].filter((r) => !r.classList.contains('bg-say')); const key = (el.dataset.portfolio || '') + '|' + (el.dataset.pick || '');
-    if (el._pgKey !== key) { el._pgKey = key; el._pg = 0; }
+    // '' = the caller just set the page itself (a jump to one move): keep that page instead of going back to page 1 (owner, Nov 1:
+    // "Open the first bet" landed on page 1 while the bet was on page 4)
+    if (el._pgKey === '') el._pgKey = key; else if (el._pgKey !== key) { el._pgKey = key; el._pg = 0; }
     const pages = Math.max(1, Math.ceil(rows.length / n)); if ((el._pg || 0) >= pages) el._pg = pages - 1;
     rows.forEach((tr, k) => { const hid = Math.floor(k / n) !== (el._pg || 0); tr.hidden = hid; let nx = tr.nextElementSibling; while (nx && nx.classList.contains('bg-say')) { nx.hidden = hid; nx = nx.nextElementSibling; } });   // a Beginner explanation row moves with its trade
     const tbl = el.closest('table'); if (!tbl) return; const host = tbl.closest('.st-wrap') || tbl;
