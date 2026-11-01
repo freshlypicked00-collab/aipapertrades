@@ -5612,6 +5612,8 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       const pts = longPts.concat(allPts);
       const entry = Number(h.entry_local ?? h.entry_usd);
       const cur = Number(h.price_local ?? h.price_usd);
+      /* the holding's latest price (the same one the holdings table shows) ends the line when it is newer than the last stored price; number audit round 4, Nov 1: SPY showed $752.74 from Oct 30 next to 'Now US$755.72' */
+      { const pa = h.price_at || h.as_of; const lt = pts.length ? +pts[pts.length - 1].t : 0; if (isFinite(cur) && cur > 0 && pa && +new Date(pa) > lt + 60e3) pts.push({ t: new Date(pa), v: cur }); }
       const rules = R.data.filter((r) => r.portfolio === pf && r.asset === h.holding && r.level !== null && r.level !== undefined);
       const inRange = rules.filter((r) => Math.abs(r.level - cur) / cur <= 0.15);
       const out = rules.filter((r) => Math.abs(r.level - cur) / cur > 0.15);

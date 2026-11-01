@@ -1545,7 +1545,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '83b572935e2e';</script>
+<script>window.PT_PAGE_VER = '203e6e67472d';</script>
 <!-- the first text on the page says plainly what this is, so search engines and AI assistants stop mixing the name up with a similarly named exchange (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json) -->
 <p class="pt-def" id="what-is">PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no deposits and has no token. <a href="/what-is-papertrades-ai.html">What is PaperTrades.AI?</a></p>
 <style>.pt-def { margin: 0; padding: 5px 14px; font-size: 12px; line-height: 1.4; text-align: center; color: var(--color-fg-muted, #a9a495); background: var(--color-bg, #0b0b0a); } .pt-def a { color: inherit; text-decoration: underline; white-space: nowrap; }</style>
@@ -5958,6 +5958,8 @@ body { background:var(--color-bg); }
       const pts = longPts.concat(allPts);
       const entry = Number(h.entry_local ?? h.entry_usd);
       const cur = Number(h.price_local ?? h.price_usd);
+      /* the holding's latest price (the same one the holdings table shows) ends the line when it is newer than the last stored price; number audit round 4, Nov 1: SPY showed $752.74 from Oct 30 next to 'Now US$755.72' */
+      { const pa = h.price_at || h.as_of; const lt = pts.length ? +pts[pts.length - 1].t : 0; if (isFinite(cur) && cur > 0 && pa && +new Date(pa) > lt + 60e3) pts.push({ t: new Date(pa), v: cur }); }
       const rules = R.data.filter((r) => r.portfolio === pf && r.asset === h.holding && r.level !== null && r.level !== undefined);
       const inRange = rules.filter((r) => Math.abs(r.level - cur) / cur <= 0.15);
       const out = rules.filter((r) => Math.abs(r.level - cur) / cur > 0.15);

@@ -662,12 +662,31 @@ def _annotate_claude(trades):
             f = min(1.0, units / L['u']) if units else 1.0
             part = L['c'] * f
             t['cost'] = round(part, 2); t['pnl'] = round((part - val) if a == 'Cover' else (val - part), 2)
-            L['u'] -= L['u'] * f; L['c'] -= part
+            if t.get('pnl_cad') is not None and not china:   # the race runner's own profit (it knows the exact units and exchange rates); number audit round 4, Nov 1: QQQ, gold and silver stops showed USD costs as C$ and losses as gains
+                t['pnl'] = round(float(t['pnl_cad']), 2); t['cost'] = round(val + t['pnl'] if a == 'Cover' else val - t['pnl'], 2)
+            if t.get('held_after') is not None and float(t.get('held_after') or 0) <= 1e-12:
+                L['u'] = 0.0; L['c'] = 0.0
+            else:
+                L['u'] -= L['u'] * f; L['c'] -= part
+
+
+def _claude_realized_fix(trades, holdings):
+    # a sale with no runner profit on it: take the holding's realized profit from the runner (it priced the units exactly) when that sale is the only one unaccounted for
+    for h in holdings or []:
+        rz = h.get('realized_cad')
+        if rz is None or h.get('portfolio') == 'China':
+            continue
+        sales = [t for t in trades if t.get('portfolio') == h.get('portfolio') and t.get('holding') == h.get('holding') and t.get('action') == 'Sell']
+        loose = [t for t in sales if t.get('pnl_cad') is None]
+        if len(loose) == 1:
+            t = loose[0]; others = sum(float(x.get('pnl') or 0) for x in sales if x is not t)
+            t['pnl'] = round(float(rz) - others, 2); t['cost'] = round(float(t.get('cad') or 0) - t['pnl'], 2)
 
 
 try:
     _annotate_rivals(r)
     _annotate_claude(data['trades'])
+    _claude_realized_fix(data['trades'], data.get('holdings'))
 except Exception as _e:
     print('trade profits not added:', _e)
 def _nohist(books):   # price histories stay in rivals.json; the page gets them as each AI's 'prices'
