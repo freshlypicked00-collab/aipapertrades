@@ -392,7 +392,10 @@ race_days = []
 for day in sorted({r['day'] for r in ledger} - oldd):
     rows = [r for r in ledger if r['day'] == day and r['portfolio'] != 'All']
     n = (datetime.fromisoformat(day) - datetime(2026, 10, 28)).days + 1
-    lines = [f"📒 <b>Day {n} closed: {datetime.fromisoformat(day).strftime('%a %b %-d')}</b> (00:00 UTC · 8 a.m. HKT)"]
+    _cl = datetime.fromisoformat(day).replace(tzinfo=timezone.utc) + timedelta(days=1)   # the close: 00:00 UTC the next day
+    from zoneinfo import ZoneInfo as _ZI
+    _et = _cl.astimezone(_ZI('America/New_York')).strftime('%-I %p').lower().replace('m', '.m.')
+    lines = [f"📒 <b>Day {n} closed: {datetime.fromisoformat(day).strftime('%a %b %-d')}</b> ({_et} ET · 00:00 UTC · 8 a.m. HKT)"]
     for r in sorted(rows, key=lambda r: -(r['pct'] or 0)):
         lines.append(f"{'🟩' if r['pnl'] > 0.5 else '🟥' if r['pnl'] < -0.5 else '⬜'} {esc(LABEL.get(r['portfolio'], r['portfolio']))}: {money(r['pnl'], r['portfolio'])} ({r['pct'] * 100:+.1f}%)")
     if review:
