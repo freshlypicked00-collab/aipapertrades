@@ -10,7 +10,7 @@ on:
         description: 'full = every fill and bet; crypto = only the 1-minute crypto bars for the Crypto standings check'
         type: choice
         default: full
-        options: [full, crypto, recheck, fixes, rootcause, luck]
+        options: [full, crypto, recheck, fixes, rootcause, luck, odds]
 permissions:
   contents: write
   issues: write
@@ -51,17 +51,20 @@ jobs:
       - name: Wrong-if tracker (L2, all three AIs agreed Oct 31; display only)
         if: ${{ inputs.what == 'full' || inputs.what == '' || inputs.what == 'luck' }}
         run: python3 ops/wrongif.py && cp ops/src/wrongif.json /tmp/wrongif.json || true
+      - name: Check every bet's odds against ESPN's opening and closing lines (owner, Nov 1)
+        if: ${{ inputs.what == 'odds' }}
+        run: python3 ops/odds_audit.py
       - name: Save the report
         run: |
           git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
-          mkdir -p /tmp/fa && cp ops/review/full-audit-*.json ops/review/rootcause-*.json /tmp/fa/ 2>/dev/null; [ -f ops/src/nightly_audit.json ] && cp ops/src/nightly_audit.json /tmp/fa_nightly.json; ls /tmp/fa/*.json >/dev/null 2>&1 || [ -f /tmp/fa_nightly.json ] || exit 0
+          mkdir -p /tmp/fa && cp ops/review/full-audit-*.json ops/review/rootcause-*.json ops/review/odds-audit-*.json ops/review/odds-audit-*.md /tmp/fa/ 2>/dev/null; [ -f ops/src/nightly_audit.json ] && cp ops/src/nightly_audit.json /tmp/fa_nightly.json; ls /tmp/fa/*.json >/dev/null 2>&1 || [ -f /tmp/fa_nightly.json ] || exit 0
           for i in 1 2 3 4 5; do
             git fetch -q origin main && git reset -q --hard origin/main
-            cp /tmp/fa/*.json ops/review/ 2>/dev/null || true
+            cp /tmp/fa/*.json /tmp/fa/*.md ops/review/ 2>/dev/null || true
             [ -f /tmp/fa_nightly.json ] && cp /tmp/fa_nightly.json ops/src/nightly_audit.json && git add ops/src/nightly_audit.json
             [ -f /tmp/luck.json ] && cp /tmp/luck.json ops/src/luck.json && git add ops/src/luck.json
             [ -f /tmp/wrongif.json ] && cp /tmp/wrongif.json ops/src/wrongif.json && git add ops/src/wrongif.json
-            git add ops/review/full-audit-*.json ops/review/rootcause-*.json 2>/dev/null || true
+            git add ops/review/full-audit-*.json ops/review/rootcause-*.json ops/review/odds-audit-* 2>/dev/null || true
             git diff --cached --quiet && exit 0
             git commit -qm "Full audit and luck check (read-only)" && git push -q origin HEAD:main && exit 0
             sleep $((i * 7))
