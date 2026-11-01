@@ -19,6 +19,7 @@ import tempfile
 from PIL import Image, ImageDraw
 
 FPS = 20
+INTRO = 0.75   # the '> ' terminal prompt before the card builds (ChatGPT, Oct 31)
 MONEY = re.compile(r'^([+−\-]?)(C\$|US\$|¥)([\d,]+(?:\.\d+)?)(.*)$')
 
 
@@ -134,13 +135,15 @@ def plan(els, W, H):
     """Give each element a start time and an effect, in reading order."""
     t = 0.0
     rows = sorted(els, key=lambda e: (e.y, e.pos[0]))
-    last_y, slot = None, 0.15
+    last_y, slot = None, 0.15 + INTRO
     for e in rows:
         w, h = e.sprite.size
         if e.kind in ('rectangle', 'rounded_rectangle') and e.y <= 2 and h <= 24 and w > W * 0.6:
             e.fx, e.t0 = 'wipe', 0.0; continue
         if e.kind == 'paste':
             e.fx, e.t0 = 'pop', 0.25; continue
+        if e.kind == 'line' and e.sprite.width > 200 and e.sprite.height > 40:
+            e.fx = 'draw'   # a price line draws itself in, left to right (all three agreed, Oct 31)
         if e.y > H - 175 and e.kind == 'text':
             e.fx = 'fade'; e.t0 = None; continue   # the footer: after everything else
         if last_y is None or abs(e.y - last_y) > 14:
@@ -154,21 +157,25 @@ def plan(els, W, H):
                 if e.info['size'] >= 100:
                     e.info['hero'] = True
             elif e.info['size'] >= 70:
-                e.fx = 'rise'
+                e.fx = 'rise'; e.info['headline'] = True
             elif e.info['text'].lstrip().startswith(('“', '"')) or (34 <= e.info['size'] <= 52 and len(e.info['text']) >= 28 and e.pos[0] > 95):
                 e.fx = 'type'
             else:
                 e.fx = 'rise'
     # typed lines follow one another; everything after them waits its turn
+    typed = sum(len(x.info['text']) for x in els if x.fx == 'type')
+    cps = max(55.0, typed / 2.5)
     cur = 0.0
     for e in sorted([x for x in els if x.t0 is not None], key=lambda x: (x.y, x.pos[0])):
         if e.fx in ('wipe', 'pop'):
             continue
         e.t0 = max(e.t0, cur)
         if e.fx == 'type':
-            e.dur = max(0.25, len(e.info['text']) / 55.0); cur = e.t0 + e.dur
+            e.dur = max(0.2, len(e.info['text']) / cps); cur = e.t0 + e.dur
         elif e.fx == 'count':
             e.dur = 1.1 if e.info.get('hero') else 0.6; cur = max(cur, e.t0 + (0.45 if e.info.get('hero') else 0.05))
+        elif e.fx == 'draw':
+            e.dur = 1.0; cur = max(cur, e.t0 + 0.3)
         else:
             e.dur = 0.35
     end = max([x.t0 + getattr(x, 'dur', 0.35) for x in els if x.t0 is not None] + [0.8])
@@ -205,8 +212,49 @@ def _text_sprite(e, txt, W, H):
     return (c.crop(bb), (bb[0], bb[1])) if bb else (None, None)
 
 
+def _cursor(im, x, y, h, col):
+    ImageDraw.Draw(im).rectangle([x + 6, y, x + 6 + max(8, int(h * 0.5)), y + h], fill=col)
+
+
+_SCAN = {}
+def _scanline(im, t, W, H):
+    """A very faint band sweeping top to bottom every 3.2 s (Gemini: the retro-terminal feel)."""
+    if W not in _SCAN:
+        b = Image.new('RGBA', (W, 120), (0, 0, 0, 0)); d = ImageDraw.Draw(b)
+        for j in range(120):
+            d.line([(0, j), (W, j)], fill=(255, 255, 255, int(14 * math.sin(math.pi * j / 119))))
+        _SCAN[W] = b
+    y = int(((t % 3.2) / 3.2) * (H + 240)) - 120
+    im.alpha_composite(_SCAN[W], (0, max(-119, min(H - 1, y))) if y >= 0 else (0, 0), (0, 0 if y >= 0 else -y, W, 120))
+
+
+def _prompt(im, t, head, W):
+    """'> gemini wins a bet' typed like a terminal command before the card builds (ChatGPT)."""
+    if head is None or t > INTRO + 0.15:
+        return
+    txt = '> ' + head.info['text'].lower()
+    n = int(len(txt) * min(1.0, t / (INTRO * 0.75)))
+    f = _mono(36)
+    a = 1.0 if t <= INTRO else max(0.0, 1 - (t - INTRO) / 0.15)
+    d = ImageDraw.Draw(im, 'RGBA'); x, y = head.pos[0], head.pos[1] + 10
+    col = (255, 176, 0, int(255 * a))
+    d.text((x, y), txt[:n], font=f, fill=col)
+    if int(t * 4) % 2 == 0 or n < len(txt):
+        w = d.textlength(txt[:n], font=f); d.rectangle([x + w + 6, y + 4, x + w + 24, y + 40], fill=col)
+
+
+_MONO = {}
+def _mono(px):
+    if px not in _MONO:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import postcard
+        _MONO[px] = postcard.font('mono', 'SemiBold', px)
+    return _MONO[px]
+
+
 def frame(els, bg, W, H, t, total, win=None, hero=None):
     im = Image.new('RGBA', (W, H), bg + (255,) if len(bg) == 3 else bg)
+    last_typed = None
     for e in els:
         u = (t - e.t0) / max(0.01, getattr(e, 'dur', 0.35))
         if u <= 0:
@@ -229,6 +277,11 @@ def frame(els, bg, W, H, t, total, win=None, hero=None):
             a = ease(u); y += (1 - ease(u)) * 26
         elif e.fx == 'fade':
             a = ease(u)
+        elif e.fx == 'draw':
+            w = int(sp.width * ease(u))
+            if w <= 0:
+                continue
+            sp = sp.crop((0, 0, w, sp.height))
         elif e.fx == 'type':
             n = int(len(e.info['text']) * min(1.0, u))
             if n <= 0:
@@ -237,6 +290,7 @@ def frame(els, bg, W, H, t, total, win=None, hero=None):
             if sp is None:
                 continue
             x, y = pos
+            last_typed = (e, x + sp.width, y, sp.height, u < 1)
         elif e.fx == 'count':
             frac = ease(u) if u < 1 else 1.0
             sp, pos = _text_sprite(e, _fmt_money(e.info['m'], frac), W, H)
@@ -247,6 +301,14 @@ def frame(els, bg, W, H, t, total, win=None, hero=None):
         if a < 1:
             sp = sp.copy(); sp.putalpha(sp.getchannel('A').point(lambda v: int(v * a)))
         im.alpha_composite(sp, (int(round(x)), int(round(y))))
+    # a blinking block cursor leads the typing and keeps blinking at the end of the quote (Gemini)
+    if last_typed:
+        e_, x_, y_, h_, typing = last_typed
+        col = tuple(e_.info['fill'][:3]) if isinstance(e_.info['fill'], tuple) else (242, 233, 216)
+        if typing or int(t * 2) % 2 == 0:
+            _cursor(im, x_, y_, h_, col)
+    _prompt(im, t, next((e for e in els if e.info.get('headline')), None), W)
+    _scanline(im, t, W, H)
     # the payoff: a burst of sparks around a win, a short shake on a loss
     if hero is not None:
         hu = t - (hero.t0 + hero.dur)
@@ -264,13 +326,15 @@ def frame(els, bg, W, H, t, total, win=None, hero=None):
     return im.convert('RGB')
 
 
-def make_gif(card_fn, args, kwargs, out, width=720, hold=2.6):
+def make_gif(card_fn, args, kwargs, out, width=720, hold=None):
     """Draw the card (still image too), then the GIF. Returns the GIF path or None."""
     res, rec = record(card_fn, *args, **kwargs)
     if not rec.saved:
         return None
     els, final, bg = elements(rec)
     W, H = final.size
+    if hold is None:   # time to read before it loops: longer when there is a quote to read (Gemini and ChatGPT)
+        hold = 4.5 if any(e.fx == 'type' for e in els) else 3.0
     total = plan(els, W, H) + hold
     heroes = [e for e in els if e.fx == 'count' and e.info.get('hero')]
     hero = heroes[0] if heroes else None
@@ -294,7 +358,7 @@ def make_gif(card_fn, args, kwargs, out, width=720, hold=2.6):
     return out if r.returncode == 0 else None
 
 
-def make_gif_mpl(card_fn, args, kwargs, out, width=960, hold=2.6):
+def make_gif_mpl(card_fn, args, kwargs, out, width=960, hold=4.5):
     """For cards drawn with matplotlib: rows light up from the top one after another, amounts count up."""
     import io
     import numpy as np
@@ -334,18 +398,17 @@ def make_gif_mpl(card_fn, args, kwargs, out, width=960, hold=2.6):
     ys = sorted(set(round(r['y'] / 22) for r in rows))
     slot = {v: 0.2 + 0.11 * i for i, v in enumerate(ys)}
     for r in rows:
-        r['t0'] = slot[round(r['y'] / 22)] + (0.0 if r['txt'] is None else 0.03); r['dur'] = 0.7 if r['m'] else 0.3
+        r['t0'] = slot[round(r['y'] / 22)] + (0.0 if r['txt'] is None else 0.03); r['dur'] = 0.3
     total = max(r['t0'] + r['dur'] for r in rows) + 0.4 + hold
     tmp = tempfile.mkdtemp(); n = int(total * FPS)
     for i in range(n):
         t = i / FPS
         for r in rows:
-            u = (t - r['t0']) / r['dur']; a = max(0.0, min(1.0, u * (3 if r['m'] else 1)))
+            u = (t - r['t0']) / r['dur']; a = max(0.0, min(1.0, u))
             r['a'].set_alpha(r['alpha'] * ease(a) if a < 1 else r['alpha'])
-            if r['m']:
-                r['a'].set_text(_fmt_money(r['m'], ease(u) if u < 1 else 1.0))
         buf = io.BytesIO(); o_save(fig, buf, format='png', **cap['kw']); buf.seek(0)
-        Image.open(buf).convert('RGB').save(os.path.join(tmp, f'{i:04d}.png'))
+        fr = Image.open(buf).convert('RGBA'); _scanline(fr, t, fr.width, fr.height)
+        fr.convert('RGB').save(os.path.join(tmp, f'{i:04d}.png'))
     o_close(fig)
     W0, H0 = Image.open(os.path.join(tmp, '0000.png')).size
     h = int(H0 * width / W0) // 2 * 2
@@ -366,6 +429,11 @@ def samples():
     made = []
     usc = [t for t in d.get('allin_trades', []) if t.get('model') == 'gemini' and t.get('bet') == 'G40' and t.get('action') == 'Won']
     if usc:
+        try:   # the streak line, exactly as the live post adds it (rivals.py)
+            bets = json.load(open('ops/src/rivals.json'))['models']['gemini']['books']['AllInSports'].get('bets', [])
+            usc[-1] = dict(usc[-1], streak=sharecard.streak_of(bets))
+        except Exception as e:
+            print('no streak:', e)
         made.append(make_gif(sharecard._trade_card, ('gemini', usc[-1]), {'path': '/tmp/gif_usc.png'}, os.path.join(out, 'win-gemini-usc.gif')))
     table, big = racecard.races()
     made.append(make_gif_mpl(racecard.races_card, (table, big, 'After Day 4 · Sat Oct 31', '/tmp/gif_races.png'), {}, os.path.join(out, 'standings-day4.gif')))
