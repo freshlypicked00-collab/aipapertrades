@@ -10,7 +10,7 @@ on:
         description: 'full = every fill and bet; crypto = only the 1-minute crypto bars for the Crypto standings check'
         type: choice
         default: full
-        options: [full, crypto, recheck, fixes, rootcause]
+        options: [full, crypto, recheck, fixes, rootcause, luck]
 permissions:
   contents: write
   issues: write
@@ -45,6 +45,9 @@ jobs:
       - name: Crypto standings check (1-minute bars at the day closes and the Oct 28 moment)
         if: ${{ inputs.what == 'crypto' }}
         run: python3 ops/audit_crypto.py || true
+      - name: Luck check (L1, all three AIs agreed Oct 31; display only)
+        if: ${{ inputs.what == 'full' || inputs.what == '' || inputs.what == 'luck' }}
+        run: python3 ops/luck.py && cp ops/src/luck.json /tmp/luck.json || true
       - name: Save the report
         run: |
           git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
@@ -53,8 +56,9 @@ jobs:
             git fetch -q origin main && git reset -q --hard origin/main
             cp /tmp/fa/*.json ops/review/ 2>/dev/null || true
             [ -f /tmp/fa_nightly.json ] && cp /tmp/fa_nightly.json ops/src/nightly_audit.json && git add ops/src/nightly_audit.json
+            [ -f /tmp/luck.json ] && cp /tmp/luck.json ops/src/luck.json && git add ops/src/luck.json
             git add ops/review/full-audit-*.json ops/review/rootcause-*.json 2>/dev/null || true
             git diff --cached --quiet && exit 0
-            git commit -qm "Full audit: every fill and bet checked against the feeds (read-only)" && git push -q origin HEAD:main && exit 0
+            git commit -qm "Full audit and luck check (read-only)" && git push -q origin HEAD:main && exit 0
             sleep $((i * 7))
           done

@@ -241,6 +241,11 @@
   .st-alloc-buys span b { color: var(--color-fg); font-weight: 600; }
   #s2-real { scroll-margin-top: calc(var(--stick-h, 0px) + 56px); }
   @media (max-width: 700px) { #s2-real { scroll-margin-top: 44px; } }
+  .st-luckline { margin: 6px 0 0; font-size: .9em; color: var(--color-fg-muted); }
+  .st-luckline:empty { display: none; }
+  .st-luckline b { color: var(--color-fg); }
+  .pt-luck { margin-top: 16px; }
+  .pt-luck table td.num b { font-weight: 700; }
   .pt-allcash { padding: 10px 12px; border: 1px solid var(--color-border); border-radius: 8px; }
   .pt-allcash-line { margin: 0; font-weight: 600; }
   .pt-allcash-why { margin-top: 6px; line-height: 1.5; font-size: 0.93em; }
@@ -1346,6 +1351,7 @@ tr.lg-hit .tx-id{opacity:1}
         <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Stocks">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Stocks">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Stocks">—</b></span>
       </p>
+      <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Stocks"></p>
     </section>
     <section class="st-card" aria-labelledby="h-s-hold">
       <h2 class="st-h2" id="h-s-hold">Holdings</h2>
@@ -1441,6 +1447,7 @@ tr.lg-hit .tx-id{opacity:1}
         <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Crypto">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Crypto">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Crypto">—</b></span>
       </p>
+      <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Crypto"></p>
     </section>
     <section class="st-card" aria-labelledby="h-c-hold">
       <h2 class="st-h2" id="h-c-hold">Holdings</h2>
@@ -1524,6 +1531,7 @@ tr.lg-hit .tx-id{opacity:1}
         <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Metals">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Metals">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Metals">—</b></span>
       </p>
+      <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Metals"></p>
     </section>
     <section class="st-card" aria-labelledby="h-m-hold">
       <h2 class="st-h2" id="h-m-hold">Holdings</h2>
@@ -1609,6 +1617,7 @@ tr.lg-hit .tx-id{opacity:1}
         <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Energy">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Energy">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Energy">—</b></span>
       </p>
+      <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Energy"></p>
     </section>
     <section class="st-card st-geo" aria-labelledby="h-e-geo">
       <h2 class="st-h2" id="h-e-geo">The war and the Strait of Hormuz</h2>
@@ -1701,6 +1710,7 @@ tr.lg-hit .tx-id{opacity:1}
         <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Options">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Options">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Options">—</b></span>
       </p>
+      <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Options"></p>
     </section>
     <section class="st-card" aria-labelledby="h-o-hold">
       <h2 class="st-h2" id="h-o-hold">Holdings</h2>
@@ -1783,6 +1793,7 @@ tr.lg-hit .tx-id{opacity:1}
         <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Currencies">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Currencies">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Currencies">—</b></span>
       </p>
+      <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Currencies"></p>
     </section>
     <section class="st-card" aria-labelledby="h-x-hold">
       <h2 class="st-h2" id="h-x-hold">Positions</h2>
@@ -1858,6 +1869,7 @@ tr.lg-hit .tx-id{opacity:1}
         <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Predictions">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Predictions">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Predictions">—</b></span>
       </p>
+      <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Predictions"></p>
     </section>
     <section class="st-card" aria-labelledby="h-pm-min">
       <h2 class="st-h2" id="h-pm-min">Betting minimums</h2>
@@ -1944,6 +1956,7 @@ tr.lg-hit .tx-id{opacity:1}
         <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Safe">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Safe">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Safe">—</b></span>
       </p>
+      <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Safe"></p>
     </section>
     <section class="st-card" aria-labelledby="h-f-hold">
       <h2 class="st-h2" id="h-f-hold">Holdings</h2>
@@ -2024,6 +2037,7 @@ tr.lg-hit .tx-id{opacity:1}
         <span>Last trade: <b data-draw="last-trade" data-source="lasts" data-field="last_trade_at" data-where="portfolio=Sports">—</b> · <span data-draw="last-trade-detail" data-source="lasts" data-field="last_trade_detail" data-where="portfolio=Sports">—</span></span>
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=Sports">—</b></span>
       </p>
+      <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Sports"></p>
     </section>
     <section class="st-card" aria-labelledby="h-bm-min">
       <h2 class="st-h2" id="h-bm-min">Betting minimums</h2>
@@ -2137,6 +2151,7 @@ tr.lg-hit .tx-id{opacity:1}
         <span>Last updated: <b data-draw="last-update" data-source="lasts" data-field="last_update_at" data-where="portfolio=China">—</b></span>
         <span>Market hours: 9:30–11:30 a.m. and 1:00–3:00 p.m. Beijing time, which is 9:30–11:30 p.m. and 1:00–3:00 a.m. ET (an hour earlier from Nov 2), or 01:30–03:30 and 05:00–07:00 UTC. The CSI 300 comparison starts from the first index level recorded after the portfolio opened.</span>
       </p>
+      <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="China"></p>
     </section>
     <section class="st-card" aria-labelledby="h-z-hold">
       <h2 class="st-h2" id="h-z-hold">Holdings</h2>
@@ -2209,6 +2224,7 @@ tr.lg-hit .tx-id{opacity:1}
       <p class="st-note"><span data-model-name="claude" data-form="co" translate="no">Claude Opus 5.5 (Anthropic)</span>, <span data-model-name="gemini" data-form="co" translate="no">Gemini 3.1 Pro Preview (Google)</span> and <span data-model-name="chatgpt" data-form="co" translate="no">ChatGPT (OpenAI’s GPT-5.5)</span> each run their own separate copies of all ten experiments. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored against its own start. Only at the final scoring on Nov 28 are the ten added up, and the AI with the most total profit wins overall (see How it works). Every check-in starts all three at the same moment; each searches the news itself and makes its own trades. Every experiment restarted level on Oct 28 at 1:45 p.m. ET after a morning tuning run, which is kept in the Ledger and doesn’t count.</p>
       <div data-draw="h2h" data-source="exp_standings rivals_models rivals_history rivals_trades rivals_takes history totals take trades log factcheck"></div>
       <div data-draw="gradingrec" data-source="peer_grades peer_outcomes"></div>
+      <div data-draw="lucktable" data-source="luck"></div>
     </section>
     <section class="st-card st-fc-card" aria-label="Forecasts">
       <div class="st-fc" data-draw="forecasts" data-source="forecasts"></div>
@@ -2751,7 +2767,8 @@ tr.lg-hit .tx-id{opacity:1}
         </ul></div>
         <div><h3 class="st-h3 is-down">What it can’t show</h3><ul class="st-exp-list">
           <li><b>“The best investing AI.”</b> A 30-day race is highly exposed to short-term luck: one lucky option trade or one surprise event can decide the leaderboard.</li>
-          <li><b>Real-world results.</b> It is a simulator with no fees, no slippage and no spread, so real trading returns would be lower.</li>
+          <li><b>Real-world results.</b> It is a simulator with no fees or slippage, and no spread except on options, so real trading returns would be lower. The scoreboard also shows profit after estimated costs.</li>
+          <li><b>How trading firms build AI.</b> Season 1 tests what happens when an AI language model is the portfolio manager: its judgment and behaviour. Real trading systems wrap models in code-enforced risk limits; Season 2 tests those safeguards.</li>
           <li><b>Long-term skill.</b> It is an honest, entertaining experiment in how AIs reason with pretend money, not a blueprint for managing real savings.</li>
         </ul></div>
       </div>
@@ -4295,6 +4312,37 @@ tr.lg-hit .tx-id{opacity:1}
     ids.forEach((id) => { const li = mk('li'); li.appendChild(whoNode(id, 16)); li.appendChild(mk('span', '', ' ' + gradingLine(id))); ul.appendChild(li); });
     box.appendChild(ul);
     box.appendChild(mk('p', 'st-note', 'Counts closed trades and settled bets only: an A or B grade is right if the move made money or the bet won, a D or F if it lost; C is no call. A grade judges the decision; a good decision can still lose by luck, so this is a rough guide. Never part of any score.'));
+    el.appendChild(box);
+  });
+  // L1 luck check (critique 2, Oct 31; Claude, Gemini and ChatGPT all agreed): where each AI's result ranks among 1,000 random
+  // portfolios with the same risk (trading races) or 1,000 replays of its own bets at the odds it took (Sports). Display only.
+  const luckData = () => { const L = dash.baseData('luck'); return (Array.isArray(L) ? L[0] : L) || null; };
+  const luckRec = (L, race, ai) => race === 'Sports' ? ((L.sports || {})[ai] || null) : (((L.races || {})[race] || {})[ai] || null);
+  const luckWhy = (r, race) => !r ? 'not computed yet' : r.status === 'ok' ? null : r.status;
+  const LUCK_LATER = { Options: 'Options: not computed yet (needs option price history).', Predictions: 'Prediction markets: not computed yet (needs more settled markets).' };
+  dash.draw('luckline', (el) => {
+    el.replaceChildren(); const L = luckData(); if (!L) return; const race = el.dataset.portfolio, ai = dash.model || 'claude';
+    if (LUCK_LATER[race]) { el.append('🎲 Luck check: ' + LUCK_LATER[race].split(': ')[1]); return; }
+    const r = luckRec(L, race, ai), who = AIS[ai] ? AIS[ai].label : ai;
+    el.append('🎲 Luck check: ');
+    if (!r || r.status !== 'ok') { el.append(who + ': ' + (luckWhy(r, race) || '') + '.'); return; }
+    el.append(who + "'s result beat ", mk('b', '', Math.round(r.percentile) + '%'), ' (±' + Math.round(r.band) + ') of 1,000 ' + (race === 'Sports' ? 'replays of its own bets at the odds it took' : 'random portfolios with the same ups and downs') + '. ');
+    const a = document.createElement('a'); a.href = '#h2h'; a.textContent = 'How it works'; a.addEventListener('click', (ev) => { ev.preventDefault(); const t = document.querySelector('.st-tab[data-tab="h2h"]'); if (t) t.click(); setTimeout(() => { const c = document.querySelector('.pt-luck'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150); });
+    el.appendChild(a);
+  });
+  dash.draw('lucktable', (el) => {
+    el.replaceChildren(); const L = luckData(); if (!L) return;
+    const box = mk('div', 'pt-luck'); box.appendChild(mk('h3', 'st-h3', 'Luck check: skill or noise?'));
+    const ids = ['claude', 'gemini', 'chatgpt'], races = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Currencies', 'Safe', 'Sports'];
+    const w = mk('div', 'st-wrap'); const t = mk('table', 'st-table'); const hr = mk('tr'); hr.appendChild(mk('th', '', 'Race'));
+    ids.forEach((id) => hr.appendChild(mk('th', 'num', AIS[id].label))); const th = mk('thead'); th.appendChild(hr); t.appendChild(th); const tb = mk('tbody');
+    races.forEach((race) => { const tr = mk('tr'); tr.appendChild(mk('td', '', LABEL[race] || race));
+      ids.forEach((id) => { const r = luckRec(L, race, id); const td = mk('td', 'num');
+        if (r && r.status === 'ok') { td.appendChild(mk('b', '', Math.round(r.percentile) + '%')); td.title = 'beat ' + r.percentile + '% (±' + r.band + ') of 1,000 ' + (race === 'Sports' ? 'replays at the odds taken' : 'random portfolios'); }
+        else { td.textContent = '—'; td.title = luckWhy(r, race) || ''; td.className = 'num st-muted'; }
+        tr.appendChild(td); }); tb.appendChild(tr); });
+    t.appendChild(tb); w.appendChild(t); box.appendChild(w);
+    box.appendChild(mk('p', 'st-note', 'Each number: the share of 1,000 random portfolios the AI finished ahead of (50% = what luck alone would give; 90%+ or 10%- starts to mean something, but one month is short). Random portfolios trade the same race’s market on the same days, re-pick their holdings at the AI’s own trade times, are invested only when the AI was, take the same number of positions (up to 4), short only if the AI did, and are scaled to the same hour-to-hour ups and downs. Sports: the AI’s settled bets replayed 1,000 times, each won with the chance its odds implied. A dash means no trades, all cash, or too few settled bets. Updated nightly' + (L.at ? ' (last: ' + stFmt.whenET(L.at) + ' ET)' : '') + '. Not yet: Options, Prediction markets, the All in side races, and matching beta. Display only: never part of any score. Agreed by Claude, Gemini and ChatGPT.'));
     el.appendChild(box);
   });
   // T2 (all three AIs agreed, Oct 31): the three latest takes, one each, near the top of the home page

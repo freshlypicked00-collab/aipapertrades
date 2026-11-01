@@ -577,6 +577,10 @@ try:   # R6 (root-cause vote, Oct 31): the nightly full audit's summaries, newes
     data['nightly_audit'] = json.load(open(os.path.join(SRC, 'nightly_audit.json')))[:7]
 except Exception:
     data['nightly_audit'] = []
+try:   # L1 luck check (critique 2, Oct 31; all three AIs agreed): written nightly by ops/luck.py; display only
+    data['luck'] = [json.load(open(os.path.join(SRC, 'luck.json')))]
+except Exception:
+    data['luck'] = []
 # Profit on every closed trade (average cost) and every settled bet, so every trade table can show what went in,
 # what came back and the profit. Buys and open bets are marked open. Sells carry "cost" (what that part cost) and "pnl".
 def _annotate_rivals(r):
