@@ -1545,7 +1545,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'e00f2ad7de83';</script>
+<script>window.PT_PAGE_VER = '38dd8071763a';</script>
 <!-- the first text on the page says plainly what this is, so search engines and AI assistants stop mixing the name up with a similarly named exchange (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json) -->
 <p class="pt-def" id="what-is">PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no deposits and has no token. <a href="/what-is-papertrades-ai.html">What is PaperTrades.AI?</a></p>
 <style>.pt-def { margin: 0; padding: 5px 14px; font-size: 12px; line-height: 1.4; text-align: center; color: var(--color-fg-muted, #a9a495); background: var(--color-bg, #0b0b0a); } .pt-def a { color: inherit; text-decoration: underline; white-space: nowrap; }</style>
@@ -4207,7 +4207,9 @@ body { background:var(--color-bg); }
   dash.draw('tile-pnl', (el) => {
     const p = stFmt.whereOf(el), r = rowFor('totals', p);
     tone(el, r ? r.pnl : 0);
-    el.textContent = r ? stFmt.signed(r.pnl, p) + ' (' + stFmt.pct(r.pct) + ')' : '—';
+    /* profit shown = rounded value − start, so Value and Total net profit always agree to the dollar (number audit round 3, Nov 1) */
+    const pn = r ? Math.round(Number(r.value)) - Math.round(Number(r.value) - Number(r.pnl)) : 0;
+    el.textContent = r ? stFmt.signed(pn, p) + ' (' + stFmt.pct(r.pct) + ')' : '—';
   });
   dash.draw('at-risk', (el) => {
     const r = rowFor('totals', stFmt.whereOf(el));
@@ -5460,7 +5462,7 @@ body { background:var(--color-bg); }
       const short = !whole && pts.length >= 2 && +all[0].t > from + 2 * 864e5;
       const refName = whole || pts.length < 2 ? (cfg.sinceLabel || 'since start') : short ? 'since ' + d3.timeFormat('%b %-d')(all[0].t) + (cfg.shortNote || '') : 'over the last ' + (range === '1 year' ? 'year' : range.toLowerCase());
       val.textContent = cfg.fmt(last.v);
-      const diff = ref === undefined || ref === null ? null : last.v - ref;
+      const diff = ref === undefined || ref === null ? null : Math.abs(ref) >= 1000 ? Math.round(last.v) - Math.round(ref) : last.v - ref;   /* whole-dollar difference of the two rounded figures shown (number audit, Nov 1) */
       chg.className = 'gx-chg ' + (diff > 0 ? 'is-up' : diff < 0 ? 'is-down' : '');
       chg.textContent = diff === null ? '' : (diff >= 0 ? '▲ ' : '▼ ') + (cfg.fmtDiff ? cfg.fmtDiff(diff) : cfg.fmt(Math.abs(diff))) + ' (' + stFmt.pct(ref ? last.v / ref - 1 : 0) + ') ' + refName;
       when.textContent = 'Latest check-in: ' + stFmt.when(last.t) + (cfg.source ? ' · Price from ' + cfg.source : '');   // the source right under the price (owner, Oct 30)
@@ -5784,7 +5786,7 @@ body { background:var(--color-bg); }
     }
     const cs = cash.reduce((a, r) => a + valOf(r), 0);
     const owes = pos.reduce((a, r) => a + Math.min(0, valOf(r)), 0);   /* shorts / borrowed currency count as money owed back (number audit, Nov 1) */
-    box.appendChild(mk('p', 'st-note', (cash.length ? (owes < -0.5 ? 'Cash balance: ' + money(cs) + '. This includes money from positions it borrowed and sold, which it still owes back (' + money(-owes) + ' at today’s prices), so it is not all spare cash; the race’s overall value is shown at the top. ' : 'Cash not invested: ' + money(cs) + '. ') : '') + 'Every trade, with ' + (dash.model === 'claude' ? 'Claude' : AIS[dash.model].label) + '’s own reason, is in the Ledger and on the ' + race + ' page. Times are Eastern (ET), with UTC and Hong Kong in brackets.'));
+    box.appendChild(mk('p', 'st-note', (cash.length ? (owes < -0.5 ? 'Cash balance: ' + money(cs) + '. This includes money from positions it borrowed and sold, which it still owes back (' + money(-owes) + ' at today’s prices), so it is not all spare cash; the race’s overall value is shown at the top. ' : 'Cash not invested: ' + money(cs) + '. ') : '') + (pos.length > 1 ? 'Amounts are rounded to the dollar, so the rows can add up to a dollar or two more or less than the total. ' : '') + 'Every trade, with ' + (dash.model === 'claude' ? 'Claude' : AIS[dash.model].label) + '’s own reason, is in the Ledger and on the ' + race + ' page. Times are Eastern (ET), with UTC and Hong Kong in brackets.'));
   };
   dash.draw('perf-chart', (el) => {
     const run = () => {
@@ -5806,6 +5808,8 @@ body { background:var(--color-bg); }
       const T = dash.data('trades');
       const first = AL ? null : T.status === 'ok' ? T.data.filter((t) => t.portfolio === p).map((t) => new Date(t.at)).sort((a, c) => a - c)[0] : null;
       if (first && p !== 'Sports') pts = pts.filter((q) => +q.t >= +first - 60e3);
+      /* the chart's latest point and the Value tile describe the same check-in; tiny unrounded differences made one show US$99,304 and the other US$99,303 (number audit round 3, Nov 1), so the last point uses the tile's figure */
+      if (!AL && p !== 'Sports' && pts.length) { const tr = rowFor('totals', p); const lv = tr ? Number(tr.value) : NaN; const lp = pts[pts.length - 1]; if (isFinite(lv) && Math.abs(lv - lp.v) < Math.max(5, 0.0005 * Math.abs(lv))) pts[pts.length - 1] = { t: lp.t, v: lv }; }
       let bench = null;
       if ((p === 'Safe' || p === 'Currencies') && first && pts.length) bench = { name: 'Savings account at 2.25%', points: pts.map((q) => ({ t: q.t, v: START * (1 + 0.0225 * Math.max(0, q.t - first) / (365 * 864e5)) })) };
       const bn = AL ? (p === 'AllInTrading' ? 'S&P 500' : null) : BENCH[p];
@@ -6872,10 +6876,13 @@ body { background:var(--color-bg); }
     }
     const owed = d.data.filter((r) => r.portfolio === pf && Number(r.value_cad) < 0).reduce((a, r) => a + Number(r.value_cad), 0);
     if (owed) el.appendChild(mk('p', 'st-note', 'Shows positions only. Bought partly with borrowed money (leverage): C$' + d3.format(',.0f')(-owed) + ' owed, not shown in the chart.'));
+    /* whole percents that add up to exactly 100 (largest remainder; number audit round 3, Nov 1) */
+    const PCT = new Map(); { const raw = rows.map((r) => total ? 100 * r.value_cad / total : 0), out = raw.map(Math.floor); let left = Math.round(d3.sum(raw)) - d3.sum(out); raw.map((v, i) => [v - out[i], i]).sort((x, y) => y[0] - x[0]).forEach(([, i]) => { if (left > 0) { out[i]++; left--; } }); rows.forEach((r, i) => PCT.set(r, out[i] + '%')); }
+    const pctOf = (r) => PCT.get(r) || d3.format('.0%')(r.value_cad / total);
     const row = mk('div', 'st-alloc-row'); el.appendChild(row);
     const S = 180, R = S / 2;
     const svg = d3.select(row).append('svg').attr('viewBox', `0 0 ${S} ${S}`).attr('class', 'st-pie').attr('role', 'img')
-      .attr('aria-label', 'Share of the portfolio: ' + rows.map((r) => r.holding + ' ' + d3.format('.0%')(r.value_cad / total)).join(', '));
+      .attr('aria-label', 'Share of the portfolio: ' + rows.map((r) => r.holding + ' ' + pctOf(r)).join(', '));
     const g = svg.append('g').attr('transform', `translate(${R},${R})`);
     const arcs = d3.pie().sort(null).value((r) => Number(r.value_cad))(rows);
     const arc = d3.arc().innerRadius(0).outerRadius(R - 2);
@@ -6883,7 +6890,7 @@ body { background:var(--color-bg); }
     g.selectAll('path').data(arcs).join('path').attr('d', arc)
       .style('fill', (a) => col(a.data)).style('stroke', 'var(--color-panel)').attr('stroke-width', 2)
       .on('pointerenter pointermove', (ev, a) => {
-        tip.replaceChildren(mk('b', '', a.data.holding), mk('span', '', d3.format('.0%')(a.data.value_cad / total) + ' · ' + (pf === 'China' ? stFmt.money(vOf(a.data), pf) : stFmt.cad(a.data.value_cad))));
+        tip.replaceChildren(mk('b', '', a.data.holding), mk('span', '', pctOf(a.data) + ' · ' + (pf === 'China' ? stFmt.money(vOf(a.data), pf) : stFmt.cad(a.data.value_cad))));
         tip.style.display = 'block';
         const [mx, my] = d3.pointer(ev, row); tip.style.left = (mx + 12) + 'px'; tip.style.top = (my - 10) + 'px';
       })
@@ -6891,7 +6898,7 @@ body { background:var(--color-bg); }
     g.selectAll('text').data(arcs.filter((a) => a.endAngle - a.startAngle > 0.35)).join('text')
       .attr('transform', (a) => `translate(${d3.arc().innerRadius(R * 0.55).outerRadius(R * 0.55).centroid(a)})`)
       .attr('text-anchor', 'middle').attr('dy', '0.35em').attr('font-size', 13).attr('font-weight', 600)
-      .style('fill', '#0b0b0a').style('pointer-events', 'none').text((a) => d3.format('.0%')(a.data.value_cad / total));
+      .style('fill', '#0b0b0a').style('pointer-events', 'none').text((a) => pctOf(a.data));
     // exactly when each holding was bought, at what price and for how much (owner, Oct 29)
     const T = dash.data('trades');
     const TR = T.status === 'ok' ? T.data.filter((t) => t.portfolio === pf && !String(t.holding || '').startsWith('[') && +new Date(t.at) >= RESTART - 60e3) : [];
@@ -6976,7 +6983,7 @@ body { background:var(--color-bg); }
     rows.forEach((r, i) => {
       const li = mk('li');
       const sw = mk('i'); sw.style.background = col(r, i);
-      li.append(sw, mk('b', '', r.holding + ' '), document.createTextNode(d3.format('.0%')(r.value_cad / total) + ' · ' + (pf === 'China' ? stFmt.money(vOf(r), pf) : stFmt.cad(r.value_cad))));
+      li.append(sw, mk('b', '', r.holding + ' '), document.createTextNode(pctOf(r) + ' · ' + (pf === 'China' ? stFmt.money(vOf(r), pf) : stFmt.cad(r.value_cad))));
       if (!cash(r)) { li.appendChild(buysOf(r)); { const ch = window.ptStory && window.ptStory.holdingChips(dash.model || 'claude', pf, r.holding, r.code); if (ch) { ch.classList.add('pt-alloc-tx'); li.appendChild(ch); } }
         const w = whyOf(r); if (w) { li.appendChild(w); li.dataset.say = 'no'; } }
       key.appendChild(li);
