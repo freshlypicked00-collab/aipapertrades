@@ -27,6 +27,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main   # always publish the newest commit, even when this run was queued behind another
+          fetch-depth: 2   # the IndexNow step compares with the previous commit
       - name: Price guard (Claude's new prices vs the feeds before publishing; owner's idea, all three AIs agreed, Oct 30)
         env:
           GH_TOKEN: ${{ github.token }}
@@ -51,3 +52,20 @@ jobs:
           path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
+      # IndexNow (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json): tells Bing (which feeds ChatGPT search, Copilot and
+      # DuckDuckGo), Yandex and others that pages changed. Pings the static pages when they change, and the home page once a day.
+      # Never fails the publish.
+      - name: IndexNow ping
+        if: success()
+        continue-on-error: true
+        run: |
+          KEY=3bd4b084ff19a869046b8421c54136a4
+          CHANGED=$(git diff --name-only HEAD~1 HEAD -- about.html what-is-papertrades-ai.html llms.txt sitemap.xml 2>/dev/null | sed 's#^#https://papertrades.ai/#')
+          URLS="$CHANGED"
+          if [ -n "$CHANGED" ] || [ "$(date -u +%H)" = "15" ]; then URLS="https://papertrades.ai/
+          $URLS"; fi
+          URLS=$(echo "$URLS" | sed 's/^ *//' | grep -v '^$' | sort -u)
+          [ -z "$URLS" ] && { echo "nothing to ping"; exit 0; }
+          LIST=$(echo "$URLS" | python3 -c 'import json,sys;print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))')
+          curl -sS -o /dev/null -w "IndexNow HTTP %{http_code}\n" -X POST https://api.indexnow.org/indexnow -H 'Content-Type: application/json; charset=utf-8' \
+            -d "{\"host\":\"papertrades.ai\",\"key\":\"$KEY\",\"keyLocation\":\"https://papertrades.ai/$KEY.txt\",\"urlList\":$LIST}"
