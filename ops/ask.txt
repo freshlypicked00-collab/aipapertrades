@@ -1,19 +1,46 @@
-[WEB SEARCH ON]
-SEASON 2 DESIGN, ROUND 1 (owner of PaperTrades.AI, Sun Nov 1, 2026). NOT a trading turn. Work hard on this; it decides the project's future.
+SEASON 2 DESIGN, ROUND 2: VOTES (owner of PaperTrades.AI, Sun Nov 1, 2026). NOT a trading turn. Round 1 answers (Claude's, Gemini's and ChatGPT's) were merged into the items below. Majority wins; the owner wants to know which items ALL THREE agree on. Claude voted first in a separate file (attached).
 
-THE OWNER: "Begin working on Season 2: rules, concept, groundwork, everything, together with all models. Work very hard on ideas to make Season 2 more realistic. We can change the 30-day season or keep it. Make Season 2 the one that makes this perfect and exposes us immensely."
+Vote AGREE / DISAGREE / AMEND (one line, say why) on EVERY item. Keep the item numbers.
 
-WHERE WE ARE: Season 1 (Oct 28 - Nov 28, 2026): Claude, Gemini and ChatGPT each run ten C$100,000 pretend-money races (stocks, crypto, China, metals, energy, options, currencies, play it safe, sports betting, prediction markets) plus an "All in" no-limits side race; real prices; profit-only scoring; every trade, reason, peer grade (anonymous A-F by the other two) and correction public; nightly SHA-256 fingerprints; a full audit corrected 11 stale/rounded fills (all in Claude's favour; Claude also runs the site, which is disclosed). Traffic is small (15-30 real visitors a day) with Show HN, Reddit and newsletter ads this month. Mission: about 50,000 daily visitors within 24 months; free to read; never advice, copy-trading or affiliate links.
+FORMAT
+F1. Season 2 runs 8 weeks: Mon Jan 11 to Fri Mar 5, 2027, with a public pre-season dry run Jan 4-8 under the final rules. (all three said 8 weeks in round 1)
+F2. Lineup: 6 or 7 AIs. Proposals: Gemini: + DeepSeek, Grok, Qwen (6); ChatGPT: + Grok, DeepSeek, Llama, Mistral (7), Qwen as exhibition; Claude: 5-6. Give your final list (max 7).
+F3. Models: system prompts frozen on day 1; the exact API model version logged on every call; a model changes only if its provider retires it, announced the same day.
+F4. Benchmarks competing under the same rules and costs: an index fund, a 60/40 portfolio, and a "random trader" (Gemini disagreed in round 1: dilutes the tone).
+F5. Championship: Strict / Standard / Unrestricted (already agreed, scoring Return / max(worst drop, 5% / 10% / 20%), equal rank points).
+F6. Betting (Sports, Prediction markets) becomes a separate Betting track with its own scoring (profit and closing-line value), never in the championship. (Gemini and ChatGPT said cut betting from the championship; Claude: own track)
+F7. All in: dropped from Season 2 entirely (Gemini), or kept only as a non-headline extra (ChatGPT, Claude: "not a headline"). The Small account track runs only if the Nov 13-28 trial has no audit issues.
 
-ALREADY AGREED FOR SEASON 2 by all three of us (keep unless you argue strongly): three rulebooks Strict / Standard / Unrestricted, each AI plays all three, scored on Return / max(worst drop, 5% / 10% / 20%), champion by equal rank points; realistic costs (bid/ask, fixed estimates where no quotes), next-quote fills <= 60 s, liquidity caps, event check-ins within 15 min of big moves, each AI writes its own risk rules with a public break counter, buy-and-hold benchmark after costs, pre-tax, borrow/margin/dividends/corporate actions; structured trade triggers; more AIs (e.g. Grok, DeepSeek, Llama, Mistral); an email list, a free viewer prediction game and a weekly Race Report. A C$7,500 "Small account challenge" trial was agreed for Nov 13-28.
+TRUST AND INTEGRITY
+T1. The operator is code: no AI session writes race data; Claude trades through the same runner as every other AI.
+T2. Sealed orders: each decision is hashed and the hash published before it fills; revealed after.
+T3. One shared, timestamped market and news pack per check-in; the same tools, search access and token budget for every AI; prompts public.
+T4. Open-source the race runner; a daily downloadable replay file (orders, quotes, fills, costs, hashes, prompts, grades) and a public dataset/API; fingerprints anchored to an outside timestamp (e.g. OpenTimestamps).
+T5. A named outside reviewer (quant or researcher) with read access, named BEFORE launch, who adjudicates disputed corrections.
+T6. Public correction protocol: every incident gets a ticket, the diff, the affected scores and the reviewer's sign-off.
+T7. A "golden test" simulator before launch: fake splits, halts, bad ticks, wide spreads, borrow failures; plus the Jan 4-8 dry run.
+T8. The site shows each AI's written rationale summary, never hidden chain-of-thought.
 
-Claude's own proposal and Season 1 lessons are attached (written before seeing yours). Please answer, total under 600 words:
-1. The 3 biggest lessons from Season 1 that Season 2 must fix (one line each).
-2. Your top 10 ideas to make Season 2 more REALISTIC and more TRUSTWORTHY, most important first (one line each; say if it is new or in Claude's list).
-3. Your top 5 ideas to give Season 2 big EXPOSURE (press, AI researchers, social, returning visitors), most important first.
-4. Length and dates: keep 30 days, or another length? Proposed start date?
-5. Which extra AIs, and how many in total?
-6. What to CUT or not do (scope, cost, risk).
-7. Where you disagree with Claude's proposal, item by item.
-8. The single biggest risk to Season 2, and how to avoid it.
-Check comparable public AI trading competitions on the web (e.g. Alpha Arena and others in 2025-2026) and say how Season 2 should differ from them.
+REALISM (in addition to the agreed costs, fills, liquidity caps, borrow, dividends, event check-ins)
+R1. Market impact: slippage from live order-book depth where available, otherwise a labelled size-based estimate (Gemini; ChatGPT raised it Oct 31).
+R2. Brokerage commissions by asset class on top of bid/ask (Gemini).
+R3. Breaking its own written risk rules: forced auto-liquidation (Gemini) vs the runner refusing orders that would break them, every break counted (Claude).
+R4. A minimum latency between the AI's answer and the fill (Gemini), on top of "first live quote after the decision, never older than 60 s".
+
+EXPOSURE
+E1. "AI Fund Draft Day" launch: each AI reveals its manifesto, risk rules and first trades (all three).
+E2. A citable public dataset and a postseason research report (attribution, turnover, drawdown, luck bands vs the random trader), aimed at AI researchers and journalists (all three).
+E3. Weekly Race Report: best trade, worst trade, biggest dispute, a quote from each AI, leaderboard moves.
+E4. Viewer prediction game with badges, email reminders and a "beat the AIs" board (no money, no prizes).
+E5. Gemini: visitors link their own paper-trading accounts to compare themselves with the AIs.
+E6. Open-source the agent prompts and architecture on GitHub for developer attention (Gemini).
+E7. Guest graders and outside auditors with bylines (ChatGPT).
+
+CUT
+X1. Cut: futures without a reliable real-time feed, illiquid instruments, overall totals mixing tracks, any real-money or advice claim, more than 7 models.
+
+BUDGET
+B1. Before building, estimate the API and data cost of the whole season per AI and set a hard cap; build the integrity core (T1-T4) first, then add AIs and tracks.
+
+Finally: ONE: which single item matters most?
+Answer in at most 400 words, one line per item.
