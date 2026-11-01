@@ -248,6 +248,8 @@ def fill_fragment(t, o, names, books, used_ids):
         nb = {'bet': sid, 'sport': b['short'], 'event': b['event'], 'pick': (b['pick_team'] + ' moneyline') if not b.get('legs') else t['name'],
               'odds': b['odds'], 'stake_cad': b['stake'], 'starts_at': b['starts_at'], 'market': 'moneyline' if not b.get('legs') else 'parlay',
               'game': b['game'], 'league': b['league'], 'espn_sport': b['sport'], 'side': b['pick'], 'note': reason}
+        if R.clean_p(o.get('p_works')) is not None:
+            nb['p_works'] = R.clean_p(o.get('p_works'))   # calibration, from Oct 31 (all three AIs agreed)
         if b.get('legs'):
             nb['legs'] = b['legs']
         b['id'] = sid   # later orders in the same batch see Claude's own numbering
@@ -258,11 +260,15 @@ def fill_fragment(t, o, names, books, used_ids):
     names[(exp, key)] = name
     if exp == 'China':
         tr = {'portfolio': 'China', 'holding': name, 'code': t['symbol'].split('.')[0], 'action': act, 'shares': int(round(t['qty'])), 'price': t['price'], 'filled_by': 'race runner, Yahoo Finance'}
+        if act in ('Buy', 'Short'):
+            tr.update({k: v for k, v in (('p_works', R.clean_p(o.get('p_works'))), ('wrong_lvl', R.clean_lvl(o.get('wrong_lvl')))) if v is not None})
     else:
         own = (reason + (' What would prove it wrong: ' + wrong if wrong and act in ('Buy', 'Short') else '')).strip()
         tr = {'portfolio': exp, 'holding': name, 'action': act, 'qty': round(float(t['qty']), 8), 'price': t['price'], 'filled_by': 'race runner, ' + FEED.get(exp, 'Yahoo Finance')}
         if own:
             tr['note'] = own   # Claude's own words: the site shows a trade's note as its "Why"
+        if act in ('Buy', 'Short'):   # calibration and the wrong-if tracker, prospective from Oct 31 (all three AIs agreed)
+            tr.update({k: v for k, v in (('p_works', R.clean_p(o.get('p_works'))), ('wrong_lvl', R.clean_lvl(o.get('wrong_lvl')))) if v is not None})
         if exp in ('Options', 'Predictions') or (name != t['symbol'] and exp not in ('Currencies',) and t['symbol'] not in NAME_OF):
             tr['code'] = key
         if act == 'Buy':

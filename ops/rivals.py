@@ -115,6 +115,31 @@ def clip(text, n):
     return cut[:cut.rfind(' ')].rstrip(' ,;:') + '.'
 
 
+def clean_p(v):
+    """Calibration (agreed by all three AIs, Oct 31): the AI's own probability that a buy, short or bet works out, 0 to 1."""
+    try:
+        v = float(v)
+    except (TypeError, ValueError):
+        return None
+    if v > 1 and v <= 100:
+        v = v / 100.0   # "65" means 65%
+    return round(v, 3) if 0 <= v <= 1 else None
+
+
+def clean_lvl(v):
+    """The measurable wrong-if (agreed by all three AIs, Oct 31): {"symbol": ..., "below"|"above": number}, or None."""
+    if not isinstance(v, dict) or not str(v.get('symbol') or '').strip():
+        return None
+    out = {'symbol': clip(str(v['symbol']).strip(), 40)}
+    for k in ('below', 'above'):
+        try:
+            if v.get(k) is not None:
+                out[k] = float(v[k])
+        except (TypeError, ValueError):
+            pass
+    return out if (('below' in out) != ('above' in out)) else None
+
+
 def iso(t=None):
     return (t or NOW).isoformat().replace('+00:00', 'Z')
 
@@ -760,7 +785,9 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
         '             "level": 123.45 (stop or target only: the price that triggers it), "id": "..." (cancel_stop only),',
         '             "outcome": "Yes" | "No" (Predictions only), "game": "id" and "pick": "home" | "away" (Sports only), "contracts": 5 (Options, optional),',
         '             "amount": 25000 (buy, short or bet: money to use, in that experiment\'s currency), "fraction": 1.0 (sell or cover: share of the position, 0 to 1),',
-        '             "reason": "one plain sentence", "wrong_if": "buys, shorts and bets: one plain sentence on what would prove this trade wrong (your exit signal), shown publicly"}]}',
+        '             "reason": "one plain sentence", "wrong_if": "buys, shorts and bets: one plain sentence on what would prove this trade wrong (your exit signal), shown publicly; write it as a MEASURABLE condition with a number (a price level, a score, a data release value)",',
+        '             "p_works": 0.6 (buys, shorts and bets: your honest probability, 0 to 1, that this works out: the trade is in profit when you exit, or the bet wins; shown publicly and scored for calibration, never for the race),',
+        '             "wrong_lvl": {"symbol": "Yahoo symbol", "below": 123.45} or {"symbol": "...", "above": 123.45} (buys and shorts: the price that would prove you wrong, usually your stop level; omit for bets)}]}',
         f'Use an empty orders list to hold. At most {MAX_ORDERS} orders.',
     ]
     return '\n'.join(lines)
@@ -919,6 +946,11 @@ def execute(model_id, exps, books, order, fx, state):
     t = {'at': iso(), 'model': model_id, 'experiment': exp, 'action': action.capitalize(), 'symbol': sym, 'outcome': outcome,
          'name': info.get('name', sym), 'price': px, 'pcur': pcur, 'qty': qty, 'amount': round(amt, 2), 'cur': book['cur'],
          'fx': fx, 'reason': reason, 'wrong_if': clip(order.get('wrong_if', ''), 300) if action in ('buy', 'short') else ''}
+    if action in ('buy', 'short'):   # calibration and the wrong-if tracker, prospective from Oct 31 (all three AIs agreed)
+        if clean_p(order.get('p_works')) is not None:
+            t['p_works'] = clean_p(order.get('p_works'))
+        if clean_lvl(order.get('wrong_lvl')):
+            t['wrong_lvl'] = clean_lvl(order.get('wrong_lvl'))
     _ys = sym
     if exp == 'Currencies':
         _c = sym.upper()
@@ -1013,7 +1045,8 @@ def place_bet(model_id, book, order, reason, state, exp='Sports'):
     bets.append(b)
     t = {'at': iso(), 'model': model_id, 'experiment': exp, 'action': 'Bet', 'symbol': bid, 'outcome': None,
          'name': name, 'price': ml, 'pcur': 'CAD', 'qty': 1,
-         'amount': b['stake'], 'cur': 'CAD', 'fx': None, 'reason': reason, 'bet': bid, 'wrong_if': b['wrong_if']}
+         'amount': b['stake'], 'cur': 'CAD', 'fx': None, 'reason': reason, 'bet': bid, 'wrong_if': b['wrong_if'],
+         **({'p_works': clean_p(order.get('p_works'))} if clean_p(order.get('p_works')) is not None else {})}
     state['trades'].append(t)
     return t
 

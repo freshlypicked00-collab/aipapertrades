@@ -1,7 +1,7 @@
 """Claude's orders in the ten main experiments (option B, from Oct 29, 2026): filled by the race runner at the same feed prices
 and with the same code as Gemini's and ChatGPT's orders. Claude never records its own fill prices.
 
-  python3 ops/orders.py queue '{"experiment": "Stocks", "action": "buy", "symbol": "SPY", "amount": 20000, "reason": "...", "wrong_if": "..."}'
+  python3 ops/orders.py queue '{"experiment": "Stocks", "action": "buy", "symbol": "SPY", "amount": 20000, "reason": "...", "wrong_if": "... a measurable condition ...", "p_works": 0.6, "wrong_lvl": {"symbol": "SPY", "below": 735}}'
   python3 ops/orders.py queue '{"experiment": "Crypto", "action": "sell", "symbol": "Bitcoin", "fraction": 0.5, "reason": "..."}'
   python3 ops/orders.py queue '{"experiment": "China", "action": "buy", "symbol": "510300", "amount": 20000, "reason": "..."}'   (US$)
   python3 ops/orders.py queue '{"experiment": "Currencies", "action": "short", "symbol": "USD", "amount": 30000, "reason": "..."}'

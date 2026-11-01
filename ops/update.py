@@ -204,6 +204,7 @@ def china_trade(t):
     trades.append({'at': AT, 'portfolio': 'China', 'holding': h, 'action': action, 'price_local': price,
                    'currency': 'CNY', 'shares': sh, 'cny': round(amt, 2), 'usd': round(amt / cny, 2),
                    **({'note': t['note']} if t.get('note') else {}), **({'filled_by': t['filled_by']} if t.get('filled_by') else {}),
+                   **{k: t[k] for k in ('p_works', 'wrong_lvl') if t.get(k) is not None},
                    'held_before': q0, 'held_after': r['quantity'],   # exact numbers for the trade pictures (owner, Oct 30)
                    **({'entry_local': r['entry_local'], 'pnl_usd': round(amt / cny - cost_out, 2)} if action == 'Sell' else {})})
 
@@ -306,7 +307,7 @@ for t in inp.get('trades', []):
         extra['entry_usd'] = r['entry_usd']
         extra['pnl_cad'] = round((cad - cost_out) if action == 'Sell' else (-cost_back - cad), 2)
     trades.append({'at': t.get('fill_at') or AT, 'portfolio': pf, 'holding': h, 'action': action, 'price_usd': price, 'cad': round(cad, 2), **({'note': t['note']} if t.get('note') else {}),
-                   **({'filled_by': t['filled_by']} if t.get('filled_by') else {}), **extra})
+                   **({'filled_by': t['filled_by']} if t.get('filled_by') else {}), **{k: t[k] for k in ('p_works', 'wrong_lvl') if t.get(k) is not None}, **extra})
     save('trades', trades)
 
 # ---- revalue every holding
@@ -366,7 +367,7 @@ for b in inp.get('bets_new', []):
           'odds': b['odds'], 'stake_cad': stake, 'to_win_cad': to_win(stake, b['odds']), 'status': 'Open',
           'result_cad': None, 'market': b.get('market', 'moneyline'), 'line': b.get('line'),
           'closing_odds': None, 'closing_line': None, 'starts_at': b.get('starts_at')}
-    for _k in ('game', 'league', 'espn_sport', 'side', 'legs', 'note', 'filled_by'):   # placed by the race runner (option B)
+    for _k in ('game', 'league', 'espn_sport', 'side', 'legs', 'note', 'filled_by', 'p_works'):   # placed by the race runner (option B)
         if b.get(_k) is not None:
             nb[_k] = b[_k]
     if nb['bet'] in by_id:

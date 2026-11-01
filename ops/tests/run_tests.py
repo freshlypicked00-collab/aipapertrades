@@ -232,5 +232,12 @@ def main():
     sys.exit(1 if failed else 0)
 
 
+
+def test_calibration_fields_are_cleaned():
+    """Oct 31 (all three AIs agreed): p_works is 0-1 (65 means 65%), wrong_lvl needs a symbol and exactly one of below/above."""
+    assert R.clean_p(0.65) == 0.65 and R.clean_p('65') == 0.65 and R.clean_p(2000) is None and R.clean_p('x') is None and R.clean_p(None) is None
+    assert R.clean_lvl({'symbol': 'SPY', 'below': 735}) == {'symbol': 'SPY', 'below': 735.0}
+    assert R.clean_lvl({'symbol': 'SPY', 'below': 1, 'above': 2}) is None and R.clean_lvl({'symbol': '', 'below': 1}) is None and R.clean_lvl('SPY<735') is None
+
 if __name__ == '__main__':
     main()
