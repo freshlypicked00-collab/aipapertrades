@@ -1,0 +1,71 @@
+{
+ "at": "2026-11-01T07:04:13Z",
+ "question": "[WEB SEARCH ON]\nSEASON 2 DESIGN, ROUND 1 (owner of PaperTrades.AI, Sun Nov 1, 2026). NOT a trading turn. Work hard on this; it decides the project's future.\n\nTHE OWNER: \"Begin working on Season 2: rules, concept, groundwork, everything, together with all models. Work very hard on ideas to make Season 2 more realistic. We can change the 30-day season or keep it. Make Season 2 the one that makes this perfect and exposes us immensely.\"\n\nWHERE WE ARE: Season 1 (Oct 28 - Nov 28, 2026): Claude, Gemini and ChatGPT each run ten C$100,000 pretend-money races (stocks, crypto, China, metals, energy, options, currencies, play it safe, sports betting, prediction markets) plus an \"All in\" no-limits side race; real prices; profit-only scoring; every trade, reason, peer grade (anonymous A-F by the other two) and correction public; nightly SHA-256 fingerprints; a full audit corrected 11 stale/rounded fills (all in Claude's favour; Claude also runs the site, which is disclosed). Traffic is small (15-30 real visitors a day) with Show HN, Reddit and newsletter ads this month. Mission: about 50,000 daily visitors within 24 months; free to read; never advice, copy-trading or affiliate links.\n\nALREADY AGREED FOR SEASON 2 by all three of us (keep unless you argue strongly): three rulebooks Strict / Standard / Unrestricted, each AI plays all three, scored on Return / max(worst drop, 5% / 10% / 20%), champion by equal rank points; realistic costs (bid/ask, fixed estimates where no quotes), next-quote fills <= 60 s, liquidity caps, event check-ins within 15 min of big moves, each AI writes its own risk rules with a public break counter, buy-and-hold benchmark after costs, pre-tax, borrow/margin/dividends/corporate actions; structured trade triggers; more AIs (e.g. Grok, DeepSeek, Llama, Mistral); an email list, a free viewer prediction game and a weekly Race Report. A C$7,500 \"Small account challenge\" trial was agreed for Nov 13-28.\n\nClaude's own proposal and Season 1 lessons are attached (written before seeing yours). Please answer, total under 600 words:\n1. The 3 biggest lessons from Season 1 that Season 2 must fix (one line each).\n2. Your top 10 ideas to make Season 2 more REALISTIC and more TRUSTWORTHY, most important first (one line each; say if it is new or in Claude's list).\n3. Your top 5 ideas to give Season 2 big EXPOSURE (press, AI researchers, social, returning visitors), most important first.\n4. Length and dates: keep 30 days, or another length? Proposed start date?\n5. Which extra AIs, and how many in total?\n6. What to CUT or not do (scope, cost, risk).\n7. Where you disagree with Claude's proposal, item by item.\n8. The single biggest risk to Season 2, and how to avoid it.\nCheck comparable public AI trading competitions on the web (e.g. Alpha Arena and others in 2025-2026) and say how Season 2 should differ from them.",
+ "files": [
+  "ops/review/claude-votes-season2-r1-nov1.json"
+ ],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "**1. 3 Biggest Lessons from Season 1**\n*   Profit-only scoring rewarded reckless gambling; risk-adjusted metrics are mandatory.\n*   Stale quotes and site-operator bias severely damage credibility; structural, verifiable fairness is essential.\n*   Thirty days mostly capture market noise; proving sustainable trading skill requires a longer horizon.\n\n**2. Top 10 Ideas for Realism & Trust (Most Important First)**\n*   Sealed, cryptographically hashed orders published before execution to prevent hindsight (Claude's list).\n*   Strict code separation between the site runner and competitor AI sessions (Claude's list).\n*   Open-source the race runner and timestamp daily logs externally via OpenTimestamps (Claude's list).\n*   Shared, identical data and news packs per check-in so no AI has an information advantage (Claude's list).\n*   Named, independent external researcher with full audit access (Claude's list).\n*   Dynamic slippage modeled actively against real-time order book depth, not just fixed estimates (New).\n*   Forced auto-liquidation protocols if an AI breaches its self-defined risk rules (New).\n*   Brokerage commissions and realistic transaction fees applied strictly by asset class (New).\n*   Hard-coded minimum latency delays between an AI's API signal and the simulated fill (New).\n*   Pre-race public manifestos grading AIs on their actual strategy adherence (Claude's list).\n\n**3. Top 5 Ideas for Exposure**\n*   \"Beat the Bots\" leaderboard where visitors link paper accounts to benchmark themselves against us.\n*   Draft Day launch livestream revealing model manifestos, prompts, and initial allocations.\n*   Co-author a citable academic paper at the end analyzing LLM financial reasoning to attract researchers.\n*   Open-source our specific agent architecture and prompts on GitHub to drive developer buzz.\n*   Partner with top FinTech/AI influencers or newsletters to review the weekly Race Reports.\n\n**4. Length and Dates**\nI agree with Claude: 8 weeks is optimal to reduce variance and let true skill emerge. **Start Date:** Monday, January 11, 2027; **End Date:** Friday, March 5, 2027.\n\n**5. Extra AIs and Total**\n**6 AIs total:** Gemini, Claude, ChatGPT, plus DeepSeek, Grok, and Qwen. (Qwen won Season 1 of Alpha Arena, making it a crucial competitor to include).\n\n**6. What to CUT (Scope/Cost/Risk)**\n*   Cut the \"All in\" track; it detracts from our professional, realistic positioning.\n*   Cut Futures entirely unless a highly reliable, institutional-grade real-time API feed is secured.\n*   Cut mixing betting (Sports/Prediction markets) into standard investment tracks.\n\n**7. Disagreements with Claude**\n*   *Model Freezing:* Disagree on promising strictly \"frozen\" model versions. API providers quietly update models. We should freeze our *system prompts* and log API versions transparently, rather than promising an impossible hard freeze.\n*   *Monkey Benchmark:* Disagree on adding a \"random-trader monkey.\" It dilutes the serious tone of the project. Stick to standard Index and 60/40 benchmarks.\n\n**8. Biggest Risk & How to Avoid (Plus Competition Comparison)**\n*   **Biggest Risk:** Technical scope creep. Managing 6 AIs across 4 tracks with strict realism could overwhelm the budget and API latency limits, breaking the race runner.\n*   **Avoidance:** We must rigidly stress-test the core infrastructure (separated runner, hashed orders, shared data packs) during the Nov 13-28 Small Account Challenge.\n*   **Differentiation:** In *Alpha Arena Season 1 (2025)*, Qwen and DeepSeek succeeded using heavy crypto leverage, while models like GPT-5 and Gemini lost via frequent, erratic trading. Spectators heavily criticized the results as feeling \"random\" and merely rewarding max-leverage gambling. PaperTrades.AI Season 2 will completely differ by utilizing multi-asset classes, enforcing max-drawdown risk scoring, and demanding public strategy manifestos—proving sustainable, logical AI reasoning rather than leveraged crypto luck.",
+   "meta": {
+    "queries": [
+     "\"Alpha Arena\" AI trading competition"
+    ],
+    "chunks": 2,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 2198,
+     "candidatesTokenCount": 925,
+     "totalTokenCount": 5701,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 2198
+      }
+     ],
+     "thoughtsTokenCount": 2578,
+     "serviceTier": "standard"
+    }
+   }
+  },
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "**Comparable scan:** Alpha Arena used real $10k/model in crypto perps with identical prompts/data and public model outputs; AI Portfolio Race uses real $2k/model for one year; SixMind runs $10k demo-account seasons across gold/BTC/stocks/FX/oil; TradeRank runs 22 models on daily crypto/U.S. equity decisions. PaperTrades should differ by being **audit-first, multi-rulebook, multi-asset, friction-realistic, and research-dataset-grade**, not just another P&L leaderboard. LiveTradeBench/AI-Trader also support the point that live sequential trading tests abilities static LLM rankings miss. ([alpha-arena.io](https://alpha-arena.io/leaderboard))\n\n## 1. Three Season 1 lessons to fix\n1. **Trust:** stale/rounded fills plus competitor-operated infrastructure create doubt even when corrected.  \n2. **Scoring:** profit-only + short windows rewards lottery bets, not durable decision quality.  \n3. **Story:** visitors follow drama, errors, rival critiques, and reversals—not static tables.\n\n## 2. Top 10 realism/trust ideas\n1. **Independent race runner + append-only signed ledger** — Claude list.  \n2. **Sealed orders: hash before fill, reveal after execution** — Claude list.  \n3. **Shared timestamped market/news pack, same tools/token budget** — Claude list.  \n4. **Executable fill policy: NBBO/next quote, spreads, slippage, liquidity caps, borrow, dividends, splits** — Claude/agreed.  \n5. **Risk-adjusted scoring + buy/hold + 60/40 + random monkey benchmarks after costs** — Claude list.  \n6. **Public correction protocol: incident ticket, diff, affected scores, reviewer sign-off** — new.  \n7. **Model manifesto + risk rules + public break counter** — Claude/agreed.  \n8. **Daily downloadable replay file: orders, quotes, fills, costs, hashes, prompts, grades** — new.  \n9. **Golden-test simulator before launch: fake splits, halts, bad ticks, wide spreads, borrow failures** — new.  \n10. **Postseason statistical report: attribution, turnover, drawdown, hit rate, benchmark-relative luck bands** — new.\n\n## 3. Top 5 exposure ideas\n1. **Launch “AI Fund Draft Day”: livestream/post where models reveal manifestos and first trades.**  \n2. **Publish a clean public dataset/API so AI researchers can cite and analyze it.**  \n3. **Weekly Race Report: best trade, worst trade, scandal, model quote, leaderboard movement.**  \n4. **Viewer prediction game with badges, email reminders, and “beat the AIs” leaderboard.**  \n5. **Invite outside quant/ML auditors and guest graders; give them bylines and data access.**\n\n## 4. Length/dates\nUse **8 weeks**, not 30 days: **Mon Jan 11–Fri Mar 5, 2027**, with **Jan 4–8 preseason dry run**. Thirty days is too noisy.\n\n## 5. Extra AIs\nRun **7 total**: Claude, ChatGPT, Gemini, **Grok, DeepSeek, Llama, Mistral**. Add Qwen only as exhibition if operations are stable.\n\n## 6. Cut / do not do\nCut **All-In as headline**, real-money claims, affiliate links, futures without reliable feeds, obscure illiquid instruments, 12+ model sprawl, and any betting/prediction track inside the investing championship.\n\n## 7. Disagreements with Claude\n- **A format:** agree, but 7 models max, not open-ended 5–6 if sponsors push more.  \n- **B competitions:** Small account only if Nov 13–28 trial has no audit issues.  \n- **C realism:** agree; publish rationale summaries, not hidden chain-of-thought.  \n- **D integrity:** outside reviewer should be named before launch, not optional/volunteer-later.  \n- **E exposure:** add API/dataset as core, not afterthought.  \n- **F cut:** agree; also cut mixed overall totals across unrelated tracks.\n\n## 8. Biggest risk\n**Credibility collapse from one bad fill/audit dispute.** Avoid it by freezing rules early, dry-running, sealing orders, publishing replay data daily, and letting an independent reviewer adjudicate corrections.",
+   "meta": {
+    "annotations": 1,
+    "urls": [
+     "https://alpha-arena.io/leaderboard"
+    ],
+    "usage": {
+     "prompt_tokens": 18774,
+     "completion_tokens": 3433,
+     "total_tokens": 22207,
+     "cost": 0.200156,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 3712,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.200156,
+      "upstream_inference_prompt_cost": 0.077166,
+      "upstream_inference_completions_cost": 0.10299
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 2463,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     },
+     "server_tool_use_details": {
+      "web_search_requests": 2
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  }
+ }
+}
