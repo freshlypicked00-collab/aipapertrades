@@ -1397,30 +1397,20 @@ if os.path.exists(os.path.join(SRC, 'px_long.json')):   # long price history per
 # Moments for the world to see, good and bad, by the same rules for all three AIs (owner's request, Oct 29):
 # lead changes, any single trade or bet that made or lost at least 1,000 (1% of a race), penalties, fact checks found wrong, busts.
 def _streaks():
-    """Bet streaks (Gemini's idea, Claude's change: losing streaks too, so it is never selective; owner, Oct 30): for each AI in Sports and
-    All in: sports, its latest run of wins or losses in a row since the Oct 28 restart (pushes and voids skipped)."""
-    def run(bets):
-        res = sorted([x for x in bets if x.get('status') in ('Won', 'Lost') and x.get('settled_at') and _when(x['settled_at']) >= _FS],
-                     key=lambda x: _when(x['settled_at']))
-        if not res:
-            return None
-        k, n = res[-1]['status'], 0
-        for x in reversed(res):
-            if x['status'] != k:
-                break
-            n += 1
-        return {'k': 'W' if k == 'Won' else 'L', 'n': n, 'since': res[-n]['settled_at']}
+    """Bet streaks, counted in GAMES (owner, Oct 31; Claude, Gemini and ChatGPT agreed W3/R1/R2: ops/streaks.py). Losing streaks too
+    (Claude's change, Oct 30, so it is never selective). n = games; bets = the bet slips behind them; ids = those bets, for the panel."""
+    import streaks as _SK
     out = []
     cb = [x for x in data.get('bets', []) if not x.get('placed_at') or _when(x['placed_at']) >= _FS]
-    books = {('claude', 'Sports'): cb}
+    books = {('claude', 'Sports'): [dict(b, id=b.get('bet')) for b in cb]}
     for mid in ('gemini', 'chatgpt'):
         books[(mid, 'Sports')] = (((r.get('models') or {}).get(mid) or {}).get('books') or {}).get('Sports', {}).get('bets', [])
     for am in data.get('allin_models') or []:
         books[(am['id'], 'AllInSports')] = ((am.get('books') or {}).get('AllInSports') or {}).get('bets', [])
     for (mid, race), bets in books.items():
-        s = run(bets or [])
-        if s and s['n'] >= 2:
-            out.append(dict(s, id=mid, race=race))
+        st = _SK.streak(bets or [])
+        if st and st['games'] >= 2:
+            out.append(dict(st, n=st['games'], id=mid, race=race, label=_SK.label(st), short=_SK.label(st, True)))
     return out
 
 

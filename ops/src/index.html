@@ -4568,7 +4568,7 @@ tr.lg-hit .tx-id{opacity:1}
           amt: Number(cn ? t.usd : t.cad) || 0, px: cn ? (t.price_local != null ? '¥' + d3.format(',.3f')(t.price_local) : '') : (t.price_usd != null ? 'US$' + d3.format(',.4~f')(t.price_usd) : ''),
           why: String(t.note || '').split(/\s*What would prove it wrong:/)[0], tuning, race: t.portfolio, model: 'claude', what: t.holding, p: t.p_works }); });
       B.forEach((b) => { const pk = String(b.pick || '').replace(/ moneyline$/, ''), ev = String(b.event || '').replace(/\s*\(.*\)$/, '');
-        push(bets, 'claude|Sports|' + pk + '|' + ev, { tx: b.tx, at: b.placed_at || b.placed, act: 'Bet', stake: Number(b.stake_cad || 0), odds: b.odds, status: b.status,
+        push(bets, 'claude|Sports|' + pk + '|' + ev, { bid: b.bet, tx: b.tx, at: b.placed_at || b.placed, act: 'Bet', stake: Number(b.stake_cad || 0), odds: b.odds, status: b.status,
           result: b.result_cad == null ? null : Number(b.result_cad), rtx: b.tx_result, rat: b.settled_at, why: b.note || '', race: 'Sports', model: 'claude', what: b.pick + ' (' + b.event + ')', p: b.p_works });
         if (b.tx_result) byTx[b.tx_result] = { o: 'bet', key: 'claude|Sports|' + pk + '|' + ev }; });
       const res = {};
@@ -4576,7 +4576,7 @@ tr.lg-hit .tx-id{opacity:1}
       R.concat(A).forEach((t) => {
         if (t.action === 'Bet' || t.action === 'Parlay') { const r = res[t.model + '|' + t.bet] || null;
           const key = t.model + '|' + t.experiment + '|bet|' + t.name;
-          push(bets, key, { tx: t.tx, at: t.at, act: 'Bet', stake: Number(t.stake || t.amount || 0), odds: t.price, status: t.status || (r && r.action), result: r ? Number(r.pnl != null ? r.pnl : r.result || 0) : (t.result != null && t.status !== 'Open' ? Number(t.result) : null),
+          push(bets, key, { bid: t.bet, tx: t.tx, at: t.at, act: 'Bet', stake: Number(t.stake || t.amount || 0), odds: t.price, status: t.status || (r && r.action), result: r ? Number(r.pnl != null ? r.pnl : r.result || 0) : (t.result != null && t.status !== 'Open' ? Number(t.result) : null),
             rtx: r && r.tx, rat: r && r.at, final: r && r.final, why: t.reason || '', race: t.experiment, model: t.model, what: t.name, p: t.p_works });
           if (r && r.tx) byTx[r.tx] = { o: 'bet', key }; return; }
         if (t.bet) return;
@@ -4721,7 +4721,16 @@ tr.lg-hit .tx-id{opacity:1}
       Object.entries(I.byTx).forEach(([tx, f]) => { const l = (f.o === 'pos' ? I.pos : I.bets)[f.key] || []; const st = l.find((x) => x.tx === tx || x.rtx === tx); if (!st || st.model !== model || st.race !== race) return;
         const tt = Date.parse(st.rtx === tx ? (st.rat || st.at) : st.at); const d = Math.abs(tt - t0); if (d <= 15 * 60e3 && (!best || d < best.d)) best = { tx, d }; });
       return best ? openTx(best.tx) : false; };
-    return { openBig, openTx, openAt, firstTx, close, index };
+    // a streak (R2): every bet behind it, in the same panel, with the games count stated
+    const openStreak = (model, race, st) => { const I = index(); const want = new Set(st.ids || []); const tk = [];
+      Object.entries(I.bets).forEach(([k, l]) => { if (!k.startsWith(model + '|' + race + '|') || k.includes('|merged|')) return; l.forEach((b) => { if (want.has(String(b.bid))) tk.push(b); }); });
+      if (!tk.length) return false; tk.sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+      const key = model + '|' + race + '|streak'; I.bets[key] = tk; const won = st.k === 'W';
+      const ok = openBets(key, null); if (!ok) return false;
+      const h = panel && panel.querySelector('.pt-story-h'); if (h) { h.querySelector('b').textContent = (AISL[model] || model) + ': ' + (st.games != null ? st.games : st.n) + ' games ' + (won ? 'won' : 'lost') + ' in a row';
+        h.querySelector('small').textContent = (ALLIN[race] || LABEL[race] || race) + ' · ' + tk.length + (won ? ' winning' : ' losing') + ' bets on ' + (st.games != null ? st.games : st.n) + ' games: repeat bets on the same game count once'; }
+      return true; };
+    return { openBig, openTx, openAt, openStreak, firstTx, close, index };
   })();
   window.ptStory = STORY;
   // T2 (all three AIs agreed, Oct 31): the three latest takes, one each, near the top of the home page
@@ -8619,8 +8628,13 @@ tr.lg-hit .tx-id{opacity:1}
 
   // streaks (Gemini's idea, Claude's change: cold streaks too; owner, Oct 30): 3 or more bet results in a row, next to the AI in race standings
   const streakNode = (race, id) => { const S = dash.baseData('streaks'); const st = (Array.isArray(S) ? S : []).find((x) => x.race === race && x.id === id);
-    if (!st || st.n < 3) return null; const b = mk('small', 'pd-streak ' + (st.k === 'W' ? 'is-hot' : 'is-cold'), (st.k === 'W' ? '🔥 ' : '🧊 ') + st.n + (st.k === 'W' ? ' wins' : ' losses') + ' in a row');
-    b.title = (st.k === 'W' ? 'Won' : 'Lost') + ' its last ' + st.n + ' bets in this race (pushes and refunds skipped).'; return b; };
+    // counted in GAMES, not bet slips (owner, Oct 31; Claude, Gemini and ChatGPT agreed W3/R1/R2): "3 games won in a row", with the bets in the detail
+    if (!st || st.n < 3) return null; const games = st.games != null ? st.games : st.n;
+    const b = mk('small', 'pd-streak ' + (st.k === 'W' ? 'is-hot' : 'is-cold'), (st.k === 'W' ? '🔥 ' : '🧊 ') + games + (st.k === 'W' ? ' games won' : ' games lost') + ' in a row');
+    b.title = (st.bets != null ? st.bets + (st.k === 'W' ? ' winning bets on ' : ' losing bets on ') + games + ' games' : games + ' games') + ' (repeat bets on the same game count once; pushes and refunds skipped). Tap to see every bet.';
+    if (st.ids && st.ids.length && window.ptStory) { b.style.cursor = 'pointer'; b.setAttribute('role', 'button'); b.tabIndex = 0;
+      const go = (ev) => { ev.stopPropagation(); ev.preventDefault(); window.ptStory.openStreak(id, race, st); }; b.addEventListener('click', go); b.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') go(ev); }); }
+    return b; };
   const MOM_ICON = { lead: '🏁', win: '▲', loss: '▼', penalty: '⚠', factcheck: '✗', busted: '💥' };
   const momMoney = (m, v) => (m.cur === 'USD' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(v));
   const momentText = (m) => {

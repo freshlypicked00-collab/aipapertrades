@@ -224,25 +224,11 @@ def _same_team(a, b):
 
 
 def streak_of(bets):
-    """('W' or 'L', n): the latest run of bet wins or losses in a row since the Oct 28 restart (pushes and voids skipped).
-    Streaks: Gemini's idea with Claude's change (losing streaks too, never selective); owner, Oct 30."""
+    """('W' or 'L', games, bets): the latest streak counted in games, not bet slips (owner, Oct 31; all three AIs agreed; ops/streaks.py)."""
     try:
-        rs = datetime(2026, 10, 28, 17, 45, tzinfo=timezone.utc)
-        res = []
-        for b in bets or []:
-            if b.get('status') in ('Won', 'Lost') and b.get('settled_at'):
-                t = datetime.fromisoformat(str(b['settled_at']).replace('Z', '+00:00'))
-                if t >= rs:
-                    res.append((t, b['status']))
-        res.sort()
-        if not res:
-            return None
-        k, n = res[-1][1], 0
-        for _, st in reversed(res):
-            if st != k:
-                break
-            n += 1
-        return ('W' if k == 'Won' else 'L', n)
+        import streaks as _SK
+        st = _SK.streak(bets)
+        return (st['k'], st['games'], st['bets']) if st else None
     except Exception:
         return None
 
@@ -275,8 +261,8 @@ def _scoreboard(g, x, y, w, t, accent):
         g.text((x, y + 4), line, font=_font('bold', 36), fill=UP if res == 'Won' else DOWN if res == 'Lost' else FG)
         y += 54
         sk = t.get('streak')
-        if sk and sk[1] >= 3:   # streaks: 3 or more results in a row, wins and losses alike
-            g.text((x, y + 2), f"{sk[1]} {'WINS' if sk[0] == 'W' else 'LOSSES'} IN A ROW", font=_font('bold', 30), fill=(255, 159, 67) if sk[0] == 'W' else (116, 185, 255))
+        if sk and sk[1] >= 3:   # streaks: 3 or more GAMES in a row (owner, Oct 31), wins and losses alike
+            g.text((x, y + 2), f"{sk[1]} GAMES {'WON' if sk[0] == 'W' else 'LOST'} IN A ROW" + (f" ({sk[2]} BETS)" if len(sk) > 2 and sk[2] != sk[1] else ''), font=_font('bold', 30), fill=(255, 159, 67) if sk[0] == 'W' else (116, 185, 255))
             y += 46
         return y
     g.text((x, y), 'THE LEGS', font=_font('semi', 26), fill=MUTED)
