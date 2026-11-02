@@ -178,6 +178,9 @@ def poll():
     if not TOKEN: print('::notice title=Nicole bot::no NICOLE_BOT_TOKEN yet'); return
     B, T = load(BOT, {}), load(TASKS, [])
     B.setdefault('chats', {}); B.setdefault('codes', {})
+    if not B.get('username'):   # the bot's public @name, for the link-up links (also proves the token works)
+        me = api('getMe') or {}
+        if me.get('username'): B['username'] = me['username']; print(f'::notice title=Nicole bot::token works: @{me["username"]}')
     ups = api('getUpdates', offset=B.get('offset', 0), timeout=0, allowed_updates=['message', 'callback_query']) or []
     for u in ups:
         B['offset'] = u['update_id'] + 1
