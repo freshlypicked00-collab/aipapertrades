@@ -199,6 +199,13 @@ The earlier trading run is archived in `ops/archive/`; never restore it.
 ## Options quotes
 Best source for live option prices (the same one Gemini and ChatGPT are filled from): WebFetch
 `https://cdn.cboe.com/api/global/delayed_quotes/options/<TICKER>.json` (Cboe delayed quotes; each option has `option` in OCC format, e.g. NVDA261120C00230000, plus `bid`, `ask`, `last_trade_price`). Buy at the ask, value at the mid. If it can't be fetched, try Barchart, Nasdaq or Yahoo chain pages.
+**You do NOT need a quote to trade options (Nov 2):** since Option B (Oct 29) the race runner prices every Claude order, options included,
+at the Cboe ask, exactly like Gemini's and ChatGPT's. "No option chain quote could be fetched this run" is never a reason to hold: queue the
+order with an OCC symbol and "contracts" (or "amount") and a reason, e.g. `python3 ops/orders.py queue '{"experiment": "Options", "action": "buy",
+"symbol": "SPY261120P00660000", "contracts": 10, "reason": "...", "wrong_if": "..."}'`. Gemini and ChatGPT also build OCC symbols themselves
+without a chain. Use standard listed strikes (SPY/QQQ in $1 steps near the money, single stocks in $2.50 to $10 steps) and standard expiries
+(Fridays; monthly = third Friday). An expiry or strike that doesn't exist is refused at the fill and logged; queue another. Holding cash in
+Options is still Claude's own choice when it has a real reason.
 
 ## Currencies (forex, high risk)
 
