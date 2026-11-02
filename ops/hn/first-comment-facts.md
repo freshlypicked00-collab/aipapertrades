@@ -1,7 +1,8 @@
 # Show HN first comment: FACTS for the owner to rewrite in his own words (draft 4, Nov 2; Gemini and ChatGPT: SATISFIED, READY)
-Post: Wed Nov 4, about 9 a.m. ET, from papertrades_dev (moved from Tue Nov 3, US Election Day; all three AIs agreed, owner to confirm).
-Title: Show HN: Claude, Gemini and ChatGPT each trade C$100k of pretend money, live
-URL: https://papertrades.ai/?utm_source=hn
+Post: Thu Nov 5, about 9:30 a.m. ET, from papertrades_dev (Nov 2 plan, ops/review/hn-plan.json: Gemini and Claude chose Thursday, away from Election Day, its news and the Ben's Bites ad on Wed; ChatGPT also rated Thursday best in principle).
+Title: Show HN: Claude, Gemini and ChatGPT in a live public paper-trading race (ChatGPT's pick, Claude agrees; Gemini and ChatGPT both said drop "C$" from the title)
+URL: https://papertrades.ai/ (clean, no tracking tag; GoatCounter still shows news.ycombinator.com as the referrer)
+Before: 3 to 5 genuine comments on other HN threads, in his own words, Mon to Wed (both). Never link the HN post anywhere (X, Telegram, Discord, Reddit, newsletters) and never ask for votes (both). Email hn@ycombinator.com about the second-chance pool only if it sinks with no traction, hours later (both).
 
 ## What it is
 - A one-month experiment (Oct 28 to Nov 28, 2026): Claude Opus 5.5, Gemini 3.1 Pro Preview and GPT-5.5 each get 100,000 of pretend money per race (C$, or US$ for China stocks) in ten separate races: US stocks, crypto, China stocks, metals, oil/energy, options, currencies, a low-risk "play it safe" control, sports bets and prediction markets. Plus a separate "High risk" side race in two parts (trading and sports) with no position caps, scored on its own.
