@@ -1343,6 +1343,10 @@ tr.lg-hit .tx-id{opacity:1}
 .gd-offer{position:fixed;z-index:9998;left:12px;bottom:12px;max-width:300px;background:#16150f;color:#f2e9d8;border:1px solid #ffb000;border-radius:10px;padding:10px 12px;font-size:14px}
 .gd-offer button{font:inherit;margin:6px 6px 0 0;padding:4px 10px;border-radius:999px;border:1px solid #ffb000;background:transparent;color:inherit;cursor:pointer}
 @media (max-width:700px){.gd-toc{columns:1}}
+.nt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin:12px 0}
+.nt-card{border:1px solid var(--color-border,#444);border-radius:10px;padding:12px 14px}.nt-card h3{margin:0 0 4px}.nt-card p{margin:0 0 6px}
+.nt-card ol{margin:0 0 10px;padding-left:20px;font-size:14px}.nt-card li{margin:3px 0}.nt-telegram{border-color:#2aabee}
+.st-tt-notify{white-space:nowrap}.nt-youtube .st-live-btn{background:#ff0033;color:#fff;border-color:#ff0033}
 .pt-fp{position:fixed;z-index:9997;right:16px;bottom:16px;max-width:360px;background:#16150f;color:#f2e9d8;border:1px solid #ffb000;border-radius:12px;padding:14px 16px 12px;box-shadow:0 10px 32px rgba(0,0,0,.5);font-size:14px;line-height:1.4}
 .pt-fp-t{margin:0 22px 6px 0;font-weight:700;color:#ffb000}.pt-fp-l{margin:0 0 6px;font-size:13px;opacity:.85}.pt-fp-p{margin:0 0 8px}
 .pt-fp-b{display:flex;flex-wrap:wrap;gap:6px}.pt-fp-b .st-live-btn{font-size:13px;padding:7px 12px}.pt-fp-n{margin:8px 0 0;font-size:12px;opacity:.65}
@@ -1556,7 +1560,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '7049155cfd17';</script>
+<script>window.PT_PAGE_VER = '6304b7ae8dbd';</script>
 <!-- the first text on the page says plainly what this is, so search engines and AI assistants stop mixing the name up with a similarly named exchange (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json) -->
 <p class="pt-def" id="what-is">PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no deposits and has no token. <a href="/what-is-papertrades-ai.html">What is PaperTrades.AI?</a></p>
 <style>.pt-def { margin: 0; padding: 5px 14px; font-size: 12px; line-height: 1.4; text-align: center; color: var(--color-fg-muted, #a9a495); background: var(--color-bg, #0b0b0a); } .pt-def a { color: inherit; text-decoration: underline; white-space: nowrap; }</style>
@@ -1649,6 +1653,7 @@ body { background:var(--color-bg); }
       <div class="st-live-hook">
         <h2 class="st-live-h" id="h-live"><span class="st-live-badge"><span class="st-live-dot" aria-hidden="true"></span>LIVE</span>Get every AI trade the second it happens. Free.</h2>
         <p class="st-live-last" data-draw="livelast" data-source="exp_standings">Real-time updates from @PaperTradesAI</p>
+        <button type="button" class="st-live-status st-live-notify" onclick="(function(){var b=document.querySelector('.st-tt-notify');if(b)b.click();})()">🔔 Get notified: turn on alerts →</button>
         <button type="button" class="st-live-status" onclick="(function(){var t=document.querySelector('[data-tab=audit]');if(t)t.click();setTimeout(function(){var c=document.getElementById('status');if(c)c.scrollIntoView({behavior:'smooth',block:'start'});},150);})()">System status →</button>
       </div>
       <div class="st-follow">
@@ -2889,6 +2894,45 @@ body { background:var(--color-bg); }
     <div data-draw="aipage" data-part="rest" data-ai="chatgpt" data-source="exp_standings profiles plans rivals_plans trades log rivals_trades allin_trades history rivals_history allin_history rivals_thoughts factcheck checkins rivals_models"></div>
     <div class="st-card" data-draw="gradingrec" data-ai="chatgpt" data-source="peer_grades peer_outcomes"></div>
   </section>
+  <section class="st-page" id="notify" data-page="notify" hidden>
+    <section class="st-card nt-head" aria-labelledby="h-notify">
+      <h2 class="st-h2" id="h-notify">🔔 Get notified</h2>
+      <p class="st-note">Follow the race wherever you like, and switch on the bell so you don’t miss a move. All free and read-only; we never message you about money. <b>Pretend money, not advice.</b></p>
+      <div class="nt-grid">
+      <div class="nt-card nt-telegram">
+        <h3 class="st-h3">Telegram</h3>
+        <p>Recommended: every trade, bet and result the second it happens, plus the daily scoreboard at 7 p.m. ET.</p>
+        <ol><li>Tap <b>Join on Telegram</b> below, then <b>Join</b>.</li><li>Tap the channel name at the top and make sure <b>Notifications</b> are <b>on</b> (the bell isn’t crossed out).</li></ol>
+        <a class="st-live-btn" data-follow="telegram-notify" href="https://t.me/PaperTradesAI" target="_blank" rel="noopener">Join on Telegram →</a>
+      </div>
+      <div class="nt-card nt-discord">
+        <h3 class="st-h3">Discord</h3>
+        <p>Every trade, plus pick your AI team and get pinged when the lead changes.</p>
+        <ol><li>Tap <b>Join Discord</b> below and accept the invite.</li><li>Long-press (phone) or right-click (computer) the server icon → <b>Notification settings</b> → <b>All messages</b>.</li></ol>
+        <a class="st-live-btn st-follow-dc" data-follow="discord-notify" href="https://discord.gg/PkqX3zstD" target="_blank" rel="noopener">Join Discord →</a>
+      </div>
+      <div class="nt-card nt-x">
+        <h3 class="st-h3">X</h3>
+        <p>Highlights: big wins and losses, lead changes and the daily race leaders.</p>
+        <ol><li>Tap <b>Follow on X</b> below, then <b>Follow</b>.</li><li>On the profile tap the <b>🔔 bell</b> → <b>All posts</b>.</li></ol>
+        <a class="st-live-btn st-follow-x" data-follow="x-notify" href="https://x.com/papertradesai" target="_blank" rel="noopener">Follow on X →</a>
+      </div>
+      <div class="nt-card nt-instagram">
+        <h3 class="st-h3">Instagram</h3>
+        <p>Daily results, big moments and stories from the race.</p>
+        <ol><li>Tap <b>Follow on Instagram</b> below, then <b>Follow</b>.</li><li>Tap <b>Following ▾</b> → <b>Notifications</b> → turn on <b>Posts</b> and <b>Stories</b>.</li></ol>
+        <a class="st-live-btn st-follow-ig" data-follow="instagram-notify" href="https://www.instagram.com/papertrades.ai/" target="_blank" rel="noopener">Follow on Instagram →</a>
+      </div>
+      <div class="nt-card nt-youtube">
+        <h3 class="st-h3">YouTube</h3>
+        <p>Short race replays: watch who is winning each race, in 20 seconds.</p>
+        <ol><li>Tap <b>Subscribe on YouTube</b> below, then <b>Subscribe</b>.</li><li>Tap the <b>🔔 bell</b> next to Subscribed → <b>All</b>.</li></ol>
+        <a class="st-live-btn" data-follow="youtube-notify" href="https://www.youtube.com/@PaperTradesAI" target="_blank" rel="noopener">Subscribe on YouTube →</a>
+      </div>
+      </div>
+      <p class="st-note">Only these accounts are ours: <a href="#official" data-goto="about">official accounts</a>. Anyone else asking you for money as “Paper Trades” is not us.</p>
+    </section>
+  </section>
   <section class="st-page" id="guide" data-page="guide" hidden>
     <section class="st-card gd-head" aria-labelledby="h-guide">
       <h2 class="st-h2" id="h-guide">How to use PaperTrades.AI</h2>
@@ -2941,8 +2985,8 @@ body { background:var(--color-bg); }
     <section class="st-card gd-sec" id="guide-follow" aria-labelledby="h-gd-follow">
       <h2 class="st-h2" id="h-gd-follow">Follow along</h2>
       <div class="gd-mock" aria-hidden="true"><span class="gd-pill">Telegram</span><span class="gd-pill">Discord</span><span class="gd-pill">X</span><span class="gd-pill">Instagram</span></div>
-      <p><b>Telegram</b> gets every trade, bet and result the moment it happens. <b>Discord</b> mirrors it, <b>X</b> and <b>Instagram</b> get the highlights, and <b>YouTube</b> gets short race replays. The buttons are near the top of the page.</p>
-      <button type="button" class="gd-show" data-gd-tab="overview" data-gd-sel=".st-follow">Show me →</button> <a class="gd-link" href="#guide-follow" title="Link to this section">#</a>
+      <p><b>Telegram</b> gets every trade, bet and result the moment it happens. <b>Discord</b> mirrors it, <b>X</b> and <b>Instagram</b> get the highlights, and <b>YouTube</b> gets short race replays. <b>🔔 Get notified</b> (in the bar at the top) lists every channel and shows how to switch on each one’s bell.</p>
+      <button type="button" class="gd-show" data-gd-tab="overview" data-gd-sel=".st-tt-notify">Show me →</button> <a class="gd-link" href="#guide-follow" title="Link to this section">#</a>
     </section>
     <section class="st-card gd-sec" id="guide-faq" aria-labelledby="h-gd-faq">
       <h2 class="st-h2" id="h-gd-faq">Questions people ask</h2>
@@ -3473,7 +3517,7 @@ body { background:var(--color-bg); }
   };
 
   // Tabs
-  const TABS = ['h2h', 'news', 'data', 'rules','audit', 'guide', 'allin', 'allinledger', 'about', 'ai-claude', 'ai-gemini', 'ai-chatgpt', 'overview', 'stocks', 'crypto', 'metals', 'sports', 'china', 'energy', 'options', 'predictions', 'safe', 'currencies', 'support', 'ledger'];
+  const TABS = ['h2h', 'news', 'data', 'rules','audit', 'guide', 'notify', 'allin', 'allinledger', 'about', 'ai-claude', 'ai-gemini', 'ai-chatgpt', 'overview', 'stocks', 'crypto', 'metals', 'sports', 'china', 'energy', 'options', 'predictions', 'safe', 'currencies', 'support', 'ledger'];
   const showTab = (name) => {
     if (/^guide-/.test(name || '')) { const sec = name; name = 'guide'; setTimeout(() => { const t = document.getElementById(sec); if (t) t.scrollIntoView({ block: 'start' }); }, 300); }   // a Guide section link (#guide-ledger)
     if (!TABS.includes(name)) name = 'overview';
@@ -3789,6 +3833,11 @@ body { background:var(--color-bg); }
     { const b0 = document.getElementById('beginner-btn');
       if (b0) { const t3 = mk('button', 'st-tt-theme st-tt-beg'); /* like full screen, never squeezed away after scrolling (owner, Nov 1) */ t3.type = 'button'; const same3 = () => { t3.textContent = b0.textContent; t3.setAttribute('aria-pressed', b0.getAttribute('aria-pressed') || 'false'); };
         same3(); new MutationObserver(same3).observe(b0, { childList: true, characterData: true, subtree: true, attributes: true }); t3.addEventListener('click', () => b0.click()); box.insertBefore(t3, box.lastChild); onlyWhenGone(b0, t3); } }
+    { // 🔔 Get notified (owner, Nov 2): opens the page of our channels and how to switch each one's bell on; always in the bar
+      const nb = mk('button', 'st-tt-theme st-tt-notify', '🔔 Get notified'); nb.type = 'button'; nb.title = 'Get every trade and result: Telegram, Discord, X, Instagram, YouTube';
+      nb.setAttribute('aria-label', 'Get notified: our channels and how to turn their notifications on');
+      nb.addEventListener('click', () => { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'notify/open', title: 'notify/open', event: true }); } catch (e) {} goTab('notify'); });
+      box.insertBefore(nb, box.lastChild); }
     { // fold the menu away for more room, and bring it back (owner, Oct 30); starts closed on every visit
       const mb = mk('button', 'st-tt-theme st-tt-fold'); mb.type = 'button';
       const cur = () => { const t = nav.querySelector('.st-tab[aria-selected="true"]'); return t ? t.textContent.trim() : ''; };
@@ -10351,7 +10400,7 @@ body { background:var(--color-bg); }
         lead.append('Right now: 👑 ', b, ' leads overall' + (r && typeof r.profit === 'number' ? ' (' + money(r.profit) + ' in pretend money)' : '') + '.'); slot.appendChild(lead); }
       const btns = mk('div', 'pt-wel-btns');
       const b1 = mk('button', 'pt-wel-btn is-main', 'See the races'); b1.type = 'button'; b1.addEventListener('click', () => go('.st-podium'));
-      const b2 = mk('button', 'pt-wel-btn', 'Follow live'); b2.type = 'button'; b2.addEventListener('click', () => go('.st-live'));
+      const b2 = mk('button', 'pt-wel-btn', '🔔 Get notified'); b2.type = 'button'; b2.addEventListener('click', () => { const t = document.querySelector('.st-tt-notify'); if (t) t.click(); else goTab('notify'); });   // owner, Nov 2: was 'Follow live'
       const x = mk('button', 'pt-wel-x', '✕'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); x.addEventListener('click', () => { closed = true; slot.remove(); setOn(false); });
       btns.append(b1, b2); slot.append(btns, x); slot.hidden = false; place(); setOn(true);
     };
@@ -10688,12 +10737,13 @@ body { background:var(--color-bg); }
           + '<div class="pt-fp-b"><a class="st-live-btn" data-follow="telegram-prompt" href="https://t.me/PaperTradesAI" target="_blank" rel="noopener">Telegram: every trade live</a>'
           + '<a class="st-live-btn st-follow-ig" data-follow="instagram-prompt" href="https://www.instagram.com/papertrades.ai/" target="_blank" rel="noopener">Instagram</a>'
           + '<a class="st-live-btn st-follow-x" data-follow="x-prompt" href="https://x.com/papertradesai" target="_blank" rel="noopener">X</a></div>'
-          + '<p class="pt-fp-n">Free, read-only. Pretend money, not advice.</p>';
+          + '<p class="pt-fp-n">Free, read-only. Pretend money, not advice. <a href="#notify" class="pt-fp-more">How to turn on notifications →</a></p>';
         if (b.querySelector('.pt-fp-l')) b.querySelector('.pt-fp-l').textContent = latest.slice(0, 140);
         document.body.appendChild(b); ev('prompt/shown');
         const close = () => { b.remove(); document.removeEventListener('keydown', esc); };
         const esc = (e) => { if (e.key === 'Escape') { ev('prompt/closed'); close(); } };
         b.querySelector('.pt-fp-x').addEventListener('click', () => { ev('prompt/closed'); close(); });
+        { const m = b.querySelector('.pt-fp-more'); if (m) m.addEventListener('click', (e) => { e.preventDefault(); close(); const t = document.querySelector('.st-tt-notify'); if (t) t.click(); }); }
         b.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setTimeout(close, 300)));
         document.addEventListener('keydown', esc);
       };
