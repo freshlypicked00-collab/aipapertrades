@@ -5,6 +5,10 @@ on:
       file:
         description: 'task file in ops/nicole, e.g. 2026-11-01-allin-story.md'
         required: true
+      bot_only:
+        description: 'send it only to the Telegram task bot, not by email (a test, or a job already emailed)'
+        type: boolean
+        default: false
 permissions:
   contents: write
   issues: write
@@ -17,6 +21,7 @@ jobs:
         with:
           ref: main
       - name: Comment on the Tasks for Nicole issue (GitHub emails it to her)
+        if: ${{ !inputs.bot_only }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FILE: ${{ inputs.file }}
