@@ -87,8 +87,8 @@ The owner: funding is not an issue; post links until we grow, and tell me what I
 | Date | Ad | Cost | Status | Tracking link |
 |---|---|---|---|---|
 | Wed Nov 4 | Ben's Bites Unclassified | US$100 | paid (Stripe receipt #1813-2704) | ?utm_source=bensbites&utm_campaign=bensbites-unclassified-1 |
-| Tue Nov 10 (backup Nov 17) | Launch Llama Classified (15.8k subs, 90% US) | US$150 + Passionfroot fee | requested via Passionfroot; pay when accepted | ?utm_source=launchllama&utm_campaign=launchllama-classified-1 |
-| Wed Nov 11 | AI Valley Trending Tools | US$380 | Nov 2: owner accepted Nov 11 by email; insertion order from Even Rai (theaivalley.com) received via SignNow, to sign; pay on their invoice | ?utm_campaign=aivalley (the link the owner sent them; shows as campaign "aivalley" in GoatCounter) |
+| Tue Nov 10 (backup Nov 17) | Launch Llama Classified (15.8k subs, 90% US) | US$150 + Passionfroot fee | paid Nov 2 (owner); confirmation DM sent | ?utm_source=launchllama&utm_campaign=launchllama-classified-1 |
+| Wed Nov 11 | AI Valley Trending Tools | US$380 | paid Nov 2 (owner); confirmation sent to Evan Rai (theaivalley.com) | ?utm_campaign=aivalley (the link the owner sent them; shows as campaign "aivalley" in GoatCounter) |
 Ad text: "Claude vs Gemini vs ChatGPT trade pretend money at real prices. Every move and reason is public. Watch the race, winner Nov 28."
 Dropped: Big Brain (its newsletter stopped in Nov 2023 although the sponsor page is still up). Instagram boost (US$5/day) runs on the side, not part of the budget.
 Measure in GoatCounter: visits per utm_source, follow/<channel>-<place> events, visitor/return-7d. First read: Wed Nov 4 evening / Thu Nov 5. Rule (all three AIs): scale only what costs under ~US$2 per real visitor.
@@ -105,6 +105,7 @@ Measure in GoatCounter: visits per utm_source, follow/<channel>-<place> events, 
 - **Budget rule (all three AIs agreed):** hold 2 to 4 days, then raise only if cost per profile visit is at or under about C$0.15 to 0.20 and at least 5 to 10% of profile visitors tap the site link. Step up gradually (C$10 → 15 → 25). Next: a Reel as a second ad (Instagram library music only).
 - **Check results:** Tue Nov 3 or Wed Nov 4.
 - **Oct 31, 7:51 p.m. ET:** Reddit Ads campaign "Reddit test 1" published (status Processing, under Reddit review). Objective Traffic, lowest-cost bid, C$70 daily budget, Nov 2 12:00 a.m. to Nov 3 11:59 p.m. EST (about C$140 total; the C$140 campaign cap was not shown on the review page, so the end date is the limit). Link https://papertrades.ai/?utm_source=redditads&utm_campaign=reddit-test-1. Communities r/ChatGPT, r/ClaudeAI, r/singularity, r/artificial, r/OpenAI, r/GeminiAI. Canada, US, UK, Australia. 3 headlines, ad-1-feed.jpg, icon-512.png thumbnail, Learn More button. Owner's card (not prepaid; Reddit refuses prepaid). Reddit Ads email still to verify.
+- **Nov 2, 1:25 p.m. ET:** Reddit test 1 at C$20.55 spent, 3,286 impressions, 31 clicks (C$0.66 a click, CTR 0.94%); GoatCounter campaign reddit-test-1: 71 visits.
 - **Reddit check:** Wed Nov 4 / Thu Nov 5. Scale only if under about US$2 per real visitor (redditads tag in the visitor counter).
 
 ## Week 1 traffic estimate, Oct 31, 8:30 p.m. ET (ops/review/week-estimate-oct31.json)
