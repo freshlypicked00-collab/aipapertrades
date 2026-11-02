@@ -1,0 +1,62 @@
+{
+ "at": "2026-11-02T22:20:24Z",
+ "question": "SITE QUESTION from the owner (Mon Nov 2, 5:20 p.m. ET). NOT a trading turn. Answer in under 80 words.\n\nThe owner: \"Would it be helpful to mention when the game is happening, or is scheduled for?\"\n\nToday a bet row shows the pick, the teams, the stake and \"Result: not settled yet\", but not when the game is played. Every bet already stores the game's start time from ESPN.\n\nClaude's proposal (Claude votes AGREE): on every open bet, in the Ledger, the High risk ledger, the bet lists and the Sports and High risk pages, add one short line under the teams:\n- before the game: \"Game: Mon Nov 2, 8:15 p.m. ET (in 3 h)\"\n- once it has started and isn't settled: \"Game: started 8:15 p.m. ET · result after the final\"\n- settled bets: \"Game: Mon Nov 2, 8:15 p.m. ET · Final: Bears 20, Seahawks 27\" (when the final score is stored)\nDisplay only; times in ET, with the visitor's own time on tap like the rest of the site.\n\nVote AGREE / DISAGREE / AMEND (exact wording), one line why.",
+ "files": [],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "AGREE — Showing kickoff/start status makes unsettled bets much clearer, reduces support confusion, and helps users understand why a result is still pending.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 362,
+     "completion_tokens": 139,
+     "total_tokens": 501,
+     "cost": 0.00598,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.00598,
+      "upstream_inference_prompt_cost": 0.00181,
+      "upstream_inference_completions_cost": 0.00417
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 104,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "AGREE. \n\nAdding the game's start time and live status (upcoming, started, final) provides crucial context. It eliminates user confusion about when a pending bet will actually settle and significantly improves the tracking experience by making the ledgers more informative at a glance.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 392,
+     "candidatesTokenCount": 55,
+     "totalTokenCount": 889,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 392
+      }
+     ],
+     "thoughtsTokenCount": 442,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
