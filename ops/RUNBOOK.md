@@ -612,3 +612,7 @@ that race's scoreboard card; AI names -> that AI's page header; corrections -> t
 moneyline for that game (ok / close = within 3 points of implied probability / flag). First run Nov 1: 43 ok, 17 close, 1 flag (Gemini
 G7 Brewers at -163 vs ESPN DraftKings -140/-137; that bet was voided and refunded, so no money changed), 2 of Claude's first bets have
 no ESPN game id. New bets record which sportsbook ESPN quoted ("odds_source").
+
+## Asking Gemini and ChatGPT from several chats at once (Nov 1)
+
+A queued ask run checks out the newest main, so a question left in `ops/ask.txt` can be swapped by another chat before the run starts. Put each question in its own file instead: `ops/asks/<name>.txt` (attachments listed in `ops/asks/<name>.files.txt`), then dispatch `rivals.yml` with `mode=ask` and the same `name`; the answers land in `ops/review/<name>.json`. `ops/ask.txt` still works when no named file exists. Dispatch only when nothing is pending in the `rivals` group: a newer pending run cancels the older pending one, which could be a check-in.
