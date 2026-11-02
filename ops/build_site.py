@@ -516,6 +516,18 @@ data = {}
 for name in ('holdings', 'history', 'bets', 'log', 'rules', 'benchmark', 'indexes', 'events', 'prices', 'trades', 'bench_history', 'ledger', 'review', 'take', 'report', 'factcheck', 'plans', 'profile'):
     data[name] = json.load(open(os.path.join(SRC, name + '.json')))
 data['sources'] = json.load(open(os.path.join(SRC, 'sources.json')))
+# results the race runner settled for Claude's bets go into Claude's decision log too, so "Last trade" and the Won / Lost counts include them
+# (full-site review, Nov 1: Claude's Sports page still showed the Ravens bet as its last move after the loss). Site text, not Claude's words.
+try:
+    _seen = {str(x.get('detail', ''))[:3].strip() for x in data['log'] if x.get('portfolio') == 'Sports' and x.get('action') == 'Settle' and not str(x.get('detail', '')).startswith('Simulation before')}
+    for _b in data['bets']:
+        if _b.get('status') in ('Won', 'Lost', 'Push', 'Void') and _b.get('settled_at') and str(_b.get('bet')) not in _seen:
+            _r = float(_b.get('result_cad') or 0)
+            data['log'].append({'at': _b['settled_at'], 'portfolio': 'Sports', 'action': 'Settle', 'site_note': True,
+                                'detail': f"{_b['bet']} {_b['status'].lower()}: {_b.get('pick')} ({_b.get('event')}), final {_b.get('final') or 'per ESPN'}; "
+                                          f"{'+' if _r >= 0 else '−'}C${abs(_r):,.0f}. Settled by the race runner from the ESPN final (site note, not Claude's words)."})
+except Exception as _e:
+    print('runner settles not added to log:', _e)
 try:   # the public log of site, posting and account updates, newest last (owner, Oct 30)
     data['changelog'] = json.load(open(os.path.join(SRC, 'changelog.json')))
 except Exception:
@@ -535,6 +547,9 @@ try:
     if _ffx:
         for _hr in data['holdings']:
             _k = (_hr['portfolio'], _hr['holding'])
+            if _hr['portfolio'] == 'China' and str(_hr['holding']).startswith('Cash') and _hr.get('currency') == 'CNY' and _hr.get('quantity') and _ffx.get('USDCNY'):
+                _hr['value_usd'] = round(float(_hr['quantity']) / _ffx['USDCNY'], 2)   # yuan cash at the same rate as the holdings and the official value (full-site review, Nov 1: US$100,281 vs US$100,210)
+                continue
             if _k not in _fpx or not _hr.get('quantity') or str(_hr['holding']).startswith('Cash') or _hr['holding'] == 'USDC':
                 continue
             _px, _pat = _fpx[_k]

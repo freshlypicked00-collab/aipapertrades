@@ -186,7 +186,11 @@ def build(rivals, claude):
                                'asset': nm, 'level': st['level'], 'direction': st['direction'], 'label': st['kind'].capitalize(), 'stop_id': st['id'],
                                **({'watch': st['watch']} if st.get('watch') else {}), **({'why': st['reason']} if st.get('reason') else {}),
                                **({'sym': st['symbol']} if st['experiment'].startswith('AllIn') else {})})
-        d['sources'] = [{'title': s['title'], 'url': s['url'], 'portfolios': exps} for s in lr.get('sources', [])]
+        # where each race's prices come from (the race runner's feeds), then the pages this AI searched at its latest check-in, which cover all its races at once (full-site review, Nov 1: a Sports page listed only China and crypto news)
+        _feed = {'Sports': ('ESPN odds and results', 'https://www.espn.com/'), 'AllInSports': ('ESPN odds and results', 'https://www.espn.com/'),
+                 'Predictions': ('Polymarket prices', 'https://polymarket.com/')}
+        d['sources'] = [{'title': 'Prices and fills: ' + _feed.get(e, ('Yahoo Finance quotes', 'https://finance.yahoo.com/'))[0], 'url': _feed.get(e, ('', 'https://finance.yahoo.com/'))[1], 'portfolios': [e], 'feed': True} for e in exps]
+        d['sources'] += [{'title': s['title'], 'url': s['url'], 'portfolios': exps, 'news': True} for s in lr.get('sources', [])]
 
         # daily ledger at 00:00 UTC, from the hourly check-ins
         for e in exps:
@@ -228,7 +232,7 @@ def build(rivals, claude):
                 if pick:
                     r.update(start_at=pick['at'], start_level=pick['level'], fx_start=pick.get('fx', r.get('fx_start')))
                 elif r.get('now_level'):
-                    r.update(start_at=st.isoformat(), start_level=r['now_level'], fx_start=_fx_at(rivals.get('trades', []), st) or r.get('fx_now'))
+                    r.update(start_at=st.isoformat(), start_level=r['now_level'], fx_start=1 if r.get('currency') == 'CAD' else (_fx_at(rivals.get('trades', []), st) or r.get('fx_now')))   # a C$ index needs no exchange rate (full-site review Nov 1: Gemini's and ChatGPT's TSX benchmark showed C$71,240)
             idx.append(r)
         d['indexes'] = idx
         btc = sorted((p for p in claude['prices'] if p['asset'] == 'Bitcoin'), key=lambda p: _t(p['at']))
