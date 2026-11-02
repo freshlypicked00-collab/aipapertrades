@@ -5614,5 +5614,77 @@
   "what": "SPY Nov 20 $750 put",
   "grade": "C",
   "text": "Bold side-race sizing is allowed, but adding to an existing put with an exit 3% away gives a weak, unmeasured reason to cut."
+ },
+ {
+  "at": "2026-11-02T19:17:08Z",
+  "grader": "claude",
+  "model": "gemini",
+  "key": "gemini|2026-11-02T18:44:46Z|Crypto|BTC-USD|Sell",
+  "decision_at": "2026-11-02T18:44:46Z",
+  "experiment": "Crypto",
+  "action": "Sell",
+  "what": "Bitcoin USD",
+  "grade": "C",
+  "text": "Full exit three days after the hack, as withdrawals reopen, sells late into known news; no new information cited, and no stop level used instead."
+ },
+ {
+  "at": "2026-11-02T19:17:08Z",
+  "grader": "claude",
+  "model": "gemini",
+  "key": "gemini|2026-11-02T18:44:46Z|Crypto|ETH-USD|Sell",
+  "decision_at": "2026-11-02T18:44:46Z",
+  "experiment": "Crypto",
+  "action": "Sell",
+  "what": "Ethereum USD",
+  "grade": "C",
+  "text": "Same stale hack rationale as the Bitcoin exit; de-risking is defensible, but selling after the news was priced in shows reaction, not a plan."
+ },
+ {
+  "at": "2026-11-02T19:17:08Z",
+  "grader": "claude",
+  "model": "gemini",
+  "key": "gemini|2026-11-02T18:44:46Z|Sports|G51|Bet",
+  "decision_at": "2026-11-02T18:44:46Z",
+  "experiment": "Sports",
+  "action": "Bet",
+  "what": "NBA: New York Knicks moneyline (Brooklyn Nets @ New York Knicks)",
+  "grade": "D",
+  "text": "At -980 the stake risks C$3,000 to win about C$306; one upset erases ten such wins, and no edge over the price is claimed."
+ },
+ {
+  "at": "2026-11-02T19:17:08Z",
+  "grader": "claude",
+  "model": "gemini",
+  "key": "gemini|2026-11-02T18:44:46Z|AllInSports|G52|Bet",
+  "decision_at": "2026-11-02T18:44:46Z",
+  "experiment": "AllInSports",
+  "action": "Bet",
+  "what": "NBA: New York Knicks moneyline (Brooklyn Nets @ New York Knicks)",
+  "grade": "D",
+  "text": "In an uncapped race built for big numbers, a -980 favourite just to meet the minimum adds risk for almost no reward."
+ },
+ {
+  "at": "2026-11-02T19:24:09Z",
+  "grader": "claude",
+  "model": "gemini",
+  "key": "gemini|2026-11-02T19:17:08Z|Options|SPY261120P00750000|Buy",
+  "decision_at": "2026-11-02T19:17:08Z",
+  "experiment": "Options",
+  "action": "Buy",
+  "what": "SPY Nov 20 $750 put",
+  "grade": "C",
+  "text": "Adding puts hours before earnings pays peak implied volatility; a measurable SPY 770 invalidation helps, but the guide-miss thesis has no evidence."
+ },
+ {
+  "at": "2026-11-02T19:24:09Z",
+  "grader": "claude",
+  "model": "gemini",
+  "key": "gemini|2026-11-02T19:17:08Z|Stocks|SQQQ|Buy",
+  "decision_at": "2026-11-02T19:17:08Z",
+  "experiment": "Stocks",
+  "action": "Buy",
+  "what": "ProShares UltraPro Short QQQ",
+  "grade": "D",
+  "text": "A 3x leveraged inverse ETF bought on one earnings guess decays fast; the SQQQ 38 exit is clear but the thesis is a hunch."
  }
 ]
