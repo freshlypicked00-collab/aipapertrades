@@ -1,8 +1,27 @@
-FULL-SITE REVIEW (Nov 1, 8:45 p.m. ET) for PaperTrades.AI. Attached: site-text-nov1d.txt (all 25 pages, for each of the three models as the selected model) and site-overview-nov1d.txt. Everything was captured at the same moment, so check INTERNAL consistency only (prices move between captures; there is no separate canon).
-The owner wants zero problems before growth. Find ANY issue a visitor could notice:
-1. Numbers that are wrong, don't add up (beyond C$2 rounding), or contradict another page or another spot on the same page.
-2. Numbers that are correct but read confusingly (e.g. a missing step like a partial sale, a label that suggests the wrong thing, a total whose parts aren't shown).
-3. Out-of-date text (dates, "coming soon" items that already happened, old names: the side race was renamed from "All in" to "High risk" today, so flag any leftover "All in" a visitor would see), contradictions between the rules and what the site shows, broken-sounding or unclear sentences, typos.
-4. Anything that could hurt trust or growth (claims we can't back up, missing disclaimer, confusing first impression).
-Do NOT flag the AIs' own quoted words (reasons, takes, goals, feelings); we never edit those.
-For each issue: page, exact quote, what's wrong, the fix, severity HIGH/MED/LOW. Rank most severe first. End with one line: "VERDICT: CLEAN" or "VERDICT: PROBLEMS FOUND".
+BET CHECK (owner, Nov 2, 7:51 a.m. ET). The site's Sports risk table shows Gemini: "C$3,000 on Michigan State Spartans at -100000 to win C$3". The owner never saw a C$3,000 bet that wins only C$3 and asks all three AIs to confirm it is correct.
+Facts from the records:
+- Gemini placed G47 (Sports) and G48 (High risk: sports) on Nov 2, 12:16 a.m. ET: C$3,000 each on Michigan State moneyline vs Quinnipiac (NCAAB, Mon Nov 2, 7 p.m. ET).
+- The race runner's ESPN game list at that time showed exactly: "Quinnipiac Bobcats @ Michigan State Spartans, Mon 7:00 PM, +5000 / -100000". The fill used that price.
+- American odds: to win = stake x 100 / 100000 = C$3.00.
+- Rules: every bet at least C$3,000; at least C$3,000 a day and C$100,000 total by Nov 28 in Sports and (from Nov 1) in High risk: sports; the winner of each betting race is the highest balance, not the most wagered. No rule limits how short the odds can be.
+All bets at odds of -1000 or shorter so far (model, race, id, odds, stake, to_win, status, pick, date):
+('gemini', 'Sports', 'G25', -6500, 3000.0, 46.15, 'Won', 'Notre Dame Fighting Irish', '2026-10-29')
+('gemini', 'Sports', 'G27', -6500, 10000.0, 153.85, 'Won', 'Notre Dame Fighting Irish', '2026-10-29')
+('gemini', 'Sports', 'G30', -6500, 5000.0, 76.92, 'Won', 'Notre Dame Fighting Irish', '2026-10-29')
+('gemini', 'Sports', 'G31', -6500, 7000.0, 107.69, 'Won', 'Notre Dame Fighting Irish', '2026-10-29')
+('gemini', 'Sports', 'G43', -6500, 3000.0, 46.15, 'Open', 'Kansas Jayhawks', '2026-11-01')
+('gemini', 'Sports', 'G47', -100000, 3000.0, 3.0, 'Open', 'Michigan State Spartans', '2026-11-02')
+('gemini', 'AllInSports', 'G23', -1350, 20000.0, 1481.48, 'Lost', 'James Madison Dukes', '2026-10-29')
+('gemini', 'AllInSports', 'G26', -6500, 20000.0, 307.69, 'Won', 'Notre Dame Fighting Irish', '2026-10-29')
+('gemini', 'AllInSports', 'G28', -6500, 30000.0, 461.54, 'Won', 'Notre Dame Fighting Irish', '2026-10-29')
+('gemini', 'AllInSports', 'G32', -6500, 25000.0, 384.62, 'Won', 'Notre Dame Fighting Irish', '2026-10-29')
+('gemini', 'AllInSports', 'G35', -6500, 13000.0, 200.0, 'Won', 'Notre Dame Fighting Irish', '2026-10-31')
+('gemini', 'AllInSports', 'G44', -6500, 3000.0, 46.15, 'Open', 'Kansas Jayhawks', '2026-11-01')
+('gemini', 'AllInSports', 'G48', -100000, 3000.0, 3.0, 'Open', 'Michigan State Spartans', '2026-11-02')
+('chatgpt', 'Sports', 'C10', -2800, 3000.0, 107.14, 'Won', 'North Dakota State Bison', '2026-10-31')
+Questions:
+1. Is the C$3 to-win arithmetic right, and are the other to-win amounts right?
+2. Is -100000 plausible for a power-conference home opener vs a small-conference team, or does it look like a feed error? (We cannot reach ESPN from here; say how sure you are.)
+3. Is the bet within the rules as written?
+4. Does it go against the spirit of the wagering minimums (they were meant to make the AIs really bet)? Should anything change, and from when? Options: (a) no change, just explain it on the site; (b) from Nov 3, bets at odds shorter than -1000 still count as bets but do NOT count toward the daily or total wagering minimums; (c) from Nov 3, such bets are not allowed; (d) other. Any change needs all three AIs to agree and applies to every AI. Past bets stay as they are.
+Answer briefly: numbered answers, then one line "VOTE: a/b/c/d" with one sentence why.
