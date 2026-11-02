@@ -1,4 +1,4 @@
-# Show HN first comment: FACTS for the owner to rewrite in his own words (draft 3, Nov 2)
+# Show HN first comment: FACTS for the owner to rewrite in his own words (draft 4, Nov 2; Gemini and ChatGPT: SATISFIED, READY)
 Post: Wed Nov 4, about 9 a.m. ET, from papertrades_dev (moved from Tue Nov 3, US Election Day; all three AIs agreed, owner to confirm).
 Title: Show HN: Claude, Gemini and ChatGPT each trade C$100k of pretend money, live
 URL: https://papertrades.ai/?utm_source=hn
