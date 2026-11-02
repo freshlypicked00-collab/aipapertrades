@@ -11,6 +11,7 @@ Usage:
   python3 ops/nicole_bot.py send ops/nicole/<task>.md   one message per "### " job (or one message), each with ✅ Done
   python3 ops/nicole_bot.py poll                        read taps and messages, link chats, remind, tell the owner
   python3 ops/nicole_bot.py codes                       print two fresh link codes (and save their hashes)
+  python3 ops/nicole_bot.py save "message"              commit the state files, merging with any run that saved meanwhile
 State: ops/nicole/bot.json (linked chat ids, code hashes, update offset), ops/nicole/tasks.json (every job and when done).
 """
 import hashlib, html, json, os, re, secrets, sys, time, urllib.parse, urllib.request
@@ -220,10 +221,55 @@ def poll():
     save(BOT, B); save(TASKS, T)
 
 
+def merge_save(msg):
+    """Save the bot's state to main without losing anything another run wrote at the same moment (Nov 2): two runs (a task
+    send and the hourly check) can overlap, and a plain rebase either conflicts or drops one side. So: keep this run's files,
+    reset to the newest main, merge the two versions field by field, commit, push; retry on a race."""
+    import subprocess
+    run = lambda *a: subprocess.run(list(a), capture_output=True, text=True)
+    SENT = 'ops/nicole/sent.json'
+    mine = {p: load(p, None) for p in (BOT, TASKS, SENT)}
+    for attempt in range(6):
+        run('git', 'fetch', '-q', 'origin', 'main'); run('git', 'reset', '-q', '--hard', 'origin/main')
+        theirs = {p: load(p, None) for p in (BOT, TASKS, SENT)}
+        # tasks: one record per id; a Done or a reminder on either side wins
+        T = {t['id']: dict(t) for t in (theirs[TASKS] or [])}
+        for t in mine[TASKS] or []:
+            o = T.get(t['id'])
+            if not o: T[t['id']] = dict(t); continue
+            dn = [x for x in (o.get('done_at'), t.get('done_at')) if x]
+            o['done_at'] = min(dn) if dn else None
+            o['reminded'] = bool(o.get('reminded') or t.get('reminded'))
+            o['msg'] = o.get('msg') or t.get('msg')
+        order = [t['id'] for t in (theirs[TASKS] or [])] + [t['id'] for t in (mine[TASKS] or []) if t['id'] not in {x['id'] for x in (theirs[TASKS] or [])}]
+        if mine[TASKS] is not None or theirs[TASKS] is not None: save(TASKS, [T[i] for i in order])
+        # bot: linked chats from both; a code is dropped once its chat is linked or this run used it; the newest offset
+        a, b = theirs[BOT] or {}, mine[BOT] or {}
+        if a or b:
+            chats = {**(a.get('chats') or {}), **(b.get('chats') or {})}
+            codes_ = {k: v for k, v in {**(b.get('codes') or {}), **(a.get('codes') or {})}.items() if k not in chats}   # a used code's role is linked, so it drops out
+            save(BOT, {**a, **b, 'chats': chats, 'codes': codes_, 'offset': max(a.get('offset', 0), b.get('offset', 0))})
+        # sent log: every entry from both, in order, once
+        if mine[SENT] is not None or theirs[SENT] is not None:
+            seen, out = set(), []
+            for e in (theirs[SENT] or []) + (mine[SENT] or []):
+                k = json.dumps(e, sort_keys=True)
+                if k not in seen: seen.add(k); out.append(e)
+            save(SENT, out)
+        run('git', 'add', BOT, TASKS, SENT)
+        if run('git', 'diff', '--cached', '--quiet').returncode == 0: print('nothing to save'); return
+        run('git', 'commit', '-qm', msg)
+        if run('git', 'push', '-q', 'origin', 'HEAD:main').returncode == 0: print('saved'); return
+        time.sleep(4 + 4 * attempt)
+    print('::warning title=Nicole bot::could not save the bot state after 6 tries')
+
+
 def codes():
     B = load(BOT, {}); B.setdefault('codes', {}); out = {}
-    for who in ('nicole', 'owner'):
+    roles = [x for x in sys.argv[2:] if x in ('nicole', 'owner')] or ['nicole', 'owner']   # codes nicole: relink only her
+    for who in roles:
         c = secrets.token_urlsafe(9).replace('-', 'x').replace('_', 'y'); B['codes'][who] = h(c); out[who] = c
+        (B.get('chats') or {}).pop(who, None)   # a new code unlinks the old chat at once; it links again when the code is used
     save(BOT, B); print(json.dumps(out))
 
 
@@ -231,4 +277,5 @@ if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else 'poll'
     if cmd == 'send': print(send_file(sys.argv[2]), 'jobs')
     elif cmd == 'codes': codes()
+    elif cmd == 'save': merge_save(sys.argv[2] if len(sys.argv) > 2 else 'Nicole bot: state')
     else: poll()
