@@ -1562,7 +1562,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'd8997337f00b';</script>
+<script>window.PT_PAGE_VER = '99b7a49b3b9b';</script>
 <!-- the first text on the page says plainly what this is, so search engines and AI assistants stop mixing the name up with a similarly named exchange (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json) -->
 <p class="pt-def" id="what-is">PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no deposits and has no token. <a href="/what-is-papertrades-ai.html">What is PaperTrades.AI?</a></p>
 <style>.pt-def { margin: 0; padding: 5px 14px; font-size: 12px; line-height: 1.4; text-align: center; color: var(--color-fg-muted, #a9a495); background: var(--color-bg, #0b0b0a); } .pt-def a { color: inherit; text-decoration: underline; white-space: nowrap; }</style>
@@ -3624,6 +3624,22 @@ body { background:var(--color-bg); }
   // a buy to the sales that sold it, a bet to its result and back. Replayed in time order per AI, race and holding; a holding that
   // went back to zero starts a new set of buys.
   let TXL = null, TXL_K = '';
+  // each bet's game time, by transaction ID (owner, Nov 2: "mention when the game is happening"; all three AIs agreed)
+  let GAME_AT = null; dash.onData(() => { GAME_AT = null; });
+  const gameAt = (tx) => {
+    if (!GAME_AT) { GAME_AT = {}; const add = (t, s) => { if (t && s) GAME_AT[t] = s; };
+      try { (dash.baseData('bets') || []).forEach((b) => add(b.tx, b.starts_at)); } catch (e) {}
+      try { Object.values(dash.models() || {}).forEach((m) => ((m && m.bets) || []).forEach((b) => add(b.tx, b.starts_at))); } catch (e) {}
+      try { const S = {}; (dash.baseData('allin_models') || []).forEach((m) => Object.entries(m.books || {}).forEach(([e, bk]) => ((bk && bk.bets) || []).forEach((b) => { S[m.id + '|' + e + '|' + b.id] = b.starts_at; })));
+        (dash.baseData('allin_trades') || []).forEach((t) => { if (t.action === 'Bet') add(t.tx, S[t.model + '|' + t.experiment + '|' + (t.bet || t.symbol)]); }); } catch (e) {} }
+    return GAME_AT[tx] || null; };
+  const gameWhen = (iso) => new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(new Date(iso)).replace(' AM', ' a.m.').replace(' PM', ' p.m.') + ' ET';
+  const gameLine = (tx, open) => { const ga = gameAt(tx); if (!ga || isNaN(Date.parse(ga))) return '';
+    const ms = Date.parse(ga) - Date.now();
+    if (!open) return 'Game: ' + gameWhen(ga);
+    if (ms > 0) return 'Game: ' + gameWhen(ga) + (ms < 48 * 3600e3 ? ' (in ' + (ms < 3600e3 ? Math.max(1, Math.round(ms / 60000)) + ' min' : Math.round(ms / 3600e3) + ' h') + ')' : '');
+    return 'Game: started ' + gameWhen(ga) + ' · result after the final'; };
+  window.ptGameLine = gameLine;
   const txLinks = () => {
     const C = dash.baseData('trades') || [], R = dash.baseData('rivals_trades') || [], A = dash.baseData('allin_trades') || [], B = dash.baseData('bets') || [];
     const k = C.length + '|' + R.length + '|' + A.length + '|' + B.length; if (TXL && TXL_K === k) return TXL; TXL_K = k;
@@ -3666,6 +3682,7 @@ body { background:var(--color-bg); }
             a.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); if (window.ptGoTx) window.ptGoTx(t); }); ln.appendChild(a); }); w.appendChild(ln); };
         if (x) { go('bet', x.bet ? [x.bet] : null); go('buys', x.buys); go('sold', x.sold); go('result', x.result ? [x.result] : null); }
         if ((LL.__bet || new Set()).has(id) && !(x && x.result)) { const nx = document.createElement('span'); nx.className = 'tx-next'; nx.textContent = 'Result: not settled yet'; nx.title = 'The result gets its own transaction ID, linked here, once the game or market settles'; w.appendChild(nx); }
+        if ((LL.__bet || new Set()).has(id)) { const gl = gameLine(id, !(x && x.result)); if (gl) { const gn = document.createElement('span'); gn.className = 'tx-next tx-game'; gn.textContent = gl; gn.title = 'Start time from ESPN, shown in Eastern time'; w.appendChild(gn); } }
         if (window.ptStory) { const sb = document.createElement('button'); sb.type = 'button'; sb.className = 'tx-id tx-go tx-story'; sb.textContent = '📜 Whole story'; sb.title = 'Every move of this holding or bet, from the first trade, with a check of the sum';
           sb.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); window.ptStory.openTx(id); }); w.appendChild(sb); } } catch (e) {}
       return w; }
