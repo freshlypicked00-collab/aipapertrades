@@ -280,6 +280,7 @@
   .pt-mvs-acts { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
   .pt-mvs-act { font: inherit; font-size: 13px; background: none; border: 1px solid var(--color-border-line); color: var(--color-fg); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
   .ai-pf-btn { display: block; margin-top: 8px; background: none; border: 1px solid var(--ai, #888); color: var(--ai, inherit); border-radius: 999px; padding: 3px 10px; font: inherit; font-size: 12px; cursor: pointer; text-align: left; } .ai-pf-btn:hover { background: color-mix(in srgb, var(--ai, #888) 18%, transparent); }
+  .ai-pf-pl { font-size: 11.5px; opacity: .9; }
   .ai-pf-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 12px; font-size: 13px; } .ai-pf-row > b { margin-right: 4px; font-weight: 600; }
   .ai-pf-chip { background: none; border: 1px solid rgba(255,255,255,.22); color: inherit; border-radius: 999px; padding: 3px 10px; font: inherit; font-size: 12px; cursor: pointer; } .ai-pf-chip:hover { border-color: var(--ai, #888); color: var(--ai, inherit); }
   .pt-odds { position: relative; margin: 0 0 12px; padding: 10px 44px 10px 14px; border: 1px solid #2f6f4a; border-left: 4px solid #3fb950; border-radius: 8px; background: rgba(63,185,80,.08); font-size: 13.5px; line-height: 1.45; }
@@ -7422,10 +7423,22 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     stat('Last check-in', ck.at ? new Date(ck.at).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) + ' ET' : '—');
     hero.appendChild(stats);
     // every portfolio of this AI, one tap each (owner, Nov 1)
-    { const row = mk('div', 'ai-pf-row'); row.appendChild(mk('b', '', 'See my portfolio:'));
-      Object.keys(PF_WORD).forEach((e) => { const b = mk('button', 'ai-pf-chip', /^AllIn/.test(e) ? PF_WORD[e] : (LABEL[e] || e).replace(' (US$)', '')); b.type = 'button'; b.title = pfBtn(e).textContent.replace(' →', '');
-        b.addEventListener('click', (ev) => { ev.preventDefault(); if (window.ptGoPortfolio) window.ptGoPortfolio(id, e); }); row.appendChild(b); });
-      hero.appendChild(row); }
+    // ...with this AI's place and profit in each race, the side race on its own row (owner, Nov 1: "show all standings ... put standing
+    // separate for the side race"; restored on Nov 1 evening after a later edit had dropped it)
+    { const all = dash.baseData('exp_standings'); const ES = (Array.isArray(all) ? all[0] : all) || {};
+      let AR = null; try { AR = allinRows; } catch (e) { AR = null; }
+      const placeOf = (rows) => { const me = (rows || []).find((r) => r.id === id); if (!me || !rows.length) return null;
+        const ahead = rows.filter((r) => r.profit > me.profit + 0.5).length, tied = rows.filter((r) => Math.abs(r.profit - me.profit) <= 0.5).length > 1;
+        return { p: (tied ? '=' : '') + ['1st', '2nd', '3rd'][ahead], crown: ahead === 0 && !tied, v: me.profit }; };
+      const mkRow = (label, keys) => { const row = mk('div', 'ai-pf-row'); row.appendChild(mk('b', '', label));
+        keys.forEach((e) => { const side = /^AllIn/.test(e), q = placeOf(side ? (AR ? AR(e) : []) : ES[e]);
+          const b = mk('button', 'ai-pf-chip', side ? PF_WORD[e].replace('High risk ', '') : (LABEL[e] || e).replace(' (US$)', '')); b.type = 'button';
+          if (q) { const cur = e === 'China' ? 'US$' : 'C$'; const t = mk('span', 'ai-pf-pl', ' · ' + (q.crown ? '👑 ' : '') + q.p + ' ' + ptSgn0(q.v) + cur + d3.format(',.0f')(Math.abs(q.v))); tone(t, q.v); b.appendChild(t); }
+          b.title = pfBtn(e).textContent.replace(' →', '');
+          b.addEventListener('click', (ev) => { ev.preventDefault(); if (window.ptGoPortfolio) window.ptGoPortfolio(id, e); }); row.appendChild(b); });
+        hero.appendChild(row); };
+      mkRow('My place in each race (tap for my portfolio):', Object.keys(PF_WORD).filter((e) => !/^AllIn/.test(e)));
+      mkRow('High risk side race, scored on its own:', ['AllInTrading', 'AllInSports']); }
     // in its own words
     const words = card('ai-words');
     const prof = dash.baseData('profiles').filter((x) => x.model === id);
