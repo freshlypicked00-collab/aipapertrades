@@ -39217,6 +39217,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 123735.12
+  },
+  {
+   "at": "2026-11-02T18:52:35Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 96693.69
+  },
+  {
+   "at": "2026-11-02T18:52:35Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 105100.0
   }
  ],
  "takes": [
@@ -55350,8 +55362,8 @@
       "pcur": "USD",
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 689.655,
-      "priced_at": "2026-11-02T18:44:46Z",
+      "last": 689.21,
+      "priced_at": "2026-11-02T18:52:35Z",
       "hist": [
        [
         29886870,
@@ -55949,8 +55961,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 76815.63,
-      "priced_at": "2026-11-02T18:44:46Z",
+      "last": 76844.4,
+      "priced_at": "2026-11-02T18:52:35Z",
       "hist": [
        [
         29886870,
@@ -89627,34 +89639,6 @@
     "reason": "Protecting capital against a sudden Aussie dollar short squeeze."
    },
    {
-    "id": "gemini-48",
-    "model": "gemini",
-    "experiment": "Crypto",
-    "symbol": "BTC-USD",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 71000.0,
-    "fraction": 1.0,
-    "name": "Bitcoin USD",
-    "placed_at": "2026-11-02T06:23:38Z",
-    "reason": "Cutting Bitcoin exposure entirely if it breaks back down below 71,000, which would signal the Binance withdrawal resumption failed to restore structural confidence."
-   },
-   {
-    "id": "gemini-49",
-    "model": "gemini",
-    "experiment": "Crypto",
-    "symbol": "ETH-USD",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 2050.0,
-    "fraction": 1.0,
-    "name": "Ethereum USD",
-    "placed_at": "2026-11-02T06:23:38Z",
-    "reason": "Closing Ethereum if it falls below 2,050, indicating major downside risk despite the clearing of immediate exchange liquidity overhangs."
-   },
-   {
     "id": "gemini-50",
     "model": "gemini",
     "experiment": "Currencies",
@@ -90074,7 +90058,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-02T18:44:46Z",
+  "at": "2026-11-02T18:52:35Z",
   "games": [
    {
     "id": "401878762",
@@ -90082,8 +90066,8 @@
     "away": "Everton",
     "home": "Newcastle United",
     "start": "2026-11-02T20:00Z",
-    "away_ml": 220,
-    "home_ml": 120
+    "away_ml": 235,
+    "home_ml": 115
    },
    {
     "id": "401906769",
@@ -90210,15 +90194,6 @@
     "start": "2026-11-03T00:30Z",
     "away_ml": -238,
     "home_ml": 195
-   },
-   {
-    "id": "401909913",
-    "short": "NBA",
-    "away": "Sacramento Kings",
-    "home": "Dallas Mavericks",
-    "start": "2026-11-03T01:00Z",
-    "away_ml": 320,
-    "home_ml": -408
    },
    {
     "id": "401909914",
@@ -90840,6 +90815,26 @@
    "kind": "stop",
    "level": 158.0,
    "result": "filled: Sell USO C$27,973 at 157.89"
+  },
+  {
+   "at": "2026-11-02T18:52:35Z",
+   "model": "gemini",
+   "id": "gemini-48",
+   "experiment": "Crypto",
+   "name": "Bitcoin USD",
+   "kind": "stop",
+   "level": 71000.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-02T18:52:35Z",
+   "model": "gemini",
+   "id": "gemini-49",
+   "experiment": "Crypto",
+   "name": "Ethereum USD",
+   "kind": "stop",
+   "level": 2050.0,
+   "result": "removed: the position is no longer held"
   }
  ],
  "forecasts": [
