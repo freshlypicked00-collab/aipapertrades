@@ -1,12 +1,12 @@
-name: Email Nicole a manual-post task
+name: Send Nicole a manual-post task (Telegram)
 on:
   workflow_dispatch:
     inputs:
       file:
         description: 'task file in ops/nicole, e.g. 2026-11-01-allin-story.md'
         required: true
-      bot_only:
-        description: 'send it only to the Telegram task bot, not by email (a test, or a job already emailed)'
+      email:
+        description: 'also post it on the GitHub issue (emails Nicole). Off: owner, Nov 2: Telegram only'
         type: boolean
         default: false
 permissions:
@@ -20,14 +20,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-      - name: Comment on the Tasks for Nicole issue (GitHub emails it to her)
-        if: ${{ !inputs.bot_only }}
+      - name: Comment on the Tasks for Nicole issue (emails her; only if asked)
+        if: ${{ inputs.email }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           FILE: ${{ inputs.file }}
         run: |
           python3 ops/nicole.py "ops/nicole/$FILE"
-      - name: Also send it to Nicole's Telegram task bot (one message per job, each with a Done button)
+      - name: Send it to Nicole's Telegram task bot (one message per job, each with a Done button)
         env:
           NICOLE_BOT_TOKEN: ${{ secrets.NICOLE_BOT_TOKEN }}
           FILE: ${{ inputs.file }}
