@@ -121,6 +121,9 @@ def claude_books(state, fx, cm):
             if h == 'Cash (CNY)':
                 b['cash'] += q / fx['USDCNY'] if cur == 'USD' else q / fx['USDCNY'] * fx['USDCAD']
                 continue
+            if h == 'Missed-minimum penalties (CAD)':   # Prediction markets penalties come off the cash (owner Nov 2)
+                b['cash'] += q
+                continue
             if h.startswith('Cash') or abs(q) < 1e-12:
                 continue
             sym = sym_of(exp, r, cm)

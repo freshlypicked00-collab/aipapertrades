@@ -870,6 +870,17 @@ for _m in ('claude', 'gemini', 'chatgpt'):
                                 'wagered': round(sum(v for a, v in _rs if _a <= _when(a) < _b), 2)})
         _d += timedelta(days=1)
     data['betmins'].append({'model': _m, 'week': 'Total', 'start': _BFS, 'end': _BEND, 'min': 100000, 'wagered': round(sum(v for a, v in _rs), 2), 'day_min': _dmin})
+# Prediction markets minimums from Mon Nov 2 (owner; Claude, Gemini and ChatGPT all agreed: ops/review/pred-sitout-nov2.json):
+# C$3,000 bought each ET week (Mon-Sun), C$15,000 bought since the restart by Nov 28; progress per AI for the Prediction markets tab
+data['predmins'] = []
+_wk0 = _today - timedelta(days=_today.weekday())
+for _m in ('claude', 'gemini', 'chatgpt'):
+    _pi = [(_when(x['at']), x['amount']) for x in _bm_items if x['model'] == _m and x['race'] == 'Predictions' and _when(x['at']) >= _when(_BFS)]
+    _wk = sum(v for a, v in _pi if a.astimezone(_ny).date() >= _wk0)
+    _pp = r.get('claude_pred_penalties', []) if _m == 'claude' else ((((r.get('models') or {}).get(_m) or {}).get('books') or {}).get('Predictions') or {}).get('penalties', [])
+    data['predmins'].append({'model': _m, 'week_start': _wk0.isoformat(), 'week_end': min(_wk0 + timedelta(days=6), _when(_BEND).astimezone(_ny).date()).isoformat(),
+                             'week': round(_wk, 2), 'week_min': 3000.0, 'total': round(sum(v for a, v in _pi), 2), 'total_min': 15000.0,
+                             'trades': len(_pi), 'penalties': [{'week': x.get('week'), 'amount': x.get('amount'), 'reason': x.get('reason')} for x in _pp]})
 # High risk: sports betting minimums from Nov 1 (owner, Oct 31; all three AIs agreed): progress per AI for the High risk page
 _AFROM = datetime(2026, 11, 1, tzinfo=_ny)
 data['allinmins'] = []

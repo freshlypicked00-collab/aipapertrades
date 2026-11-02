@@ -407,6 +407,18 @@ for _r in holdings:
     if _r['portfolio'] == 'Sports' and _r['holding'] == 'Cash (CAD)':
         _r['quantity'] = _r['value_cad'] = round(tot['Sports'] - _open_stakes, 2)
         _r['as_of'] = AT
+# Prediction markets minimums (owner Nov 2; all three AIs agreed): Claude's missed-week penalties, kept by ops/rivals.py in
+# rivals.json claude_pred_penalties, are one negative row in Prediction markets, set from the full list every run (never added twice)
+try:
+    _pp = sum(float(x['amount']) for x in json.load(open(os.path.join(SRC, 'rivals.json'))).get('claude_pred_penalties', []))
+except Exception:
+    _pp = 0.0
+_PPN = 'Missed-minimum penalties (CAD)'
+holdings = [r for r in holdings if not (r['portfolio'] == 'Predictions' and r['holding'] == _PPN)]
+if _pp > 0:
+    holdings.append({'portfolio': 'Predictions', 'holding': _PPN, 'quantity': -round(_pp, 2), 'entry_usd': None, 'price_usd': None, 'change_pct': 0,
+                     'value_cad': -round(_pp, 2), 'as_of': AT, 'cost_cad': -round(_pp, 2), 'price_source': 'penalty', 'price_at': None})
+    tot['Predictions'] = round(sum(r['value_cad'] for r in holdings if r['portfolio'] == 'Predictions'), 2)
 save('holdings', holdings)
 if any(r['portfolio'] == 'China' for r in holdings):
     tot['China'] = round(sum(r['value_usd'] for r in holdings if r['portfolio'] == 'China'), 2)

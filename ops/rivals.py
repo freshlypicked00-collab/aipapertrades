@@ -79,6 +79,14 @@ PENALTY_DAY = 500.0     # C$ off the Sports balance for each ET day with less th
 PENALTY_TOTAL = 0.10    # and 10% of any shortfall from the C$100,000 total, at the final scoring
 PENALTY_FROM = '2026-10-29'
 ALLIN_MIN_FROM = '2026-11-01'   # High risk: Sports gets the same betting minimums from this ET day (owner, Oct 31; vote ops/review/allin-min-oct31.json)
+# Prediction markets is not optional (owner Nov 2; Claude, Gemini and ChatGPT all agreed: ops/review/pred-sitout-nov2.json):
+# at least C$3,000 bought there each ET week (Mon-Sun) from Mon Nov 2, at least C$15,000 bought there since the Oct 28 restart by
+# Nov 28; C$1,000 off the Prediction markets balance per missed week, 10% of any shortfall from C$15,000 at the final scoring.
+PRED_MIN_FROM = '2026-11-02'
+PRED_WEEK_MIN = 3000.0
+PRED_TOTAL_MIN = 15000.0
+PRED_PEN_WEEK = 1000.0
+PRED_PEN_TOTAL = 0.10
 BET_END = '2026-11-28T21:00:00+00:00'   # the minimums run to the final scoring, Nov 28 at 4 p.m. ET
 RACE_END = datetime(2026, 11, 28, 21, 0, tzinfo=timezone.utc)   # final scoring: no orders after this; values are frozen
 US_HOLIDAYS = {'2026-11-26'}            # Thanksgiving: US markets closed all day
@@ -1451,6 +1459,93 @@ def allin_rule_line(state, mid):
             + (f'High risk days missed: {", ".join(missed)}. ' if missed else ''))
 
 
+def pred_bought(state, mid):
+    """C$ bought in Prediction markets per ET week (key = that week's Monday) and in total since the Oct 28 restart."""
+    rows = []
+    if mid == 'claude':
+        try:
+            for t in json.load(open('ops/src/trades.json')):
+                if t['portfolio'] == 'Predictions' and t['action'] == 'Buy' and not str(t['holding']).startswith('['):
+                    rows.append((t['at'], float(t.get('cad') or 0)))
+        except Exception:
+            pass
+    else:
+        rows = [(t['at'], float(t.get('amount') or 0)) for t in state.get('trades', []) if t.get('model') == mid
+                and t.get('experiment') == 'Predictions' and t.get('action') == 'Buy' and not t.get('void')]
+    weeks, total = {}, 0.0
+    for at, v in rows:
+        if not at or datetime.fromisoformat(str(at).replace('Z', '+00:00')) < FRESH_START:
+            continue
+        total += v
+        d = datetime.fromisoformat(et_day(at)).date()
+        k = (d - timedelta(days=d.weekday())).isoformat()
+        weeks[k] = weeks.get(k, 0.0) + v
+    return {k: round(v, 2) for k, v in weeks.items()}, round(total, 2)
+
+
+def pred_rule_line(state, mid):
+    """Prediction markets minimums for the prompt (from Mon Nov 2)."""
+    weeks, total = pred_bought(state, mid)
+    today = NOW.astimezone(NY).date()
+    wk = today - timedelta(days=today.weekday())
+    end = datetime.fromisoformat(BET_END).astimezone(NY).date()
+    week_end = min(wk + timedelta(days=6), end)
+    done = weeks.get(wk.isoformat(), 0.0)
+    missed = []
+    d = datetime.fromisoformat(PRED_MIN_FROM).date()
+    while d < wk:
+        if weeks.get(d.isoformat(), 0.0) + 0.5 < PRED_WEEK_MIN:
+            missed.append('week of ' + d.strftime('%b %-d'))
+        d += timedelta(days=7)
+    return ('PREDICTION MARKETS MINIMUMS (owner, Nov 2; Claude, Gemini and ChatGPT all agreed; every AI, Claude included): Prediction markets is NOT optional. '
+            f'Buy at least {money(PRED_WEEK_MIN, "CAD")} in Prediction markets in every ET week (Mon-Sun) from Mon Nov 2, and at least {money(PRED_TOTAL_MIN, "CAD")} in total since the Oct 28 restart by Nov 28. '
+            f'Penalties: {money(PRED_PEN_WEEK, "CAD")} off your Prediction markets balance for each week under the weekly minimum, and 10% of any shortfall from the {money(PRED_TOTAL_MIN, "CAD")} total at the final scoring. '
+            'A prediction-market buy still also counts toward the Sports daily and total minimums. What you buy and how big (within the 25% caps) is entirely your choice; pick real value. '
+            + f'This week (to {week_end.strftime("%a %b %-d")}) you have bought {money(done, "CAD")} of {money(PRED_WEEK_MIN, "CAD")}'
+            + (' (met). ' if done + 0.5 >= PRED_WEEK_MIN else f' ({money(PRED_WEEK_MIN - done, "CAD")} still to buy this week). ')
+            + f'Total since the restart: {money(total, "CAD")} of {money(PRED_TOTAL_MIN, "CAD")}. '
+            + (f'Missed: {", ".join(missed)}. ' if missed else ''))
+
+
+def apply_pred_penalties(state):
+    """Prediction markets minimums (owner, Nov 2): applied after each ET week ends, and the total at the final scoring.
+    Gemini's and ChatGPT's come off their Predictions cash; Claude's are kept in state['claude_pred_penalties']
+    (ops/update.py shows them as a negative row in Claude's Prediction markets)."""
+    today = NOW.astimezone(NY).date()
+    last = datetime.fromisoformat(BET_END).astimezone(NY).date()
+    for mid in list(state.get('models', {})) + ['claude']:
+        m = state.get('models', {}).get(mid)
+        if m is not None and m.get('eliminated'):
+            continue
+        book = (m.get('books') or {}).get('Predictions') if m is not None else None
+        if m is not None and book is None:
+            continue
+        pens = book.setdefault('penalties', []) if book is not None else state.setdefault('claude_pred_penalties', [])
+        weeks, total = pred_bought(state, mid)
+        done = {x['week'] for x in pens}
+        name = {'claude': 'CLAUDE', 'gemini': 'GEMINI', 'chatgpt': 'CHATGPT'}.get(mid, mid)
+        d = datetime.fromisoformat(PRED_MIN_FROM).date()
+        while d <= last:
+            k, wend = d.isoformat(), min(d + timedelta(days=6), last)
+            closed = (wend < today) if NOW < RACE_END else True
+            if closed and k not in done and weeks.get(k, 0.0) + 0.5 < PRED_WEEK_MIN:
+                amt = PRED_PEN_WEEK
+                pens.append({'week': k, 'at': iso(), 'amount': amt, 'reason': f'bought {money(weeks.get(k, 0.0), "CAD")} in Prediction markets in the week of {d.strftime("%b %-d")}, under the {money(PRED_WEEK_MIN, "CAD")} weekly minimum'})
+                if book is not None:
+                    book['cash'] = round(float(book.get('cash') or 0) - amt, 2)
+                    state['trades'].append({'at': iso(), 'model': mid, 'experiment': 'Predictions', 'action': 'Penalty', 'symbol': 'PP-' + k, 'outcome': None,
+                                            'name': 'Missed weekly Prediction markets minimum', 'price': 0, 'pcur': 'CAD', 'qty': 1, 'amount': -amt, 'cur': 'CAD', 'fx': None,
+                                            'reason': pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:] + '.'})
+                tg(f"⚖️ <b>{name}: −C${amt:,.0f} Prediction markets penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
+            d += timedelta(days=7)
+        if NOW >= RACE_END and 'total' not in done and total + 0.5 < PRED_TOTAL_MIN:
+            amt = round(PRED_PEN_TOTAL * (PRED_TOTAL_MIN - total), 2)
+            pens.append({'week': 'total', 'at': iso(), 'amount': amt, 'reason': f'bought {money(total, "CAD")} in Prediction markets of the {money(PRED_TOTAL_MIN, "CAD")} required by Nov 28 (10% of the shortfall)'})
+            if book is not None:
+                book['cash'] = round(float(book.get('cash') or 0) - amt, 2)
+            tg(f"⚖️ <b>{name}: −C${amt:,.0f} Prediction markets penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
+
+
 def apply_allin_penalties(state):
     """High risk: Sports minimums (owner, Oct 31): C$500 off the High risk: Sports balance for each ET day from Nov 1 with less than the
     daily minimum bet there, and 10% of any shortfall from C$100,000 at the final scoring. Same for all three AIs."""
@@ -2044,6 +2139,7 @@ def main():
     try:
         if not state.get('final') or not all(x in state['final'] for x in list(state.get('models', {})) + ['claude']):
             apply_allin_penalties(state)   # High risk: Sports minimums from Nov 1 (owner, Oct 31)
+            apply_pred_penalties(state)   # Prediction markets minimums from Nov 2 (owner; all three AIs agreed)
     except Exception as e:
         print('High risk penalties failed', e)
     # V6 (full audit Oct 31; all three AIs agreed, ops/review/audit-fix-oct31.json): the public board and the takes a fact-checker checks
@@ -2113,7 +2209,7 @@ def main():
             mine = [x for x in state['takes'] if x['model'] == mid]
             today = [x for x in mine if x['at'][:10] == NOW.date().isoformat()]
             myplans = {k: next((x['text'] for x in reversed(state.get('plans', [])) if x['model'] == mid and x['horizon'] == k and not x.get('experiment')), '') for k in ('day', 'week', 'month', 'feeling')}
-            board, fc_task = public_board({**FROZEN, 'factchecks': state.get('factchecks', [])}, mid) + betting_rule_line(state, mid, fx) + ' ' + allin_rule_line(state, mid), ''
+            board, fc_task = public_board({**FROZEN, 'factchecks': state.get('factchecks', [])}, mid) + betting_rule_line(state, mid, fx) + ' ' + pred_rule_line(state, mid) + ' ' + allin_rule_line(state, mid), ''
             fc_races, fc_take = [], None
             # the fact-check loop (each AI checks exactly one other, nobody checks itself): Gemini checks Claude, ChatGPT checks Gemini
             # (Claude checks ChatGPT in its own runs)
