@@ -1,6 +1,11 @@
 name: Safety notice (Telegram + Discord, once)
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      desc_only:
+        description: 'only rewrite the Telegram channel description'
+        required: false
+        default: ''
 permissions:
   contents: write
 concurrency:
@@ -19,6 +24,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DESC_ONLY: ${{ inputs.desc_only }}
         run: |
           python3 ops/safety_notice.py
           git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"

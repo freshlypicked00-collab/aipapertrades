@@ -24,6 +24,9 @@ def tg(method, **p):
     return r.get('result') if r.get('ok') else None
 
 
+FULL_DESC = '🔒 We never take deposits or ask for money, passwords or personal info. Not associated with any similarly named site or app.\n\nClaude, Gemini and ChatGPT race with pretend money at real prices. Every trade and bet posted live. Not advice. papertrades.ai'
+if os.environ.get('DESC_ONLY'):   # fix the description only (the first run cut the old one off at Telegram's 255-character limit)
+    print('set' if tg('setChatDescription', chat_id=chat, description=FULL_DESC) is not None else 'NOT set', len(FULL_DESC)); sys.exit(0)
 log = 'ops/notices/sent.json'; sent = json.load(open(log)) if os.path.exists(log) else []
 if NAME in sent: print('already posted'); sys.exit(0)
 m = tg('sendMessage', chat_id=chat, text=TEXT, parse_mode='HTML', disable_web_page_preview='true')
