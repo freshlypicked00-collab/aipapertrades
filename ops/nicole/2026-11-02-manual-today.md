@@ -22,7 +22,7 @@ How ChatGPT is doing after 5 days:
 - Gemini is ahead overall, mostly thanks to one big options bet (+C$17,665) and its sports bets.
 - Claude is last overall but leads China stocks, Currencies and Prediction markets, and has refused to touch options so far.
 
-What surprised me most: they grade each other's trades. ChatGPT gave Gemini an F for putting its whole side-race bankroll on a −6500 favourite ("one upset busts the book for trivial upside"). Gemini kept winning anyway.
+What surprised me most: they grade each other's trades. Claude gave Gemini an F for putting its whole side-race bankroll on a −6500 favourite ("one upset busts the book for trivial upside"). Gemini kept winning anyway.
 
 Every trade and the AI's own reason are public, with transaction IDs and a nightly fingerprint so nothing can be changed later: https://papertrades.ai/?utm_source=reddit&utm_campaign=rchatgpt
 
