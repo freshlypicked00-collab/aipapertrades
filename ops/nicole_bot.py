@@ -225,7 +225,7 @@ def poll():
 
 
 def merge_save(msg):
-    """Save the bot's state to main without losing anything another run wrote at the same moment (Nov 2): two runs (a task
+    """Commit any code changes first: this resets the working copy to main. Save the bot's state to main without losing anything another run wrote at the same moment (Nov 2): two runs (a task
     send and the hourly check) can overlap, and a plain rebase either conflicts or drops one side. So: keep this run's files,
     reset to the newest main, merge the two versions field by field, commit, push; retry on a race."""
     import subprocess
@@ -250,8 +250,12 @@ def merge_save(msg):
         a, b = theirs[BOT] or {}, mine[BOT] or {}
         if a or b:
             chats = {**(a.get('chats') or {}), **(b.get('chats') or {})}
-            codes_ = {k: v for k, v in {**(b.get('codes') or {}), **(a.get('codes') or {})}.items() if k not in chats}   # a used code's role is linked, so it drops out
-            save(BOT, {**a, **b, 'chats': chats, 'codes': codes_, 'offset': max(a.get('offset', 0), b.get('offset', 0))})
+            chats = {k: v for k, v in chats.items() if not ((b.get('codes_at') or {}).get(k, '') > (a.get('codes_at') or {}).get(k, '') and k not in (b.get('chats') or {}))}
+            # per role, the newest code wins (codes_at); a used code's role is linked, so it drops out
+            ca, cb, ta, tb = a.get('codes') or {}, b.get('codes') or {}, a.get('codes_at') or {}, b.get('codes_at') or {}
+            codes_ = {k: (cb[k] if k in cb and (k not in ca or tb.get(k, '') > ta.get(k, '')) else ca[k]) for k in set(ca) | set(cb)}
+            codes_ = {k: v for k, v in codes_.items() if k not in chats}
+            save(BOT, {**a, **b, 'chats': chats, 'codes': codes_, 'codes_at': {**ta, **{k: v for k, v in tb.items() if v > ta.get(k, '')}}, 'offset': max(a.get('offset', 0), b.get('offset', 0))})
         # sent log: every entry from both, in order, once
         if mine[SENT] is not None or theirs[SENT] is not None:
             seen, out = set(), []
@@ -271,7 +275,7 @@ def codes():
     B = load(BOT, {}); B.setdefault('codes', {}); out = {}
     roles = [x for x in sys.argv[2:] if x in ('nicole', 'owner')] or ['nicole', 'owner']   # codes nicole: relink only her
     for who in roles:
-        c = secrets.token_urlsafe(9).replace('-', 'x').replace('_', 'y'); B['codes'][who] = h(c); out[who] = c
+        c = secrets.token_urlsafe(9).replace('-', 'x').replace('_', 'y'); B['codes'][who] = h(c); out[who] = c; B.setdefault('codes_at', {})[who] = now()
         (B.get('chats') or {}).pop(who, None)   # a new code unlinks the old chat at once; it links again when the code is used
     save(BOT, B); print(json.dumps(out))
 
