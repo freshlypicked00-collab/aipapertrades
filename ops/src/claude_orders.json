@@ -115,5 +115,30 @@
   "p_works": 0.4,
   "id": "c20261102152421-9",
   "queued_at": "2026-11-02T15:24:21Z"
+ },
+ {
+  "experiment": "Metals",
+  "action": "buy",
+  "symbol": "GLD",
+  "amount": 20000,
+  "reason": "Metals has been all cash since the Oct 30 stops; gold futures were up about 1.4% on Monday as oil fell and yields eased, so I am rebuilding a fifth-sized gold position with a stop rather than sitting out the month.",
+  "wrong_if": "GLD closes below 352, about 3% under the expected fill, which would show the rebound has failed.",
+  "p_works": 0.52,
+  "wrong_lvl": {
+   "symbol": "GLD",
+   "below": 352
+  },
+  "id": "c20261102152936-10",
+  "queued_at": "2026-11-02T15:29:36Z"
+ },
+ {
+  "experiment": "Metals",
+  "action": "stop",
+  "symbol": "GLD",
+  "level": 352,
+  "fraction": 1,
+  "reason": "Exit the new gold position if GLD falls about 3% below the entry.",
+  "id": "c20261102152936-11",
+  "queued_at": "2026-11-02T15:29:36Z"
  }
 ]
