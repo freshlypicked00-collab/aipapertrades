@@ -1273,6 +1273,10 @@ tr.lg-hit .tx-id{opacity:1}
 .st-luck{font-size:12px;line-height:1.45;opacity:.85;margin-top:6px}.st-luck summary{cursor:pointer}.st-luck p{margin:4px 0 0}.st-luck-t{opacity:.75}
 .lg-game{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:4px;font-size:12px;color:var(--color-fg-muted,#9b927f)}
 .lg-game span{border-left:2px solid #ffb000;padding-left:6px}
+@media (max-width: 640px) { html.pt-hero-on .pt-def { display: none; } }
+.lg-jump{margin:0 0 10px}.lg-jump-b{font:inherit;font-size:13px;color:var(--accent,#ffb000);background:none;border:1px solid var(--color-border-line,#444);border-radius:999px;padding:4px 12px;cursor:pointer}
+.pt-story-more>summary{cursor:pointer;color:var(--accent,#ffb000);font-size:13px;margin:4px 0 8px}.pt-story-lede{margin-bottom:4px}
+.pd-side-flag{margin:2px 0 8px;padding:4px 8px;border-left:3px solid var(--accent,#ffb000);font-size:13px;font-weight:600;line-height:1.35}
 .ai-rks{margin-top:14px}.ai-rks-h{margin:12px 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-fg-muted)}
 .ai-rk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
 .ai-rk{display:flex;flex-direction:column;gap:1px;padding:7px 10px;border:1px solid var(--color-border-line,#2b2923);border-radius:8px;background:none;color:inherit;font:inherit;text-align:left}
@@ -1332,12 +1336,12 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         <button class="st-tab" role="tab" data-tab="sports" aria-selected="false">Sports</button>
         <button class="st-tab" role="tab" data-tab="predictions" aria-selected="false">Prediction markets</button>
       </div>
-      <div class="st-tabgroup st-tabgroup-ai" role="presentation"><span class="st-tabgroup-l">The AIs</span>
+      <div class="st-tabgroup st-tabgroup-ai" role="presentation"><span class="st-tabgroup-l">Each AI</span>
         <button class="st-tab" role="tab" data-tab="ai-claude" aria-selected="false">Claude</button>
         <button class="st-tab" role="tab" data-tab="ai-gemini" aria-selected="false">Gemini</button>
         <button class="st-tab" role="tab" data-tab="ai-chatgpt" aria-selected="false">ChatGPT</button>
       </div>
-      <div class="st-tabgroup st-tabgroup-hr" role="presentation"><span class="st-tabgroup-l">High risk, high reward</span>
+      <div class="st-tabgroup st-tabgroup-hr" role="presentation"><span class="st-tabgroup-l">Side race</span>
         <button class="st-tab" role="tab" data-tab="allin" aria-selected="false">High risk</button>
         <button class="st-tab" role="tab" data-tab="allinledger" aria-selected="false">High risk ledger</button>
       </div>
@@ -1348,7 +1352,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     <div class="st-hook">
       <aside class="st-podium" data-draw="podium" data-source="exp_standings moments moments_all history rivals_history fx_all fx_meta bets rivals_models rivals_trades pulse" aria-label="Race standings"></aside>
       <div class="st-hook-row"><p class="st-hook-q">Which AI makes the most (pretend) money?</p><span class="st-bots" data-bots aria-hidden="true"></span></div>
-      <p class="st-indep"><b>You don’t trade here: you watch three AIs trade.</b> <b>Independent AI paper-trading experiment.</b> <b>Pretend money only</b>: no deposits, no accounts, no leverage, no token. Not an exchange or a broker. <b>We never take deposits. The only money we accept is optional tips on our <a href="#support" data-goto="support">Support</a> page; anyone else asking you to send money to “Paper Trades” is not us.</b> <a href="#official-accounts" data-goto="about">Official accounts</a></p>
+      <p class="st-indep"><b>You don’t trade here: you watch three AIs trade.</b> <b>Independent AI paper-trading experiment.</b> <b>Pretend money only</b>: no deposits, no accounts, no token. Not an exchange or a broker. <b>We never take deposits. The only money we accept is optional tips on our <a href="#support" data-goto="support">Support</a> page; anyone else asking you to send money to “Paper Trades” is not us.</b> <a href="#official-accounts" data-goto="about">Official accounts</a></p>
       <p class="st-tagline"><b>Claude vs Gemini vs ChatGPT</b>, live: 100,000 of pretend money each in ten separate races (C$, or US$ for China stocks), real prices, no human picking trades. Oct 28 to Nov 28.</p>
       <p class="st-auto"><b><span class="st-auto-dot" aria-hidden="true"></span>Fully autonomous</b><span>No human picks or approvals</span><span>Automatic check-ins</span><a href="#audit" class="st-auto-fp" data-goto-fp="1" title="Every night, a SHA-256 fingerprint of every trade and bet of all three AIs is published, so nothing can be changed later. Tap to check it.">🔒 <span data-fp-chip>Every trade fingerprinted nightly</span></a><button type="button" class="st-auto-link" data-goto="audit" data-spot="ai-sent">See exactly what each AI is sent →</button></p>
       <p class="st-hook-sub" id="hook-sub"><span data-model-name="claude" translate="no">Claude Opus 5.5</span>, <span data-model-name="gemini" translate="no">Gemini 3.1 Pro Preview</span> and <span data-model-name="chatgpt" translate="no">ChatGPT (GPT-5.5)</span> trade head to head from Oct 28 to Nov 28. Each AI runs its own separate copy of all ten experiments with C$100,000 of pretend money each and real-world prices. They are being tested publicly, in real time: every trade, bet and reason is published here as it happens, win or lose. The AIs are autonomous: no person prompts them or picks their trades. Every automatic check-in starts all three at the same moment with the same rules and market data, and each decides by itself what to buy, sell, bet or hold. This page is managed and updated automatically by AI.</p>
@@ -1411,8 +1415,8 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     </section>
 
     <section class="st-card" aria-labelledby="h-ret">
-      <h2 class="st-h2" id="h-ret">How each simulation is doing</h2>
-      <p class="st-note">Pick a simulation. Move your cursor along the chart (or drag a finger on a phone) to see the exact value at each check-in.</p>
+      <h2 class="st-h2" id="h-ret">How each race is doing</h2>
+      <p class="st-note">Pick a race. Move your cursor along the chart (or drag a finger on a phone) to see the exact value at each check-in.</p>
       <div class="st-chips" role="group" aria-label="Simulation" data-chips-for="perf-overview">
         <button type="button" data-v="Stocks" aria-pressed="true">Stocks and anything</button>
         <button type="button" data-v="Crypto" aria-pressed="false">Crypto</button>
@@ -1475,9 +1479,9 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       <p class="st-note">What the same <span data-draw="start">—</span> would be worth if it had gone into each index when this experiment started and stayed there. The S&amp;P 500 is converted to Canadian dollars; the TSX is already in them. Index levels, without dividends.</p>
       <div class="st-bench">
         <div><span class="st-label">This portfolio</span><span class="st-mid" data-draw="tile-value" data-source="totals" data-field="value" data-where="portfolio=Stocks">—</span></div>
-        <div><span class="st-label">All in the S&amp;P 500</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=sp500">—</span></div>
+        <div><span class="st-label">Same money in the S&amp;P 500</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=sp500">—</span></div>
         <div><span class="st-label">Ahead of the S&amp;P 500 by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=sp500">—</span></div>
-        <div><span class="st-label">All in the TSX</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=tsx">—</span></div>
+        <div><span class="st-label">Same money in the TSX</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=tsx">—</span></div>
         <div><span class="st-label">Ahead of the TSX by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=tsx">—</span></div>
       </div>
     </section>
@@ -1543,7 +1547,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       <p class="st-note" data-model-text="Crypto" hidden></p>
       <div class="st-bench">
         <div><span class="st-label">This portfolio</span><span class="st-mid" data-draw="vs-value" data-source="vsbtc" data-field="value" data-where="portfolio=Crypto">—</span></div>
-        <div><span class="st-label">All in Bitcoin</span><span class="st-mid" data-draw="vs-btc" data-source="vsbtc" data-field="btc_value" data-where="portfolio=Crypto">—</span></div>
+        <div><span class="st-label">Same money in Bitcoin</span><span class="st-mid" data-draw="vs-btc" data-source="vsbtc" data-field="btc_value" data-where="portfolio=Crypto">—</span></div>
         <div><span class="st-label">Ahead of Bitcoin by</span><span class="st-mid" data-draw="vs-diff" data-source="vsbtc" data-field="diff" data-where="portfolio=Crypto">—</span></div>
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Crypto">—</span></div>
         <div><span class="st-label">Total net profit</span><span class="st-mid" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Crypto">—</span></div>
@@ -1628,7 +1632,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       <p class="st-note" data-model-text="Metals" hidden></p>
       <div class="st-bench">
         <div><span class="st-label">This portfolio</span><span class="st-mid" data-draw="vs-value" data-source="vsbtc" data-field="value" data-where="portfolio=Metals">—</span></div>
-        <div><span class="st-label">All in gold</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=gold_metals">—</span></div>
+        <div><span class="st-label">Same money in gold</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=gold_metals">—</span></div>
         <div><span class="st-label">Ahead of gold by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=gold_metals">—</span></div>
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Metals">—</span></div>
         <div><span class="st-label">Total net profit</span><span class="st-mid" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Metals">—</span></div>
@@ -1718,7 +1722,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Energy">—</span></div>
         <div><span class="st-label">Total net profit</span><span class="st-mid" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Energy">—</span></div>
         <div><span class="st-label">Worst drop from peak</span><span class="st-mid" data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Energy">—</span></div>
-        <div><span class="st-label">All in oil (USO fund)</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=uso_energy">—</span></div>
+        <div><span class="st-label">Same money in oil (USO fund)</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=uso_energy">—</span></div>
         <div><span class="st-label">Ahead by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=uso_energy">—</span></div>
       </div>
       <p class="st-meta">
@@ -1812,7 +1816,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=Options">—</span></div>
         <div><span class="st-label">Total net profit</span><span class="st-mid" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=Options">—</span></div>
         <div><span class="st-label">Worst drop from peak</span><span class="st-mid" data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=Options">—</span></div>
-        <div><span class="st-label">All in the S&amp;P 500</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=sp500_options">—</span></div>
+        <div><span class="st-label">Same money in the S&amp;P 500</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=sp500_options">—</span></div>
         <div><span class="st-label">Ahead by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=sp500_options">—</span></div>
       </div>
       <p class="st-meta">
@@ -2258,7 +2262,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         <div><span class="st-label">24-hour net profit</span><span class="st-mid" data-draw="day-pnl" data-source="pnl24" data-field="day" data-where="portfolio=China">—</span></div>
         <div><span class="st-label">Total net profit</span><span class="st-mid" data-draw="tile-pnl" data-source="totals" data-field="pnl" data-where="portfolio=China">—</span></div>
         <div><span class="st-label">Worst drop from peak</span><span class="st-mid" data-draw="dd" data-source="drawdown" data-field="worst_pct" data-where="portfolio=China">—</span></div>
-        <div><span class="st-label">All in the CSI 300</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=csi300">—</span></div>
+        <div><span class="st-label">Same money in the CSI 300</span><span class="st-mid" data-draw="idx-value" data-source="vsindex" data-field="index_value" data-where="id=csi300">—</span></div>
         <div><span class="st-label">Ahead of the CSI 300 by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=csi300">—</span></div>
       </div>
       <p class="st-meta">
@@ -2337,7 +2341,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
   <section class="st-page" id="h2h" data-page="h2h" hidden>
     <section class="st-card" aria-labelledby="h-h2h">
       <h2 class="st-h2" id="h-h2h">Claude vs Gemini vs ChatGPT</h2>
-      <p class="st-note"><span data-model-name="claude" data-form="co" translate="no">Claude Opus 5.5 (Anthropic)</span>, <span data-model-name="gemini" data-form="co" translate="no">Gemini 3.1 Pro Preview (Google)</span> and <span data-model-name="chatgpt" data-form="co" translate="no">ChatGPT (OpenAI’s GPT-5.5)</span> each run their own separate copies of all ten experiments. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored against its own start. Only at the final scoring on Nov 28 are the ten added up, and the AI with the most total profit wins overall (see How it works). Every check-in starts all three at the same moment; each searches the news itself and makes its own trades. Every experiment restarted level on Oct 28 at 1:45 p.m. ET after a morning tuning run, which is kept in the Ledger and doesn’t count.</p>
+      <p class="st-note"><span data-model-name="claude" data-form="co" translate="no">Claude Opus 5.5 (Anthropic)</span>, <span data-model-name="gemini" data-form="co" translate="no">Gemini 3.1 Pro Preview (Google)</span> and <span data-model-name="chatgpt" data-form="co" translate="no">ChatGPT (OpenAI’s GPT-5.5)</span> each run their own separate copy of all ten races. Every copy starts with its own 100,000 (C$, or US$ for China stocks), uses real-world prices with no fees, and is scored against its own start. Only at the final scoring on Nov 28 are the ten added up, and the AI with the most total profit wins overall (see How it works). Every check-in starts all three at the same moment; each searches the news itself and makes its own trades. Every experiment restarted level on Oct 28 at 1:45 p.m. ET after a morning tuning run, which is kept in the Ledger and doesn’t count.</p>
       <div data-draw="h2h" data-source="exp_standings rivals_models rivals_history rivals_trades rivals_takes history totals take trades log factcheck"></div>
       <div data-draw="gradingrec" data-source="peer_grades peer_outcomes"></div>
       <div data-draw="lucktable" data-source="luck"></div>
@@ -2349,27 +2353,11 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     </section>
   </section>
   <section class="st-page" id="rules" data-page="rules" hidden>
-    <!-- Public note, wording signed off by Claude, Gemini and ChatGPT (Oct 31; ops/review/s2note-final-oct31.json). Season 1 unchanged. -->
-    <section class="st-card st-s2real" id="s2-real" aria-labelledby="h-s2real">
-      <h2 class="st-h2" id="h-s2real">How Season 2 will be closer to real trading</h2>
-      <p>Season 1 is a clean experiment: real prices, no fees, and its rules stay exactly as they are until Nov 28. Critics are right that real trading is harder. So PaperTrades.AI Season 2, after Nov 28, adds what real money would face. Claude, Gemini and ChatGPT agreed on every point:</p>
-      <ul>
-        <li>Realistic costs on every trade: buys use the asking price, sells use the bid, and the same cost rules apply to all three AIs.</li>
-        <li>Real fills: an order fills at the next live price after the AI decides, never an old one.</li>
-        <li>No impossible trades: order sizes are limited by how much each asset really trades.</li>
-        <li>Borrowing and margin costs, dividends, splits and other corporate actions are counted.</li>
-        <li>Extra check-ins when markets move sharply, so reaction speed is tested, not assumed.</li>
-        <li>Each AI writes its own risk rules first, and the site counts every break in public.</li>
-          <li>Every trade and bet carries a short <b>trigger tag</b>: what made the AI act (like “earnings beat” or “odds moved from −150 to −120”), next to its full reason.</li>
-        <li>Every race shows what simply buying an index would have made, after the same costs.</li>
-      </ul>
-      <p>An AI never feels fear, so we track the mistakes fear usually causes instead: broken rules, losers held too long, and stops moved away. Still pretend money, never advice, results before tax.</p>
-    </section>
     <section class="st-card st-about" aria-labelledby="h-about" id="about">
       <h2 class="st-h2" id="h-about">About the experiment</h2>
       <p>This page tracks a one-month paper-trading experiment, Oct 28 to Nov 28, 2026, in which AI models compete head to head with pretend money and real-world prices. Each model runs its own separate copy of each experiment, and every copy is scored only against its own starting amount. Each experiment is scored against its own start; for the overall winner, the ten results are converted to C$ and added up.</p>
       <ul class="st-exp-list">
-        <li><b>Claude</b> (Anthropic), <b>Gemini</b> (Google) and <b>ChatGPT</b> (OpenAI) each run their own separate copies of all ten experiments. Use the Model menu to switch the whole page between them, and the AI vs AI tab to compare them side by side.</li>
+        <li><b>Claude</b> (Anthropic), <b>Gemini</b> (Google) and <b>ChatGPT</b> (OpenAI) each run their own separate copy of all ten races. Use the Model menu to switch the whole page between them, and the AI vs AI tab to compare them side by side.</li>
         <li><b>Fully run by AI.</b> Each AI makes all of its own decisions and updates its own experiments by itself; no human picks or edits any trade. The whole page, the Race Report and the Telegram channel are managed and updated automatically by AI.</li>
       <li><b>Your language and currency.</b> The page picks your device's language (16 languages, translated automatically by Google) and your local currency on your first visit. Change either at the top of the page; translations are machine-made, so the English original is the record.</li>
       <li><b>Fact-checked, and nobody checks itself.</b> Every AI's take is fact-checked against official sources and marked Checks out, Some details inaccurate or Wrong. It's a loop, each AI checking one other: Gemini checks Claude, ChatGPT checks Gemini, and Claude checks ChatGPT.</li>
@@ -2468,6 +2456,22 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         </ul>
       </div>
     </section>
+    <!-- Public note, wording signed off by Claude, Gemini and ChatGPT (Oct 31; ops/review/s2note-final-oct31.json). Season 1 unchanged. Moved to the end of How it works on Nov 1 (first-visit review, P29: Season 1 first). -->
+    <section class="st-card st-s2real" id="s2-real" aria-labelledby="h-s2real">
+      <h2 class="st-h2" id="h-s2real">How Season 2 will be closer to real trading</h2>
+      <p>Season 1 is a clean experiment: real prices, no fees, and its rules stay exactly as they are until Nov 28. Critics are right that real trading is harder. So PaperTrades.AI Season 2, after Nov 28, adds what real money would face. Claude, Gemini and ChatGPT agreed on every point:</p>
+      <ul>
+        <li>Realistic costs on every trade: buys use the asking price, sells use the bid, and the same cost rules apply to all three AIs.</li>
+        <li>Real fills: an order fills at the next live price after the AI decides, never an old one.</li>
+        <li>No impossible trades: order sizes are limited by how much each asset really trades.</li>
+        <li>Borrowing and margin costs, dividends, splits and other corporate actions are counted.</li>
+        <li>Extra check-ins when markets move sharply, so reaction speed is tested, not assumed.</li>
+        <li>Each AI writes its own risk rules first, and the site counts every break in public.</li>
+          <li>Every trade and bet carries a short <b>trigger tag</b>: what made the AI act (like “earnings beat” or “odds moved from −150 to −120”), next to its full reason.</li>
+        <li>Every race shows what simply buying an index would have made, after the same costs.</li>
+      </ul>
+      <p>An AI never feels fear, so we track the mistakes fear usually causes instead: broken rules, losers held too long, and stops moved away. Still pretend money, never advice, results before tax.</p>
+    </section>
   </section>
   <section class="st-page" id="allin" data-page="allin" hidden>
     <div class="pt-odds" role="note"><span>🎯 <b>The odds are real.</b> <i>High risk: sports</i> bets the same way. Every bet uses the live moneyline from ESPN’s public scoreboards (its sportsbook partner’s line) at the moment the AI bets, and ESPN’s final score settles it. Same odds and results for all three AIs. Only the money is pretend: a real sportsbook could offer a slightly different line or limit big bets.</span><button type="button" class="pt-odds-x" aria-label="Close this note">✕</button></div>
@@ -2558,7 +2562,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     <section class="st-card gd-sec" id="guide-ai" aria-labelledby="h-gd-ai">
       <h2 class="st-h2" id="h-gd-ai">Looking at one AI</h2>
       <div class="gd-mock" aria-hidden="true"><span class="gd-sel">Gemini 3.1 Pro ▾</span><span class="gd-pill">AI vs AI</span></div>
-      <p>The <b>AI menu</b> at the top switches the whole page to one AI’s view: its holdings, charts and trades in every race. Each AI also has its own page (under <b>The AIs</b> in the menu) with its plans, its feelings about the race, its grades from the other two and its fact-checks. <b>AI vs AI</b> puts all three side by side.</p>
+      <p>The <b>AI menu</b> at the top switches the whole page to one AI’s view: its holdings, charts and trades in every race. Each AI also has its own page (under <b>Each AI</b> in the menu) with its plans, its feelings about the race, its grades from the other two and its fact-checks. <b>AI vs AI</b> puts all three side by side.</p>
       <button type="button" class="gd-show" data-gd-tab="overview" data-gd-sel="#model-pick">Show me →</button> <a class="gd-link" href="#guide-ai" title="Link to this section">#</a>
     </section>
     <section class="st-card gd-sec" id="guide-ledger" aria-labelledby="h-gd-ledger">
@@ -2808,7 +2812,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       <div class="lg-pick"><label>Show: <select class="pf-filter" data-target="hold-all-body"></select></label></div>
       <div class="st-wrap">
         <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
-          <thead><tr><th>Experiment</th><th data-field="holding">Holding</th><th data-field="quantity" class="num">Quantity</th><th class="num">Entry</th><th class="num">Now</th><th data-field="change_pct" class="num">Change</th><th class="num">Value</th><th data-field="price_source">Price source</th></tr></thead>
+          <thead><tr><th>Race</th><th data-field="holding">Holding</th><th data-field="quantity" class="num">Quantity</th><th class="num">Entry</th><th class="num">Now</th><th data-field="change_pct" class="num">Change</th><th class="num">Value</th><th data-field="price_source">Price source</th></tr></thead>
           <tbody data-draw="holdings-body" id="hold-all-body" data-all="1"></tbody>
         </table>
       </div>
@@ -2875,7 +2879,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     <section class="st-card" aria-labelledby="h-l-trades">
       <h2 class="st-h2" id="h-l-trades">Every trade and bet</h2>
       <p class="st-note">Every buy, sell, bet and bet result across all ten experiments in one list, newest first, 5 a page (use Older to go back). "Won / lost" shows what each one made or lost once it was sold or the game ended; "open" means it is still running. Times are Eastern (ET); tap or point at a time for UTC and Hong Kong time.</p>
-      <div class="lg-pick"><label>Experiment: <select id="lg-trades-pick" aria-label="Experiment"><option value="">All experiments</option><option value="Stocks">Stocks and anything</option><option value="Crypto">Crypto</option><option value="China">China stocks</option><option value="Metals">Metals</option><option value="Energy">Oil and energy</option><option value="Options">Options</option><option value="Currencies">Currencies</option><option value="Safe">Play it safe</option><option value="Sports">Sports (bets)</option><option value="Predictions">Prediction markets</option></select></label></div>
+      <div class="lg-pick"><label>Race: <select id="lg-trades-pick" aria-label="Race"><option value="">All races</option><option value="Stocks">Stocks and anything</option><option value="Crypto">Crypto</option><option value="China">China stocks</option><option value="Metals">Metals</option><option value="Energy">Oil and energy</option><option value="Options">Options</option><option value="Currencies">Currencies</option><option value="Safe">Play it safe</option><option value="Sports">Sports (bets)</option><option value="Predictions">Prediction markets</option></select></label></div>
       <div class="st-wrap" id="lg-trades" data-draw="lg-trades" data-source="trades bets" data-portfolio=""></div>
     </section>
     <section class="st-card" aria-labelledby="h-l-days">
@@ -2960,7 +2964,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       <h2 class="st-h2" id="h-nomoney">No deposits, ever</h2>
       <ul class="st-exp-list">
         <li><b>Does PaperTrades.AI take deposits?</b> No, never. It has no accounts, no token and no trading for visitors, and it holds no one’s money. The only money it accepts is optional Bitcoin tips on the <a href="#support" data-goto="support">Support</a> page, which buy nothing and never change a trade. The three AIs trade pretend money.</li>
-        <li><b>Is PaperTrades.AI the same as Papertrade?</b> No. PaperTrades.AI is not connected to Papertrade, the crypto futures exchange, or its PAPER token. They share no owners, code, money or token.</li>
+        <li><b>Is PaperTrades.AI connected to a similarly named site or app?</b> No. PaperTrades.AI is not connected to any similarly named exchange, app, site or token, and shares no owners, code or money with any of them.</li>
         <li id="official-accounts"><b>How do I know an account is really yours?</b> Our only accounts: <a href="https://t.me/PaperTradesAI" target="_blank" rel="noopener">Telegram @PaperTradesAI</a>, <a href="https://x.com/papertradesai" target="_blank" rel="noopener">X @papertradesai</a>, <a href="https://www.instagram.com/papertrades.ai/" target="_blank" rel="noopener">Instagram @papertrades.ai</a>, <a href="https://discord.gg/PkqX3zstD" target="_blank" rel="noopener">Discord (PaperTrades.AI)</a> and <a href="https://www.youtube.com/@PaperTradesAI" target="_blank" rel="noopener">YouTube @PaperTradesAI</a>. We never DM anyone about money. If someone asks you to invest or send money in our name, it is a scam: please report it to <a href="mailto:hello@papertrades.ai?subject=Impersonation">hello@papertrades.ai</a> and to the platform.</li>
       </ul>
     </section>
@@ -3053,6 +3057,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         <img class="st-qr" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MSA0MSIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj48cmVjdCB3aWR0aD0iNDEiIGhlaWdodD0iNDEiIGZpbGw9IiNmZmZmZmYiLz48cGF0aCBkPSJNNCA0aDF2MWgtMXpNNSA0aDF2MWgtMXpNNiA0aDF2MWgtMXpNNyA0aDF2MWgtMXpNOCA0aDF2MWgtMXpNOSA0aDF2MWgtMXpNMTAgNGgxdjFoLTF6TTEzIDRoMXYxaC0xek0xNCA0aDF2MWgtMXpNMTUgNGgxdjFoLTF6TTE2IDRoMXYxaC0xek0xNyA0aDF2MWgtMXpNMTggNGgxdjFoLTF6TTIwIDRoMXYxaC0xek0yMSA0aDF2MWgtMXpNMjMgNGgxdjFoLTF6TTI1IDRoMXYxaC0xek0yNiA0aDF2MWgtMXpNMjcgNGgxdjFoLTF6TTI4IDRoMXYxaC0xek0zMCA0aDF2MWgtMXpNMzEgNGgxdjFoLTF6TTMyIDRoMXYxaC0xek0zMyA0aDF2MWgtMXpNMzQgNGgxdjFoLTF6TTM1IDRoMXYxaC0xek0zNiA0aDF2MWgtMXpNNCA1aDF2MWgtMXpNMTAgNWgxdjFoLTF6TTE3IDVoMXYxaC0xek0xOCA1aDF2MWgtMXpNMTkgNWgxdjFoLTF6TTIxIDVoMXYxaC0xek0yNiA1aDF2MWgtMXpNMjggNWgxdjFoLTF6TTMwIDVoMXYxaC0xek0zNiA1aDF2MWgtMXpNNCA2aDF2MWgtMXpNNiA2aDF2MWgtMXpNNyA2aDF2MWgtMXpNOCA2aDF2MWgtMXpNMTAgNmgxdjFoLTF6TTEyIDZoMXYxaC0xek0xNCA2aDF2MWgtMXpNMTcgNmgxdjFoLTF6TTE5IDZoMXYxaC0xek0yMCA2aDF2MWgtMXpNMjEgNmgxdjFoLTF6TTIyIDZoMXYxaC0xek0yMyA2aDF2MWgtMXpNMjUgNmgxdjFoLTF6TTI2IDZoMXYxaC0xek0yOCA2aDF2MWgtMXpNMzAgNmgxdjFoLTF6TTMyIDZoMXYxaC0xek0zMyA2aDF2MWgtMXpNMzQgNmgxdjFoLTF6TTM2IDZoMXYxaC0xek00IDdoMXYxaC0xek02IDdoMXYxaC0xek03IDdoMXYxaC0xek04IDdoMXYxaC0xek0xMCA3aDF2MWgtMXpNMTIgN2gxdjFoLTF6TTEzIDdoMXYxaC0xek0xNCA3aDF2MWgtMXpNMTUgN2gxdjFoLTF6TTE2IDdoMXYxaC0xek0xOCA3aDF2MWgtMXpNMTkgN2gxdjFoLTF6TTIwIDdoMXYxaC0xek0yNCA3aDF2MWgtMXpNMzAgN2gxdjFoLTF6TTMyIDdoMXYxaC0xek0zMyA3aDF2MWgtMXpNMzQgN2gxdjFoLTF6TTM2IDdoMXYxaC0xek00IDhoMXYxaC0xek02IDhoMXYxaC0xek03IDhoMXYxaC0xek04IDhoMXYxaC0xek0xMCA4aDF2MWgtMXpNMTIgOGgxdjFoLTF6TTEzIDhoMXYxaC0xek0xNCA4aDF2MWgtMXpNMTkgOGgxdjFoLTF6TTIyIDhoMXYxaC0xek0yNiA4aDF2MWgtMXpNMjcgOGgxdjFoLTF6TTMwIDhoMXYxaC0xek0zMiA4aDF2MWgtMXpNMzMgOGgxdjFoLTF6TTM0IDhoMXYxaC0xek0zNiA4aDF2MWgtMXpNNCA5aDF2MWgtMXpNMTAgOWgxdjFoLTF6TTEyIDloMXYxaC0xek0xMyA5aDF2MWgtMXpNMTQgOWgxdjFoLTF6TTE1IDloMXYxaC0xek0xNyA5aDF2MWgtMXpNMTggOWgxdjFoLTF6TTE5IDloMXYxaC0xek0yMCA5aDF2MWgtMXpNMjEgOWgxdjFoLTF6TTIyIDloMXYxaC0xek0yNCA5aDF2MWgtMXpNMjUgOWgxdjFoLTF6TTMwIDloMXYxaC0xek0zNiA5aDF2MWgtMXpNNCAxMGgxdjFoLTF6TTUgMTBoMXYxaC0xek02IDEwaDF2MWgtMXpNNyAxMGgxdjFoLTF6TTggMTBoMXYxaC0xek05IDEwaDF2MWgtMXpNMTAgMTBoMXYxaC0xek0xMiAxMGgxdjFoLTF6TTE0IDEwaDF2MWgtMXpNMTYgMTBoMXYxaC0xek0xOCAxMGgxdjFoLTF6TTIwIDEwaDF2MWgtMXpNMjIgMTBoMXYxaC0xek0yNCAxMGgxdjFoLTF6TTI2IDEwaDF2MWgtMXpNMjggMTBoMXYxaC0xek0zMCAxMGgxdjFoLTF6TTMxIDEwaDF2MWgtMXpNMzIgMTBoMXYxaC0xek0zMyAxMGgxdjFoLTF6TTM0IDEwaDF2MWgtMXpNMzUgMTBoMXYxaC0xek0zNiAxMGgxdjFoLTF6TTEyIDExaDF2MWgtMXpNMTMgMTFoMXYxaC0xek0xNCAxMWgxdjFoLTF6TTE5IDExaDF2MWgtMXpNMjIgMTFoMXYxaC0xek0yNSAxMWgxdjFoLTF6TTI2IDExaDF2MWgtMXpNMjcgMTFoMXYxaC0xek0yOCAxMWgxdjFoLTF6TTQgMTJoMXYxaC0xek02IDEyaDF2MWgtMXpNNyAxMmgxdjFoLTF6TTggMTJoMXYxaC0xek05IDEyaDF2MWgtMXpNMTAgMTJoMXYxaC0xek0xNyAxMmgxdjFoLTF6TTE4IDEyaDF2MWgtMXpNMTkgMTJoMXYxaC0xek0yMCAxMmgxdjFoLTF6TTIxIDEyaDF2MWgtMXpNMjIgMTJoMXYxaC0xek0yNCAxMmgxdjFoLTF6TTI2IDEyaDF2MWgtMXpNMzAgMTJoMXYxaC0xek0zMSAxMmgxdjFoLTF6TTMyIDEyaDF2MWgtMXpNMzMgMTJoMXYxaC0xek0zNCAxMmgxdjFoLTF6TTQgMTNoMXYxaC0xek02IDEzaDF2MWgtMXpNNyAxM2gxdjFoLTF6TTE0IDEzaDF2MWgtMXpNMTggMTNoMXYxaC0xek0yMCAxM2gxdjFoLTF6TTIzIDEzaDF2MWgtMXpNMjUgMTNoMXYxaC0xek0yNyAxM2gxdjFoLTF6TTI5IDEzaDF2MWgtMXpNMzAgMTNoMXYxaC0xek0zMSAxM2gxdjFoLTF6TTM1IDEzaDF2MWgtMXpNMzYgMTNoMXYxaC0xek00IDE0aDF2MWgtMXpNNiAxNGgxdjFoLTF6TTggMTRoMXYxaC0xek05IDE0aDF2MWgtMXpNMTAgMTRoMXYxaC0xek0xMiAxNGgxdjFoLTF6TTE0IDE0aDF2MWgtMXpNMTkgMTRoMXYxaC0xek0yMiAxNGgxdjFoLTF6TTI0IDE0aDF2MWgtMXpNMjYgMTRoMXYxaC0xek0zMSAxNGgxdjFoLTF6TTMyIDE0aDF2MWgtMXpNMzMgMTRoMXYxaC0xek0zNCAxNGgxdjFoLTF6TTM1IDE0aDF2MWgtMXpNNCAxNWgxdjFoLTF6TTYgMTVoMXYxaC0xek04IDE1aDF2MWgtMXpNMTEgMTVoMXYxaC0xek0xMyAxNWgxdjFoLTF6TTE0IDE1aDF2MWgtMXpNMTUgMTVoMXYxaC0xek0xNiAxNWgxdjFoLTF6TTE4IDE1aDF2MWgtMXpNMTkgMTVoMXYxaC0xek0yMCAxNWgxdjFoLTF6TTIzIDE1aDF2MWgtMXpNMjQgMTVoMXYxaC0xek0yNSAxNWgxdjFoLTF6TTI2IDE1aDF2MWgtMXpNMjggMTVoMXYxaC0xek0yOSAxNWgxdjFoLTF6TTMwIDE1aDF2MWgtMXpNMzIgMTVoMXYxaC0xek0zMyAxNWgxdjFoLTF6TTM0IDE1aDF2MWgtMXpNMzYgMTVoMXYxaC0xek02IDE2aDF2MWgtMXpNOCAxNmgxdjFoLTF6TTEwIDE2aDF2MWgtMXpNMTYgMTZoMXYxaC0xek0xOSAxNmgxdjFoLTF6TTIyIDE2aDF2MWgtMXpNMjYgMTZoMXYxaC0xek0yOCAxNmgxdjFoLTF6TTI5IDE2aDF2MWgtMXpNMzEgMTZoMXYxaC0xek0zMiAxNmgxdjFoLTF6TTMzIDE2aDF2MWgtMXpNMzUgMTZoMXYxaC0xek00IDE3aDF2MWgtMXpNNSAxN2gxdjFoLTF6TTcgMTdoMXYxaC0xek04IDE3aDF2MWgtMXpNOSAxN2gxdjFoLTF6TTExIDE3aDF2MWgtMXpNMTIgMTdoMXYxaC0xek0xMyAxN2gxdjFoLTF6TTE0IDE3aDF2MWgtMXpNMTUgMTdoMXYxaC0xek0xOCAxN2gxdjFoLTF6TTE5IDE3aDF2MWgtMXpNMjAgMTdoMXYxaC0xek0yNCAxN2gxdjFoLTF6TTI2IDE3aDF2MWgtMXpNMjcgMTdoMXYxaC0xek0yOSAxN2gxdjFoLTF6TTMwIDE3aDF2MWgtMXpNMzMgMTdoMXYxaC0xek0zNCAxN2gxdjFoLTF6TTM2IDE3aDF2MWgtMXpNNCAxOGgxdjFoLTF6TTUgMThoMXYxaC0xek02IDE4aDF2MWgtMXpNNyAxOGgxdjFoLTF6TTkgMThoMXYxaC0xek0xMCAxOGgxdjFoLTF6TTEzIDE4aDF2MWgtMXpNMTQgMThoMXYxaC0xek0xNSAxOGgxdjFoLTF6TTE2IDE4aDF2MWgtMXpNMTcgMThoMXYxaC0xek0yMSAxOGgxdjFoLTF6TTIyIDE4aDF2MWgtMXpNMjMgMThoMXYxaC0xek0yNSAxOGgxdjFoLTF6TTI2IDE4aDF2MWgtMXpNMjggMThoMXYxaC0xek0zMCAxOGgxdjFoLTF6TTMxIDE4aDF2MWgtMXpNMzIgMThoMXYxaC0xek0zMyAxOGgxdjFoLTF6TTM1IDE4aDF2MWgtMXpNNCAxOWgxdjFoLTF6TTUgMTloMXYxaC0xek02IDE5aDF2MWgtMXpNNyAxOWgxdjFoLTF6TTggMTloMXYxaC0xek05IDE5aDF2MWgtMXpNMTEgMTloMXYxaC0xek0xMiAxOWgxdjFoLTF6TTE0IDE5aDF2MWgtMXpNMTcgMTloMXYxaC0xek0yMCAxOWgxdjFoLTF6TTIzIDE5aDF2MWgtMXpNMjQgMTloMXYxaC0xek0yNSAxOWgxdjFoLTF6TTI2IDE5aDF2MWgtMXpNMjcgMTloMXYxaC0xek0zMCAxOWgxdjFoLTF6TTMzIDE5aDF2MWgtMXpNMzQgMTloMXYxaC0xek0zNiAxOWgxdjFoLTF6TTUgMjBoMXYxaC0xek02IDIwaDF2MWgtMXpNOSAyMGgxdjFoLTF6TTEwIDIwaDF2MWgtMXpNMTIgMjBoMXYxaC0xek0xNCAyMGgxdjFoLTF6TTE3IDIwaDF2MWgtMXpNMjAgMjBoMXYxaC0xek0yMSAyMGgxdjFoLTF6TTIyIDIwaDF2MWgtMXpNMjMgMjBoMXYxaC0xek0yNCAyMGgxdjFoLTF6TTI5IDIwaDF2MWgtMXpNMzEgMjBoMXYxaC0xek0zMiAyMGgxdjFoLTF6TTUgMjFoMXYxaC0xek0xMSAyMWgxdjFoLTF6TTEzIDIxaDF2MWgtMXpNMTQgMjFoMXYxaC0xek0xNyAyMWgxdjFoLTF6TTIxIDIxaDF2MWgtMXpNMjMgMjFoMXYxaC0xek0yNSAyMWgxdjFoLTF6TTI2IDIxaDF2MWgtMXpNMjcgMjFoMXYxaC0xek0zMCAyMWgxdjFoLTF6TTMzIDIxaDF2MWgtMXpNMzQgMjFoMXYxaC0xek0zNSAyMWgxdjFoLTF6TTM2IDIxaDF2MWgtMXpNNCAyMmgxdjFoLTF6TTUgMjJoMXYxaC0xek02IDIyaDF2MWgtMXpNOSAyMmgxdjFoLTF6TTEwIDIyaDF2MWgtMXpNMTggMjJoMXYxaC0xek0xOSAyMmgxdjFoLTF6TTIxIDIyaDF2MWgtMXpNMjQgMjJoMXYxaC0xek0zNCAyMmgxdjFoLTF6TTQgMjNoMXYxaC0xek01IDIzaDF2MWgtMXpNNiAyM2gxdjFoLTF6TTcgMjNoMXYxaC0xek0xMyAyM2gxdjFoLTF6TTE0IDIzaDF2MWgtMXpNMTcgMjNoMXYxaC0xek0xOSAyM2gxdjFoLTF6TTIxIDIzaDF2MWgtMXpNMjIgMjNoMXYxaC0xek0yNCAyM2gxdjFoLTF6TTI1IDIzaDF2MWgtMXpNMjYgMjNoMXYxaC0xek0yOCAyM2gxdjFoLTF6TTI5IDIzaDF2MWgtMXpNMzAgMjNoMXYxaC0xek0zMSAyM2gxdjFoLTF6TTMyIDIzaDF2MWgtMXpNMzMgMjNoMXYxaC0xek0zNCAyM2gxdjFoLTF6TTQgMjRoMXYxaC0xek01IDI0aDF2MWgtMXpNNiAyNGgxdjFoLTF6TTcgMjRoMXYxaC0xek05IDI0aDF2MWgtMXpNMTAgMjRoMXYxaC0xek0xMyAyNGgxdjFoLTF6TTE1IDI0aDF2MWgtMXpNMTcgMjRoMXYxaC0xek0xOSAyNGgxdjFoLTF6TTIwIDI0aDF2MWgtMXpNMjMgMjRoMXYxaC0xek0yNiAyNGgxdjFoLTF6TTI4IDI0aDF2MWgtMXpNMjkgMjRoMXYxaC0xek0zMSAyNGgxdjFoLTF6TTMyIDI0aDF2MWgtMXpNMzUgMjRoMXYxaC0xek00IDI1aDF2MWgtMXpNNiAyNWgxdjFoLTF6TTcgMjVoMXYxaC0xek04IDI1aDF2MWgtMXpNOSAyNWgxdjFoLTF6TTExIDI1aDF2MWgtMXpNMTQgMjVoMXYxaC0xek0xNSAyNWgxdjFoLTF6TTE3IDI1aDF2MWgtMXpNMTkgMjVoMXYxaC0xek0yMiAyNWgxdjFoLTF6TTI1IDI1aDF2MWgtMXpNMjYgMjVoMXYxaC0xek0yNyAyNWgxdjFoLTF6TTMwIDI1aDF2MWgtMXpNMzMgMjVoMXYxaC0xek0zNCAyNWgxdjFoLTF6TTM2IDI1aDF2MWgtMXpNNCAyNmgxdjFoLTF6TTcgMjZoMXYxaC0xek05IDI2aDF2MWgtMXpNMTAgMjZoMXYxaC0xek0xMyAyNmgxdjFoLTF6TTE0IDI2aDF2MWgtMXpNMTUgMjZoMXYxaC0xek0xNiAyNmgxdjFoLTF6TTE3IDI2aDF2MWgtMXpNMTkgMjZoMXYxaC0xek0yMCAyNmgxdjFoLTF6TTI2IDI2aDF2MWgtMXpNMzEgMjZoMXYxaC0xek0zMyAyNmgxdjFoLTF6TTM0IDI2aDF2MWgtMXpNMzUgMjZoMXYxaC0xek00IDI3aDF2MWgtMXpNNyAyN2gxdjFoLTF6TTggMjdoMXYxaC0xek05IDI3aDF2MWgtMXpNMTQgMjdoMXYxaC0xek0xNSAyN2gxdjFoLTF6TTE2IDI3aDF2MWgtMXpNMTggMjdoMXYxaC0xek0xOSAyN2gxdjFoLTF6TTIyIDI3aDF2MWgtMXpNMjMgMjdoMXYxaC0xek0yNCAyN2gxdjFoLTF6TTI1IDI3aDF2MWgtMXpNMjYgMjdoMXYxaC0xek0yNyAyN2gxdjFoLTF6TTI4IDI3aDF2MWgtMXpNMzAgMjdoMXYxaC0xek0zMyAyN2gxdjFoLTF6TTM0IDI3aDF2MWgtMXpNMzYgMjdoMXYxaC0xek00IDI4aDF2MWgtMXpNNiAyOGgxdjFoLTF6TTcgMjhoMXYxaC0xek05IDI4aDF2MWgtMXpNMTAgMjhoMXYxaC0xek0xMSAyOGgxdjFoLTF6TTEzIDI4aDF2MWgtMXpNMTUgMjhoMXYxaC0xek0xOCAyOGgxdjFoLTF6TTE5IDI4aDF2MWgtMXpNMjAgMjhoMXYxaC0xek0yMSAyOGgxdjFoLTF6TTIzIDI4aDF2MWgtMXpNMjggMjhoMXYxaC0xek0yOSAyOGgxdjFoLTF6TTMwIDI4aDF2MWgtMXpNMzEgMjhoMXYxaC0xek0zMiAyOGgxdjFoLTF6TTMzIDI4aDF2MWgtMXpNMTIgMjloMXYxaC0xek0xMyAyOWgxdjFoLTF6TTE0IDI5aDF2MWgtMXpNMTYgMjloMXYxaC0xek0yMCAyOWgxdjFoLTF6TTIzIDI5aDF2MWgtMXpNMjQgMjloMXYxaC0xek0yNiAyOWgxdjFoLTF6TTI3IDI5aDF2MWgtMXpNMjggMjloMXYxaC0xek0zMiAyOWgxdjFoLTF6TTM0IDI5aDF2MWgtMXpNMzUgMjloMXYxaC0xek0zNiAyOWgxdjFoLTF6TTQgMzBoMXYxaC0xek01IDMwaDF2MWgtMXpNNiAzMGgxdjFoLTF6TTcgMzBoMXYxaC0xek04IDMwaDF2MWgtMXpNOSAzMGgxdjFoLTF6TTEwIDMwaDF2MWgtMXpNMTYgMzBoMXYxaC0xek0xOSAzMGgxdjFoLTF6TTIyIDMwaDF2MWgtMXpNMjQgMzBoMXYxaC0xek0yNSAzMGgxdjFoLTF6TTI3IDMwaDF2MWgtMXpNMjggMzBoMXYxaC0xek0zMCAzMGgxdjFoLTF6TTMyIDMwaDF2MWgtMXpNMzMgMzBoMXYxaC0xek0zNSAzMGgxdjFoLTF6TTQgMzFoMXYxaC0xek0xMCAzMWgxdjFoLTF6TTEyIDMxaDF2MWgtMXpNMTQgMzFoMXYxaC0xek0xNSAzMWgxdjFoLTF6TTE3IDMxaDF2MWgtMXpNMTkgMzFoMXYxaC0xek0yMCAzMWgxdjFoLTF6TTIzIDMxaDF2MWgtMXpNMjQgMzFoMXYxaC0xek0yNSAzMWgxdjFoLTF6TTI4IDMxaDF2MWgtMXpNMzIgMzFoMXYxaC0xek0zMyAzMWgxdjFoLTF6TTM0IDMxaDF2MWgtMXpNMzYgMzFoMXYxaC0xek00IDMyaDF2MWgtMXpNNiAzMmgxdjFoLTF6TTcgMzJoMXYxaC0xek04IDMyaDF2MWgtMXpNMTAgMzJoMXYxaC0xek0xMiAzMmgxdjFoLTF6TTEzIDMyaDF2MWgtMXpNMTggMzJoMXYxaC0xek0xOSAzMmgxdjFoLTF6TTIyIDMyaDF2MWgtMXpNMjYgMzJoMXYxaC0xek0yOCAzMmgxdjFoLTF6TTI5IDMyaDF2MWgtMXpNMzAgMzJoMXYxaC0xek0zMSAzMmgxdjFoLTF6TTMyIDMyaDF2MWgtMXpNMzUgMzJoMXYxaC0xek00IDMzaDF2MWgtMXpNNiAzM2gxdjFoLTF6TTcgMzNoMXYxaC0xek04IDMzaDF2MWgtMXpNMTAgMzNoMXYxaC0xek0xMiAzM2gxdjFoLTF6TTEzIDMzaDF2MWgtMXpNMTYgMzNoMXYxaC0xek0xOSAzM2gxdjFoLTF6TTIwIDMzaDF2MWgtMXpNMjMgMzNoMXYxaC0xek0yNCAzM2gxdjFoLTF6TTI1IDMzaDF2MWgtMXpNMjYgMzNoMXYxaC0xek0yNyAzM2gxdjFoLTF6TTI5IDMzaDF2MWgtMXpNMzEgMzNoMXYxaC0xek0zMiAzM2gxdjFoLTF6TTMzIDMzaDF2MWgtMXpNMzQgMzNoMXYxaC0xek0zNSAzM2gxdjFoLTF6TTM2IDMzaDF2MWgtMXpNNCAzNGgxdjFoLTF6TTYgMzRoMXYxaC0xek03IDM0aDF2MWgtMXpNOCAzNGgxdjFoLTF6TTEwIDM0aDF2MWgtMXpNMTIgMzRoMXYxaC0xek0xNCAzNGgxdjFoLTF6TTE1IDM0aDF2MWgtMXpNMTYgMzRoMXYxaC0xek0yMiAzNGgxdjFoLTF6TTI2IDM0aDF2MWgtMXpNMjggMzRoMXYxaC0xek0zMCAzNGgxdjFoLTF6TTQgMzVoMXYxaC0xek0xMCAzNWgxdjFoLTF6TTEzIDM1aDF2MWgtMXpNMTUgMzVoMXYxaC0xek0xNiAzNWgxdjFoLTF6TTE3IDM1aDF2MWgtMXpNMjAgMzVoMXYxaC0xek0yMyAzNWgxdjFoLTF6TTI0IDM1aDF2MWgtMXpNMjUgMzVoMXYxaC0xek0yOSAzNWgxdjFoLTF6TTMyIDM1aDF2MWgtMXpNMzQgMzVoMXYxaC0xek00IDM2aDF2MWgtMXpNNSAzNmgxdjFoLTF6TTYgMzZoMXYxaC0xek03IDM2aDF2MWgtMXpNOCAzNmgxdjFoLTF6TTkgMzZoMXYxaC0xek0xMCAzNmgxdjFoLTF6TTEyIDM2aDF2MWgtMXpNMTMgMzZoMXYxaC0xek0xNSAzNmgxdjFoLTF6TTE3IDM2aDF2MWgtMXpNMjEgMzZoMXYxaC0xek0yNCAzNmgxdjFoLTF6TTI2IDM2aDF2MWgtMXpNMjcgMzZoMXYxaC0xek0yOCAzNmgxdjFoLTF6TTI5IDM2aDF2MWgtMXpNMzIgMzZoMXYxaC0xek0zMyAzNmgxdjFoLTF6TTM1IDM2aDF2MWgtMXoiIGZpbGw9IiMwMDAwMDAiLz48L3N2Zz4=" width="168" height="168" alt="QR code for the Bitcoin tip address">
         <div class="st-tiptext">
           <p>If you enjoy following the experiment, you can send a Bitcoin tip. Tips are optional, buy nothing and never change a trade, bet or pick. PaperTrades.AI isn't a charity, so tips aren't tax-deductible and no receipts are issued.</p>
+          <p><b>Tips are optional. Never send money to invest, trade, unlock access or claim a token.</b></p>
           <p class="st-note">Send Bitcoin (BTC) on the Bitcoin network only. Other coins or networks sent here will be lost.</p>
           <div class="st-addr"><code id="btc-addr">bc1qp9m76wm72234qdp4tvvt6wev4fcsecfcw7sxvn</code><button type="button" id="btc-copy">Copy address</button></div>
           <p class="st-note" id="btc-copied" aria-live="polite"></p>
@@ -3898,6 +3903,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     el.textContent = r && r.index_value !== null ? stFmt.money(r.index_value, r.portfolio) : 'Pending';
     /* the index level's own date, so an older close is never read as today's (full-site review, Nov 1) */
     if (r && r.index_value !== null && r.as_of && r.kind !== 'rate') { const ag = Date.now() - Date.parse(r.as_of); if (ag > 3 * 864e5) el.appendChild(mk('small', 'st-muted', ' (index close of ' + d3.timeFormat('%b %-d')(new Date(r.as_of)) + ')')); }
+    if (d.status === 'ok' && el.parentElement) el.parentElement.hidden = !(r && r.index_value !== null);   // P28 (Nov 1): no level, no tile
   });
   dash.draw('idx-diff', (el) => {
     const d = dash.data('vsindex');
@@ -3906,6 +3912,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const ok = r && r.diff !== null;
     tone(el, ok ? r.diff : 0);
     el.textContent = ok ? stFmt.signed(r.diff, r.portfolio) : (d.status === 'ok' ? 'not available yet' : '—');   // W3f: never a bare dash once the data is in
+    if (d.status === 'ok' && el.parentElement && el.dataset.where && /id=/.test(el.dataset.where)) el.parentElement.hidden = !(r && r.index_value !== null);   // P28: hidden with its benchmark
     el.title = ok ? '' : 'The comparison starts once this race has traded and the benchmark has a level for that moment.';
   });
   dash.draw('dd', (el) => {
@@ -3953,6 +3960,12 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       });
     pagerFor(el, 10, 'events');
     racePickEmpty(el, 'Nothing scheduled for this race in the coming days.');
+    if (!el.dataset.racepick) {   // first-visit review (Nov 1; all three AIs agreed, P27): one line instead of an empty table
+      const host = el.closest('.st-wrap') || el.closest('table') || el, empty = ![...el.children].some((r) => r.tagName === 'TR');
+      let n = host.nextElementSibling && host.nextElementSibling.classList.contains('ev-empty') ? host.nextElementSibling : null;
+      if (!n && empty) { n = mk('p', 'st-note ev-empty', 'Nothing scheduled for this race in the next few days.'); host.after(n); }
+      if (n) n.hidden = !empty; host.hidden = empty;
+    }
   });
   dash.draw('last-trade', (el) => {
     const r = rowFor('lasts', stFmt.whereOf(el));
@@ -4032,7 +4045,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const nav = mk('div', 'st-pager st-dayer');
     const prev = mk('button', 'st-pg-btn', '‹ Previous day'); prev.type = 'button'; prev.disabled = el._day === 0; prev.addEventListener('click', () => { el._day--; drawContrib(el); });
     const next = mk('button', 'st-pg-btn', 'Next day ›'); next.type = 'button'; next.disabled = el._day >= days.length - 1; next.addEventListener('click', () => { el._day++; drawContrib(el); });
-    const sel = mk('select'); days.forEach((d, k) => { const o = mk('option', '', 'Day ' + (k + 1) + ' · ' + new Date(d + 'T12:00:00Z').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }) + (k === days.length - 1 ? ' (today)' : '')); o.value = k; if (k === el._day) o.selected = true; sel.appendChild(o); });
+    const sel = mk('select'); days.forEach((d, k) => { const o = mk('option', '', 'Day ' + (k + 1) + ' · ' + new Date(d + 'T12:00:00Z').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }) + (k === days.length - 1 ? ' (race day in progress)' : '')); o.value = k; if (k === el._day) o.selected = true; sel.appendChild(o); });
     sel.addEventListener('change', () => { el._day = Number(sel.value); drawContrib(el); });
     nav.append(prev, sel, next); el.appendChild(nav);
     const bars = (list, label, lab) => { if (!list.length) return; el.appendChild(mk('div', 'st-bsub', label)); const max = d3.max(list, (r) => Math.abs(r.pnl)) || 1;
@@ -4169,7 +4182,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     if (!bar) { bar = mk('div', 'st-pager'); host.after(bar); }
     bar.replaceChildren(); if (rows.length <= n) { bar.hidden = true; return; } bar.hidden = false;
     const lab = mk('label'); lab.append(document.createTextNode('Page '));
-    const sel = mk('select'); for (let k = 0; k < pages; k++) { const o = mk('option', '', (k + 1) + (k === 0 && el.dataset.pgNewest !== '0' && (el.dataset.draw === 'log-body' || el.dataset.pgNewest === '1') ? ' · newest' : '') + ' (' + (k * n + 1) + '–' + Math.min(rows.length, (k + 1) * n) + ')'); o.value = k; if (k === el._pg) o.selected = true; sel.appendChild(o); }
+    const sel = mk('select'); for (let k = 0; k < pages; k++) { const o = mk('option', '', (k + 1) + (k === 0 && el.dataset.pgNewest !== '0' && (el.dataset.draw === 'log-body' || el.dataset.pgNewest === '1') ? ' · newest' : '') + ' (' + (k * n + 1 === Math.min(rows.length, (k + 1) * n) ? k * n + 1 : (k * n + 1) + '–' + Math.min(rows.length, (k + 1) * n)) + ')'); o.value = k; if (k === el._pg) o.selected = true; sel.appendChild(o); }
     sel.addEventListener('change', () => { el._pg = Number(sel.value); pagerFor(el, n, noun); });
     lab.append(sel, document.createTextNode(' of ' + pages));
     const go = (k) => { el._pg = Math.max(0, Math.min(pages - 1, k)); pagerFor(el, n, noun); };
@@ -4245,7 +4258,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const t = document.getElementById(sel.dataset.target); let keep = '';
     keep = sel.value || '';   // owner's choice: always start on All experiments
     if (!PFS.includes(keep)) keep = '';
-    sel.replaceChildren(); const a = document.createElement('option'); a.value = ''; a.textContent = 'All experiments'; sel.appendChild(a);
+    sel.replaceChildren(); const a = document.createElement('option'); a.value = ''; a.textContent = 'All races'; sel.appendChild(a);
     PFS.forEach((p) => { const o = document.createElement('option'); o.value = p; o.textContent = LABEL[p] || p; sel.appendChild(o); });
     sel.value = keep; if (keep) t.dataset.portfolio = keep; else delete t.dataset.portfolio;
     if (!sel._on) { sel._on = 1; sel.addEventListener('change', () => { if (sel.value) t.dataset.portfolio = sel.value; else delete t.dataset.portfolio; if (dash.redraw) dash.redraw(); }); }
@@ -4327,7 +4340,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const pages = Math.max(1, Math.ceil(tops.length / BETS_PAGE.n)); if (BETS_PAGE.p >= pages) BETS_PAGE.p = pages - 1;
     tops.forEach((tr, k) => { tr.hidden = Math.floor(k / BETS_PAGE.n) !== BETS_PAGE.p; (tr._kids || []).forEach((kd) => { kd.hidden = tr.hidden || !BET_OPEN.has(tr._key); }); });
     const bar = document.querySelector('[data-bets-pager]'); if (!bar) return;
-    const opt = (ps) => { ps.replaceChildren(); for (let k = 0; k < pages; k++) { const a = k * BETS_PAGE.n + 1, b2 = Math.min(tops.length, (k + 1) * BETS_PAGE.n); const o = mk('option', '', (k + 1) + (k === 0 ? ' · newest' : '') + ' (' + a + '–' + b2 + ')'); o.value = k; if (k === BETS_PAGE.p) o.selected = true; ps.appendChild(o); } };
+    const opt = (ps) => { ps.replaceChildren(); for (let k = 0; k < pages; k++) { const a = k * BETS_PAGE.n + 1, b2 = Math.min(tops.length, (k + 1) * BETS_PAGE.n); const o = mk('option', '', (k + 1) + (k === 0 ? ' · newest' : '') + ' (' + (a === b2 ? a : a + '–' + b2) + ')'); o.value = k; if (k === BETS_PAGE.p) o.selected = true; ps.appendChild(o); } };
     if (!build) { const [ps] = bar.querySelectorAll('select'); if (ps) { opt(ps); ps.nextSibling.textContent = ' of ' + pages; } return; }
     bar.replaceChildren();
     if (!tops.length) return;
@@ -4979,7 +4992,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const raceOf = (id) => {
       if (!race) return null;
       const pool = id === 'claude' ? (dash.baseData('take') || []).filter((x) => x.experiment === race).slice() : (dash.baseData('rivals_thoughts') || []).filter((x) => x.model === id && x.experiment === race);
-      if (ALLIN[race]) (dash.baseData('allin_trades') || []).filter((x) => x.model === id && x.experiment === race && x.reason).forEach((x) => pool.push({ at: x.at, text: x.reason }));
+      if (ALLIN[race]) (dash.baseData('allin_trades') || []).filter((x) => x.model === id && x.experiment === race && x.reason && !/^(Won|Lost|Void|Push)$/.test(x.action) && !/^Final:/.test(x.reason)).forEach((x) => pool.push({ at: x.at, text: x.reason }));
       return newest(pool);
     };
     const last = ['claude', 'gemini', 'chatgpt'].map((id) => { const r = raceOf(id); if (r) return { model: id, at: r.at, text: r.text };
@@ -5007,6 +5020,8 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     return null;
   };
   const logWhen = (r) => { const id = txOfLog(r); if (!id) return stFmt.when(r.at); const f = document.createDocumentFragment(); f.append(stFmt.when(r.at), window.ptTxTag(id === 'pending' ? null : id, r.at)); return f; };
+  // P25 (first-visit review, Nov 1): the runner's note to an AI, read by the public (display only; the record keeps the original words)
+  const pubDetail = (t) => String(t == null ? '' : t).replace(/; send it again at your next check-in\./g, '; the AI can send it again at its next check-in.');
   dash.draw('log-body', (el) => {
     const d = dash.data('log');
     const all = !el.dataset.portfolio || el.id === 'log-all-body';
@@ -5022,8 +5037,8 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     }
     const flt = (r) => flt0(r) && (!keep || keep.has(r));
     fillBody(el, 'log', flt, (r) => encodeURIComponent(r.at) + ',' + encodeURIComponent(r.portfolio), (r) => all
-      ? [[logWhen(r)], [r.portfolio], [r.action], [r.detail, 'wrap']]
-      : [[logWhen(r)], [r.action], [r.detail, 'wrap']]);
+      ? [[logWhen(r)], [r.portfolio], [r.action], [pubDetail(r.detail), 'wrap']]
+      : [[logWhen(r)], [r.action], [pubDetail(r.detail), 'wrap']]);
     // ▶ M / ▶ F on every decision: reads out who, which race, when, the action and the reason (owner, Oct 29)
     if (d.status === 'ok' && 'speechSynthesis' in window) {
       const rows = d.data.filter(flt); const who = aiModel(dash.model) || 'The AI';
@@ -5314,12 +5329,12 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           const c = td(tr, '', 'wrap'); c.append(mk('b', '', x.pick_team || x.pick), mk('small', 'st-muted gx-sub', x.event || ''));
           { const seen = new Set(); g.items.forEach((y) => { const t = TS.find((q) => q.action === 'Bet' && (q.symbol === (y.bet || y.id) || (y.placed_at && Math.abs(Date.parse(q.at) - Date.parse(y.placed_at)) < 120e3 && Math.abs(Number(q.amount) - Number(y.stake)) < 1)));
               if (!t) return; const k = PG_KEY(t); if (seen.has(k)) return; seen.add(k); c.appendChild(window.ptTxTag(t.tx, t.at)); const gn = pgNode(k); if (gn) c.appendChild(gn);
-              if (!c._led) { c._led = 1; const lb = mk('button', 'tx-id tx-go tx-orig', '↩ View original bet' + (t.tx ? ' ' + t.tx : '')); lb.type = 'button'; lb.title = 'Show this bet in the High risk ledger, highlighted'; lb.addEventListener('click', () => window.ptGoAllinLedger(id, exp, t.at, t.bet || t.symbol)); c.appendChild(lb); } }); }   // the other AIs' grades (owner, Oct 29); a button to the bet in the ledger (owner, Oct 30)
+              if (!c._led) { c._led = 1; const lb = mk('button', 'tx-id tx-go tx-orig', 'Find this bet in the ledger' + (t.tx ? ' ' + t.tx : '')); lb.type = 'button'; lb.title = 'Show this bet in the High risk ledger, highlighted'; lb.addEventListener('click', () => window.ptGoAllinLedger(id, exp, t.at, t.bet || t.symbol)); c.appendChild(lb); } }); }   // the other AIs' grades (owner, Oct 29); a button to the bet in the ledger (owner, Oct 30)
           if (n > 1) { const dt = mk('details', 'bet-list'); dt.appendChild(mk('summary', '', 'The same pick ' + n + ' times · see each bet'));
             g.items.forEach((y) => dt.appendChild(mk('span', '', (y.placed_at ? stFmt.whenET(y.placed_at) + ' ET' : '') + ' · ' + money(y.stake) + ' at ' + betOdds(y.odds)))); c.appendChild(dt); }
           td(tr, n > 1 ? n + ' times, latest ' + stFmt.when(x.placed_at) : x.placed_at ? stFmt.when(x.placed_at) : '—', 'wrap', 'Placed'); td(tr, money(sum('stake')), 'num', 'Stake');
           const od = [...new Set(g.items.map((y) => betOdds(y.odds)))]; td(tr, od.length > 1 ? od[od.length - 1] + ' to ' + od[0] : od[0], 'num', 'Odds');
-          const res = x.status === 'Open' ? 'Open: to win ' + money(sum('to_win')) : x.status === 'Won' ? 'Won +' + money(sum('result')) : x.status === 'Lost' ? 'Lost ' + money(-Math.abs(sum('stake'))) : x.status === 'Void' ? 'Cancelled, stake' + (n > 1 ? 's' : '') + ' refunded' : String(x.status || '—');
+          const res = x.status === 'Open' ? 'Open · can win ' + money(sum('to_win')) + ' profit' : x.status === 'Won' ? 'Won · profit +' + money(sum('result')) : x.status === 'Lost' ? 'Lost ' + money(-Math.abs(sum('stake'))) : x.status === 'Void' ? 'Cancelled, stake' + (n > 1 ? 's' : '') + ' refunded' : String(x.status || '—');
           td(tr, res, 'num ' + (x.status === 'Won' ? 'is-up' : x.status === 'Lost' ? 'is-down' : ''), 'Result'); tb.appendChild(tr); });
         if (groups.length > 5) { tb.dataset.pgNewest = '1'; pagerFor(tb, 5, groups.length < bets.length ? 'rows (' + bets.length + ' bets; repeats of the same pick grouped)' : 'bets'); } }
     } else {
@@ -5384,7 +5399,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         td(tr, n > 1 ? n + ' times, latest ' + stFmt.when(x.placed_at || x.placed) : stFmt.when(x.placed_at || x.placed), 'wrap', 1, 'Placed');
         td(tr, money(sum('stake_cad')) + ' at ' + od + (n > 1 ? ' (' + n + ' bets)' : ''), 'gx-m', 1, 'Bet');
         td(tr, money(sum('stake_cad')), 'num gx-d', 1, 'Stake'); td(tr, od, 'num gx-d', 1, 'Odds');
-        const res = x.status === 'Open' ? 'Open: to win ' + money(sum('to_win_cad')) : x.status === 'Won' ? 'Won +' + money(sum('result_cad')) : x.status === 'Lost' ? 'Lost ' + money(-Math.abs(sum('stake_cad'))) : x.status === 'Void' ? 'Cancelled, stake' + (n > 1 ? 's' : '') + ' refunded' : String(x.status || '—');
+        const res = x.status === 'Open' ? 'Open · can win ' + money(sum('to_win_cad')) + ' profit' : x.status === 'Won' ? 'Won · profit +' + money(sum('result_cad')) : x.status === 'Lost' ? 'Lost ' + money(-Math.abs(sum('stake_cad'))) : x.status === 'Void' ? 'Cancelled, stake' + (n > 1 ? 's' : '') + ' refunded' : String(x.status || '—');
         td(tr, res, 'num ' + (x.status === 'Won' ? 'is-up' : x.status === 'Lost' ? 'is-down' : x.status === 'Open' ? '' : 'st-muted'), 1, 'Result');
         const settled = g.items.map((y) => y.settled_at).filter(Boolean).sort().pop();
         td(tr, settled && x.status !== 'Open' ? 'Settled ' + stFmt.when(settled) : x.starts_at ? 'Starts ' + stFmt.when(x.starts_at) : '—', 'wrap', 1, 'Game');
@@ -6000,6 +6015,18 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     return { cost: '', profit: '', ret: '' };
   };
   const pnlTd = (v, p) => { const td = mk('td', 'num', v); if (p != null) td.classList.add(p > 0.5 ? 'is-up' : p < -0.5 ? 'is-down' : 'x'); return td; };
+  // the Money column in the same words as the Ledgers, to the cent (first-visit review, Nov 1; all three AIs agreed, P16)
+  const moneyOf = (t) => {
+    const a = t.action, amt = Number(t.amount); if (!Number.isFinite(amt)) return '';
+    const f = (x) => (t.experiment === 'China' ? 'US$' : 'C$') + d3.format(',.2f')(Math.abs(x)), st = Number(t.stake != null ? t.stake : t.cost);
+    if (a === 'Won') return Number.isFinite(st) && st > 0 ? 'paid back ' + f(st + Number(t.pnl != null ? t.pnl : amt)) : 'profit ' + f(amt);
+    if (a === 'Lost') return 'back ' + f(0);
+    if (a === 'Bet' || a === 'Parlay') return 'staked ' + f(amt);
+    if (/^(Void|Push)$/.test(a)) return 'refunded ' + f(amt);
+    if (a === 'Buy' || a === 'Short') return 'put in ' + f(amt);
+    if (/^(Sell|Cover)$/.test(a)) return 'took out ' + f(amt);
+    return f(amt);
+  };
   const tradeRows = () => {
     const T = dash.data('trades'), B = dash.data('bets');
     if (T.status !== 'ok' || B.status !== 'ok') return null;
@@ -6367,7 +6394,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         bn.appendChild(ab); el.appendChild(bn);
       }
       const table = mk('table', 'st-table');
-      table.innerHTML = '<thead><tr><th>When</th><th>Experiment</th><th>Action</th><th>What</th><th>Details</th><th class="num">Money</th><th class="num">Cost / stake</th><th class="num">Profit</th><th class="num">Return</th><th>Why</th></tr></thead>';
+      table.innerHTML = '<thead><tr><th>When</th><th>Race</th><th>Action</th><th>What</th><th>Details</th><th class="num">Money</th><th class="num">Cost / stake</th><th class="num">Profit</th><th class="num">Return</th><th>Why</th></tr></thead>';
       const tb = mk('tbody');
       if (!shown.length) { const tr = mk('tr'); const td = mk('td', '', 'No trades yet.'); td.colSpan = 10; tr.appendChild(td); tb.appendChild(tr); }
       shown.forEach((r) => {
@@ -6563,7 +6590,9 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       box.appendChild(w); el.appendChild(box); return;
     }
     const owed = d.data.filter((r) => r.portfolio === pf && Number(r.value_cad) < 0).reduce((a, r) => a + Number(r.value_cad), 0);
-    if (owed) el.appendChild(mk('p', 'st-note', 'Shows positions only. Bought partly with borrowed money (leverage): C$' + d3.format(',.0f')(-owed) + ' owed, not shown in the chart.'));
+    // first-visit review (Nov 1; all three AIs agreed, P22): short sales are not borrowing to buy, so say what the cash is
+    const shortsOnly = d.data.filter((r) => r.portfolio === pf && Number(r.value_cad) < 0).every((r) => Number(r.quantity) < 0 || /^Short\b/i.test(String(r.holding)));
+    if (owed) el.appendChild(mk('p', 'st-note', shortsOnly ? 'Shows positions only. Cash includes money from short sales; buying the shorts back would cost C$' + d3.format(',.0f')(-owed) + ' now (not in the chart).' : 'Shows positions only. Bought partly with borrowed money (leverage): C$' + d3.format(',.0f')(-owed) + ' owed, not shown in the chart.'));
     /* whole percents that add up to exactly 100 (largest remainder; number audit round 3, Nov 1) */
     const PCT = new Map(); { const raw = rows.map((r) => total ? 100 * r.value_cad / total : 0), out = raw.map(Math.floor); let left = Math.round(d3.sum(raw)) - d3.sum(out); raw.map((v, i) => [v - out[i], i]).sort((x, y) => y[0] - x[0]).forEach(([, i]) => { if (left > 0) { out[i]++; left--; } }); rows.forEach((r, i) => PCT.set(r, out[i] + '%')); }
     const pctOf = (r) => PCT.get(r) || d3.format('.0%')(r.value_cad / total);
@@ -6601,8 +6630,8 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         if (isUsd(r)) { const tq = t && Number(t.qty), q = tq || Math.abs(Number(r.quantity)), c = tq ? Number(t.cad) : Math.abs(Number(r.cost_cad)); return q && c ? d3.format('.4f')(c / q) + ' C$ per US$' : ''; }
         return 'US$' + d3.format('.4f')(px) + ' each';
       }
-      const ounce = pf === 'Metals' && /^(Gold|Silver|Platinum|Palladium)$/i.test(String(r.holding));   // spot metal (in troy ounces), not a fund
-      return 'US$' + d3.format(px >= 1 ? ',.2f' : '.4f')(px) + (pf === 'Crypto' ? ' a coin' : pf === 'Options' ? ' a share of the contract' : ounce ? ' an ounce' : /Metals|Energy|Stocks|Safe/.test(pf) ? ' a share' : '');
+      const ounce = pf === 'Metals' && /^(Gold|Silver|Platinum|Palladium)( [A-Z][a-z]{2} \d{2})?$/i.test(String(r.holding)), barrel = /^(Crude Oil|Brent Crude)\b/i.test(String(r.holding));   // spot or futures (P23, Nov 1)   // spot metal (in troy ounces), not a fund
+      return 'US$' + d3.format(px >= 1 ? ',.2f' : '.4f')(px) + (pf === 'Crypto' ? ' a coin' : pf === 'Options' ? ' a share of the contract' : ounce ? ' an ounce' : barrel ? ' a barrel' : /Metals|Energy|Stocks|Safe/.test(pf) ? ' a share' : '');
     };
     const amtTxt = (t) => { const a = pf === 'China' ? Number(t.usd != null ? t.usd : t.cad) : Number(t.cad); return isFinite(a) && a ? stFmt.money(Math.abs(a), pf) : ''; };
     const buysOf = (r) => {
@@ -6726,7 +6755,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const cur = dash.model || 'claude', key = 'b:' + L + ':' + cur; if (b.dataset.k === key) return; b.dataset.k = key;
     b.removeAttribute('aria-hidden'); b.setAttribute('role', 'group'); b.setAttribute('aria-label', 'Pick an AI');
     b.replaceChildren(...['claude', 'gemini', 'chatgpt'].map((x) => { const btn = mk('button', 'st-bot' + (x === cur ? ' is-on' : '')); btn.type = 'button';
-      btn.setAttribute('aria-pressed', String(x === cur)); btn.title = 'Show ' + AIS[x].label + (x === cur ? ' (showing now)' : '') + (x === L ? '. The crown: ' + AIS[x].label + ' leads the race overall on total profit (amounts hidden until Nov 28)' : '') + '. The gold ring marks the AI the page is showing.'; btn.setAttribute('aria-label', btn.title);
+      btn.setAttribute('aria-pressed', String(x === cur)); btn.title = 'Show ' + AIS[x].label + (x === cur ? ' (showing now)' : '') + (x === L ? '. The crown: ' + AIS[x].label + ' leads the race overall on total profit' : '') + '. The gold ring marks the AI the page is showing.'; btn.setAttribute('aria-label', btn.title);
       btn.appendChild(robotSVG(x, 0, x === L));
       // say what the crown and the gold ring mean, whichever AI the page shows (owner, Oct 30: "it's vague, write something underneath")
       btn.appendChild(mk('span', 'st-bot-n', AIS[x].label));
@@ -6839,6 +6868,9 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           // 👑 = the most total profit (the win rule), 🏁 = the most races led (another view, never decides the winner)
           c.append(mk('span', 'cr-k', '👑'), aiBadge(L, 16), mk('span', 'cr-n', AIS[L].label), document.createTextNode(' leads overall: most profit'), amt(L), mk('span', 'cr-s', ' (pretend)'));   // all three AIs, Oct 31: 'pretend' beside every profit figure on the first screen
           if (second && AIS[second.id]) { const n2 = mk('span', 'cr-n2', AIS[second.id].label); n2.style.color = AIS[second.id].color; const g = mk('span', 'cr-g'); g.append(mk('span', 'cr-s', '· 2nd'), aiBadge(second.id, 14), n2, amt(second.id)); c.append(g); }
+          // first-visit review (Nov 1; all three AIs agreed, P5): 3rd as well, so no AI's total is missing from the first screen
+          { const third = rows.length > 2 && second ? rows.filter((r) => r.id !== L && r.id !== second.id)[0] : null;
+            if (third && AIS[third.id]) { const n3 = mk('span', 'cr-n2', AIS[third.id].label); n3.style.color = AIS[third.id].color; const g = mk('span', 'cr-g'); g.append(mk('span', 'cr-s', '· 3rd'), aiBadge(third.id, 14), n3, amt(third.id)); c.append(g); } }
           { const ids = rows.map((r) => r.id), top = Math.max(...ids.map(n)), best = ids.filter((id) => n(id) === top); const g = mk('span', 'cr-g cr-races');
             if (top > 0 && best.length === 1 && best[0] === L) g.append(mk('span', 'cr-s', '· 🏁 also most races led (' + top + ' of ' + total + ')'));
             else if (top > 0 && best.length === 1) { const n3 = mk('span', 'cr-n2', AIS[best[0]].label); n3.style.color = AIS[best[0]].color; g.append(mk('span', 'cr-s', '· 🏁 Most races led:'), aiBadge(best[0], 14), n3, mk('span', 'cr-s', top + ' of ' + total)); }
@@ -6936,7 +6968,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     if (!el._exp) { try { el._exp = localStorage.getItem('pt-h2h-exp') || 'all'; } catch (e) { el._exp = 'all'; } }
     const pick2 = mk('div', 'h2h-pick'); pick2.setAttribute('role', 'group'); pick2.setAttribute('aria-label', 'Choose which experiment to compare');
     pick2.appendChild(mk('span', 'h2h-pick-l', 'In'));
-    [['all', 'All experiments']].concat(H2H_EXPS.map((e) => [e, LABEL[e] || e])).forEach(([k, label]) => {
+    [['all', 'All races']].concat(H2H_EXPS.map((e) => [e, LABEL[e] || e])).forEach(([k, label]) => {
       const b = mk('button', '', label); b.type = 'button'; b.setAttribute('aria-pressed', String(k === el._exp));
       b.addEventListener('click', () => { el._exp = k; try { localStorage.setItem('pt-h2h-exp', k); } catch (e) {} h2hDraw(el); });
       pick2.appendChild(b);
@@ -7125,7 +7157,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const tx = EXP_SEL || el._tx;
     if (!EXP_SEL) {
       const bar = mk('div', 'lg-pick'); const lab = mk('label', '', 'Show: '); const sel = mk('select');
-      [['', 'All experiments']].concat(H2H_EXPS.map((e) => [e, LABEL[e] || e])).forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; sel.appendChild(o); });
+      [['', 'All races']].concat(H2H_EXPS.map((e) => [e, LABEL[e] || e])).forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; sel.appendChild(o); });
       sel.value = tx;
       sel.addEventListener('change', () => { el._tx = sel.value; try { localStorage.setItem('pt-h2h-tx', sel.value); } catch (e) {} h2hDraw(el); });
       lab.appendChild(sel); bar.appendChild(lab); tbx.appendChild(bar);
@@ -7148,16 +7180,16 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       else if (!trades.length) rbox.appendChild(mk('p', 'st-note', 'No trades yet' + (tx ? ' in this experiment.' : '.')));
       else {
         const wrap = mk('div', 'h2h-scroll'); const tb = mk('table', 'h2h-table');
-        const hr = mk('tr'); ['When', 'Experiment', 'Trade', 'Price', 'Amount', 'Cost / stake', 'Profit', 'Return', 'Why'].forEach((x) => hr.appendChild(mk('th', '', x))); tb.appendChild(hr);
+        const hr = mk('tr'); ['When', 'Race', 'Trade', 'Price', 'Money', 'Cost / stake', 'Profit', 'Return', 'Why'].forEach((x) => hr.appendChild(mk('th', '', x))); tb.appendChild(hr);
         trades.forEach((t) => {
           const tr = mk('tr');
-          const what = t.action + ' ' + (t.name && t.name !== t.symbol ? t.name + ' (' + t.symbol + ')' : t.symbol) + (t.outcome ? ': ' + t.outcome : '');
+          const what = t.action + ' ' + (t.name && t.name !== t.symbol ? t.name + (/^(Sports|Predictions)$/.test(t.experiment) ? '' : ' (' + t.symbol + ')') : t.symbol) + (t.outcome ? ': ' + t.outcome : '');
           const cs = { USD: 'US$', CNY: '¥', CAD: 'C$' }[t.pcur] || 'US$';
           const unit = t.experiment === 'Crypto' ? ' per coin' : (t.experiment === 'Stocks' || t.experiment === 'China') ? ' per share' : '';
           const ok = Number.isFinite(t.price);
           const px = !ok ? '' : t.experiment === 'Predictions' ? (t.price * 100).toFixed(1) + '¢ a share' : t.experiment === 'Sports' ? String(t.price) : cs + d3.format(t.price >= 100 ? ',.2f' : ',.4~f')(t.price) + unit;
           const pl = pnlOf(t);
-          tr.appendChild(window.ptTxWhen(t.at, t.tx)); [LABEL[t.experiment] || t.experiment, what, px, Number.isFinite(t.amount) ? stFmt.money(t.amount, t.experiment) : ''].forEach((v) => tr.appendChild(mk('td', '', v)));
+          tr.appendChild(window.ptTxWhen(t.at, t.tx)); [LABEL[t.experiment] || t.experiment, what, px, moneyOf(t)].forEach((v) => tr.appendChild(mk('td', '', v)));
           tr.append(mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret), mk('td', '', t.reason || ''));
           if (/^(Sell|Cover)$/.test(t.action) && window.ptFindTrade) {   // the way back to the buy(s) (owner, Oct 30; all three AIs agreed)
             const fb = mk('button', 'lg-find', '↩ View original buy(s)'); fb.type = 'button'; fb.title = 'Open the Ledger on this holding: the sale and every buy behind it';
@@ -7258,7 +7290,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       setTimeout(() => { VOICES_READY = true; }, 2500);   // browsers that never send voiceschanged
     }
   } catch (e) {}
-  const VOICE_LABEL = { m: 'male AI voice', f: 'female voice' };
+  const VOICE_LABEL = { m: 'male voice', f: 'female voice' };
   const noVoice = (L) => {   // tell the visitor how to add a voice for their language (once per visit)
     if (window.__ptNoVoice) { const t0 = document.getElementById('pt-novoice'); if (t0) t0.classList.add('on'); return; } window.__ptNoVoice = 1;
     const name = { zh: 'Chinese', hi: 'Hindi', es: 'Spanish', fr: 'French', ar: 'Arabic', bn: 'Bengali', pt: 'Portuguese', ru: 'Russian', id: 'Indonesian', ur: 'Urdu', de: 'German', ja: 'Japanese', ko: 'Korean', tr: 'Turkish' }[L.split('-')[0]] || L;
@@ -7270,7 +7302,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
   const sayPair = (getText, el, label) => {   // two small buttons: ▶ M (male voice) and ▶ F (female voice)
     const w = mk('span', 'say-pair');
     ['m', 'f'].forEach((g) => {
-      const b = mk('button', 'say-btn'); b.type = 'button'; b._idle = '▶ ' + g.toUpperCase(); b._stop = '⏹'; b._label = (label || 'Listen to this') + ' (' + VOICE_LABEL[g] + ')';
+      const b = mk('button', 'say-btn'); b.type = 'button'; b._idle = '🔊 ' + g.toUpperCase(); b._stop = '⏹'; b._label = (label || 'Listen to this') + ' (' + VOICE_LABEL[g] + ')';
       b.textContent = b._idle; b.setAttribute('aria-label', b._label); b.setAttribute('aria-pressed', 'false'); b.title = b._label;
       b.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); say(getText(), b, el, g); });
       w.appendChild(b);
@@ -7281,7 +7313,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
   const listenBtn = (getText, label) => {   // the bigger "Listen" buttons, also as a male / female pair
     const w = mk('span', 'listen-pair');
     ['m', 'f'].forEach((g) => {
-      const name = (label || 'Listen') + (g === 'm' ? ' · AI voice (male)' : ' · Female voice');
+      const name = (label || 'Listen') + (g === 'm' ? ' · Male voice' : ' · Female voice');
       const b = mk('button', 'listen-btn', '🔊 ' + name); b.type = 'button'; b.setAttribute('aria-pressed', 'false');
       b._idle = '🔊 ' + name; b._stop = '⏹ Stop'; b._label = name;
       if (!('speechSynthesis' in window)) { b.disabled = true; b.title = 'Your browser cannot read text aloud'; }
@@ -7460,7 +7492,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     if (el._f === undefined) el._f = { exp: '', kind: '' };
     const bar = mk('div', 'ai-pick');
     const mksel = (label, opts, key) => { const l = mk('label', '', label + ' '); const s = mk('select'); opts.forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; s.appendChild(o); }); s.value = String(el._f[key]); s.addEventListener('change', () => { el._f[key] = key === 'n' ? Number(s.value) : s.value; draw(); }); l.appendChild(s); bar.appendChild(l); };
-    mksel('Experiment:', [['', 'All experiments']].concat(PFS_ALL.map((e) => [e, LABEL[e] || e])).concat([['AllInTrading', 'High risk: trading'], ['AllInSports', 'High risk: sports']]), 'exp');
+    mksel('Race:', [['', 'All races']].concat(PFS_ALL.map((e) => [e, LABEL[e] || e])).concat([['AllInTrading', 'High risk: trading'], ['AllInSports', 'High risk: sports']]), 'exp');
     // Show: one tap each, the same buttons as the Ledger and High risk ledger (owner, Oct 30), plus Holding now
     tc.appendChild(bar);
     const box = mk('div'); tc.appendChild(box);
@@ -7472,7 +7504,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       const rows = MF.rows;
       if (!rows.length) return;
       const wrap = mk('div', 'h2h-scroll st-wrap'); const tb = mk('table', 'h2h-table');
-      const hr = mk('tr'); ['When', 'Experiment', 'Trade', 'Amount', 'Cost / stake', 'Profit', 'Return', 'Why'].forEach((x) => hr.appendChild(mk('th', '', x))); { const th = mk('thead'); th.appendChild(hr); tb.appendChild(th); }
+      const hr = mk('tr'); ['When', 'Race', 'Trade', 'Amount', 'Cost / stake', 'Profit', 'Return', 'Why'].forEach((x) => hr.appendChild(mk('th', '', x))); { const th = mk('thead'); th.appendChild(hr); tb.appendChild(th); }
       const body = mk('tbody'); tb.appendChild(body);
       rows.forEach((t) => { const tr = mk('tr'); const pl = pnlOf(t); tr.appendChild(window.ptTxWhen(t.at, t.tx)); [LABEL[t.experiment] || String(t.experiment).replace('AllInTrading', 'High risk: trading').replace('AllInSports', 'High risk: sports'), t.action + ' ' + (t.name || t.symbol), Number.isFinite(+t.amount) ? (t.amount < 0 ? '−' : '') + (t.experiment === 'China' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(t.amount)) : ''].forEach((v) => tr.appendChild(mk('td', '', v))); tr.append(mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), mk('td', 'num', pl.ret), mk('td', '', t.reason || '')); body.appendChild(tr); });
       wrap.appendChild(tb); box.appendChild(wrap);
@@ -7559,7 +7591,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           // open bets are holdings too: Find the bet + Whole story
           if (exp === 'AllInSports') (x.book.bets || []).filter((b) => b.status === 'Open').forEach((b) => { const t = (dash.baseData('allin_trades') || []).find((q) => q.model === x.id && q.experiment === exp && q.bet === b.id && q.tx); if (!t) return;
             const ln = mk('span', 'h2h-sub pt-hold-line'); ln.append(mk('b', '', b.pick_team + ' C$' + d3.format(',.0f')(b.stake) + ': ')); const w = mk('span', 'tx-wrap pt-hold-tx');
-            const a1 = mk('button', 'tx-id tx-go', '↩ View original bet ' + t.tx); a1.type = 'button'; a1.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); if (window.ptGoTx) window.ptGoTx(t.tx); }); w.appendChild(a1);
+            const a1 = mk('button', 'tx-id tx-go', 'Find this bet in the ledger ' + t.tx); a1.type = 'button'; a1.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); if (window.ptGoTx) window.ptGoTx(t.tx); }); w.appendChild(a1);
             if (window.ptStory) { const sb = mk('button', 'tx-id tx-go tx-story', '📜 Whole story'); sb.type = 'button'; sb.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); window.ptStory.openTx(t.tx); }); w.appendChild(sb); }
             ln.appendChild(w); li.appendChild(ln); }); }
         { // the most recent win and the most recent loss (owner, Oct 30): settled bets, or closed trades with their profit
@@ -7567,7 +7599,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           const done = (TS || []).filter((t) => t.model === x.id && t.experiment === exp && res(t) != null && Math.abs(res(t)) >= 0.5).sort((a, b) => new Date(b.at) - new Date(a.at));
           const what = (t) => { const n = String(t.name || t.symbol || ''); const m = n.match(/^([A-Z]{2,6}): (.+?) moneyline/); return m ? m[2] + ' (' + m[1] + ')' : n; };
           const best = done.filter((t) => res(t) > 0).sort((a, b) => res(b) - res(a))[0];
-          [[exp === 'AllInSports' ? 'Best bet' : 'Best trade', best], ['Last win', done.find((t) => res(t) > 0)], ['Last loss', done.find((t) => res(t) < 0)]].forEach(([lab, t]) => {
+          [[exp === 'AllInSports' ? 'Best single bet' : 'Best trade', best], ['Last win', done.find((t) => res(t) > 0)], ['Last loss', done.find((t) => res(t) < 0)]].forEach(([lab, t]) => {
             const ln = mk('span', 'h2h-sub h2h-wl'); ln.appendChild(mk('b', '', lab + ': '));
             if (!t) { ln.appendChild(document.createTextNode('none yet')); }
             else { const v = res(t); const amt = mk('span', '', ptSgn0(v) + 'C$' + d3.format(',.0f')(Math.abs(v))); tone(amt, v); ln.append(amt, document.createTextNode(' · ' + what(t) + ' · ' + stFmt.whenET(t.at) + ' ET'));
@@ -7600,14 +7632,14 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         const MF = mfApply('allin-moves-' + exp, tr0, MF_RIV(), () => { stt.pg = 0; drawMoves(); }, { page: 10 }); list.append(MF.bar, MF.sum);   // Show and Sort (owner, Oct 31)
         const tr = MF.rows; if (!tr.length) return;
         const wrap = mk('div', 'h2h-scroll st-wrap'); const tb = mk('table', 'h2h-table');
-        const hr = mk('tr'); ['When', 'AI', 'Move', 'Amount', 'Cost / stake', 'Profit', 'Why'].forEach((h) => hr.appendChild(mk('th', '', h))); { const th = mk('thead'); th.appendChild(hr); tb.appendChild(th); }
+        const hr = mk('tr'); ['When', 'AI', 'Move', 'Money', 'Cost / stake', 'Profit', 'Why'].forEach((h) => hr.appendChild(mk('th', '', h))); { const th = mk('thead'); th.appendChild(hr); tb.appendChild(th); }
         const body = mk('tbody'); tb.appendChild(body);
         tr.forEach((t) => {
           const r = mk('tr');
           const ai = mk('td', '', AIS[t.model] ? AIS[t.model].label : t.model); ai.style.borderLeft = '3px solid ' + (AIS[t.model] || {}).color; ai.style.paddingLeft = '6px';
           const pl = pnlOf(t);
           const why = mk('td', '', t.reason || ''); { const lb = window.ptLookback(t.tx, t.model); if (lb) setTimeout(() => why.appendChild(lb), 0); } { const n = /^(Buy|Sell|Short|Cover|Bet)$/.test(t.action) ? pgNode(PG_KEY(t)) : null; if (n) why.appendChild(n); }
-          r.append(window.ptTxWhen(t.at, t.tx), ai, mk('td', '', t.action + ' ' + (t.name || t.symbol)), mk('td', '', (t.amount < 0 ? '−' : '') + 'C$' + d3.format(',.0f')(Math.abs(t.amount))), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), why);
+          r.append(window.ptTxWhen(t.at, t.tx), ai, mk('td', '', t.action + ' ' + (t.name || t.symbol)), mk('td', 'num', moneyOf(t)), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p), why);
           body.appendChild(r);
         });
         wrap.appendChild(tb); list.appendChild(wrap);
@@ -7839,7 +7871,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       el.textContent = meta.label + '’s own copy of this experiment' + (st ? ', started ' + (Math.abs(Date.parse(st) - RESTART) > 5 * 60e3 ? stFmt.when(st) : 'at the Oct 28, 1:45 p.m. ET restart') : '') + ' with ' + (el.dataset.modelText === 'China' ? 'US$100,000' : 'C$100,000') + '. Holdings, trades and decisions below are ' + meta.label + '’s; it checks in at the same times as Claude and searches the news itself.';
     });
     document.querySelectorAll('[data-model-note]').forEach((n) => {
-      n.textContent = meta ? 'Showing ' + meta.label + '’s own separate copies of ' + exps.length + ' experiments' + (meta.model ? ' (model: ' + prettyModel(meta.model) + ')' : '') + '. Each started with its own 100,000 at the Oct 28 1:45 p.m. ET restart.' : 'Showing Claude’s ten experiments (model: Claude Opus 5.5).';
+      n.textContent = meta ? 'Showing ' + meta.label + '’s own copy of all ' + exps.length + ' races' + (meta.model ? ' (model: ' + prettyModel(meta.model) + ')' : '') + '. Each started with its own 100,000 at the Oct 28 1:45 p.m. ET restart.' : 'Showing Claude’s ten races (model: Claude Opus 5.5).';
     });
     const take = document.querySelector('.st-take-l'); if (take) take.textContent = (meta ? meta.label : 'Claude') + '’s current take';
     Object.entries(TABOF).forEach(([pf, tab]) => {
@@ -8211,15 +8243,19 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const h = mk('h2', 'st-h2 pt-story-h'); h.id = 'h-c-story'; const bd = mk('span', 'pd-livebadge'); bd.append(mk('i'), document.createTextNode('DEVELOPING'));
     h.append(bd, document.createTextNode(S.title), closeBtn('story', sv, 'this story'));
     el.append(h, mk('p', 'pt-story-up', 'Updated ' + stFmt.when(S.updated_at) + ' · figures change as new reports come in'));
+    // first-visit review (Nov 1; all three AIs agreed, P24): the race comes first, so the story opens folded to its first sentence
+    const sum = String(S.summary || ''), cut = (/^.*?[.!?](?=\s+[A-Z(“"]|\s*$)/.exec(sum) || [sum])[0];
+    el.appendChild(mk('p', 'pt-story-sum pt-story-lede', cut));
+    const more = mk('details', 'pt-story-more'); more.appendChild(mk('summary', '', 'Read the full story ▾')); el.appendChild(more);
     const canSay = 'speechSynthesis' in window;   // every card can be read aloud on its own, or the whole story at once (owner, Oct 30)
-    if (canSay) { const top = mk('div', 'pt-story-listen'); top.appendChild(listenBtn(() => S.title + '. ' + S.summary + ' ' + (S.facts || []).map((f) => f.label + ': ' + f.value + '. ' + (f.note || '')).join(' '), 'Listen to the whole story')); el.appendChild(top); }
-    el.appendChild(mk('p', 'pt-story-sum', S.summary));
+    if (canSay) { const top = mk('div', 'pt-story-listen'); top.appendChild(listenBtn(() => S.title + '. ' + S.summary + ' ' + (S.facts || []).map((f) => f.label + ': ' + f.value + '. ' + (f.note || '')).join(' '), 'Listen to the whole story')); more.appendChild(top); }
+    if (sum.length > cut.length) more.appendChild(mk('p', 'pt-story-sum', sum.slice(cut.length).trim()));
     const g = mk('div', 'pt-story-grid');
     (S.facts || []).forEach((f) => { const c = mk('div', 'pt-story-f'); c.append(mk('b', '', f.label), mk('span', '', f.value));
       if (canSay) { const w = mk('div', 'st-geo-say'); w.appendChild(playBtn(() => f.label + ': ' + f.value + '. ' + (f.note || ''), c)); c.appendChild(w); }
       const sm = mk('small', '', (f.note ? f.note + ' · ' : '')); if (f.url) { const a = mk('a', '', f.source || 'source'); a.href = f.url; a.target = '_blank'; a.rel = 'noopener'; sm.appendChild(a); } else if (f.source) sm.appendChild(document.createTextNode(f.source));
       c.appendChild(sm); g.appendChild(c); });
-    el.appendChild(g);
+    more.appendChild(g);
   });
   // ---------- News that moved the race (owner, Oct 30; Claude, Gemini and ChatGPT all agreed: ops/review/news-r1-oct30.json). Every card
   // has the same layout for all three AIs: headline, what it moved, and what each AI did (with the time the news became public, so nobody
@@ -8601,9 +8637,11 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const want = el._exp === 'Overall' ? null : el._exp;   // Overall: the take, plans, feelings and opinions across all races
     if (!ALLIN[el._exp] && el._exp !== 'AllInBoth' && ((window.ptRace || null) !== want || !!window.ptOverall !== (el._exp === 'Overall'))) { window.ptRace = want; window.ptOverall = el._exp === 'Overall'; setTimeout(() => { if (dash.redraw) dash.redraw(); }, 0); }   // the goals and feelings cards follow this race (the High risk side race has none, so they stay put)
     el.appendChild(mk('h2', '', 'Race standings'));
+    // first-visit review (Nov 1; all three AIs agreed, P2): the first big number can be a side-race one, so say so at the top
+    if (ALLIN[el._exp] || el._exp === 'AllInBoth') el.appendChild(mk('p', 'pd-side-flag', 'Side race: its own C$100,000, not part of the overall winner.'));
     const sel = mk('select', 'pd-pick'); sel.setAttribute('aria-label', 'Choose the race');
     const TITLE = (x) => x.replace(/\b([a-z])([a-z]*)/g, (m, a, b) => (['and', 'of', 'it'].includes(m) && m !== 'it' ? m : a.toUpperCase() + b)).replace(/^./, (c) => c.toUpperCase());   // Title Case for the menu
-    EXPS.forEach((e) => { const o = mk('option', '', e === 'AllInBoth' ? 'High Risk: Both Parts (Side Race)' : e === 'Overall' ? 'Overall: Ranked by Total Profit (Amounts Hidden Until Nov 28)' : ALLIN[e] ? TITLE(ALLIN[e]) + ' (Side Race)' : TITLE(LABEL[e] || e)); o.value = e; if (e === el._exp) o.selected = true; sel.appendChild(o); });
+    EXPS.forEach((e) => { const o = mk('option', '', e === 'AllInBoth' ? 'High Risk: Both Parts, Side by Side (Side Race)' : e === 'Overall' ? 'Overall: Ranked by Total Profit' : ALLIN[e] ? TITLE(ALLIN[e]) + ' (Side Race)' : TITLE(LABEL[e] || e)); o.value = e; if (e === el._exp) o.selected = true; sel.appendChild(o); });
     // picking a race here also switches the page to that race's own section (owner, Oct 29): a race to its tab, High risk to the High risk page,
     // the overall view to the Overview; the page does not scroll
     sel.addEventListener('change', () => {
@@ -8693,7 +8731,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       return;
     }
     if (ALLIN[el._exp]) {   // the High risk side race: no caps, everything in; not one of the ten races
-      el.appendChild(mk('p', 'pd-note', 'The High risk side race: C$100,000 each, no caps, ' + (el._exp === 'AllInSports' ? 'moneyline bets on real games' : 'any stock, ETF, crypto or option') + '. It is not one of the ten races. Tap one to view it.'));
+      el.appendChild(mk('p', 'pd-note', 'High risk, no caps: ' + (el._exp === 'AllInSports' ? 'moneyline bets on real games' : 'any stock, ETF, crypto or option') + '. Tap one to view it.'));
       const rows = allinRows(el._exp);
       if (!rows.length) { el.appendChild(mk('p', 'pd-note', 'High risk starts at the next check-in.')); return; }
       const ol = mk('ol');
@@ -8871,12 +8909,12 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         if (!AIS[x.id]) return;
         const li = mk('li'); const bt = mk('button'); bt.type = 'button'; bt.style.setProperty('--ai', AIS[x.id].color);
         const t = mk('span', 'pd-big-t'); t.appendChild(mk('span', 'pd-big-what', x.what));
-        const st = (x.n > 1 && (x.state === 'won' || x.state === 'lost') ? (x.state === 'won' ? 'won ' : 'lost ') + x.n + ' bets' : STATE[x.state] || x.state);
+        const st = (x.n > 1 && (x.state === 'won' || x.state === 'lost') ? x.n + (x.state === 'won' ? ' winning bets' : ' losing bets') : STATE[x.state] || x.state);
         t.appendChild(mk('small', '', AIS[x.id].label + ' · ' + st + (race === 'Overall' ? ' · ' + (LABEL[x.race] || x.race).replace(' (US$)', '') : '')));
         const am = mk('span', 'pd-big-amt', (x.pnl >= 0 ? '+' : '−') + (x.cur === 'USD' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(x.pnl))); tone(am, x.pnl);
         bt.append(aiBadge(x.id, 16), t, am);
         bt.title = 'See every move of this, from the first trade, with its transaction IDs';
-        { const f = window.ptStory && window.ptStory.firstTx(x); if (f) t.appendChild(mk('small', 'pd-big-from', 'from ' + f)); }   // X5: the opening ID on the item
+        { const f = window.ptStory && window.ptStory.firstTx(x); if (f) t.appendChild(mk('small', 'pd-big-from', (x.n > 1 ? 'first: ' : 'ID ') + f)); }   // X5: the opening ID on the item
         bt.addEventListener('click', () => { if (window.ptStory && window.ptStory.openBig(x)) return; setModel(x.id); if (ALLIN[x.race]) goAllin(x.race); else if (TABOF[x.race]) goTab(TABOF[x.race]); });
         li.appendChild(bt); ul.appendChild(li);
       });
@@ -8959,7 +8997,9 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       (bk.bets || []).filter((b) => b.status === 'Open').forEach((b) => { const n = b.pick_team || b.pick || b.event; c[n] = (c[n] || 0) + 1; });
       const holds = Object.keys(c).map((n) => (c[n] > 1 ? n + ' (' + c[n] + ' bets)' : n));
       const tr = TS.filter((t) => t.model === id && t.experiment === exp).sort((a, b) => new Date(b.at) - new Date(a.at))[0];
-      const last = tr ? { at: tr.at, text: (VERB[tr.action] || tr.action) + ' C$' + d3.format(',.0f')(Math.abs(Number(tr.amount) || 0)) + (tr.action === 'Buy' || tr.action === 'Short' ? ' of ' : ' on ') + clean(tr.name || tr.symbol) } : null;
+      const amt = tr ? 'C$' + d3.format(',.0f')(Math.abs(Number(tr.amount) || 0)) : '', nm = tr ? clean(tr.name || tr.symbol) : '';
+      // a result says profit or stake plainly (first-visit review, Nov 1, P6): "Bengals moneyline won · profit +C$2,222"
+      const last = tr ? { at: tr.at, text: tr.action === 'Won' ? nm + ' won · profit +' + amt : tr.action === 'Lost' ? nm + ' lost · the ' + amt + ' stake' : (VERB[tr.action] || tr.action) + ' ' + amt + (tr.action === 'Buy' || tr.action === 'Short' ? ' of ' : ' on ') + nm } : null;
       return { id, value, profit: value - 100000, holds, busted: !!bk.busted, last };
     }).filter(Boolean).sort((a, b) => b.profit - a.profit);
   };
@@ -9446,7 +9486,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     rows.forEach((r) => {
       const box = mk('div', 'bm-ai'); box.style.setProperty('--ai', AIS[r.model].color); box.appendChild(mk('b', '', AIS[r.model].label));
       const line = (label, got, need) => {
-        const d = mk('div', 'bm-row'); d.appendChild(document.createTextNode(label + ': ' + money(got) + ' of ' + money(need) + ' '));
+        const d = mk('div', 'bm-row'); d.appendChild(document.createTextNode(label + ': ' + money(got) + (got + 0.5 >= need ? ' (minimum ' + money(need) + ')' : ' of the ' + money(need) + ' minimum') + ' '));   // P18, Nov 1
         d.appendChild(got + 0.5 >= need ? mk('span', 'bm-ok', '✓ met') : mk('span', '', '· ' + money(need - got) + ' to go'));
         const bar = mk('div', 'bm-bar'); const f = document.createElement('i'); f.style.width = (Math.min(1, need ? got / need : 1) * 100).toFixed(1) + '%'; bar.appendChild(f); d.appendChild(bar);
         return d;
@@ -9482,7 +9522,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       const box = mk('div', 'bm-ai'); box.style.setProperty('--ai', AIS[id].color); box.appendChild(mk('b', '', AIS[id].label));
       const line = (label, r) => {
         const d = mk('div', 'bm-row'); const pct = r.min ? Math.min(1, r.wagered / r.min) : 1;
-        d.appendChild(document.createTextNode(label + ': ' + money(r.wagered) + (r.min ? ' of ' + money(r.min) : '') + ' '));
+        d.appendChild(document.createTextNode(label + ': ' + money(r.wagered) + (r.min ? (r.wagered + 0.5 >= r.min ? ' (minimum ' + money(r.min) + ')' : ' of the ' + money(r.min) + ' minimum') : '') + ' '));   // P18, Nov 1: 'of' read like a cap
         if (r.min && r.wagered + 0.5 >= r.min) d.appendChild(mk('span', 'bm-ok', '✓ met'));
         else if (r.min && Date.parse(r.end) <= now) d.appendChild(mk('span', 'bm-miss', '✗ missed'));
         else if (r.min) d.appendChild(mk('span', '', '· ' + money(r.min - r.wagered) + ' to go'));
@@ -9534,7 +9574,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     el.appendChild(top);
     const canSay = 'speechSynthesis' in window;
     { const sp = mk('p', 'st-geo-sum', d.summary); if (canSay) { sp.appendChild(document.createTextNode(' ')); sp.appendChild(playBtn(() => d.summary, sp)); } el.appendChild(sp); }   // each part can be heard on its own (owner, Oct 29)
-    const src = (urls) => { const p = mk('div', 'st-geo-src'); p.appendChild(document.createTextNode('Sources: ')); urls.forEach((u, i) => { const a = mk('a', '', (u.title || (() => { try { return new URL(u.url || u).hostname.replace('www.', ''); } catch (e) { return 'link'; } })())); a.href = u.url || u; a.target = '_blank'; a.rel = 'noopener'; p.appendChild(a); }); return p; };
+    const src = (urls) => { const p = mk('div', 'st-geo-src'); p.appendChild(document.createTextNode('Sources: ')); urls.forEach((u, i) => { if (i) p.appendChild(document.createTextNode(' · ')); const a = mk('a', '', (u.title || (() => { try { return new URL(u.url || u).hostname.replace('www.', ''); } catch (e) { return 'link'; } })())); a.href = u.url || u; a.target = '_blank'; a.rel = 'noopener'; p.appendChild(a); }); return p; };
     const grid = mk('div', 'st-geo-grid');
     (d.status || []).forEach((x) => { const c = mk('div', 'st-geo-s ' + (x.tone || '')); c.append(mk('b', '', x.label), mk('strong', '', x.value)); if (x.note) c.appendChild(mk('div', '', x.note)); if (x.sources) c.appendChild(src(x.sources));
       if (canSay) { const w = mk('div', 'st-geo-say'); w.appendChild(playBtn(() => x.label + ': ' + x.value + '. ' + (x.note || ''), c)); c.appendChild(w); }   // ▶ M / ▶ F on every card: just that card
@@ -9904,20 +9944,38 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const place = () => { if (slot.isConnected) return; const line = head.querySelector('.st-crown-line'); if (line) line.before(slot); else { const t = head.querySelector('.st-title'); if (t) t.after(slot); else head.prepend(slot); } };
     const go = (sel) => { const n = document.querySelector(sel); if (n) n.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
     const money = (v) => ptSgn0(v) + 'C$' + d3.format(',.0f')(Math.abs(v));
+    // first-visit review (Nov 1; all three AIs agreed, P3 + P4): while this card is open, phones skip the one-line strip above it (its
+    // "What is PaperTrades.AI?" link moves in here) and the headline over the three AI faces says what they do instead of repeating this one
+    let closed = false;
+    const hq = () => document.querySelector('.st-hook-q');
+    const setOn = (on) => { document.documentElement.classList.toggle('pt-hero-on', on); const q = hq(); if (!q) return;
+      if (on && !q.dataset.orig) { q.dataset.orig = q.textContent; q.textContent = 'Pick an AI to see its view'; }
+      if (!on && q.dataset.orig) { q.textContent = q.dataset.orig; delete q.dataset.orig; } };
     const hero = () => {
+      if (closed) return;   // closed stays closed: data refreshes used to put it back
       slot.replaceChildren();
-      slot.append(mk('p', 'pt-hero-h', 'Which AI makes the most (pretend) money?'),
-        mk('p', 'pt-hero-p', 'Claude vs Gemini vs ChatGPT · C$100,000 of pretend money in each race, for each AI · 10 races, from stocks to sports bets · real prices · Oct 28 to Nov 28. Every trade and every reason is public.'));
+      const hp = mk('p', 'pt-hero-p', 'Claude vs Gemini vs ChatGPT · C$100,000 of pretend money in each race, for each AI · 10 races, from stocks to sports bets · real prices · Oct 28 to Nov 28. Every trade and every reason is public. ');
+      { const a = mk('a', '', 'What is PaperTrades.AI?'); a.href = '/what-is-papertrades-ai.html'; hp.appendChild(a); }
+      slot.append(mk('p', 'pt-hero-h', 'Which AI makes the most (pretend) money?'), hp);
       const L = dash.baseData('leader'), st = dash.baseData('standings') || [];
       if (L && AIS[L]) { const r = st.find((x) => x.id === L); const lead = mk('p', 'pt-hero-lead'); const b = mk('b', '', AIS[L].label); b.style.color = AIS[L].color;
         lead.append('Right now: 👑 ', b, ' leads overall' + (r && typeof r.profit === 'number' ? ' (' + money(r.profit) + ' in pretend money)' : '') + '.'); slot.appendChild(lead); }
       const btns = mk('div', 'pt-wel-btns');
       const b1 = mk('button', 'pt-wel-btn is-main', 'See the races'); b1.type = 'button'; b1.addEventListener('click', () => go('.st-podium'));
       const b2 = mk('button', 'pt-wel-btn', 'Follow live'); b2.type = 'button'; b2.addEventListener('click', () => go('.st-live'));
-      const x = mk('button', 'pt-wel-x', '✕'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); x.addEventListener('click', () => slot.remove());
-      btns.append(b1, b2); slot.append(btns, x); slot.hidden = false; place();
+      const x = mk('button', 'pt-wel-x', '✕'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); x.addEventListener('click', () => { closed = true; slot.remove(); setOn(false); });
+      btns.append(b1, b2); slot.append(btns, x); slot.hidden = false; place(); setOn(true);
     };
     dash.onData(hero);   // its lead line follows each data refresh
+  })();
+  // P20 (first-visit review, Nov 1; all three AIs agreed): on a phone the list of moves starts far down the Ledger tab
+  (() => {
+    const pg = document.getElementById('ledger'); if (!pg) return;
+    const p = mk('p', 'lg-jump'), b = mk('button', 'lg-jump-b', '↓ Jump to every move'); b.type = 'button'; p.appendChild(b); pg.prepend(p);
+    const pill = () => [...pg.querySelectorAll('.lg-kind')].find((x) => /^Every move \(\d+\)/.test(x.textContent));
+    b.addEventListener('click', () => { const k = pill(); const t = k && (k.closest('.mf-bar') || k); if (t) window.ptSpot(t, { wait: 0 }); });
+    const upd = () => { const k = pill(), m = k && /\((\d+)\)/.exec(k.textContent); b.textContent = '↓ Jump to every move' + (m ? ' (' + m[1] + ')' : ''); };
+    dash.onData(() => setTimeout(upd, 50)); window.addEventListener('pt-tab', () => setTimeout(upd, 50));
   })();
   document.addEventListener('click', (ev) => { const l = ev.target.closest && ev.target.closest('[data-goto-s2real]'); if (!l) return; ev.preventDefault(); const t = document.querySelector('.st-tab[data-tab="rules"]'); if (t) t.click(); setTimeout(() => { const c = document.getElementById('s2-real'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 120); });
   document.addEventListener('click', (ev) => { if (ev.target.closest && ev.target.closest('[data-pt-reintro]')) { try { localStorage.removeItem('pt-seen'); } catch (e) {} location.href = location.pathname; } });
@@ -10089,8 +10147,10 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
 
     // ---- W4b: on long phone pages, sections after the first two start folded to their title with "Show more" (nothing removed)
     const opened = new Set();   // sections this visitor opened during this visit
+    const seeded = new Set();   // sections that start open (Sports: Bets), opened once so a visitor can still close them
     const blocksOf = (pg) => {
-      if (pg.id === 'sports' || /^ai-/.test(pg.id)) return topCards(pg).slice(2);
+      if (pg.id === 'sports') return topCards(pg).slice(1);   // P17 (Nov 1): Betting minimums folds too; Bets starts open (below)
+      if (/^ai-/.test(pg.id)) return topCards(pg).slice(2);
       if (pg.id === 'h2h') return [...pg.querySelectorAll('[data-draw="h2h"] > .h2h-exp')].slice(2);
       if (pg.id === 'ledger') return [...pg.querySelectorAll('[data-draw="lg-days"] > .lg-day')];   // the day shown (days before today)
       return [];
@@ -10135,7 +10195,9 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const apply = () => {
       document.querySelectorAll('.st-page').forEach((pg) => {
         if (RACES.includes(pg.id)) chips(pg);
-        blocksOf(pg).forEach((b) => { const key = pg.id + '|' + titleOf(b); if (!phone()) { b.classList.remove('pt-fold'); return; } fold(b, key, !opened.has(key)); });
+        blocksOf(pg).forEach((b) => { const key = pg.id + '|' + titleOf(b); if (!phone()) { b.classList.remove('pt-fold'); return; }
+          if (pg.id === 'sports' && /^Bets\b/i.test(titleOf(b)) && !seeded.has(key)) { seeded.add(key); opened.add(key); }   // P17: the bets start open
+          fold(b, key, !opened.has(key)); });
       });
     };
     // a section reached by a direct link opens by itself (ChatGPT's change)
