@@ -2046,6 +2046,16 @@ def main():
         return
     sys.modules.setdefault('rivals', sys.modules[__name__])
     state = load_state()
+    # CATCH-UP (owner, Nov 2: "make sure none of the models miss any"): GitHub's timer sometimes drops or delays a scheduled check-in.
+    # The 15-minute stops and settle runs therefore look at the last check-in: if it is overdue (more than 40 minutes in US market
+    # hours, when check-ins are every 30 minutes; more than 70 minutes otherwise, when they are hourly), this run becomes a normal
+    # check-in for Gemini and ChatGPT. It never adds a check-in the schedule didn't promise; it only replaces a missed one.
+    if os.environ.get('SCHEDULE') in (STOPS_CRON,) + tuple(SETTLE_CRONS) and NOW < RACE_END:
+        _lasts = [datetime.fromisoformat(m['last_run']['at'].replace('Z', '+00:00')) for m in state.get('models', {}).values() if m.get('last_run')]
+        _ny = NOW.astimezone(NY); _mkt = _ny.weekday() < 5 and (9 * 60 + 30) <= _ny.hour * 60 + _ny.minute <= (16 * 60 + 5)
+        if _lasts and NOW - max(_lasts) > timedelta(minutes=40 if _mkt else 70):
+            print(f'catch-up: the last check-in was {int((NOW - max(_lasts)).total_seconds() // 60)} minutes ago, so this run checks in (a scheduled one was missed)')
+            os.environ['SCHEDULE'] = ''; os.environ['EVENT'] = 'catchup'; os.environ['MODE'] = 'run'
     if os.environ.get('SCHEDULE') == STOPS_CRON:
         os.environ['MODE'] = 'fill'   # the same fill run Claude's runs dispatch: queued orders and every AI's stops and targets, no check-in
     if os.environ.get('MODE') == 'fill':
