@@ -120,3 +120,15 @@ Real outside visitors Nov 1-7, combined (Claude / Gemini / ChatGPT most likely: 
 
 ## Hacker News
 - Account: papertrades_dev (owner, Oct 31). Show HN Tue Nov 3 ~9 a.m. ET; facts sheet ops/hn/first-comment-facts.md (owner rewrites it in his own words).
+
+## Growth plan from the numbers, Nov 2 (owner; ops/review/growth-nov2.json, Claude's votes first)
+Numbers then: site 963 visits (~340-410 real outside), 105 new visitors since Oct 31; Reddit ad C$20.55, 3,286 impressions, 31 clicks, CTR 0.94%, CPC C$0.66, 71 page views (2.3 per ad visitor); Instagram 1,200 account views/7 days, 16 followers; YouTube 3 subs, best Short 191 views (Sports race replay), stories 24-90; Telegram 5; Discord 1.
+- P1 ALL THREE AGREED: fix visitor -> follower first. DONE Nov 2: timed follow prompt (20 s or a second tab, once per 3 days, never over the tour); events prompt/shown, prompt/closed, follow/<channel>-prompt.
+- P2 Reddit test 2, Nov 5-9, ~C$40/day, US/CA/UK first, not on days with organic posts in the same subreddits. Gemini and Claude agreed; ChatGPT's AMEND adopted: only after P1 is live (done) and test 1 has a full day under US$2 per real visitor; split by subreddit/country, cut losers fast. Owner sets it up.
+- P3 Instagram: daily cliffhanger posts ("result tomorrow"), 3 Reels a week (Nicole), bio "Follow to see who wins Nov 28". Gemini and Claude agreed; ChatGPT's AMEND adopted: raise boost C$10 -> C$15 only if a profile visit costs <= C$0.20 AND profile-view-to-follow improves.
+- P4 ALL THREE: YouTube daily race replay is the format (biggest daily move); site link in description + pinned comment.
+- P5 ALL THREE: site ready for Show HN (Tue) and Ben's Bites (Wed) spikes before Tue 9 a.m.
+- P6 ALL THREE: Telegram is the core channel; Discord stays an automated mirror until Telegram has 100.
+- P7 ALL THREE: targets by Mon Nov 9, reviewed Sunday by source: Claude 1,200-1,800 real visits / Telegram 40 / Instagram 60 / YouTube 20; Gemini 1,500 / 50 / 65 / 25; ChatGPT 1,300-1,900 / 35-55 / 60-85 / 15-30. Working target: 1,500 / 50 / 65 / 25.
+- P8 ALL THREE: week-2 spend = Reddit test 2 (~C$200) + existing Instagram boost; no new paid channel until visitors follow.
+- Missing, named by Claude and ChatGPT (2 of 3): a weekly email recap sign-up for Show HN / newsletter visitors who won't use Telegram (owner: free Buttondown account). Gemini: strict UTM tags on every paid link (Ben's Bites and Launch Llama have source+campaign; AI Valley uses ?utm_campaign=aivalley as sent).

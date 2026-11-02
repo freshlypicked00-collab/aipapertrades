@@ -1270,6 +1270,11 @@ tr.lg-hit .tx-id{opacity:1}
 .gd-offer{position:fixed;z-index:9998;left:12px;bottom:12px;max-width:300px;background:#16150f;color:#f2e9d8;border:1px solid #ffb000;border-radius:10px;padding:10px 12px;font-size:14px}
 .gd-offer button{font:inherit;margin:6px 6px 0 0;padding:4px 10px;border-radius:999px;border:1px solid #ffb000;background:transparent;color:inherit;cursor:pointer}
 @media (max-width:700px){.gd-toc{columns:1}}
+.pt-fp{position:fixed;z-index:9997;right:16px;bottom:16px;max-width:360px;background:#16150f;color:#f2e9d8;border:1px solid #ffb000;border-radius:12px;padding:14px 16px 12px;box-shadow:0 10px 32px rgba(0,0,0,.5);font-size:14px;line-height:1.4}
+.pt-fp-t{margin:0 22px 6px 0;font-weight:700;color:#ffb000}.pt-fp-l{margin:0 0 6px;font-size:13px;opacity:.85}.pt-fp-p{margin:0 0 8px}
+.pt-fp-b{display:flex;flex-wrap:wrap;gap:6px}.pt-fp-b .st-live-btn{font-size:13px;padding:7px 12px}.pt-fp-n{margin:8px 0 0;font-size:12px;opacity:.65}
+.pt-fp-x{position:absolute;top:6px;right:8px;font:inherit;font-size:20px;line-height:1;background:none;border:0;color:inherit;cursor:pointer;padding:4px 6px}
+@media (max-width:700px){.pt-fp{left:8px;right:8px;bottom:8px;max-width:none}}
 .pd-auto{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.pd-auto-l{font-weight:600;white-space:nowrap}.pd-auto-pick{flex:1;min-width:0;max-width:100%;font:inherit;padding:4px 6px;border-radius:6px;background:var(--color-bg,#111);color:inherit;border:1px solid var(--color-border,#444)}
 .st-luck{font-size:12px;line-height:1.45;opacity:.85;margin-top:6px}.st-luck summary{cursor:pointer}.st-luck p{margin:4px 0 0}.st-luck-t{opacity:.75}
 .lg-game{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:4px;font-size:12px;color:var(--color-fg-muted,#9b927f)}
@@ -10312,6 +10317,43 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         if (!a || !window.goatcounter || !window.goatcounter.count) return;
         try { window.goatcounter.count({ path: 'follow/' + where(a), title: 'Follow click', event: true }); } catch (err) {}
       }, true);
+    } catch (e) {}
+  })();
+  // P1 of the growth plan (owner, Nov 2; Claude, Gemini and ChatGPT all agreed, ops/review/growth-nov2.json): one follow prompt, shown
+  // after about 20 seconds of reading or when a second tab is opened, never during the tour, at most once every 3 days per device.
+  // Clicks count as follow/<channel>-prompt; prompt/shown and prompt/closed measure how many visitors it turns into followers.
+  (() => {
+    try {
+      const K = 'pt-follow-prompt', now = Date.now();
+      let last = 0; try { last = +localStorage.getItem(K) || 0; } catch (e) {}
+      if (now - last < 3 * 864e5) return;
+      const ev = (p) => { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: p, title: p, event: true }); } catch (e) {} };
+      let shown = false;
+      const show = () => {
+        if (shown) return;
+        if (document.querySelector('.gd-offer, .gd-tour')) { setTimeout(show, 8000); return; }   // never on top of the tour
+        shown = true; try { localStorage.setItem(K, String(Date.now())); } catch (e) {}
+        const latest = ((document.querySelector('.st-live-last') || {}).textContent || '').replace(/\s+/g, ' ').trim();
+        const b = document.createElement('aside'); b.className = 'pt-fp'; b.setAttribute('role', 'dialog'); b.setAttribute('aria-label', 'Follow the race');
+        b.innerHTML = '<button type="button" class="pt-fp-x" aria-label="Close">×</button>'
+          + '<p class="pt-fp-t">🔔 Get every AI trade the second it happens</p>'
+          + (latest && !/^Real-time/.test(latest) ? '<p class="pt-fp-l"></p>' : '')
+          + '<p class="pt-fp-p">Who wins on Nov 28? Follow the race free:</p>'
+          + '<div class="pt-fp-b"><a class="st-live-btn" data-follow="telegram-prompt" href="https://t.me/PaperTradesAI" target="_blank" rel="noopener">Telegram: every trade live</a>'
+          + '<a class="st-live-btn st-follow-ig" data-follow="instagram-prompt" href="https://www.instagram.com/papertrades.ai/" target="_blank" rel="noopener">Instagram</a>'
+          + '<a class="st-live-btn st-follow-x" data-follow="x-prompt" href="https://x.com/papertradesai" target="_blank" rel="noopener">X</a></div>'
+          + '<p class="pt-fp-n">Free, read-only. Pretend money, not advice.</p>';
+        if (b.querySelector('.pt-fp-l')) b.querySelector('.pt-fp-l').textContent = latest.slice(0, 140);
+        document.body.appendChild(b); ev('prompt/shown');
+        const close = () => { b.remove(); document.removeEventListener('keydown', esc); };
+        const esc = (e) => { if (e.key === 'Escape') { ev('prompt/closed'); close(); } };
+        b.querySelector('.pt-fp-x').addEventListener('click', () => { ev('prompt/closed'); close(); });
+        b.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setTimeout(close, 300)));
+        document.addEventListener('keydown', esc);
+      };
+      setTimeout(show, 20000);
+      const first = (location.hash || '#overview').slice(1);
+      window.addEventListener('pt-tab', (e) => { if (e.detail && e.detail !== first && e.detail !== 'overview') setTimeout(show, 1500); });   // a second tab opened
     } catch (e) {}
   })();
   // Devices excluded with #toggle-goatcounter are not counted (GoatCounter skips them).
