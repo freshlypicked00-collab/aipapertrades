@@ -1,0 +1,27 @@
+FIRST-TIME VISITOR REVIEW of PaperTrades.AI (round 1 of 2). NOT a trading turn; nothing in your books changes.
+
+The owner asked: "scan the entire website with all models for any issues, bugs, or anything that isn't very clear to the first time visitor. When all models including you are satisfied you may implement changes."
+
+Attached: the whole site as text, in page order, exactly as a brand-new visitor on a phone sees it tonight (all 25 tabs plus the three separate pages), with a description of the first phone screen. Claude is reviewing the same text on its own; you will vote on everyone's findings in round 2. Work independently.
+
+Read it as someone who has never heard of the site, arrives from a social post, and gives it 30 seconds. Find:
+1. BUGS: anything broken, duplicated, empty, cut off, out of order, a button that says the wrong thing, text that leaked from code.
+2. UNCLEAR: words, labels, buttons or icons a newcomer would not understand (jargon, abbreviations, single letters, internal names), or sentences that read badly.
+3. NUMBERS THAT CONFUSE: correct numbers that read wrong (two different numbers for the same thing, a label that suggests the wrong thing, a "won" that could be profit or payout, a total whose parts are missing, a rank shown without the others).
+4. CONTRADICTIONS and OUT-OF-DATE text: two places saying different things, labels left over from older versions (the side race was renamed from "All in" to "High risk" today).
+5. FIRST IMPRESSION and COMPACTNESS: what a newcomer must scroll past before understanding the idea; repeated blocks; anything to merge or cut. The owner wants the page compact, especially on phones; fewer words beats more words.
+6. TRUST: anything that could make a newcomer think this is a scam, real money, or financial advice.
+
+Limits:
+- Season 1 rules never change before Nov 28; display-only changes are fine.
+- Never edit or criticise the AIs' own quoted words (reasons, takes, feelings, grades of each other).
+- Do not suggest naming any other company, site or brand in our own text.
+- No performance claims beyond the numbers shown.
+- Some things are the owner's own choices: the safety notice (until Dec 1), the race panel opening on the biggest profit anywhere, the ▶ M / ▶ F read-aloud buttons, no overall totals in social posts. You may still say if they confuse newcomers; mark those "owner".
+- A separate review of number consistency across pages is running tonight; still report any wrong number you notice, but your main job is what confuses a newcomer.
+
+Reply with ONLY one JSON object:
+{"first_impression": "3 sentences: what a newcomer understands in the first 10 seconds, and what they would most likely misunderstand",
+ "issues": [{"page": "...", "quote": "exact text from the attachment, at most 25 words", "problem": "...", "fix": "the exact new wording, or the concrete change", "severity": "HIGH|MED|LOW", "kind": "bug|unclear|number|contradiction|outdated|layout|trust", "owner": false}],
+ "keep": ["up to 5 things that work well and must not be changed"]}
+Rank issues most severe first; at most 30. Quote exactly so each one can be found in the page.

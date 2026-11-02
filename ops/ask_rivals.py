@@ -134,14 +134,18 @@ json.dump(diag, open('ops/review/diag.json', 'w'), indent=1, ensure_ascii=False)
 print('::notice title=diag::' + json.dumps({k: (v if not isinstance(v, dict) else {x: v[x] for x in v if x in ('queries', 'chunks', 'annotations', 'search_calls', 'error', 'urls', 'data')}) for k, v in diag.items()})[:3800])
 
 # ---- 2. the question, with the attached files
-ASK_FILE = os.environ.get('ASK_FILE') or 'ops/ask.txt'   # the weekly stress drill uses its own question file (Oct 31)
+# Nov 1: a question can live in its own file, ops/asks/<name>.txt (attachments in ops/asks/<name>.files.txt), so two chats asking at the
+# same time can't swap questions: a queued run checks out the newest main, where ops/ask.txt may already hold someone else's question.
+_NAMED = f'ops/asks/{NAME}.txt'
+ASK_FILE = os.environ.get('ASK_FILE') or (_NAMED if os.path.exists(_NAMED) else 'ops/ask.txt')   # the weekly stress drill uses its own question file (Oct 31)
 q = open(ASK_FILE).read().strip()
 SEARCH = q.startswith('[WEB SEARCH ON]')   # an audit that must check prices and results online (owner, Oct 30); off by default
 if SEARCH:
     q = q[len('[WEB SEARCH ON]'):].strip()
 files = []
-if os.path.exists('ops/ask_files.txt'):
-    files = [x.strip() for x in open('ops/ask_files.txt') if x.strip() and not x.startswith('#')]
+_FILES = f'ops/asks/{NAME}.files.txt' if ASK_FILE == _NAMED else 'ops/ask_files.txt'
+if os.path.exists(_FILES):
+    files = [x.strip() for x in open(_FILES) if x.strip() and not x.startswith('#')]
 # Oct 31: a list left by an earlier question sent Gemini and ChatGPT the wrong Claude vote file. A claude-votes file is attached only if
 # it belongs to THIS question (its "topic" is the answers name); Claude's own vote file for this question is attached automatically.
 def _votes_topic(f):
