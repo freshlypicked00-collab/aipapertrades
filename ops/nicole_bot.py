@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 TOKEN = os.environ.get('NICOLE_BOT_TOKEN', '').strip()
 BOT, TASKS = 'ops/nicole/bot.json', 'ops/nicole/tasks.json'
 REMIND_AFTER_H = 4
-COPY_LABELS = ('title', 'text', 'caption', 'post', 'comment', 'first comment', 'reply', 'bio', 'description')
+COPY_LABELS = ('title', 'text', 'caption', 'post', 'comment', 'first comment', 'reply', 'bio', 'description', 'link')
 MEDIA = re.compile(r'https://[^\s)<>"]+\.(?:jpg|jpeg|png|gif|mp4)\b', re.I)
 
 
