@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PaperTrades.AI: page not found</title>
+<meta name="robots" content="noindex">
+<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0b0b0a;color:#f2f0ea;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;text-align:center;padding:20px}a{color:#4ac07f}</style>
+<script>
+  // papertrades.ai/ledger, /crypto ... open that tab of the home page; anything else opens the home page (Show HN prep, Nov 2)
+  (function () {
+    var TABS = ['about','ai-chatgpt','ai-claude','ai-gemini','allin','allinledger','audit','china','crypto','currencies','data','energy','guide','h2h','ledger','metals','news','options','overview','predictions','rules','safe','sports','stocks','support'];
+    var p = location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
+    var t = p === 'high-risk' ? 'allin' : p === 'how-it-works' ? 'rules' : p;
+    location.replace('/' + location.search + (TABS.indexOf(t) >= 0 ? '#' + t : ''));
+  })();
+</script>
+</head><body><p>This page doesn't exist. <a href="/">Go to PaperTrades.AI →</a></p></body></html>

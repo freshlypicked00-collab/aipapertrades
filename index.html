@@ -1551,7 +1551,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'a82807cfb65f';</script>
+<script>window.PT_PAGE_VER = 'f1764f7c022e';</script>
 <!-- the first text on the page says plainly what this is, so search engines and AI assistants stop mixing the name up with a similarly named exchange (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json) -->
 <p class="pt-def" id="what-is">PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no deposits and has no token. <a href="/what-is-papertrades-ai.html">What is PaperTrades.AI?</a></p>
 <style>.pt-def { margin: 0; padding: 5px 14px; font-size: 12px; line-height: 1.4; text-align: center; color: var(--color-fg-muted, #a9a495); background: var(--color-bg, #0b0b0a); } .pt-def a { color: inherit; text-decoration: underline; white-space: nowrap; }</style>
@@ -2924,7 +2924,7 @@ body { background:var(--color-bg); }
     <section class="st-card gd-sec" id="guide-check" aria-labelledby="h-gd-check">
       <h2 class="st-h2" id="h-gd-check">Check it yourself</h2>
       <div class="gd-mock" aria-hidden="true"><span class="gd-pill">⬇ Audit pack (.zip)</span><span class="gd-pill">📋 Prompt for your AI</span><span class="gd-tx">SHA-256</span></div>
-      <p>Nothing here has to be taken on trust. <b>Rules &amp; Audit</b> shows the exact instructions each AI got at its latest check-in, word for word, its raw reply, every rule and every correction made by hand. Every night the record is <b>fingerprinted</b> (SHA-256), so any later change to an earlier day would show. Download the <b>audit pack</b> and ask your own AI to check our numbers, with the prompt we give you.</p>
+      <p>Nothing here has to be taken on trust. <b>Rules &amp; Audit</b> shows the exact instructions each AI got at its latest check-in, word for word, Gemini's and ChatGPT's raw replies (Claude works in scheduled sessions, so its instructions and every move it records are shown), every rule and every correction made by hand. Every night the record is <b>fingerprinted</b> (SHA-256), so any later change to an earlier day would show. Download the <b>audit pack</b> and ask your own AI to check our numbers, with the prompt we give you.</p>
       <button type="button" class="gd-show" data-gd-tab="audit" data-gd-sel="#verify">Show me →</button> <a class="gd-link" href="#guide-check" title="Link to this section">#</a>
     </section>
     <section class="st-card gd-sec" id="guide-yours" aria-labelledby="h-gd-yours">
@@ -2952,10 +2952,10 @@ body { background:var(--color-bg); }
   <section class="st-page" id="audit" data-page="audit" hidden>
     <section class="st-card" aria-labelledby="h-audit">
       <h2 class="st-h2" id="h-audit">Rules and audit</h2>
-      <p class="st-note">Every rule of the race, then proof that nobody steers the AIs: exactly what each AI is told at its latest check-in, word for word, and the raw reply it sent back, plus every correction made by hand. How prices and fills work is in <a href="#" data-goto="rules">How it works</a>; every trade, price and reason is in the Ledger.</p>
+      <p class="st-note">Every rule of the race, then proof that nobody steers the AIs: exactly what each AI is told at its latest check-in, word for word, and Gemini's and ChatGPT's raw replies (Claude works in scheduled sessions: its instructions and every move it records), plus every correction made by hand. How prices and fills work is in <a href="#" data-goto="rules">How it works</a>; every trade, price and reason is in the Ledger.</p>
       <div class="pt-verify" id="verify">
         <p class="pt-verify-t">🔍 Check us with your own AI</p>
-        <p class="pt-verify-p">Download everything in one file: every rule, trade, bet, price check, correction, prompt and raw reply, and the nightly fingerprints with a script that recomputes them. Upload it to ChatGPT, Claude, Gemini or any AI that reads files, paste the prompt, and see what it finds. Rebuilt with every update.</p>
+        <p class="pt-verify-p">Download everything in one file: every rule, trade, bet, price check, correction, prompt, Gemini's and ChatGPT's raw replies, and the nightly fingerprints with a script that recomputes them. Upload it to ChatGPT, Claude, Gemini or any AI that reads files, paste the prompt, and see what it finds. Rebuilt with every update.</p>
         <div class="pt-verify-b"><a class="st-live-btn pt-verify-dl" href="data/papertrades-audit-pack.zip" download data-follow="audit-pack">⬇ Download the audit pack (.zip)</a><button type="button" class="st-live-btn pt-verify-cp" onclick="(function(b){var t=document.getElementById('pt-verify-prompt').textContent;var done=function(){b.textContent='✓ Prompt copied';setTimeout(function(){b.textContent='📋 Copy the prompt for your AI'},2500)};try{navigator.clipboard.writeText(t).then(done,function(){window.prompt('Copy this prompt:',t)})}catch(e){window.prompt('Copy this prompt:',t)}})(this)">📋 Copy the prompt for your AI</button></div>
         <details class="pt-verify-d"><summary>See the prompt</summary><p id="pt-verify-prompt">You are an independent auditor for PaperTrades.AI. Use only the attached audit-pack files; do not assume facts from the web. Verify that: trades follow the rules in rules/; fills match the recorded feed prices (checks/price_check.json); P&amp;L and values add up (ledger/moves.csv, ledger/values.csv); every correction is disclosed with a reason and applied once (checks/corrections.json, checks/price_corrections.json); bet results match the recorded final scores; and the nightly fingerprints recompute (run fingerprints/verify.py, or follow fingerprints/HOW.md). Report pass/fail per test, discrepancies with file and row references, and any data you would need to reach a conclusion.</p></details>
       </div>
@@ -3328,7 +3328,7 @@ body { background:var(--color-bg); }
       <h2 class="st-h2" id="h-show">⚖️ What this can and can’t show</h2>
       <div class="st-show-g">
         <div><h3 class="st-h3 is-up">What it can show</h3><ul class="st-exp-list">
-          <li><b>Why each AI did what it did.</b> Every move comes with its reason, the AI’s raw reply and the exact instructions it was given. (The AIs’ inner workings stay hidden; their decisions don’t.)</li>
+          <li><b>Why each AI did what it did.</b> Every move comes with its reason and the exact instructions the AI was given, plus Gemini's and ChatGPT's raw replies. (The AIs’ inner workings stay hidden; their decisions don’t.)</li>
           <li><b>Possible AI herding.</b> It can reveal shared tendencies when several AIs make similar moves under the same conditions, for example all three betting against the market on the same day.</li>
           <li><b>Checks that keep it honest.</b> Nightly ledger fingerprints, independent price checks and anonymous peer grading keep a three-AI experiment verifiable.</li>
         </ul></div>
@@ -8866,10 +8866,12 @@ body { background:var(--color-bg); }
     head.appendChild(document.createTextNode(' · ' + (S.ok || 0) + ' within tolerance' + (S.no_data ? ' · ' + S.no_data + ' not checkable yet (no feed data for that time)' : '') + (S.no_feed ? ' · ' + S.no_feed + ' with no matching feed' : '') + ' · last run ' + stFmt.when(A.at)));
     el.appendChild(head);
     const fmt = (v) => v == null ? '' : Math.abs(v) >= 1000 ? d3.format(',.2f')(v) : Math.abs(v) >= 1 ? d3.format(',.4~f')(v) : d3.format('.6~f')(v);
+    // Show HN check (Nov 2; all three AIs agreed, H2): a flag says how it ended, so a corrected price never reads as an open failure
+    const flagWhy = (r) => { const b = r.backup || {}, v = ['gemini', 'chatgpt'].map((m) => (b[m] || {}).verdict); if (v.includes('claude_wrong')) return ' · confirmed off, corrected (see Corrections)'; if (v.every(Boolean)) return ' · not confirmed by the backup check, no change'; return ''; };
     const table = (rows) => { const t = mk('table', 'st-table'); t.innerHTML = '<thead><tr><th>When</th><th>What</th><th>Holding</th><th class="num">Claude</th><th class="num">Feed low–high</th><th>Feed</th><th class="num">Gap</th><th>Result</th>' + (rows.some((r) => r.status === 'flag') ? '<th>Backup check</th>' : '') + '</tr></thead>';
       const tb = mk('tbody'); rows.forEach((r) => { const tr = mk('tr'); const st = { ok: ['✓ OK', 'is-up'], flag: ['⚠ Flag', 'is-down'], no_data: ['No data yet', ''], no_feed: ['No feed', ''] }[r.status] || [r.status, ''];
         [[stFmt.when(r.at)], [r.kind === 'fill' ? (r.action || 'Trade') : 'Value'], [r.holding], [fmt(r.claude), 'num'], [r.feed_low == null ? '' : fmt(r.feed_low) + ' – ' + fmt(r.feed_high), 'num'], [(r.feed || '') + (r.basis ? ' · ' + r.basis : ''), 'wrap'],
-         [r.gap_pct != null ? (r.gap_pct ? r.gap_pct.toFixed(2) + '%' : '0') : r.gap_abs != null ? (r.gap_abs ? (r.gap_abs * 100).toFixed(1) + '¢' : '0') : '', 'num'], [st[0], st[1]]].forEach(([v, c]) => { const td = mk('td', c || '', v); if (c === 'wrap' && r.note) td.title = r.note; tr.appendChild(td); });
+         [r.gap_pct != null ? (r.gap_pct ? r.gap_pct.toFixed(2) + '%' : '0') : r.gap_abs != null ? (r.gap_abs ? (r.gap_abs * 100).toFixed(1) + '¢' : '0') : '', 'num'], [r.status === 'flag' ? st[0] + flagWhy(r) : st[0], st[1]]].forEach(([v, c]) => { const td = mk('td', c || '', v); if (c === 'wrap' && r.note) td.title = r.note; tr.appendChild(td); });
         if (rows.some((x) => x.status === 'flag')) { const BV = { claude_wrong: '✗ Claude’s price off', close_enough: '✓ Close enough', feed_wrong: '? Feed looks off', cannot_tell: '? Can’t tell' };
           const td = mk('td', 'wrap'); if (r.status === 'flag') { const b = r.backup || {}; ['gemini', 'chatgpt'].forEach((m) => { const x = b[m], line = mk('div');
             line.appendChild(mk('b', '', AIS[m].label + ': ')); line.appendChild(document.createTextNode(x ? (BV[x.verdict] || x.verdict) + (x.price != null ? ' (found ' + fmt(x.price) + ')' : '') : 'checking…')); if (x && x.note) line.title = x.note; td.appendChild(line); }); }

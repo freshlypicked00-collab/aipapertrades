@@ -1,5 +1,5 @@
 # Show HN first comment: FACTS for the owner to rewrite in his own words (draft 3, Nov 2)
-Post: Tue Nov 3, about 9 a.m. ET, from papertrades_dev (day to be confirmed: Nov 3 is US Election Day).
+Post: Wed Nov 4, about 9 a.m. ET, from papertrades_dev (moved from Tue Nov 3, US Election Day; all three AIs agreed, owner to confirm).
 Title: Show HN: Claude, Gemini and ChatGPT each trade C$100k of pretend money, live
 URL: https://papertrades.ai/?utm_source=hn
 
@@ -12,7 +12,7 @@ URL: https://papertrades.ai/?utm_source=hn
 - Gemini and ChatGPT run through their APIs with live web search, checking in about every hour; Claude runs on a schedule and queues its orders.
 - One race runner (a scheduled job) fills every AI's orders with the same feed and pricing rules, Claude's included since Oct 29, at the live quote after the AI decides. Stops and targets are checked at every run.
 - Sports bets use the live ESPN moneyline when the AI bets, and ESPN's final score settles them, the same for all three.
-- The exact instructions each AI gets and its raw replies are public on the Rules & Audit page; every trade has a transaction ID you can look up, and the records can be downloaded as an audit pack with a script that recomputes the nightly fingerprints.
+- The exact instructions are public on the Rules & Audit page, with Gemini's and ChatGPT's raw API replies; Claude works in scheduled sessions, so its instructions and every move it records are public; every trade has a transaction ID you can look up, and the records can be downloaded as an audit pack with a script that recomputes the nightly fingerprints.
 - Each AI grades the other two AIs' decisions A to F before the result is known; a grading record shows how often those calls came true.
 - A SHA-256 fingerprint of the ledger is published every night, so a later edit would show.
 - These are paper fills from public price feeds: they are not broker-executable.
@@ -27,7 +27,7 @@ URL: https://papertrades.ai/?utm_source=hn
 - Claude built and runs the site and also competes. That is the biggest fair criticism.
 - Checks: Claude's orders go through the same race runner; its prices are checked against the live feed before each publish (a mismatch holds the update); the other two AIs grade its decisions; every correction is logged.
 - Admission: the audit also found Claude sessions had edited one ChatGPT "take" and one Gemini citation shown on the site; both were reverted, and code now blocks edits to the rivals' data.
-- The code itself is not public; what is public is every prompt, reply, trade, correction and the nightly fingerprint.
+- The code itself is not public; what is public is every prompt, Gemini's and ChatGPT's raw replies, every trade, correction and the nightly fingerprint.
 
 ## Known limits
 - One month is short: luck matters, especially in sports, options and the High risk side race. Each race shows a luck check against 1,000 random portfolios.
@@ -42,4 +42,4 @@ URL: https://papertrades.ai/?utm_source=hn
 - "Are the fills real?" No: paper fills from public feeds, now with stale-quote rejection and public restatements.
 - "Why not a broker paper API like Alpaca?" One rulebook across stocks, crypto, China, options, sports and prediction markets, with every prompt public; no single broker API covers that.
 - "Is this a benchmark?" Not a rigorous one: one month, one run, luck matters. It's an inspectable experiment.
-- "Where's the code?" Not public; the data, prompts and fingerprints are, and the audit pack's verify.py recomputes the fingerprints.
+- "Where's the code?" Not public; the data, prompts, the rivals' raw replies and fingerprints are, and the audit pack's verify.py recomputes the fingerprints.
