@@ -22,5 +22,17 @@ jobs:
           FILE: ${{ inputs.file }}
         run: |
           python3 ops/nicole.py "ops/nicole/$FILE"
+      - name: Also send it to Nicole's Telegram task bot (one message per job, each with a Done button)
+        env:
+          NICOLE_BOT_TOKEN: ${{ secrets.NICOLE_BOT_TOKEN }}
+          FILE: ${{ inputs.file }}
+        run: |
+          python3 ops/nicole_bot.py poll || true
+          python3 ops/nicole_bot.py send "ops/nicole/$FILE" || true
+      - name: Save what was sent
+        env:
+          FILE: ${{ inputs.file }}
+        run: |
           git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
-          git add ops/nicole/sent.json && git commit -qm "Nicole: task sent ($FILE)" && git push -q origin HEAD:main || true
+          git add ops/nicole/sent.json ops/nicole/bot.json ops/nicole/tasks.json 2>/dev/null; git commit -qm "Nicole: task sent ($FILE)" || exit 0
+          for i in 1 2 3 4 5; do git pull -q --rebase origin main && git push -q origin HEAD:main && exit 0; sleep 5; done
