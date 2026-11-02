@@ -22,6 +22,8 @@ TITLE = '📌 Instagram highlights to add'
 # the highlights, in the order they should sit on the profile, and which stories go in each
 # the first daily stories showed only the races-led count (Day 1's remake only the sports bets); the ten-race versions replace them
 SKIP = {'story-daily-2026-10-29', 'story-daily-2026-10-30', 'story-day1-remake-v1',
+        # Day 4 and 5 posted again after the missing Day 3 (Nov 2), so the Daily highlight stays in order: the -v2 stories replace these
+        'story-daily-2026-11-01', 'story-daily-2026-11-02',
         # replaced by the colourful highlight stories the owner was sent on Oct 30 (and the wrong '16 min' story)
         'story-feature-binance-v1', 'story-feature-grades-v1', 'story-moment-Crypto-202610290114-claude', 'story-moment-Currencies-202610292122-claude', 'story-moment-Metals-202610291346-chatgpt', 'story-moment-Options-202610291346-gemini', 'story-moment-Sports-202610290414-chatgpt', 'story-moment-Sports-202610300216-gemini', 'story-ten-2026-10-29', 'story-ten-2026-10-30'}
 HIGHLIGHTS = [('Start here', ('story-intro',)), ('Daily', ('story-daily', 'story-ten-')), ('Lead changes', ('story-moment',)),

@@ -37,8 +37,8 @@ class S:
         self.d = ImageDraw.Draw(self.im)
         self.col = col
         rnd = random.Random(sum(col))
-        for _ in range(9):   # confetti doodles in the corners
-            x, y = rnd.choice([(rnd.uniform(40, 300), rnd.uniform(140, 300)), (rnd.uniform(780, 1040), rnd.uniform(1660, 1860))])
+        for _ in range(9):   # confetti doodles in thin strips above and below all text (Nov 2: they used to land on the brand and the date)
+            x, y = rnd.choice([(rnd.uniform(40, 1040), rnd.uniform(104, 124)), (rnd.uniform(40, 1040), rnd.uniform(1852, 1878))])
             sparkle(self.d, x, y, rnd.uniform(10, 18), col, 5) if rnd.random() < .6 else self.d.ellipse([x - 6, y - 6, x + 6, y + 6], fill=col)
 
     def t(self, xy, s, f, fill=CREAM, anchor='la'):

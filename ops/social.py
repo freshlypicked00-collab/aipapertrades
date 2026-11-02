@@ -108,6 +108,12 @@ def due_posts(state):
         if sid in done or NOW - at > timedelta(hours=6) or at > RACE_END:
             continue
         out.append({'id': sid, 'kind': 'story-moment', 'moment': m}); srec.append((sid, NOW))
+    # one time (owner, Nov 2: Day 3 missing from the Daily highlight; it was never posted because Instagram blocked the app Oct 30-31):
+    # Day 3, 4 and 5 again, in order, with the doodles moved off the text, so the highlight reads Day 1 to Day 5 in a row
+    for k, ds in (('story-daily-2026-10-31-v2', '2026-10-30T00:00:00+00:00'), ('story-daily-2026-11-01-v2', '2026-10-31T00:00:00+00:00'),
+                  ('story-daily-2026-11-02-v2', '2026-11-01T00:00:00+00:00')):
+        if k not in done and NOW < datetime(2026, 11, 3, 18, 0, tzinfo=timezone.utc):
+            out.append({'id': k, 'kind': 'story-daily', 'day': (datetime.fromisoformat(ds) + timedelta(days=1) - START).days, 'day_start': ds})
     if 1 <= n <= 32 and ('story-' + pid) not in done and NOW - day_end < timedelta(hours=8) and day_end <= RACE_END + timedelta(hours=4):
         out.append({'id': 'story-' + pid, 'kind': 'story-daily', 'day': n, 'day_start': (day_end - timedelta(days=1)).isoformat()})
     for k, ds in (('story-ten-2026-10-29', '2026-10-28T00:00:00+00:00'), ('story-ten-2026-10-30', '2026-10-29T00:00:00+00:00')):   # one time: Day 1 and Day 2 with all ten races, for the Daily highlight
