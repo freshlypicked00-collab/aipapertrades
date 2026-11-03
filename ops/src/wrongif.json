@@ -1,13 +1,13 @@
 {
- "at": "2026-11-02T09:52:02.341011Z",
+ "at": "2026-11-03T09:56:36.601593Z",
  "since": "2026-11-01T02:30:00Z",
  "by_ai": {
   "claude": {
    "kept": 0,
    "broken": 0,
-   "pending": 1,
+   "pending": 3,
    "closed_first": 0,
-   "untestable": 0,
+   "untestable": 1,
    "items": [
     {
      "at": "2026-11-01T03:24:18-05:00",
@@ -19,15 +19,44 @@
       "below": 75500.0
      },
      "result": "no prices (HTTP Error 404: Not Found)"
+    },
+    {
+     "at": "2026-11-02T10:26:14-05:00",
+     "what": "SPY Nov 20 $760 call",
+     "race": "Options",
+     "tx": "C-OPT-001",
+     "level": {
+      "symbol": "SPY",
+      "below": 740.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-02T10:26:14-05:00",
+     "what": "Will the Republicans win the Texas Senate race in 2026? (Yes)",
+     "race": "Predictions",
+     "tx": "C-PRD-002",
+     "result": "untestable"
+    },
+    {
+     "at": "2026-11-02T10:30:21-05:00",
+     "what": "GLD",
+     "race": "Metals",
+     "tx": "C-MET-005",
+     "level": {
+      "symbol": "GLD",
+      "below": 352.0
+     },
+     "result": "level not reached yet"
     }
    ]
   },
   "gemini": {
    "kept": 0,
    "broken": 0,
-   "pending": 6,
-   "closed_first": 0,
-   "untestable": 0,
+   "pending": 7,
+   "closed_first": 6,
+   "untestable": 1,
    "items": [
     {
      "at": "2026-11-01T09:14:55Z",
@@ -38,7 +67,7 @@
       "symbol": "BTC-USD",
       "below": 72000.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-01T11:14:39Z",
@@ -49,7 +78,7 @@
       "symbol": "BTC-USD",
       "below": 70000.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-01T12:18:28Z",
@@ -60,7 +89,7 @@
       "symbol": "BTC-USD",
       "below": 72000.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-01T12:18:28Z",
@@ -82,7 +111,7 @@
       "symbol": "ETH-USD",
       "below": 2000.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-01T18:14:55Z",
@@ -93,6 +122,90 @@
       "symbol": "ETH-USD",
       "below": 2100.0
      },
+     "result": "closed before the level was reached"
+    },
+    {
+     "at": "2026-11-02T14:40:24Z",
+     "what": "United States Oil Fund, LP",
+     "race": "Energy",
+     "tx": "G-ENE-011",
+     "level": {
+      "symbol": "USO",
+      "below": 150.0
+     },
+     "result": "closed before the level was reached"
+    },
+    {
+     "at": "2026-11-02T16:03:40Z",
+     "what": "SPDR Gold Shares",
+     "race": "Metals",
+     "tx": "G-MET-007",
+     "level": {
+      "symbol": "GLD",
+      "below": 350.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-02T18:18:27Z",
+     "what": "SPY Nov 20 $750 put",
+     "race": "Options",
+     "tx": "G-OPT-008",
+     "level": {
+      "symbol": "SPY",
+      "above": 780.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-02T18:18:27Z",
+     "what": "Will the Republicans win the Texas Senate race in 2026?",
+     "race": "Predictions",
+     "tx": "G-PRD-005",
+     "result": "untestable"
+    },
+    {
+     "at": "2026-11-02T19:17:08Z",
+     "what": "SPY Nov 20 $750 put",
+     "race": "Options",
+     "tx": "G-OPT-009",
+     "level": {
+      "symbol": "SPY",
+      "above": 770.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-02T19:17:08Z",
+     "what": "ProShares UltraPro Short QQQ",
+     "race": "Stocks",
+     "tx": "G-STK-013",
+     "level": {
+      "symbol": "SQQQ",
+      "below": 38.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-02T19:45:10Z",
+     "what": "United States Oil Fund, LP",
+     "race": "Energy",
+     "tx": "G-ENE-015",
+     "level": {
+      "symbol": "USO",
+      "below": 145.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-02T20:15:26Z",
+     "what": "iShares Silver Trust",
+     "race": "Metals",
+     "tx": "G-MET-008",
+     "level": {
+      "symbol": "SLV",
+      "below": 41.5
+     },
      "result": "level not reached yet"
     }
    ]
@@ -100,9 +213,9 @@
   "chatgpt": {
    "kept": 0,
    "broken": 0,
-   "pending": 2,
+   "pending": 6,
    "closed_first": 0,
-   "untestable": 0,
+   "untestable": 1,
    "items": [
     {
      "at": "2026-11-01T21:14:59Z",
@@ -125,6 +238,57 @@
       "below": 2150.0
      },
      "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-02T10:15:44Z",
+     "what": "Bitcoin USD",
+     "race": "Crypto",
+     "tx": "X-CRY-018",
+     "level": {
+      "symbol": "BTC-USD",
+      "below": 76000.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-02T10:15:44Z",
+     "what": "Ethereum USD",
+     "race": "Crypto",
+     "tx": "X-CRY-019",
+     "level": {
+      "symbol": "ETH-USD",
+      "below": 2150.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-02T15:11:43Z",
+     "what": "Invesco S&P 500 Equal Weight ETF",
+     "race": "Stocks",
+     "tx": "X-STK-005",
+     "level": {
+      "symbol": "RSP",
+      "below": 215.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-02T15:11:43Z",
+     "what": "SPDR Gold Shares",
+     "race": "Metals",
+     "tx": "X-MET-003",
+     "level": {
+      "symbol": "GLD",
+      "below": 354.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-02T15:11:43Z",
+     "what": "House favorite on November 2 wins the election?",
+     "race": "Predictions",
+     "tx": "X-PRD-001",
+     "result": "untestable"
     }
    ]
   }
