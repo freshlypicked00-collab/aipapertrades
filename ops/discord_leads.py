@@ -57,6 +57,8 @@ def text(m):
         lines.append(ctx)
     if order:
         lines.append(' · '.join(f"{medal[i]} {AIS.get(k, k)} {money(prof[k], cur)}" for i, k in enumerate(order[:3])))
+        if prof[order[0]] < 0:   # leading while down reads oddly: say so (owner, Nov 2)
+            lines[-1] += ' (all three are down; the leader has the smallest loss)'
     lines.append(f"{at.strftime('%b %-d, %-I:%M %p')} ET · profit since the Oct 28 restart · {SITE}")
     return '\n'.join(lines)
 

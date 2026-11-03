@@ -494,7 +494,22 @@ for day, n in race_days[-1:]:
             discord.post('\n'.join(txt), pic, url=discord.DAILY, ping=discord.ROLE_DAILY)   # also in #daily-results (owner, Oct 30)
             try:   # X (@papertradesai): the race card, without links (a post with a link costs 13x on the X API); owner, Oct 30
                 import xpost
-                xpost.post('\n'.join(t for t in txt if 'Share it' not in t), pic, key='daily-' + datetime.now(timezone.utc).date().isoformat(), reply_link='https://papertrades.ai/?utm_source=x')
+                # a short version that fits X (the full card is in the picture): who leads each race, and the biggest move (owner, Nov 2)
+                SH = {'Stocks': 'Stocks', 'Crypto': 'Crypto', 'China': 'China', 'Metals': 'Metals', 'Energy': 'Energy', 'Options': 'Options',
+                      'Currencies': 'Currencies', 'Safe': 'Safe', 'Sports': 'Sports', 'Predictions': 'Predictions'}
+                lead = {}
+                for e in racecard.ORDER:
+                    rows = table.get(e) or []
+                    if rows and max(x[1] for x in rows) - min(x[1] for x in rows) >= 0.5:
+                        lead.setdefault(rows[0][0], []).append(SH.get(e, e))
+                xl = [f"🏁 Day {n} of 32 closed ({_et2} ET). Who leads each of the 10 races:"]
+                for mid in sorted(lead, key=lambda k: -len(lead[k])):
+                    xl.append(f"{racecard.AIS[mid][0]}: {len(lead[mid])} ({', '.join(lead[mid])})")
+                if big:
+                    _, mid, e, d, pct = big
+                    xl.append(f"Biggest move: {racecard.AIS[mid][0]} in {SH.get(e, e)}, {racecard.money(d, e)}")
+                xl.append('Pretend money, real prices.')
+                xpost.post(xpost.fit('\n'.join(xl)), pic, key='daily-' + datetime.now(timezone.utc).date().isoformat(), reply_link='https://papertrades.ai/?utm_source=x&utm_campaign=daily')
             except Exception as e:
                 print('X race card failed', e)
     except Exception as e:

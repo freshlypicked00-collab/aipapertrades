@@ -53,7 +53,13 @@ def plain(text):
     t = html.unescape(t)
     t = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', t)                     # markdown links
     t = re.sub(r'https?://\S+', '', t)
-    t = re.sub(r'\b(www\.)?papertrades\.ai\b', 'PaperTrades', t, flags=re.I)  # a bare domain is turned into a link by X
+    # the brand is PaperTrades.AI (owner's rule), but X turns "PaperTrades.AI" into a link (less reach, 13x the API cost), so the dot
+    # is a one-dot leader (U+2024), which looks the same and is never linked (owner, Nov 2)
+    BR = 'PaperTrades\u2024AI'
+    t = re.sub(r'\b(www\.)?papertrades\.ai\b', BR, t, flags=re.I)
+    t = re.sub(r"(?<![#@\w\u2024.])PaperTrades(?![\u2024.]?AI\b)(?=\b)", BR, t)   # a bare "PaperTrades" gets its .AI too
+    # the side race was renamed from "All in" to "High risk" on Nov 1 (owner): never the old name on X
+    t = re.sub(r'\bAll[ -][Ii]n(?=:|\s+(side|sports|trading|ledger|race|bankroll)\b)', 'High risk', t)
     t = re.sub(r'[ \t]+\n', '\n', t).replace('**', '').strip()
     t = '\n'.join(re.sub(r'[\s·|,-]+$', '', ln) for ln in t.split('\n'))   # no dangling separators where a link was
     t = re.sub(r'\n{3,}', '\n\n', t)
@@ -206,6 +212,20 @@ def post(text, photo=None, key=None, reply_link=None):
     except Exception as e:
         print('::warning::X post failed:', str(e)[:200])
         return False
+
+
+def delete(ids):
+    """Delete our own posts by id (a duplicate or an outdated wording; owner, Nov 2). Already gone counts as done."""
+    out = {}
+    for i in ids:
+        try:
+            j = _req('DELETE', API + f'/2/tweets/{i}')
+            out[i] = 'deleted' if (j.get('data') or {}).get('deleted') else str(j)[:120]
+        except urllib.error.HTTPError as e:
+            out[i] = 'already gone' if e.code == 404 else f'HTTP {e.code} {e.read().decode()[:160]}'
+        except Exception as e:
+            out[i] = str(e)[:160]
+    return out
 
 
 if __name__ == '__main__':   # python3 ops/xpost.py check  -> who the keys belong to (reads 1 user: about US$0.01)

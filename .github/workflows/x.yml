@@ -3,9 +3,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'check = show which account the key belongs to (posts nothing); test = post one short test message; trailer = post the Season 1 trailer (from the media branch) once; video = post the video named in ops/x_video.json (from the media branch) once'
+        description: 'check = show which account the key belongs to (posts nothing); test = post one short test message; trailer = post the Season 1 trailer (from the media branch) once; video = post the video named in ops/x_video.json (from the media branch) once; delete = delete the posts listed in ops/x_delete.json'
         type: choice
-        options: [check, test, trailer, note, video]
+        options: [check, test, trailer, note, video, delete]
         default: check
 permissions:
   contents: write
@@ -43,6 +43,10 @@ jobs:
           python3 ops/x_trailer.py /tmp/trailer.mp4
           git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
           git add ops/src/x_sent.json 2>/dev/null && git commit -qm "X: Season 1 trailer posted" && (git push -q origin HEAD:main || (git pull --rebase -q && git push -q origin HEAD:main)) || true
+      - name: Delete our own posts listed in ops/x_delete.json (owner, Nov 2)
+        if: ${{ inputs.mode == 'delete' }}
+        run: |
+          python3 -c "import json, sys; sys.path.insert(0, 'ops'); import xpost; print(json.dumps(xpost.delete(json.load(open('ops/x_delete.json'))['ids']), indent=1))"
       - name: One announcement (ops/x_note.json; owner, Oct 31)
         if: ${{ inputs.mode == 'note' }}
         run: |
