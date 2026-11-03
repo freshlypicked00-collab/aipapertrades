@@ -2204,7 +2204,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       <p class="st-note">American odds. Stakes and results in Canadian dollars. Closing odds are the last price before the game started; getting a better price than the close is the quickest sign of real skill, long before wins and losses settle it.</p>
       <div class="st-wrap">
         <table class="st-table" data-source="bets" data-row-key="bet">
-          <thead><tr><th data-field="bet">Bet</th><th data-field="placed">Placed</th><th data-field="event">Game</th><th data-field="pick">Pick</th><th data-field="odds" class="num">Odds</th><th data-field="stake_cad" class="num">Stake (C$)</th><th data-field="to_win_cad" class="num">To win (C$)</th><th data-field="status">Status</th><th data-field="result_cad" class="num">Result (C$)</th><th data-field="closing_odds" class="num">Closing odds</th><th data-source="clv" data-field="verdict">Beat the close?</th></tr></thead>
+          <thead><tr><th data-field="bet">Bet</th><th data-field="placed">Placed</th><th data-field="event">Game</th><th data-field="pick">Pick</th><th data-field="odds" class="num">Odds</th><th data-field="stake_cad" class="num">Stake (C$)</th><th data-field="to_win_cad" class="num">Potential win (C$)</th><th data-field="status">Status</th><th data-field="result_cad" class="num">Result (C$)</th><th data-field="closing_odds" class="num">Closing odds</th><th data-source="clv" data-field="verdict">Beat the close?</th></tr></thead>
           <tbody data-draw="bets-body"></tbody>
         </table>
       </div>
@@ -4378,13 +4378,15 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       if (r.starts_at) { g.appendChild(document.createElement('br')); const st = mk('small', 'st-muted', 'Starts ' + etShort(r.starts_at) + ' ET'); st.title = stFmt.when(r.starts_at); g.appendChild(st); } return g; };
     const closeOf = (r) => r.closing_odds === null || r.closing_odds === undefined ? '' : (r.market === 'spread' ? (Number(r.closing_line) > 0 ? '+' : '') + r.closing_line + ' (' + betOdds(r.closing_odds) + ')' : betOdds(r.closing_odds));
     const verdictOf = (r) => { const v = clv.find((x) => x.bet === r.bet); return v && v.verdict ? v.verdict : ''; };
+    // Potential win: grey box while the bet is open, plain grey number once settled (owner, Nov 2: same as the ledgers)
+    const pwinCell = (st, w) => st === 'Open' && w > 0 ? [window.ptPwin(w, 'C$'), 'num'] : [d3.format(',.2f')(w || 0), 'num st-muted'];
     const resOf = (v) => v === null || v === undefined || !isFinite(v) ? '' : stFmt.signedCad(Number(v)).replace('C$', '');
     const ticket = (r, sub) => {
       const placed = mk('span', 'st-nowrap', r.placed_at ? etShort(r.placed_at) + ' ET' : d3.timeFormat('%b %-d')(new Date(r.placed + 'T12:00:00'))); if (r.placed_at) placed.title = stFmt.when(r.placed_at);
       const vd = verdictOf(r);
       const idc = document.createDocumentFragment(); idc.append(sub ? '↳ ' + r.bet : r.bet, window.ptTxTag(r.tx, r.placed_at || r.placed)); if (r.tx_result) idc.appendChild(window.ptTxTag(r.tx_result, r.settled_at));
       const tr = row([[idc], [placed], [sub ? mk('small', 'st-muted', 'same pick, ticket ' + r.bet) : gameOf(r), 'wrap'], [sub ? '' : r.pick], [betOdds(r.odds), 'num'],
-        [d3.format(',.2f')(Number(r.stake_cad)), 'num'], [d3.format(',.2f')(Number(r.to_win_cad)), 'num'], [pillOf(r.status, r.settled_at)],
+        [d3.format(',.2f')(Number(r.stake_cad)), 'num'], pwinCell(r.status, Number(r.to_win_cad)), [pillOf(r.status, r.settled_at)],
         [resOf(r.result_cad), 'num ' + upDown(Number(r.result_cad))], [closeOf(r), 'num'], [vd, vd === 'Beat' ? 'is-up' : vd === 'Missed' ? 'is-down' : '']], sub ? 'bet-ticket' : '');
       tr.dataset.key = r.bet; if (!sub) betPg(tr.children[3], [r]); return tr;
     };
@@ -4408,7 +4410,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       const results = g.items.filter((x) => x.result_cad !== null && x.result_cad !== undefined);
       const closes = [...new Set(g.items.map(closeOf))], vds = [...new Set(g.items.map(verdictOf))];
       const settled = g.items.map((x) => x.settled_at).filter(Boolean).sort().pop();
-      const tr = row([[tg], [placed], [gameOf(r0), 'wrap'], [pick], [oddsSpan(g.items), 'num'], [d3.format(',.2f')(sum('stake_cad')), 'num'], [d3.format(',.2f')(sum('to_win_cad')), 'num'],
+      const tr = row([[tg], [placed], [gameOf(r0), 'wrap'], [pick], [oddsSpan(g.items), 'num'], [d3.format(',.2f')(sum('stake_cad')), 'num'], pwinCell(r0.status, sum('to_win_cad')),
         [pillOf(r0.status, settled)], [results.length ? resOf(sum('result_cad')) : '', 'num ' + (results.length ? upDown(sum('result_cad')) : '')], [closes.length === 1 ? closes[0] : 'varies', 'num'], [vds.length === 1 ? vds[0] : 'mixed', vds.length === 1 ? (vds[0] === 'Beat' ? 'is-up' : vds[0] === 'Missed' ? 'is-down' : '') : 'st-muted']], 'bet-group');
       betPg(tr.children[3], g.items);
       tr._top = true; tr._key = g.key; tr._kids = g.items.map((x) => ticket(x, true));
