@@ -594,6 +594,9 @@ change any score, and is never fed back to the AI later in Season 1. Only moves 
   each listed ID: `python3 ops/lookback.py add C-XXX-000 "<verdict>" "<at most 40 words>"`. Honest, first person, never rewritten.
   Do not let past reflections steer later decisions (same rule as the rivals). After 3 hours without one, the site shows it as missing.
 
+## YouTube-first Shorts with voices (owner, Nov 3: "higher quality content ... more targeted to youtube ... say leave a like and subscribe for more trade updates")
+Gemini and Claude agreed (ChatGPT could not answer: OpenRouter credit): ops/review/ytgrowth-r1-nov3.json, ytgrowth-r2-nov3.json. Script in ops/voice/<name>.json; voice.yml makes the voice lines (ops/voice.py: Gemini TTS, the newest model that says the script word for word, checked by faster-whisper; Kokoro as fallback; one fixed voice per AI) and word timings; ops/yt_short.py renders (facts read from data.json and checked against the spoken numbers; captions timed to the voice; talking robots; chart with buys and sells on the line; a receipts shot of the real ledger; the ending says "leave a like and subscribe for more trade updates" and asks a comment question). Channel art: ops/yt_channel_art.py (the three robots, the same size). First one: social/yt/options-g-opt-v2.mp4 (not posted until the owner says so).
+
 ## Social standard and YouTube pause (owner, Oct 31)
 Read ops/review/SOCIAL_STANDARD.md before making any public post. The old automatic replays were retired (a stranger could not follow them).
 youtube.yml now posts one story Short a day (ops/metricool.py story -> ops/story_short.py): the day's biggest settled bet; the owner

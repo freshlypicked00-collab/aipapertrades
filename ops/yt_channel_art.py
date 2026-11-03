@@ -44,7 +44,7 @@ def banner(path):
     shade = shade.filter(ImageFilter.GaussianBlur(50))
     im = Image.composite(Image.new('RGB', (Wd, Hd), BG), im, shade); d = ImageDraw.Draw(im)
     for i, k in enumerate(('claude', 'gemini', 'chatgpt')):
-        bot(d, x0 + 95 + i * 150, y0 + 250 - (30 if k == 'gemini' else 0), AIC[k], 0.62 if k != 'gemini' else 0.72)
+        bot(d, x0 + 95 + i * 150, y0 + 250, AIC[k], 0.64)   # all three the same size (Gemini's review, Nov 3: strict neutrality)
     tx = x0 + 470
     d.text((tx, y0 + 40), 'PAPERTRADES.AI', font=F('mono', 'Bold', 96), fill=FG)
     d.text((tx, y0 + 160), '3 AIs. C$100,000 of pretend money each. Real prices.', font=F('sans', 'Bold', 54), fill=FG)

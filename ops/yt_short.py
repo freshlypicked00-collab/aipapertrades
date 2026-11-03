@@ -242,7 +242,8 @@ def stamp(img, cx, cy, letter, col, u, size=230):
     s = int(size * k)
     lay = Image.new('RGBA', (s + 40, s + 40), (0, 0, 0, 0)); ld = ImageDraw.Draw(lay)
     ld.rounded_rectangle([20, 20, s + 20, s + 20], radius=int(s * .18), outline=col + (int(255 * a),), width=max(6, s // 18))
-    ld.text(((s + 40) / 2, (s + 40) / 2 + s * .02), letter, font=F('sans', 'Bold', s * .78), fill=col + (int(255 * a),), anchor='mm')
+    fl = F('sans', 'Bold', s * .74); bx = ld.textbbox((0, 0), letter, font=fl)
+    ld.text(((s + 40) / 2 - (bx[0] + bx[2]) / 2, (s + 40) / 2 - (bx[1] + bx[3]) / 2), letter, font=fl, fill=col + (int(255 * a),))
     lay = lay.rotate(-9, resample=Image.BICUBIC, expand=True)
     img.paste(lay, (int(cx - lay.width / 2), int(cy - lay.height / 2)), lay)
 
@@ -426,17 +427,16 @@ def build(name, engine, out_dir, receipts=None):
             dr.rounded_rectangle(box, radius=26, fill=PANEL, outline=AIC['gemini'], width=4)
             dr.text((L + 36, 830), 'SPY put options (they gain when the S&P 500 falls)', font=F('sans', 'Medium', 36), fill=MUTED)
             for i, (tx, when, amt) in enumerate(f['buys']):
-                show = ease((lt - 0.25 - 0.3 * i) * 3)
-                if show > 0:
+                if lt >= 0.25 + 0.3 * i:
                     yy = 890 + i * 62
                     dr.text((L + 36, yy), f'{when:%b %-d}', font=F('mono', 'Bold', 40), fill=FG)
-                    dr.text((L + 200, yy), money(amt * show, False), font=F('mono', 'Bold', 40), fill=AMBER)
+                    dr.text((L + 470, yy), money(amt, False), font=F('mono', 'Bold', 40), fill=AMBER, anchor='ra')
                     dr.text((R + 30, yy + 4), tx, font=F('mono', 'Medium', 30), fill=MUTED, anchor='ra')
             tot = f['staked'] * ease((lt - 1.1) * 1.6)
             if lt > 1.1:
                 dr.line([(L + 36, 1078), (R + 30, 1078)], fill=LINE, width=3)
                 dr.text((L + 36, 1092), 'Total', font=F('mono', 'Bold', 48), fill=FG)
-                dr.text((R + 30, 1092), money(tot, False), font=F('mono', 'Bold', 52), fill=AMBER, anchor='ra')
+                dr.text((L + 470, 1092), money(tot, False), font=F('mono', 'Bold', 48), fill=AMBER, anchor='ra')
         elif cur in QUOTES:
             who, quote, src = QUOTES[cur]
             ln = byid[cur]
@@ -454,7 +454,7 @@ def build(name, engine, out_dir, receipts=None):
                 wl = dr.textlength(w + ' ', font=fq)
                 if x + wl > R + 60:
                     x = L; yy += lh
-                dr.text((x, yy), w, font=fq, fill=FG if k < lit else (90, 86, 76))
+                dr.text((x, yy), w, font=fq, fill=FG if k < lit else (128, 122, 108))
                 x += wl
         elif cur == '05':
             text_c(dr, (540, 420), 'THEIR GRADES OF GEMINI’S LAST BUY', F('mono', 'Bold', 36), MUTED)
@@ -492,16 +492,23 @@ def build(name, engine, out_dir, receipts=None):
             for a_, b_ in zip(seg, seg[1:]):
                 if b_[0] - a_[0] < sw * 0.8:
                     dr.line([a_, b_], fill=FG, width=6)
-            for tx, when, amt in f['buys']:
-                x = X(when)
-                if x is not None and x <= xmax:
-                    dr.line([(x, cy0), (x, cy1)], fill=AIC['gemini'], width=3)
-                    text_c(dr, (x, cy1 + 88), 'BUY', F('mono', 'Bold', 28), AIC['gemini'])
-            for tx, when, p in f['sells']:
-                x = X(when)
-                if x is not None and x <= xmax:
-                    dr.line([(x, cy0), (x, cy1)], fill=UP, width=3)
-                    text_c(dr, (x, cy1 + 128), 'SELL', F('mono', 'Bold', 28), UP)
+            ser = sorted((tm.astimezone(NY), v) for tm, v in f['spx'])
+            def level(tm):   # the S&P 500 at that moment, between the two nearest readings (the first reading before the first one)
+                if tm <= ser[0][0]:
+                    return ser[0][1]
+                for (t0_, v0), (t1_, v1) in zip(ser, ser[1:]):
+                    if t0_ <= tm <= t1_:
+                        return v0 + (v1 - v0) * (tm - t0_).total_seconds() / max(1, (t1_ - t0_).total_seconds())
+                return ser[-1][1]
+            for kind, rows, col, dy in (('BUY', f['buys'], AIC['gemini'], -46), ('SELL', f['sells'], UP, 48)):
+                for tx, when, _ in rows:
+                    x = X(when)
+                    if x is None or x > xmax:
+                        continue
+                    y = Y(level(when))
+                    dr.line([(x, y), (x, y + dy * 0.55)], fill=col, width=3)
+                    dr.ellipse([x - 13, y - 13, x + 13, y + 13], fill=col, outline=INK, width=4)
+                    text_c(dr, (x, y + dy), kind, F('mono', 'Bold', 30), col, 3)
             if prog > 0.98:
                 dr.text((R + 40, 418), f'{f["spx_drop"]:+.1f}% on Oct 30', font=F('mono', 'Bold', 46), fill=DOWN, anchor='ra')
         elif cur == '09':
@@ -511,14 +518,24 @@ def build(name, engine, out_dir, receipts=None):
             text_c(dr, (540, 650), '3 sells on Oct 30: ' + ', '.join(tx for tx, _, _ in f['sells']), F('mono', 'Medium', 30), MUTED)
             if rec is not None:
                 q = ease((lt - 0.15) * 3)
-                rw = 940; rh = int(rec.height * rw / rec.width)
-                shot = rec.resize((rw, rh))
-                frame = Image.new('RGB', (rw + 20, rh + 20), (70, 67, 60)); frame.paste(shot, (10, 10))
-                mask = Image.new('L', frame.size, 0); ImageDraw.Draw(mask).rounded_rectangle([0, 0, frame.width - 1, frame.height - 1], radius=24, fill=255)
-                y0 = int(800 + (1 - q) * 700)
+                rw = 900; rh = int(rec.height * rw / rec.width)
+                shot = rec.resize((rw, rh), Image.LANCZOS)
+                bar = 64
+                frame = Image.new('RGB', (rw + 16, rh + bar + 8), (52, 50, 45)); fd = ImageDraw.Draw(frame)
+                for i_, c_ in enumerate(((255, 95, 86), (255, 189, 46), (39, 201, 63))):
+                    fd.ellipse([22 + i_ * 30, 22, 40 + i_ * 30, 40], fill=c_)
+                fd.rounded_rectangle([130, 14, rw - 10, 50], radius=18, fill=(30, 29, 26))
+                fd.text((150, 32), 'papertrades.ai  ·  Ledger  ·  Options', font=F('mono', 'Medium', 26), fill=FG, anchor='lm')
+                frame.paste(shot, (8, bar))
+                mask = Image.new('L', frame.size, 0); ImageDraw.Draw(mask).rounded_rectangle([0, 0, frame.width - 1, frame.height - 1], radius=22, fill=255)
+                y0 = int(760 + (1 - q) * 700)
+                sh = Image.new('L', (frame.width + 60, frame.height + 60), 0)
+                ImageDraw.Draw(sh).rounded_rectangle([30, 40, frame.width + 30, frame.height + 40], radius=26, fill=150)
+                sh = sh.filter(ImageFilter.GaussianBlur(16))
+                img.paste(Image.new('RGB', sh.size, (0, 0, 0)), (int(540 - frame.width / 2) - 30, y0 - 30), sh)
                 img.paste(frame, (int(540 - frame.width / 2), y0), mask)
                 dr = ImageDraw.Draw(img)
-                text_c(dr, (540, y0 - 34), 'The real ledger on PaperTrades.AI', F('sans', 'SemiBold', 36), FG)
+                text_c(dr, (540, y0 - 36), 'The real ledger, live on PaperTrades.AI', F('sans', 'SemiBold', 36), FG)
         elif cur == '10':
             dr.text((L, 420), 'OPTIONS RACE', font=F('mono', 'Bold', 40), fill=MUTED)
             dr.text((L, 470), 'Profit since Oct 28', font=F('sans', 'Bold', 72), fill=FG)
@@ -552,10 +569,9 @@ def build(name, engine, out_dir, receipts=None):
                 dr.polygon([(bx - 60, by - 14 * s_), (bx - 40, by - 52 * s_), (bx - 26, by - 46 * s_), (bx - 32, by - 14 * s_)], fill=FG)
                 text_c(dr, (bx + 50, by), 'Like', F('sans', 'Bold', 54), FG)
             if tt >= ts:   # subscribe
-                q = back((tt - ts) * 4); bx, by = 740, 1100
-                pressed = tt - ts > 0.9
-                dr.rounded_rectangle((bx - 190 * q, by - 60, bx + 190 * q, by + 60), radius=60, fill=(60, 58, 52) if pressed else (204, 0, 0))
-                text_c(dr, (bx, by), 'Subscribed' if pressed else 'Subscribe', F('sans', 'Bold', 54), FG)
+                q = back((tt - ts) * 4) * (1 + 0.05 * math.sin((tt - ts) * 9) * (tt - ts > 0.3)); bx, by = 740, 1100
+                dr.rounded_rectangle((bx - 190 * q, by - 60 * q, bx + 190 * q, by + 60 * q), radius=60, fill=(204, 0, 0))
+                text_c(dr, (bx, by), 'Subscribe', F('sans', 'Bold', 54 * min(q, 1.05) + 1), FG)
             if tt >= tm:
                 q = back((tt - tm) * 4)
                 text_c(dr, (540, 1250), 'for more trade updates', F('sans', 'Bold', 70 * (0.7 + 0.3 * q)), FG, 5)
