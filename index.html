@@ -1568,7 +1568,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '907f08c3a8e4';</script>
+<script>window.PT_PAGE_VER = 'c07c30c776dc';</script>
 <!-- the first text on the page says plainly what this is, so search engines and AI assistants stop mixing the name up with a similarly named exchange (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json) -->
 <p class="pt-def" id="what-is">PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no deposits and has no token. <a href="/what-is-papertrades-ai.html">What is PaperTrades.AI?</a></p>
 <style>.pt-def { margin: 0; padding: 5px 14px; font-size: 12px; line-height: 1.4; text-align: center; color: var(--color-fg-muted, #a9a495); background: var(--color-bg, #0b0b0a); } .pt-def a { color: inherit; text-decoration: underline; white-space: nowrap; }</style>
@@ -1616,13 +1616,21 @@ body { background:var(--color-bg); }
 
 <!-- Safety banner for new visitors (owner, Nov 1, 2026; text and behaviour agreed by Claude, Gemini and ChatGPT: ops/review/safety-banner-nov1.json).
      Shown until the visitor closes it (remembered only in that browser), until Dec 1, 2026. -->
-<div id="pt-safety" class="pt-safety" role="note" hidden><span class="pt-safety-t">🔒 PaperTrades.AI never takes deposits and will never message you asking for money, your password or personal information (optional tips are only on our Support page). We are not associated with any similarly named site or app. <a href="#official" data-goto="about">Official accounts →</a></span><button type="button" class="pt-safety-x" aria-label="Close this notice">✕</button></div>
+<div id="pt-safety" class="pt-safety" role="note" hidden><span class="pt-safety-t">🔒 PaperTrades.AI never takes deposits and will never message you asking for money, your password or personal information (optional tips are only on our Support page). We are not associated with any similarly named site or app. <a href="#official" data-goto="about">Official accounts →</a></span><span class="pt-safety-s">🔒 We never take deposits or message you asking for money. <a href="#official" data-goto="about">Official accounts →</a> <button type="button" class="pt-safety-more" aria-expanded="false">More</button></span><button type="button" class="pt-safety-x" aria-label="Close this notice">✕</button></div>
 <style>
   .pt-safety { display: flex; align-items: center; gap: 12px; justify-content: center; padding: 8px 44px 8px 14px; background: #15181d; color: #e8e6df; border-bottom: 1px solid #2a2f37; font-size: 13px; line-height: 1.4; text-align: center; position: relative; z-index: 60; }
   .pt-safety[hidden] { display: none; }
   .pt-safety a { color: #f5c542; white-space: nowrap; }
   .pt-safety-x { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font: inherit; background: none; border: 1px solid #3a404a; color: #e8e6df; border-radius: 999px; width: 28px; height: 28px; cursor: pointer; }
   @media (max-width: 700px) { .pt-safety { font-size: 12.5px; justify-content: flex-start; padding: 8px 42px 8px 12px; } }
+  /* C9, phone round 2 (Nov 3; Claude, Gemini and ChatGPT all agreed): on phones a one-line version, the full text one tap away (More) */
+  .pt-safety-s { display: none; }
+  @media (max-width: 700px) {
+    .pt-safety:not(.pt-open) .pt-safety-t { display: none; } .pt-safety:not(.pt-open) .pt-safety-s { display: inline; }
+    .pt-safety { text-align: left; padding: 6px 52px 6px 12px; }
+    .pt-safety-more { font: inherit; font-size: 12.5px; background: none; border: 0; color: #f5c542; text-decoration: underline; padding: 11px 8px; margin: -11px -6px; cursor: pointer; }
+    .pt-safety-x { width: 40px; height: 40px; right: 6px; }
+  }
 </style>
 <script>
   (function () {
@@ -1633,7 +1641,8 @@ body { background:var(--color-bg); }
       if (closed) { b.remove(); return; }
       b.hidden = false;
       b.querySelector('.pt-safety-x').addEventListener('click', function () { try { localStorage.setItem('pt-safety-closed', '1'); } catch (e) {} b.remove(); });
-      b.querySelector('a').addEventListener('click', function () { setTimeout(function () { var o = document.getElementById('official'); if (o) o.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200); });
+      b.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', function () { setTimeout(function () { var o = document.getElementById('official'); if (o) o.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200); }); });
+      var mo = b.querySelector('.pt-safety-more'); if (mo) mo.addEventListener('click', function () { b.classList.add('pt-open'); mo.setAttribute('aria-expanded', 'true'); });
     } catch (e) {}
   })();
 </script>
@@ -3531,6 +3540,7 @@ body { background:var(--color-bg); }
     if (/^guide-/.test(name || '')) { const sec = name; name = 'guide'; setTimeout(() => { const t = document.getElementById(sec); if (t) t.scrollIntoView({ block: 'start' }); }, 300); }   // a Guide section link (#guide-ledger)
     if (!TABS.includes(name)) name = 'overview';
     document.querySelectorAll('[data-page]').forEach((s) => { s.hidden = s.dataset.page !== name; });
+    document.documentElement.dataset.ptPage = name;   // phone round 2 (Nov 3): on phones every page but Home shows its own content first (not data-page: that marks the pages themselves)
     document.querySelectorAll('.st-tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
     try { window.dispatchEvent(new CustomEvent('pt-tab', { detail: name })); } catch (e) {}   // the headline line follows the tab at once
   };
@@ -5814,6 +5824,7 @@ body { background:var(--color-bg); }
   const BENCH = { Stocks: 'S&P 500', Crypto: 'Bitcoin', Metals: 'Gold', China: 'CSI 300', Energy: 'Oil (USO fund)', Options: 'S&P 500' };
   const TRADE_VERB = { Buy: 'Bought', Sell: 'Sold', Short: 'Shorted', Cover: 'Covered' };
   const tradeAmt = (t, p) => Number(p === 'China' ? (t.usd ?? t.cad) : (t.cad ?? t.usd));
+  const phoneHold = () => !!(window.matchMedia && window.matchMedia('(max-width: 700px)').matches);   // R2-1
   const betState = (x, money) => (x.status === 'Open' ? 'open' : x.status === 'Won' ? 'won +' + money(x.result_cad) : x.status === 'Lost' ? 'lost ' + money(-Math.abs(Number(x.stake_cad))) : x.status === 'Void' ? 'cancelled, stake refunded' : String(x.status || '').toLowerCase());
   // under the Overview chart: everything the viewed AI holds in the picked simulation, when it bought each one and for how much
   // the High risk side race on the Overview chart (owner, Oct 29): one AI's value over time, and what it holds or has bet, from its own books
@@ -5945,10 +5956,18 @@ body { background:var(--color-bg); }
       const tb = table([['Holding'], ['Trade', 'num'], ['When'], ['Worth now', 'num'], ['Profit or loss', 'num'], ['Why']]);
       pos.forEach((r) => {
         const tr0 = trades.filter((t) => t.holding === r.holding).sort((a, b) => new Date(a.at) - new Date(b.at));
-        const lines = tr0.length ? tr0 : [null], n = lines.length;
+        // R2-1 (phones only): the trades behind what is held NOW come first; earlier rounds that were bought and fully sold fold under one line
+        let cur = tr0, old = [];
+        if (phoneHold() && tr0.length > 1) { let q = 0, cut = 0, ok = true;
+          tr0.forEach((t, j) => { const k = Math.abs(Number(t.qty)); if (!isFinite(k) || !k || !/^(Buy|Short|Sell|Cover)$/.test(t.action)) { ok = false; return; }
+            q += /^(Buy|Short)$/.test(t.action) ? k : -k; if (Math.abs(q) <= 1e-6 * Math.max(1, k)) cut = j + 1; });
+          if (ok && cut > 0 && cut < tr0.length) { old = tr0.slice(0, cut); cur = tr0.slice(cut); } }
+        const oldKey = (dash.model || 'claude') + '|' + p + '|' + r.holding, oldOpen = (window.ptOldOpen = window.ptOldOpen || new Set()).has(oldKey);
+        const lines = tr0.length ? cur.concat(old) : [null], n = lines.length;
         const v = valOf(r), c = costOf(r), pl = v - c, short = Number(r.quantity) < 0;
         lines.forEach((t, i) => {
-          const tr = mk('tr'); if (i === n - 1) tr.className = 'gx-hold-last';
+          const tr = mk('tr'); if (i === n - 1 && !old.length) tr.className = 'gx-hold-last';
+          if (old.length && i >= cur.length) { tr.classList.add('gx-old'); tr.hidden = !oldOpen; }
           if (i === 0) { const h = td(tr, '', 'wrap', n); h.appendChild(mk('b', '', r.holding)); if (short) h.appendChild(mk('small', 'st-muted gx-sub', 'short: it gains if the price falls')); else if (r.code && r.code !== r.holding) h.appendChild(mk('small', 'st-muted gx-sub', r.code));
             h.appendChild(mk('small', 'st-muted gx-sub gx-qty', qtyText(r, p)));
             // partly sold: say so plainly, so "Bought C$35,000" next to a smaller "Worth now" never reads as a loss (owner, Oct 30)
@@ -5959,19 +5978,31 @@ body { background:var(--color-bg); }
           { const c = td(tr, t ? stFmt.when(t.at) : '—', 'wrap', 1, 'When');
             if (t) c.appendChild(window.ptTxTag(t.tx, t.at));
             // owner, Nov 1: the button says what it finds ("Find the buy G-STK-006"), the same chip as everywhere else, not "Ledger ›"
-            if (t) { const a = mk('button', 'tx-id tx-go gx-led tx-orig', (t.action === 'Short' ? '↩ View original short' : '↩ View original buy') + (t.tx ? ' ' + t.tx : '')); a.type = 'button'; a.title = 'Show this ' + (t.action === 'Short' ? 'short' : 'buy') + ' in the Ledger, highlighted'; a.addEventListener('click', (ev) => { ev.preventDefault(); if (t.tx && window.ptFindTrade) window.ptFindTrade(dash.model || 'claude', p, t.at, String(r.holding).replace(/ \(.*\)$/, ''), t.action, t.tx); else window.ptGoLedgerTrade(p, t.at, r.holding); }); c.appendChild(a); } }
+            // a sale row's button finds that sale (Nov 3: it used to say "View original buy" with the sale's own ID)
+            if (t) { const out = /^(Sell|Cover)$/.test(t.action), kind = t.action === 'Short' ? 'short' : t.action === 'Cover' ? 'cover' : out ? 'sale' : 'buy';
+              const a = mk('button', 'tx-id tx-go gx-led tx-orig', (out ? 'View this ' : '↩ View original ') + kind + (t.tx ? ' ' + t.tx : '')); a.type = 'button'; a.title = 'Show this ' + kind + ' in the Ledger, highlighted'; a.addEventListener('click', (ev) => { ev.preventDefault(); if (t.tx && window.ptFindTrade) window.ptFindTrade(dash.model || 'claude', p, t.at, String(r.holding).replace(/ \(.*\)$/, ''), t.action, t.tx); else window.ptGoLedgerTrade(p, t.at, r.holding); }); c.appendChild(a); } }
           if (i === 0) {
             td(tr, isFinite(v) ? money(v) : '—', 'num', n, 'Worth now');
             const pc = td(tr, isFinite(pl) && isFinite(c) ? (pl >= 0 ? '+' : '') + money(pl) + ' (' + stFmt.pct(c ? pl / Math.abs(c) : 0) + ')' : '—', 'num ' + upDown(pl), n, 'Profit or loss');
             pc.title = 'Worth now minus what it paid' + (short ? ' (for a short: what it got for selling minus what buying back would cost now)' : '');
             { const rz = Number(cn ? r.realized_usd : r.realized_cad), sold = tr0.some((x) => /^(Sell|Cover)$/.test(x.action));
               if (sold && isFinite(c)) { pc.appendChild(mk('small', 'st-muted gx-sub', 'on the ' + money(Math.abs(c)) + ' still held'));
-                if (isFinite(rz) && Math.abs(rz) >= 0.5) pc.appendChild(mk('small', 'gx-sub ' + upDown(rz), 'part sold: ' + (rz >= 0 ? '+' : '') + money(rz) + ' · total ' + (pl + rz >= 0 ? '+' : '') + money(pl + rz))); } }
+                if (isFinite(rz) && Math.abs(rz) >= 0.5) pc.appendChild(mk('small', 'gx-sub ' + upDown(rz), 'part sold:\u00a0' + (rz >= 0 ? '+' : '') + money(rz) + ' · total\u00a0' + (pl + rz >= 0 ? '+' : '') + money(pl + rz))); } }
           }
           { const w = td(tr, t ? (t.note || t.reason || (logFor(lgRows, t) || {}).detail || '') : '', 'wrap gx-why', 1, 'Why');
             const g = t && t.pg_key ? pgNode(t.pg_key) : null; if (g) w.appendChild(g); }   // the other AIs' grades (owner, Oct 29)
           tb.appendChild(tr);
         });
+        if (old.length) {   // R2-1: one line for the earlier rounds; one tap shows them exactly as before
+          const amt = (x) => Math.abs(tradeAmt(x, p)), got = old.reduce((a, x) => a + (/^(Sell|Short)$/.test(x.action) ? amt(x) : -amt(x)), 0);
+          const tr = mk('tr', 'gx-old-t gx-hold-last'), c2 = mk('td'); c2.colSpan = 6;
+          const b = mk('button', 'gx-old-b'); b.type = 'button'; b.setAttribute('aria-expanded', String(oldOpen));
+          const lab = () => { const on = window.ptOldOpen.has(oldKey); b.textContent = on ? 'Hide the earlier rounds ▴' : 'Earlier rounds in this holding: ' + old.length + ' trades, all sold (' + (got >= 0 ? '+' : '') + money(got) + ') ▾'; b.setAttribute('aria-expanded', String(on)); };
+          b.addEventListener('click', () => { const on = !window.ptOldOpen.has(oldKey); if (on) window.ptOldOpen.add(oldKey); else window.ptOldOpen.delete(oldKey);
+            tb.querySelectorAll('tr.gx-old').forEach((x) => { if (x._oldKey === oldKey) x.hidden = !on; }); lab(); if (!on) b.scrollIntoView({ block: 'nearest' }); });
+          tb.querySelectorAll('tr.gx-old').forEach((x) => { if (!x._oldKey) x._oldKey = oldKey; });
+          lab(); c2.appendChild(b); tr.appendChild(c2); tb.appendChild(tr);
+        }
       });
     }
     const cs = cash.reduce((a, r) => a + valOf(r), 0);
@@ -10025,10 +10056,10 @@ body { background:var(--color-bg); }
     if (!seen && !/^#guide/.test(location.hash)) setTimeout(() => {
       try { localStorage.setItem('pt-tour-offered', '1'); } catch (e) {}
       const o = document.createElement('div'); o.className = 'gd-offer'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', 'Tour offer');
-      o.innerHTML = '<b>New here?</b> A 60-second tour shows where everything is.<br>';
-      const y = document.createElement('button'); y.type = 'button'; y.textContent = '▶ Show me'; y.addEventListener('click', () => { o.remove(); start(); });
-      const n = document.createElement('button'); n.type = 'button'; n.textContent = 'No thanks'; n.addEventListener('click', () => o.remove());
-      const g = document.createElement('button'); g.type = 'button'; g.textContent = 'Read the Guide'; g.addEventListener('click', () => { o.remove(); goTab('guide'); });
+      o.innerHTML = '<b>New here?</b><span class="gd-offer-t"> A 60-second tour shows where everything is.</span><br>';
+      const y = document.createElement('button'); y.type = 'button'; y.className = 'gd-offer-y'; y.innerHTML = '▶ <span class="gd-offer-dk">Show me</span><span class="gd-offer-ph">60-second tour</span>'; y.addEventListener('click', () => { o.remove(); start(); });
+      const n = document.createElement('button'); n.type = 'button'; n.className = 'gd-offer-n'; n.textContent = 'No thanks'; n.setAttribute('aria-label', 'No thanks'); n.addEventListener('click', () => o.remove());
+      const g = document.createElement('button'); g.type = 'button'; g.className = 'gd-offer-g'; g.textContent = 'Read the Guide'; g.addEventListener('click', () => { o.remove(); goTab('guide'); });
       o.append(y, n, g); document.body.appendChild(o);
     }, 6000);
   })();
@@ -10712,6 +10743,7 @@ body { background:var(--color-bg); }
       if (pg.id === 'sports') return topCards(pg).slice(1);   // P17 (Nov 1): Betting minimums folds too; Bets starts open (below)
       if (/^ai-/.test(pg.id)) return topCards(pg).slice(2);
       if (pg.id === 'h2h') return [...pg.querySelectorAll('[data-draw="h2h"] > .h2h-exp')].slice(2);
+      if (RACES.includes(pg.id)) return topCards(pg).filter((c) => /^(Distance to the next trade|What made or lost money|Coming up|Rules in force|Sources)\b/i.test(titleOf(c))).concat([...pg.querySelectorAll('.gx-px-wrap')]);   // C7 (Nov 3, all three AIs): reference sections start folded on phones
       if (pg.id === 'ledger') return [...pg.querySelectorAll('[data-draw="lg-days"] > .lg-day')];   // the day shown (days before today)
       return [];
     };
@@ -10733,7 +10765,8 @@ body { background:var(--color-bg); }
     const findCard = (pg, re) => topCards(pg).find((c) => re.test(titleOf(c)));
     const scrollToEl = (el) => {
       const bar = document.querySelector('.st-tabs'); const sticky = bar && getComputedStyle(bar).position === 'sticky' ? bar.offsetHeight : 0;
-      requestAnimationFrame(() => window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - sticky - 10, behavior: 'smooth' }));
+      const tk = document.querySelector('.pt-mtick'), ch = el.closest('.st-page') && el.closest('.st-page').querySelector('.pt-chips'); const extra = (tk && getComputedStyle(tk).position === 'sticky' ? tk.offsetHeight : 0) + (ch && getComputedStyle(ch).position === 'sticky' ? ch.offsetHeight : 0);   // C8: the ticker and the sticky jump row
+      requestAnimationFrame(() => window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - sticky - extra - 10, behavior: 'smooth' }));
     };
     const chips = (pg) => {
       if (pg.querySelector('.pt-chips')) return;
@@ -10807,6 +10840,223 @@ body { background:var(--color-bg); }
     if (sheet) new MutationObserver(settings).observe(sheet, { attributes: true, attributeFilter: ['hidden'], childList: true });
   })();
 </script>
+<!-- Phone round 2 (owner, Nov 3: "make the mobile home and pages all look as best as they can ... as easy to read and confirm things as
+     possible"; Claude, Gemini and ChatGPT all agreed C1-C10, ops/review/mobile-r1.json; Gemini's pie legend and table hint, ChatGPT's calm close
+     buttons). Phones only (700px and narrower): nothing here changes the desktop page. -->
+<style>
+  .pt-about-btn, .pt-notice-more, .pt-confirm, .pt-swipe, .gd-offer-ph, .pt-mini { display: none; }
+  @media (max-width: 700px) {
+    /* C1: every page but Home shows its own content right under the header; the shared standings, takes and scoreboards follow it */
+    html:not([data-pt-page="overview"]) .st > .st-head2, html:not([data-pt-page="overview"]) .st > .st-live-top, html:not([data-pt-page="overview"]) .st > nav.st-tabs { order: 3; }
+    .st > footer.st-foot { order: 4; }
+    /* C2: the long explainers fold into one "About this race" button (one tap shows them all; nothing removed) */
+    .st-head2:not(.pt-about-open) :is(.st-indep, .st-tagline, .st-auto, #hook-sub, .hook-more, .st-s2) { display: none !important; }
+    .pt-about-btn { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 44px; margin: 6px 0; padding: 8px 14px; font: inherit; font-size: 14px; text-align: left; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 12px; cursor: pointer; }
+    .st-notice-row .st-notice:not(.pt-open) > span:last-of-type { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .pt-notice-more { display: inline-flex; align-items: center; min-height: 40px; padding: 0 2px; font: inherit; font-size: 13px; color: var(--accent, #ffb000); background: none; border: 0; text-decoration: underline; cursor: pointer; }
+    .st-notice.pt-open + .pt-notice-more { display: none; }
+    /* C3: the tour offer and the follow prompt are slim one-line bars that leave the ☰ button free */
+    .gd-offer { left: 8px; right: 68px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); max-width: none; display: flex; align-items: center; gap: 6px; min-height: 52px; padding: 5px 5px 5px 12px; box-sizing: border-box; font-size: 13.5px; }
+    .gd-offer br, .gd-offer .gd-offer-t, .gd-offer .gd-offer-g, .gd-offer .gd-offer-dk { display: none; }
+    .gd-offer .gd-offer-ph { display: inline; }
+    .gd-offer button { margin: 0; min-height: 40px; }
+    .gd-offer .gd-offer-y { flex: 1 1 auto; white-space: nowrap; }
+    .gd-offer .gd-offer-n { flex: none; width: 40px; padding: 0; font-size: 0; border-color: var(--color-border-line); }
+    .gd-offer .gd-offer-n::after { content: '✕'; font-size: 15px; }
+    .pt-fp.pt-fp-slim { left: 8px; right: 68px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 6px; min-height: 52px; padding: 5px 5px 5px 12px; box-sizing: border-box; }
+    .pt-fp-slim .pt-fp-t { margin: 0; font-size: 13.5px; white-space: nowrap; }
+    .pt-fp-slim .st-live-btn { min-height: 40px; padding: 0 11px; font-size: 13.5px; display: inline-flex; align-items: center; }
+    .pt-fp-slim .pt-fp-x { position: static; flex: none; width: 40px; height: 40px; margin-left: auto; padding: 0; }
+    /* C4: anything tappable is at least 40px tall; ID buttons sit side by side so cards don't get longer */
+    .pt-tap { min-height: 40px !important; }
+    .pt-tap-il { display: inline-flex !important; align-items: center; }
+    .pt-tap-in { padding-top: 9px; padding-bottom: 9px; }
+    .st select { min-height: 40px; font-size: 14px; }
+    .say-btn { width: 40px; height: 40px; } .say-pair .say-btn { min-width: 44px; height: 40px; }
+    .tx-wrap, .tx-wrap .tx-link { display: inline; }
+    .tx-wrap::before { content: ''; display: block; }
+    [data-draw="allin-ledger"] .tx-link { display: none; }
+    .tx-id, .tx-go, .lg-find { display: inline-flex; align-items: center; width: auto; min-height: 40px; margin: 2px 4px 2px 0; padding: 0 10px; font-family: var(--font-sans); font-size: 12.5px; letter-spacing: 0; vertical-align: middle; }
+    .tx-id[hidden], .tx-go[hidden], .lg-find[hidden] { display: none; }
+    .pt-x { background: transparent; color: var(--color-fg); border-color: var(--color-border-line); min-height: 40px; min-width: 40px; font-weight: 600; }
+    .pt-x:hover, .pt-x:focus-visible { background: var(--color-panel); border-color: var(--color-fg-muted); }
+    /* C5: words in the holdings and ledger cards in the normal font; monospace only for numbers and IDs */
+    .st-table td { font-family: var(--font-sans); font-size: 14px; line-height: 1.45; }
+    .st-table td.num { font-family: var(--font-serif); }
+    table.st-table.pt-cards > tbody > tr > td[data-label]::before { font-size: 12px; }
+    /* C6: the start-to-now check at the top of every race */
+    .pt-confirm { display: block; margin: 2px 0 6px; padding: 10px 12px; border: 1px solid var(--color-border-line); border-left: 3px solid var(--color-ok, #3ddc84); border-radius: 10px; font-size: 14px; line-height: 1.45; }
+    .pt-confirm b { font-family: var(--font-serif); font-weight: 600; white-space: nowrap; }
+    .pt-confirm b.is-up { color: var(--color-ok, #3ddc84); } .pt-confirm b.is-down { color: var(--color-bad, #ff5a4e); }
+    .pt-confirm .pt-confirm-go { display: inline-flex; align-items: center; min-height: 40px; margin-top: 2px; padding: 0; font: inherit; font-size: 13.5px; color: var(--accent, #ffb000); background: none; border: 0; text-decoration: underline; cursor: pointer; }
+    /* C8: the jump buttons stay under the price ticker while reading the page (one compact row, ChatGPT's change) */
+    .st-page .pt-chips { position: sticky; top: var(--pt-tick-h, 30px); z-index: 44; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: 6px; margin: 0 -16px 4px; padding: 3px 16px; background: var(--color-bg); box-shadow: 0 8px 10px -8px rgba(0,0,0,.7); }
+    .st-page .pt-chips::-webkit-scrollbar { display: none; }
+    .st-page .pt-chips button { flex: 0 0 auto; min-height: 36px; padding: 4px 14px; white-space: nowrap; }
+    .st-page .st-card { scroll-margin-top: 84px; }
+    /* C10: the floating ☰ and Top buttons fade while scrolling so they never sit hard on top of the text */
+    .m-menu-fab, .pt-top { transition: opacity .2s, transform .2s; }
+    html.pt-scrolling .m-menu-fab, html.pt-scrolling .pt-top.is-on { opacity: 0; transform: translateY(14px); pointer-events: none; }   /* R2 (Gemini): out of the way while scrolling, not see-through over the text */
+    /* Gemini: pie legends under the pie, not squeezed beside it */
+    .st-alloc-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+    /* Gemini: a hint on the few tables that scroll sideways */
+    .pt-swipe { display: block; margin: 4px 0 2px; font-size: 12.5px; color: var(--color-fg-muted); }
+    /* R2 (Nov 3): on every page but Home the shared header folds into one line (the day, who leads, when the AI last updated); one tap shows it all */
+    html:not([data-pt-page="overview"]) header.st-head:not(.pt-head-open) > :is(.st-crown-line, .st-progress) { display: none; }
+    html:not([data-pt-page="overview"]) .pt-mini { display: flex; }
+    .pt-mini { align-items: center; gap: 8px; width: 100%; min-height: 40px; margin: 4px 0 6px; padding: 6px 12px; font: inherit; font-size: 13.5px; line-height: 1.35; text-align: left; color: var(--color-fg-muted); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 10px; cursor: pointer; }
+    .pt-mini b { color: var(--color-fg); font-weight: 600; }
+    .pt-mini .pt-mini-a { margin-left: auto; flex: none; color: var(--color-fg); }
+    /* R2: the first-visit card on Home only; every other page already starts with the one-line "what is this" */
+    html:not([data-pt-page="overview"]) header.st-head .pt-welcome { display: none; }
+    html.pt-hero-on:not([data-pt-page="overview"]) .pt-def { display: block; }
+    /* R2: the two market lines one under the other (they squeezed into three short lines side by side) */
+    .st-progress .st-clock:has(> .st-mkt) { flex-direction: column; align-items: flex-start; gap: 2px; }
+    .st-progress .st-mkt { letter-spacing: .02em; }   /* Gemini: "OPENS IN 5 H 38 MIN" on one line */
+    /* R2: the AI faces' labels readable (were 9.5px and 8.5px) */
+    .st-bot-n { font-size: 12px; } .st-bot-t { font-size: 11px; }
+    /* R2: small round buttons keep their look but get a finger-sized tap area */
+    .pt-gl-q.pt-tap { min-height: 0 !important; }
+    .pt-gl-q { position: relative; width: 20px; height: 20px; } .pt-gl-q::after { content: ''; position: absolute; inset: -11px -10px; }
+    .pt-odds-x { width: 40px; height: 40px; top: 4px; right: 4px; }
+    .pt-hold-link.pt-tap { min-width: 36px; justify-content: center; padding: 0 6px; }
+    /* R2: no empty band above the price ticker (28px on the wide layout) */
+    #dash-root { padding-top: 6px; padding-bottom: 76px; }   /* and room at the very end so the floating buttons never sit on the last lines */
+    .pt-n-k.pt-n-race, .st-tabs > .pt-feed .pt-n-k { font-size: 12px; }
+    .pt-def a, .pt-safety-s a { display: inline-block; padding: 9px 0; margin: -9px 0; }
+    /* R2-1: the earlier rounds of a holding, one tap away */
+    .gx-old-b { display: inline-flex; align-items: center; min-height: 40px; padding: 6px 12px; font: inherit; font-size: 13.5px; text-align: left; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 10px; cursor: pointer; }
+    tr.gx-old { opacity: .85; }
+  }
+</style>
+<script>
+  (() => {
+    const PH = window.matchMedia('(max-width: 700px)');
+    // how far the visitor has read (the follow bar waits for 3 screens), and a class while scrolling (C10)
+    let tm = 0;
+    window.addEventListener('scroll', () => {
+      window.ptMaxScroll = Math.max(window.ptMaxScroll || 0, window.scrollY);
+      if (!PH.matches) return;
+      document.documentElement.classList.add('pt-scrolling'); clearTimeout(tm);
+      tm = setTimeout(() => document.documentElement.classList.remove('pt-scrolling'), 700);
+    }, { passive: true });
+    const tickH = () => { const t = document.querySelector('.pt-mtick'); if (t) document.documentElement.style.setProperty('--pt-tick-h', (t.offsetHeight || 30) + 'px'); };
+
+    // C2: one "About this race" button on phones, and the disclaimer's full text one tap away
+    const about = () => {
+      const h2 = document.querySelector('.st-head2'); if (!h2) return;
+      if (!h2.querySelector('.pt-about-btn')) {
+        const first = h2.querySelector('.st-indep, .st-tagline, .st-auto'); if (first) {
+          const b = document.createElement('button'); b.type = 'button'; b.className = 'pt-about-btn'; b.setAttribute('aria-expanded', 'false');
+          const set = () => { const on = h2.classList.contains('pt-about-open'); b.textContent = (on ? 'Hide: ' : 'ℹ️ About this race: ') + 'who is racing, how it runs, Season 2 ' + (on ? '▴' : '▾'); b.setAttribute('aria-expanded', String(on)); };
+          b.addEventListener('click', () => { h2.classList.toggle('pt-about-open'); set(); });
+          set(); first.before(b);
+        }
+      }
+      const n = document.querySelector('.st-notice-row .st-notice');
+      if (n && !(n.nextElementSibling && n.nextElementSibling.classList.contains('pt-notice-more'))) {
+        const m = document.createElement('button'); m.type = 'button'; m.className = 'pt-notice-more'; m.textContent = 'Read the full notice ▾';
+        m.addEventListener('click', () => n.classList.add('pt-open')); n.after(m);
+      }
+    };
+
+    // C6: "Started C$100,000 → now C$101,543 = +C$1,543 (+1.5%)" on each race, with a way to the moves behind it
+    const PF = { stocks: 'Stocks', crypto: 'Crypto', china: 'China', metals: 'Metals', energy: 'Energy', options: 'Options', currencies: 'Currencies', safe: 'Safe', sports: 'Sports', predictions: 'Predictions' };
+    const confirm = () => {
+      const T = dash.data('totals'); if (!T || T.status !== 'ok') return;
+      Object.entries(PF).forEach(([id, p]) => {
+        const pg = document.getElementById(id); if (!pg) return;
+        // the race's own value card (the one with its value tiles), never a news story card that sits above it
+        const tops = [...pg.querySelectorAll('.st-card')].filter((c) => !c.parentElement.closest('.st-card'));
+        const first = tops.find((c) => c.querySelector('[data-draw="vs-value"], [data-draw="tile-value"], [data-draw="day-pnl"]')) || tops.find((c) => !c.classList.contains('pt-story')); if (!first) return;
+        pg.querySelectorAll('.pt-confirm').forEach((x) => { if (x.parentElement !== first) x.remove(); });
+        let el = first.querySelector(':scope > .pt-confirm');
+        const r = T.data.find((x) => x.portfolio === p);
+        if (!r || !isFinite(Number(r.value))) { if (el) el.remove(); return; }
+        const v = Math.round(Number(r.value)), st = Math.round(Number(r.value) - Number(r.pnl)), pl = v - st;
+        const key = [v, st, document.documentElement.dataset.cur || ''].join('|'); if (el && el._k === key) return;
+        if (!el) { el = document.createElement('div'); el.className = 'pt-confirm'; const h = first.querySelector(':scope > h2'); if (h) h.after(el); else first.prepend(el); }
+        el._k = key;
+        const f = (x) => window.stFmt.money(x, p);
+        const B = (t, c) => { const b = document.createElement('b'); b.textContent = t; if (c) b.className = c; return b; };
+        el.replaceChildren(document.createTextNode('Started '), B(f(st)), document.createTextNode(p === 'Sports' ? ' → bankroll now ' : ' → now '), B(f(v)),
+          document.createTextNode(' = '), B(window.stFmt.signed(pl, p) + ' (' + window.stFmt.pct(st ? pl / st : 0) + ')', pl > 0 ? 'is-up' : pl < 0 ? 'is-down' : ''),
+          document.createTextNode(p === 'Sports' ? ' (settled bets only)' : ''), document.createElement('br'));
+        const go = document.createElement('button'); go.type = 'button'; go.className = 'pt-confirm-go'; go.textContent = 'Check every move behind it →';
+        go.addEventListener('click', () => {
+          const log = [...pg.querySelectorAll('.st-card')].find((c) => /^Decision log/i.test(((c.querySelector('h2') || {}).textContent || '').trim()));
+          if (log) { if (window.ptUnfold) window.ptUnfold(log); setTimeout(() => log.scrollIntoView({ block: 'start', behavior: 'smooth' }), 60); }
+          else { const tab = document.querySelector('.st-tab[data-tab="ledger"]'); if (tab) tab.click(); }
+        });
+        el.appendChild(go);
+      });
+    };
+
+    // Gemini: say when a table scrolls sideways
+    const swipe = () => document.querySelectorAll('.st-page:not([hidden]) .st-wrap').forEach((w) => {
+      const wide = w.scrollWidth > w.clientWidth + 6, prev = w.previousElementSibling, has = prev && prev.classList.contains('pt-swipe');
+      if (wide && !has) { const s = document.createElement('p'); s.className = 'pt-swipe'; s.textContent = 'Swipe the table sideways to see every column →'; w.before(s); }
+      else if (!wide && has) prev.remove();
+    });
+
+    // C4: on phones, no text under 12px (13px for running text) and every button, menu or link at least 40px to tap
+    const SKIP = 'svg, canvas, .st-bots, .pt-mtick, .pt-tk, .gx-tip, .st-tip, .st-mkt';
+    const read = () => {
+      const root = document.getElementById('dash-root'); if (!root) return;
+      root.querySelectorAll('*').forEach((e) => {
+        if (e._ptr) return;
+        if (e.closest(SKIP)) { e._ptr = 1; return; }
+        const r = e.getBoundingClientRect(); if (!r.width && !r.height) return;   // not laid out yet (a hidden page): check it when it shows
+        e._ptr = 1;
+        const txt = [...e.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent.trim()).join(' ').trim();
+        if (txt.length > 1) { const fs = parseFloat(getComputedStyle(e).fontSize), want = txt.length >= 40 ? 13 : 12; if (fs && fs < want) { if (!e.hasAttribute('data-pt-fs')) e.setAttribute('data-pt-fs', e.style.fontSize || ''); e.style.fontSize = want + 'px'; } }
+        if (e.matches('button, select, input:not([type=hidden]), [role=button], a[href]')) {
+          if (r.height >= 40) return;
+          const inText = e.tagName === 'A' && e.parentElement && [...e.parentElement.childNodes].some((n) => n !== e && n.nodeType === 3 && n.textContent.trim());
+          if (inText) { e.classList.add('pt-tap-in'); return; }
+          e.classList.add('pt-tap'); const d = getComputedStyle(e).display; if (/^inline/.test(d) && d !== 'inline-flex') e.classList.add('pt-tap-il');
+        }
+      });
+    };
+    let q = 0, busy = false;
+    // R2: the one-line header on every page but Home: "Day 7 of 32 · 👑 Gemini leads +C$18,289 · Gemini updated 53m ago   More ▾"
+    const fill = () => {
+      const head = document.querySelector('header.st-head'), m = head && head.querySelector(':scope > .pt-mini'); if (!m) return;
+      const tx = (e) => (e ? e.textContent : '').replace(/\s+/g, ' ').trim();
+      const day = /Day\s*\d+\s*of\s*\d+/i.exec(tx(document.querySelector('.st-progress > span')));
+      const chip = document.querySelector('.st-crown-line .st-crown-chip:not(.st-allin-chip)'), who = chip && chip.querySelector('.cr-n'), amt = chip && chip.querySelector('.cr-p');
+      const since = tx(document.querySelector('.st-since')).replace(/last updated/i, 'updated').replace(/—$/, '').trim();
+      const open = head.classList.contains('pt-head-open');
+      const key = [day && day[0], tx(who), tx(amt), since, open].join('|'); if (m._k === key) return; m._k = key;
+      const t = document.createElement('span');
+      if (day) t.append(day[0]);
+      if (who && tx(who)) { const b = document.createElement('b'); b.textContent = tx(who); b.style.color = getComputedStyle(who).color; t.append(t.childNodes.length ? ' · 👑 ' : '👑 ', b, ' leads' + (tx(amt) ? ' ' + tx(amt) : '')); }
+      if (/\d|just now/i.test(since)) t.append((t.childNodes.length ? ' · ' : '') + since);
+      const a = document.createElement('span'); a.className = 'pt-mini-a'; a.textContent = open ? 'Less ▴' : 'More ▾';
+      m.replaceChildren(t, a); m.setAttribute('aria-expanded', String(open));
+    };
+    const mini = () => {
+      const head = document.querySelector('header.st-head'); if (!head || head.querySelector(':scope > .pt-mini')) return fill();
+      const m = document.createElement('button'); m.type = 'button'; m.className = 'pt-mini'; m.title = 'The race clock, who leads overall and when each AI last updated';
+      m.addEventListener('click', () => { head.classList.toggle('pt-head-open'); fill(); });
+      const t = head.querySelector(':scope > .st-title'); if (t) t.after(m); else head.prepend(m);
+      fill();
+    };
+    setInterval(() => { if (PH.matches) fill(); }, 30000);   // "updated 53m ago" moves on by itself
+    const work = () => { if (!PH.matches || busy) return; busy = true; try { tickH(); about(); mini(); confirm(); read(); swipe(); } finally { busy = false; } };
+    const run = () => { clearTimeout(q); q = setTimeout(work, 250); };
+    dash.onData(run); window.addEventListener('pt-tab', run); window.addEventListener('resize', run);
+    // only new elements matter (the clocks change their text every second; charts redraw their own parts)
+    if (window.MutationObserver) new MutationObserver((ms) => { if (busy) return;
+      if (ms.some((m) => [...m.addedNodes].some((n) => n.nodeType === 1 && !(n.closest && n.closest('svg, .pt-mtick, .st-progress'))))) run(); }).observe(document.getElementById('dash-root') || document.body, { childList: true, subtree: true });
+    // turning a phone sideways (wider than 700px) shows the wide layout: put back the text sizes changed above, and check again when it turns back
+    const undo = () => { document.querySelectorAll('[data-pt-fs]').forEach((e) => { e.style.fontSize = e.getAttribute('data-pt-fs'); e.removeAttribute('data-pt-fs'); });
+      const root = document.getElementById('dash-root'); if (root) root.querySelectorAll('*').forEach((e) => { e._ptr = 0; }); document.documentElement.classList.remove('pt-scrolling'); };
+    const flip = () => { if (PH.matches) run(); else undo(); };
+    if (PH.addEventListener) PH.addEventListener('change', flip); else if (PH.addListener) PH.addListener(flip);
+    run();
+  })();
+</script>
 <script>
   // O7 (all three AIs agreed, Oct 31; ops/MISSION.md): the 7-day return rate. The visitor's own browser keeps only the day of
   // its last visit (nothing personal, never sent anywhere); on a visit on a NEW day it counts one anonymous GoatCounter event:
@@ -10843,12 +11093,14 @@ body { background:var(--color-bg); }
     try {
       const K = 'pt-follow-prompt', now = Date.now();
       let last = 0; try { last = +localStorage.getItem(K) || 0; } catch (e) {}
-      if (now - last < 3 * 864e5) return;
+      const PH = window.matchMedia && window.matchMedia('(max-width: 700px)').matches;   // phone round 2 (Nov 3; all three AIs agreed, C3): on phones a slim one-line bar, after 3 screens of reading, at most once a week
+      if (now - last < (PH ? 7 : 3) * 864e5) return;
       const ev = (p) => { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: p, title: p, event: true }); } catch (e) {} };
       let shown = false;
       const show = () => {
         if (shown) return;
         if (document.querySelector('.gd-offer, .gd-tour')) { setTimeout(show, 8000); return; }   // never on top of the tour
+        if (PH && (window.ptMaxScroll || 0) < 3 * window.innerHeight) { setTimeout(show, 4000); return; }   // phones: only once the visitor has read 3 screens
         shown = true; try { localStorage.setItem(K, String(Date.now())); } catch (e) {}
         const latest = ((document.querySelector('.st-live-last') || {}).textContent || '').replace(/\s+/g, ' ').trim();
         const b = document.createElement('aside'); b.className = 'pt-fp'; b.setAttribute('role', 'dialog'); b.setAttribute('aria-label', 'Follow the race');
@@ -10862,6 +11114,13 @@ body { background:var(--color-bg); }
           + '<a class="st-live-btn st-follow-yt" data-follow="youtube-prompt" href="https://www.youtube.com/@PaperTradesAI" target="_blank" rel="noopener">YouTube</a></div>'
           + '<p class="pt-fp-n">Free, read-only. Pretend money, not advice. <a href="#notify" class="pt-fp-more">How to turn on notifications →</a></p>';
         if (b.querySelector('.pt-fp-l')) b.querySelector('.pt-fp-l').textContent = latest.slice(0, 140);
+        if (PH) {   // the slim phone bar: one line, Telegram and Discord, close; nothing else covers the page
+          b.classList.add('pt-fp-slim');
+          b.innerHTML = '<span class="pt-fp-t">🔔 Follow free:</span>'
+            + '<a class="st-live-btn" data-follow="telegram-prompt" href="https://t.me/PaperTradesAI" target="_blank" rel="noopener">Telegram</a>'
+            + '<a class="st-live-btn st-follow-dc" data-follow="discord-prompt" href="https://discord.gg/PkqX3zstD" target="_blank" rel="noopener">Discord</a>'
+            + '<button type="button" class="pt-fp-x" aria-label="Close">×</button>';
+        }
         document.body.appendChild(b); ev('prompt/shown');
         const close = () => { b.remove(); document.removeEventListener('keydown', esc); };
         const esc = (e) => { if (e.key === 'Escape') { ev('prompt/closed'); close(); } };

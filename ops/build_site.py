@@ -476,13 +476,21 @@ html = f"""<!doctype html>
 {SPLASH}
 <!-- Safety banner for new visitors (owner, Nov 1, 2026; text and behaviour agreed by Claude, Gemini and ChatGPT: ops/review/safety-banner-nov1.json).
      Shown until the visitor closes it (remembered only in that browser), until Dec 1, 2026. -->
-<div id="pt-safety" class="pt-safety" role="note" hidden><span class="pt-safety-t">🔒 PaperTrades.AI never takes deposits and will never message you asking for money, your password or personal information (optional tips are only on our Support page). We are not associated with any similarly named site or app. <a href="#official" data-goto="about">Official accounts →</a></span><button type="button" class="pt-safety-x" aria-label="Close this notice">✕</button></div>
+<div id="pt-safety" class="pt-safety" role="note" hidden><span class="pt-safety-t">🔒 PaperTrades.AI never takes deposits and will never message you asking for money, your password or personal information (optional tips are only on our Support page). We are not associated with any similarly named site or app. <a href="#official" data-goto="about">Official accounts →</a></span><span class="pt-safety-s">🔒 We never take deposits or message you asking for money. <a href="#official" data-goto="about">Official accounts →</a> <button type="button" class="pt-safety-more" aria-expanded="false">More</button></span><button type="button" class="pt-safety-x" aria-label="Close this notice">✕</button></div>
 <style>
   .pt-safety {{ display: flex; align-items: center; gap: 12px; justify-content: center; padding: 8px 44px 8px 14px; background: #15181d; color: #e8e6df; border-bottom: 1px solid #2a2f37; font-size: 13px; line-height: 1.4; text-align: center; position: relative; z-index: 60; }}
   .pt-safety[hidden] {{ display: none; }}
   .pt-safety a {{ color: #f5c542; white-space: nowrap; }}
   .pt-safety-x {{ position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font: inherit; background: none; border: 1px solid #3a404a; color: #e8e6df; border-radius: 999px; width: 28px; height: 28px; cursor: pointer; }}
   @media (max-width: 700px) {{ .pt-safety {{ font-size: 12.5px; justify-content: flex-start; padding: 8px 42px 8px 12px; }} }}
+  /* C9, phone round 2 (Nov 3; Claude, Gemini and ChatGPT all agreed): on phones a one-line version, the full text one tap away (More) */
+  .pt-safety-s {{ display: none; }}
+  @media (max-width: 700px) {{
+    .pt-safety:not(.pt-open) .pt-safety-t {{ display: none; }} .pt-safety:not(.pt-open) .pt-safety-s {{ display: inline; }}
+    .pt-safety {{ text-align: left; padding: 6px 52px 6px 12px; }}
+    .pt-safety-more {{ font: inherit; font-size: 12.5px; background: none; border: 0; color: #f5c542; text-decoration: underline; padding: 11px 8px; margin: -11px -6px; cursor: pointer; }}
+    .pt-safety-x {{ width: 40px; height: 40px; right: 6px; }}
+  }}
 </style>
 <script>
   (function () {{
@@ -493,7 +501,8 @@ html = f"""<!doctype html>
       if (closed) {{ b.remove(); return; }}
       b.hidden = false;
       b.querySelector('.pt-safety-x').addEventListener('click', function () {{ try {{ localStorage.setItem('pt-safety-closed', '1'); }} catch (e) {{}} b.remove(); }});
-      b.querySelector('a').addEventListener('click', function () {{ setTimeout(function () {{ var o = document.getElementById('official'); if (o) o.scrollIntoView({{ behavior: 'smooth', block: 'start' }}); }}, 200); }});
+      b.querySelectorAll('a').forEach(function (a) {{ a.addEventListener('click', function () {{ setTimeout(function () {{ var o = document.getElementById('official'); if (o) o.scrollIntoView({{ behavior: 'smooth', block: 'start' }}); }}, 200); }}); }});
+      var mo = b.querySelector('.pt-safety-more'); if (mo) mo.addEventListener('click', function () {{ b.classList.add('pt-open'); mo.setAttribute('aria-expanded', 'true'); }});
     }} catch (e) {{}}
   }})();
 </script>
