@@ -181,9 +181,17 @@ def poll():
     if not B.get('username'):   # the bot's public @name, for the link-up links (also proves the token works)
         me = api('getMe') or {}
         if me.get('username'): B['username'] = me['username']; print(f'::notice title=Nicole bot::token works: @{me["username"]}')
-    ups = api('getUpdates', offset=B.get('offset', 0), timeout=0, allowed_updates=['message', 'callback_query']) or []
+    # real time (Nov 2): with the Cloudflare webhook on, each update arrives in NICOLE_UPDATE from the Worker; getUpdates is then
+    # refused by Telegram (a bot has either a webhook or a queue), so the hourly run only sends reminders
+    one = os.environ.get('NICOLE_UPDATE', '').strip()
+    if one and one != 'null':
+        ups = [json.loads(one)]
+    elif B.get('webhook'):
+        ups = []
+    else:
+        ups = api('getUpdates', offset=B.get('offset', 0), timeout=0, allowed_updates=['message', 'callback_query']) or []
     for u in ups:
-        B['offset'] = u['update_id'] + 1
+        if not one: B['offset'] = u['update_id'] + 1
         if 'callback_query' in u:
             q = u['callback_query']; cid = str(q['message']['chat']['id'])
             if cid not in B['chats'].values(): continue
@@ -222,6 +230,19 @@ def poll():
                 api('sendMessage', chat_id=nic, reply_to_message_id=t.get('msg'), allow_sending_without_reply=True,
                     text='⏰ Friendly reminder: this one is still open. Tap ✅ Done when it’s finished.'); t['reminded'] = True
     save(BOT, B); save(TASKS, T)
+
+
+def webhook(url):
+    """Turn real-time on (url = the Cloudflare Worker's address) or off (url = 'off'). The secret header is derived from the
+    token the same way as in ops/nicole/worker.js, so no extra password is needed."""
+    B = load(BOT, {})
+    if url == 'off':
+        api('deleteWebhook'); B.pop('webhook', None); save(BOT, B); print('webhook off: back to the hourly queue'); return
+    sec = hashlib.sha256(('webhook:' + TOKEN).encode()).hexdigest()[:48]
+    r = api('setWebhook', url=url, secret_token=sec, allowed_updates=['message', 'callback_query'], drop_pending_updates=False)
+    info = api('getWebhookInfo') or {}
+    print('setWebhook:', r, '| now:', info.get('url'), '| pending:', info.get('pending_update_count'), '| last error:', info.get('last_error_message'))
+    if r: B['webhook'] = url; save(BOT, B); tell_owner('⚡ NINI\'s bot is now real time: her ✅ Done taps reach you within about a minute.')
 
 
 def merge_save(msg):
@@ -284,5 +305,6 @@ if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else 'poll'
     if cmd == 'send': print(send_file(sys.argv[2]), 'jobs')
     elif cmd == 'codes': codes()
+    elif cmd == 'webhook': webhook(sys.argv[2])
     elif cmd == 'save': merge_save(sys.argv[2] if len(sys.argv) > 2 else 'Nicole bot: state')
     else: poll()

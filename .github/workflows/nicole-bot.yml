@@ -4,11 +4,19 @@ name: Nicole task bot (read taps, remind)
 on:
   schedule:
     - cron: '41 * * * *'
-  workflow_dispatch: {}
+  # real time (Nov 2): the Cloudflare Worker (ops/nicole/worker.js) passes each tap or message here the moment it happens
+  repository_dispatch:
+    types: [nicole_update]
+  workflow_dispatch:
+    inputs:
+      webhook:
+        description: 'turn real time on: the Cloudflare Worker address (https://....workers.dev), or "off" to go back to hourly'
+        default: ''
+        required: false
 permissions:
   contents: write
 concurrency:
-  group: nicole-bot
+  group: nicole-bot-${{ github.event_name == 'repository_dispatch' && github.run_id || 'poll' }}   # each real-time update runs on its own (a queued one must never be dropped); saves merge
   cancel-in-progress: false
 jobs:
   poll:
@@ -21,8 +29,11 @@ jobs:
       - name: Read the bot's inbox
         env:
           NICOLE_BOT_TOKEN: ${{ secrets.NICOLE_BOT_TOKEN }}
+          NICOLE_UPDATE: ${{ github.event_name == 'repository_dispatch' && toJson(github.event.client_payload.update) || '' }}
+          WEBHOOK: ${{ inputs.webhook }}
         run: |
           if [ -z "$NICOLE_BOT_TOKEN" ]; then echo "No NICOLE_BOT_TOKEN yet: nothing to do."; exit 0; fi
+          if [ -n "$WEBHOOK" ]; then python3 ops/nicole_bot.py webhook "$WEBHOOK"; fi
           python3 ops/nicole_bot.py poll
       - name: Save state (merged with any task send that saved meanwhile, so no Done tap or job is lost)
         run: |
