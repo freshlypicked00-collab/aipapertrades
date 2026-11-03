@@ -340,7 +340,9 @@ def daily(out, n, cut, when):
             if lead:
                 s.d.ellipse([x - F('sans', 'Bold', 38).getlength(nm) - 46, y + 32, x - F('sans', 'Bold', 38).getlength(nm) - 18, y + 60], fill=AIC[who])
         y += 104
-    s.para(X0, y + 20, 'Who led each race at the day\'s close (8 p.m. ET), profit since the Oct 28 restart.', F('sans', 'Regular', 32), MUTED)
+    from zoneinfo import ZoneInfo   # the close is 00:00 UTC: 8 p.m. ET until Nov 1, 7 p.m. ET after the clocks changed (Nov 2 fix)
+    et = cut.astimezone(ZoneInfo('America/New_York')).strftime('%-I p.m. ET') if getattr(cut, 'tzinfo', None) else '7 p.m. ET'
+    s.para(X0, y + 20, f'Who led each race at the day\'s close ({et}), profit since the Oct 28 restart.', F('sans', 'Regular', 32), MUTED)
     return s.save(f'{out}/daily-day{n}.jpg')
 
 
