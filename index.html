@@ -1364,6 +1364,7 @@ tr.lg-hit .tx-id{opacity:1}
 .lg-game{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:4px;font-size:12px;color:var(--color-fg-muted,#9b927f)}
 .lg-game span{border-left:2px solid #ffb000;padding-left:6px}
 @media (max-width: 640px) { html.pt-hero-on .pt-def { display: none; } }
+.pt-more td{white-space:normal!important}.pt-more-box{white-space:normal;overflow-wrap:anywhere;margin:2px 0 8px;padding:8px 12px;border-left:3px solid var(--accent,#ffb000);background:rgba(255,176,0,.05);font-size:13px;line-height:1.45}.pt-more-box dl{display:grid;grid-template-columns:max-content 1fr;gap:3px 12px;margin:0}.pt-more-box dt{font-weight:700;color:var(--color-fg-muted)}.pt-more-box dd{margin:0}@media (max-width:640px){.pt-more-box{max-width:calc(100vw - 84px)}.pt-more-box dl{grid-template-columns:1fr}.pt-more-box dd{margin-bottom:4px}}
 .lg-jump{margin:0 0 10px}.lg-jump-b{font:inherit;font-size:13px;color:var(--accent,#ffb000);background:none;border:1px solid var(--color-border-line,#444);border-radius:999px;padding:4px 12px;cursor:pointer}
 .pt-story-more>summary{cursor:pointer;color:var(--accent,#ffb000);font-size:13px;margin:4px 0 8px}.pt-story-lede{margin-bottom:4px}
 .pd-side-flag{margin:2px 0 8px;padding:4px 8px;border-left:3px solid var(--accent,#ffb000);font-size:13px;font-weight:600;line-height:1.35}
@@ -1567,7 +1568,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '0b48ddf6efc6';</script>
+<script>window.PT_PAGE_VER = '484843e1856a';</script>
 <!-- the first text on the page says plainly what this is, so search engines and AI assistants stop mixing the name up with a similarly named exchange (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json) -->
 <p class="pt-def" id="what-is">PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no deposits and has no token. <a href="/what-is-papertrades-ai.html">What is PaperTrades.AI?</a></p>
 <style>.pt-def { margin: 0; padding: 5px 14px; font-size: 12px; line-height: 1.4; text-align: center; color: var(--color-fg-muted, #a9a495); background: var(--color-bg, #0b0b0a); } .pt-def a { color: inherit; text-decoration: underline; white-space: nowrap; }</style>
@@ -3668,6 +3669,67 @@ body { background:var(--color-bg); }
     L.__act = ACT; L.__bet = BET; TXL = L; return L;
   };
   window.ptTxLinks = txLinks;
+  // "More details" on every move (owner, Nov 2: "maybe the balance he had when he made the purchase"; all three AIs agreed M1-M5)
+  window.ptMoreDetails = (() => {
+    let IDX = null; dash.onData(() => { IDX = null; });
+    const NM = { claude: 'Claude', gemini: 'Gemini', chatgpt: 'ChatGPT' };
+    const build = () => { IDX = {};
+      const put = (tx, o) => { if (tx && !IDX[tx]) IDX[tx] = o; };
+      (dash.baseData('rivals_trades') || []).forEach((t) => put(t.tx, { ...t, side: false }));
+      (dash.baseData('allin_trades') || []).forEach((t) => put(t.tx, { ...t, side: true }));
+      (dash.baseData('trades') || []).forEach((t) => put(t.tx, { model: 'claude', experiment: t.portfolio, action: t.action, at: t.at, name: t.holding, price: t.price_local != null ? +t.price_local : +t.price_usd, pcur: t.portfolio === 'China' ? 'CNY' : 'USD',
+        amount: Math.abs(+t.cad || 0), p_works: t.p_works, wrong_lvl: t.wrong_lvl, fx: t.fx, filled_by: t.filled_by, side: false }));
+      (dash.baseData('bets') || []).forEach((b) => put(b.tx, { model: 'claude', experiment: 'Sports', action: 'Bet', at: b.placed_at || b.placed, name: b.pick, price: +b.odds, amount: +b.stake_cad || 0, p_works: b.p_works, side: false }));
+      return IDX; };
+    const series = (o) => { const out = [];
+      if (o.side) (dash.baseData('allin_history') || []).forEach((h) => { if (h.experiment === o.experiment) out.push({ m: h.model, at: Date.parse(h.at), v: +h.value }); });
+      else { (dash.baseData('rivals_history') || []).forEach((h) => { if (h.experiment === o.experiment) out.push({ m: h.model, at: Date.parse(h.at), v: +h.value }); });
+        (dash.baseData('history') || []).forEach((h) => { if (h.portfolio === o.experiment) out.push({ m: 'claude', at: Date.parse(h.at), v: +h.value }); }); }
+      return out; };
+    const before = (S, m, t) => { let best = null; S.forEach((p) => { if (p.m === m && p.at < t && (!best || p.at > best.at)) best = p; }); return best; };
+    const money = (v, e) => (e === 'China' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(v));
+    const etTime = (iso) => new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit', second: '2-digit' }).format(new Date(iso)).replace(' AM', ' a.m.').replace(' PM', ' p.m.') + ' ET';
+    const lines = (o) => { const L = [], who = NM[o.model] || o.model, race = (ALLIN[o.experiment] || LABEL[o.experiment] || o.experiment || '').replace(' (US$)', ''), t = Date.parse(o.at);
+      const S = series(o), mine = before(S, o.model, t + 1);
+      const amt = Math.abs(+o.stake || +o.amount || 0);
+      // M1 balance
+      if (mine && mine.v > 0) L.push(['Balance', race + ' was worth ' + money(mine.v, o.experiment) + ' just before this' + (amt && /^(Buy|Short|Bet|Parlay)$/.test(o.action) ? '; this used ' + money(amt, o.experiment) + ' (' + d3.format('.0%')(amt / mine.v) + ')' : '') + '.']);
+      // M5 place
+      if (mine) { const vals = ['claude', 'gemini', 'chatgpt'].map((m) => before(S, m, t + 1)).filter(Boolean); if (vals.length === 3) { const ahead = vals.filter((p) => p.v > mine.v + 0.5).length; L.push(['Place', ['1st', '2nd', '3rd'][ahead] + ' of 3 in ' + race + ' at that moment.']); } }
+      // M2 its own odds
+      const p = +o.p_works; if (p > 0 && p <= 1) { let s2 = who + ' put the chance it works at ' + d3.format('.0%')(p) + ' when it decided';   // shown only when recorded (from Oct 31)
+        if (/^(Bet|Parlay)$/.test(o.action) && Number.isFinite(+o.price) && +o.price !== 0) { const od = +o.price, imp = od < 0 ? -od / (-od + 100) : 100 / (od + 100); s2 += '; the bookmaker’s price implied ' + d3.format('.0%')(imp); }
+        L.push(['Its odds', s2 + '.']); }
+      // M3 exit plan
+      const lv = o.wrong_lvl || {}; const lvl = lv.below != null ? +lv.below : lv.above != null ? +lv.above : null;
+      if (o.wrong_if || lvl != null) { let s3 = o.wrong_if ? 'Wrong if: ' + String(o.wrong_if).replace(/\.$/, '') : 'Exit level ' + lvl;
+        if (o.wrong_if && lvl != null) s3 += '; stop: ' + (lv.symbol && lv.symbol !== o.symbol ? lv.symbol + ' ' : '') + (lv.below != null ? 'below ' : 'above ') + lvl;   // ChatGPT's M3 wording, all three agreed
+        if (lvl != null && +o.price > 0 && !/^(Bet|Parlay)$/.test(o.action) && !(lv.symbol && o.symbol && lv.symbol !== o.symbol) && o.experiment !== 'Options') s3 += ' (' + d3.format('.1%')(Math.abs(lvl / +o.price - 1)) + (lvl < +o.price ? ' below' : ' above') + ' the price paid)';
+        L.push(['Exit plan', s3 + '.']); }
+      // M4 price check
+      const q = o.quote || {}; if (Number.isFinite(+o.price) && +o.price && !/^(Bet|Parlay|Won|Lost|Void|Push)$/.test(o.action)) {
+        let s4 = 'Price ' + (o.pcur === 'CNY' ? '¥' : o.pcur === 'CAD' ? 'C$' : 'US$') + d3.format(',.4~f')(+o.price);
+        if (q.source) s4 += ' from ' + q.source.replace(/ \(.*\)$/, '');
+        if (q.quote_at || o.quote_at) { const qa = q.quote_at || o.quote_at; s4 += ', quote ' + etTime(qa); const dm = Math.round((Date.parse(qa) - t) / 60000); if (Math.abs(dm) <= 30) s4 += dm > 0 ? ' (' + dm + ' min after it decided)' : dm < 0 ? ' (' + -dm + ' min before it decided)' : ' (the minute it decided)'; }
+        const fx = o.fx && (o.fx.USDCAD || o.fx.USD); if (fx && o.pcur === 'USD') s4 += '; US$1 = C$' + d3.format('.4f')(+fx);
+        if (o.filled_by) s4 += '; filled by ' + o.filled_by;
+        L.push(['Price check', s4 + '.']); }
+      return L; };
+    const toggle = (id, btn) => {
+      const o = (IDX || build())[id]; if (!o) return;
+      const tr = btn.closest('tr'), host = tr || btn.closest('li, .lg-row, div') || btn.parentElement;
+      const nx = host.nextElementSibling;
+      if (nx && nx.classList.contains('pt-more') && nx.dataset.tx === id) { nx.remove(); btn.textContent = 'More details ▾'; btn.setAttribute('aria-expanded', 'false'); return; }
+      const box = document.createElement('div'); box.className = 'pt-more-box';
+      const L = lines(o); if (!L.length) box.appendChild(mk('p', 'st-muted', 'No extra details were recorded for this move.'));
+      const dl = mk('dl'); L.forEach(([k, v]) => { dl.append(mk('dt', '', k), mk('dd', '', v)); }); if (L.length) box.appendChild(dl);
+      let row;
+      if (tr) { row = document.createElement('tr'); const td = document.createElement('td'); td.colSpan = tr.children.length || 8; td.appendChild(box); row.appendChild(td); }
+      else { row = document.createElement('div'); row.appendChild(box); }
+      row.className = 'pt-more'; row.dataset.tx = id; host.after(row);
+      btn.textContent = 'Less details ▴'; btn.setAttribute('aria-expanded', 'true'); };
+    return { has: (id) => !!(IDX || build())[id], toggle };
+  })();
   window.ptTxTag = (id, at) => {
     if (id) { const w = document.createElement('span'); w.className = 'tx-wrap';
       const b = document.createElement('button'); b.className = 'tx-id'; b.textContent = 'Transaction ID ' + id; b.type = 'button'; b.title = 'Transaction ID ' + id + ': tap to copy a link to this move';
@@ -3689,7 +3751,10 @@ body { background:var(--color-bg); }
         if ((LL.__bet || new Set()).has(id) && !(x && x.result)) { const nx = document.createElement('span'); nx.className = 'tx-next'; nx.textContent = 'Result: not settled yet'; nx.title = 'The result gets its own transaction ID, linked here, once the game or market settles'; w.appendChild(nx); }
         if ((LL.__bet || new Set()).has(id)) { const gl = gameLine(id, !(x && x.result)); if (gl) { const gn = document.createElement('span'); gn.className = 'tx-next tx-game'; gn.textContent = gl; gn.title = 'Start time from ESPN, shown in Eastern time'; w.appendChild(gn); } }
         if (window.ptStory) { const sb = document.createElement('button'); sb.type = 'button'; sb.className = 'tx-id tx-go tx-story'; sb.textContent = '📜 Whole story'; sb.title = 'Every move of this holding or bet, from the first trade, with a check of the sum';
-          sb.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); window.ptStory.openTx(id); }); w.appendChild(sb); } } catch (e) {}
+          sb.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); window.ptStory.openTx(id); }); w.appendChild(sb); }
+        if (window.ptMoreDetails && window.ptMoreDetails.has(id)) { const mb = document.createElement('button'); mb.type = 'button'; mb.className = 'tx-id tx-go tx-more'; mb.textContent = 'More details ▾'; mb.setAttribute('aria-expanded', 'false');
+          mb.title = 'The race balance before this move, the AI’s own odds and exit plan, the price check and its place in the race';
+          mb.addEventListener('click', (ev) => { ev.preventDefault(); ev.stopPropagation(); window.ptMoreDetails.toggle(id, mb); }); w.appendChild(mb); } } catch (e) {}
       return w; }
     if (Date.parse(at) >= TX_RESTART) { const sp = document.createElement('span'); sp.className = 'tx-id tx-pending'; sp.textContent = 'ID pending'; sp.title = 'The race runner gives this move its ID at its next run'; return sp; }
     return document.createTextNode('');
