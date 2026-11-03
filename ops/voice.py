@@ -66,23 +66,36 @@ def run_gemini(script, out):
     if not key:
         print('no GEMINI_API_KEY; gemini voice skipped'); return False
     models = gemini_model(key)
-    for model in models:
-        try:
-            os.makedirs(out, exist_ok=True); timing = {'_model': model}
-            for ln in script['lines']:
+    os.makedirs(out, exist_ok=True); timing = {}
+    for ln in script['lines']:
+        done = False
+        tries = [(m, True) for m in models] + [(m, False) for m in models[:2]]   # last: without the delivery note
+        for model, styled in tries:
+            l2 = dict(ln) if styled else {**ln, 'style': 'Read aloud'}
+            try:
                 for attempt in range(3):
                     try:
-                        pcm = gemini_line(key, model, ln); break
+                        pcm = gemini_line(key, model, l2); break
                     except Exception as e:
                         if attempt == 2:
                             raise
                         print('retry', ln['id'], str(e)[:200]); time.sleep(8)
-                timing[ln['id']] = round(save(os.path.join(out, ln['id'] + '.wav'), pcm), 3)
-            json.dump(timing, open(os.path.join(out, 'timing.json'), 'w'), indent=1)
-            print('gemini voice done with', model, timing); return True
-        except Exception as e:
-            print('::warning::gemini voice failed with', model, str(e)[:300])
-    return False
+            except Exception as e:
+                print('::warning::gemini voice failed with', model, str(e)[:200]); continue
+            path = os.path.join(out, ln['id'] + '.wav')
+            dur = save(path, pcm)
+            try:
+                w = heard(path)
+            except Exception as e:
+                print('::warning::could not listen back:', str(e)[:200]); w = None
+            sc = match(ln['text'], w) if w is not None else None
+            print(f'{ln["id"]} {model} styled={styled} {dur:.2f}s match={sc}')
+            if sc is None or sc >= 0.85:
+                timing[ln['id']] = {'s': round(dur, 3), 'model': model, 'styled': styled, 'match': sc}; done = True; break
+        if not done:
+            print('::warning::no Gemini voice said line ' + ln['id'] + ' correctly'); return False
+    json.dump(timing, open(os.path.join(out, 'timing.json'), 'w'), indent=1)
+    print('gemini voice done', timing); return True
 
 
 def run_kokoro(script, out, model_dir):
@@ -102,29 +115,55 @@ def run_kokoro(script, out, model_dir):
     print('kokoro voice done', timing); return True
 
 
+def load16k(path):
+    import numpy as np
+    with wave.open(path) as w:
+        sr = w.getframerate(); x = np.frombuffer(w.readframes(w.getnframes()), '<i2').astype(np.float32) / 32768
+    n = int(len(x) * 16000 / sr)
+    return np.interp(np.linspace(0, len(x) - 1, n), np.arange(len(x)), x).astype(np.float32)
+
+
+_WHISPER = None
+
+
+def heard(path):
+    """What a voice line actually says, with word times (faster-whisper, open source), or None if it is not installed."""
+    global _WHISPER
+    try:
+        from faster_whisper import WhisperModel
+    except Exception:
+        return None
+    if _WHISPER is None:
+        _WHISPER = WhisperModel(os.environ.get('WHISPER_MODEL', 'small.en'), device='cpu', compute_type='int8')
+    segs, _ = _WHISPER.transcribe(load16k(path), language='en', word_timestamps=True, beam_size=5)
+    return [[w.word.strip(), round(w.start, 3), round(w.end, 3)] for sg in segs for w in (sg.words or [])]
+
+
+def match(text, words):
+    import difflib, re as _re
+    norm = lambda t: _re.sub(r'[^a-z0-9 ]', ' ', t.lower().replace('-', ' ')).split()
+    return difflib.SequenceMatcher(None, norm(text), norm(' '.join(w[0] for w in words))).ratio()
+
+
 def align(folder, script):
     """Word timings for the captions, and a check that the voice said the words in the script: each line is transcribed back with
     faster-whisper (open source, MIT). Writes words.json {line id: [[word, start, end], ...]} and a match score per line."""
-    try:
-        from faster_whisper import WhisperModel
-    except Exception as e:
-        print('::warning::faster-whisper not installed, no word timings:', e); return
     import difflib, re as _re
-    m = WhisperModel(os.environ.get('WHISPER_MODEL', 'small.en'), device='cpu', compute_type='int8')
     norm = lambda t: _re.sub(r'[^a-z0-9 ]', ' ', t.lower().replace('-', ' ')).split()
     out, report = {}, {}
     for ln in script['lines']:
         wav = os.path.join(folder, ln['id'] + '.wav')
         if not os.path.exists(wav):
             continue
-        segs, _ = m.transcribe(wav, language='en', word_timestamps=True, beam_size=5)
-        words = [[w.word.strip(), round(w.start, 3), round(w.end, 3)] for sg in segs for w in (sg.words or [])]
+        words = heard(wav)
+        if words is None:
+            print('::warning::faster-whisper not installed, no word timings'); return
         out[ln['id']] = words
-        heard = ' '.join(w[0] for w in words)
-        score = difflib.SequenceMatcher(None, norm(ln['text']), norm(heard)).ratio()
-        report[ln['id']] = {'heard': heard, 'match': round(score, 3)}
+        said = ' '.join(w[0] for w in words)
+        score = difflib.SequenceMatcher(None, norm(ln['text']), norm(said)).ratio()
+        report[ln['id']] = {'heard': said, 'match': round(score, 3)}
         if score < 0.85:
-            print(f'::warning::voice line {ln["id"]} may not say the script ({score:.2f}): heard "{heard}"')
+            print(f'::warning::voice line {ln["id"]} may not say the script ({score:.2f}): heard "{said}"')
     json.dump(out, open(os.path.join(folder, 'words.json'), 'w'), indent=0)
     json.dump(report, open(os.path.join(folder, 'check.json'), 'w'), indent=1)
     print('aligned', folder, report)
@@ -139,4 +178,7 @@ if __name__ == '__main__':
         sys.exit('no voice engine worked')
     for eng, ok in (('gemini', ok_g), ('kokoro', ok_k)):
         if ok:
-            align(os.path.join(base, eng), script)
+            try:
+                align(os.path.join(base, eng), script)
+            except Exception as e:
+                print('::warning::word timings failed for', eng, str(e)[:300])

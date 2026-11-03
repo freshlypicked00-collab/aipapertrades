@@ -43,6 +43,7 @@ jobs:
           TTS_MODEL: ${{ inputs.model }}
         run: python3 ops/voice.py "${{ inputs.script }}"
       - name: Save them
+        if: always()
         run: |
           git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
           git add social/voice && git commit -qm "Voiceover lines: ${{ inputs.script }}" || exit 0
