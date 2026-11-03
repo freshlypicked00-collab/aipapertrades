@@ -315,9 +315,9 @@ def build(name, engine, out_dir, receipts=None):
         dur = len(x) / SR
         tt = token_times(ln['text'], words.get(ln['id']), dur, cut)
         lines.append({**ln, 'x': x, 'start': t, 'dur': dur, 'tok': tt, 'env': envelope(x)})
-        gap = 0.16 if ln['who'] == 'narrator' and script['lines'][min(i + 1, len(script['lines']) - 1)]['who'] == 'narrator' else 0.24
+        gap = 0.12 if ln['who'] == 'narrator' and script['lines'][min(i + 1, len(script['lines']) - 1)]['who'] == 'narrator' else 0.2
         t += dur + gap
-    total = t + 1.4
+    total = t + 1.2
     beats = {ln['id']: (ln['start'], (lines[i + 1]['start'] if i + 1 < len(lines) else total)) for i, ln in enumerate(lines)}
     byid = {ln['id']: ln for ln in lines}
 
@@ -345,7 +345,7 @@ def build(name, engine, out_dir, receipts=None):
     env = np.abs(voice); k = int(0.25 * SR)
     env = np.convolve(env, np.ones(k) / k, 'same')
     duck = np.clip(1 - env * 9, 0.28, 1.0)
-    mix = voice + fx * 0.6 + mus * 0.20 * duck
+    mix = voice + fx * 0.6 + mus * 0.26 * duck
     mix = mix / max(1.0, np.abs(mix).max() / 0.95)
     os.makedirs('/tmp/yt', exist_ok=True)
     with wave.open('/tmp/yt/mix.wav', 'wb') as w:
@@ -396,8 +396,8 @@ def build(name, engine, out_dir, receipts=None):
             ys = 700
             for k, x0, sc in (('claude', 260, .95), ('chatgpt', 820, .95)):
                 bot(dr, x0, ys + 60, AIC[k], sc, blink=blink(tt, 1 if k == 'claude' else 2), mood='worried')
-                if tt > 0.35:
-                    q = back((tt - 0.35) * 4)
+                if tt > 0.12:
+                    q = back((tt - 0.12) * 4)
                     cx, cy = x0 + 80, ys - 120
                     dr.ellipse([cx - 44 * q, cy - 44 * q, cx + 44 * q, cy + 44 * q], fill=DOWN, outline=INK, width=5)
                     text_c(dr, (cx, cy + 2), '!', F('sans', 'Bold', 70 * q + 1), INK)
@@ -476,8 +476,7 @@ def build(name, engine, out_dir, receipts=None):
             lo, hi = 7500, 7780
             Y = lambda v: cy1 - (v - lo) / (hi - lo) * (cy1 - cy0)
             dr.text((L, 400), 'S&P 500', font=F('sans', 'Bold', 72), fill=FG)
-            dr.text((L + 270, 424), '(SPY follows it)', font=F('sans', 'Medium', 42), fill=MUTED)
-            dr.text((L, 470), 'Trading hours only · Gemini’s buys and sells', font=F('sans', 'Medium', 32), fill=MUTED)
+            dr.text((L, 476), 'SPY follows it · trading hours · Gemini’s buys and sells', font=F('sans', 'Medium', 32), fill=MUTED)
             for v in (7500, 7600, 7700):
                 dr.line([(cx0, Y(v)), (cx1, Y(v))], fill=(34, 33, 29), width=2)
                 dr.text((cx0, Y(v) - 34), f'{v:,}', font=F('mono', 'Medium', 26), fill=MUTED)
@@ -497,18 +496,14 @@ def build(name, engine, out_dir, receipts=None):
                 x = X(when)
                 if x is not None and x <= xmax:
                     dr.line([(x, cy0), (x, cy1)], fill=AIC['gemini'], width=3)
-                    text_c(dr, (x, cy1 + 92), 'BUY', F('mono', 'Bold', 28), AIC['gemini'])
+                    text_c(dr, (x, cy1 + 88), 'BUY', F('mono', 'Bold', 28), AIC['gemini'])
             for tx, when, p in f['sells']:
                 x = X(when)
                 if x is not None and x <= xmax:
                     dr.line([(x, cy0), (x, cy1)], fill=UP, width=3)
-                    text_c(dr, (x, cy1 + 92), 'SELL', F('mono', 'Bold', 28), UP)
+                    text_c(dr, (x, cy1 + 128), 'SELL', F('mono', 'Bold', 28), UP)
             if prog > 0.98:
-                dr.text((cx0 + 2 * sw + 20, cy0 + 8), f'{f["spx_drop"]:+.1f}% on Oct 30', font=F('mono', 'Bold', 40), fill=DOWN)
-            ts = at_tok('08', 8)
-            if tt >= ts:
-                q = back((tt - ts) * 3.5)
-                text_c(dr, (540, 1205), 'CASHED OUT', F('sans', 'Bold', 74 * (0.6 + 0.4 * q)), UP, 5)
+                dr.text((R + 40, 418), f'{f["spx_drop"]:+.1f}% on Oct 30', font=F('mono', 'Bold', 46), fill=DOWN, anchor='ra')
         elif cur == '09':
             v = f['profit'] * ease(lt / 1.2)
             text_c(dr, (540, 430), 'GEMINI’S PROFIT', F('mono', 'Bold', 46), MUTED)
@@ -568,10 +563,10 @@ def build(name, engine, out_dir, receipts=None):
         # captions, for the narrator lines, a few words at a time
         if cur in CAPS:
             ln = byid[cur]; k0 = 0; chunk = None; c_at = None
-            for txt, nw, col in CAPS[cur]:
+            for j, (txt, nw, col) in enumerate(CAPS[cur]):
                 st = at_tok(cur, k0)
-                if tt >= st - 0.03:
-                    chunk, c_at, ccol = txt, st, col
+                if tt >= st - 0.03 or (j == 0 and cur == '01'):   # the hook's first words are on screen from the first frame
+                    chunk, c_at, ccol = txt, min(st, tt), col
                 k0 += nw
             if chunk:   # '' = no caption while a big number says it on screen
                 q = back((tt - c_at) * 7)
