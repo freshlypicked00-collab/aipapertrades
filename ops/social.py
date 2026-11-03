@@ -12,6 +12,7 @@ Instagram fetches the picture from a public URL, so a post is two steps:
 Needs INSTAGRAM_ACCESS_TOKEN (a Page token that never expires) and INSTAGRAM_USER_ID. Without them it does nothing.
 """
 import json
+import re
 import os
 import sys
 import time
@@ -172,7 +173,27 @@ def due_posts(state):
     if 'story-intro-v1' not in done and NOW < RACE_END:
         out.append({'id': 'story-intro-v1', 'kind': 'story-intro'})
     feed = [p for p in out if not p['kind'].startswith('story')][:MAX_PER_RUN]
-    return feed + [p for p in out if p['kind'].startswith('story')][:2]   # at most two stories a run (Oct 30 block)
+    return feed + [p for p in out if p['kind'].startswith('story')][:2] + due_reels(done)[:1]   # at most two stories and one Reel a run (Oct 30 block)
+
+
+REELS_FROM = datetime(2026, 11, 2, 0, 0, tzinfo=timezone.utc)   # owner, Nov 3: "we need to upload instagram reels"; Shorts from Nov 2 on
+
+
+def due_reels(done):
+    """Every YouTube Short also goes to Instagram as a Reel (owner, Nov 3), with its bold cover as the Reel's cover, oldest first."""
+    out = []
+    for y in load('ops/src/youtube.json', {}).get('posts', []):
+        v = y.get('video') or ''
+        if y.get('status') != 'PUBLISHED' or not v.endswith('.mp4') or not os.path.exists(v):
+            continue
+        if datetime.fromisoformat(y['at']) < REELS_FROM or NOW > RACE_END + timedelta(days=2):
+            continue
+        rid = 'reel-' + os.path.basename(v)[:-4]
+        if rid in done:
+            continue
+        cov = next((c for c in (v[:-4] + '-thumb.png', v[:-4] + '-thumb.jpg', v[:-4] + '-cover.jpg', v[:-4] + '-cover.png') if os.path.exists(c)), None)
+        out.append({'id': rid, 'kind': 'reel', 'video': v, 'cover': cov, 'title': y.get('title') or ''})
+    return out
 
 
 def prepare():
@@ -183,6 +204,17 @@ def prepare():
     for p in posts:
         img = f"social/{p['id']}.jpg"
         try:
+            if p['kind'] == 'reel':   # no drawing: the Short's own video, its cover as a JPEG (Instagram's cover_url wants a JPEG)
+                p['images'] = []
+                if p.get('cover'):
+                    from PIL import Image
+                    cj = f"social/{p['id']}-cover.jpg"
+                    Image.open(p['cover']).convert('RGB').save(cj, quality=92); p['images'] = [cj]
+                t = re.sub(r'\s*(#\w+\s*)+$', '', p['title']).replace(' | ', ' · ').strip()
+                p['caption'] = (t + "\n\nEvery bet and trade, with the AI's own reasons, live at PaperTrades.AI (link in bio).\n\n"
+                                "Pretend money, real " + ('odds' if re.search(r'\bbet|sports', t, re.I) else 'prices') + ". Not financial or betting advice.\n\n" + TAGS)
+                p['reel'] = True; p['image'] = p['images'][0] if p['images'] else None
+                ready.append(p); continue
             if p['kind'] == 'story-moment':   # the colourful highlight style (owner, Oct 30): goes straight into "Lead changes"
                 import hl_stories, shutil
                 shutil.move(hl_stories.lead_change('/tmp', p['moment'], 0), img)
@@ -484,7 +516,7 @@ def publish():
             continue
         if used >= DAILY_BUDGET or (p.get('story') and used >= DAILY_BUDGET - 4):   # feed posts keep the last few slots
             print(f'::notice::daily Instagram budget used ({used}/{DAILY_BUDGET} in 24 hours); {p["id"]} waits'); continue
-        imgs = p.get('images') or [p['image']]
+        imgs = (p.get('images') or []) + [p['video']] if p.get('reel') else (p.get('images') or [p['image']])   # a Reel: [cover,] video
         urls = [f"{SITE}/{x}?v={p['id']}" for x in imgs]
         live = False
         for _ in range(30):   # wait for GitHub Pages to serve the new pictures (usually under a minute)
@@ -510,15 +542,20 @@ def publish():
             except Exception as e:
                 print('::warning::could not check for a duplicate, not posting ' + p['id'] + ' this run: ' + str(e)[:200]); continue
         try:
-            def wait_ready(cid):
-                for _ in range(24):   # Instagram processes each picture before it can be used
+            def wait_ready(cid, tries=24):
+                for _ in range(tries):   # Instagram processes each picture (and video) before it can be used
                     st = api(cid, {'fields': 'status_code'})
                     if st.get('status_code') in ('FINISHED', None):
                         return
                     if st.get('status_code') == 'ERROR':
                         raise RuntimeError('Instagram could not process a picture')
                     time.sleep(5)
-            if p.get('story'):
+            if p.get('reel'):   # owner, Nov 3: every Short also as an Instagram Reel, shared to the grid, with the bold cover
+                q = {'media_type': 'REELS', 'video_url': urls[-1], 'caption': p['caption'][:2150], 'share_to_feed': 'true'}
+                if len(urls) > 1:
+                    q['cover_url'] = urls[0]
+                c = api(f'{ig}/media', q, 'POST'); wait_ready(c['id'], 72)   # videos take a few minutes
+            elif p.get('story'):
                 c = api(f'{ig}/media', {'image_url': urls[0], 'media_type': 'STORIES'}, 'POST')
             elif len(urls) == 1:
                 c = api(f'{ig}/media', {'image_url': urls[0], 'caption': p['caption'][:2150]}, 'POST')
