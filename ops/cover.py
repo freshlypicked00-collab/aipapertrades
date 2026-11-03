@@ -79,7 +79,7 @@ def leader_cover(model, race, day, pnl, path):
     d.text((W // 2, 1340), num, font=fit(d, num, 'sans', 'Bold', 230, 960), fill=res, anchor='mm')
     tag = f'{race.upper()} · DAY {day}'
     d.text((W // 2, 1495), tag, font=fit(d, tag, 'sans', 'Bold', 92, 940), fill=AMBER, anchor='mm')
-    d.text((W // 2, 1600), 'PRETEND MONEY · REAL PRICES', font=F('mono', 'SemiBold', 36), fill=MUTED, anchor='mm')
+    d.text((W // 2, 1600), 'PRETEND MONEY · REAL ' + ('ODDS' if 'sport' in race.lower() else 'PRICES'), font=F('mono', 'SemiBold', 36), fill=MUTED, anchor='mm')
     im.save(path)
     return path
 
