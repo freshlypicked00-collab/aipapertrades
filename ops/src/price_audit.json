@@ -1,11 +1,11 @@
 {
- "at": "2026-11-03T22:22:57Z",
+ "at": "2026-11-03T23:17:34Z",
  "since": "2026-10-28T17:45:00Z",
  "summary": {
-  "ok": 567,
+  "ok": 570,
   "flag": 2,
   "no_data": 0,
-  "no_feed": 38,
+  "no_feed": 39,
   "backup_pending": 0,
   "backup_wrong": 1
  },
@@ -9236,6 +9236,62 @@
    "gap_abs": null,
    "tolerance": "0.5%",
    "status": "ok"
+  },
+  {
+   "kind": "value",
+   "at": "2026-11-03T17:15:44-05:00",
+   "holding": "Bitcoin",
+   "action": "",
+   "claude": 77724.0,
+   "feed": "BTC-USD",
+   "feed_low": 77708.140625,
+   "feed_high": 77795.03125,
+   "basis": "1-minute bars within 5 minutes",
+   "gap_pct": 0.0,
+   "gap_abs": null,
+   "tolerance": "1.0%",
+   "status": "ok"
+  },
+  {
+   "kind": "value",
+   "at": "2026-11-03T17:15:44-05:00",
+   "holding": "Democrats win the Senate (Yes)",
+   "action": "",
+   "claude": 0.745,
+   "feed": "Polymarket",
+   "feed_low": 0.745,
+   "feed_high": 0.755,
+   "basis": "Polymarket price history within 30 minutes",
+   "gap_pct": null,
+   "gap_abs": 0.0,
+   "tolerance": "3 cents",
+   "status": "ok",
+   "note": "tolerance 3 cents"
+  },
+  {
+   "kind": "value",
+   "at": "2026-11-03T17:15:44-05:00",
+   "holding": "Japanese yen",
+   "action": "",
+   "claude": 0.00630283,
+   "feed": "JPY=X",
+   "feed_low": 0.006302,
+   "feed_high": 0.006303,
+   "basis": "1-minute bars within 5 minutes",
+   "gap_pct": 0.0,
+   "gap_abs": null,
+   "tolerance": "0.5%",
+   "status": "ok",
+   "note": "US$ per yen (the feed quotes yen per US$)"
+  },
+  {
+   "kind": "value",
+   "at": "2026-11-03T17:15:44-05:00",
+   "holding": "Will the Republicans win the Texas Senate race in 2026? (Yes)",
+   "action": "",
+   "claude": 0.235,
+   "status": "no_feed",
+   "note": "no matching feed symbol"
   }
  ]
 }
