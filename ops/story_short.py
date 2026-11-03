@@ -194,13 +194,19 @@ def render(s, out):
     who, col = AIS[s['model']]
     win = s['won']
     tmp = tempfile.mkdtemp()
-    scenes = [  # (seconds, draw(frame, t in 0..1, local seconds))
-        (2.4, 'premise'), (2.8, 'hook'), (4.2, 'bet'), (5.2, 'reason'), (4.0, 'final'), (3.4, 'money'), (5.0, 'race'), (3.4, 'end')]
+    scenes = [  # (seconds, draw(frame, t in 0..1, local seconds)); 'cover' = the bold first frame YouTube can use as the thumbnail (owner, Nov 2)
+        (0.7, 'cover'), (2.4, 'premise'), (2.8, 'hook'), (4.2, 'bet'), (5.2, 'reason'), (4.0, 'final'), (3.4, 'money'), (5.0, 'race'), (3.4, 'end')]
     total = sum(x for x, _ in scenes)
     big, mid, small = font('sans', 'Bold', 118), font('sans', 'Bold', 80), font('sans', 'Regular', 46)
     n = 0
+    import cover as _cv
+    cov = _cv.cover(s, os.path.join(tmp, 'cover.png'))
     for dur, name in scenes:
         frames = int(round(dur * FPS))
+        if name == 'cover':
+            for i in range(frames):
+                shutil.copy(cov, os.path.join(tmp, f'{n:05d}.png')); n += 1
+            continue
         for i in range(frames):
             u = i / max(1, frames - 1); a = ease(u * 3)   # quick ease-in over the first third
             fr = F(); bug(fr, s); y = {'premise': 360, 'hook': 420, 'bet': 320, 'reason': 380, 'final': 440, 'money': 420, 'race': 330, 'end': 420}[name]
@@ -303,12 +309,13 @@ def render(s, out):
     os.makedirs(out, exist_ok=True)
     stem = os.path.join(out, f'story-{s["res_tx"]}')
     import soundtrack
-    hit = sum(x for x, _ in scenes[:4])   # the hit lands on the final score
+    hit = sum(x for x, _ in scenes[:5])   # the hit lands on the final score (after the cover)
     wav = soundtrack.make(os.path.join(tmp, 'track.wav'), total, hit, s['res_tx'])
     subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(FPS), '-i', os.path.join(tmp, '%05d.png'), '-i', wav,
                     '-map', '0:v', '-map', '1:a', '-c:a', 'aac', '-b:a', '160k', '-af', 'volume=0.7', '-shortest',
                     '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '20', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', stem + '.mp4'], check=True)
-    shutil.copy(os.path.join(tmp, f'{int(sum(x for x, _ in scenes[:6]) * FPS) - 5:05d}.png'), stem + '-thumb.png')
+    shutil.copy(cov, stem + '-thumb.png')   # the cover is the thumbnail (owner, Nov 2)
+    shutil.copy(cov, stem + '-cover.png')
     shutil.rmtree(tmp)
     nb = len(s.get('parts') or [1])
     title = (f'{who} bet {money(s["stake"], False)} on a {odds(s["odds"])} {"favourite" if s["odds"] < 0 else "underdog"}{f" ({nb} bets)" if nb > 1 else ""}. '
