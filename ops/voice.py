@@ -27,6 +27,36 @@ VOICES = {   # one fixed voice per character, so the three AIs are recognisable 
 SR = 24000
 
 
+def tighten(pcm16, sr=SR, keep=0.16, longest=0.26):
+    """Cut the silence before and after a line to 40 ms and any pause inside it longer than 0.26 s down to 0.16 s, so the Short
+    keeps a quick YouTube pace without changing the voice itself (no speed-up)."""
+    import numpy as np
+    x = np.frombuffer(pcm16, '<i2').astype(np.float32) / 32768
+    hop = int(sr * 0.02); n = len(x) // hop
+    if n < 3:
+        return pcm16
+    loud = np.array([np.sqrt(np.mean(x[i * hop:(i + 1) * hop] ** 2)) > 0.01 for i in range(n)])
+    idx = np.where(loud)[0]
+    if not len(idx):
+        return pcm16
+    a, b = max(0, idx[0] * hop - int(0.04 * sr)), min(len(x), (idx[-1] + 1) * hop + int(0.04 * sr))
+    keep_parts, i, s0 = [], idx[0], a
+    while i <= idx[-1]:
+        if not loud[i]:
+            j = i
+            while j <= idx[-1] and not loud[j]:
+                j += 1
+            if (j - i) * 0.02 > longest:
+                cut_a = i * hop + int(keep / 2 * sr); cut_b = j * hop - int(keep / 2 * sr)
+                keep_parts.append(x[s0:cut_a]); s0 = cut_b
+            i = j
+        else:
+            i += 1
+    keep_parts.append(x[s0:b])
+    y = np.concatenate(keep_parts)
+    return (np.clip(y, -1, 1) * 32767).astype('<i2').tobytes()
+
+
 def save(path, pcm16, sr=SR):
     with wave.open(path, 'wb') as w:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr); w.writeframes(pcm16)
@@ -83,7 +113,7 @@ def run_gemini(script, out):
             except Exception as e:
                 print('::warning::gemini voice failed with', model, str(e)[:200]); continue
             path = os.path.join(out, ln['id'] + '.wav')
-            dur = save(path, pcm)
+            dur = save(path, tighten(pcm))
             try:
                 w = heard(path)
             except Exception as e:
@@ -109,7 +139,7 @@ def run_kokoro(script, out, model_dir):
     for ln in script['lines']:
         who = ln.get('who', 'narrator')
         audio, sr = k.create(ln['text'], voice=VOICES[who]['kokoro'], speed=float(ln.get('speed', 1.08 if who == 'narrator' else 1.0)), lang='en-us')
-        pcm = (np.clip(audio, -1, 1) * 32767).astype('<i2').tobytes()
+        pcm = tighten((np.clip(audio, -1, 1) * 32767).astype('<i2').tobytes(), sr)
         timing[ln['id']] = round(save(os.path.join(out, ln['id'] + '.wav'), pcm, sr), 3)
     json.dump(timing, open(os.path.join(out, 'timing.json'), 'w'), indent=1)
     print('kokoro voice done', timing); return True

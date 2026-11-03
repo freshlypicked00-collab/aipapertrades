@@ -279,12 +279,12 @@ def sfx(name):
 
 # ---------------------------------------------------------------- the story
 CAPS = {   # caption chunks per narrator line: (what is shown, how many spoken words it covers, colour)
-    '01': [('Two AIs warned', 3, FG), ('against this trade.', 3, FG), ('It made…', 2, FG), ('', 3, UP)],
+    '01': [('Two AIs warned', 3, FG), ('against this trade.', 3, FG), ('It made…', 2, FG), ('', 4, UP)],
     '02': [('3 AIs,', 2, FG), ('pretend money,', 2, AMBER), ('real prices.', 2, FG)],
-    '03': [('Gemini bet', 2, AIC['gemini']), ('C$34,459', 3, AMBER), ('that the stock market', 4, FG), ('would fall.', 2, DOWN)],
+    '03': [('Gemini bet', 2, AIC['gemini']), ('C$34,459', 4, AMBER), ('of pretend money', 3, FG), ('that the stock market', 4, FG), ('would fall.', 2, DOWN)],
     '05': [('Claude and ChatGPT', 3, FG), ('both graded', 2, FG), ('its last buy', 3, FG), ('a C.', 2, DOWN)],
-    '08': [('The next day,', 3, FG), ('stocks fell 2%.', 3, DOWN), ('Gemini', 1, AIC['gemini']), ('cashed out.', 2, UP)],
-    '09': [('Profit:', 1, FG), ('C$28,085', 6, UP)],
+    '08': [('The next day,', 3, FG), ('stocks fell 2%.', 4, DOWN), ('Gemini', 1, AIC['gemini']), ('cashed out.', 2, UP)],
+    '09': [('Profit:', 1, FG), ('C$28,085', 7, UP)],
     '10': [('Gemini now leads', 3, AIC['gemini']), ('the Options race.', 3, FG)],
 }
 QUOTES = {   # quote lines: who, what is shown (with the omitted words marked), the source
@@ -336,7 +336,7 @@ def build(name, engine, out_dir, receipts=None):
     put('ching', at_tok('01', 8), 0.9)
     put('thud', at_tok('05', 4) + 0.05, 1.0); put('thud', at_tok('05', 9) + 0.05, 1.0)
     put('riser', at_tok('08', 3) - 0.9, 0.8)
-    put('ching', at_tok('08', 7), 0.8); put('ching', at_tok('09', 1), 1.0)
+    put('ching', at_tok('08', 8), 0.8); put('ching', at_tok('09', 1), 1.0)
     put('pop', at_tok('11', 7), 1.0); put('pop', at_tok('11', 9), 1.0)
     import soundtrack
     soundtrack.make('/tmp/yt_music.wav', total + 1, at_tok('09', 1), seed=name, bpm=112)
@@ -505,7 +505,7 @@ def build(name, engine, out_dir, receipts=None):
                     text_c(dr, (x, cy1 + 92), 'SELL', F('mono', 'Bold', 28), UP)
             if prog > 0.98:
                 dr.text((cx0 + 2 * sw + 20, cy0 + 8), f'{f["spx_drop"]:+.1f}% on Oct 30', font=F('mono', 'Bold', 40), fill=DOWN)
-            ts = at_tok('08', 7)
+            ts = at_tok('08', 8)
             if tt >= ts:
                 q = back((tt - ts) * 3.5)
                 text_c(dr, (540, 1205), 'CASHED OUT', F('sans', 'Bold', 74 * (0.6 + 0.4 * q)), UP, 5)
