@@ -63,6 +63,26 @@ def cover(s, path):
     return path
 
 
+
+def leader_cover(model, race, day, pnl, path):
+    """A race-replay Short's cover (owner, Nov 3): the leader's robot, "<NAME> LEADS", its profit in that race and the race and day."""
+    col = AIC[model]; res = UP if pnl >= 0 else DOWN
+    g = Image.new('RGB', (W, H), BG); gd = ImageDraw.Draw(g)
+    gd.ellipse([-250, 150, W + 250, 1250], fill=tuple(int(v * .38) for v in col))
+    gd.ellipse([-300, 1250, W + 300, 2300], fill=tuple(int(v * .22) for v in res))
+    im = g.filter(ImageFilter.GaussianBlur(110)); d = ImageDraw.Draw(im)
+    d.text((W // 2, 262), 'PAPERTRADES.AI', font=F('mono', 'SemiBold', 44), fill=MUTED, anchor='mm')
+    robot(d, W // 2, 730, col, 1.9, 3)
+    d.text((W // 2, 1030), NAME[model].upper(), font=fit(d, NAME[model].upper(), 'sans', 'Bold', 150, 900), fill=col, anchor='mm')
+    d.text((W // 2, 1190), 'LEADS', font=F('sans', 'Bold', 110), fill=FG, anchor='mm')
+    num = ('+' if pnl >= 0 else '−') + short_money(pnl)
+    d.text((W // 2, 1340), num, font=fit(d, num, 'sans', 'Bold', 230, 960), fill=res, anchor='mm')
+    tag = f'{race.upper()} · DAY {day}'
+    d.text((W // 2, 1495), tag, font=fit(d, tag, 'sans', 'Bold', 92, 940), fill=AMBER, anchor='mm')
+    d.text((W // 2, 1600), 'PRETEND MONEY · REAL PRICES', font=F('mono', 'SemiBold', 36), fill=MUTED, anchor='mm')
+    im.save(path)
+    return path
+
 if __name__ == '__main__':
     for p in sys.argv[1:]:
         st = json.load(open(p))['story']

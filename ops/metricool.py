@@ -101,7 +101,7 @@ def normalize(url):
     return (r or None), ('' if r else 'normalize returned nothing')
 
 
-def schedule_short(video_url, title, text, privacy, when=None):
+def schedule_short(video_url, title, text, privacy, when=None, thumb=None):
     """Schedule one YouTube Short. Returns (status, response)."""
     from datetime import datetime, timedelta
     from zoneinfo import ZoneInfo
@@ -117,6 +117,11 @@ def schedule_short(video_url, title, text, privacy, when=None):
         'youtubeData': {'title': title[:100], 'type': 'short', 'privacy': privacy, 'madeForKids': False, 'category': 'SCIENCE_TECHNOLOGY',
                         'notifySubscribers': privacy == 'public', 'tags': ['AI', 'Claude', 'Gemini', 'ChatGPT', 'paper trading']},
     }
+    if thumb:   # the bold cover as the Short's thumbnail (owner, Nov 3: YouTube kept picking another frame); Metricool's "Video Thumbnail Url"
+        st, r = call('/v2/scheduler/posts', 'POST', {**body, 'videoThumbnailUrl': thumb})
+        if st in (200, 201):
+            return st, r
+        print('thumbnail refused, posting without it:', str(_scrub(r))[:200])
     return call('/v2/scheduler/posts', 'POST', body)
 
 
@@ -330,7 +335,7 @@ def story():
             pass
         time.sleep(15)
     print('video live on the site:', live)
-    st, r = schedule_short(url, title, desc, 'public') if live else (0, 'the video never appeared on papertrades.ai')
+    st, r = schedule_short(url, title, desc, 'public', thumb='https://papertrades.ai/' + stem + '-thumb.png') if live else (0, 'the video never appeared on papertrades.ai')
     if not (st in (200, 201) and isinstance(r, dict)):
         out['status'] = 'ERROR'; out['error'] = str(_scrub(r))[:400]
     else:
