@@ -111,8 +111,8 @@ def check_script(f, script):
 
 # ---------------------------------------------------------------- voice, timing, captions
 def norm(t):
-    t = t.lower().replace('-', ' ').replace('&', ' and ')
-    return re.sub(r'[^a-z0-9 ]', ' ', t).split()
+    import speech_text
+    return speech_text.tokens(t, drop_and=False)
 
 
 def read_wav(path):
@@ -135,9 +135,10 @@ def trim(x, thr=0.012):
 def token_times(text, words, dur, cut):
     """Start time (s, after trimming) of each script token, from the transcribed words; tokens the transcript does not match are
     placed between their matched neighbours, in proportion to their length."""
+    import speech_text
     st = norm(text)
     wt = []
-    for w, s, e in (words or []):
+    for w, s, e in speech_text.merge_words(words or []):
         parts = norm(w) or ['_']
         for k, p in enumerate(parts):
             wt.append((p, s + (e - s) * k / len(parts) - cut))
@@ -278,14 +279,13 @@ def sfx(name):
 
 # ---------------------------------------------------------------- the story
 CAPS = {   # caption chunks per narrator line: (what is shown, how many spoken words it covers, colour)
-    '01': [('Two AIs warned', 3, FG), ('against this trade.', 3, FG), ('It made', 2, FG), ('C$28,085', 3, UP)],
+    '01': [('Two AIs warned', 3, FG), ('against this trade.', 3, FG), ('It made…', 2, FG), ('', 3, UP)],
     '02': [('3 AIs,', 2, FG), ('pretend money,', 2, AMBER), ('real prices.', 2, FG)],
     '03': [('Gemini bet', 2, AIC['gemini']), ('C$34,459', 3, AMBER), ('that the stock market', 4, FG), ('would fall.', 2, DOWN)],
     '05': [('Claude and ChatGPT', 3, FG), ('both graded', 2, FG), ('its last buy', 3, FG), ('a C.', 2, DOWN)],
     '08': [('The next day,', 3, FG), ('stocks fell 2%.', 3, DOWN), ('Gemini', 1, AIC['gemini']), ('cashed out.', 2, UP)],
     '09': [('Profit:', 1, FG), ('C$28,085', 6, UP)],
     '10': [('Gemini now leads', 3, AIC['gemini']), ('the Options race.', 3, FG)],
-    '11': [('Smart or lucky?', 3, AMBER), ('Comment below.', 2, FG), ('And leave a like', 4, FG), ('and subscribe', 2, UP), ('for more trade updates.', 4, FG)],
 }
 QUOTES = {   # quote lines: who, what is shown (with the omitted words marked), the source
     '04': ('gemini', '“…a perfect storm for a tech-led market selloff.”', 'GEMINI’S OWN REASON · G-OPT-002'),
@@ -302,8 +302,10 @@ def build(name, engine, out_dir, receipts=None):
     vdir = f'social/voice/{name}/{engine}'
     words = json.load(open(f'{vdir}/words.json')) if os.path.exists(f'{vdir}/words.json') else {}
     check = json.load(open(f'{vdir}/check.json')) if os.path.exists(f'{vdir}/check.json') else {}
+    import speech_text
     for lid, c in check.items():
-        if c.get('match', 1) < 0.8:
+        c['match'] = speech_text.similarity(next(l['text'] for l in script['lines'] if l['id'] == lid), c['heard'])
+        if c['match'] < 0.85:
             raise Fail(f'voice line {lid} does not say the script (match {c["match"]}): {c["heard"]}')
 
     # ---- the timeline: each voice line after the last, with a short breath between
@@ -372,7 +374,7 @@ def build(name, engine, out_dir, receipts=None):
         return 0.0
 
     def blink(tt, seed):
-        return ((tt * 1.0 + seed * 0.37) % 3.7) < 0.12
+        return tt > 1.0 and ((tt + seed * 0.37) % 3.7) > 3.58
 
     for fi in range(nf):
         tt = fi / FPS
@@ -438,16 +440,16 @@ def build(name, engine, out_dir, receipts=None):
         elif cur in QUOTES:
             who, quote, src = QUOTES[cur]
             ln = byid[cur]
-            bot(dr, 540, 640, AIC[who], 1.55, talk=talking(who, tt), blink=blink(tt, 3))
-            text_c(dr, (540, 830), NAME[who].upper(), F('sans', 'Bold', 66), AIC[who])
-            dr.text((L, 905), src, font=F('mono', 'Bold', 32), fill=MUTED)
+            bot(dr, 540, 700, AIC[who], 1.3, talk=talking(who, tt), blink=blink(tt, 3))
+            text_c(dr, (540, 860), NAME[who].upper(), F('sans', 'Bold', 66), AIC[who])
+            dr.text((L, 935), src, font=F('mono', 'Bold', 32), fill=MUTED)
             fq = F('sans', 'Bold', 64 if len(quote) < 70 else 56)
             ws = quote.split(); spoken = len(norm(ln['text']))
             heard = sum(1 for k in range(spoken) if tt >= at_tok(cur, k))
             # the quote's words light up as they are said (the spoken part is the end of the shown quote)
             lit = len(ws) - spoken + heard if heard else 0
-            yy = 960; x = L; lh = int(fq.size * 1.22)
-            dr.rectangle((L - 24, 958, L - 14, 958 + lh * 4), fill=AIC[who])
+            yy = 1000; x = L; lh = int(fq.size * 1.22)
+            dr.rectangle((L - 24, 998, L - 14, 998 + lh * 4), fill=AIC[who])
             for k, w in enumerate(ws):
                 wl = dr.textlength(w + ' ', font=fq)
                 if x + wl > R + 60:
@@ -455,16 +457,16 @@ def build(name, engine, out_dir, receipts=None):
                 dr.text((x, yy), w, font=fq, fill=FG if k < lit else (90, 86, 76))
                 x += wl
         elif cur == '05':
+            text_c(dr, (540, 420), 'THEIR GRADES OF GEMINI’S LAST BUY', F('mono', 'Bold', 36), MUTED)
             for k, x0, lid_k in (('claude', 300, 4), ('chatgpt', 780, 9)):
-                bot(dr, x0, 650, AIC[k], 1.15, blink=blink(tt, 4), mood='worried')
-                text_c(dr, (x0, 820), NAME[k], F('sans', 'Bold', 60), AIC[k])
+                bot(dr, x0, 720, AIC[k], 1.15, blink=blink(tt, 4), mood='worried')
+                text_c(dr, (x0, 880), NAME[k], F('sans', 'Bold', 60), AIC[k])
                 ts = at_tok('05', lid_k)
-                stamp(img, x0, 1000, 'C', DOWN, (tt - ts) * 2.2, 200)
-            dr.text((L, 470), 'THEIR GRADES OF GEMINI’S LAST BUY', font=F('mono', 'Bold', 34), fill=MUTED)
+                stamp(img, x0, 1060, 'C', DOWN, (tt - ts) * 2.2, 190)
         elif cur == '08':
             # the S&P 500, trading hours only, with Gemini's buys and sells marked
             sess = [('Oct 28', datetime(2026, 10, 28, 9, 30, tzinfo=NY)), ('Oct 29', datetime(2026, 10, 29, 9, 30, tzinfo=NY)), ('Oct 30', datetime(2026, 10, 30, 9, 30, tzinfo=NY))]
-            cx0, cx1, cy0, cy1 = L + 10, R + 40, 560, 1060
+            cx0, cx1, cy0, cy1 = L + 10, R + 40, 540, 1040
             sw = (cx1 - cx0) / 3
             def X(tm):
                 for i, (_, s0) in enumerate(sess):
@@ -473,8 +475,9 @@ def build(name, engine, out_dir, receipts=None):
                 return None
             lo, hi = 7500, 7780
             Y = lambda v: cy1 - (v - lo) / (hi - lo) * (cy1 - cy0)
-            dr.text((L, 470), 'S&P 500', font=F('sans', 'Bold', 64), fill=FG)
-            dr.text((L + 250, 490), '(SPY follows it)', font=F('sans', 'Medium', 40), fill=MUTED)
+            dr.text((L, 400), 'S&P 500', font=F('sans', 'Bold', 72), fill=FG)
+            dr.text((L + 270, 424), '(SPY follows it)', font=F('sans', 'Medium', 42), fill=MUTED)
+            dr.text((L, 470), 'Trading hours only · Gemini’s buys and sells', font=F('sans', 'Medium', 32), fill=MUTED)
             for v in (7500, 7600, 7700):
                 dr.line([(cx0, Y(v)), (cx1, Y(v))], fill=(34, 33, 29), width=2)
                 dr.text((cx0, Y(v) - 34), f'{v:,}', font=F('mono', 'Medium', 26), fill=MUTED)
@@ -494,53 +497,55 @@ def build(name, engine, out_dir, receipts=None):
                 x = X(when)
                 if x is not None and x <= xmax:
                     dr.line([(x, cy0), (x, cy1)], fill=AIC['gemini'], width=3)
-                    text_c(dr, (x, cy0 - 26), 'BUY', F('mono', 'Bold', 28), AIC['gemini'])
+                    text_c(dr, (x, cy1 + 92), 'BUY', F('mono', 'Bold', 28), AIC['gemini'])
             for tx, when, p in f['sells']:
                 x = X(when)
                 if x is not None and x <= xmax:
                     dr.line([(x, cy0), (x, cy1)], fill=UP, width=3)
-                    text_c(dr, (x, cy1 + 84), 'SELL', F('mono', 'Bold', 28), UP)
+                    text_c(dr, (x, cy1 + 92), 'SELL', F('mono', 'Bold', 28), UP)
             if prog > 0.98:
-                dr.text((R + 40, cy0 + 10), f'{f["spx_drop"]:+.1f}% on Oct 30', font=F('mono', 'Bold', 42), fill=DOWN, anchor='ra')
+                dr.text((cx0 + 2 * sw + 20, cy0 + 8), f'{f["spx_drop"]:+.1f}% on Oct 30', font=F('mono', 'Bold', 40), fill=DOWN)
             ts = at_tok('08', 7)
             if tt >= ts:
-                stamp(img, 760, 760, '$', UP, (tt - ts) * 2.0, 150)
+                q = back((tt - ts) * 3.5)
+                text_c(dr, (540, 1205), 'CASHED OUT', F('sans', 'Bold', 74 * (0.6 + 0.4 * q)), UP, 5)
         elif cur == '09':
             v = f['profit'] * ease(lt / 1.2)
-            text_c(dr, (540, 520), 'PROFIT', F('mono', 'Bold', 48), MUTED)
-            text_c(dr, (540, 640), money(v), F('mono', 'Bold', 150), UP, 6)
-            text_c(dr, (540, 750), '3 sells on Oct 30: ' + ', '.join(tx for tx, _, _ in f['sells']), F('mono', 'Medium', 30), MUTED)
+            text_c(dr, (540, 430), 'GEMINI’S PROFIT', F('mono', 'Bold', 46), MUTED)
+            text_c(dr, (540, 545), money(v), F('mono', 'Bold', 150), UP, 6)
+            text_c(dr, (540, 650), '3 sells on Oct 30: ' + ', '.join(tx for tx, _, _ in f['sells']), F('mono', 'Medium', 30), MUTED)
             if rec is not None:
-                q = ease((lt - 0.2) * 2.5)
-                rw = 620; rh = int(rec.height * rw / rec.width); rh = min(rh, 560)
-                shot = rec.resize((rw, int(rec.height * rw / rec.width))).crop((0, 0, rw, rh))
-                y0 = int(1210 - (1 - q) * 500)
-                frame = Image.new('RGB', (rw + 24, rh + 24), (60, 58, 52))
-                frame.paste(shot, (12, 12))
-                mask = Image.new('L', frame.size, 0); ImageDraw.Draw(mask).rounded_rectangle([0, 0, frame.width, frame.height], radius=34, fill=255)
-                img.paste(frame, (int(540 - frame.width / 2), y0 - rh // 2 + 120), mask)
+                q = ease((lt - 0.15) * 3)
+                rw = 940; rh = int(rec.height * rw / rec.width)
+                shot = rec.resize((rw, rh))
+                frame = Image.new('RGB', (rw + 20, rh + 20), (70, 67, 60)); frame.paste(shot, (10, 10))
+                mask = Image.new('L', frame.size, 0); ImageDraw.Draw(mask).rounded_rectangle([0, 0, frame.width - 1, frame.height - 1], radius=24, fill=255)
+                y0 = int(800 + (1 - q) * 700)
+                img.paste(frame, (int(540 - frame.width / 2), y0), mask)
                 dr = ImageDraw.Draw(img)
-                text_c(dr, (540, y0 - rh // 2 + 90), 'the real ledger on PaperTrades.AI', F('sans', 'Medium', 32), MUTED)
+                text_c(dr, (540, y0 - 34), 'The real ledger on PaperTrades.AI', F('sans', 'SemiBold', 36), FG)
         elif cur == '10':
-            dr.text((L, 470), 'OPTIONS RACE', font=F('mono', 'Bold', 40), fill=MUTED)
-            dr.text((L, 520), 'Profit since Oct 28', font=F('sans', 'Bold', 72), fill=FG)
+            dr.text((L, 420), 'OPTIONS RACE', font=F('mono', 'Bold', 40), fill=MUTED)
+            dr.text((L, 470), 'Profit since Oct 28', font=F('sans', 'Bold', 72), fill=FG)
             for i, (k, p) in enumerate(f['race']):
-                q = ease((lt - 0.12 * i) * 3); y0 = 660 + i * 190; x0 = L + (1 - q) * 600
+                q = ease((lt - 0.12 * i) * 3); y0 = 610 + i * 180; x0 = L + (1 - q) * 600
                 dr.rounded_rectangle((x0, y0, x0 + R + 40 - L, y0 + 160), radius=24, fill=PANEL, outline=AIC[k] if i == 0 else LINE, width=5 if i == 0 else 2)
                 dr.text((x0 + 36, y0 + 80), str(i + 1), font=F('mono', 'Bold', 64), fill=MUTED, anchor='lm')
                 dr.text((x0 + 110, y0 + 80), NAME[k], font=F('sans', 'Bold', 70), fill=AIC[k], anchor='lm')
                 dr.text((x0 + R + 10 - L, y0 + 80), money(p), font=F('mono', 'Bold', 58), fill=UP if p > 0 else DOWN, anchor='rm')
-            dr.text((L, 1250 - 0), f'As of {f["race_at"]:%b %-d}, {f["race_at"]:%-I:%M %p} ET'.replace('AM', 'a.m.').replace('PM', 'p.m.'), font=F('sans', 'Medium', 34), fill=MUTED)
+            dr.text((L, 1150), f'As of {f["race_at"]:%b %-d}, {f["race_at"]:%-I:%M %p} ET'.replace('AM', 'a.m.').replace('PM', 'p.m.'), font=F('sans', 'Medium', 34), fill=MUTED)
         elif cur == '11':
             for i, k in enumerate(('claude', 'gemini', 'chatgpt')):
                 x0 = 240 + i * 300
                 bot(dr, x0, 560, AIC[k], 0.95, blink=blink(tt, i))
             text_c(dr, (540, 770), 'Smart or lucky?', F('sans', 'Bold', 110), AMBER, 5)
-            # a comment bubble
-            dr.rounded_rectangle((330, 850, 750, 950), radius=30, fill=PANEL, outline=FG, width=4)
-            dr.polygon([(390, 948), (430, 948), (380, 990)], fill=FG)
-            text_c(dr, (540, 900), 'Comment below', F('sans', 'Bold', 52), FG)
-            tl = at_tok('11', 5); ts = at_tok('11', 9)
+            tc = at_tok('11', 3)
+            if tt >= tc - 0.05:   # a comment bubble
+                q = back((tt - tc + 0.05) * 4)
+                dr.rounded_rectangle((540 - 230 * q, 850, 540 + 230 * q, 950), radius=30, fill=PANEL, outline=FG, width=4)
+                dr.polygon([(390, 948), (430, 948), (380, 990)], fill=FG)
+                text_c(dr, (540, 900), 'Comment below', F('sans', 'Bold', 56 * q + 1), FG)
+            tl = at_tok('11', 8); ts = at_tok('11', 10); tm = at_tok('11', 11)
             if tt >= tl:   # like
                 q = back((tt - tl) * 4)
                 bx, by = 300, 1100
@@ -555,8 +560,10 @@ def build(name, engine, out_dir, receipts=None):
                 q = back((tt - ts) * 4); bx, by = 740, 1100
                 pressed = tt - ts > 0.9
                 dr.rounded_rectangle((bx - 190 * q, by - 60, bx + 190 * q, by + 60), radius=60, fill=(60, 58, 52) if pressed else (204, 0, 0))
-                text_c(dr, (bx, by), 'Subscribed ✓' if pressed else 'Subscribe', F('sans', 'Bold', 54), FG)
-            text_c(dr, (540, 1220), 'for more trade updates', F('sans', 'SemiBold', 50), FG)
+                text_c(dr, (bx, by), 'Subscribed' if pressed else 'Subscribe', F('sans', 'Bold', 54), FG)
+            if tt >= tm:
+                q = back((tt - tm) * 4)
+                text_c(dr, (540, 1250), 'for more trade updates', F('sans', 'Bold', 70 * (0.7 + 0.3 * q)), FG, 5)
 
         # captions, for the narrator lines, a few words at a time
         if cur in CAPS:
@@ -566,10 +573,14 @@ def build(name, engine, out_dir, receipts=None):
                 if tt >= st - 0.03:
                     chunk, c_at, ccol = txt, st, col
                 k0 += nw
-            if chunk:
+            if chunk:   # '' = no caption while a big number says it on screen
                 q = back((tt - c_at) * 7)
                 fc = F('sans', 'Bold', 96 * (0.82 + 0.18 * q))
                 text_c(dr, (540, CAP_Y), chunk, fc, ccol, 9)
+        if lt < 0.2 and cur != '01':   # a quick punch-in on every cut
+            z = 1 + 0.045 * (1 - ease(lt / 0.2))
+            zw, zh = int(W * z), int(H * z)
+            img = img.resize((zw, zh), Image.BILINEAR).crop(((zw - W) // 2, (zh - H) // 2, (zw - W) // 2 + W, (zh - H) // 2 + H))
         if frames_dir and fi % 15 == 0:
             os.makedirs(frames_dir, exist_ok=True); img.save(os.path.join(frames_dir, f'{fi:05d}.jpg'), quality=82)
         ff.stdin.write(img.tobytes())

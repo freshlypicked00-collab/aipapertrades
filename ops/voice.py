@@ -140,16 +140,14 @@ def heard(path):
 
 
 def match(text, words):
-    import difflib, re as _re
-    norm = lambda t: _re.sub(r'[^a-z0-9 ]', ' ', t.lower().replace('-', ' ')).split()
-    return difflib.SequenceMatcher(None, norm(text), norm(' '.join(w[0] for w in words))).ratio()
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import speech_text
+    return speech_text.similarity(text, ' '.join(w[0] for w in words))
 
 
 def align(folder, script):
     """Word timings for the captions, and a check that the voice said the words in the script: each line is transcribed back with
     faster-whisper (open source, MIT). Writes words.json {line id: [[word, start, end], ...]} and a match score per line."""
-    import difflib, re as _re
-    norm = lambda t: _re.sub(r'[^a-z0-9 ]', ' ', t.lower().replace('-', ' ')).split()
     out, report = {}, {}
     for ln in script['lines']:
         wav = os.path.join(folder, ln['id'] + '.wav')
@@ -160,7 +158,7 @@ def align(folder, script):
             print('::warning::faster-whisper not installed, no word timings'); return
         out[ln['id']] = words
         said = ' '.join(w[0] for w in words)
-        score = difflib.SequenceMatcher(None, norm(ln['text']), norm(said)).ratio()
+        score = match(ln['text'], words)
         report[ln['id']] = {'heard': said, 'match': round(score, 3)}
         if score < 0.85:
             print(f'::warning::voice line {ln["id"]} may not say the script ({score:.2f}): heard "{said}"')
