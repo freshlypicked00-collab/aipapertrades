@@ -45756,6 +45756,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 118735.12
+  },
+  {
+   "at": "2026-11-03T18:00:44Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 96826.43
+  },
+  {
+   "at": "2026-11-03T18:00:44Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 109360.0
   }
  ],
  "takes": [
@@ -63540,8 +63552,8 @@
       "pcur": "USD",
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 686.61,
-      "priced_at": "2026-11-03T17:46:30Z",
+      "last": 686.83,
+      "priced_at": "2026-11-03T18:00:44Z",
       "hist": [
        [
         29886870,
@@ -64271,8 +64283,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 77583.8,
-      "priced_at": "2026-11-03T17:46:30Z",
+      "last": 77543.71,
+      "priced_at": "2026-11-03T18:00:44Z",
       "hist": [
        [
         29886870,
@@ -103710,20 +103722,6 @@
  "stops": {
   "gemini": [
    {
-    "id": "gemini-11",
-    "model": "gemini",
-    "experiment": "Stocks",
-    "symbol": "SQQQ",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 45.0,
-    "fraction": 0.5,
-    "name": "ProShares UltraPro Short QQQ",
-    "placed_at": "2026-10-30T16:54:16Z",
-    "reason": "Moving profit target up to $45 to capture extended Nasdaq downside from Amazon and Intel earnings misses."
-   },
-   {
     "id": "gemini-45",
     "model": "gemini",
     "experiment": "Currencies",
@@ -103820,48 +103818,6 @@
     "name": "Invesco S&P 500 Equal Weight ETF",
     "placed_at": "2026-11-03T09:14:29Z",
     "reason": "Tightening stop to protect capital given pre-election market jitters."
-   },
-   {
-    "id": "gemini-74",
-    "model": "gemini",
-    "experiment": "AllInTrading",
-    "symbol": "SQQQ",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 45.0,
-    "fraction": 0.5,
-    "name": "ProShares UltraPro Short QQQ",
-    "placed_at": "2026-11-03T16:16:54Z",
-    "reason": "Taking partial profits if the tech selloff accelerates into panic selling and pushes SQQQ up to 45.0."
-   },
-   {
-    "id": "gemini-75",
-    "model": "gemini",
-    "experiment": "Stocks",
-    "symbol": "SQQQ",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 42.0,
-    "fraction": 1.0,
-    "name": "ProShares UltraPro Short QQQ",
-    "placed_at": "2026-11-03T16:45:53Z",
-    "reason": "Trailing my stop higher to lock in profits on my tech short as the Nasdaq shows signs of an intraday bounce."
-   },
-   {
-    "id": "gemini-76",
-    "model": "gemini",
-    "experiment": "AllInTrading",
-    "symbol": "SQQQ",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 42.0,
-    "fraction": 1.0,
-    "name": "ProShares UltraPro Short QQQ",
-    "placed_at": "2026-11-03T16:45:53Z",
-    "reason": "Tightening the stop on my maximum-sized tech short to protect capital ahead of the election results."
    },
    {
     "id": "gemini-77",
@@ -104364,7 +104320,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-03T17:46:30Z",
+  "at": "2026-11-03T18:00:44Z",
   "games": [
    {
     "id": "401906848",
@@ -105077,6 +105033,46 @@
    "name": "SPY Nov 20 $750 put",
    "kind": "target",
    "level": 15.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-03T18:00:44Z",
+   "model": "gemini",
+   "id": "gemini-11",
+   "experiment": "Stocks",
+   "name": "ProShares UltraPro Short QQQ",
+   "kind": "target",
+   "level": 45.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-03T18:00:44Z",
+   "model": "gemini",
+   "id": "gemini-74",
+   "experiment": "AllInTrading",
+   "name": "ProShares UltraPro Short QQQ",
+   "kind": "target",
+   "level": 45.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-03T18:00:44Z",
+   "model": "gemini",
+   "id": "gemini-75",
+   "experiment": "Stocks",
+   "name": "ProShares UltraPro Short QQQ",
+   "kind": "stop",
+   "level": 42.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-03T18:00:44Z",
+   "model": "gemini",
+   "id": "gemini-76",
+   "experiment": "AllInTrading",
+   "name": "ProShares UltraPro Short QQQ",
+   "kind": "stop",
+   "level": 42.0,
    "result": "removed: the position is no longer held"
   }
  ],
