@@ -1203,7 +1203,7 @@
   [data-dash-source-state=empty] { color: transparent; }
   [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
 .tx-id{display:block;margin-top:2px;padding:0 4px;border:1px solid var(--line,#ccd);border-radius:4px;background:none;color:inherit;font:600 10.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.02em;opacity:.75;cursor:pointer;width:max-content}
-.tx-id:hover{opacity:1}.tx-wrap{display:block}.tx-link{display:block;margin-top:0}.tx-link .tx-go{margin-top:3px}[data-draw="allin-ledger"] .tx-link{display:none}.tx-link a{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.tx-pending{opacity:.45;font-weight:400;cursor:default}
+.lg-money{margin:6px 0 4px;font-size:.95em}.tx-id:hover{opacity:1}.tx-wrap{display:block}.tx-link{display:block;margin-top:0}.tx-link .tx-go{margin-top:3px}[data-draw="allin-ledger"] .tx-link{display:none}.tx-link a{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.tx-pending{opacity:.45;font-weight:400;cursor:default}
 .tx-link .tx-go,.pt-hold-tx .tx-go:not(.tx-story),.lg-find,.tx-go.tx-orig{opacity:1;border-color:#4da3ff;background:rgba(77,163,255,.14);color:#9cc9ff;border-radius:999px;padding:1px 9px}.tx-link .tx-go:hover,.pt-hold-tx .tx-go:not(.tx-story):hover,.lg-find:hover,.tx-go.tx-orig:hover{background:rgba(77,163,255,.28);color:#fff}.tx-next{display:block;margin-top:3px;font:600 10.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;opacity:.5;width:max-content}
 .tx-search{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 8px}.tx-search input{flex:1 1 180px;max-width:280px;min-width:0;padding:5px 8px;font:13px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;border:1px solid var(--line,#ccd);border-radius:6px;background:transparent;color:inherit}
 .tx-search button{padding:5px 10px;border-radius:6px;border:1px solid var(--line,#ccd);background:none;color:inherit;font:inherit;font-size:13px;cursor:pointer}.tx-msg{font-size:12px;opacity:.8}
@@ -5212,6 +5212,24 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           && (fam === 'close' ? /^(Sell|Cover)$/.test(x.action) : fam === 'open' ? /^(Buy|Short)$/.test(x.action) : /^(Bet|Parlay|Won|Lost|Settled)$/.test(x.action)));
         const named = near.filter((x) => nm(x.item) && det.includes(nm(x.item)));
         const m = named.length === 1 ? named[0] : near.length === 1 ? near[0] : null; if (!m) return;
+        if (fam === 'close' && m.profit != null && isFinite(m.profit)) {   // the money on a sale, right in the decision (owner, Nov 3: "doesn't even give a dollar figure or profit number")
+          const cN = Number(String(m.cost || '').replace(/[^0-9.]/g, '')), pct = cN ? m.profit / cN : null;
+          const ln = mk('div', 'lg-money'); ln.append(document.createTextNode((m.action === 'Cover' ? 'Bought back for ' : 'Sold for ') + m.amount + (m.cost ? ' · cost ' + m.cost : '') + ' · '));
+          ln.appendChild(mk('b', upDown(m.profit), (m.profit >= 0 ? 'profit ' : 'loss ') + stFmt.signed(m.profit, m.portfolio) + (pct != null ? ' (' + stFmt.pct(pct) + ')' : '')));
+          { // what is left after this sale (owner, Nov 3: "maybe it should say the remaining shares")
+            const TT = dash.data('trades'), all = TT.status === 'ok' ? TT.data : [], tm = Date.parse(m.at);
+            const self = all.find((x) => x.portfolio === m.portfolio && x.holding === m.item && x.action === m.action && Math.abs(Date.parse(x.at) - tm) < 60e3);
+            let left = self && self.held_after != null ? Number(self.held_after) : null;
+            if (left == null) { left = 0; let any = false;
+              all.filter((x) => x.portfolio === m.portfolio && x.holding === m.item && Date.parse(x.at) <= tm + 1000).forEach((x) => { const q = Number(x.qty || x.shares || 0); if (!q) return; any = true;
+                if (/^(Buy|Cover)$/.test(x.action)) left += q; else if (/^(Sell|Short)$/.test(x.action)) left -= q; });
+              if (!any) left = null; else if (m.action === 'Cover') left = -left; }
+            if (left == null) { const nx = all.filter((x) => x.portfolio === m.portfolio && x.holding === m.item && Date.parse(x.at) > tm + 1000 && x.held_before != null).sort((x, y) => Date.parse(x.at) - Date.parse(y.at))[0]; if (nx) left = Number(nx.held_before); }   // the next trade's 'held before' is what this sale left
+            if (left != null) { const u = m.portfolio === 'Crypto' ? ' coins' : m.portfolio === 'Currencies' ? ' units' : /^Crude Oil\b/.test(m.item || '') ? ' barrels' : ' shares';
+              ln.append(document.createTextNode(' · ' + (Math.abs(left) < 1e-6 * Math.max(1, Number((self || {}).qty) || 1) || Math.abs(left) < 1e-9 ? (m.action === 'Cover' ? 'short fully closed' : 'none left (sold everything)') : 'still holds ' + d3.format(',.4~r')(Math.abs(left)) + u))); }
+          }
+          tr.lastElementChild.insertBefore(ln, tr.lastElementChild.firstChild ? tr.lastElementChild.firstChild.nextSibling : null);
+        }
         if (fam === 'open' && m.outcome == null) return;   // still held: there is no sale to find yet
         const b = mk('button', 'lg-find', fam === 'close' ? '↩ View original buy(s)' : fam === 'open' ? 'View sale(s) →' : '↩ View original bet'); b.type = 'button';
         b.title = 'Open the Ledger on this holding: every buy and sale behind it, with times, prices and reasons';
