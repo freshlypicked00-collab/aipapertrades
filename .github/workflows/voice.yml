@@ -7,6 +7,10 @@ on:
       script:
         description: 'the script file, e.g. ops/voice/options-g-opt.json'
         required: true
+      model:
+        description: 'optional: a Gemini TTS model name to try first (empty = the newest)'
+        required: false
+        default: ''
 permissions:
   contents: write
 concurrency:
@@ -31,7 +35,12 @@ jobs:
           curl -sSLf -o kokoro-v1.0.onnx https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx
           curl -sSLf -o voices-v1.0.bin https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin
           ls -la /tmp/kokoro
+      - name: Word timings and a check of what was said (faster-whisper, open source)
+        continue-on-error: true
+        run: pip install -q faster-whisper >/dev/null 2>&1 || pip install faster-whisper
       - name: Make the voice lines
+        env:
+          TTS_MODEL: ${{ inputs.model }}
         run: python3 ops/voice.py "${{ inputs.script }}"
       - name: Save them
         run: |
