@@ -52,6 +52,19 @@ jobs:
           sudo apt-get update -qq >/dev/null && sudo apt-get install -y -qq ffmpeg >/dev/null
           pip install -q pillow numpy >/dev/null 2>&1 || true
           python3 ops/metricool.py story "${{ inputs.tx }}"
+      - name: The same story Short on X (owner, Nov 2; never twice; the link goes in the first reply)
+        if: ${{ success() && (github.event_name == 'schedule' || inputs.mode == 'story') }}
+        continue-on-error: true
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+        run: |
+          git pull -q --rebase origin main || true
+          python3 ops/x_short.py
+          git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
+          git add ops/src/x_sent.json && git commit -qm "X: story Short posted" && for i in 1 2 3; do git pull -q --rebase origin main && git push -q origin HEAD:main && break; sleep 5; done || true
       - name: The old race replay (retired, manual only)
         if: ${{ inputs.mode == 'daily' }}
         run: |
