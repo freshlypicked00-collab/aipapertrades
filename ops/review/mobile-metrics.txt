@@ -1,0 +1,84 @@
+MOBILE MEASUREMENTS (iPhone size 390x844, Nov 3, 1:55 p.m. ET). "screens" = page length in phone screens. small = distinct text styles under 12px; taps = distinct tappable things under 32px tall or wide. No page scrolls sideways (docW 390 everywhere).
+
+home: screens=15.9 small_text_styles=36 small_tap_targets=15 wide_tables_scrolling=0
+overview: screens=15.9 small_text_styles=36 small_tap_targets=15 wide_tables_scrolling=0
+stocks: screens=23.3 small_text_styles=35 small_tap_targets=20 wide_tables_scrolling=0
+crypto: screens=17.6 small_text_styles=32 small_tap_targets=19 wide_tables_scrolling=0
+metals: screens=21.8 small_text_styles=36 small_tap_targets=21 wide_tables_scrolling=0
+energy: screens=22.9 small_text_styles=34 small_tap_targets=21 wide_tables_scrolling=0
+options: screens=21.2 small_text_styles=35 small_tap_targets=20 wide_tables_scrolling=0
+currencies: screens=32.5 small_text_styles=36 small_tap_targets=19 wide_tables_scrolling=1
+predictions: screens=25 small_text_styles=33 small_tap_targets=19 wide_tables_scrolling=3
+safe: screens=23.9 small_text_styles=34 small_tap_targets=19 wide_tables_scrolling=0
+sports: screens=18.5 small_text_styles=35 small_tap_targets=19 wide_tables_scrolling=0
+china: screens=17.8 small_text_styles=30 small_tap_targets=18 wide_tables_scrolling=0
+h2h: screens=18.6 small_text_styles=31 small_tap_targets=14 wide_tables_scrolling=1
+rules: screens=27.6 small_text_styles=27 small_tap_targets=14 wide_tables_scrolling=0
+allin: screens=20.7 small_text_styles=37 small_tap_targets=17 wide_tables_scrolling=1
+ai-claude: screens=15.6 small_text_styles=30 small_tap_targets=17 wide_tables_scrolling=0
+ai-gemini: screens=15 small_text_styles=30 small_tap_targets=17 wide_tables_scrolling=0
+ai-chatgpt: screens=15.7 small_text_styles=30 small_tap_targets=17 wide_tables_scrolling=0
+notify: screens=15.7 small_text_styles=30 small_tap_targets=17 wide_tables_scrolling=0
+guide: screens=17.5 small_text_styles=27 small_tap_targets=15 wide_tables_scrolling=0
+audit: screens=29.8 small_text_styles=29 small_tap_targets=13 wide_tables_scrolling=5
+ledger: screens=36.2 small_text_styles=33 small_tap_targets=21 wide_tables_scrolling=1
+allinledger: screens=19.5 small_text_styles=37 small_tap_targets=20 wide_tables_scrolling=1
+data: screens=13.4 small_text_styles=27 small_tap_targets=13 wide_tables_scrolling=6
+news: screens=17.7 small_text_styles=31 small_tap_targets=14 wide_tables_scrolling=0
+about-pt: screens=17.7 small_text_styles=31 small_tap_targets=14 wide_tables_scrolling=0
+support: screens=11.7 small_text_styles=27 small_tap_targets=13 wide_tables_scrolling=0
+
+EXAMPLES (Stocks page): text under 12px:
+  11.5px SPAN.pt-tk-p "US$77,609"
+  10.5px B.st-s1-badge "SEASON 1"
+  11.0px SPAN.st-live-badge "LIVE"
+  9.5px SPAN.st-first-tag "Day 1 · every trade, instantly"
+  11.0px SPAN.st-tabgroup-l "TRADING"
+  11.0px SMALL.ai-mdl "3.1 Pro"
+  11.5px SMALL.pd-leads "Holds Invesco S&P 500 Equal Weight ETF, Lockheed M"
+  10.5px SMALL.pd-amt-l "profit"
+  11.0px SMALL. "Gemini · sold"
+  11.0px SMALL.pd-big-from "ID G-STK-006"
+  11.0px SPAN.bg-risk "MARKET RISK: MEDIUM"
+  11.0px SPAN.pt-t "Nov 3, 12:46 p.m. ET"
+  9.5px SPAN.st-bot-n "Claude"
+  8.5px SPAN.st-bot-t "👑 leads overall"
+  11.5px B. "FULLY AUTONOMOUS"
+  11.5px SPAN. "NO HUMAN PICKS OR APPROVALS"
+  11.0px BUTTON.say-btn "🔊 M"
+  11.5px B.fc-mid "FACT CHECK · PENDING"
+  11.0px P.gr-h "TODAY’S GRADES · STOCKS AND ANYTHING"
+  11.0px SPAN.gr-tag "Worst · D"
+
+tap targets under 32px:
+  138x15 A. "What is PaperTrades.AI?"
+  28x28 BUTTON.pt-safety-x "✕"
+  321x26 A.pt-tk-i "BITCOIN US$77,609 ▲ +0.8% 24h ▼ −3.9% 7d"
+  30x20 BUTTON.pt-x "✕"
+  336x23 BUTTON.st-live-status "🔔 Get notified: turn on alerts →"
+  252x28 SELECT.pd-auto-pick "Biggest lead Biggest loss (High risk side race) Bi"
+  105x32 BUTTON.pd-more "More stats ▾"
+  257x23 A.st-auto-fp "🔒 LEDGER VERIFIED THROUGH NOV 2"
+  270x20 BUTTON.st-auto-link "See exactly what each AI is sent →"
+  113x21 BUTTON.st-score-more "Show all races ▾"
+  300x19 SELECT.risk-pick "All risk levels Standard: the main races (normal l"
+  201x20 BUTTON.st-model-cmp "Compare all models in AI vs AI →"
+  16x16 BUTTON.pt-gl-q ""
+  209x20 BUTTON.tx-id "↩ View original buy G-STK-002"
+  257x28 SELECT. "Own currency (C$, US$ for China) Australian dollar"
+  79x30 BUTTON. "24 hours"
+  68x30 BUTTON.st-pg-btn "By day"
+  164x20 BUTTON.lg-find "↩ View original buy(s)"
+  25x28 BUTTON.pt-fp-x "×"
+  335x32 A.pt-fp-more "How to turn on notifications →"
+
+LAYOUT OF THE STOCKS PAGE ON A PHONE (y = where it starts, in phone screens from the top; + = its height):
+ 0.0  safety notice (deposits / impersonation warning), 0.2 screens
+ 0.2  header: title, welcome box "Which AI makes the most (pretend) money?" (0.5), crown lines (leaders), season/day/countdown/clocks (0.35), news box
+ 1.5  "LIVE · Get every AI trade the second it happens" follow card with Telegram/Discord/Instagram/X/YouTube buttons (0.4)
+ 1.9  shared block, 7.3 screens: Race standings (race picker, auto-pick, 1st/2nd/3rd, Biggest profits, Biggest losses, the leader's holdings detail, Moments) 2.4 screens; "Pick an AI to see its view" robots; "You don't trade here..." independence note; tagline; FULLY AUTONOMOUS line; the models paragraph (0.45); the AI's current take + fact check; Today's grades call-out; Season 2 note; this race's scoreboard (0.8); Best risk manager (1.3); simulation disclaimer + Model menu (0.9); "Now viewing" line
+ 9.3  page menu (tabs)
+10.0  THE STOCKS PAGE ITSELF: news link, summary card (value, 24h, total profit, worst drop), jump chips (Holdings, Chart, Ledger, Rules), Holdings (2.2), Stocks vs the market, Value over time + what it holds + each holding's chart (3.2), Distance to the next trade, What made or lost money, Coming up, Rules in force, Decision log (3.1), Sources
+22.6  "Don't miss the next move" follow box, footer. Total 23.4 screens.
+The Home page has the same 0-9.5 part, then the Overview page (about 6 screens).
+Fixed on the screen: the price ticker (sticky, top), a "New here? A 60-second tour…" box (bottom, about 20% of the screen, first visit until dismissed), later a "Get every AI trade the second it happens" follow pop-up (bottom, about 28% of the screen, until dismissed), a ☰ menu button (bottom right) and a Top button (bottom left).

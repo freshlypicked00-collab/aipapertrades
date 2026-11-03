@@ -26,7 +26,7 @@ def keys():
 
 
 def gemini(key, model, prompt, search):
-    body = {'contents': [{'role': 'user', 'parts': [{'text': prompt}]}]}
+    body = {'contents': [{'role': 'user', 'parts': [{'text': prompt}] + [{'inline_data': {'mime_type': m, 'data': d}} for _, m, d in globals().get('IMAGES', [])]}]}
     if search:
         body['tools'] = [{'google_search': {}}]
     j = R.get_json(f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}',
@@ -40,7 +40,8 @@ def gemini(key, model, prompt, search):
 
 def openrouter(key, model, prompt, variant='plugin', effort=None):
     hdr = {'Authorization': f'Bearer {key}', 'Content-Type': 'application/json', 'HTTP-Referer': R.SITE, 'X-Title': 'Paper Trades'}
-    body = {'model': model, 'messages': [{'role': 'user', 'content': prompt}]}
+    _im = globals().get('IMAGES', [])
+    body = {'model': model, 'messages': [{'role': 'user', 'content': prompt if not _im else [{'type': 'text', 'text': prompt}] + [{'type': 'image_url', 'image_url': {'url': f'data:{m};base64,{d}'}} for _, m, d in _im]}]}
     if variant == 'plugin':
         body['plugins'] = [{'id': 'web', 'max_results': 6}]
     elif variant == 'online':
@@ -57,7 +58,8 @@ def openrouter(key, model, prompt, variant='plugin', effort=None):
 
 
 def openai(key, model, prompt, search=True):
-    body = {'model': model, 'input': prompt}
+    _im = globals().get('IMAGES', [])
+    body = {'model': model, 'input': prompt if not _im else [{'role': 'user', 'content': [{'type': 'input_text', 'text': prompt}] + [{'type': 'input_image', 'image_url': f'data:{m};base64,{d}'} for _, m, d in _im]}]}
     if search:
         body['tools'] = [{'type': 'web_search'}]
     j = R.get_json('https://api.openai.com/v1/responses', {'Authorization': f'Bearer {key}', 'Content-Type': 'application/json'},
@@ -160,7 +162,16 @@ if _skipped:
 _mine = f'ops/review/claude-votes-{NAME}.json'
 if os.path.exists(_mine) and _mine not in files:
     files.append(_mine)
+IMAGES = []   # screenshots (owner, Nov 3: a mobile design review needs the AIs to SEE the pages): .png/.jpg files go as pictures, in order
 for f in files:
+    if f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+        try:
+            import base64 as _b64
+            IMAGES.append((f, 'image/png' if f.lower().endswith('.png') else 'image/webp' if f.lower().endswith('.webp') else 'image/jpeg', _b64.b64encode(open(f, 'rb').read()).decode()))
+            q += f'\n\n===== PICTURE {len(IMAGES)}: {f} (attached as an image, in this order) ====='
+        except Exception as e:
+            q += f'\n\n===== PICTURE: {f} (could not be read: {e}) ====='
+        continue
     try:
         q += f'\n\n===== FILE: {f} =====\n' + open(f).read()
     except Exception as e:
