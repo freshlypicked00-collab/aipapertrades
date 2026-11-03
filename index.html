@@ -1567,7 +1567,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '7097e0face62';</script>
+<script>window.PT_PAGE_VER = 'beb65dd72def';</script>
 <!-- the first text on the page says plainly what this is, so search engines and AI assistants stop mixing the name up with a similarly named exchange (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json) -->
 <p class="pt-def" id="what-is">PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no deposits and has no token. <a href="/what-is-papertrades-ai.html">What is PaperTrades.AI?</a></p>
 <style>.pt-def { margin: 0; padding: 5px 14px; font-size: 12px; line-height: 1.4; text-align: center; color: var(--color-fg-muted, #a9a495); background: var(--color-bg, #0b0b0a); } .pt-def a { color: inherit; text-decoration: underline; white-space: nowrap; }</style>
@@ -8071,6 +8071,13 @@ body { background:var(--color-bg); }
         sel.value = stt.m; sel.addEventListener('change', () => { stt.m = sel.value; drawMoves(); }); l.appendChild(sel); mh.appendChild(l); }
       box.appendChild(mh);
       const list = mk('div'); box.appendChild(list);
+      { /* "Holding now" on this list too (owner, Nov 2: a Holding filter like Open on bets): the buys behind positions still open, and bets not settled */
+        const POS = new Set(), OPEN = new Set();
+        (MS || []).forEach((m) => Object.entries(m.books || {}).forEach(([e, bk]) => {
+          Object.entries((bk || {}).positions || {}).forEach(([sym, x]) => { if (Math.abs(Number((x || {}).qty) || 0) > 1e-9) POS.add(m.id + '|' + e + '|' + sym); });
+          ((bk || {}).bets || []).forEach((b) => { if (b.status === 'Open') OPEN.add(m.id + '|' + b.id); }); }));
+        const lot = window.ptHeld((TS || []).filter((t) => t.action !== 'Bet'), (t) => t.model + '|' + t.experiment + '|' + t.symbol + (t.outcome ? '|' + t.outcome : ''), (t) => t.qty, (k) => POS.has(k));
+        (TS || []).forEach((t) => { t._held = lot.has(t) || (t.action === 'Bet' && OPEN.has(t.model + '|' + t.bet)); }); }
       const drawMoves = () => {
         list.replaceChildren();
         const tr0 = TS.filter((t) => t.experiment === exp && (!stt.m || t.model === stt.m));

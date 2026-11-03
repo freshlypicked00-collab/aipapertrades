@@ -7725,6 +7725,13 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         sel.value = stt.m; sel.addEventListener('change', () => { stt.m = sel.value; drawMoves(); }); l.appendChild(sel); mh.appendChild(l); }
       box.appendChild(mh);
       const list = mk('div'); box.appendChild(list);
+      { /* "Holding now" on this list too (owner, Nov 2: a Holding filter like Open on bets): the buys behind positions still open, and bets not settled */
+        const POS = new Set(), OPEN = new Set();
+        (MS || []).forEach((m) => Object.entries(m.books || {}).forEach(([e, bk]) => {
+          Object.entries((bk || {}).positions || {}).forEach(([sym, x]) => { if (Math.abs(Number((x || {}).qty) || 0) > 1e-9) POS.add(m.id + '|' + e + '|' + sym); });
+          ((bk || {}).bets || []).forEach((b) => { if (b.status === 'Open') OPEN.add(m.id + '|' + b.id); }); }));
+        const lot = window.ptHeld((TS || []).filter((t) => t.action !== 'Bet'), (t) => t.model + '|' + t.experiment + '|' + t.symbol + (t.outcome ? '|' + t.outcome : ''), (t) => t.qty, (k) => POS.has(k));
+        (TS || []).forEach((t) => { t._held = lot.has(t) || (t.action === 'Bet' && OPEN.has(t.model + '|' + t.bet)); }); }
       const drawMoves = () => {
         list.replaceChildren();
         const tr0 = TS.filter((t) => t.experiment === exp && (!stt.m || t.model === stt.m));
