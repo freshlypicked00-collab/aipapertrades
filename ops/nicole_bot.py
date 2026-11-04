@@ -11,6 +11,7 @@ Usage:
   python3 ops/nicole_bot.py send ops/nicole/<task>.md   one message per "### " job (or one message), each with ✅ Done
   python3 ops/nicole_bot.py poll                        read taps and messages, link chats, remind, tell the owner
   python3 ops/nicole_bot.py codes                       print two fresh link codes (and save their hashes)
+  python3 ops/nicole_bot.py credit                      check ChatGPT's OpenRouter credit, tell the owner once at US$5
   python3 ops/nicole_bot.py save "message"              commit the state files, merging with any run that saved meanwhile
 State: ops/nicole/bot.json (linked chat ids, code hashes, update offset), ops/nicole/tasks.json (every job and when done).
 """
@@ -276,7 +277,8 @@ def merge_save(msg):
             ca, cb, ta, tb = a.get('codes') or {}, b.get('codes') or {}, a.get('codes_at') or {}, b.get('codes_at') or {}
             codes_ = {k: (cb[k] if k in cb and (k not in ca or tb.get(k, '') > ta.get(k, '')) else ca[k]) for k in set(ca) | set(cb)}
             codes_ = {k: v for k, v in codes_.items() if k not in chats}
-            save(BOT, {**a, **b, 'chats': chats, 'codes': codes_, 'codes_at': {**ta, **{k: v for k, v in tb.items() if v > ta.get(k, '')}}, 'offset': max(a.get('offset', 0), b.get('offset', 0))})
+            cr = max((x.get('credit') for x in (a, b) if x.get('credit')), key=lambda c: c.get('checked_at', ''), default=None)   # the newest credit check wins
+            save(BOT, {**a, **b, **({'credit': cr} if cr else {}), 'chats': chats, 'codes': codes_, 'codes_at': {**ta, **{k: v for k, v in tb.items() if v > ta.get(k, '')}}, 'offset': max(a.get('offset', 0), b.get('offset', 0))})
         # sent log: every entry from both, in order, once
         if mine[SENT] is not None or theirs[SENT] is not None:
             seen, out = set(), []
@@ -301,10 +303,47 @@ def codes():
     save(BOT, B); print(json.dumps(out))
 
 
+# OpenRouter credit watch (owner, Nov 3: "i topped gpt to 25.77 let me know when he gets to 5$"). ChatGPT runs through
+# OpenRouter; its /credits endpoint gives total bought and total used. Checked on each hourly run; the owner gets one
+# Telegram message when the balance first reaches LOW_USD, and the warning re-arms when he tops up again.
+LOW_USD = 5.0
+
+
+def credit():
+    key = os.environ.get('OPENROUTER_API_KEY', '').strip()
+    if not key: print('no OPENROUTER_API_KEY: credit watch skipped'); return
+    try:
+        with urllib.request.urlopen(urllib.request.Request('https://openrouter.ai/api/v1/credits', headers={'Authorization': f'Bearer {key}'}), timeout=30) as r:
+            d = json.load(r).get('data') or {}
+        bought, used = float(d.get('total_credits') or 0), float(d.get('total_usage') or 0)
+    except Exception as e:
+        print(f'::warning title=Credit watch::OpenRouter credits not readable: {e}'); return
+    bal = round(bought - used, 2)
+    B = load(BOT, {}); C = B.get('credit') or {}
+    first = not C
+    if bought > float(C.get('bought') or 0) + 0.009 and C:   # a top-up: re-arm the warning and restart the pace samples
+        C['alerted'] = False; C['samples'] = []
+        tell_owner(f'💳 OpenRouter (ChatGPT) topped up: <b>US${bal:,.2f}</b> left. I\'ll message you when it reaches US${LOW_USD:.0f}.')
+    S = [x for x in (C.get('samples') or []) if x[0] > time.time() - 48 * 3600] + [[int(time.time()), bal]]
+    pace = None   # US$ per day, from the samples in the last 48 hours
+    if len(S) >= 2 and S[-1][0] - S[0][0] >= 3 * 3600 and S[0][1] > S[-1][1]:
+        pace = (S[0][1] - S[-1][1]) / ((S[-1][0] - S[0][0]) / 86400)
+    left = f' At the current pace (about US${pace:,.2f} a day) that lasts roughly {max(bal, 0) / pace:,.1f} days.' if pace else ''
+    if first:
+        tell_owner(f'💳 Watching ChatGPT\'s OpenRouter credit: <b>US${bal:,.2f}</b> left now. I\'ll message you once when it reaches US${LOW_USD:.0f}.')
+    if bal <= LOW_USD and not C.get('alerted'):
+        tell_owner(f'⚠️ <b>ChatGPT\'s OpenRouter credit is down to US${bal:,.2f}.</b>{left}\nAt US$0 ChatGPT stops trading. Top up: openrouter.ai/settings/credits')
+        C['alerted'] = True
+    C.update({'bought': bought, 'balance': bal, 'checked_at': now(), 'pace_per_day': round(pace, 2) if pace else None, 'samples': S[-60:]})
+    B['credit'] = C; save(BOT, B)
+    print(f'OpenRouter credit: US${bal:.2f} left (bought {bought:.2f}, used {used:.2f})' + (f', ~{pace:.2f}/day' if pace else ''))
+
+
 if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else 'poll'
     if cmd == 'send': print(send_file(sys.argv[2]), 'jobs')
     elif cmd == 'codes': codes()
     elif cmd == 'webhook': webhook(sys.argv[2])
+    elif cmd == 'credit': credit()
     elif cmd == 'save': merge_save(sys.argv[2] if len(sys.argv) > 2 else 'Nicole bot: state')
     else: poll()

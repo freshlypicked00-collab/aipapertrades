@@ -35,6 +35,12 @@ jobs:
           if [ -z "$NICOLE_BOT_TOKEN" ]; then echo "No NICOLE_BOT_TOKEN yet: nothing to do."; exit 0; fi
           if [ -n "$WEBHOOK" ]; then python3 ops/nicole_bot.py webhook "$WEBHOOK"; fi
           python3 ops/nicole_bot.py poll
+      - name: Check ChatGPT's OpenRouter credit (hourly; tells the owner once at US$5)
+        if: ${{ github.event_name != 'repository_dispatch' }}
+        env:
+          NICOLE_BOT_TOKEN: ${{ secrets.NICOLE_BOT_TOKEN }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: python3 ops/nicole_bot.py credit || true
       - name: Save state (merged with any task send that saved meanwhile, so no Done tap or job is lost)
         run: |
           git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
