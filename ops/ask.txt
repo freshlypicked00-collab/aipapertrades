@@ -1,21 +1,24 @@
-MOBILE REVIEW, ROUND 2 (owner, Nov 3: "work together with all the models to make the mobile home and pages all look as best as they can in the mobile format and as easy to read and confirm things as possible. I am currently satisfied with desktop, so just work on mobile").
-Round 1: you both and Claude agreed C1-C10 (ops/review/mobile-r1.json). Claude built them plus Gemini's pie-legend and swipe-hint ideas and ChatGPT's calm close buttons. Nothing is live yet: you are reviewing the new phone layout before it ships.
-Attached: 8 pictures (each is BEFORE = the live site today, AFTER = the new phone layout, or two AFTER views side by side, as labelled at the top of each picture) and ops/review/mobile2-metrics.txt (same data and fonts before and after: where each page's content starts, page lengths, small text and small buttons).
-Rules: phones only (700px wide and under). Desktop stays the same (one exception, below). Nothing is deleted: disclaimers, audit material, the AIs' own words and every number stay; they can move or fold behind one tap. Goal: easy to read and easy to CONFIRM the numbers.
+DESIGN QUESTION from the owner of PaperTrades.AI. NOT a trading turn. This one is for Gemini only: the owner asked Claude to "work with Gemini to create something magnificent".
 
-BUILT IN ROUND 2 (vote KEEP / CHANGE (say how) / REVERT on each):
-R2-A One-line header on every page except Home: "Day 7 of 32 · 👑 Gemini leads +C$18,289 · Gemini updated 58m ago   More ▾". One tap shows the full block (the three leaders, High risk side race, countdown, New York clock, market open/closed, Menu button, daily scoreboard note). Home still shows the full block. Result: a race page's own content starts 0.4 screens down (was 8.8 screens before round 1).
-R2-B The first-visit welcome card ("Which AI makes the most (pretend) money?") shows on Home only. Someone arriving straight on a race page still gets the one-line "PaperTrades.AI is a public experiment ... pretend money ... no deposits ... What is PaperTrades.AI?" strip at the very top, then that page (picture 7).
-R2-C The Transaction ID / View sale / Whole story / More details / View original buy buttons sit side by side, 2 or 3 to a line (they were one per line), 40px tall, in the normal font (picture 4).
-R2-D The labels under the three AI faces 12px/11px (were 9.5px/8.5px); the "?" glossary buttons keep their small circle but get a finger-sized invisible tap area; the close buttons on notes are 40px.
-R2-E US and China market status on two lines instead of being squeezed into three short columns; no empty 28px band above the price ticker.
-R2-F (desktop too, a wording fix): in "What <AI> holds now", a SALE row's button said "↩ View original buy G-ENE-003" with the sale's own ID. It now says "View this sale G-ENE-003" (it always opened that sale in the Ledger). Buy rows are unchanged.
+THE TASK: one new PaperTrades.AI logo that combines our two current logos (PICTURE 1):
+- left: the old app icon, a green zigzag chart line going up (up, a small dip, up) on a dark green tile (#17201c, line #4cc283). Used as the site icon and on Discord/Telegram.
+- right: the three AI robot mascots (Claude orange #d97757, Gemini blue #4f8ff7, ChatGPT white #f2f2f2), dark outlines, yellow antenna balls. Used on YouTube.
+The owner's words: "combine both of the logos we had so it's like a green stock going up in the background or something".
 
-PROPOSED, NOT BUILT (vote AGREE / CHANGE / DISAGREE):
-R2-1 "What <AI> holds now" lists every trade ever made in that holding. Gemini's USO in the Energy race shows 9 trade cards (3 earlier buy-and-sell rounds that were closed, then today's buy), 5.4 phone screens for one holding, when the 91 shares it holds now came from one buy. Proposal for phones: show the trades behind what is held NOW; fold the earlier closed rounds into one line under it: "Earlier rounds in this holding: 7 trades, all sold (−C$1,693.44 realised) ▾". One tap shows them exactly as today. The totals on the card (bought in all, sold back, part sold, total) stay as they are.
+WHERE IT WILL BE USED: the profile picture on X, Instagram, YouTube, Telegram and Discord (all show it CROPPED TO A CIRCLE, often only 40-48 px wide in feeds), plus the site icon and app icon (square, rounded corners). So it must read at 40 px inside a circle.
 
-YOUR JOB, brief and concrete:
-1) Vote on R2-A to R2-F and R2-1 (one line each).
-2) Look hard at the 8 AFTER views and list anything still hard to read, confusing, misleading, broken or ugly on a phone (picture number + what + the fix). Only things that matter to a visitor reading or checking numbers.
-3) Anything here that hides something a visitor needs, or could mislead?
-4) End with "TOP 3 IN ORDER:" (the next three phone changes that would help a visitor most, if any are left).
+HARD RULES: all three robots the same size and on the same level (the brand never ranks the AIs; the race is still on); keep the robots' exact look (PICTURE 1, right; the SVG geometry is in the attached robots-template.svg); no text in the mark; no company logos (Anthropic, Google, OpenAI); dark background matching the site (#0b0b0a), green #3ddc84 for "up".
+
+PICTURE 2: Claude's first three concepts, each with circle previews at 64 px and 40 px below it:
+A) the green chart rises behind the robots with a glow and a faint grid; the robots watch it go up.
+B) the same with rising green candlesticks behind.
+C) the old app icon as a big "screen" with the robots in front of it.
+Claude's own view: A is the strongest; B is too busy at small sizes; C's robots get cut by the circle. A's flaws: the green area under the line shows hard vertical edges, and the whole mark sits a little low.
+
+WHAT WE NEED FROM YOU:
+1. CRITIQUE: one or two lines on each of A, B, C at 40 px in a circle.
+2. DIRECTION: which direction (or a better one of your own) makes the most magnificent, memorable mark, and why.
+3. IMPROVEMENTS: the 5 most important concrete changes (composition and sizes in the 1024 grid, line shape, arrowhead, glow, background, how the robots and the line overlap, anything that makes it iconic).
+4. YOUR VERSION: a complete SVG of your best version: viewBox="0 0 1024 1024", self-contained (no external files or fonts), using the robot groups from robots-template.svg exactly (place each with transform="translate(x,y) scale(s)"; you may copy their markup). Keep everything important inside a circle of radius 440 centred at (512,512). Put the SVG in one ```svg code block.
+
+Keep the words short; put the effort into the design.
