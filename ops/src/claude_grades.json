@@ -7486,5 +7486,41 @@
   "what": "QQQ Nov 20 $670 put",
   "grade": "C",
   "text": "Sensible to cut a failed put, but no stated loss limit or level; the exit reads as a reaction to price rather than a plan."
+ },
+ {
+  "at": "2026-11-04T15:45:41Z",
+  "grader": "claude",
+  "model": "gemini",
+  "key": "gemini|2026-11-04T15:15:10Z|Options|SPY261120C00765000|Buy",
+  "decision_at": "2026-11-04T15:15:10Z",
+  "experiment": "Options",
+  "action": "Buy",
+  "what": "SPY Nov 20 $765 call",
+  "grade": "C",
+  "text": "Clear exit at SPY 755, but C$18.5k in a near-the-money call after a gap-up chases the move with heavy decay risk."
+ },
+ {
+  "at": "2026-11-04T15:45:41Z",
+  "grader": "claude",
+  "model": "gemini",
+  "key": "gemini|2026-11-04T15:15:10Z|Crypto|BTC-USD|Buy",
+  "decision_at": "2026-11-04T15:15:10Z",
+  "experiment": "Crypto",
+  "action": "Buy",
+  "what": "Bitcoin USD",
+  "grade": "D",
+  "text": "Buys at 80,690 while citing an $80,000 target already passed; the thesis is stale, though the 77,500 exit is defined."
+ },
+ {
+  "at": "2026-11-04T15:45:41Z",
+  "grader": "claude",
+  "model": "gemini",
+  "key": "gemini|2026-11-04T15:15:10Z|AllInTrading|BTC-USD|Buy",
+  "decision_at": "2026-11-04T15:15:10Z",
+  "experiment": "AllInTrading",
+  "action": "Buy",
+  "what": "Bitcoin USD",
+  "grade": "D",
+  "text": "Half the book on Bitcoin above its stated $80,000 target; momentum chase with a defined exit but little upside left in its own logic."
  }
 ]
