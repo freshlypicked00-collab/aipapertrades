@@ -359,9 +359,36 @@ def story():
     log['posts'].append(_scrub(out))
     json.dump(log, open(LOG, 'w'), indent=1)
     _push(f'YouTube story Short {out.get("status")}: {st_["res_tx"]} ({today})', [os.path.relpath(LOG, root)])
+    if out.get('status') == 'PUBLISHED':
+        nini_thumbnail(rel, title, out.get('url'))
     print(json.dumps(_scrub(out), indent=1))
     if out.get('status') != 'PUBLISHED':
         sys.exit(1)
+
+
+def nini_thumbnail(rel, title, url):
+    """Owner, Nov 3: "make sure u add the right thumbnail EVERYTIME". YouTube takes the thumbnail sent with the upload for links and
+    search, but the Shorts grid on the channel only shows one uploaded in YouTube Studio, so after every Short NINI gets a Telegram
+    task with the picture and three steps (ops/nicole_bot.py sends the picture under the job)."""
+    try:
+        import subprocess
+        from datetime import datetime
+        stem = rel[:-4]; root = os.path.dirname(HERE)
+        name = f"{datetime.now().strftime('%Y-%m-%d')}-thumb-{os.path.basename(stem)[:40]}.md"
+        pic = 'https://papertrades.ai/' + stem + '-thumb.jpg'
+        md = (f"## 🖼️ New YouTube Short: its thumbnail\n\n"
+              f"### Put the thumbnail on the new Short (2 min)\n"
+              f"1. Save the picture that comes after this message (press and hold it → Save).\n"
+              f"2. YouTube Studio → **Content** → **Shorts** → open **{title[:70]}**.\n"
+              f"3. **Thumbnail** → **Upload file** (or ⋮ → **Change**) → pick the picture → **Save**.\n"
+              f"Short: {url or 'the newest Short'}\n"
+              f"Picture: {pic}\n")
+        open(os.path.join(HERE, 'nicole', name), 'w').write(md)
+        if _push('NINI task: thumbnail for ' + os.path.basename(stem), [os.path.join('ops', 'nicole', name)]):
+            subprocess.run(['gh', 'workflow', 'run', 'nicole.yml', '--ref', 'main', '-f', 'file=' + name], capture_output=True)
+            print('NINI thumbnail task sent:', name)
+    except Exception as e:
+        print('::warning::NINI thumbnail task not sent:', e)
 
 
 def custom():
@@ -408,6 +435,8 @@ def custom():
     log['posts'].append(_scrub(out))
     json.dump(log, open(LOG, 'w'), indent=1)
     _push(f'YouTube Short {out.get("status")}: {os.path.basename(rel)}', [os.path.relpath(LOG, root)])
+    if out.get('status') == 'PUBLISHED':
+        nini_thumbnail(rel, title, out.get('url'))
     print(json.dumps(_scrub(out), indent=1))
     if out.get('status') != 'PUBLISHED':
         sys.exit(1)
