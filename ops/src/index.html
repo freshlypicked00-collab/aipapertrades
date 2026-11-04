@@ -10677,7 +10677,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       const key = [day && day[0], tx(who), tx(amt), since, open].join('|'); if (m._k === key) return; m._k = key;
       const t = document.createElement('span');
       if (day) t.append(day[0]);
-      if (who && tx(who)) { const b = document.createElement('b'); b.textContent = tx(who); b.style.color = getComputedStyle(who).color; t.append(t.childNodes.length ? ' · 👑 ' : '👑 ', b, ' leads' + (tx(amt) ? ' ' + tx(amt) : '')); }
+      if (who && tx(who)) { const b = document.createElement('b'); b.textContent = tx(who); b.style.color = getComputedStyle(who).color; t.append(t.childNodes.length ? ' · Overall: 👑 ' : 'Overall: 👑 ', b, tx(amt) ? ' ' + tx(amt) : ''); /* ChatGPT (round 2): "Overall" so it never reads as this race's profit */ }
       if (/\d|just now/i.test(since)) t.append((t.childNodes.length ? ' · ' : '') + since);
       const a = document.createElement('span'); a.className = 'pt-mini-a'; a.textContent = open ? 'Less ▴' : 'More ▾';
       m.replaceChildren(t, a); m.setAttribute('aria-expanded', String(open));

@@ -1573,7 +1573,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'b05c4a67c7b7';</script>
+<script>window.PT_PAGE_VER = '4b3503f8a343';</script>
 <!-- the first text on the page says plainly what this is, so search engines and AI assistants stop mixing the name up with a similarly named exchange (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json) -->
 <p class="pt-def" id="what-is">PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no deposits and has no token. <a href="/what-is-papertrades-ai.html">What is PaperTrades.AI?</a></p>
 <style>.pt-def { margin: 0; padding: 5px 14px; font-size: 12px; line-height: 1.4; text-align: center; color: var(--color-fg-muted, #a9a495); background: var(--color-bg, #0b0b0a); } .pt-def a { color: inherit; text-decoration: underline; white-space: nowrap; }</style>
@@ -11030,7 +11030,7 @@ body { background:var(--color-bg); }
       const key = [day && day[0], tx(who), tx(amt), since, open].join('|'); if (m._k === key) return; m._k = key;
       const t = document.createElement('span');
       if (day) t.append(day[0]);
-      if (who && tx(who)) { const b = document.createElement('b'); b.textContent = tx(who); b.style.color = getComputedStyle(who).color; t.append(t.childNodes.length ? ' · 👑 ' : '👑 ', b, ' leads' + (tx(amt) ? ' ' + tx(amt) : '')); }
+      if (who && tx(who)) { const b = document.createElement('b'); b.textContent = tx(who); b.style.color = getComputedStyle(who).color; t.append(t.childNodes.length ? ' · Overall: 👑 ' : 'Overall: 👑 ', b, tx(amt) ? ' ' + tx(amt) : ''); /* ChatGPT (round 2): "Overall" so it never reads as this race's profit */ }
       if (/\d|just now/i.test(since)) t.append((t.childNodes.length ? ' · ' : '') + since);
       const a = document.createElement('span'); a.className = 'pt-mini-a'; a.textContent = open ? 'Less ▴' : 'More ▾';
       m.replaceChildren(t, a); m.setAttribute('aria-expanded', String(open));
