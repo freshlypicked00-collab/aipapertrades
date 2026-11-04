@@ -85,6 +85,18 @@ def money(x, e):
     return ('+' if x >= 0 else '−') + ('US$' if e == 'China' else 'C$') + f'{abs(x):,.0f}'
 
 
+def _logo(fig, x, y, h):
+    """The PaperTrades.AI logo (owner, Nov 4: this logo everywhere), x/y/h in the card's 1200x675 pixels, y = top."""
+    import os
+    try:
+        import matplotlib.image as mpimg
+        f = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'brand', 'logo-circle-256.png')
+        H = fig.get_size_inches()[1] * 100; ax = fig.add_axes([x / 1200, 1 - (y + h) / 675, h / 1200, h / H]); ax.imshow(mpimg.imread(f)); ax.axis('off')
+        return True
+    except Exception:
+        return False
+
+
 def races_card(table, big, title, path='/tmp/pt_race.png'):
     import matplotlib
     matplotlib.use('Agg')
@@ -93,8 +105,9 @@ def races_card(table, big, title, path='/tmp/pt_race.png'):
     BG, FG, MUTED, UP, DOWN = '#0b0b0a', '#f2e9d8', '#9b927f', '#3ddc84', '#ff5a4e'
     fig = plt.figure(figsize=(12, 6.75), facecolor=BG)
     ax = fig.add_axes([0, 0, 1, 1]); ax.set_xlim(0, 1200); ax.set_ylim(675, 0); ax.axis('off')
-    ax.text(60, 58, 'PAPERTRADES.AI', color='#ffb000', fontsize=20, fontweight='bold', family='monospace')
-    ax.text(60, 92, title, color=FG, fontsize=15)
+    lx = 150 if _logo(fig, 40, 18, 96) else 60
+    ax.text(lx, 58, 'PAPERTRADES.AI', color='#ffb000', fontsize=20, fontweight='bold', family='monospace')
+    ax.text(lx, 92, title, color=FG, fontsize=15)
     ax.text(1140, 58, 'Ten separate races · Claude vs Gemini vs ChatGPT', color=MUTED, fontsize=12, ha='right')
     ax.text(1140, 92, 'Each race on its own · profit since the Oct 28 restart', color=MUTED, fontsize=12, ha='right')
     ax.text(60, 135, 'RACE', color=MUTED, fontsize=10, family='monospace')
@@ -135,8 +148,9 @@ def race_card(rows, big, title, path='/tmp/pt_race.png', height=6.75):
     BG, FG, MUTED, UP, DOWN = '#0b0b0a', '#f2e9d8', '#9b927f', '#3ddc84', '#ff5a4e'
     fig = plt.figure(figsize=(12, height), facecolor=BG)
     ax = fig.add_axes([0, 0, 1, 1]); ax.set_xlim(0, 1200); ax.set_ylim(675, 0); ax.axis('off')
-    ax.text(60, 70, 'PAPERTRADES.AI', color='#ffb000', fontsize=22, fontweight='bold', family='monospace')
-    ax.text(60, 112, title, color=FG, fontsize=17)
+    lx = 160 if _logo(fig, 40, 26, 104) else 60
+    ax.text(lx, 70, 'PAPERTRADES.AI', color='#ffb000', fontsize=22, fontweight='bold', family='monospace')
+    ax.text(lx, 112, title, color=FG, fontsize=17)
     ax.text(1140, 70, 'Which AI Makes the Most (Pretend) Money?', color=MUTED, fontsize=13, ha='right')
     ax.text(60, 160, 'TOTAL PROFIT SINCE THE OCT 28 RESTART (C$, ALL 10 EXPERIMENTS)', color=MUTED, fontsize=11, family='monospace')
     y = 215

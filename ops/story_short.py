@@ -171,7 +171,7 @@ class F:
 
 def bug(fr, s):   # the persistent score bug (ChatGPT's addition): race, day, pretend money
     fr.d.rectangle((0, 0, W, 210), fill=BG)
-    ic = os.path.join(os.path.dirname(pc.HERE), 'icon-512.png')
+    ic = os.path.join(os.path.dirname(pc.HERE), 'brand', 'logo-circle-512.png')
     if os.path.exists(ic):
         im = Image.open(ic).convert('RGBA').resize((56, 56), Image.LANCZOS); fr.im.paste(im, (L, 120), im)
     fr.t((L + 72, 148), 'PAPERTRADES.AI', font('mono', 'SemiBold', 38), FG, 'lm')

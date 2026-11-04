@@ -19,13 +19,12 @@ def glow(size, spots):
     return g.filter(ImageFilter.GaussianBlur(min(size) // 9))
 
 
+LOGO = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'brand', 'logo.png')
+
+
 def avatar(path):
-    S = 800
-    im = glow((S, S), [(170, 430, 230, AIC['claude'], .30), (400, 430, 230, AIC['gemini'], .30), (630, 430, 230, AIC['chatgpt'], .16)])
-    d = ImageDraw.Draw(im)
-    for x, k in ((172, 'claude'), (400, 'gemini'), (628, 'chatgpt')):   # all three the same size: the channel takes no side
-        bot(d, x, 470, AIC[k], 1.12)
-    im.save(path)
+    """The PaperTrades.AI logo, the only logo (owner, Nov 4: "use this logo everywhere going forward")."""
+    Image.open(LOGO).convert('RGB').resize((800, 800), Image.LANCZOS).save(path)
     return path
 
 
@@ -43,8 +42,8 @@ def banner(path):
     shade = Image.new('L', (Wd, Hd), 0); ImageDraw.Draw(shade).rounded_rectangle([x0 - 60, y0 - 40, x0 + 1606, y0 + 463], radius=60, fill=200)
     shade = shade.filter(ImageFilter.GaussianBlur(50))
     im = Image.composite(Image.new('RGB', (Wd, Hd), BG), im, shade); d = ImageDraw.Draw(im)
-    for i, k in enumerate(('claude', 'gemini', 'chatgpt')):
-        bot(d, x0 + 90 + i * 135, y0 + 255, AIC[k], 0.58)   # all three the same size (Gemini's review, Nov 3: strict neutrality)
+    lg = Image.open(LOGO.replace('logo.png', 'logo-circle-512.png')).convert('RGBA').resize((380, 380), Image.LANCZOS)
+    im.paste(lg, (x0 + 10, y0 + 22), lg); d = ImageDraw.Draw(im)   # the logo (owner, Nov 4: this logo everywhere)
     tx = x0 + 420
     d.text((tx, y0 + 60), 'PAPERTRADES.AI', font=F('mono', 'Bold', 84), fill=FG)
     d.text((tx, y0 + 168), '3 AIs. C$100,000 of pretend money each. Real prices.', font=F('sans', 'Bold', 46), fill=FG)
@@ -59,7 +58,20 @@ def banner(path):
     return path
 
 
+def email_banner(path):
+    """email/banner.png (1200x300) for the auto-reply and copy pages: the logo and the line (owner, Nov 4)."""
+    W, H = 1200, 300
+    im = glow((W, H), [(220, 150, 200, UP, .18), (900, 150, 260, AIC['gemini'], .10)]); d = ImageDraw.Draw(im)
+    lg = Image.open(LOGO.replace('logo.png', 'logo-circle-512.png')).convert('RGBA').resize((236, 236), Image.LANCZOS)
+    im.paste(lg, (48, 32), lg); d = ImageDraw.Draw(im)
+    d.text((320, 70), 'PAPERTRADES.AI', font=F('mono', 'Bold', 58), fill=FG)
+    d.text((320, 150), 'Three AIs. Pretend money. Real prices.', font=F('sans', 'Bold', 34), fill=FG)
+    d.text((320, 205), 'Claude vs Gemini vs ChatGPT · Oct 28 – Nov 28, 2026', font=F('mono', 'Bold', 22), fill=AMBER)
+    im.save(path)
+    return path
+
+
 if __name__ == '__main__':
     out = sys.argv[1] if len(sys.argv) > 1 else 'social/yt/channel'
     os.makedirs(out, exist_ok=True)
-    print(avatar(os.path.join(out, 'avatar.png')), banner(os.path.join(out, 'banner.png')))
+    print(avatar(os.path.join(out, 'avatar.png')), banner(os.path.join(out, 'banner.png')), email_banner('email/banner.png'))

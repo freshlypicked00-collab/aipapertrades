@@ -1,0 +1,21 @@
+name: Logo on Discord and Telegram (one-off)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Discord webhooks and Telegram channel photo
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DISCORD_WEBHOOK_DAILY: ${{ secrets.DISCORD_WEBHOOK_DAILY }}
+          DISCORD_WEBHOOK_LEADS: ${{ secrets.DISCORD_WEBHOOK_LEADS }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 ops/brand_push.py

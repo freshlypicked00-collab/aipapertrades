@@ -102,7 +102,7 @@ def background(color):
 
 
 def header(f, race, day):
-    icon = os.path.join(os.path.dirname(pc.HERE), 'icon-512.png')
+    icon = os.path.join(os.path.dirname(pc.HERE), 'brand', 'logo-circle-512.png')
     if os.path.exists(icon):
         ic = Image.open(icon).convert('RGBA').resize((64, 64), Image.LANCZOS)
         f.im.paste(ic, (X0, 200), ic)
@@ -228,7 +228,7 @@ def thumbnail(race, finals, day, path):
     im = Image.new('RGB', (W, H), BG)
     g = Image.new('RGBA', (W, H), (0, 0, 0, 0)); ImageDraw.Draw(g).ellipse((-200, 500, 1300, 1500), fill=(60, 110, 220, 110))
     im = Image.alpha_composite(im.convert('RGBA'), g.filter(ImageFilter.GaussianBlur(200))).convert('RGB'); d = ImageDraw.Draw(im)
-    icon = os.path.join(os.path.dirname(pc.HERE), 'icon-512.png')
+    icon = os.path.join(os.path.dirname(pc.HERE), 'brand', 'logo-circle-512.png')
     if os.path.exists(icon):
         ic = Image.open(icon).convert('RGBA').resize((90, 90), Image.LANCZOS); im.paste(ic, (90, 250), ic)
     d.text((205, 295), 'PAPERTRADES.AI', font=font('mono', 'SemiBold', 52), fill=FG, anchor='lm')

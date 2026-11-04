@@ -629,3 +629,8 @@ no ESPN game id. New bets record which sportsbook ESPN quoted ("odds_source").
 ## Asking Gemini and ChatGPT from several chats at once (Nov 1)
 
 A queued ask run checks out the newest main, so a question left in `ops/ask.txt` can be swapped by another chat before the run starts. Put each question in its own file instead: `ops/asks/<name>.txt` (attachments listed in `ops/asks/<name>.files.txt`), then dispatch `rivals.yml` with `mode=ask` and the same `name`; the answers land in `ops/review/<name>.json`. `ops/ask.txt` still works when no named file exists. Dispatch only when nothing is pending in the `rivals` group: a newer pending run cancels the older pending one, which could be a check-in.
+
+## The logo (owner, Nov 4: "use this logo everywhere going forward. do not use any other logo")
+- The ONLY logo is brand/logo.png (1024; same as ops/logo/v2-round.png): the three robots under the green rising arrow with PAPERTRADES.AI below, in a dark circle. Sizes: brand/logo-512/-256.png, round cut-outs brand/logo-circle-256/-512.png (for cards), favicons, icon-192/512, apple-touch-icon, favicon.ico, social/yt/channel/avatar.png: all made from it.
+- Never draw or use another mark (the old green chart square, ops/og-logo.png, the robots-only avatar, the concept files in ops/logo/). Every new page, card, video, email or profile picture uses brand/logo*.png. Show it round (border-radius 50%).
+- If it changes, regenerate every size from the new brand/logo.png and bump ?v=logo3 in ops/build_site.py, ops/src/index.html and manifest.webmanifest.

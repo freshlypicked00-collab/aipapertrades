@@ -97,7 +97,7 @@ class Card:
         return lines
 
     def header(self, right):
-        icon = os.path.join(os.path.dirname(HERE), 'icon-512.png')
+        icon = os.path.join(os.path.dirname(HERE), 'brand', 'logo-circle-512.png')
         x = SAFE_X
         if os.path.exists(icon):
             ic = Image.open(icon).convert('RGBA').resize((76, 76), Image.LANCZOS)
