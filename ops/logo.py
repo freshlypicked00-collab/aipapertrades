@@ -177,58 +177,17 @@ def wide_v2():
     return svg2(body, W, 1000)
 
 
-# ---------- round 3: Gemini's round-2 review (ops/review/logo-r2-nov3.json): the line clears the middle antenna and soars over
-# ChatGPT, the mark sits a little lower and is optically centred, the arrow tip stays inside the profile circle (Claude: in v2 it
-# reached 541 px from the centre, so a circle crop clipped it), bigger and bolder words, '.AI' in the line's own green,
-# a pale green catchlight in the eyes (the robots lit by the chart). Gemini's idea of different mouths per AI was left out:
-# the three robots stay identical, so the logo never gives one AI a better or worse character.
-V3_LINE = [(160, 648), (412, 398), (544, 462), (758, 248)]
-CATCH = '#d9fbe7'
-
-
-def robot3(x, y, col, s=1.0):
-    return robot(x, y, col, s).replace(f'fill="{CREAM}"/>', f'fill="{CATCH}"/>')
-
-
-def mark3_body(rs=1.08, gap=228, ry=720, line_w=60):
-    body = f'<g filter="url(#glow2)" opacity=".9">{swept(V3_LINE, line_w + 10, GREEN)}</g>'
-    body += swept(V3_LINE, line_w, GREEN)
-    body += f'<g opacity=".5">{swept(V3_LINE, line_w * 0.27, "#b8f5d0")}</g>'
-    body += ''.join(robot3(512 + (i - 1) * gap, ry, AIC[k], rs) for i, k in enumerate(('claude', 'gemini', 'chatgpt')))
-    return body
-
-
-def mark_v3():
-    return svg2(mark3_body())
-
-
-def stacked_v3():
-    words, wd = text_path('', 512, 902, 78, tracking=0.1, parts=WORD)
-    body = f'<g transform="translate(512,392) scale(.8) translate(-512,-500)">{mark3_body()}</g>' + words
+def round_v2(scale=.6, my=410, ty=790, ts=50):
+    """Profile-picture version (owner, Nov 3: the stacked logo "doesnt fit good on youtube"): the mark and the name kept well
+    inside the circle YouTube, Instagram, X and Telegram cut out, with room to spare for each site's own crop."""
+    words, wd = text_path('', 512, ty, ts, parts=WORD)
+    body = f'<g transform="translate(512,{my}) scale({scale}) translate(-512,-470)">{mark_body()}</g>' + words
     return svg2(body)
-
-
-def wide_v3():
-    size = 132
-    words, wd = text_path('', 0, 0, size, tracking=0.1, anchor='start', parts=WORD)
-    sc = .92; mx = int(1024 * sc)
-    cap = size * 0.7
-    base = int((40 + 720 * sc) + cap / 2 - 18)   # the words' middle on the robots' faces (Gemini: align with the bodies, not the chart)
-    W = int(mx + 40 + wd + 90)
-    body = f'<g transform="translate(0,40) scale({sc})">{mark3_body()}</g><g transform="translate({mx + 40},{base})">{words}</g>'
-    return svg2(body, W, 1000)
-
-
-if __name__ == '__main__' and len(sys.argv) > 2 and sys.argv[2] == 'v3':
-    out = sys.argv[1]
-    for n, f in (('mark', mark_v3), ('stacked', stacked_v3), ('wide', wide_v3)):
-        open(os.path.join(out, f'v3-{n}.svg'), 'w').write(f()); print(os.path.join(out, f'v3-{n}.svg'))
-    sys.exit(0)
 
 
 if __name__ == '__main__' and len(sys.argv) > 2 and sys.argv[2] == 'v2':
     out = sys.argv[1]
-    for n, f in (('mark', mark_v2), ('stacked', stacked_v2), ('wide', wide_v2)):
+    for n, f in (('mark', mark_v2), ('stacked', stacked_v2), ('wide', wide_v2), ('round', round_v2)):
         open(os.path.join(out, f'v2-{n}.svg'), 'w').write(f()); print(os.path.join(out, f'v2-{n}.svg'))
     sys.exit(0)
 
