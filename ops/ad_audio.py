@@ -186,7 +186,7 @@ def score(seconds, marks=None, seed='ad', bpm=120, key=50):
     tt = 0.0
     while tt < o0:
         r, q = chord_at(tt + 0.01)
-        dur = t_bar + 0.3
+        dur = (v0 - tt + 0.3) if tt < v0 else t_bar + 0.3   # the intro pad holds until the verse
         t = _t(dur)
         y = np.zeros_like(t)
         for m in chord_notes(r, q, 1):
@@ -195,9 +195,7 @@ def score(seconds, marks=None, seed='ad', bpm=120, key=50):
         y = lp(y, bright) * _env(len(t), 0.25, 9, 0.85, 0.3)
         g = 0.05 if tt < v0 else 0.06 if tt < d0 else 0.085
         add(y, tt, -0.25, g); add(np.roll(y, 220), tt, 0.25, g)
-        tt += t_bar if tt >= v0 else (v0 if v0 > 0 else t_bar)
-        if tt < v0:
-            tt = v0
+        tt = tt + t_bar if tt >= v0 else v0
     # the intro pulse: a ticking clock and a low heartbeat until the verse
     k = 0.0
     while k < v0:
