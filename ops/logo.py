@@ -97,6 +97,93 @@ def concept_c():
     return svg(body)
 
 
+# ---------- round 2: concept A refined with Gemini's round-1 review (ops/review/logo-r1-nov3.json): no grid, no area fill,
+# a bolder line that weaves behind the robots and soars above ChatGPT, a swept arrowhead, the whole mark centred in the circle
+FONT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fonts', 'IBMPlexMono-Bold.ttf')   # the site's font (IBM Plex Mono)
+MARK_LINE = [(118, 650), (390, 382), (522, 478), (826, 196)]
+
+
+def swept(pts, w, col, extra=''):
+    """The line and a swept arrowhead that grows out of it (the line stops at the arrow's notch, so no round cap shows)."""
+    import math
+    (x1, y1), (x2, y2) = pts[-2], pts[-1]
+    a = math.atan2(y2 - y1, x2 - x1); ux, uy = math.cos(a), math.sin(a); px, py = -uy, ux
+    tip = (x2 + ux * 1.55 * w, y2 + uy * 1.55 * w)
+    w1 = (x2 - ux * 0.62 * w + px * 1.32 * w, y2 - uy * 0.62 * w + py * 1.32 * w)
+    w2 = (x2 - ux * 0.62 * w - px * 1.32 * w, y2 - uy * 0.62 * w - py * 1.32 * w)
+    p = ' '.join(f'{x:.1f},{y:.1f}' for x, y in pts)
+    head = ' '.join(f'{x:.1f},{y:.1f}' for x, y in (tip, w1, (x2, y2), w2))
+    return (f'<polyline points="{p}" fill="none" stroke="{col}" stroke-width="{w}" stroke-linecap="round" stroke-linejoin="round" {extra}/>'
+            f'<polygon points="{head}" fill="{col}" stroke="{col}" stroke-width="{w * 0.22:.1f}" stroke-linejoin="round" {extra}/>')
+
+
+def mark_body(line_w=62, rs=1.12, gap=236, ry=700):
+    body = f'<g filter="url(#glow2)" opacity=".9">{swept(MARK_LINE, line_w + 10, GREEN)}</g>'
+    body += swept(MARK_LINE, line_w, GREEN)
+    body += f'<g opacity=".55">{swept(MARK_LINE, line_w * 0.28, "#b8f5d0")}</g>'   # a thin bright core: the line looks lit, not flat
+    body += robots(ry, rs, gap)
+    return body
+
+
+DEFS2 = ('<radialGradient id="bg2" cx="52%" cy="40%" r="62%"><stop offset="0" stop-color="#13201a"/><stop offset=".7" stop-color="#0c0f0d"/><stop offset="1" stop-color="#0b0b0a"/></radialGradient>'
+         '<filter id="glow2" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="26"/></filter>')
+
+
+def text_path(text, x, y, size, tracking=0.16, anchor='middle', col=None, parts=None):
+    """Text as SVG paths in IBM Plex Mono Bold (no font needed to view the file). parts: [(text, colour)] to colour pieces."""
+    from fontTools.ttLib import TTFont
+    from fontTools.pens.svgPathPen import SVGPathPen
+    f = TTFont(FONT); gs = f.getGlyphSet(); cmap = f.getBestCmap(); upm = f['head'].unitsPerEm
+    sc = size / upm; parts = parts or [(text, col or CREAM)]
+    full = ''.join(t for t, _ in parts)
+    adv = [gs[cmap[ord(ch)]].width * sc for ch in full]
+    width = sum(adv) + tracking * size * (len(full) - 1)
+    cx = x - width / 2 if anchor == 'middle' else x
+    out, i = '', 0
+    for t, c in parts:
+        for ch in t:
+            g = gs[cmap[ord(ch)]]; pen = SVGPathPen(gs); g.draw(pen)
+            out += f'<path d="{pen.getCommands()}" fill="{c}" transform="translate({cx:.2f},{y:.2f}) scale({sc:.5f},{-sc:.5f})"/>'
+            cx += adv[i] + tracking * size; i += 1
+    return out, width
+
+
+WORD = [('PAPERTRADES', CREAM), ('.AI', GREEN)]
+
+
+def svg2(body, w=1024, h=1024, bg=True):
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="{w}" height="{h}"><defs>{DEFS2}</defs>'
+            + (f'<rect width="{w}" height="{h}" fill="url(#bg2)"/>' if bg else '') + body + '</svg>')
+
+
+def mark_v2():
+    """The mark: robots + rising chart, for small circles (40-48 px), the favicon and the app icon."""
+    return svg2(mark_body())
+
+
+def stacked_v2():
+    """The full logo, square: the mark with PAPERTRADES.AI under it, everything inside the profile circle."""
+    t, _ = text_path('', 512, 0, 10, parts=WORD)
+    words, wd = text_path('', 512, 868, 64, parts=WORD)
+    body = f'<g transform="translate(512,430) scale(.74) translate(-512,-488)">{mark_body()}</g>' + words
+    return svg2(body)
+
+
+def wide_v2():
+    """The full logo, wide: the mark on the left, PAPERTRADES.AI on the right (site header, banners, video end cards)."""
+    words, wd = text_path('', 0, 0, 120, anchor='start', parts=WORD)
+    W = int(1024 * 0.9 + 60 + wd + 80)
+    body = f'<g transform="translate(20,40) scale(.9)">{mark_body()}</g><g transform="translate({int(1024 * .9 + 60)},560)">{words}</g>'
+    return svg2(body, W, 1000)
+
+
+if __name__ == '__main__' and len(sys.argv) > 2 and sys.argv[2] == 'v2':
+    out = sys.argv[1]
+    for n, f in (('mark', mark_v2), ('stacked', stacked_v2), ('wide', wide_v2)):
+        open(os.path.join(out, f'v2-{n}.svg'), 'w').write(f()); print(os.path.join(out, f'v2-{n}.svg'))
+    sys.exit(0)
+
+
 if __name__ == '__main__':
     out = sys.argv[1] if len(sys.argv) > 1 else 'ops/logo'
     os.makedirs(out, exist_ok=True)
