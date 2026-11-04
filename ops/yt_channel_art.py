@@ -44,17 +44,17 @@ def banner(path):
     shade = shade.filter(ImageFilter.GaussianBlur(50))
     im = Image.composite(Image.new('RGB', (Wd, Hd), BG), im, shade); d = ImageDraw.Draw(im)
     for i, k in enumerate(('claude', 'gemini', 'chatgpt')):
-        bot(d, x0 + 95 + i * 150, y0 + 250, AIC[k], 0.64)   # all three the same size (Gemini's review, Nov 3: strict neutrality)
-    tx = x0 + 470
-    d.text((tx, y0 + 40), 'PAPERTRADES.AI', font=F('mono', 'Bold', 96), fill=FG)
-    d.text((tx, y0 + 160), '3 AIs. C$100,000 of pretend money each. Real prices.', font=F('sans', 'Bold', 54), fill=FG)
-    d.text((tx, y0 + 232), 'Claude', font=F('sans', 'Bold', 54), fill=AIC['claude'])
-    xx = tx + d.textlength('Claude', font=F('sans', 'Bold', 54))
-    d.text((xx, y0 + 232), ' vs ', font=F('sans', 'Bold', 54), fill=MUTED); xx += d.textlength(' vs ', font=F('sans', 'Bold', 54))
-    d.text((xx, y0 + 232), 'Gemini', font=F('sans', 'Bold', 54), fill=AIC['gemini']); xx += d.textlength('Gemini', font=F('sans', 'Bold', 54))
-    d.text((xx, y0 + 232), ' vs ', font=F('sans', 'Bold', 54), fill=MUTED); xx += d.textlength(' vs ', font=F('sans', 'Bold', 54))
-    d.text((xx, y0 + 232), 'ChatGPT', font=F('sans', 'Bold', 54), fill=AIC['chatgpt'])
-    d.text((tx, y0 + 318), 'Season 1 · Oct 28 – Nov 28, 2026 · New AI trade stories every day', font=F('mono', 'Bold', 36), fill=AMBER)
+        bot(d, x0 + 90 + i * 135, y0 + 255, AIC[k], 0.58)   # all three the same size (Gemini's review, Nov 3: strict neutrality)
+    tx = x0 + 420
+    d.text((tx, y0 + 60), 'PAPERTRADES.AI', font=F('mono', 'Bold', 84), fill=FG)
+    d.text((tx, y0 + 168), '3 AIs. C$100,000 of pretend money each. Real prices.', font=F('sans', 'Bold', 46), fill=FG)
+    d.text((tx, y0 + 232), 'Claude', font=F('sans', 'Bold', 46), fill=AIC['claude'])
+    xx = tx + d.textlength('Claude', font=F('sans', 'Bold', 46))
+    d.text((xx, y0 + 232), ' vs ', font=F('sans', 'Bold', 46), fill=MUTED); xx += d.textlength(' vs ', font=F('sans', 'Bold', 46))
+    d.text((xx, y0 + 232), 'Gemini', font=F('sans', 'Bold', 46), fill=AIC['gemini']); xx += d.textlength('Gemini', font=F('sans', 'Bold', 46))
+    d.text((xx, y0 + 232), ' vs ', font=F('sans', 'Bold', 46), fill=MUTED); xx += d.textlength(' vs ', font=F('sans', 'Bold', 46))
+    d.text((xx, y0 + 232), 'ChatGPT', font=F('sans', 'Bold', 46), fill=AIC['chatgpt'])
+    d.text((tx, y0 + 305), 'Season 1 · Oct 28 – Nov 28, 2026 · New AI stories daily', font=F('mono', 'Bold', 30), fill=AMBER)
     im.save(path)
     return path
 
