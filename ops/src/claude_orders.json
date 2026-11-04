@@ -161,5 +161,40 @@
   "reason": "Talarico leads Paxton in the count (Houston Public Media, KUT, Dallas Morning News) and Polymarket has the Republican side near 2 cents, so I am selling the losing ticket for what is left instead of holding it to zero.",
   "id": "c20261104031740-13",
   "queued_at": "2026-11-04T03:17:40Z"
+ },
+ {
+  "experiment": "Stocks",
+  "action": "buy",
+  "symbol": "SPY",
+  "amount": 15000,
+  "reason": "Adding a measured C$15,000 to SPY after the open: CNBC reports the Dow up about 1,000 points as political risk eased after the Democratic midterm sweep, and October ADP payrolls beat at 86,000 against 75,000 expected; the book stays over half cash.",
+  "wrong_if": "SPY falls below US$745, about 2.6% under the race feed's US$764.81 at 9:37 a.m. ET, which would show the post-election rally failing.",
+  "p_works": 0.55,
+  "wrong_lvl": {
+   "symbol": "SPY",
+   "below": 745
+  },
+  "id": "c20261104144306-14",
+  "queued_at": "2026-11-04T14:43:06Z"
+ },
+ {
+  "experiment": "Stocks",
+  "action": "stop",
+  "symbol": "SPY",
+  "level": 745,
+  "fraction": 1,
+  "reason": "Raising the SPY stop from US$735 to US$745 to cover the larger position; a break of 745 would undo most of the post-election gap.",
+  "id": "c20261104144306-15",
+  "queued_at": "2026-11-04T14:43:06Z"
+ },
+ {
+  "experiment": "Metals",
+  "action": "stop",
+  "symbol": "GLD",
+  "level": 360,
+  "fraction": 1,
+  "reason": "Raising the GLD stop from US$352 to US$360, just under my US$362.26 entry, after gold rose about 3% on the softer dollar; this keeps the loss small if the move reverses.",
+  "id": "c20261104144306-16",
+  "queued_at": "2026-11-04T14:43:06Z"
  }
 ]
