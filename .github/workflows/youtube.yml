@@ -11,10 +11,14 @@ on:
       mode:
         description: 'story = the day''s biggest settled bet as a story Short (public; one a day); probe = check the token (posts nothing); test = an UNLISTED test upload; daily = the OLD replay (retired)'
         type: choice
-        options: [story, probe, test, daily]
+        options: [story, probe, test, daily, custom]
         default: story
       tx:
         description: 'story only: a result transaction ID to tell (e.g. G-AIS-017); empty = the biggest of the last 36 hours'
+        required: false
+        default: ''
+      video:
+        description: 'custom only: a finished Short in the repo, e.g. social/yt/options-g-opt-v2.mp4 (title and description from its .txt, thumbnail from its -thumb.png)'
         required: false
         default: ''
 permissions:
@@ -52,6 +56,14 @@ jobs:
           sudo apt-get update -qq >/dev/null && sudo apt-get install -y -qq ffmpeg >/dev/null
           pip install -q pillow numpy >/dev/null 2>&1 || true
           python3 ops/metricool.py story "${{ inputs.tx }}"
+      - name: Post one finished YouTube-first Short (owner approves each one)
+        if: ${{ inputs.mode == 'custom' }}
+        env:
+          VIDEO: ${{ inputs.video }}
+        run: |
+          pip install -q pillow >/dev/null 2>&1 || true
+          git config user.name "paper-trades-bot"; git config user.email "paper-trades-bot@users.noreply.github.com"
+          python3 ops/metricool.py custom
       - name: The same story Short on X (owner, Nov 2; never twice; the link goes in the first reply)
         if: ${{ success() && (github.event_name == 'schedule' || inputs.mode == 'story') }}
         continue-on-error: true

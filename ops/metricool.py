@@ -101,7 +101,7 @@ def normalize(url):
     return (r or None), ('' if r else 'normalize returned nothing')
 
 
-def schedule_short(video_url, title, text, privacy, when=None, thumb=None):
+def schedule_short(video_url, title, text, privacy, when=None, thumb=None, cover_ms=None):
     """Schedule one YouTube Short. Returns (status, response)."""
     from datetime import datetime, timedelta
     from zoneinfo import ZoneInfo
@@ -117,9 +117,18 @@ def schedule_short(video_url, title, text, privacy, when=None, thumb=None):
         'youtubeData': {'title': title[:100], 'type': 'short', 'privacy': privacy, 'madeForKids': False, 'category': 'SCIENCE_TECHNOLOGY',
                         'notifySubscribers': privacy == 'public', 'tags': ['AI', 'Claude', 'Gemini', 'ChatGPT', 'paper trading']},
     }
-    if thumb:   # the bold cover as the Short's thumbnail (owner, Nov 3: YouTube kept picking another frame); Metricool's "Video Thumbnail Url"
-        st, r = call('/v2/scheduler/posts', 'POST', {**body, 'videoThumbnailUrl': thumb})
+    if thumb:   # the bold cover as the Short's thumbnail (owner, Nov 3: "make sure u add the right thumbnail EVERYTIME")
+        # Nov 3: the raw papertrades.ai address was accepted but not used, so the picture goes through Metricool's own storage
+        # first (like the video), as a JPEG; cover_ms also points YouTube's frame picker at the cover when the video starts with it
+        tn, terr = normalize(thumb)
+        print('thumbnail for Metricool:', tn or terr)
+        extra = {'videoThumbnailUrl': tn or thumb}
+        if cover_ms is not None:
+            extra['videoCoverMilliseconds'] = int(cover_ms)
+        st, r = call('/v2/scheduler/posts', 'POST', {**body, **extra})
         if st in (200, 201):
+            d = r.get('data', r) if isinstance(r, dict) else {}
+            print('Metricool kept the thumbnail:', bool(d.get('videoThumbnailUrl')), str(d.get('videoThumbnailUrl'))[:120], 'cover ms', d.get('videoCoverMilliseconds'))
             return st, r
         print('thumbnail refused, posting without it:', str(_scrub(r))[:200])
     return call('/v2/scheduler/posts', 'POST', body)
@@ -318,7 +327,12 @@ def story():
         print('no story today: no settled bet with a full ledger record'); return
     mp4, title, desc = SS.render(st_, os.path.join(root, 'social', 'stories'))
     rel = os.path.relpath(mp4, root); stem = rel[:-4]
-    if not _push(f'YouTube story Short: {st_["res_tx"]} ({today})', [rel, stem + '.json', stem + '-thumb.png']):
+    try:   # the thumbnail as a JPEG too (Metricool and YouTube take JPEGs)
+        from PIL import Image
+        Image.open(os.path.join(root, stem + '-thumb.png')).convert('RGB').save(os.path.join(root, stem + '-thumb.jpg'), quality=92)
+    except Exception as e:
+        print('no JPEG thumbnail:', e)
+    if not _push(f'YouTube story Short: {st_["res_tx"]} ({today})', [rel, stem + '.json', stem + '-thumb.png', stem + '-thumb.jpg']):
         print('could not push the video'); sys.exit(1)
     out = {'kind': 'story', 'tx': st_['res_tx'], 'txs': st_.get('res_txs') or [st_['res_tx']], 'day': today.isoformat(), 'at': datetime.now(NY).isoformat(timespec='seconds'),
            'race': st_['race'], 'video': rel, 'title': title}
@@ -335,7 +349,7 @@ def story():
             pass
         time.sleep(15)
     print('video live on the site:', live)
-    st, r = schedule_short(url, title, desc, 'public', thumb='https://papertrades.ai/' + stem + '-thumb.png') if live else (0, 'the video never appeared on papertrades.ai')
+    st, r = schedule_short(url, title, desc, 'public', thumb='https://papertrades.ai/' + stem + '-thumb.jpg', cover_ms=300) if live else (0, 'the video never appeared on papertrades.ai')
     if not (st in (200, 201) and isinstance(r, dict)):
         out['status'] = 'ERROR'; out['error'] = str(_scrub(r))[:400]
     else:
@@ -350,6 +364,55 @@ def story():
         sys.exit(1)
 
 
+def custom():
+    """Post one finished Short from the repo (owner, Nov 3: the new YouTube-first Shorts): VIDEO=social/yt/<name>.mp4, with its
+    title and description from social/yt/<name>.txt and its thumbnail from social/yt/<name>-thumb.png (sent as a JPEG)."""
+    import time
+    if not TOKEN:
+        print('METRICOOL_TOKEN secret is missing'); sys.exit(1)
+    rel = os.environ['VIDEO']; stem = rel[:-4]; root = os.path.dirname(HERE)
+    from datetime import datetime
+    txt = open(os.path.join(root, stem + '.txt')).read()
+    title = txt.split('TITLE', 1)[1].split('\n', 2)[1].strip()
+    desc = txt.split('DESCRIPTION', 1)[1].split('PINNED COMMENT', 1)[0].strip()
+    from PIL import Image
+    Image.open(os.path.join(root, stem + '-thumb.png')).convert('RGB').save(os.path.join(root, stem + '-thumb.jpg'), quality=92)
+    if not _push(f'YouTube Short thumbnail (JPEG): {os.path.basename(stem)}', [stem + '-thumb.jpg']):
+        print('could not push the thumbnail')
+    import subprocess
+    subprocess.run(['gh', 'workflow', 'run', 'deploy.yml', '--ref', 'main'], capture_output=True)
+    url = 'https://papertrades.ai/' + rel; th = 'https://papertrades.ai/' + stem + '-thumb.jpg'
+    live = False
+    for _ in range(40):
+        try:
+            ok = [urllib.request.urlopen(urllib.request.Request(u, method='HEAD'), timeout=20).status == 200 for u in (url, th)]
+            if all(ok):
+                live = True; break
+        except Exception:
+            pass
+        time.sleep(15)
+    print('video and thumbnail live on the site:', live)
+    if not live:
+        sys.exit('not live on papertrades.ai')
+    log = json.load(open(LOG)) if os.path.exists(LOG) else {'posts': []}
+    if any(p.get('video') == rel and p.get('status') == 'PUBLISHED' for p in log['posts']):
+        sys.exit('already posted: ' + rel)
+    out = {'kind': 'yt', 'video': rel, 'title': title, 'at': datetime.now().astimezone().isoformat(timespec='seconds'), 'day': datetime.now().date().isoformat()}
+    st, r = schedule_short(url, title, desc, 'public', thumb=th)
+    if not (st in (200, 201) and isinstance(r, dict)):
+        out['status'] = 'ERROR'; out['error'] = str(_scrub(r))[:400]
+    else:
+        pid = (r.get('data') or r).get('id'); out['post_id'] = pid
+        res = wait_for(pid) if pid else {}
+        out['status'] = res.get('status'); out['url'] = res.get('publicUrl'); out['detail'] = res.get('detailedStatus')
+    log['posts'].append(_scrub(out))
+    json.dump(log, open(LOG, 'w'), indent=1)
+    _push(f'YouTube Short {out.get("status")}: {os.path.basename(rel)}', [os.path.relpath(LOG, root)])
+    print(json.dumps(_scrub(out), indent=1))
+    if out.get('status') != 'PUBLISHED':
+        sys.exit(1)
+
+
 if __name__ == '__main__':
     cmd = sys.argv[1] if len(sys.argv) > 1 else 'probe'
-    {'probe': probe, 'test': test, 'daily': daily, 'story': story}[cmd]()
+    {'probe': probe, 'test': test, 'daily': daily, 'story': story, 'custom': custom}[cmd]()
