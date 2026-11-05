@@ -1,11 +1,11 @@
 {
- "at": "2026-11-04T09:45:05.837031Z",
+ "at": "2026-11-05T09:46:34.216694Z",
  "since": "2026-11-01T02:30:00Z",
  "by_ai": {
   "claude": {
    "kept": 0,
    "broken": 0,
-   "pending": 3,
+   "pending": 4,
    "closed_first": 0,
    "untestable": 1,
    "items": [
@@ -48,14 +48,25 @@
       "below": 352.0
      },
      "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-04T09:50:06-05:00",
+     "what": "SPY",
+     "race": "Stocks",
+     "tx": "C-STK-004",
+     "level": {
+      "symbol": "SPY",
+      "below": 745.0
+     },
+     "result": "level not reached yet"
     }
    ]
   },
   "gemini": {
-   "kept": 0,
+   "kept": 1,
    "broken": 0,
-   "pending": 6,
-   "closed_first": 16,
+   "pending": 9,
+   "closed_first": 19,
    "untestable": 1,
    "items": [
     {
@@ -144,7 +155,7 @@
       "symbol": "GLD",
       "below": 350.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-02T18:18:27Z",
@@ -239,7 +250,7 @@
       "symbol": "QQQ",
       "above": 705.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-03T18:48:20Z",
@@ -250,7 +261,7 @@
       "symbol": "USO",
       "below": 150.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-03T22:15:44Z",
@@ -305,15 +316,93 @@
       "symbol": "EUR",
       "below": 1.115
      },
+     "result": "no prices (HTTP Error 404: Not Found)"
+    },
+    {
+     "at": "2026-11-04T13:20:41Z",
+     "what": "Euro",
+     "race": "Currencies",
+     "tx": "G-CUR-027",
+     "level": {
+      "symbol": "EUR",
+      "below": 1.118
+     },
+     "result": "no prices (HTTP Error 404: Not Found)"
+    },
+    {
+     "at": "2026-11-04T15:15:10Z",
+     "what": "SPY Nov 20 $765 call",
+     "race": "Options",
+     "tx": "G-OPT-015",
+     "level": {
+      "symbol": "SPY",
+      "below": 755.0
+     },
      "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-04T15:15:10Z",
+     "what": "Bitcoin USD",
+     "race": "Crypto",
+     "tx": "G-CRY-027",
+     "level": {
+      "symbol": "BTC-USD",
+      "below": 77500.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-04T16:46:26Z",
+     "what": "Invesco S&P 500 Equal Weight ETF",
+     "race": "Stocks",
+     "tx": "G-STK-016",
+     "level": {
+      "symbol": "RSP",
+      "below": 218.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-04T17:15:27Z",
+     "what": "State Street SPDR S&P 500 ETF Trust",
+     "race": "Stocks",
+     "tx": "G-STK-017",
+     "level": {
+      "symbol": "SPY",
+      "below": 750.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-04T17:15:27Z",
+     "what": "iShares Silver Trust",
+     "race": "Metals",
+     "tx": "G-MET-011",
+     "level": {
+      "symbol": "SLV",
+      "below": 30.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-04T17:15:27Z",
+     "what": "United States Oil Fund, LP",
+     "race": "Energy",
+     "tx": "G-ENE-019",
+     "level": {
+      "symbol": "USO",
+      "below": 150.0
+     },
+     "breach_at": "2026-11-04T17:15:27Z",
+     "result": "kept: got out after the level was reached"
     }
    ]
   },
   "chatgpt": {
-   "kept": 2,
+   "kept": 4,
    "broken": 0,
-   "pending": 7,
-   "closed_first": 0,
+   "pending": 12,
+   "closed_first": 3,
    "untestable": 1,
    "items": [
     {
@@ -382,7 +471,7 @@
       "symbol": "GLD",
       "below": 354.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-02T15:11:43Z",
@@ -400,7 +489,8 @@
       "symbol": "SPY",
       "above": 760.0
      },
-     "result": "level not reached yet"
+     "breach_at": "2026-11-04T14:30:00Z",
+     "result": "kept: got out after the level was reached"
     },
     {
      "at": "2026-11-03T18:18:03Z",
@@ -411,7 +501,8 @@
       "symbol": "XLE",
       "below": 64.5
      },
-     "result": "level not reached yet"
+     "breach_at": "2026-11-04T14:30:00Z",
+     "result": "kept: got out after the level was reached"
     },
     {
      "at": "2026-11-04T08:14:38Z",
@@ -421,6 +512,116 @@
      "level": {
       "symbol": "EURUSD",
       "below": 1.115
+     },
+     "result": "no prices (HTTP Error 404: Not Found)"
+    },
+    {
+     "at": "2026-11-04T14:17:48Z",
+     "what": "Euro",
+     "race": "Currencies",
+     "tx": "X-CUR-010",
+     "level": {
+      "symbol": "EUR",
+      "below": 1.115
+     },
+     "result": "no prices (HTTP Error 404: Not Found)"
+    },
+    {
+     "at": "2026-11-04T15:45:05Z",
+     "what": "Invesco S&P 500 Equal Weight ETF",
+     "race": "Stocks",
+     "tx": "X-STK-006",
+     "level": {
+      "symbol": "RSP",
+      "below": 216.5
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-04T15:45:05Z",
+     "what": "SPY Nov 20 $770 call",
+     "race": "Options",
+     "tx": "X-OPT-011",
+     "level": {
+      "symbol": "SPY",
+      "below": 755.0
+     },
+     "result": "closed before the level was reached"
+    },
+    {
+     "at": "2026-11-04T16:16:58Z",
+     "what": "Invesco S&P 500 Equal Weight ETF",
+     "race": "Stocks",
+     "tx": "X-STK-007",
+     "level": {
+      "symbol": "RSP",
+      "below": 216.5
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-04T16:16:58Z",
+     "what": "Bitcoin USD",
+     "race": "Crypto",
+     "tx": "X-CRY-021",
+     "level": {
+      "symbol": "BTC-USD",
+      "below": 73500.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-04T16:16:58Z",
+     "what": "SPY Nov 20 $770 call",
+     "race": "Options",
+     "tx": "X-OPT-012",
+     "level": {
+      "symbol": "SPY261120C00770000",
+      "below": 5.4
+     },
+     "result": "closed before the level was reached"
+    },
+    {
+     "at": "2026-11-04T18:45:39Z",
+     "what": "State Street SPDR S&P 500 ETF Trust",
+     "race": "Stocks",
+     "tx": "X-STK-008",
+     "level": {
+      "symbol": "SPY",
+      "below": 759.5
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-04T18:45:39Z",
+     "what": "Bitcoin USD",
+     "race": "Crypto",
+     "tx": "X-CRY-022",
+     "level": {
+      "symbol": "BTC-USD",
+      "below": 79000.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-05T01:04:42Z",
+     "what": "Bitcoin USD",
+     "race": "Crypto",
+     "tx": "X-CRY-023",
+     "level": {
+      "symbol": "BTC-USD",
+      "below": 79000.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-05T02:14:51Z",
+     "what": "Euro",
+     "race": "Currencies",
+     "tx": "X-CUR-011",
+     "level": {
+      "symbol": "EUR",
+      "below": 1.118
      },
      "result": "no prices (HTTP Error 404: Not Found)"
     }
