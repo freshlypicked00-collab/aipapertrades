@@ -54,7 +54,7 @@ Criticisms: emotion = fair premise, overstated (R5 measures it); frictions = fai
 
 ## Season 2 design rounds (owner, Nov 1; ops/SEASON2.md is the full plan)
 - 8 weeks, Jan 11 - Mar 5, 2027, dry run Jan 4-8; six AIs (+ Llama within budget); index, 60/40 and random-trader benchmarks; Betting as its own
-  track; All in dropped; Small account only after a clean trial; operator separation, sealed orders, shared data pack, open-source runner,
+  track; High risk (formerly All in) dropped; Small account only after a clean trial; operator separation, sealed orders, shared data pack, open-source runner,
   replay files, named outside reviewer, correction protocol, golden tests; market impact, commissions, refuse-and-count risk checks,
   minimum fill delay; Draft Day, dataset and research report, prediction game. ALL THREE AGREED on 27 of 28 items (lineup split on Llama).
 - Rejected by all three: visitors linking their trading accounts.

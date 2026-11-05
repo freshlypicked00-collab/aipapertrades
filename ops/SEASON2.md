@@ -12,7 +12,7 @@ Shared doc for the owner: https://claude.ai/artifact/7HNky4Y1K3w8rXsEUmiLqk. Ear
 - Benchmarks under the same rules and costs: index fund, 60/40, random trader.
 - Championship: Strict / Standard / Unrestricted, scored Return / max(worst drop, 5% / 10% / 20%), equal rank points (agreed Oct 30).
 - Betting (Sports, Predictions) = separate track, profit + closing-line value, never in the championship.
-- All in dropped. Small account (C$7,500) only if the Nov 13-28 trial has no audit issues. No totals mixing tracks.
+- High risk (formerly All in) dropped. Small account (C$7,500) only if the Nov 13-28 trial has no audit issues. No totals mixing tracks.
 
 ## Trust (all three; build first)
 T1 operator is code (no AI session writes race data; Claude trades through the same runner) · T2 sealed orders (hash published before the fill)
