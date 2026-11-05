@@ -56933,6 +56933,18 @@
    "model": "claude",
    "experiment": "AllInSports",
    "value": 109137.78
+  },
+  {
+   "at": "2026-11-05T14:49:25Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 96225.23
+  },
+  {
+   "at": "2026-11-05T14:49:25Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 109137.78
   }
  ],
  "takes": [
@@ -77691,8 +77703,8 @@
       "pcur": "USD",
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 669.52,
-      "priced_at": "2026-11-05T14:48:29Z",
+      "last": 669.57,
+      "priced_at": "2026-11-05T14:49:25Z",
       "hist": [
        [
         29886870,
@@ -78682,8 +78694,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 78768.81,
-      "priced_at": "2026-11-05T14:48:29Z",
+      "last": 78783.92,
+      "priced_at": "2026-11-05T14:49:25Z",
       "hist": [
        [
         29886870,
@@ -128864,20 +128876,6 @@
     "reason": "Trailing stop up to protect profits as the Euro climbs on post-election dollar weakness."
    },
    {
-    "id": "gemini-126",
-    "model": "gemini",
-    "experiment": "Options",
-    "symbol": "SPY261120C00765000",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 15.0,
-    "fraction": 1.0,
-    "name": "SPY Nov 20 $765 call",
-    "placed_at": "2026-11-04T18:45:39Z",
-    "reason": "Taking profits on the SPY calls if the post-election rally reaches our upside price objective."
-   },
-   {
     "id": "gemini-128",
     "model": "gemini",
     "experiment": "Stocks",
@@ -129359,7 +129357,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-05T14:48:29Z",
+  "at": "2026-11-05T14:49:25Z",
   "games": [
    {
     "id": "401909726",
@@ -129529,8 +129527,8 @@
     "away": "Miami Heat",
     "home": "Golden State Warriors",
     "start": "2026-11-06T03:00Z",
-    "away_ml": 230,
-    "home_ml": -281
+    "away_ml": 228,
+    "home_ml": -279
    },
    {
     "id": "401909739",
@@ -130871,6 +130869,16 @@
    "name": "State Street SPDR S&P 500 ETF Trust",
    "kind": "target",
    "level": 785.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-05T14:49:25Z",
+   "model": "gemini",
+   "id": "gemini-126",
+   "experiment": "Options",
+   "name": "SPY Nov 20 $765 call",
+   "kind": "target",
+   "level": 15.0,
    "result": "removed: the position is no longer held"
   }
  ],
