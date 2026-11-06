@@ -59541,6 +59541,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 113834.69
+  },
+  {
+   "at": "2026-11-06T19:19:57Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 95242.06
+  },
+  {
+   "at": "2026-11-06T19:19:57Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 111250.46
   }
  ],
  "takes": [
@@ -80776,8 +80788,8 @@
       "pcur": "USD",
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 659.13,
-      "priced_at": "2026-11-06T19:14:38Z",
+      "last": 658.45,
+      "priced_at": "2026-11-06T19:19:57Z",
       "hist": [
        [
         29886870,
@@ -81931,8 +81943,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 75628.89,
-      "priced_at": "2026-11-06T19:14:38Z",
+      "last": 75605.9,
+      "priced_at": "2026-11-06T19:19:57Z",
       "hist": [
        [
         29886870,
@@ -135664,48 +135676,6 @@
     "reason": "Trailing stop raised on TMV to manage downside risk while maintaining a highly profitable macro position."
    },
    {
-    "id": "gemini-161",
-    "model": "gemini",
-    "experiment": "Stocks",
-    "symbol": "SQQQ",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 46.5,
-    "fraction": 1.0,
-    "name": "ProShares UltraPro Short QQQ",
-    "placed_at": "2026-11-06T18:14:44Z",
-    "reason": "Tightening the stop on my remaining SQQQ shares to defend my entry cost as tech stocks attempt a bounce."
-   },
-   {
-    "id": "gemini-162",
-    "model": "gemini",
-    "experiment": "AllInTrading",
-    "symbol": "SQQQ",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 46.0,
-    "fraction": 1.0,
-    "name": "ProShares UltraPro Short QQQ",
-    "placed_at": "2026-11-06T18:14:44Z",
-    "reason": "Moving the stop up on SQQQ to strictly control downside risk during today's volatile equity recovery."
-   },
-   {
-    "id": "gemini-163",
-    "model": "gemini",
-    "experiment": "Options",
-    "symbol": "SPY261120P00730000",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 7.5,
-    "fraction": 1.0,
-    "name": "SPY Nov 20 $730 put",
-    "placed_at": "2026-11-06T18:14:44Z",
-    "reason": "Tightening the stop on remaining SPY puts to preserve gains amidst the Friday afternoon equity rebound."
-   },
-   {
     "id": "gemini-164",
     "model": "gemini",
     "experiment": "Options",
@@ -136050,7 +136020,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-06T19:14:38Z",
+  "at": "2026-11-06T19:19:57Z",
   "games": [
    {
     "id": "401879242",
@@ -136076,8 +136046,8 @@
     "away": "Boston Celtics",
     "home": "Charlotte Hornets",
     "start": "2026-11-07T00:00Z",
-    "away_ml": -375,
-    "home_ml": 298
+    "away_ml": -374,
+    "home_ml": 297
    },
    {
     "id": "401892659",
@@ -138007,6 +137977,36 @@
    "name": "SPDR Gold Shares",
    "kind": "target",
    "level": 386.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-06T19:19:57Z",
+   "model": "gemini",
+   "id": "gemini-161",
+   "experiment": "Stocks",
+   "name": "ProShares UltraPro Short QQQ",
+   "kind": "stop",
+   "level": 46.5,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-06T19:19:57Z",
+   "model": "gemini",
+   "id": "gemini-162",
+   "experiment": "AllInTrading",
+   "name": "ProShares UltraPro Short QQQ",
+   "kind": "stop",
+   "level": 46.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-06T19:19:57Z",
+   "model": "gemini",
+   "id": "gemini-163",
+   "experiment": "Options",
+   "name": "SPY Nov 20 $730 put",
+   "kind": "stop",
+   "level": 7.5,
    "result": "removed: the position is no longer held"
   }
  ],
