@@ -1,11 +1,11 @@
 {
- "at": "2026-11-05T09:46:34.216694Z",
+ "at": "2026-11-06T09:45:17.218607Z",
  "since": "2026-11-01T02:30:00Z",
  "by_ai": {
   "claude": {
-   "kept": 0,
-   "broken": 0,
-   "pending": 4,
+   "kept": 1,
+   "broken": 1,
+   "pending": 2,
    "closed_first": 0,
    "untestable": 1,
    "items": [
@@ -29,7 +29,8 @@
       "symbol": "SPY",
       "below": 740.0
      },
-     "result": "level not reached yet"
+     "breach_at": "2026-11-05T15:30:00Z",
+     "result": "held on after its own exit level"
     },
     {
      "at": "2026-11-02T10:26:14-05:00",
@@ -58,39 +59,18 @@
       "symbol": "SPY",
       "below": 745.0
      },
-     "result": "level not reached yet"
+     "breach_at": "2026-11-05T14:30:00Z",
+     "result": "kept: got out after the level was reached"
     }
    ]
   },
   "gemini": {
-   "kept": 1,
+   "kept": 5,
    "broken": 0,
-   "pending": 9,
-   "closed_first": 19,
+   "pending": 4,
+   "closed_first": 22,
    "untestable": 1,
    "items": [
-    {
-     "at": "2026-11-01T09:14:55Z",
-     "what": "Bitcoin USD",
-     "race": "Crypto",
-     "tx": "G-CRY-015",
-     "level": {
-      "symbol": "BTC-USD",
-      "below": 72000.0
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-01T11:14:39Z",
-     "what": "Bitcoin USD",
-     "race": "Crypto",
-     "tx": "G-CRY-016",
-     "level": {
-      "symbol": "BTC-USD",
-      "below": 70000.0
-     },
-     "result": "closed before the level was reached"
-    },
     {
      "at": "2026-11-01T12:18:28Z",
      "what": "Bitcoin USD",
@@ -338,7 +318,8 @@
       "symbol": "SPY",
       "below": 755.0
      },
-     "result": "level not reached yet"
+     "breach_at": "2026-11-05T14:30:00Z",
+     "result": "kept: got out after the level was reached"
     },
     {
      "at": "2026-11-04T15:15:10Z",
@@ -349,7 +330,7 @@
       "symbol": "BTC-USD",
       "below": 77500.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-04T16:46:26Z",
@@ -360,7 +341,7 @@
       "symbol": "RSP",
       "below": 218.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-04T17:15:27Z",
@@ -371,7 +352,8 @@
       "symbol": "SPY",
       "below": 750.0
      },
-     "result": "level not reached yet"
+     "breach_at": "2026-11-05T14:30:00Z",
+     "result": "kept: got out after the level was reached"
     },
     {
      "at": "2026-11-04T17:15:27Z",
@@ -382,7 +364,7 @@
       "symbol": "SLV",
       "below": 30.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-04T17:15:27Z",
@@ -395,14 +377,38 @@
      },
      "breach_at": "2026-11-04T17:15:27Z",
      "result": "kept: got out after the level was reached"
+    },
+    {
+     "at": "2026-11-05T13:19:52Z",
+     "what": "Bitcoin USD",
+     "race": "Crypto",
+     "tx": "G-CRY-028",
+     "level": {
+      "symbol": "BTC-USD",
+      "below": 78500.0
+     },
+     "breach_at": "2026-11-05T14:00:00Z",
+     "result": "kept: got out after the level was reached"
+    },
+    {
+     "at": "2026-11-05T14:37:09Z",
+     "what": "State Street SPDR S&P 500 ETF Trust",
+     "race": "Stocks",
+     "tx": "G-STK-018",
+     "level": {
+      "symbol": "SPY",
+      "below": 755.0
+     },
+     "breach_at": "2026-11-05T14:37:09Z",
+     "result": "kept: got out after the level was reached"
     }
    ]
   },
   "chatgpt": {
-   "kept": 4,
+   "kept": 6,
    "broken": 0,
-   "pending": 12,
-   "closed_first": 3,
+   "pending": 6,
+   "closed_first": 11,
    "untestable": 1,
    "items": [
     {
@@ -426,7 +432,7 @@
       "symbol": "ETH-USD",
       "below": 2150.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-02T10:15:44Z",
@@ -449,7 +455,7 @@
       "symbol": "ETH-USD",
       "below": 2150.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-02T15:11:43Z",
@@ -460,7 +466,7 @@
       "symbol": "RSP",
       "below": 215.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-02T15:11:43Z",
@@ -535,7 +541,7 @@
       "symbol": "RSP",
       "below": 216.5
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-04T15:45:05Z",
@@ -557,7 +563,7 @@
       "symbol": "RSP",
       "below": 216.5
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-04T16:16:58Z",
@@ -568,7 +574,7 @@
       "symbol": "BTC-USD",
       "below": 73500.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-04T16:16:58Z",
@@ -590,7 +596,8 @@
       "symbol": "SPY",
       "below": 759.5
      },
-     "result": "level not reached yet"
+     "breach_at": "2026-11-05T14:30:00Z",
+     "result": "kept: got out after the level was reached"
     },
     {
      "at": "2026-11-04T18:45:39Z",
@@ -601,7 +608,7 @@
       "symbol": "BTC-USD",
       "below": 79000.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-05T01:04:42Z",
@@ -612,7 +619,7 @@
       "symbol": "BTC-USD",
       "below": 79000.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-05T02:14:51Z",
@@ -624,6 +631,51 @@
       "below": 1.118
      },
      "result": "no prices (HTTP Error 404: Not Found)"
+    },
+    {
+     "at": "2026-11-05T14:37:09Z",
+     "what": "SPY Nov 20 $770 call",
+     "race": "Options",
+     "tx": "X-OPT-014",
+     "level": {
+      "symbol": "SPY",
+      "below": 755.5
+     },
+     "breach_at": "2026-11-05T14:37:09Z",
+     "result": "kept: got out after the level was reached"
+    },
+    {
+     "at": "2026-11-05T17:15:13Z",
+     "what": "SPDR Gold Shares",
+     "race": "Metals",
+     "tx": "X-MET-005",
+     "level": {
+      "symbol": "GLD",
+      "below": 374.8
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-05T20:45:24Z",
+     "what": "SPDR Gold Shares",
+     "race": "Metals",
+     "tx": "X-MET-006",
+     "level": {
+      "symbol": "GLD",
+      "below": 371.5
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-05T22:15:48Z",
+     "what": "Bitcoin USD",
+     "race": "Crypto",
+     "tx": "X-CRY-028",
+     "level": {
+      "symbol": "BTC-USD",
+      "below": 73500.0
+     },
+     "result": "level not reached yet"
     }
    ]
   }
