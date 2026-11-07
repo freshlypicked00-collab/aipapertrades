@@ -1,5 +1,5 @@
 {
- "at": "2026-11-06T09:45:17.218607Z",
+ "at": "2026-11-07T09:08:31.838798Z",
  "since": "2026-11-01T02:30:00Z",
  "by_ai": {
   "claude": {
@@ -65,96 +65,12 @@
    ]
   },
   "gemini": {
-   "kept": 5,
-   "broken": 0,
-   "pending": 4,
-   "closed_first": 22,
-   "untestable": 1,
+   "kept": 6,
+   "broken": 2,
+   "pending": 5,
+   "closed_first": 24,
+   "untestable": 3,
    "items": [
-    {
-     "at": "2026-11-01T12:18:28Z",
-     "what": "Bitcoin USD",
-     "race": "Crypto",
-     "tx": "G-CRY-017",
-     "level": {
-      "symbol": "BTC-USD",
-      "below": 72000.0
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-01T12:18:28Z",
-     "what": "Clarity Act (H.R.3633) signed into law in 2026?",
-     "race": "Predictions",
-     "tx": "G-PRD-004",
-     "level": {
-      "symbol": "clarity-act-signed-into-law-in-2026|No",
-      "below": 0.9
-     },
-     "result": "no prices (HTTP Error 404: Not Found)"
-    },
-    {
-     "at": "2026-11-01T14:16:09Z",
-     "what": "Ethereum USD",
-     "race": "Crypto",
-     "tx": "G-CRY-018",
-     "level": {
-      "symbol": "ETH-USD",
-      "below": 2000.0
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-01T18:14:55Z",
-     "what": "Ethereum USD",
-     "race": "Crypto",
-     "tx": "G-CRY-019",
-     "level": {
-      "symbol": "ETH-USD",
-      "below": 2100.0
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-02T14:40:24Z",
-     "what": "United States Oil Fund, LP",
-     "race": "Energy",
-     "tx": "G-ENE-011",
-     "level": {
-      "symbol": "USO",
-      "below": 150.0
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-02T16:03:40Z",
-     "what": "SPDR Gold Shares",
-     "race": "Metals",
-     "tx": "G-MET-007",
-     "level": {
-      "symbol": "GLD",
-      "below": 350.0
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-02T18:18:27Z",
-     "what": "SPY Nov 20 $750 put",
-     "race": "Options",
-     "tx": "G-OPT-008",
-     "level": {
-      "symbol": "SPY",
-      "above": 780.0
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-02T18:18:27Z",
-     "what": "Will the Republicans win the Texas Senate race in 2026?",
-     "race": "Predictions",
-     "tx": "G-PRD-005",
-     "result": "untestable"
-    },
     {
      "at": "2026-11-02T19:17:08Z",
      "what": "SPY Nov 20 $750 put",
@@ -401,13 +317,96 @@
      },
      "breach_at": "2026-11-05T14:37:09Z",
      "result": "kept: got out after the level was reached"
+    },
+    {
+     "at": "2026-11-06T14:19:48Z",
+     "what": "Japanese yen",
+     "race": "Currencies",
+     "tx": "G-CUR-029",
+     "level": {
+      "symbol": "JPY",
+      "above": 0.0064
+     },
+     "breach_at": "2026-11-06T14:30:00Z",
+     "result": "held on after its own exit level"
+    },
+    {
+     "at": "2026-11-06T14:37:28Z",
+     "what": "Direxion Daily 20+ Year Treasury Bear 3X Shares",
+     "race": "Stocks",
+     "tx": "G-STK-022",
+     "level": {
+      "symbol": "TMV",
+      "below": 20.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-06T14:37:28Z",
+     "what": "TLT Nov 20 $81 put",
+     "race": "Options",
+     "tx": "G-OPT-017",
+     "level": {
+      "symbol": "TLT261120P00081000",
+      "below": 0.5
+     },
+     "breach_at": "2026-11-06T14:37:28Z",
+     "result": "held on after its own exit level"
+    },
+    {
+     "at": "2026-11-06T15:18:16Z",
+     "what": "ProShares UltraPro Short QQQ",
+     "race": "Stocks",
+     "tx": "G-STK-023",
+     "level": {
+      "symbol": "SQQQ",
+      "below": 45.0
+     },
+     "result": "closed before the level was reached"
+    },
+    {
+     "at": "2026-11-06T15:18:16Z",
+     "what": "SPY Nov 20 $730 put",
+     "race": "Options",
+     "tx": "G-OPT-018",
+     "result": "untestable"
+    },
+    {
+     "at": "2026-11-06T17:15:24Z",
+     "what": "State Street Energy Select Sector SPDR ETF",
+     "race": "Energy",
+     "tx": "G-ENE-021",
+     "level": {
+      "symbol": "XLE",
+      "below": 62.0
+     },
+     "breach_at": "2026-11-06T17:30:00Z",
+     "result": "kept: got out after the level was reached"
+    },
+    {
+     "at": "2026-11-06T17:15:24Z",
+     "what": "TLT Nov 20 $81 put",
+     "race": "Options",
+     "tx": "G-OPT-019",
+     "result": "untestable"
+    },
+    {
+     "at": "2026-11-06T18:45:13Z",
+     "what": "SPDR Gold Shares",
+     "race": "Metals",
+     "tx": "G-MET-014",
+     "level": {
+      "symbol": "GLD",
+      "below": 360.0
+     },
+     "result": "closed before the level was reached"
     }
    ]
   },
   "chatgpt": {
-   "kept": 6,
+   "kept": 8,
    "broken": 0,
-   "pending": 6,
+   "pending": 4,
    "closed_first": 11,
    "untestable": 1,
    "items": [
@@ -653,7 +652,8 @@
       "symbol": "GLD",
       "below": 374.8
      },
-     "result": "level not reached yet"
+     "breach_at": "2026-11-06T14:30:00Z",
+     "result": "kept: got out after the level was reached"
     },
     {
      "at": "2026-11-05T20:45:24Z",
@@ -664,7 +664,8 @@
       "symbol": "GLD",
       "below": 371.5
      },
-     "result": "level not reached yet"
+     "breach_at": "2026-11-06T14:30:00Z",
+     "result": "kept: got out after the level was reached"
     },
     {
      "at": "2026-11-05T22:15:48Z",
