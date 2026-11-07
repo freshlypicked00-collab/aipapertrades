@@ -22259,6 +22259,25 @@
    "bet": "C25",
    "wrong_if": "Wisconsin's final score is less than or equal to Rutgers' final score at 0:00.",
    "p_works": 0.92
+  },
+  {
+   "at": "2026-11-07T05:21:34Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "action": "Bet",
+   "symbol": "C7",
+   "outcome": null,
+   "name": "NHL: Carolina Hurricanes moneyline (Chicago Blackhawks @ Carolina Hurricanes)",
+   "price": -440,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 3000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Daily All in: Sports minimum: Carolina at home to Chicago at about -440 (ESPN); Carolina is the much stronger team, kept at the C$3,000 floor because the price leaves only a thin edge.",
+   "bet": "C7",
+   "wrong_if": "Chicago wins the game, or Carolina trails by two goals at any point in the third period.",
+   "p_works": 0.79
   }
  ],
  "history": [
@@ -62065,6 +62084,18 @@
    "model": "claude",
    "experiment": "AllInSports",
    "value": 113224.14
+  },
+  {
+   "at": "2026-11-07T05:21:34Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 95187.45
+  },
+  {
+   "at": "2026-11-07T05:21:34Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 113224.14
   }
  ],
  "takes": [
@@ -82039,7 +82070,8 @@
    "C3",
    "C4",
    "C5",
-   "C6"
+   "C6",
+   "C7"
   ]
  },
  "tuning_trades": [
@@ -83186,7 +83218,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 656.1,
-      "priced_at": "2026-11-07T05:19:47Z",
+      "priced_at": "2026-11-07T05:21:34Z",
       "hist": [
        [
         29886870,
@@ -84392,8 +84424,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 75827.83,
-      "priced_at": "2026-11-07T05:19:47Z",
+      "last": 75851.3,
+      "priced_at": "2026-11-07T05:21:34Z",
       "hist": [
        [
         29886870,
@@ -85877,6 +85909,25 @@
       "closing_at": "2026-11-07T00:55:09Z",
       "settled_at": "2026-11-07T04:15:07Z",
       "final": "Oklahoma City Thunder 128, Memphis Grizzlies 97"
+     },
+     {
+      "id": "C7",
+      "game": "401892668",
+      "sport": "hockey",
+      "league": "nhl",
+      "short": "NHL",
+      "event": "Chicago Blackhawks @ Carolina Hurricanes",
+      "pick": "home",
+      "pick_team": "Carolina Hurricanes",
+      "odds": -440,
+      "stake": 3000.0,
+      "to_win": 681.82,
+      "starts_at": "2026-11-08T01:00Z",
+      "placed_at": "2026-11-07T05:21:34Z",
+      "status": "Open",
+      "result": 0.0,
+      "reason": "Daily All in: Sports minimum: Carolina at home to Chicago at about -440 (ESPN); Carolina is the much stronger team, kept at the C$3,000 floor because the price leaves only a thin edge.",
+      "wrong_if": "Chicago wins the game, or Carolina trails by two goals at any point in the third period."
      }
     ],
     "penalties": []
@@ -85894,7 +85945,8 @@
    "20261103072140-4",
    "20261104171735-5",
    "20261105071618-6",
-   "20261106052548-7"
+   "20261106052548-7",
+   "20261107051803-8"
   ],
   "results": [
    "20261028182237-0: filled Buy Invesco QQQ Trust C$40,000",
@@ -85904,7 +85956,8 @@
    "20261103072140-4: filled Bet NHL: Dallas Stars moneyline (Dallas Stars @ Washington Capitals) C$3,000",
    "20261104171735-5: filled Bet NHL: Buffalo Sabres moneyline (Ottawa Senators @ Buffalo Sabres) C$3,000",
    "20261105071618-6: filled Bet NHL: Vegas Golden Knights moneyline (Vegas Golden Knights @ Detroit Red Wings) C$3,000",
-   "20261106052548-7: filled Bet NBA: Oklahoma City Thunder moneyline (Oklahoma City Thunder @ Memphis Grizzlies) C$3,000"
+   "20261106052548-7: filled Bet NBA: Oklahoma City Thunder moneyline (Oklahoma City Thunder @ Memphis Grizzlies) C$3,000",
+   "20261107051803-8: filled Bet NHL: Carolina Hurricanes moneyline (Chicago Blackhawks @ Carolina Hurricanes) C$3,000"
   ]
  },
  "price_alerts": {
@@ -140276,7 +140329,8 @@
    "c20261105071618-21",
    "c20261105201928-22",
    "c20261106052548-23",
-   "c20261106144243-24"
+   "c20261106144243-24",
+   "c20261107051803-25"
   ],
   "results": [
    "c20261029222314-0: filled Sell Bitcoin C$11,288 at 79,005.5",
@@ -140310,7 +140364,8 @@
    "c20261105201928-22: filled Sell SPY Nov 20 $760 call C$2,756 at 3.28",
    "claude-3: stop filled Sell Bitcoin C$33,551 at 75,305.9",
    "c20261106052548-23: filled Bet S10 (NHL: Buffalo Sabres moneyline (Columbus Blue Jackets @ Buffalo Sabres)) C$3,000 at -170",
-   "c20261106144243-24: stop set: GLD below 362 [id claude-17]"
+   "c20261106144243-24: stop set: GLD below 362 [id claude-17]",
+   "c20261107051803-25: filled Bet S11 (NBA: Oklahoma City Thunder moneyline (Washington Wizards @ Oklahoma City Thunder)) C$3,000 at -486"
   ],
   "codes": {
    "Democrats win the Senate (Yes)": "will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections|Yes"
@@ -140410,7 +140465,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-07T05:19:47Z",
+  "at": "2026-11-07T05:21:34Z",
   "games": [
    {
     "id": "401878758",
@@ -140760,8 +140815,8 @@
     "away": "Denver Nuggets",
     "home": "Indiana Pacers",
     "start": "2026-11-07T22:00Z",
-    "away_ml": -263,
-    "home_ml": 216
+    "away_ml": -268,
+    "home_ml": 220
    },
    {
     "id": "401892664",
@@ -149423,7 +149478,8 @@
   "chatgpt|Sports|2026-11-07T05:14:57Z|Bet|C24": "X-SPT-030",
   "chatgpt|Sports|2026-11-07T05:14:57Z|Lost|C22": "X-SPT-031",
   "gemini|AllInSports|2026-11-07T05:14:57Z|Bet|G90": "G-AIS-077",
-  "gemini|Sports|2026-11-07T05:14:57Z|Bet|G89": "G-SPT-097"
+  "gemini|Sports|2026-11-07T05:14:57Z|Bet|G89": "G-SPT-097",
+  "claude|AllInSports|2026-11-07T05:21:34Z|Bet|C7": "C-AIS-013"
  },
  "txseq": {
   "X-CRY": 28,
@@ -149459,7 +149515,7 @@
   "G-CHN": 4,
   "C-CHN": 2,
   "G-PRD": 5,
-  "C-AIS": 12,
+  "C-AIS": 13,
   "X-PRD": 1,
   "C-OPT": 2
  },
