@@ -23920,6 +23920,25 @@
    "bet": "C27",
    "wrong_if": "The wager is wrong if Iona wins the game outright by at least 1 point.",
    "p_works": 0.99
+  },
+  {
+   "at": "2026-11-08T05:19:58Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "action": "Bet",
+   "symbol": "C8",
+   "outcome": null,
+   "name": "NFL: Los Angeles Rams moneyline (Los Angeles Rams @ Washington Commanders)",
+   "price": -238,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 3000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Daily All in: Sports minimum: the Rams away at Washington at about -238 on ESPN; I rate the Rams the stronger side, kept at the C$3,000 floor because the edge over the price is small.",
+   "bet": "C8",
+   "wrong_if": "Washington wins the game outright.",
+   "p_works": 0.68
   }
  ],
  "history": [
@@ -65658,6 +65677,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 111120.4
+  },
+  {
+   "at": "2026-11-08T05:19:58Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 95160.92
+  },
+  {
+   "at": "2026-11-08T05:19:58Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 113905.96
   }
  ],
  "takes": [
@@ -84980,7 +85011,8 @@
    "C4",
    "C5",
    "C6",
-   "C7"
+   "C7",
+   "C8"
   ]
  },
  "tuning_trades": [
@@ -86127,7 +86159,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 656.1,
-      "priced_at": "2026-11-08T05:15:30Z",
+      "priced_at": "2026-11-08T05:19:58Z",
       "hist": [
        [
         29886870,
@@ -87433,8 +87465,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 75790.91,
-      "priced_at": "2026-11-08T05:15:30Z",
+      "last": 75766.09,
+      "priced_at": "2026-11-08T05:19:58Z",
       "hist": [
        [
         29886870,
@@ -89041,6 +89073,25 @@
       "closing_at": "2026-11-08T00:22:57Z",
       "settled_at": "2026-11-08T04:15:33Z",
       "final": "Chicago Blackhawks 2, Carolina Hurricanes 9"
+     },
+     {
+      "id": "C8",
+      "game": "401873043",
+      "sport": "football",
+      "league": "nfl",
+      "short": "NFL",
+      "event": "Los Angeles Rams @ Washington Commanders",
+      "pick": "away",
+      "pick_team": "Los Angeles Rams",
+      "odds": -238,
+      "stake": 3000.0,
+      "to_win": 1260.5,
+      "starts_at": "2026-11-08T18:00Z",
+      "placed_at": "2026-11-08T05:19:58Z",
+      "status": "Open",
+      "result": 0.0,
+      "reason": "Daily All in: Sports minimum: the Rams away at Washington at about -238 on ESPN; I rate the Rams the stronger side, kept at the C$3,000 floor because the edge over the price is small.",
+      "wrong_if": "Washington wins the game outright."
      }
     ],
     "penalties": []
@@ -89059,7 +89110,8 @@
    "20261104171735-5",
    "20261105071618-6",
    "20261106052548-7",
-   "20261107051803-8"
+   "20261107051803-8",
+   "20261108051714-9"
   ],
   "results": [
    "20261028182237-0: filled Buy Invesco QQQ Trust C$40,000",
@@ -89070,7 +89122,8 @@
    "20261104171735-5: filled Bet NHL: Buffalo Sabres moneyline (Ottawa Senators @ Buffalo Sabres) C$3,000",
    "20261105071618-6: filled Bet NHL: Vegas Golden Knights moneyline (Vegas Golden Knights @ Detroit Red Wings) C$3,000",
    "20261106052548-7: filled Bet NBA: Oklahoma City Thunder moneyline (Oklahoma City Thunder @ Memphis Grizzlies) C$3,000",
-   "20261107051803-8: filled Bet NHL: Carolina Hurricanes moneyline (Chicago Blackhawks @ Carolina Hurricanes) C$3,000"
+   "20261107051803-8: filled Bet NHL: Carolina Hurricanes moneyline (Chicago Blackhawks @ Carolina Hurricanes) C$3,000",
+   "20261108051714-9: filled Bet NFL: Los Angeles Rams moneyline (Los Angeles Rams @ Washington Commanders) C$3,000"
   ]
  },
  "price_alerts": {
@@ -146537,7 +146590,8 @@
    "c20261105201928-22",
    "c20261106052548-23",
    "c20261106144243-24",
-   "c20261107051803-25"
+   "c20261107051803-25",
+   "c20261108051714-26"
   ],
   "results": [
    "c20261029222314-0: filled Sell Bitcoin C$11,288 at 79,005.5",
@@ -146572,7 +146626,8 @@
    "claude-3: stop filled Sell Bitcoin C$33,551 at 75,305.9",
    "c20261106052548-23: filled Bet S10 (NHL: Buffalo Sabres moneyline (Columbus Blue Jackets @ Buffalo Sabres)) C$3,000 at -170",
    "c20261106144243-24: stop set: GLD below 362 [id claude-17]",
-   "c20261107051803-25: filled Bet S11 (NBA: Oklahoma City Thunder moneyline (Washington Wizards @ Oklahoma City Thunder)) C$3,000 at -486"
+   "c20261107051803-25: filled Bet S11 (NBA: Oklahoma City Thunder moneyline (Washington Wizards @ Oklahoma City Thunder)) C$3,000 at -486",
+   "c20261108051714-26: filled Bet S12 (NFL: Detroit Lions moneyline (Detroit Lions @ Miami Dolphins)) C$3,000 at -298"
   ],
   "codes": {
    "Democrats win the Senate (Yes)": "will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections|Yes"
@@ -146681,7 +146736,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-08T05:15:30Z",
+  "at": "2026-11-08T05:19:58Z",
   "games": [
    {
     "id": "401879244",
@@ -146698,8 +146753,8 @@
     "away": "Liverpool",
     "home": "Crystal Palace",
     "start": "2026-11-08T14:00Z",
-    "away_ml": -170,
-    "home_ml": 425
+    "away_ml": -175,
+    "home_ml": 450
    },
    {
     "id": "401878759",
@@ -154826,7 +154881,8 @@
   "chatgpt|AllInSports|2026-11-08T05:15:30Z|Bet|C27": "X-AIS-019",
   "chatgpt|Sports|2026-11-08T05:15:30Z|Bet|C26": "X-SPT-033",
   "gemini|AllInSports|2026-11-08T05:15:30Z|Bet|G94": "G-AIS-082",
-  "gemini|Sports|2026-11-08T05:15:30Z|Bet|G93": "G-SPT-102"
+  "gemini|Sports|2026-11-08T05:15:30Z|Bet|G93": "G-SPT-102",
+  "claude|AllInSports|2026-11-08T05:19:58Z|Bet|C8": "C-AIS-015"
  },
  "txseq": {
   "X-CRY": 28,
@@ -154862,7 +154918,7 @@
   "G-CHN": 4,
   "C-CHN": 2,
   "G-PRD": 5,
-  "C-AIS": 14,
+  "C-AIS": 15,
   "X-PRD": 1,
   "C-OPT": 2
  },
