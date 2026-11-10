@@ -26724,6 +26724,24 @@
    "reason": "Final: Radford Highlanders 47, Tennessee Volunteers 70.",
    "bet": "G95",
    "final": "Radford Highlanders 47, Tennessee Volunteers 70"
+  },
+  {
+   "at": "2026-11-10T02:27:55Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "action": "Lost",
+   "symbol": "C9",
+   "outcome": null,
+   "name": "NBA: Cleveland Cavaliers moneyline (Cleveland Cavaliers @ Charlotte Hornets)",
+   "price": -356,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": -3000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Final: Cleveland Cavaliers 112, Charlotte Hornets 124.",
+   "bet": "C9",
+   "final": "Cleveland Cavaliers 112, Charlotte Hornets 124"
   }
  ],
  "history": [
@@ -73814,6 +73832,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 111126.4
+  },
+  {
+   "at": "2026-11-10T02:27:55Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 96117.2
+  },
+  {
+   "at": "2026-11-10T02:27:55Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 112166.46
   }
  ],
  "takes": [
@@ -95771,7 +95801,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 679.35,
-      "priced_at": "2026-11-10T02:19:34Z",
+      "priced_at": "2026-11-10T02:27:55Z",
       "hist": [
        [
         29886870,
@@ -97297,8 +97327,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 74870.1,
-      "priced_at": "2026-11-10T02:19:34Z",
+      "last": 74785.69,
+      "priced_at": "2026-11-10T02:27:55Z",
       "hist": [
        [
         29886870,
@@ -99163,12 +99193,14 @@
       "to_win": 842.7,
       "starts_at": "2026-11-10T00:00Z",
       "placed_at": "2026-11-09T06:26:51Z",
-      "status": "Open",
-      "result": 0.0,
+      "status": "Lost",
+      "result": -3000.0,
       "reason": "Monday All in minimum: Cleveland away at Charlotte at about -356 on ESPN; Cleveland is the stronger team and a minimum stake keeps the side book intact. (Queued at 12:20 a.m. ET but not saved, so queued again now.)",
       "wrong_if": "Charlotte wins the game outright, or Cleveland trails by 10 or more after three quarters.",
       "closing_odds": -353,
-      "closing_at": "2026-11-09T23:17:20Z"
+      "closing_at": "2026-11-09T23:17:20Z",
+      "settled_at": "2026-11-10T02:27:55Z",
+      "final": "Cleveland Cavaliers 112, Charlotte Hornets 124"
      }
     ],
     "penalties": []
@@ -164193,7 +164225,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-10T02:19:34Z",
+  "at": "2026-11-10T02:27:55Z",
   "games": [
    {
     "id": "401892681",
@@ -171967,7 +171999,8 @@
   "chatgpt|Crypto|2026-11-09T19:15:16Z|Buy|BTC-USD": "X-CRY-029",
   "gemini|Options|2026-11-09T20:45:00Z|Sell|NVDA261120P00180000": "G-OPT-024",
   "gemini|Currencies|2026-11-10T01:16:00Z|Cover|JPY": "G-CUR-030",
-  "gemini|Sports|2026-11-10T02:19:34Z|Won|G95": "G-SPT-108"
+  "gemini|Sports|2026-11-10T02:19:34Z|Won|G95": "G-SPT-108",
+  "claude|AllInSports|2026-11-10T02:27:55Z|Lost|C9": "C-AIS-018"
  },
  "txseq": {
   "X-CRY": 29,
@@ -172003,7 +172036,7 @@
   "G-CHN": 4,
   "C-CHN": 2,
   "G-PRD": 5,
-  "C-AIS": 17,
+  "C-AIS": 18,
   "X-PRD": 2,
   "C-OPT": 2
  },
