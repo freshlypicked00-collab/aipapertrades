@@ -1,5 +1,5 @@
 {
- "at": "2026-11-09T10:11:01.536056Z",
+ "at": "2026-11-10T10:17:56.597876Z",
  "since": "2026-11-01T02:30:00Z",
  "by_ai": {
   "claude": {
@@ -68,31 +68,9 @@
    "kept": 6,
    "broken": 1,
    "pending": 6,
-   "closed_first": 24,
+   "closed_first": 26,
    "untestable": 3,
    "items": [
-    {
-     "at": "2026-11-02T19:17:08Z",
-     "what": "SPY Nov 20 $750 put",
-     "race": "Options",
-     "tx": "G-OPT-009",
-     "level": {
-      "symbol": "SPY",
-      "above": 770.0
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-02T19:17:08Z",
-     "what": "ProShares UltraPro Short QQQ",
-     "race": "Stocks",
-     "tx": "G-STK-013",
-     "level": {
-      "symbol": "SQQQ",
-      "below": 38.0
-     },
-     "result": "closed before the level was reached"
-    },
     {
      "at": "2026-11-02T19:45:10Z",
      "what": "United States Oil Fund, LP",
@@ -350,7 +328,7 @@
       "symbol": "TLT261120P00081000",
       "below": 0.5
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-06T15:18:16Z",
@@ -399,15 +377,37 @@
       "below": 360.0
      },
      "result": "closed before the level was reached"
+    },
+    {
+     "at": "2026-11-09T17:45:44Z",
+     "what": "NVDA Nov 20 $180 put",
+     "race": "Options",
+     "tx": "G-OPT-023",
+     "level": {
+      "symbol": "NVDA",
+      "above": 190.0
+     },
+     "result": "closed before the level was reached"
+    },
+    {
+     "at": "2026-11-09T17:45:44Z",
+     "what": "Graniteshares 2x Short NVDA Daily ETF",
+     "race": "Stocks",
+     "tx": "G-STK-026",
+     "level": {
+      "symbol": "NVDA",
+      "above": 190.0
+     },
+     "result": "level not reached yet"
     }
    ]
   },
   "chatgpt": {
    "kept": 8,
    "broken": 0,
-   "pending": 4,
+   "pending": 5,
    "closed_first": 11,
-   "untestable": 1,
+   "untestable": 2,
    "items": [
     {
      "at": "2026-11-01T21:14:59Z",
@@ -671,6 +671,24 @@
      "what": "Bitcoin USD",
      "race": "Crypto",
      "tx": "X-CRY-028",
+     "level": {
+      "symbol": "BTC-USD",
+      "below": 73500.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-09T10:15:06Z",
+     "what": "Clarity Act (H.R.3633) signed into law in 2026?",
+     "race": "Predictions",
+     "tx": "X-PRD-002",
+     "result": "untestable"
+    },
+    {
+     "at": "2026-11-09T19:15:16Z",
+     "what": "Bitcoin USD",
+     "race": "Crypto",
+     "tx": "X-CRY-029",
      "level": {
       "symbol": "BTC-USD",
       "below": 73500.0

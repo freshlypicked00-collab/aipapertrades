@@ -1,0 +1,1122 @@
+{
+ "at": "2026-11-10T10:17:27+00:00",
+ "summary": {
+  "fills": {
+   "ok": 6,
+   "ok_partial": 2,
+   "flag": 1
+  },
+  "fill_amounts": {
+   "ok": 9
+  },
+  "bets": {
+   "ok": 36
+  }
+ },
+ "fills": [
+  {
+   "at": "2026-11-09T10:15:06Z",
+   "model": "chatgpt",
+   "experiment": "Predictions",
+   "action": "Buy",
+   "symbol": "clarity-act-signed-into-law-in-2026",
+   "name": "Clarity Act (H.R.3633) signed into law in 2026?",
+   "price": 0.9755,
+   "pcur": "USD",
+   "qty": 2184.5048845165134,
+   "amount": 3000.0,
+   "amount_check": "ok",
+   "feed": "Polymarket",
+   "feed_low": 0.9755,
+   "feed_high": 0.9825,
+   "gap_abs": 0.0,
+   "tolerance": "0.03",
+   "status": "ok",
+   "basis": "Polymarket price history within 15 minutes"
+  },
+  {
+   "at": "2026-11-09T14:49:27Z",
+   "model": "gemini",
+   "experiment": "Options",
+   "action": "Sell",
+   "symbol": "TLT261120P00081000",
+   "name": "TLT Nov 20 $81 put",
+   "price": 0.2,
+   "pcur": "USD",
+   "qty": 78600.0,
+   "amount": 22179.35,
+   "amount_check": "ok",
+   "basis": "TLT 82.01-82.18 within 6 min; intrinsic 0.00-0.00 (Cboe keeps no option history)",
+   "status": "ok_partial"
+  },
+  {
+   "at": "2026-11-09T17:45:44Z",
+   "model": "gemini",
+   "experiment": "Options",
+   "action": "Buy",
+   "symbol": "NVDA261120P00180000",
+   "name": "NVDA Nov 20 $180 put",
+   "price": 10.7,
+   "pcur": "USD",
+   "qty": 900,
+   "amount": 13606.23,
+   "amount_check": "ok",
+   "basis": "NVDA 177.32-178.17 within 6 min; intrinsic 1.83-2.68 (Cboe keeps no option history)",
+   "status": "ok_partial"
+  },
+  {
+   "at": "2026-11-09T17:45:44Z",
+   "model": "gemini",
+   "experiment": "Stocks",
+   "action": "Buy",
+   "symbol": "NVD",
+   "name": "Graniteshares 2x Short NVDA Daily ETF",
+   "price": 5.68,
+   "pcur": "USD",
+   "qty": 3115.159212049137,
+   "amount": 25000.0,
+   "amount_check": "ok",
+   "feed": "NVD",
+   "feed_low": 5.64,
+   "feed_high": 5.69,
+   "gap_pct": 0.0,
+   "tolerance": "0.30%",
+   "status": "ok",
+   "basis": "Yahoo 1-minute bars within 6 minutes"
+  },
+  {
+   "at": "2026-11-09T17:45:44Z",
+   "model": "gemini",
+   "experiment": "AllInTrading",
+   "action": "Buy",
+   "symbol": "NVD",
+   "name": "Graniteshares 2x Short NVDA Daily ETF",
+   "price": 5.68,
+   "pcur": "USD",
+   "qty": 4361.222896868792,
+   "amount": 35000.0,
+   "amount_check": "ok",
+   "feed": "NVD",
+   "feed_low": 5.64,
+   "feed_high": 5.69,
+   "gap_pct": 0.0,
+   "tolerance": "0.30%",
+   "status": "ok",
+   "basis": "Yahoo 1-minute bars within 6 minutes"
+  },
+  {
+   "at": "2026-11-09T19:15:16Z",
+   "model": "chatgpt",
+   "experiment": "Crypto",
+   "action": "Buy",
+   "symbol": "BTC-USD",
+   "name": "Bitcoin USD",
+   "price": 74553.11,
+   "pcur": "USD",
+   "qty": 0.09492078883526957,
+   "amount": 10000.0,
+   "amount_check": "ok",
+   "feed": "BTC-USD",
+   "feed_low": 74508.0625,
+   "feed_high": 74628.578125,
+   "gap_pct": 0.0,
+   "tolerance": "0.75%",
+   "status": "ok",
+   "basis": "Yahoo 1-minute bars within 6 minutes"
+  },
+  {
+   "at": "2026-11-09T19:15:16Z",
+   "model": "chatgpt",
+   "experiment": "AllInTrading",
+   "action": "Buy",
+   "symbol": "BTC-USD",
+   "name": "Bitcoin USD",
+   "price": 74553.11,
+   "pcur": "USD",
+   "qty": 0.14238118325290433,
+   "amount": 15000.0,
+   "amount_check": "ok",
+   "feed": "BTC-USD",
+   "feed_low": 74508.0625,
+   "feed_high": 74628.578125,
+   "gap_pct": 0.0,
+   "tolerance": "0.75%",
+   "status": "ok",
+   "basis": "Yahoo 1-minute bars within 6 minutes"
+  },
+  {
+   "at": "2026-11-09T20:45:00Z",
+   "model": "gemini",
+   "experiment": "Options",
+   "action": "Sell",
+   "symbol": "NVDA261120P00180000",
+   "name": "NVDA Nov 20 $180 put",
+   "price": 9.9,
+   "pcur": "USD",
+   "qty": 900.0,
+   "amount": 12579.14,
+   "amount_check": "ok",
+   "basis": "NVDA 176.88-178.70 within 6 min; intrinsic 1.30-3.12 (Cboe keeps no option history)",
+   "status": "flag",
+   "note": "sold far above the intrinsic value: check the bid"
+  },
+  {
+   "at": "2026-11-10T01:16:00Z",
+   "model": "gemini",
+   "experiment": "Currencies",
+   "action": "Cover",
+   "symbol": "JPY",
+   "name": "Japanese yen",
+   "price": 0.0063295145262358375,
+   "pcur": "USD",
+   "qty": 4487972.800679983,
+   "amount": 40098.88,
+   "amount_check": "ok",
+   "feed": "JPYUSD=X",
+   "feed_low": 0.006328,
+   "feed_high": 0.006331,
+   "gap_pct": 0.0,
+   "tolerance": "0.40%",
+   "status": "ok",
+   "basis": "Yahoo 1-minute bars within 6 minutes"
+  }
+ ],
+ "bets": [
+  {
+   "model": "claude",
+   "race": "Sports",
+   "id": "S11",
+   "event": "Washington Wizards @ Oklahoma City Thunder",
+   "pick": "Oklahoma City Thunder moneyline",
+   "odds": -486,
+   "stake": 3000.0,
+   "result": 617.28,
+   "status": "ok",
+   "placed_at": "2026-11-07T00:21:34-05:00",
+   "starts_at": "2026-11-08T01:00Z",
+   "final": "Washington Wizards 75, Oklahoma City Thunder 114",
+   "espn": [
+    {
+     "start": "2026-11-08T01:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Washington Wizards",
+     "away_score": "75",
+     "home": "Oklahoma City Thunder",
+     "home_score": "114",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "claude",
+   "race": "Sports",
+   "id": "S12",
+   "event": "Detroit Lions @ Miami Dolphins",
+   "pick": "Detroit Lions moneyline",
+   "odds": -298,
+   "stake": 3000.0,
+   "result": 1006.71,
+   "status": "ok",
+   "placed_at": "2026-11-08T00:19:58-05:00",
+   "starts_at": "2026-11-08T18:00Z",
+   "final": "Detroit Lions 19, Miami Dolphins 9",
+   "espn": [
+    {
+     "start": "2026-11-08T18:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Detroit Lions",
+     "away_score": "19",
+     "home": "Miami Dolphins",
+     "home_score": "9",
+     "winner": "away"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "claude",
+   "race": "Sports",
+   "id": "S13",
+   "event": "Washington Wizards @ Detroit Pistons",
+   "pick": "Detroit Pistons moneyline",
+   "odds": -468,
+   "stake": 3000.0,
+   "result": 641.03,
+   "status": "ok",
+   "placed_at": "2026-11-09T01:26:51-05:00",
+   "starts_at": "2026-11-10T00:00Z",
+   "final": "Washington Wizards 111, Detroit Pistons 122",
+   "espn": [
+    {
+     "start": "2026-11-10T00:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Washington Wizards",
+     "away_score": "111",
+     "home": "Detroit Pistons",
+     "home_score": "122",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "claude",
+   "race": "Sports",
+   "id": "S14",
+   "event": "Colorado Avalanche @ Toronto Maple Leafs",
+   "pick": "Colorado Avalanche moneyline",
+   "odds": -155,
+   "stake": 3000.0,
+   "result": null,
+   "status": "ok",
+   "placed_at": "2026-11-10T00:19:25-05:00",
+   "starts_at": "2026-11-11T00:00Z",
+   "final": null,
+   "espn": [
+    {
+     "start": "2026-11-11T00:00Z",
+     "state": "STATUS_SCHEDULED",
+     "away": "Colorado Avalanche",
+     "away_score": null,
+     "home": "Toronto Maple Leafs",
+     "home_score": null,
+     "winner": null
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "Sports",
+   "id": "G83",
+   "event": "Utah Jazz @ Dallas Mavericks",
+   "pick": "Dallas Mavericks",
+   "odds": -264,
+   "stake": 3000.0,
+   "result": 1136.36,
+   "status": "ok",
+   "placed_at": "2026-11-06T19:14:38Z",
+   "starts_at": "2026-11-07T01:00Z",
+   "final": "Utah Jazz 100, Dallas Mavericks 112",
+   "espn": [
+    {
+     "start": "2026-11-07T01:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Utah Jazz",
+     "away_score": "100",
+     "home": "Dallas Mavericks",
+     "home_score": "112",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "Sports",
+   "id": "G85",
+   "event": "UL Monroe Warhawks @ Arkansas State Red Wolves",
+   "pick": "Arkansas State Red Wolves",
+   "odds": -700,
+   "stake": 3000.0,
+   "result": -3000.0,
+   "status": "ok",
+   "placed_at": "2026-11-06T20:15:21Z",
+   "starts_at": "2026-11-07T20:00Z",
+   "final": "UL Monroe Warhawks 19, Arkansas State Red Wolves 17",
+   "espn": [
+    {
+     "start": "2026-11-07T20:00Z",
+     "state": "STATUS_FINAL",
+     "away": "UL Monroe Warhawks",
+     "away_score": "19",
+     "home": "Arkansas State Red Wolves",
+     "home_score": "17",
+     "winner": "away"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "Sports",
+   "id": "G87",
+   "event": "Hull City @ Arsenal",
+   "pick": "Arsenal",
+   "odds": -600,
+   "stake": 3000.0,
+   "result": 500.0,
+   "status": "ok",
+   "placed_at": "2026-11-06T22:14:52Z",
+   "starts_at": "2026-11-07T15:00Z",
+   "final": "Hull City 0, Arsenal 1",
+   "espn": [
+    {
+     "start": "2026-11-07T15:00Z",
+     "state": "STATUS_FULL_TIME",
+     "away": "Hull City",
+     "away_score": "0",
+     "home": "Arsenal",
+     "home_score": "1",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "Sports",
+   "id": "G89",
+   "event": "Rutgers Scarlet Knights @ Wisconsin Badgers",
+   "pick": "Wisconsin Badgers",
+   "odds": -1050,
+   "stake": 3000.0,
+   "result": 285.71,
+   "status": "ok",
+   "placed_at": "2026-11-07T05:14:57Z",
+   "starts_at": "2026-11-07T21:15Z",
+   "final": "Rutgers Scarlet Knights 10, Wisconsin Badgers 31",
+   "espn": [
+    {
+     "start": "2026-11-07T21:15Z",
+     "state": "STATUS_FINAL",
+     "away": "Rutgers Scarlet Knights",
+     "away_score": "10",
+     "home": "Wisconsin Badgers",
+     "home_score": "31",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "Sports",
+   "id": "G91",
+   "event": "New York Jets @ Kansas City Chiefs",
+   "pick": "Kansas City Chiefs",
+   "odds": -535,
+   "stake": 3000.0,
+   "result": 560.75,
+   "status": "ok",
+   "placed_at": "2026-11-07T23:15:04Z",
+   "starts_at": "2026-11-08T18:00Z",
+   "final": "New York Jets 12, Kansas City Chiefs 35",
+   "espn": [
+    {
+     "start": "2026-11-08T18:00Z",
+     "state": "STATUS_FINAL",
+     "away": "New York Jets",
+     "away_score": "12",
+     "home": "Kansas City Chiefs",
+     "home_score": "35",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "Sports",
+   "id": "G93",
+   "event": "Iona Gaels @ St. John's Red Storm",
+   "pick": "St. John's Red Storm",
+   "odds": -50000,
+   "stake": 3000.0,
+   "result": 6.0,
+   "status": "ok",
+   "placed_at": "2026-11-08T05:15:30Z",
+   "starts_at": "2026-11-08T17:00Z",
+   "final": "Iona Gaels 65, St. John's Red Storm 104",
+   "espn": [
+    {
+     "start": "2026-11-08T17:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Iona Gaels",
+     "away_score": "65",
+     "home": "St. John's Red Storm",
+     "home_score": "104",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "Sports",
+   "id": "G95",
+   "event": "Radford Highlanders @ Tennessee Volunteers",
+   "pick": "Tennessee Volunteers",
+   "odds": -50000,
+   "stake": 3000.0,
+   "result": 6.0,
+   "status": "ok",
+   "placed_at": "2026-11-09T05:15:08Z",
+   "starts_at": "2026-11-10T00:00Z",
+   "final": "Radford Highlanders 47, Tennessee Volunteers 70",
+   "espn": [
+    {
+     "start": "2026-11-10T00:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Radford Highlanders",
+     "away_score": "47",
+     "home": "Tennessee Volunteers",
+     "home_score": "70",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "Sports",
+   "id": "G97",
+   "event": "Western Michigan Broncos @ Akron Zips",
+   "pick": "Western Michigan Broncos",
+   "odds": -625,
+   "stake": 3000.0,
+   "result": 0.0,
+   "status": "ok",
+   "placed_at": "2026-11-09T14:21:51Z",
+   "starts_at": "2026-11-11T00:00Z",
+   "final": null,
+   "espn": [
+    {
+     "start": "2026-11-11T00:00Z",
+     "state": "STATUS_SCHEDULED",
+     "away": "Western Michigan Broncos",
+     "away_score": null,
+     "home": "Akron Zips",
+     "home_score": null,
+     "winner": null
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "Sports",
+   "id": "G99",
+   "event": "Sacramento State Hornets @ Central Michigan Chippewas",
+   "pick": "Central Michigan Chippewas",
+   "odds": -1050,
+   "stake": 3000.0,
+   "result": 0.0,
+   "status": "ok",
+   "placed_at": "2026-11-09T16:18:27Z",
+   "starts_at": "2026-11-12T00:30Z",
+   "final": null,
+   "espn": [
+    {
+     "start": "2026-11-12T00:30Z",
+     "state": "STATUS_SCHEDULED",
+     "away": "Sacramento State Hornets",
+     "away_score": null,
+     "home": "Central Michigan Chippewas",
+     "home_score": null,
+     "winner": null
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "Sports",
+   "id": "G102",
+   "event": "Queens University Royals @ BYU Cougars",
+   "pick": "BYU Cougars",
+   "odds": -10000,
+   "stake": 3000.0,
+   "result": 0.0,
+   "status": "ok",
+   "placed_at": "2026-11-10T06:18:41Z",
+   "starts_at": "2026-11-11T02:00Z",
+   "final": null,
+   "espn": [
+    {
+     "start": "2026-11-11T02:00Z",
+     "state": "STATUS_SCHEDULED",
+     "away": "Queens University Royals",
+     "away_score": null,
+     "home": "BYU Cougars",
+     "home_score": null,
+     "winner": null
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "AllInSports",
+   "id": "G84",
+   "event": "Utah Jazz @ Dallas Mavericks",
+   "pick": "Dallas Mavericks",
+   "odds": -264,
+   "stake": 3000.0,
+   "result": 1136.36,
+   "status": "ok",
+   "placed_at": "2026-11-06T19:14:38Z",
+   "starts_at": "2026-11-07T01:00Z",
+   "final": "Utah Jazz 100, Dallas Mavericks 112",
+   "espn": [
+    {
+     "start": "2026-11-07T01:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Utah Jazz",
+     "away_score": "100",
+     "home": "Dallas Mavericks",
+     "home_score": "112",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "AllInSports",
+   "id": "G86",
+   "event": "UL Monroe Warhawks @ Arkansas State Red Wolves",
+   "pick": "Arkansas State Red Wolves",
+   "odds": -700,
+   "stake": 3000.0,
+   "result": -3000.0,
+   "status": "ok",
+   "placed_at": "2026-11-06T20:15:21Z",
+   "starts_at": "2026-11-07T20:00Z",
+   "final": "UL Monroe Warhawks 19, Arkansas State Red Wolves 17",
+   "espn": [
+    {
+     "start": "2026-11-07T20:00Z",
+     "state": "STATUS_FINAL",
+     "away": "UL Monroe Warhawks",
+     "away_score": "19",
+     "home": "Arkansas State Red Wolves",
+     "home_score": "17",
+     "winner": "away"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "AllInSports",
+   "id": "G88",
+   "event": "Hull City @ Arsenal",
+   "pick": "Arsenal",
+   "odds": -600,
+   "stake": 3000.0,
+   "result": 500.0,
+   "status": "ok",
+   "placed_at": "2026-11-06T22:14:52Z",
+   "starts_at": "2026-11-07T15:00Z",
+   "final": "Hull City 0, Arsenal 1",
+   "espn": [
+    {
+     "start": "2026-11-07T15:00Z",
+     "state": "STATUS_FULL_TIME",
+     "away": "Hull City",
+     "away_score": "0",
+     "home": "Arsenal",
+     "home_score": "1",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "AllInSports",
+   "id": "G90",
+   "event": "Rutgers Scarlet Knights @ Wisconsin Badgers",
+   "pick": "Wisconsin Badgers",
+   "odds": -1050,
+   "stake": 3000.0,
+   "result": 285.71,
+   "status": "ok",
+   "placed_at": "2026-11-07T05:14:57Z",
+   "starts_at": "2026-11-07T21:15Z",
+   "final": "Rutgers Scarlet Knights 10, Wisconsin Badgers 31",
+   "espn": [
+    {
+     "start": "2026-11-07T21:15Z",
+     "state": "STATUS_FINAL",
+     "away": "Rutgers Scarlet Knights",
+     "away_score": "10",
+     "home": "Wisconsin Badgers",
+     "home_score": "31",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "AllInSports",
+   "id": "G92",
+   "event": "New York Jets @ Kansas City Chiefs",
+   "pick": "Kansas City Chiefs",
+   "odds": -535,
+   "stake": 3000.0,
+   "result": 560.75,
+   "status": "ok",
+   "placed_at": "2026-11-07T23:15:04Z",
+   "starts_at": "2026-11-08T18:00Z",
+   "final": "New York Jets 12, Kansas City Chiefs 35",
+   "espn": [
+    {
+     "start": "2026-11-08T18:00Z",
+     "state": "STATUS_FINAL",
+     "away": "New York Jets",
+     "away_score": "12",
+     "home": "Kansas City Chiefs",
+     "home_score": "35",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "AllInSports",
+   "id": "G94",
+   "event": "Iona Gaels @ St. John's Red Storm",
+   "pick": "St. John's Red Storm",
+   "odds": -50000,
+   "stake": 3000.0,
+   "result": 6.0,
+   "status": "ok",
+   "placed_at": "2026-11-08T05:15:30Z",
+   "starts_at": "2026-11-08T17:00Z",
+   "final": "Iona Gaels 65, St. John's Red Storm 104",
+   "espn": [
+    {
+     "start": "2026-11-08T17:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Iona Gaels",
+     "away_score": "65",
+     "home": "St. John's Red Storm",
+     "home_score": "104",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "AllInSports",
+   "id": "G96",
+   "event": "Oakland Golden Grizzlies @ Alabama Crimson Tide",
+   "pick": "Alabama Crimson Tide",
+   "odds": -100000,
+   "stake": 3000.0,
+   "result": 3.0,
+   "status": "ok",
+   "placed_at": "2026-11-09T05:15:08Z",
+   "starts_at": "2026-11-10T00:30Z",
+   "final": "Oakland Golden Grizzlies 68, Alabama Crimson Tide 109",
+   "espn": [
+    {
+     "start": "2026-11-10T00:30Z",
+     "state": "STATUS_FINAL",
+     "away": "Oakland Golden Grizzlies",
+     "away_score": "68",
+     "home": "Alabama Crimson Tide",
+     "home_score": "109",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "AllInSports",
+   "id": "G98",
+   "event": "Western Michigan Broncos @ Akron Zips",
+   "pick": "Western Michigan Broncos",
+   "odds": -625,
+   "stake": 3000.0,
+   "result": 0.0,
+   "status": "ok",
+   "placed_at": "2026-11-09T14:21:51Z",
+   "starts_at": "2026-11-11T00:00Z",
+   "final": null,
+   "espn": [
+    {
+     "start": "2026-11-11T00:00Z",
+     "state": "STATUS_SCHEDULED",
+     "away": "Western Michigan Broncos",
+     "away_score": null,
+     "home": "Akron Zips",
+     "home_score": null,
+     "winner": null
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "AllInSports",
+   "id": "G100",
+   "event": "Sacramento State Hornets @ Central Michigan Chippewas",
+   "pick": "Central Michigan Chippewas",
+   "odds": -1050,
+   "stake": 3000.0,
+   "result": 0.0,
+   "status": "ok",
+   "placed_at": "2026-11-09T16:18:27Z",
+   "starts_at": "2026-11-12T00:30Z",
+   "final": null,
+   "espn": [
+    {
+     "start": "2026-11-12T00:30Z",
+     "state": "STATUS_SCHEDULED",
+     "away": "Sacramento State Hornets",
+     "away_score": null,
+     "home": "Central Michigan Chippewas",
+     "home_score": null,
+     "winner": null
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "AllInSports",
+   "id": "G101",
+   "event": "Queens University Royals @ BYU Cougars",
+   "pick": "BYU Cougars",
+   "odds": -10000,
+   "stake": 3000.0,
+   "result": 0.0,
+   "status": "ok",
+   "placed_at": "2026-11-10T05:15:24Z",
+   "starts_at": "2026-11-11T02:00Z",
+   "final": null,
+   "espn": [
+    {
+     "start": "2026-11-11T02:00Z",
+     "state": "STATUS_SCHEDULED",
+     "away": "Queens University Royals",
+     "away_score": null,
+     "home": "BYU Cougars",
+     "home_score": null,
+     "winner": null
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "chatgpt",
+   "race": "Sports",
+   "id": "C24",
+   "event": "Rutgers Scarlet Knights @ Wisconsin Badgers",
+   "pick": "Wisconsin Badgers",
+   "odds": -1050,
+   "stake": 3000.0,
+   "result": 285.71,
+   "status": "ok",
+   "placed_at": "2026-11-07T05:14:57Z",
+   "starts_at": "2026-11-07T21:15Z",
+   "final": "Rutgers Scarlet Knights 10, Wisconsin Badgers 31",
+   "espn": [
+    {
+     "start": "2026-11-07T21:15Z",
+     "state": "STATUS_FINAL",
+     "away": "Rutgers Scarlet Knights",
+     "away_score": "10",
+     "home": "Wisconsin Badgers",
+     "home_score": "31",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "chatgpt",
+   "race": "Sports",
+   "id": "C26",
+   "event": "Iona Gaels @ St. John's Red Storm",
+   "pick": "St. John's Red Storm",
+   "odds": -50000,
+   "stake": 3000.0,
+   "result": 6.0,
+   "status": "ok",
+   "placed_at": "2026-11-08T05:15:30Z",
+   "starts_at": "2026-11-08T17:00Z",
+   "final": "Iona Gaels 65, St. John's Red Storm 104",
+   "espn": [
+    {
+     "start": "2026-11-08T17:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Iona Gaels",
+     "away_score": "65",
+     "home": "St. John's Red Storm",
+     "home_score": "104",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "chatgpt",
+   "race": "Sports",
+   "id": "C28",
+   "event": "Buffalo Bills @ Minnesota Vikings",
+   "pick": "Buffalo Bills",
+   "odds": -170,
+   "stake": 3000.0,
+   "result": 1764.71,
+   "status": "ok",
+   "placed_at": "2026-11-09T05:15:08Z",
+   "starts_at": "2026-11-10T01:15Z",
+   "final": "Buffalo Bills 23, Minnesota Vikings 6",
+   "espn": [
+    {
+     "start": "2026-11-10T01:15Z",
+     "state": "STATUS_FINAL",
+     "away": "Buffalo Bills",
+     "away_score": "23",
+     "home": "Minnesota Vikings",
+     "home_score": "6",
+     "winner": "away"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "chatgpt",
+   "race": "Sports",
+   "id": "C30",
+   "event": "Florida Gators @ Florida State Seminoles",
+   "pick": "Florida Gators",
+   "odds": -520,
+   "stake": 3000.0,
+   "result": 0.0,
+   "status": "ok",
+   "placed_at": "2026-11-10T05:15:24Z",
+   "starts_at": "2026-11-10T23:00Z",
+   "final": null,
+   "espn": [
+    {
+     "start": "2026-11-10T23:00Z",
+     "state": "STATUS_SCHEDULED",
+     "away": "Florida Gators",
+     "away_score": null,
+     "home": "Florida State Seminoles",
+     "home_score": null,
+     "winner": null
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "chatgpt",
+   "race": "AllInSports",
+   "id": "C25",
+   "event": "Rutgers Scarlet Knights @ Wisconsin Badgers",
+   "pick": "Wisconsin Badgers",
+   "odds": -1050,
+   "stake": 3000.0,
+   "result": 285.71,
+   "status": "ok",
+   "placed_at": "2026-11-07T05:14:57Z",
+   "starts_at": "2026-11-07T21:15Z",
+   "final": "Rutgers Scarlet Knights 10, Wisconsin Badgers 31",
+   "espn": [
+    {
+     "start": "2026-11-07T21:15Z",
+     "state": "STATUS_FINAL",
+     "away": "Rutgers Scarlet Knights",
+     "away_score": "10",
+     "home": "Wisconsin Badgers",
+     "home_score": "31",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "chatgpt",
+   "race": "AllInSports",
+   "id": "C27",
+   "event": "Iona Gaels @ St. John's Red Storm",
+   "pick": "St. John's Red Storm",
+   "odds": -50000,
+   "stake": 3000.0,
+   "result": 6.0,
+   "status": "ok",
+   "placed_at": "2026-11-08T05:15:30Z",
+   "starts_at": "2026-11-08T17:00Z",
+   "final": "Iona Gaels 65, St. John's Red Storm 104",
+   "espn": [
+    {
+     "start": "2026-11-08T17:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Iona Gaels",
+     "away_score": "65",
+     "home": "St. John's Red Storm",
+     "home_score": "104",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "chatgpt",
+   "race": "AllInSports",
+   "id": "C29",
+   "event": "Buffalo Bills @ Minnesota Vikings",
+   "pick": "Buffalo Bills",
+   "odds": -170,
+   "stake": 3000.0,
+   "result": 1764.71,
+   "status": "ok",
+   "placed_at": "2026-11-09T05:15:08Z",
+   "starts_at": "2026-11-10T01:15Z",
+   "final": "Buffalo Bills 23, Minnesota Vikings 6",
+   "espn": [
+    {
+     "start": "2026-11-10T01:15Z",
+     "state": "STATUS_FINAL",
+     "away": "Buffalo Bills",
+     "away_score": "23",
+     "home": "Minnesota Vikings",
+     "home_score": "6",
+     "winner": "away"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "chatgpt",
+   "race": "AllInSports",
+   "id": "C31",
+   "event": "Michigan State Spartans @ Duke Blue Devils",
+   "pick": "Duke Blue Devils",
+   "odds": -285,
+   "stake": 3000.0,
+   "result": 0.0,
+   "status": "ok",
+   "placed_at": "2026-11-10T05:15:24Z",
+   "starts_at": "2026-11-11T00:00Z",
+   "final": null,
+   "espn": [
+    {
+     "start": "2026-11-11T00:00Z",
+     "state": "STATUS_SCHEDULED",
+     "away": "Michigan State Spartans",
+     "away_score": null,
+     "home": "Duke Blue Devils",
+     "home_score": null,
+     "winner": null
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "claude",
+   "race": "AllInSports",
+   "id": "C7",
+   "event": "Chicago Blackhawks @ Carolina Hurricanes",
+   "pick": "Carolina Hurricanes",
+   "odds": -440,
+   "stake": 3000.0,
+   "result": 681.82,
+   "status": "ok",
+   "placed_at": "2026-11-07T05:21:34Z",
+   "starts_at": "2026-11-08T01:00Z",
+   "final": "Chicago Blackhawks 2, Carolina Hurricanes 9",
+   "espn": [
+    {
+     "start": "2026-11-08T01:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Chicago Blackhawks",
+     "away_score": "2",
+     "home": "Carolina Hurricanes",
+     "home_score": "9",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "claude",
+   "race": "AllInSports",
+   "id": "C8",
+   "event": "Los Angeles Rams @ Washington Commanders",
+   "pick": "Los Angeles Rams",
+   "odds": -238,
+   "stake": 3000.0,
+   "result": 1260.5,
+   "status": "ok",
+   "placed_at": "2026-11-08T05:19:58Z",
+   "starts_at": "2026-11-08T18:00Z",
+   "final": "Los Angeles Rams 20, Washington Commanders 13",
+   "espn": [
+    {
+     "start": "2026-11-08T18:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Los Angeles Rams",
+     "away_score": "20",
+     "home": "Washington Commanders",
+     "home_score": "13",
+     "winner": "away"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "claude",
+   "race": "AllInSports",
+   "id": "C9",
+   "event": "Cleveland Cavaliers @ Charlotte Hornets",
+   "pick": "Cleveland Cavaliers",
+   "odds": -356,
+   "stake": 3000.0,
+   "result": -3000.0,
+   "status": "ok",
+   "placed_at": "2026-11-09T06:26:51Z",
+   "starts_at": "2026-11-10T00:00Z",
+   "final": "Cleveland Cavaliers 112, Charlotte Hornets 124",
+   "espn": [
+    {
+     "start": "2026-11-10T00:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Cleveland Cavaliers",
+     "away_score": "112",
+     "home": "Charlotte Hornets",
+     "home_score": "124",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "claude",
+   "race": "AllInSports",
+   "id": "C10",
+   "event": "Oklahoma City Thunder @ Portland Trail Blazers",
+   "pick": "Oklahoma City Thunder",
+   "odds": -130,
+   "stake": 3000.0,
+   "result": 0.0,
+   "status": "ok",
+   "placed_at": "2026-11-10T05:19:25Z",
+   "starts_at": "2026-11-11T04:00Z",
+   "final": null,
+   "espn": [
+    {
+     "start": "2026-11-11T04:00Z",
+     "state": "STATUS_SCHEDULED",
+     "away": "Oklahoma City Thunder",
+     "away_score": null,
+     "home": "Portland Trail Blazers",
+     "home_score": null,
+     "winner": null
+    }
+   ],
+   "notes": []
+  }
+ ]
+}
