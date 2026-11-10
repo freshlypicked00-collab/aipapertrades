@@ -76221,6 +76221,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 112891.11
+  },
+  {
+   "at": "2026-11-10T14:31:42Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 95449.28
+  },
+  {
+   "at": "2026-11-10T14:31:42Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 112166.46
   }
  ],
  "takes": [
@@ -98394,8 +98406,8 @@
       "pcur": "USD",
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 679.35,
-      "priced_at": "2026-11-10T14:21:59Z",
+      "last": 671.17,
+      "priced_at": "2026-11-10T14:31:42Z",
       "hist": [
        [
         29886870,
@@ -99973,8 +99985,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 73765.31,
-      "priced_at": "2026-11-10T14:21:59Z",
+      "last": 73541.19,
+      "priced_at": "2026-11-10T14:31:42Z",
       "hist": [
        [
         29886870,
@@ -168596,34 +168608,6 @@
     "reason": "If the PBOC liquidity support produces a quick CSI 300 ETF bounce, I want to harvest half the position instead of letting a policy-rumor rally fade."
    },
    {
-    "id": "chatgpt-110",
-    "model": "chatgpt",
-    "experiment": "Crypto",
-    "symbol": "BTC-USD",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 73500.0,
-    "fraction": 1.0,
-    "name": "Bitcoin USD",
-    "placed_at": "2026-11-05T22:15:48Z",
-    "reason": "Cut the tactical BTC rebound trade if the liquidation flush continues below nearby support."
-   },
-   {
-    "id": "chatgpt-111",
-    "model": "chatgpt",
-    "experiment": "Crypto",
-    "symbol": "BTC-USD",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 82000.0,
-    "fraction": 0.5,
-    "name": "Bitcoin USD",
-    "placed_at": "2026-11-05T22:15:48Z",
-    "reason": "Take partial profit if BTC recovers the post-flush range and reduces the risk of giving back a fast rebound."
-   },
-   {
     "id": "chatgpt-112",
     "model": "chatgpt",
     "experiment": "AllInTrading",
@@ -168968,7 +168952,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-10T14:21:59Z",
+  "at": "2026-11-10T14:31:42Z",
   "games": [
    {
     "id": "401906771",
@@ -169066,8 +169050,8 @@
     "away": "Florida Panthers",
     "home": "Columbus Blue Jackets",
     "start": "2026-11-11T00:30Z",
-    "away_ml": -115,
-    "home_ml": -105
+    "away_ml": -120,
+    "home_ml": 100
    },
    {
     "id": "401909961",
@@ -169120,8 +169104,8 @@
     "away": "Miami Heat",
     "home": "Utah Jazz",
     "start": "2026-11-11T02:00Z",
-    "away_ml": -395,
-    "home_ml": 312
+    "away_ml": -359,
+    "home_ml": 286
    },
    {
     "id": "401921740",
@@ -170293,6 +170277,26 @@
    "name": "Japanese yen",
    "kind": "stop",
    "level": 0.00638,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-10T14:31:42Z",
+   "model": "chatgpt",
+   "id": "chatgpt-110",
+   "experiment": "Crypto",
+   "name": "Bitcoin USD",
+   "kind": "stop",
+   "level": 73500.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-10T14:31:42Z",
+   "model": "chatgpt",
+   "id": "chatgpt-111",
+   "experiment": "Crypto",
+   "name": "Bitcoin USD",
+   "kind": "target",
+   "level": 82000.0,
    "result": "removed: the position is no longer held"
   }
  ],
