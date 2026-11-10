@@ -60513,18 +60513,6 @@
   },
   {
    "at": "2026-11-07T01:14:39Z",
-   "model": "claude",
-   "experiment": "AllInTrading",
-   "value": 95167.05
-  },
-  {
-   "at": "2026-11-07T01:14:39Z",
-   "model": "claude",
-   "experiment": "AllInSports",
-   "value": 111250.46
-  },
-  {
-   "at": "2026-11-07T01:14:39Z",
    "model": "gemini",
    "experiment": "Stocks",
    "value": 101505.98
@@ -73362,6 +73350,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 111126.4
+  },
+  {
+   "at": "2026-11-10T01:21:08Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 96187.37
+  },
+  {
+   "at": "2026-11-10T01:21:08Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 115166.46
   }
  ],
  "takes": [
@@ -95083,7 +95083,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 679.35,
-      "priced_at": "2026-11-10T01:16:00Z",
+      "priced_at": "2026-11-10T01:21:08Z",
       "hist": [
        [
         29886870,
@@ -96601,8 +96601,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 75036.89,
-      "priced_at": "2026-11-10T01:16:00Z",
+      "last": 74997.31,
+      "priced_at": "2026-11-10T01:21:08Z",
       "hist": [
        [
         29886870,
@@ -162637,20 +162637,6 @@
  "stops": {
   "gemini": [
    {
-    "id": "gemini-169",
-    "model": "gemini",
-    "experiment": "Currencies",
-    "symbol": "JPY",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "above",
-    "level": 0.00638,
-    "fraction": 1.0,
-    "name": "Japanese yen",
-    "placed_at": "2026-11-07T23:15:04Z",
-    "reason": "Tightening stop on JPY short to protect against a potential safe-haven Yen rally and massive carry trade unwinding following the US strikes on Iran."
-   },
-   {
     "id": "gemini-174",
     "model": "gemini",
     "experiment": "Stocks",
@@ -163056,7 +163042,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-10T01:16:00Z",
+  "at": "2026-11-10T01:21:08Z",
   "games": [
    {
     "id": "401909957",
@@ -163190,8 +163176,8 @@
     "away": "Milwaukee Bucks",
     "home": "New York Knicks",
     "start": "2026-11-11T00:30Z",
-    "away_ml": 710,
-    "home_ml": -1120
+    "away_ml": 650,
+    "home_ml": -990
    },
    {
     "id": "401892686",
@@ -163208,8 +163194,8 @@
     "away": "Boston Celtics",
     "home": "Philadelphia 76ers",
     "start": "2026-11-11T01:00Z",
-    "away_ml": -109,
-    "home_ml": -109
+    "away_ml": -117,
+    "home_ml": -101
    },
    {
     "id": "401892687",
@@ -164372,6 +164358,16 @@
    "kind": "stop",
    "level": 10.5,
    "result": "filled: Sell NVDA Nov 20 $180 put C$12,579 at 9.9"
+  },
+  {
+   "at": "2026-11-10T01:21:08Z",
+   "model": "gemini",
+   "id": "gemini-169",
+   "experiment": "Currencies",
+   "name": "Japanese yen",
+   "kind": "stop",
+   "level": 0.00638,
+   "result": "removed: the position is no longer held"
   }
  ],
  "forecasts": [
