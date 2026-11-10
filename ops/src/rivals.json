@@ -662,52 +662,8 @@
     },
     "Options": {
      "cur": "CAD",
-     "cash": 70561.46540000002,
-     "positions": {
-      "NVDA261120P00180000": {
-       "qty": 1600,
-       "entry": 13.753125,
-       "pcur": "USD",
-       "name": "NVDA Nov 20 $180 put",
-       "opened_at": "2026-11-10T15:19:38Z",
-       "last": 16.9,
-       "priced_at": "2026-11-10T18:45:15Z",
-       "hist": [
-        [
-         29905400,
-         12.75
-        ],
-        [
-         29905425,
-         13.6
-        ],
-        [
-         29905457,
-         15.15
-        ],
-        [
-         29905485,
-         15.8
-        ],
-        [
-         29905516,
-         17.4
-        ],
-        [
-         29905548,
-         16.8
-        ],
-        [
-         29905575,
-         16.9
-        ],
-        [
-         29905605,
-         16.9
-        ]
-       ]
-      }
-     }
+     "cash": 107669.42540000002,
+     "positions": {}
     },
     "Currencies": {
      "cur": "CAD",
@@ -27228,6 +27184,27 @@
     "symbol": "NVDA",
     "above": 176.0
    }
+  },
+  {
+   "at": "2026-11-10T18:56:03Z",
+   "model": "gemini",
+   "experiment": "Options",
+   "action": "Sell",
+   "symbol": "NVDA261120P00180000",
+   "outcome": null,
+   "name": "NVDA Nov 20 $180 put",
+   "price": 16.35,
+   "pcur": "USD",
+   "qty": 1600.0,
+   "amount": 37107.96,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4185,
+    "USDCNY": 6.6683
+   },
+   "reason": "Stop order reached: NVDA Nov 20 $180 put fell to 16.4 (level 16.5), filled at the live price by the race runner. Set because: Moving my trailing stop up on my highly profitable Nvidia puts to aggressively lock in gains as the shareholder lawsuit intensifies the selloff.",
+   "wrong_if": "",
+   "stop": "gemini-207"
   }
  ],
  "history": [
@@ -77642,6 +77619,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 112891.11
+  },
+  {
+   "at": "2026-11-10T18:56:03Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 95518.72
+  },
+  {
+   "at": "2026-11-10T18:56:03Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 112166.46
   }
  ],
  "takes": [
@@ -100727,8 +100716,8 @@
       "pcur": "USD",
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 670.672,
-      "priced_at": "2026-11-10T18:45:15Z",
+      "last": 671.29,
+      "priced_at": "2026-11-10T18:56:03Z",
       "hist": [
        [
         29886870,
@@ -102342,8 +102331,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 73479.39,
-      "priced_at": "2026-11-10T18:45:15Z",
+      "last": 73414.08,
+      "priced_at": "2026-11-10T18:56:03Z",
       "hist": [
        [
         29886870,
@@ -172612,20 +172601,6 @@
     "reason": "Trailing stop down to lock in profits as the Dollar strengthens on hot CPI."
    },
    {
-    "id": "gemini-207",
-    "model": "gemini",
-    "experiment": "Options",
-    "symbol": "NVDA261120P00180000",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 16.5,
-    "fraction": 1.0,
-    "name": "NVDA Nov 20 $180 put",
-    "placed_at": "2026-11-10T18:45:15Z",
-    "reason": "Moving my trailing stop up on my highly profitable Nvidia puts to aggressively lock in gains as the shareholder lawsuit intensifies the selloff."
-   },
-   {
     "id": "gemini-208",
     "model": "gemini",
     "experiment": "Stocks",
@@ -173142,7 +173117,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-10T18:45:15Z",
+  "at": "2026-11-10T18:56:03Z",
   "games": [
    {
     "id": "401906771",
@@ -174572,6 +174547,16 @@
    "kind": "stop",
    "level": 1.42,
    "result": "filled: Cover US dollar C$50,613 at 1"
+  },
+  {
+   "at": "2026-11-10T18:56:03Z",
+   "model": "gemini",
+   "id": "gemini-207",
+   "experiment": "Options",
+   "name": "NVDA Nov 20 $180 put",
+   "kind": "stop",
+   "level": 16.5,
+   "result": "filled: Sell NVDA Nov 20 $180 put C$37,108 at 16.35"
   }
  ],
  "forecasts": [
@@ -181378,7 +181363,8 @@
   "gemini|AllInTrading|2026-11-10T17:48:08Z|Buy|TMV": "G-AIT-028",
   "gemini|Currencies|2026-11-10T17:48:08Z|Short|JPY": "G-CUR-032",
   "gemini|Stocks|2026-11-10T17:48:08Z|Buy|TMV": "G-STK-027",
-  "chatgpt|Options|2026-11-10T18:15:02Z|Buy|NVDA261120P00160000": "X-OPT-016"
+  "chatgpt|Options|2026-11-10T18:15:02Z|Buy|NVDA261120P00160000": "X-OPT-016",
+  "gemini|Options|2026-11-10T18:56:03Z|Sell|NVDA261120P00180000": "G-OPT-027"
  },
  "txseq": {
   "X-CRY": 30,
@@ -181395,7 +181381,7 @@
   "G-SAF": 9,
   "G-SPT": 109,
   "G-STK": 27,
-  "G-OPT": 26,
+  "G-OPT": 27,
   "C-CRY": 4,
   "C-CUR": 3,
   "C-ENE": 5,
