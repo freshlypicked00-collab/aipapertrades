@@ -27025,6 +27025,25 @@
    "bet": "C31",
    "wrong_if": "Wrong if Duke finishes with fewer points than Michigan State, meaning a final margin of -1 or worse.",
    "p_works": 0.76
+  },
+  {
+   "at": "2026-11-10T05:19:25Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "action": "Bet",
+   "symbol": "C10",
+   "outcome": null,
+   "name": "NBA: Oklahoma City Thunder moneyline (Oklahoma City Thunder @ Portland Trail Blazers)",
+   "price": -130,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 3000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Tuesday All in minimum: Oklahoma City at Portland at about -122; the champions are the better team and a short price on the road is fair value, sized at the C$3,000 floor.",
+   "bet": "C10",
+   "wrong_if": "Portland wins, or Oklahoma City trails by 10 or more points after three quarters.",
+   "p_works": 0.58
   }
  ],
  "history": [
@@ -74415,6 +74434,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 112891.11
+  },
+  {
+   "at": "2026-11-10T05:19:25Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 96094.69
+  },
+  {
+   "at": "2026-11-10T05:19:25Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 112166.46
   }
  ],
  "takes": [
@@ -95099,7 +95130,8 @@
    "C6",
    "C7",
    "C8",
-   "C9"
+   "C9",
+   "C10"
   ]
  },
  "tuning_trades": [
@@ -96246,7 +96278,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 679.35,
-      "priced_at": "2026-11-10T05:15:24Z",
+      "priced_at": "2026-11-10T05:19:25Z",
       "hist": [
        [
         29886870,
@@ -97784,8 +97816,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 74772.64,
-      "priced_at": "2026-11-10T05:15:24Z",
+      "last": 74727.25,
+      "priced_at": "2026-11-10T05:19:25Z",
       "hist": [
        [
         29886870,
@@ -99670,6 +99702,25 @@
       "closing_at": "2026-11-09T23:17:20Z",
       "settled_at": "2026-11-10T02:27:55Z",
       "final": "Cleveland Cavaliers 112, Charlotte Hornets 124"
+     },
+     {
+      "id": "C10",
+      "game": "401909965",
+      "sport": "basketball",
+      "league": "nba",
+      "short": "NBA",
+      "event": "Oklahoma City Thunder @ Portland Trail Blazers",
+      "pick": "away",
+      "pick_team": "Oklahoma City Thunder",
+      "odds": -130,
+      "stake": 3000.0,
+      "to_win": 2307.69,
+      "starts_at": "2026-11-11T04:00Z",
+      "placed_at": "2026-11-10T05:19:25Z",
+      "status": "Open",
+      "result": 0.0,
+      "reason": "Tuesday All in minimum: Oklahoma City at Portland at about -122; the champions are the better team and a short price on the road is fair value, sized at the C$3,000 floor.",
+      "wrong_if": "Portland wins, or Oklahoma City trails by 10 or more points after three quarters."
      }
     ],
     "penalties": []
@@ -99690,7 +99741,8 @@
    "20261106052548-7",
    "20261107051803-8",
    "20261108051714-9",
-   "20261109062214-10"
+   "20261109062214-10",
+   "20261110051721-11"
   ],
   "results": [
    "20261028182237-0: filled Buy Invesco QQQ Trust C$40,000",
@@ -99703,7 +99755,8 @@
    "20261106052548-7: filled Bet NBA: Oklahoma City Thunder moneyline (Oklahoma City Thunder @ Memphis Grizzlies) C$3,000",
    "20261107051803-8: filled Bet NHL: Carolina Hurricanes moneyline (Chicago Blackhawks @ Carolina Hurricanes) C$3,000",
    "20261108051714-9: filled Bet NFL: Los Angeles Rams moneyline (Los Angeles Rams @ Washington Commanders) C$3,000",
-   "20261109062214-10: filled Bet NBA: Cleveland Cavaliers moneyline (Cleveland Cavaliers @ Charlotte Hornets) C$3,000"
+   "20261109062214-10: filled Bet NBA: Cleveland Cavaliers moneyline (Cleveland Cavaliers @ Charlotte Hornets) C$3,000",
+   "20261110051721-11: filled Bet NBA: Oklahoma City Thunder moneyline (Oklahoma City Thunder @ Portland Trail Blazers) C$3,000"
   ]
  },
  "price_alerts": {
@@ -164940,7 +164993,8 @@
    "c20261106144243-24",
    "c20261107051803-25",
    "c20261108051714-26",
-   "c20261109062214-27"
+   "c20261109062214-27",
+   "c20261110051721-28"
   ],
   "results": [
    "c20261029222314-0: filled Sell Bitcoin C$11,288 at 79,005.5",
@@ -164977,7 +165031,8 @@
    "c20261106144243-24: stop set: GLD below 362 [id claude-17]",
    "c20261107051803-25: filled Bet S11 (NBA: Oklahoma City Thunder moneyline (Washington Wizards @ Oklahoma City Thunder)) C$3,000 at -486",
    "c20261108051714-26: filled Bet S12 (NFL: Detroit Lions moneyline (Detroit Lions @ Miami Dolphins)) C$3,000 at -298",
-   "c20261109062214-27: filled Bet S13 (NBA: Detroit Pistons moneyline (Washington Wizards @ Detroit Pistons)) C$3,000 at -468"
+   "c20261109062214-27: filled Bet S13 (NBA: Detroit Pistons moneyline (Washington Wizards @ Detroit Pistons)) C$3,000 at -468",
+   "c20261110051721-28: filled Bet S14 (NHL: Colorado Avalanche moneyline (Colorado Avalanche @ Toronto Maple Leafs)) C$3,000 at -155"
   ],
   "codes": {
    "Democrats win the Senate (Yes)": "will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections|Yes"
@@ -165104,7 +165159,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-10T05:15:24Z",
+  "at": "2026-11-10T05:19:25Z",
   "games": [
    {
     "id": "401906771",
@@ -172956,7 +173011,8 @@
   "gemini|AllInSports|2026-11-10T04:45:52Z|Won|G96": "G-AIS-088",
   "chatgpt|AllInSports|2026-11-10T05:15:24Z|Bet|C31": "X-AIS-023",
   "chatgpt|Sports|2026-11-10T05:15:24Z|Bet|C30": "X-SPT-037",
-  "gemini|AllInSports|2026-11-10T05:15:24Z|Bet|G101": "G-AIS-089"
+  "gemini|AllInSports|2026-11-10T05:15:24Z|Bet|G101": "G-AIS-089",
+  "claude|AllInSports|2026-11-10T05:19:25Z|Bet|C10": "C-AIS-019"
  },
  "txseq": {
   "X-CRY": 29,
@@ -172992,7 +173048,7 @@
   "G-CHN": 4,
   "C-CHN": 2,
   "G-PRD": 5,
-  "C-AIS": 18,
+  "C-AIS": 19,
   "X-PRD": 2,
   "C-OPT": 2
  },
