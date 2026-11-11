@@ -86072,6 +86072,18 @@
    "model": "claude",
    "experiment": "AllInSports",
    "value": 109166.46
+  },
+  {
+   "at": "2026-11-11T20:10:29Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 97221.69
+  },
+  {
+   "at": "2026-11-11T20:10:29Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 109166.46
   }
  ],
  "takes": [
@@ -111680,8 +111692,8 @@
       "pcur": "USD",
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 692.46,
-      "priced_at": "2026-11-11T19:52:53Z",
+      "last": 691.49,
+      "priced_at": "2026-11-11T20:10:29Z",
       "hist": [
        [
         29886870,
@@ -113434,6 +113446,10 @@
        [
         29907104,
         692.359
+       ],
+       [
+        29907130,
+        691.49
        ]
       ]
      },
@@ -113443,8 +113459,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 74337.81,
-      "priced_at": "2026-11-11T19:52:53Z",
+      "last": 74392.88,
+      "priced_at": "2026-11-11T20:10:29Z",
       "hist": [
        [
         29886870,
@@ -115337,6 +115353,10 @@
        [
         29907104,
         74410.89
+       ],
+       [
+        29907130,
+        74392.88
        ]
       ]
      }
@@ -190611,7 +190631,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-11T19:52:53Z",
+  "at": "2026-11-11T20:10:29Z",
   "games": [
    {
     "id": "401909966",
@@ -190898,8 +190918,8 @@
     "away": "Winnipeg Jets",
     "home": "Dallas Stars",
     "start": "2026-11-13T01:00Z",
-    "away_ml": 160,
-    "home_ml": -192
+    "away_ml": 154,
+    "home_ml": -185
    },
    {
     "id": "401862824",
@@ -235083,6 +235103,36 @@
     39.77000046
    ],
    "gap_pct": 0.025,
+   "tolerance_pct": 0.3,
+   "status": "ok"
+  },
+  "gemini|2026-11-11T19:44:44Z|Options|Buy|NVDA261120P00170000": {
+   "status": "not_covered",
+   "at": "2026-11-11T20:10:29Z"
+  },
+  "gemini|2026-11-11T19:44:44Z|Stocks|Buy|SQQQ": {
+   "at": "2026-11-11T20:10:29Z",
+   "feed": "SQQQ",
+   "bar": [
+    40.16999817,
+    40.18999863,
+    40.14500046,
+    40.15000153
+   ],
+   "gap_pct": 0.0,
+   "tolerance_pct": 0.3,
+   "status": "ok"
+  },
+  "gemini|2026-11-11T19:44:44Z|AllInTrading|Buy|SQQQ": {
+   "at": "2026-11-11T20:10:29Z",
+   "feed": "SQQQ",
+   "bar": [
+    40.16999817,
+    40.18999863,
+    40.14500046,
+    40.15000153
+   ],
+   "gap_pct": 0.0,
    "tolerance_pct": 0.3,
    "status": "ok"
   }
