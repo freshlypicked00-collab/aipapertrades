@@ -4394,7 +4394,9 @@
        "status": "Open",
        "result": 0.0,
        "reason": "Backing BYU as a massive -10000 home favorite to safely satisfy Tuesday's daily minimum in the main Sports race without unnecessary risk before CPI.",
-       "wrong_if": "BYU finishes with fewer points than Queens University, meaning a final margin of -1 or worse."
+       "wrong_if": "BYU finishes with fewer points than Queens University, meaning a final margin of -1 or worse.",
+       "closing_odds": -20000,
+       "closing_at": "2026-11-11T00:53:28Z"
       },
       {
        "id": "G103",
@@ -7066,7 +7068,9 @@
        "status": "Open",
        "result": 0.0,
        "reason": "Backing BYU as a massive -10000 home favorite to safely satisfy Tuesday's high-risk daily betting requirement.",
-       "wrong_if": "BYU scores fewer points than Queens University, losing the game."
+       "wrong_if": "BYU scores fewer points than Queens University, losing the game.",
+       "closing_odds": -20000,
+       "closing_at": "2026-11-11T00:53:28Z"
       },
       {
        "id": "G104",
@@ -64618,18 +64622,6 @@
   },
   {
    "at": "2026-11-08T00:15:34Z",
-   "model": "claude",
-   "experiment": "AllInTrading",
-   "value": 95139.53
-  },
-  {
-   "at": "2026-11-08T00:15:34Z",
-   "model": "claude",
-   "experiment": "AllInSports",
-   "value": 113224.14
-  },
-  {
-   "at": "2026-11-08T00:15:34Z",
    "model": "gemini",
    "experiment": "Stocks",
    "value": 101505.98
@@ -78820,6 +78812,18 @@
   },
   {
    "at": "2026-11-11T00:21:49Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 112166.46
+  },
+  {
+   "at": "2026-11-11T00:53:28Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 95740.83
+  },
+  {
+   "at": "2026-11-11T00:53:28Z",
    "model": "claude",
    "experiment": "AllInSports",
    "value": 112166.46
@@ -102545,7 +102549,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 674.76,
-      "priced_at": "2026-11-11T00:21:49Z",
+      "priced_at": "2026-11-11T00:53:28Z",
       "hist": [
        [
         29886870,
@@ -104182,6 +104186,10 @@
        [
         29905934,
         674.76
+       ],
+       [
+        29905973,
+        674.76
        ]
       ]
      },
@@ -104191,8 +104199,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 73539.47,
-      "priced_at": "2026-11-11T00:21:49Z",
+      "last": 73448.54,
+      "priced_at": "2026-11-11T00:53:28Z",
       "hist": [
        [
         29886870,
@@ -105969,6 +105977,10 @@
        [
         29905934,
         73579.47
+       ],
+       [
+        29905973,
+        73448.54
        ]
       ]
      }
@@ -176419,26 +176431,8 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-11T00:21:49Z",
+  "at": "2026-11-11T00:53:28Z",
   "games": [
-   {
-    "id": "401909960",
-    "short": "NBA",
-    "away": "Milwaukee Bucks",
-    "home": "New York Knicks",
-    "start": "2026-11-11T00:30Z",
-    "away_ml": 740,
-    "home_ml": -1180
-   },
-   {
-    "id": "401892686",
-    "short": "NHL",
-    "away": "Florida Panthers",
-    "home": "Columbus Blue Jackets",
-    "start": "2026-11-11T00:30Z",
-    "away_ml": -125,
-    "home_ml": 105
-   },
    {
     "id": "401909961",
     "short": "NBA",
@@ -176490,8 +176484,8 @@
     "away": "Miami Heat",
     "home": "Utah Jazz",
     "start": "2026-11-11T02:00Z",
-    "away_ml": -406,
-    "home_ml": 319
+    "away_ml": -249,
+    "home_ml": 205
    },
    {
     "id": "401921740",
@@ -176611,13 +176605,22 @@
     "home_ml": 630
    },
    {
+    "id": "401909970",
+    "short": "NBA",
+    "away": "Denver Nuggets",
+    "home": "Memphis Grizzlies",
+    "start": "2026-11-12T01:00Z",
+    "away_ml": -156,
+    "home_ml": 131
+   },
+   {
     "id": "401909972",
     "short": "NBA",
     "away": "Brooklyn Nets",
     "home": "New Orleans Pelicans",
     "start": "2026-11-12T01:00Z",
-    "away_ml": 140,
-    "home_ml": -166
+    "away_ml": 146,
+    "home_ml": -174
    },
    {
     "id": "401928824",
@@ -176656,15 +176659,6 @@
     "home_ml": -125
    },
    {
-    "id": "401909975",
-    "short": "NBA",
-    "away": "Oklahoma City Thunder",
-    "home": "Portland Trail Blazers",
-    "start": "2026-11-12T03:00Z",
-    "away_ml": -132,
-    "home_ml": 111
-   },
-   {
     "id": "401892694",
     "short": "NHL",
     "away": "Nashville Predators",
@@ -176688,8 +176682,8 @@
     "away": "USC Trojans",
     "home": "California Golden Bears",
     "start": "2026-11-12T04:00Z",
-    "away_ml": -305,
-    "home_ml": 245
+    "away_ml": -325,
+    "home_ml": 260
    },
    {
     "id": "401862824",
