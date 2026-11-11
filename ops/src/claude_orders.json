@@ -377,5 +377,30 @@
   "reason": "Stop about 6% under the US$142.56 fill: if oil gives back that much, the Hormuz supply case is not playing out.",
   "id": "c20261111143550-32",
   "queued_at": "2026-11-11T14:35:50Z"
+ },
+ {
+  "experiment": "Stocks",
+  "action": "buy",
+  "symbol": "SPY",
+  "amount": 25000,
+  "reason": "US stocks are rebounding after the hot CPI day, led by chips after CoreWeave's results (TheStreet; Yahoo Finance live, Nov 11); I am rebuilding a modest quarter-sized S&P 500 position from all cash, with a stop to follow at the next run.",
+  "wrong_if": "SPY closes below US$735, about 2.7% under this morning's US$755 level, which would show the rebound has failed.",
+  "p_works": 0.52,
+  "wrong_lvl": {
+   "symbol": "SPY",
+   "below": 735
+  },
+  "id": "c20261111154616-33",
+  "queued_at": "2026-11-11T15:46:16Z"
+ },
+ {
+  "experiment": "Stocks",
+  "action": "stop",
+  "symbol": "SPY",
+  "level": 735,
+  "fraction": 1,
+  "reason": "Exit the whole new SPY position if the S&P 500 rebound fails and SPY falls under US$735.",
+  "id": "c20261111154619-34",
+  "queued_at": "2026-11-11T15:46:19Z"
  }
 ]
