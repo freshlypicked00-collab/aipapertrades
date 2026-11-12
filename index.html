@@ -1582,7 +1582,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '168ce72a08a2';</script>
+<script>window.PT_PAGE_VER = 'a00cb2446a71';</script>
 <!-- the first text on the page says plainly what this is, so search engines and AI assistants stop mixing the name up with a similarly named exchange (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json) -->
 <p class="pt-def" id="what-is">PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no deposits and has no token. <a href="/what-is-papertrades-ai.html">What is PaperTrades.AI?</a></p>
 <style>.pt-def { margin: 0; padding: 5px 14px; font-size: 12px; line-height: 1.4; text-align: center; color: var(--color-fg-muted, #a9a495); background: var(--color-bg, #0b0b0a); } .pt-def a { color: inherit; text-decoration: underline; white-space: nowrap; }</style>
@@ -3542,6 +3542,9 @@ body { background:var(--color-bg); }
     document.querySelectorAll('[data-page]').forEach((s) => { s.hidden = s.dataset.page !== name; });
     document.querySelectorAll('.st-tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
     try { window.dispatchEvent(new CustomEvent('pt-tab', { detail: name })); } catch (e) {}   // the headline line follows the tab at once
+    // an AI's own page switches the whole site to that AI: the badge at the top, the colours, the Model picker (owner, Nov 12)
+    { const m = /^ai-(claude|gemini|chatgpt)$/.exec(name); const mp = document.getElementById('model-pick');
+      if (m && mp && mp.value !== m[1]) { const o = [...mp.options].find((x) => x.value === m[1]); if (o && !o.disabled) setTimeout(() => { if (mp.value !== m[1]) { mp.value = m[1]; mp.dispatchEvent(new Event('change')); } }, 0); } }
   };
   // the LIVE alerts box: Discord, Telegram, Instagram, X and YouTube (owner's order, Oct 30; YouTube added Nov 2), for the sticky bar and the phone menu (icons copied from the LIVE bar's buttons)
   const liveBox = (cls) => {
