@@ -35,7 +35,7 @@ for part in ('style', 'markup', 'script'):
 script = re.sub(r"\.attr\('(stroke|fill)', '(var\(--[a-z0-9-]+\))'\)", r".style('\1', '\2')", script)
 
 # site name and About wording
-markup = sub(markup, '<h1 class="st-title">Simulation Tracker</h1>', '<h1 class="st-title"><img class="st-logo" src="/brand/mark-96.png?v=logo3" alt="" width="48" height="48"><span>PaperTrades.AI</span><b class="st-s1-badge" title="Season 1: Oct 28 to Nov 28, 2026">Season 1</b></h1>', 1)
+markup = sub(markup, '<h1 class="st-title">Simulation Tracker</h1>', '<h1 class="st-title"><img class="st-logo" src="/brand/mark-96.png?v=logo3" alt="" width="48" height="48"><span>PaperTrades.AI</span><b class="st-s1-badge" title="Season 1: Oct 28 to Nov 28, 2026">Season 1</b><b class="pt-ai-badge" data-ai-badge>Claude</b></h1>', 1)
 markup = sub(markup, '<p class="st-note">Each tab lists the sources used for it; the Ledger tab has the full list.</p>',
              '<p class="st-note">Data last refreshed <b data-draw="refreshed">—</b>. Each tab lists the sources used for it; the Ledger tab has the full list.</p>', 1)
 # sources list at the very end of the About card
