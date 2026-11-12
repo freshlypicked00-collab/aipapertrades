@@ -1,11 +1,11 @@
 {
- "at": "2026-11-11T09:46:45.520856Z",
+ "at": "2026-11-12T10:09:35.735500Z",
  "since": "2026-11-01T02:30:00Z",
  "by_ai": {
   "claude": {
    "kept": 1,
    "broken": 1,
-   "pending": 2,
+   "pending": 4,
    "closed_first": 0,
    "untestable": 2,
    "items": [
@@ -68,187 +68,38 @@
      "race": "Predictions",
      "tx": "C-PRD-004",
      "result": "untestable"
+    },
+    {
+     "at": "2026-11-11T09:32:09-05:00",
+     "what": "USO",
+     "race": "Energy",
+     "tx": "C-ENE-006",
+     "level": {
+      "symbol": "CL=F",
+      "below": 82.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-11T10:49:35-05:00",
+     "what": "SPY",
+     "race": "Stocks",
+     "tx": "C-STK-006",
+     "level": {
+      "symbol": "SPY",
+      "below": 735.0
+     },
+     "result": "level not reached yet"
     }
    ]
   },
   "gemini": {
-   "kept": 6,
-   "broken": 3,
-   "pending": 6,
-   "closed_first": 32,
-   "untestable": 4,
+   "kept": 7,
+   "broken": 4,
+   "pending": 13,
+   "closed_first": 35,
+   "untestable": 7,
    "items": [
-    {
-     "at": "2026-11-04T01:37:36Z",
-     "what": "Bitcoin USD",
-     "race": "Crypto",
-     "tx": "G-CRY-025",
-     "level": {
-      "symbol": "BTC-USD",
-      "below": 73500.0
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-04T08:14:38Z",
-     "what": "Euro",
-     "race": "Currencies",
-     "tx": "G-CUR-026",
-     "level": {
-      "symbol": "EUR",
-      "below": 1.115
-     },
-     "result": "no prices (HTTP Error 404: Not Found)"
-    },
-    {
-     "at": "2026-11-04T13:20:41Z",
-     "what": "Euro",
-     "race": "Currencies",
-     "tx": "G-CUR-027",
-     "level": {
-      "symbol": "EUR",
-      "below": 1.118
-     },
-     "result": "no prices (HTTP Error 404: Not Found)"
-    },
-    {
-     "at": "2026-11-04T15:15:10Z",
-     "what": "SPY Nov 20 $765 call",
-     "race": "Options",
-     "tx": "G-OPT-015",
-     "level": {
-      "symbol": "SPY",
-      "below": 755.0
-     },
-     "breach_at": "2026-11-05T14:30:00Z",
-     "result": "kept: got out after the level was reached"
-    },
-    {
-     "at": "2026-11-04T15:15:10Z",
-     "what": "Bitcoin USD",
-     "race": "Crypto",
-     "tx": "G-CRY-027",
-     "level": {
-      "symbol": "BTC-USD",
-      "below": 77500.0
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-04T16:46:26Z",
-     "what": "Invesco S&P 500 Equal Weight ETF",
-     "race": "Stocks",
-     "tx": "G-STK-016",
-     "level": {
-      "symbol": "RSP",
-      "below": 218.0
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-04T17:15:27Z",
-     "what": "State Street SPDR S&P 500 ETF Trust",
-     "race": "Stocks",
-     "tx": "G-STK-017",
-     "level": {
-      "symbol": "SPY",
-      "below": 750.0
-     },
-     "breach_at": "2026-11-05T14:30:00Z",
-     "result": "kept: got out after the level was reached"
-    },
-    {
-     "at": "2026-11-04T17:15:27Z",
-     "what": "iShares Silver Trust",
-     "race": "Metals",
-     "tx": "G-MET-011",
-     "level": {
-      "symbol": "SLV",
-      "below": 30.0
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-04T17:15:27Z",
-     "what": "United States Oil Fund, LP",
-     "race": "Energy",
-     "tx": "G-ENE-019",
-     "level": {
-      "symbol": "USO",
-      "below": 150.0
-     },
-     "breach_at": "2026-11-04T17:15:27Z",
-     "result": "kept: got out after the level was reached"
-    },
-    {
-     "at": "2026-11-05T13:19:52Z",
-     "what": "Bitcoin USD",
-     "race": "Crypto",
-     "tx": "G-CRY-028",
-     "level": {
-      "symbol": "BTC-USD",
-      "below": 78500.0
-     },
-     "breach_at": "2026-11-05T14:00:00Z",
-     "result": "kept: got out after the level was reached"
-    },
-    {
-     "at": "2026-11-05T14:37:09Z",
-     "what": "State Street SPDR S&P 500 ETF Trust",
-     "race": "Stocks",
-     "tx": "G-STK-018",
-     "level": {
-      "symbol": "SPY",
-      "below": 755.0
-     },
-     "breach_at": "2026-11-05T14:37:09Z",
-     "result": "kept: got out after the level was reached"
-    },
-    {
-     "at": "2026-11-06T14:19:48Z",
-     "what": "Japanese yen",
-     "race": "Currencies",
-     "tx": "G-CUR-029",
-     "level": {
-      "symbol": "JPY",
-      "above": 0.0064
-     },
-     "breach_at": "2026-11-06T14:30:00Z",
-     "result": "held on after its own exit level"
-    },
-    {
-     "at": "2026-11-06T14:37:28Z",
-     "what": "Direxion Daily 20+ Year Treasury Bear 3X Shares",
-     "race": "Stocks",
-     "tx": "G-STK-022",
-     "level": {
-      "symbol": "TMV",
-      "below": 20.0
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-06T14:37:28Z",
-     "what": "TLT Nov 20 $81 put",
-     "race": "Options",
-     "tx": "G-OPT-017",
-     "level": {
-      "symbol": "TLT261120P00081000",
-      "below": 0.5
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-06T15:18:16Z",
-     "what": "ProShares UltraPro Short QQQ",
-     "race": "Stocks",
-     "tx": "G-STK-023",
-     "level": {
-      "symbol": "SQQQ",
-      "below": 45.0
-     },
-     "result": "closed before the level was reached"
-    },
     {
      "at": "2026-11-06T15:18:16Z",
      "what": "SPY Nov 20 $730 put",
@@ -381,7 +232,8 @@
       "symbol": "SPY",
       "above": 755.0
      },
-     "result": "level not reached yet"
+     "breach_at": "2026-11-11T14:30:00Z",
+     "result": "kept: got out after the level was reached"
     },
     {
      "at": "2026-11-10T20:14:59Z",
@@ -403,70 +255,171 @@
       "symbol": "NVD",
       "below": 5.5
      },
+     "result": "closed before the level was reached"
+    },
+    {
+     "at": "2026-11-11T14:14:48Z",
+     "what": "Japanese yen",
+     "race": "Currencies",
+     "tx": "G-CUR-033",
+     "level": {
+      "symbol": "JPY",
+      "above": 0.00645
+     },
+     "breach_at": "2026-11-11T14:30:00Z",
+     "result": "held on after its own exit level"
+    },
+    {
+     "at": "2026-11-11T14:37:25Z",
+     "what": "Direxion Daily 20+ Year Treasury Bear 3X Shares",
+     "race": "Stocks",
+     "tx": "G-STK-032",
+     "level": {
+      "symbol": "TMV",
+      "below": 42.0
+     },
      "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-11T15:04:34Z",
+     "what": "United States Oil Fund, LP",
+     "race": "Energy",
+     "tx": "G-ENE-025",
+     "level": {
+      "symbol": "USO",
+      "below": 132.0
+     },
+     "result": "closed before the level was reached"
+    },
+    {
+     "at": "2026-11-11T16:14:59Z",
+     "what": "United States Oil Fund, LP",
+     "race": "Energy",
+     "tx": "G-ENE-027",
+     "level": {
+      "symbol": "USO",
+      "below": 135.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-11T16:14:59Z",
+     "what": "NVIDIA Corporation",
+     "race": "Stocks",
+     "tx": "G-STK-034",
+     "level": {
+      "symbol": "NVDA",
+      "below": 135.0
+     },
+     "result": "closed before the level was reached"
+    },
+    {
+     "at": "2026-11-11T16:14:59Z",
+     "what": "SPY Nov 20 $750 call",
+     "race": "Options",
+     "tx": "G-OPT-030",
+     "result": "untestable"
+    },
+    {
+     "at": "2026-11-11T17:14:40Z",
+     "what": "United States Oil Fund, LP",
+     "race": "Energy",
+     "tx": "G-ENE-028",
+     "level": {
+      "symbol": "USO",
+      "below": 135.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-11T18:15:17Z",
+     "what": "Direxion Daily 20+ Year Treasury Bear 3X Shares",
+     "race": "Stocks",
+     "tx": "G-STK-037",
+     "level": {
+      "symbol": "TMV",
+      "below": 42.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-11T18:15:17Z",
+     "what": "ProShares UltraPro Short QQQ",
+     "race": "Stocks",
+     "tx": "G-STK-036",
+     "result": "untestable"
+    },
+    {
+     "at": "2026-11-11T18:15:17Z",
+     "what": "United States Oil Fund, LP",
+     "race": "Energy",
+     "tx": "G-ENE-029",
+     "level": {
+      "symbol": "USO",
+      "below": 135.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-11T19:44:44Z",
+     "what": "NVDA Nov 20 $170 put",
+     "race": "Options",
+     "tx": "G-OPT-032",
+     "result": "untestable"
+    },
+    {
+     "at": "2026-11-11T19:44:44Z",
+     "what": "ProShares UltraPro Short QQQ",
+     "race": "Stocks",
+     "tx": "G-STK-038",
+     "level": {
+      "symbol": "SQQQ",
+      "below": 36.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-11T20:14:15Z",
+     "what": "ProShares UltraPro Short QQQ",
+     "race": "Stocks",
+     "tx": "G-STK-039",
+     "level": {
+      "symbol": "SQQQ",
+      "below": 36.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-11T20:14:15Z",
+     "what": "NVDA Nov 20 $170 put",
+     "race": "Options",
+     "tx": "G-OPT-033",
+     "level": {
+      "symbol": "NVDA261120P00170000",
+      "below": 3.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-12T04:14:45Z",
+     "what": "Euro",
+     "race": "Currencies",
+     "tx": "G-CUR-034",
+     "level": {
+      "symbol": "EUR",
+      "above": 1.1
+     },
+     "result": "no prices (HTTP Error 404: Not Found)"
     }
    ]
   },
   "chatgpt": {
    "kept": 11,
-   "broken": 4,
-   "pending": 8,
-   "closed_first": 11,
+   "broken": 7,
+   "pending": 7,
+   "closed_first": 14,
    "untestable": 2,
    "items": [
-    {
-     "at": "2026-11-02T15:11:43Z",
-     "what": "House favorite on November 2 wins the election?",
-     "race": "Predictions",
-     "tx": "X-PRD-001",
-     "result": "untestable"
-    },
-    {
-     "at": "2026-11-03T15:45:38Z",
-     "what": "SPY Nov 20 $750 put",
-     "race": "Options",
-     "tx": "X-OPT-009",
-     "level": {
-      "symbol": "SPY",
-      "above": 760.0
-     },
-     "breach_at": "2026-11-04T14:30:00Z",
-     "result": "kept: got out after the level was reached"
-    },
-    {
-     "at": "2026-11-03T18:18:03Z",
-     "what": "State Street Energy Select Sector SPDR ETF",
-     "race": "Energy",
-     "tx": "X-ENE-007",
-     "level": {
-      "symbol": "XLE",
-      "below": 64.5
-     },
-     "breach_at": "2026-11-04T14:30:00Z",
-     "result": "kept: got out after the level was reached"
-    },
-    {
-     "at": "2026-11-04T08:14:38Z",
-     "what": "Euro",
-     "race": "Currencies",
-     "tx": "X-CUR-009",
-     "level": {
-      "symbol": "EURUSD",
-      "below": 1.115
-     },
-     "result": "no prices (HTTP Error 404: Not Found)"
-    },
-    {
-     "at": "2026-11-04T14:17:48Z",
-     "what": "Euro",
-     "race": "Currencies",
-     "tx": "X-CUR-010",
-     "level": {
-      "symbol": "EUR",
-      "below": 1.115
-     },
-     "result": "no prices (HTTP Error 404: Not Found)"
-    },
     {
      "at": "2026-11-04T15:45:05Z",
      "what": "Invesco S&P 500 Equal Weight ETF",
@@ -655,7 +608,7 @@
       "symbol": "SPY",
       "below": 742.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-10T14:37:32Z",
@@ -701,7 +654,7 @@
       "symbol": "NVD",
       "below": 5.55
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-10T18:15:02Z",
@@ -724,7 +677,7 @@
       "symbol": "SCO",
       "below": 18.8
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-10T21:07:08Z",
@@ -735,7 +688,7 @@
       "symbol": "JPY",
       "above": 0.0064
      },
-     "breach_at": "2026-11-10T21:07:08Z",
+     "breach_at": "2026-11-11T14:30:00Z",
      "result": "held on after its own exit level"
     },
     {
@@ -746,6 +699,64 @@
      "level": {
       "symbol": "JPY",
       "above": 0.0064
+     },
+     "breach_at": "2026-11-11T14:30:00Z",
+     "result": "held on after its own exit level"
+    },
+    {
+     "at": "2026-11-11T12:14:27Z",
+     "what": "Japanese yen",
+     "race": "Currencies",
+     "tx": "X-CUR-017",
+     "level": {
+      "symbol": "JPY",
+      "above": 0.0064
+     },
+     "breach_at": "2026-11-11T14:30:00Z",
+     "result": "held on after its own exit level"
+    },
+    {
+     "at": "2026-11-11T13:15:00Z",
+     "what": "Japanese yen",
+     "race": "Currencies",
+     "tx": "X-CUR-018",
+     "level": {
+      "symbol": "JPY",
+      "above": 0.0064
+     },
+     "breach_at": "2026-11-11T14:30:00Z",
+     "result": "held on after its own exit level"
+    },
+    {
+     "at": "2026-11-11T15:14:41Z",
+     "what": "Direxion Daily 20+ Year Treasury Bear 3X Shares",
+     "race": "Stocks",
+     "tx": "X-STK-015",
+     "level": {
+      "symbol": "TMV",
+      "below": 43.6
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-11T17:44:49Z",
+     "what": "United States Oil Fund, LP",
+     "race": "Energy",
+     "tx": "X-ENE-011",
+     "level": {
+      "symbol": "USO",
+      "below": 134.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-11T17:44:49Z",
+     "what": "iShares Silver Trust",
+     "race": "Metals",
+     "tx": "X-MET-010",
+     "level": {
+      "symbol": "SLV",
+      "below": 45.5
      },
      "result": "level not reached yet"
     }
