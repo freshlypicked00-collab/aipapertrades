@@ -439,6 +439,15 @@
   .st-s1-badge { flex: 0 0 auto; align-self: center; padding: 3px 9px; border: 1.5px solid #ffb000; border-radius: 999px; color: #ffb000; font: 700 12px/1.2 var(--font-mono, ui-monospace, monospace); letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
   @media (max-width: 420px) { .st-title { flex-wrap: nowrap; gap: 10px; font-size: clamp(17px, 5.5vw, 23px) !important; } .st-title > span { min-width: 0; } .st-s1-badge { font-size: 10.5px; padding: 2px 7px; letter-spacing: .08em; } }
   .st-season { color: var(--accent, #ffb000); font-weight: 700; letter-spacing: .02em; }
+  /* the AI being viewed, at the top, in its colour (owner, Nov 12: "when you select ... gemini make it change to gemini at the top and change the colour") */
+  .pt-ai-badge { display: inline-flex; align-items: center; gap: 6px; margin-left: 10px; padding: 2px 10px; border: 1.5px solid var(--model, #d97757); border-radius: 999px; color: var(--model, #d97757); background: var(--model-bg, transparent); font-size: .5em; font-weight: 700; letter-spacing: .04em; vertical-align: middle; white-space: nowrap; }
+  .pt-ai-badge::before { content: ''; width: .55em; height: .55em; border-radius: 50%; background: currentColor; box-shadow: 0 0 6px currentColor; }
+  .st-tabs-tools .st-tt-brand .pt-ai-badge { font-size: 12px; margin-left: 8px; padding: 2px 9px; }
+  .st-tabs-tools .st-tt-model select { color: var(--model, inherit); border-color: var(--model, currentColor) !important; font-weight: 700; }
+  :root[data-model="claude"] .pt-ai-badge, :root[data-model="claude"] .st-tabs-tools .st-tt-model select { color: #d97757; border-color: #d97757 !important; }   /* Claude's own orange, like its robot */
+  @media (max-width: 560px) { .st-tabs-tools .st-tt-brand .pt-ai-badge { display: none; } .st-title .pt-ai-badge { font-size: 12px; } }
+  @media (max-width: 420px) { .st-title { flex-wrap: wrap !important; row-gap: 6px; } .st-title .pt-ai-badge { margin-left: 58px; } }   /* phones: the AI on its own line under the name */
+
   .lg-act { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 7.5em; }
   .lg-pl { font-size: 12px; font-weight: 700; white-space: nowrap; color: var(--color-fg-muted); } .lg-pl.is-up { color: #3ddc84; } .lg-pl.is-down { color: #ff5a4e; }
   .lg-find { display: inline-block; padding: 0 4px; border: 1px solid var(--line, #ccd); border-radius: 4px; background: none; color: inherit; font: 600 10.5px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .02em; opacity: .75; cursor: pointer; white-space: nowrap; width: max-content; } .lg-find:hover { opacity: 1; }   /* the same chip as Transaction ID (owner, Oct 31) */
@@ -1573,7 +1582,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '1198603c1cda';</script>
+<script>window.PT_PAGE_VER = '168ce72a08a2';</script>
 <!-- the first text on the page says plainly what this is, so search engines and AI assistants stop mixing the name up with a similarly named exchange (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json) -->
 <p class="pt-def" id="what-is">PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no deposits and has no token. <a href="/what-is-papertrades-ai.html">What is PaperTrades.AI?</a></p>
 <style>.pt-def { margin: 0; padding: 5px 14px; font-size: 12px; line-height: 1.4; text-align: center; color: var(--color-fg-muted, #a9a495); background: var(--color-bg, #0b0b0a); } .pt-def a { color: inherit; text-decoration: underline; white-space: nowrap; }</style>
@@ -1640,7 +1649,7 @@ body { background:var(--color-bg); }
 <div id="dash-root">
 <div class="st">
   <header class="st-head">
-    <h1 class="st-title"><img class="st-logo" src="/brand/mark-96.png?v=logo3" alt="" width="48" height="48"><span>PaperTrades.AI</span><b class="st-s1-badge" title="Season 1: Oct 28 to Nov 28, 2026">Season 1</b></h1>
+    <h1 class="st-title"><img class="st-logo" src="/brand/mark-96.png?v=logo3" alt="" width="48" height="48"><span>PaperTrades.AI</span><b class="st-s1-badge" title="Season 1: Oct 28 to Nov 28, 2026">Season 1</b><b class="pt-ai-badge" data-ai-badge>Claude</b></h1>
     <p class="st-progress" data-phase="live">
       <span><b class="st-season">Season 1</b> · Day <b data-draw="day-num">16</b> of <b data-draw="day-total">32</b></span>
       <span><span class="st-count" data-draw="countdown">—</span> left until final scoring on Nov 28</span>
@@ -3882,7 +3891,7 @@ body { background:var(--color-bg); }
     const mk = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
     const box = mk('div', 'st-tabs-tools');
     { const lg = mk('a', 'st-tt-brand'); lg.href = '#'; lg.setAttribute('aria-label', 'PaperTrades.AI: back to Home');
-      lg.innerHTML = '<img class="tt-mark" src="/brand/mark-96.png?v=logo3" alt="" width="40" height="40"><span>PAPERTRADES<b class="tt-ai">.AI</b></span>';   // the new logo, wide: the mark and the words (owner, Nov 3) lg.title = 'PaperTrades.AI: independent AI paper-trading experiment. Pretend money only, no deposits, no token, not an exchange.';
+      lg.innerHTML = '<img class="tt-mark" src="/brand/mark-96.png?v=logo3" alt="" width="40" height="40"><span>PAPERTRADES<b class="tt-ai">.AI</b></span><b class="pt-ai-badge" data-ai-badge>Claude</b>';   // the new logo, wide: the mark and the words (owner, Nov 3) lg.title = 'PaperTrades.AI: independent AI paper-trading experiment. Pretend money only, no deposits, no token, not an exchange.';
       lg.addEventListener('click', (e) => { e.preventDefault(); if (window.ptHome) window.ptHome(); else window.scrollTo(0, 0); }); box.appendChild(lg); }
     box.appendChild(liveBox('st-tt-live'));
     const mirror = (src, label) => {
@@ -3905,7 +3914,7 @@ body { background:var(--color-bg); }
     };
     tick(); setInterval(tick, 15000);
     box.appendChild(clk);
-    box.appendChild(mirror(mp, 'Model'));
+    { const l = mirror(mp, 'Model'); l.classList.add('st-tt-model'); box.appendChild(l); }
     if (cp) { const l = mirror(cp, 'Currency'); l.classList.add('st-tt-sec'); l.title = 'Currency: show every amount in one currency (for viewing only; each race still runs in its own)'; box.appendChild(l); }
     { const rp = document.getElementById('risk-pick'); if (rp) { const l = mirror(rp, 'Risk'); l.classList.add('st-tt-sec'); l.title = 'Risk profile: show only Strict, Standard or Unrestricted races'; box.appendChild(l); } }
     // the colour theme menu, the same as the header's (eight themes, owner Oct 29)
@@ -8383,6 +8392,7 @@ body { background:var(--color-bg); }
   const MODEL_COL = { claude: ['var(--accent)', 'var(--accent-bg)'], gemini: ['#4f8ff7', 'rgba(79,143,247,.09)'], chatgpt: ['var(--ai-chatgpt)', 'rgba(160,160,160,.08)'] };
   const applyModel = (id) => {
     { const c = MODEL_COL[id] || MODEL_COL.claude; document.documentElement.style.setProperty('--model', c[0]); document.documentElement.style.setProperty('--model-bg', c[1]); document.documentElement.dataset.model = id || 'claude'; }
+    document.querySelectorAll('[data-ai-badge]').forEach((b) => { b.textContent = ({ claude: 'Claude', gemini: 'Gemini', chatgpt: 'ChatGPT' })[id] || 'Claude'; b.title = 'You are viewing ' + b.textContent + '’s races. Change it with the Model picker.'; });   // the AI being viewed, at the top, in its colour (owner, Nov 12)
     { const v = document.getElementById('viewing-name'); if (v) { v.textContent = MODEL_CO[id] ? aiModelCo(id) : id; const L = dash.baseData('leader'); if (L === id) v.appendChild(mk('span', 'st-crown', '👑 leads overall')); } }
     const views = dash.models();
     document.querySelectorAll('.model-pick').forEach((sel) => {
