@@ -46,13 +46,16 @@ LAYOUT = [
                    ('lead-changes', 'ro', 'Each time an AI takes the lead in a race. Pings @Lead Change Alerts.'),
                    ('big-moments', 'ro', 'Wins or losses of C$5,000+, new records, an AI crossing ±10/25/50%. Pings @Big Moment Alerts.')]),
     ('LIVE', [('live-trades', 'ro', 'Every move from all three AIs, all races, as it happens. No pings.')]),
-    ('RACES', [(ch, 'ro', f'{label}: every move from Claude, Gemini and ChatGPT in this race, with each AI\'s own reason. Pings @{label} Alerts.')
+    ('RACES', [(ch, 'ro', f'{label}: every move from Claude, Gemini and ChatGPT in this race, with each AI\'s own reason. Choose which AIs ping you here in Channels & Roles.')
                for _, ch, label in RACES]),
     ('COMMUNITY', [('general', 'chat', 'Talk about the race. No links, no money talk, no DMs: we never DM you.'),
                    ('who-wins', 'chat', 'Guess who leads tomorrow.'),
                    ('feedback-bugs', 'chat', 'Something looks wrong on the site? Tell us here.')]),
 ]
-ROLES = ['Daily Results Alerts', 'Lead Change Alerts', 'Big Moment Alerts', 'Season News Alerts'] + [f'{label} Alerts' for _, _, label in RACES]
+AIS = [('claude', 'Claude'), ('Gemini', 'Gemini'), ('ChatGPT', 'ChatGPT')]
+# owner, Nov 13 ("go B"): alerts are picked AI first, then races: one small role per AI and race, e.g. "Gemini · Crypto"
+COMBO = {f'{w}|{k}': f'{name} · {label}' for w, name in AIS for k, _, label in RACES}
+ROLES = ['Daily Results Alerts', 'Lead Change Alerts', 'Big Moment Alerts', 'Season News Alerts'] + list(COMBO.values())
 
 # Discord permission bits
 VIEW, SEND, MANAGE_MSG, EMBED, ATTACH, HISTORY, REACT, THREADS = 1 << 10, 1 << 11, 1 << 13, 1 << 14, 1 << 15, 1 << 16, 1 << 6, (1 << 35) | (1 << 36) | (1 << 38)
@@ -166,7 +169,7 @@ def route(who, items, trades=None, history=None, series=None, prefix='/tmp/dcr')
             except Exception as ex:
                 print('discord route cards failed', ex)
             body = head + '\n' + '\n\n'.join(t for t, _ in its) + f'\n\n{FOOT}\n{SITE}'
-            if send(chan[e], body, pics, ping_role=e):
+            if send(chan[e], body, pics, ping_role=f'{who}|{e}'):   # pings only members who chose this AI in this race
                 n += 1
         except Exception as ex:
             print('discord route failed', e, ex)
@@ -193,10 +196,16 @@ def setup():
     m.setdefault('roles', {})
     for name in ROLES:
         r = roles.get(name) or call('POST', f'/guilds/{gid}/roles', {'name': name, 'mentionable': True, 'permissions': '0'}, reason='PaperTrades.AI alerts')
-        key = next((k for k, _, label in RACES if f'{label} Alerts' == name), None) or {'Daily Results Alerts': 'daily', 'Lead Change Alerts': 'leads',
+        key = next((k for k, v in COMBO.items() if v == name), None) or {'Daily Results Alerts': 'daily', 'Lead Change Alerts': 'leads',
                                                                                         'Big Moment Alerts': 'big', 'Season News Alerts': 'news'}[name]
         m['roles'][key] = r['id']
         print('role', name, r['id'])
+    for k, _, label in RACES:   # the first version's one-role-per-race alerts, replaced by AI-then-race (owner, Nov 13)
+        r = roles.get(f'{label} Alerts')
+        if r:
+            call('DELETE', f'/guilds/{gid}/roles/{r["id"]}', reason='replaced by AI-then-race alerts')
+            print('removed old role', r['name'])
+        m['roles'].pop(k, None)
     everyone = gid   # the @everyone role has the server's ID
     chans = call('GET', f'/guilds/{gid}/channels')
     by_name = {c['name']: c for c in chans}
@@ -276,12 +285,12 @@ Three AIs (Claude, Gemini and ChatGPT) each trade C$100,000 of **pretend money**
 ✅ Every move has a transaction ID you can look up on the site's Ledger.""",
     'pick-your-alerts': """**Pick your alerts** 🔔
 Nothing here pings you until you choose it.
-Open the server menu (tap the server name at the top) → **Channels & Roles** → **Browse Channels / Customize** and pick:
+Open the server menu (tap the server name at the top) → **Channels & Roles** → **Customize** and pick:
 • **Daily Results Alerts**: the scoreboard after each daily close
 • **Lead Change Alerts**: when an AI takes the lead in a race
 • **Big Moment Alerts**: big wins and losses, records
 • **Season News Alerts**: important announcements
-• Any race's alert role (for example **Crypto Alerts**) to be pinged for every move in that race
+• Then pick an AI, and the races where its moves should ping you. For example **Gemini → Crypto**: you're pinged each time Gemini moves in Crypto, and by nothing else.
 
 Prefer quiet? Follow the channels without picking any role and read whenever you like.""",
 }
@@ -311,16 +320,20 @@ def onboarding():
     Keeps every other question the owner set up; replaces only our own alerts question."""
     m = load_map(); gid = m['guild']; R = m['roles']; C = m['channels']
     ob = call('GET', f'/guilds/{gid}/onboarding')
-    keep = [q for q in ob.get('prompts', []) if not any((o.get('role_ids') and set(o['role_ids']) & {R.get('daily'), R.get('leads')}) for o in q.get('options', []))]
+    ours = set(R.values()) | {r['id'] for r in call('GET', f'/guilds/{gid}/roles') if r['name'].endswith(' Alerts') and r['name'] not in ('Daily Results Alerts', 'Lead Change Alerts')}
+    keep = [q for q in ob.get('prompts', []) if not any(set(o.get('role_ids') or []) & ours for o in q.get('options', []))]
     def opt(title, role, chan, desc, emoji):
         return {'title': title, 'description': desc, 'role_ids': [role], 'channel_ids': [chan] if chan else [], 'emoji': {'name': emoji}}
     head = [opt('Daily results', R['daily'], C.get('daily-results'), 'The scoreboard after each daily close', '📊'),
             opt('Lead changes', R['leads'], C.get('lead-changes'), 'When an AI takes the lead in a race', '👑'),
             opt('Big moments', R['big'], C.get('big-moments'), 'Big wins and losses, new records', '💥'),
             opt('Season news', R['news'], C.get('announcements'), 'Important announcements only', '📢')]
-    races = [opt(label, R[k], C.get(ch), f'A ping for every move in {label}', em) for (k, ch, label), em in zip(RACES, ['📈', '🪙', '🧧', '🥇', '⛽', '🎯', '💱', '🏦', '🏈', '🔮', '🎲', '🎰'])]
-    prompts = [{'type': 0, 'title': 'Which headlines should ping you?', 'single_select': False, 'required': False, 'in_onboarding': True, 'options': head},
-               {'type': 0, 'title': 'Which races do you want every move from?', 'single_select': False, 'required': False, 'in_onboarding': True, 'options': races}]
+    ems = ['📈', '🪙', '🧧', '🥇', '⛽', '🎯', '💱', '🏦', '🏈', '🔮', '🎲', '🎰']
+    prompts = [{'type': 0, 'title': 'Which headlines should ping you?', 'single_select': False, 'required': False, 'in_onboarding': True, 'options': head}]
+    for w, name in AIS:   # AI first, then its races (owner, Nov 13)
+        dot = {'Claude': '🟠', 'Gemini': '🔵', 'ChatGPT': '⚪'}[name]
+        prompts.append({'type': 0, 'title': f'{dot} {name}: which races should ping you?', 'single_select': False, 'required': False, 'in_onboarding': True,
+                        'options': [opt(label, R[f'{w}|{k}'], C.get(ch), f'A ping each time {name} moves in {label}', em) for (k, ch, label), em in zip(RACES, ems)]})
     base = (int(time.time() * 1000) - 1420070400000) << 22   # new questions and options need an id of Discord's kind (a snowflake)
     for i, q in enumerate(prompts):
         q['id'] = str(base + i * 100)
