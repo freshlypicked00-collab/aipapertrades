@@ -637,6 +637,19 @@ def check():
         me = api(ig, {'fields': 'username,media_count'})
         msg = 'Instagram key works for @' + me.get('username', '?') + ' · ' + str(me.get('media_count')) + ' posts so far'
         print('::notice::' + msg)
+        # a read-only look at the profile, for checks like "does everything make sense" (owner, Nov 12)
+        try:
+            pr = api(ig, {'fields': 'username,name,biography,website,followers_count,follows_count,media_count,profile_picture_url'})
+            print('PROFILE', json.dumps({k: v for k, v in pr.items() if k != 'profile_picture_url'}, ensure_ascii=False))
+            md = api(f'{ig}/media', {'fields': 'id,media_type,media_product_type,timestamp,caption,permalink,like_count,comments_count', 'limit': '30'})
+            for m in md.get('data', []):
+                print('MEDIA', m.get('timestamp'), m.get('media_product_type'), m.get('media_type'), m.get('like_count'), m.get('comments_count'), m.get('permalink'),
+                      '|', (m.get('caption') or '').replace('\n', ' / ')[:260])
+            st = api(f'{ig}/stories', {'fields': 'id,timestamp,media_type,permalink'})
+            for m in st.get('data', []):
+                print('STORY', m.get('timestamp'), m.get('media_type'), m.get('permalink'))
+        except Exception as e:
+            print('::warning::profile look failed: ' + str(e)[:300])
     except Exception as e:
         print('::error::Instagram check failed: ' + str(e)[:300] + ' | ' + info); sys.exit(1)
 
