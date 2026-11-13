@@ -1,0 +1,33 @@
+name: Discord setup (one channel per race)
+# Creates or re-arranges the Discord server's roles, categories and channels with the bot (owner, Nov 9),
+# and saves the channel IDs in ops/discord_channels.json for the race posts. Safe to run again.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'setup = create and arrange, check = only list what the bot sees'
+        default: 'setup'
+permissions:
+  contents: write
+concurrency:
+  group: discord-setup
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Set up the server
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+        run: python3 ops/discord_bot.py "${{ github.event.inputs.mode }}"
+      - name: Save the channel IDs
+        if: github.event.inputs.mode == 'setup'
+        run: |
+          git config user.name "PaperTrades bot"; git config user.email "bot@papertrades.ai"
+          git add ops/discord_channels.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Discord: channel and role IDs from setup"
+          for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 5; done

@@ -16,6 +16,7 @@ except Exception as _e:
     animate = None
     print('animated cards off:', _e)
 import discord  # noqa: E402
+import discord_bot  # noqa: E402
 from datetime import datetime, timezone, timedelta
 
 TOKEN, CHAT = os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID')
@@ -422,6 +423,11 @@ for day in sorted({r['day'] for r in ledger} - oldd):
 
 # Bundle every trade, bet and settlement from this update into ONE post (with one chart), so the channel isn't flooded.
 activity = [(m, p) for m, p in msgs if (isinstance(p, tuple) and p[0] == 'trade') or isinstance(p, str)]
+try:   # each of Claude's moves also goes to its race's own Discord channel (owner, Nov 9; does nothing until the bot is set up)
+    discord_bot.route('claude', [(m, p[5]) for m, p in activity if isinstance(p, tuple) and len(p) > 5 and isinstance(p[5], dict)], CLAUDE_TRADES, HIST,
+                      series=lambda s, _m={p[5].get('symbol'): p[5].get('experiment') for m, p in activity if isinstance(p, tuple) and len(p) > 5 and isinstance(p[5], dict)}: sharecard.chart_points(s, _m.get(s)))
+except Exception as e:
+    print('discord race channels failed', e)
 others = [(m, p) for m, p in msgs if not ((isinstance(p, tuple) and p[0] == 'trade') or isinstance(p, str))]
 if len(activity) > 1:
     cards = [p[5] for m, p in activity if isinstance(p, tuple) and len(p) > 5]

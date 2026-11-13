@@ -25,6 +25,7 @@ except Exception as _e:
     animate = None
     print('animated cards off:', _e)
 import discord  # noqa: E402
+import discord_bot  # noqa: E402
 
 STATE = 'ops/src/rivals.json'
 # the settle watcher (owner, Oct 29: "the Cavs result came an hour late"): every 15 minutes in the evening and night (ET), plus weekend
@@ -2518,6 +2519,11 @@ def main():
             # one picture per move as an album after a cover (owner, Oct 30; design agreed by all three AIs: ops/review/tradecards-oct30.json)
             pics = sharecard.album(r['label'], made, state['trades'], state['history'], f"/tmp/rm_{mid}_{len(state['trades'])}",
                                    series=lambda s, _m={t['symbol']: t['experiment'] for t in made}: sharecard.chart_points(s, _m.get(s)))
+            try:   # each race's moves also go to that race's own Discord channel (owner, Nov 9; does nothing until the bot is set up)
+                discord_bot.route(r['label'], [(line(t), t) for t in made], state['trades'], state['history'], prefix=f'/tmp/dcr_{mid}',
+                                  series=lambda s, _m={t['symbol']: t['experiment'] for t in made}: sharecard.chart_points(s, _m.get(s)))
+            except Exception as e:
+                print('discord race channels failed', e)
             if len(pics) >= 2:
                 discord.post(body, pics)   # the whole album, never the cover alone: the cover says "Swipe for each move" (owner, Oct 30)
                 if sharecard.tg_album(os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID'), pics, body):
