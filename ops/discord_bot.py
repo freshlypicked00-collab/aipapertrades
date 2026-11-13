@@ -75,7 +75,7 @@ def call(method, path, body=None, files=None, reason=None):
         b = '----ptbot' + str(os.getpid())
         data = f'--{b}\r\nContent-Disposition: form-data; name="payload_json"\r\nContent-Type: application/json\r\n\r\n{json.dumps(body or {})}\r\n'.encode()
         for i, p in enumerate(files):
-            ext, ct = ('gif', 'image/gif') if p.endswith('.gif') else ('png', 'image/png')
+            ext, ct = ('gif', 'image/gif') if p.endswith('.gif') else ('mp4', 'video/mp4') if p.endswith('.mp4') else ('png', 'image/png')
             data += (f'--{b}\r\nContent-Disposition: form-data; name="files[{i}]"; filename="{i + 1:02d}.{ext}"\r\nContent-Type: {ct}\r\n\r\n'.encode()
                      + open(p, 'rb').read() + b'\r\n')
         data += f'--{b}--\r\n'.encode()
@@ -87,7 +87,7 @@ def call(method, path, body=None, files=None, reason=None):
     for attempt in (1, 2, 3):
         req = urllib.request.Request(API + path, data, h, method=method)
         try:
-            with urllib.request.urlopen(req, timeout=30) as r:
+            with urllib.request.urlopen(req, timeout=120 if files else 30) as r:
                 raw = r.read()
                 return json.loads(raw) if raw else {}
         except urllib.error.HTTPError as e:
@@ -426,6 +426,15 @@ def basics():
         if (msg.get('author') or {}).get('bot'):
             call('DELETE', f'/channels/{ch}/messages/{msg["id"]}'); time.sleep(0.4)
     first = None
+    vid = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'social', 'discord', 'new-to-discord.mp4')
+    if os.path.exists(vid):   # the 37-second video first (owner, Nov 13: "make a video for new to discord and pin it")
+        r = call('POST', f'/channels/{ch}/messages', {'content': '🎬 **New to Discord? Watch this first (37 seconds).** Why our alerts are worth turning on, and how, step by step.', 'allowed_mentions': {'parse': []}}, files=[vid])
+        first = r['id']; time.sleep(0.6)
+        try:
+            call('PUT', f'/channels/{ch}/pins/{first}')
+        except Exception as e:
+            print('video pin failed', e)
+        first = None
     for text in basics_text(C):
         r = call('POST', f'/channels/{ch}/messages', {'content': text, 'allowed_mentions': {'parse': []}, 'flags': 4})
         first = first or r['id']; time.sleep(0.6)
