@@ -334,6 +334,19 @@ def onboarding():
     print('onboarding questions:', [q['title'] for q in r.get('prompts', [])])
 
 
+def profile():
+    """The bot's own name and picture: PaperTrades.AI with the logo mark (it was created as "sd")."""
+    import base64
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    pic = base64.b64encode(open(os.path.join(root, 'social/brand/papertrades-logo-mark.png'), 'rb').read()).decode()
+    r = call('PATCH', '/users/@me', {'username': 'PaperTrades.AI', 'avatar': 'data:image/png;base64,' + pic})
+    print('bot is now', r.get('username'))
+    try:   # the server nickname too, in case one was set
+        call('PATCH', f'/guilds/{load_map()["guild"]}/members/@me', {'nick': None})
+    except Exception as e:
+        print('nickname not cleared:', e)
+
+
 def check():
     gid, gname = guild_id()
     print('server:', gname)
@@ -344,4 +357,4 @@ def check():
 if __name__ == '__main__':
     if not TOKEN:
         sys.exit('DISCORD_BOT_TOKEN is not set (GitHub: Settings > Secrets and variables > Actions)')
-    {'setup': setup, 'check': check, 'welcome': welcome, 'onboarding': onboarding}[sys.argv[1] if len(sys.argv) > 1 else 'check']()
+    {'setup': setup, 'check': check, 'welcome': welcome, 'onboarding': onboarding, 'profile': profile}[sys.argv[1] if len(sys.argv) > 1 else 'check']()
