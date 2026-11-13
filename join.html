@@ -138,7 +138,7 @@
   // so Discord's own invite counts show the joins per ad. Clicks are counted as anonymous GoatCounter events (no cookies).
   (function () {
     var q = new URLSearchParams(location.search), camp = (q.get('utm_campaign') || 'direct').replace(/[^a-z0-9-]/gi, '').slice(0, 40);
-    var INVITES = { /* 'yt-ad-1': 'xxxx', 'reddit-test-2': 'yyyy'  (one invite per ad, made in Discord) */ };
+    var INVITES = { 'yt-ad-1': 'YFYN9tMcTM', 'reddit-test-2': 'KPd3gHYEf5' };   // made by the bot: ops/discord_invites.json
     if (INVITES[camp]) document.getElementById('go-discord').href = 'https://discord.gg/' + INVITES[camp];
     if (location.search) document.getElementById('go-race').href = '/' + location.search;
     var count = function (what) { try { window.goatcounter && window.goatcounter.count({ path: 'join/' + what + '/' + camp, title: 'join/' + what + '/' + camp, event: true }); } catch (e) {} };
