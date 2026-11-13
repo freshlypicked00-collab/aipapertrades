@@ -160,10 +160,33 @@ def iso(t=None):
     return (t or NOW).isoformat().replace('+00:00', 'Z')
 
 
-def get_json(url, headers=None, data=None, timeout=60):
+def _fetch(url, headers=None, data=None, timeout=60):
     req = urllib.request.Request(url, data=data, headers={**UA, **(headers or {})})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return json.loads(r.read())
+
+
+def get_json(url, headers=None, data=None, timeout=60):
+    """urlopen's timeout is per read, so a server that keeps sending keep-alive bytes can hold a request open for good.
+    Nov 13, 11:14 p.m.-5:14 a.m. ET: one model request hung like that every hour until the 30-minute job limit killed the
+    whole run, and Gemini and ChatGPT both missed 6 check-ins. Now every request also has a total limit (3x its timeout):
+    a hung request fails like any other error, and the other AI still gets its turn."""
+    import threading
+    box = {}
+
+    def go():
+        try:
+            box['v'] = _fetch(url, headers, data, timeout)
+        except BaseException as e:
+            box['e'] = e
+    t = threading.Thread(target=go, daemon=True)
+    t.start()
+    t.join(timeout * 3)
+    if t.is_alive():
+        raise TimeoutError(f'no full answer after {timeout * 3} s from {url.split("?")[0][:80]}')
+    if 'e' in box:
+        raise box['e']
+    return box['v']
 
 
 # ---------------- prices ----------------

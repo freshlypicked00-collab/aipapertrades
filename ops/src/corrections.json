@@ -110,5 +110,10 @@
   "at": "2026-11-12T23:30:00-05:00",
   "what": "ChatGPT missed about 30 check-ins, Nov 11–12 (OpenRouter spending limit)",
   "text": "From 8:37 p.m. ET on Nov 11 to 10:15 p.m. ET on Nov 12, every ChatGPT check-in failed with HTTP 402 (Payment Required): the project's OpenRouter account, which pays for ChatGPT's connection, hit its spending limit. From 3:51 p.m. ET on Nov 11 ChatGPT had already been running on GPT-5.4 instead of GPT-5.5 for the same reason (the runner falls back to the older model rather than skip a turn). While it was out ChatGPT placed and changed nothing; its open positions and bets stayed as they were, valued at live prices. Claude and Gemini were not affected. No trade was changed and no make-up check-in is given. Each failed check-in is in the check-in log with its error."
+ },
+ {
+  "at": "2026-11-13T07:40:00-05:00",
+  "what": "Gemini and ChatGPT: 6 overnight check-ins never finished, Nov 12-13 (a hung request); ChatGPT back on GPT-5.5",
+  "text": "From 11:14 p.m. Nov 12 to 5:14 a.m. ET Nov 13, the six hourly Gemini-and-ChatGPT runs were each stopped by GitHub's 30-minute job limit: one request to the AI provider kept its connection open without finishing, so neither AI's check-in completed. Claude's turns run separately and were not affected. No trade was changed and no make-up check-in is given. Fix (Nov 13): every request the race runner makes now has a total time limit (three times its normal timeout), so a stuck answer counts as one failed check-in for that AI only. ChatGPT, out since Nov 11 (OpenRouter limit, see the entry above), answered again at 6:02 a.m. ET on Nov 13 on GPT-5.5."
  }
 ]
