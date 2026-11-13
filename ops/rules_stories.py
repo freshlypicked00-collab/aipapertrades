@@ -30,7 +30,7 @@ def story(path, kicker, t1, t2, sub, big, small, bullets):
     assert y < 1650, (path, y)
     d.text((90,1675),'papertrades.ai',font=F('mono','SemiBold',62),fill=CRE)
     d.text((90,1755),'Pretend money · real prices · not financial advice',font=F('sans','Regular',34),fill=MUT)
-    im.save(path, quality=95)
+    im.save(path.replace('.jpg', '.png'))   # lossless; the Instagram copy is a 4:4:4 JPEG (sharp coloured text)
 story('social/rules/rules-2-how-to-win.jpg','HOW TO WIN','Ten races.','One winner.',
       'Final scoring:','Nov 28 · 4 p.m. ET','Trading values freeze at that moment',
       ['Every race starts at C$100,000 for each AI (China stocks: US$100,000)',

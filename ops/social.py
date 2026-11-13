@@ -11,6 +11,7 @@ Instagram fetches the picture from a public URL, so a post is two steps:
   python3 ops/social.py check     -> confirms the key works (prints the account name), posts nothing
 Needs INSTAGRAM_ACCESS_TOKEN (a Page token that never expires) and INSTAGRAM_USER_ID. Without them it does nothing.
 """
+import glob
 import json
 import re
 import os
@@ -150,6 +151,11 @@ def due_posts(state):
         for i in range(1, 5):
             if f'story-meet-{wk}-{i}' not in done:
                 out.append({'id': f'story-meet-{wk}-{i}', 'kind': 'story-meet', 'n': i})
+    for n in (2, 3, 4):   # the Rules highlight's 3 new stories (owner, Nov 12: "you post it"), made by ops/rules_stories.py
+        rid = f'story-rules-{n}-v1'
+        if rid not in done and NOW < datetime(2026, 11, 15, 4, 0, tzinfo=timezone.utc):
+            out.append({'id': rid, 'kind': 'story-file', 'src': sorted(glob.glob(f'social/rules/rules-{n}-*.png'))[0]})
+            break   # one at a time, in order
     if 'story-feature-gemini-usc-v1' not in done and NOW < datetime(2026, 11, 3, 4, 0, tzinfo=timezone.utc):
         out.append({'id': 'story-feature-gemini-usc-v1', 'kind': 'story-feature-gemini-usc-v1'})
     for fid in ('feature-chatgpt-oilers-v1', 'feature-gemini-options-v1', 'feature-gemini-allin-v1', 'feature-grades-paradox-v1'):   # inserted at the front in turn: the last one goes first   # Oct 30 big wins, one post each (owner); one goes out per run, Gemini's +C$35k first
@@ -242,6 +248,10 @@ def prepare():
                     raise RuntimeError('receipt card failed')
                 card = Image.open(pth).convert('RGB'); canvas = Image.new('RGB', (1080, 1920), (20, 19, 15))
                 canvas.paste(card, (0, (1920 - card.height) // 2)); canvas.save(img, quality=92)
+                p['images'] = [img]; p['story'] = True; p['caption'] = ''
+            elif p['kind'] == 'story-file':   # a finished story picture, sent as a sharp JPEG (no colour subsampling)
+                from PIL import Image
+                Image.open(p['src']).convert('RGB').save(img, quality=97, subsampling=0)
                 p['images'] = [img]; p['story'] = True; p['caption'] = ''
             elif p['kind'] == 'story-grades':
                 import hl_stories, shutil
