@@ -1,0 +1,64 @@
+{
+ "at": "2026-11-13T14:50:23Z",
+ "question": "VIDEO QUESTION from the owner of PaperTrades.AI. NOT a trading turn. Majority wins where you differ; Claude wrote its concept first (attached file).\n\nOwner, Nov 13: \"make a new commercial for youtube, work with the other models, advertise the website and the discord channel, show how the channels are set up and how you can set up the notifications etc.\"\n\nFACTS you can use:\n- Website papertrades.ai: live scoreboard, 10 races + High risk side race, every trade with the AI's own reason and a Transaction ID (e.g. G-CRY-012), Ledger, report cards where the AIs grade each other. Pretend money, real prices, Oct 28 to Nov 28.\n- Discord (free, read-only, one bot): START HERE (#welcome-and-rules #how-it-works #pick-your-alerts), HEADLINES (#announcements #daily-results #lead-changes #big-moments), LIVE (#live-trades: every move, no pings), RACES (one channel per race: #stocks #crypto #china-stocks #metals #energy #options #currencies #play-it-safe #sports-bets #prediction-markets #high-risk-trading #high-risk-sports), COMMUNITY (#general #who-wins #feedback-bugs). Never @everyone.\n- Alerts: when you join, Discord asks \"Which headlines should ping you?\" (Daily results, Lead changes, Big moments, Season news), then for each AI \"Gemini: which races should ping you?\" (pick e.g. Crypto: you're pinged only when Gemini moves in Crypto). Change it any time: tap the server name -> Channels & Roles -> Customize. Nothing pings you until you pick it.\n- Our YouTube views come mostly from Shorts. The owner wants videos that end with \"leave a like and subscribe for more trade updates\". He said the automatic Shorts looked like \"AI slop\": this must look high-production.\n- Commercial v1 (Nov 4) told one bet story (Gemini's USC bet) with each AI's voice; it's already posted.\n\nVote AGREE / DISAGREE / AMEND on each, one line why, then your ideas:\nV1. Format: vertical 1080x1920 Short, about 55 seconds.\nV2. Structure: Claude's 5 parts (hook, real website footage, Discord channels building up, the alerts setup step by step with a real move, CTA).\nV3. The alerts demo uses a trading example (Gemini -> Crypto), not sports odds (ad review).\nV4. The three AIs narrate in turn (each its own voice), captions burned in.\nV5. CTA: logo, papertrades.ai, \"free Discord, link in the description\", \"like and subscribe for more trade updates\".\nIDEAS: your best hook line (first 2 seconds), the single most important thing to show, and one thing to avoid.\nReply with ONLY JSON: {\"V1\": \"...\", \"V2\": \"...\", \"V3\": \"...\", \"V4\": \"...\", \"V5\": \"...\", \"hook\": \"...\", \"show\": \"...\", \"avoid\": \"...\"}",
+ "files": [
+  "ops/review/yt-ad2-claude-concept.md"
+ ],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "{\"V1\":\"AGREE — Vertical 1080x1920 at about 55 seconds is the right Shorts-first format and still has room for the walkthrough.\",\"V2\":\"AGREE — The 5-part structure covers the hook, proof on the live site, Discord layout, alerts, and CTA in a clear order.\",\"V3\":\"AGREE — Use Gemini -> Crypto because it demonstrates alerts without bringing sports odds into the ad-review risk zone.\",\"V4\":\"AGREE — Three AI voices keeps continuity with v1, and burned-in captions are essential for muted Shorts viewing.\",\"V5\":\"AMEND — Use the exact owner-preferred ending: logo, papertrades.ai, free Discord link, then “leave a like and subscribe for more trade updates.”\",\"hook\":\"Three AIs are trading pretend money at real prices — and every move is public.\",\"show\":\"The real alert setup flow: pick headline pings, pick Gemini + Crypto, then show the matching Discord notification from a real trade.\",\"avoid\":\"Avoid fake-looking mockups or generic AI visuals; use real screen recordings so it feels high-production, not AI slop.\"}",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 1250,
+     "completion_tokens": 753,
+     "total_tokens": 2003,
+     "cost": 0.02884,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.02884,
+      "upstream_inference_prompt_cost": 0.00625,
+      "upstream_inference_completions_cost": 0.02259
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 516,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "{\n  \"V1\": \"AGREE. Shorts drive our YouTube views, and a 55-second vertical format fits perfectly within the algorithm's sweet spot.\",\n  \"V2\": \"AGREE. The 5-part structure directly answers the owner's prompt to showcase the website, channel layout, and notification setup.\",\n  \"V3\": \"AGREE. Using a crypto trade instead of sports bets safely bypasses YouTube's strict ad-review and age-restriction policies.\",\n  \"V4\": \"AGREE. Alternating AI voices builds on v1's success, and burned-in captions are mandatory since most mobile users watch on mute.\",\n  \"V5\": \"AMEND. Update the CTA text to 'leave a like and subscribe for more trade updates' to match the owner's exact requested phrasing.\",\n  \"hook\": \"Three AIs. Real market prices. And you can get every exact trade sent right to your phone.\",\n  \"show\": \"Crisp, real screen recordings of the Discord 'Channels & Roles' menu to clearly prove how easy the zero-spam, opt-in notification setup is.\",\n  \"avoid\": \"Any generic AI-generated B-roll ('slop'); use only authentic, high-production UI recordings of our actual platforms to ensure it looks premium.\"\n}",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 1337,
+     "candidatesTokenCount": 282,
+     "totalTokenCount": 3254,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 1337
+      }
+     ],
+     "thoughtsTokenCount": 1635,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
