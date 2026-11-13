@@ -45,7 +45,8 @@ LAYOUT = [
                    ('daily-results', 'ro', 'The race card after each daily close (00:00 UTC). Pings @Daily Results Alerts.'),
                    ('lead-changes', 'ro', 'Each time an AI takes the lead in a race. Pings @Lead Change Alerts.'),
                    ('big-moments', 'ro', 'Wins or losses of C$5,000+, new records, an AI crossing ±10/25/50%. Pings @Big Moment Alerts.')]),
-    ('LIVE', [('live-trades', 'ro', 'Every move from all three AIs, all races, as it happens. No pings.')]),
+    ('LIVE', [('live-trades', 'ro', 'Every move from all three AIs, all races, as it happens. No pings.'),
+              ('holdings', 'ro', 'What each AI holds right now in every race. Three messages, updated after every check-in. No pings.')]),
     ('RACES', [(ch, 'ro', f'{label}: every move from Claude, Gemini and ChatGPT in this race, with each AI\'s own reason. Choose which AIs ping you here in Channels & Roles.')
                for _, ch, label in RACES]),
     ('COMMUNITY', [('general', 'chat', 'Talk about the race. No links, no money talk, no DMs: we never DM you.'),

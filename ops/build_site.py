@@ -964,8 +964,10 @@ def _merge_pie(items):
 for _e in _EXPS:
     v, b0 = _lastv([(h['at'], float(h['value'])) for h in data['history'] if h['portfolio'] == _e])
     if v is not None:
-        hv = [(h['holding'], float(h.get('value_cad') or h.get('value_usd') or 0)) for h in data['holdings'] if h['portfolio'] == _e and float(h.get('value_cad') or h.get('value_usd') or 0) > 0.5]
-        _shorts = [f"{h['holding']} (short)" for h in data['holdings'] if h['portfolio'] == _e and float(h.get('value_cad') or h.get('value_usd') or 0) < -0.5]   # shorts are holdings too
+        # China is scored in US$, so its slices must be US$ too (Nov 13: they were C$, so Claude's China split added up to 141,843 for a 99,595 race)
+        _hval = (lambda h: float(h.get('value_usd') or h.get('value_cad') or 0)) if _e == 'China' else (lambda h: float(h.get('value_cad') or h.get('value_usd') or 0))
+        hv = [(h['holding'], _hval(h)) for h in data['holdings'] if h['portfolio'] == _e and _hval(h) > 0.5]
+        _shorts = [f"{h['holding']} (short)" for h in data['holdings'] if h['portfolio'] == _e and _hval(h) < -0.5]   # shorts are holdings too
         hv += [(f"{b['pick']} ({b['event']})", float(b['stake_cad'])) for b in data['bets'] if _e == 'Sports' and b.get('status') == 'Open']
         held = [n for n, _ in hv if not str(n).startswith('Cash')] + _shorts
         lt = [t for t in data['trades'] if t['portfolio'] == _e and not str(t.get('holding', '')).startswith('[')]

@@ -69,3 +69,11 @@ jobs:
           LIST=$(echo "$URLS" | python3 -c 'import json,sys;print(json.dumps([l.strip() for l in sys.stdin if l.strip()]))')
           curl -sS -o /dev/null -w "IndexNow HTTP %{http_code}\n" -X POST https://api.indexnow.org/indexnow -H 'Content-Type: application/json; charset=utf-8' \
             -d "{\"host\":\"papertrades.ai\",\"key\":\"$KEY\",\"keyLocation\":\"https://papertrades.ai/$KEY.txt\",\"urlList\":$LIST}"
+      # Discord #holdings (owner, Nov 13): the bot edits its three messages (one per AI) with what each holds now. Never fails the publish.
+      - name: Discord holdings
+        if: success()
+        continue-on-error: true
+        timeout-minutes: 2
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+        run: python3 ops/discord_holdings.py
