@@ -152,7 +152,7 @@ def due_posts(state):
             if f'story-meet-{wk}-{i}' not in done:
                 out.append({'id': f'story-meet-{wk}-{i}', 'kind': 'story-meet', 'n': i})
     one_off = [(f'story-rules-{n}-v1', sorted(glob.glob(f'social/rules/rules-{n}-*.png'))) for n in (2, 3, 4)]   # Rules highlight (owner, Nov 12)
-    one_off += [(f'story-start-v2-{n}', [f'social/start-here-v2/start-here-{n}.png']) for n in (1, 2, 3, 4)]   # Start here, remade Nov 12 (High risk, YouTube, Discord)
+    one_off += [(f'story-start-v2-{n}', [f'social/start-here-v2/start-here-{n}.png']) for n in (1,)]   # 2-4: the owner posts them by hand (Nov 12, the daily cap held them)   # Start here, remade Nov 12 (High risk, YouTube, Discord)
     for rid, src in one_off:
         if rid not in done and src and os.path.exists(src[0]) and NOW < datetime(2026, 11, 15, 4, 0, tzinfo=timezone.utc):
             out.append({'id': rid, 'kind': 'story-file', 'src': src[0]})   # in order, 2 a run (the story cap)
