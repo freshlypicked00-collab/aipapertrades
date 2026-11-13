@@ -321,7 +321,9 @@ def onboarding():
     m = load_map(); gid = m['guild']; R = m['roles']; C = m['channels']
     ob = call('GET', f'/guilds/{gid}/onboarding')
     ours = set(R.values()) | {r['id'] for r in call('GET', f'/guilds/{gid}/roles') if r['name'].endswith(' Alerts') and r['name'] not in ('Daily Results Alerts', 'Lead Change Alerts')}
-    keep = [q for q in ob.get('prompts', []) if not any(set(o.get('role_ids') or []) & ours for o in q.get('options', []))]
+    live = {r['id'] for r in call('GET', f'/guilds/{gid}/roles')}
+    keep = [q for q in ob.get('prompts', []) if not any(set(o.get('role_ids') or []) & ours or (set(o.get('role_ids') or []) - live) for o in q.get('options', []))]
+    print('kept your questions:', [q['title'] for q in keep])
     def opt(title, role, chan, desc, emoji):
         return {'title': title, 'description': desc, 'role_ids': [role], 'channel_ids': [chan] if chan else [], 'emoji': {'name': emoji}}
     head = [opt('Daily results', R['daily'], C.get('daily-results'), 'The scoreboard after each daily close', '📊'),
