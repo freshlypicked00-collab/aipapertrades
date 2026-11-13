@@ -1194,6 +1194,8 @@ def tg_photo(text, photo, silent=False, _dc=True):   # every trade, bet and resu
         return tg(text, _dc=_dc)
     if _dc:
         discord.post(text, photo)   # same post on Discord (does nothing until DISCORD_WEBHOOK_URL is set)
+    if QUIET_TG:
+        return
     if not (tok and chat):
         return tg(text, _dc=False)
     b = '----pt' + str(os.getpid())
@@ -1256,12 +1258,15 @@ def chart(label, color, exp, state, mid):
         return None
 
 
-TGSTAT = {'sent': 0, 'failed': 0, 'error': ''}   # this run's Telegram results, saved in state['telegram'] for the status panel and health check
+TGSTAT = {'sent': 0, 'failed': 0, 'error': ''}
+QUIET_TG = False   # True while posting moves after the Telegram -> Discord switch (discord_bot.TG_MOVES_UNTIL)   # this run's Telegram results, saved in state['telegram'] for the status panel and health check
 
 
 def tg(text, silent=False, _dc=True):
     if _dc:
         discord.post(text)   # same post on Discord (does nothing until DISCORD_WEBHOOK_URL is set)
+    if QUIET_TG:
+        return
     tok, chat = os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID')
     if not (tok and chat):
         print('--- telegram (not sent) ---\n' + text)
@@ -2547,9 +2552,13 @@ def main():
                                   series=lambda s, _m={t['symbol']: t['experiment'] for t in made}: sharecard.chart_points(s, _m.get(s)))
             except Exception as e:
                 print('discord race channels failed', e)
+            global QUIET_TG
+            QUIET_TG = not discord_bot.tg_moves()   # after Nov 16 the moves go to Discord only; Telegram keeps the headlines
             if len(pics) >= 2:
                 discord.post(body, pics)   # the whole album, never the cover alone: the cover says "Swipe for each move" (owner, Oct 30)
-                if sharecard.tg_album(os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID'), pics, body):
+                if QUIET_TG:
+                    pass
+                elif sharecard.tg_album(os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID'), pics, body):
                     TGSTAT['sent'] += 1
                 else:   # album failed: a summary picture with no swipe line, and no second Discord post
                     alt = sharecard.moves_card(r['label'], made, f"/tmp/rm_moves_{mid}.png") or pics[1]
@@ -2578,6 +2587,7 @@ def main():
                 if pic:
                     tg_photo(f"{head} · {EXP_LABEL[big['experiment']]}: {big['action']} {esc(big['symbol'])}", pic)
                 tg(body)
+            QUIET_TG = False
         ran.append(f"{r['label']} ({m.get('model')}): {status}, {len(made)} trade(s), " + ', '.join(f'{e} {money(values[e], m["books"][e]["cur"])}' for e in exps))
     if not ran:
         print('no rival API keys set; nothing to do')

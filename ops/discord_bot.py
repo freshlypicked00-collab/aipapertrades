@@ -31,6 +31,14 @@ MAP_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'discord_cha
 SITE = 'https://papertrades.ai'
 FOOT = 'Pretend money · real prices · not advice. We never DM anyone about money.'
 STAT = {'sent': 0, 'failed': 0, 'error': ''}
+# Telegram -> Discord move (owner, Nov 13): until this moment Telegram still gets every move; after it, Telegram keeps the
+# headlines (results, lead changes, daily card, notices) and every move goes to Discord only.
+TG_MOVES_UNTIL = '2026-11-16T05:00:00Z'   # Sun Nov 16, 12:00 a.m. ET
+
+
+def tg_moves():
+    from datetime import datetime, timezone
+    return datetime.now(timezone.utc) < datetime.fromisoformat(TG_MOVES_UNTIL.replace('Z', '+00:00'))
 
 # race key (the experiment name in the data) -> channel name and the alert role's name
 RACES = [('Stocks', 'stocks', 'Stocks and anything'), ('Crypto', 'crypto', 'Crypto'), ('China', 'china-stocks', 'China stocks'),

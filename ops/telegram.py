@@ -253,7 +253,7 @@ if os.environ.get('MODE') == 'cleanup':
 if NOTE:
     # an optional picture for the note: its path in ops/note_photo.txt (owner, Oct 31); delete that file after the post
     _ph = open('ops/note_photo.txt').read().strip() if os.path.exists('ops/note_photo.txt') else None
-    _mid = send(open('ops/note.txt').read().strip(), _ph if _ph and os.path.exists(_ph) else None)
+    _mid = send(open('ops/note.txt').read().strip(), _ph if _ph and os.path.exists(_ph) else None, _dc=not os.path.exists('ops/note_tg_only.txt'))
     if _mid and os.path.exists('ops/note_pin.txt') and TOKEN and CHAT:   # pin this note (ops/note_pin.txt present; delete it after the post)
         try:
             urllib.request.urlopen(f'https://api.telegram.org/bot{TOKEN}/pinChatMessage', urllib.parse.urlencode({'chat_id': CHAT, 'message_id': _mid, 'disable_notification': 'true'}).encode(), timeout=20).read()
@@ -443,6 +443,8 @@ for i, (m, pic) in enumerate(msgs):
         if len(pics) >= 2:
             mm = '🟠 <b>CLAUDE</b> (Anthropic)\n' + m + ('' if SITE in m else f'\n{SITE}')
             discord.post(mm, pics)   # the whole album, never the cover alone: the cover says "Swipe for each move" (owner, Oct 30)
+            if i < len(activity) and not discord_bot.tg_moves():   # after Nov 16 the moves go to Discord only (owner, Nov 13)
+                continue
             if sharecard.tg_album(TOKEN, CHAT, pics, mm):
                 continue
             send(mm, sharecard.moves_card('claude', pic[1], f'/tmp/pt_moves_{i}.png') or pics[1], silent=False, _dc=False)   # album failed: a summary with no swipe line
@@ -458,6 +460,9 @@ for i, (m, pic) in enumerate(msgs):
     else:
         photo = chart_section(pic, i) if pic else None
     m = '🟠 <b>CLAUDE</b> (Anthropic)\n' + m
+    if i < len(activity) and not discord_bot.tg_moves():   # after Nov 16 Claude's moves go to Discord only; Telegram keeps the headlines (owner, Nov 13)
+        discord.post(m + ('' if SITE in m else f'\n{SITE}'), photo)
+        continue
     send(m + ('' if SITE in m else f'\n{SITE}'), photo, silent=False)   # every trade, bet and result pings (owner's choice)
 # the race card: one shareable picture of the overall standings after each daily close
 for day, n in race_days[-1:]:
