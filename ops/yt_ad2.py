@@ -155,8 +155,73 @@ def rounded_mask(w, h, r):
     return m.resize((w, h), Image.LANCZOS)
 
 
-PH_W, PH_H = 620, 1060                 # the phone's screen on the canvas
-PH_X, PH_Y = (W - PH_W) // 2, 330
+PH_W, PH_H = 600, 1300                 # the phone's screen on the canvas: a tall, slim modern phone (19.5:9), not a foldable
+PH_X, PH_Y = (W - PH_W) // 2, 316
+_FRAME = {}
+
+
+def phone_frame():
+    """A slim, generic modern phone (owner, Nov 13: a proper phone shape, not the wide one): thin even bezels, a pill camera, a
+    brushed-metal edge and side buttons. Drawn at 2x and scaled down so every curve is smooth. No maker's logo or exact design."""
+    if 'f' in _FRAME:
+        return _FRAME['f']
+    S2 = 2
+    bez, edge = 12, 7                                  # black bezel, metal edge (canvas px)
+    w, h = PH_W + 2 * (bez + edge), PH_H + 2 * (bez + edge)
+    R = 92                                             # outer corner radius
+    big = Image.new('RGBA', ((w + 40) * S2, (h + 20) * S2), (0, 0, 0, 0))
+    d = ImageDraw.Draw(big)
+    ox = 20 * S2   # room for the side buttons
+    # side buttons (left: action + volume up/down; right: power), metal, behind the edge
+    for (x0, y0, x1, y1) in ((-6, 210, 4, 270), (-6, 320, 4, 420), (-6, 440, 4, 540), (w - 4, 330, w + 6, 470)):
+        d.rounded_rectangle([ox + x0 * S2, (y0 + 10) * S2, ox + x1 * S2, (y1 + 10) * S2], radius=4 * S2, fill=(120, 118, 112, 255))
+    # the metal edge: a vertical gradient from light to dark, then the black body inside it
+    edge_img = Image.new('RGBA', (w * S2, h * S2), (0, 0, 0, 0))
+    grad = Image.linear_gradient('L').resize((w * S2, h * S2))
+    light = Image.new('RGBA', (w * S2, h * S2), (196, 193, 186, 255)); dark = Image.new('RGBA', (w * S2, h * S2), (88, 86, 82, 255))
+    metal = Image.composite(dark, light, grad)
+    m = Image.new('L', (w * S2, h * S2), 0); ImageDraw.Draw(m).rounded_rectangle([0, 0, w * S2 - 1, h * S2 - 1], radius=R * S2, fill=255)
+    edge_img.paste(metal, (0, 0), m)
+    ImageDraw.Draw(edge_img).rounded_rectangle([edge * S2, edge * S2, (w - edge) * S2 - 1, (h - edge) * S2 - 1], radius=(R - edge) * S2, fill=(6, 6, 7, 255))
+    # a fine highlight line on the metal (catches the light)
+    ImageDraw.Draw(edge_img).rounded_rectangle([2 * S2, 2 * S2, (w - 2) * S2 - 1, (h - 2) * S2 - 1], radius=(R - 2) * S2, outline=(235, 232, 225, 150), width=S2)
+    big.alpha_composite(edge_img, (ox, 10 * S2))
+    frame = big.resize((w + 40, h + 20), Image.LANCZOS)
+    smask = rounded_mask(PH_W, PH_H, R - edge - bez + 6)
+    pill = Image.new('RGBA', (PH_W, PH_H), (0, 0, 0, 0))
+    ImageDraw.Draw(pill).rounded_rectangle([PH_W // 2 - 62, 18, PH_W // 2 + 62, 52], radius=17, fill=(0, 0, 0, 255))
+    glass = Image.new('RGBA', (PH_W, PH_H), (0, 0, 0, 0))   # a faint diagonal reflection on the glass
+    gd = ImageDraw.Draw(glass)
+    for k in range(60):
+        gd.line([(-200 + k * 4, 0), (PH_W * 0.9 + k * 4, PH_H)], fill=(255, 255, 255, 3), width=4)
+    _FRAME['f'] = (frame, smask, pill, glass, (20 + edge + bez, 10 + edge + bez))
+    return _FRAME['f']
+
+
+def soft_shadow(body, blur=30, dark=0.85, dy=18):
+    """A soft drop shadow that follows the body's own shape (its alpha), so the phone never sits on a dark box."""
+    pad = blur * 3
+    out = Image.new('RGBA', (body.width + pad * 2, body.height + pad * 2), (0, 0, 0, 0))
+    a = body.getchannel('A').point(lambda v: int(v * dark))
+    sh = Image.new('L', out.size, 0); sh.paste(a, (pad, pad + dy))
+    sh = sh.filter(ImageFilter.GaussianBlur(blur))
+    out.paste((0, 0, 0, 255), (0, 0), sh)
+    out.alpha_composite(body, (pad, pad))
+    return out
+
+
+def phone_screen(img, screen, k=1.0, dx=0.0, dy=0.0, alpha=1.0, rot=0.0):
+    """Put any 600x1300 screen image into the phone and onto the canvas."""
+    frame, smask, pill, glass, (sx, sy) = phone_frame()
+    body = frame.copy()
+    scr = screen.convert('RGBA').resize((PH_W, PH_H), Image.LANCZOS) if screen.size != (PH_W, PH_H) else screen.convert('RGBA')
+    scr = scr.copy(); scr.alpha_composite(glass); scr.alpha_composite(pill)
+    a = scr.getchannel('A'); a = Image.composite(a, Image.new('L', a.size, 0), smask); scr.putalpha(a)
+    body.alpha_composite(scr, (sx, sy))
+    lay = soft_shadow(body)
+    cx, cy = W / 2 + dx, PH_Y + PH_H / 2 + dy
+    paste_scaled(img, lay, cx, cy, k, alpha, rot)
+    return (cx, cy)
 
 
 def phone(img, shot, scroll=0.0, k=1.0, dx=0.0, dy=0.0, zoom=1.0, focus=(0.5, 0.5), alpha=1.0):
@@ -168,17 +233,8 @@ def phone(img, shot, scroll=0.0, k=1.0, dx=0.0, dy=0.0, zoom=1.0, focus=(0.5, 0.
     x0 = max(0, min(sw - PH_W / sc, fx - PH_W / sc / 2)) if zoom > 1.001 else 0
     y0 = max(0, min(shot.size[1] - vis_h, scroll))
     crop = shot.crop((int(x0), int(y0), int(x0 + PH_W / sc), int(y0 + vis_h))).resize((PH_W, PH_H), Image.LANCZOS)
-    bez = 18
-    body = Image.new('RGBA', (PH_W + bez * 2, PH_H + bez * 2), (0, 0, 0, 0))
-    bd = ImageDraw.Draw(body)
-    bd.rounded_rectangle([0, 0, body.size[0] - 1, body.size[1] - 1], radius=78, fill=(24, 24, 22, 255), outline=(70, 68, 62, 255), width=3)
-    scr = crop.convert('RGBA'); scr.putalpha(rounded_mask(PH_W, PH_H, 62))
-    body.alpha_composite(scr, (bez, bez))
-    bd.rounded_rectangle([body.size[0] // 2 - 70, bez + 14, body.size[0] // 2 + 70, bez + 44], radius=15, fill=(8, 8, 8, 255))   # the camera island
-    lay = shadowed(body, radius=40, blur=36, dark=200)[0]
-    cx, cy = W / 2 + dx, PH_Y + PH_H / 2 + dy
-    paste_scaled(img, lay, cx, cy, k, alpha)
-    return (cx, cy, k, sc, x0, y0)
+    phone_screen(img, crop, k, dx, dy, alpha)
+    return (W / 2 + dx, PH_Y + PH_H / 2 + dy, k, sc, x0, y0)
 
 
 def window(img, shot, box, cx, cy, width, k=1.0, alpha=1.0, title=None):
@@ -238,7 +294,9 @@ def caption(d, C, lid, tt):
     if chunk:
         q = back(min(1.0, (tt - c_at) * 7))
         fc = F('sans', 'Bold', int(84 * (0.82 + 0.18 * q)))
-        text_c(d, (540, CAP_Y), chunk, fc, ccol, 10, sfill=(6, 6, 5))
+        tw = d.textlength(chunk, font=fc)
+        d.rounded_rectangle([540 - tw / 2 - 34, CAP_Y - 62, 540 + tw / 2 + 34, CAP_Y + 58], radius=40, fill=(8, 8, 7, 175))
+        text_c(d, (540, CAP_Y), chunk, fc, ccol, 8, sfill=(6, 6, 5))
 
 
 def notif(img, d, x, y, w, u, lines_):
@@ -257,6 +315,52 @@ def notif(img, d, x, y, w, u, lines_):
     ld.text((118, 140), lines_[2], font=F('sans', 'Medium', 28), fill=(200, 200, 206), anchor='lm')
     sh = shadowed(lay, radius=38, blur=26, dark=200)[0]
     paste_scaled(img, sh, x + w / 2, yy + 95, 1.0, min(1.0, u * 3))
+
+
+# ================================================================ a phone lock screen with real pings (drawn, generic)
+PINGS = [   # real moves (data.json), newest last; the text is what the Discord race channels post
+    ('gemini', 'Crypto', 'bought Bitcoin', 'C$35,000', 'G-CRY-028', 'Nov 5'),
+    ('gemini', 'Oil and energy', 'bought oil (USO)', 'C$15,000', 'G-ENE-031', 'Nov 12'),
+    ('claude', 'Metals', 'sold gold (GLD), +C$119', 'C$20,119', 'C-MET-006', 'Nov 12'),
+    ('chatgpt', 'Stocks', 'sold TMV', 'C$13,250', 'X-STK-018', 'Nov 13'),
+]
+
+
+def lock_screen(A, tt, n_pings=0.0, clock='10:24', date='Friday, November 13', dim=0.0):
+    """A dark lock screen: our green rising arrow glowing on the wallpaper, the time, and up to four real moves as pings.
+    n_pings can be fractional: the newest ping springs in."""
+    scr = Image.new('RGBA', (PH_W, PH_H), (10, 12, 11, 255))
+    g = Image.new('RGBA', (PH_W, PH_H), (0, 0, 0, 0)); gd = ImageDraw.Draw(g)
+    gd.ellipse([-200, 700, PH_W + 200, 1600], fill=(20, 70, 44, 255)); gd.ellipse([-100, -300, PH_W + 100, 400], fill=(28, 36, 70, 255))
+    g = g.filter(ImageFilter.GaussianBlur(120)); scr.alpha_composite(g)
+    d = ImageDraw.Draw(scr)
+    d.line([(60, 1180), (230, 1010), (300, 1070), (540, 830)], fill=UP + (90,), width=26, joint='curve')
+    d.text((PH_W / 2, 150), date, font=F('sans', 'Bold', 30), fill=(235, 235, 240), anchor='mm')
+    d.text((PH_W / 2, 250), clock, font=F('sans', 'Bold', 150), fill=(245, 245, 248), anchor='mm')
+    n = len(PINGS)
+    shown = min(n, n_pings)
+    for i in range(int(math.ceil(shown))):
+        frac = min(1.0, shown - i)
+        k = spring(frac)
+        who, race, what, amt, tx, when = PINGS[i]
+        # newest on top: card i sits at slot (shown_int-1-i)
+        slot = int(math.ceil(shown)) - 1 - i
+        y = 400 + slot * 150 - 120 * (1 - k)
+        card = Image.new('RGBA', (PH_W - 40, 136), (0, 0, 0, 0)); cd = ImageDraw.Draw(card)
+        cd.rounded_rectangle([0, 0, card.width - 1, 135], radius=30, fill=(46, 46, 52, 228))
+        cd.rounded_rectangle([18, 20, 76, 78], radius=15, fill=BLURPLE + (255,))
+        gl = A.glyph.copy(); gl.thumbnail((40, 40)); card.alpha_composite(gl, (47 - gl.size[0] // 2, 49 - gl.size[1] // 2))
+        cd.ellipse([62, 62, 84, 84], fill=AIC[who] + (255,), outline=(46, 46, 52, 255), width=3)
+        chan = {'Crypto': 'crypto', 'Oil and energy': 'energy', 'Metals': 'metals', 'Stocks': 'stocks'}.get(race, race.lower())   # the real channel names
+        cd.text((96, 34), f'PaperTrades.AI · #{chan}', font=F('sans', 'Bold', 22), fill=(225, 225, 230), anchor='lm')
+        cd.text((card.width - 20, 34), when, font=F('sans', 'Medium', 20), fill=(160, 160, 166), anchor='rm')
+        cd.text((96, 72), f'{NAME[who]} · {race}: {what}', font=F('sans', 'Bold', 25), fill=(245, 245, 248), anchor='lm')
+        cd.text((96, 106), f'{amt} · Transaction ID {tx}', font=F('sans', 'Medium', 22), fill=(200, 200, 206), anchor='lm')
+        a = card.getchannel('A').point(lambda v: int(v * min(1.0, frac * 3))); card.putalpha(a)
+        scr.alpha_composite(card, (20, int(y)))
+    if dim > 0:
+        scr.alpha_composite(Image.new('RGBA', scr.size, (0, 0, 0, int(200 * dim))))
+    return scr
 
 
 # ================================================================ scenes
