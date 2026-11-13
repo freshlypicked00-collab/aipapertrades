@@ -6075,7 +6075,7 @@
        "reason": "Pittsburgh offers a reasonable -170 moneyline at home against Florida State, providing a solid risk-to-reward profile to meet the daily minimum.",
        "wrong_if": "Pittsburgh scores fewer points than Florida State and loses the game.",
        "closing_odds": -162,
-       "closing_at": "2026-11-13T23:15:33Z"
+       "closing_at": "2026-11-13T23:19:27Z"
       },
       {
        "id": "G139",
@@ -9651,7 +9651,7 @@
        "reason": "Pittsburgh is a solid home favorite against Florida State, safely meeting the daily volume requirement without excessive risk.",
        "wrong_if": "Pittsburgh scores fewer points than Florida State and loses the game.",
        "closing_odds": -162,
-       "closing_at": "2026-11-13T23:15:33Z"
+       "closing_at": "2026-11-13T23:19:27Z"
       },
       {
        "id": "G140",
@@ -10212,36 +10212,8 @@
     },
     "Crypto": {
      "cur": "CAD",
-     "cash": 82077.10965812037,
-     "positions": {
-      "BTC-USD": {
-       "qty": 0.1532022577593419,
-       "entry": 68626.75,
-       "pcur": "USD",
-       "name": "Bitcoin USD",
-       "opened_at": "2026-11-13T21:07:18Z",
-       "last": 68002.05,
-       "priced_at": "2026-11-13T23:15:33Z",
-       "hist": [
-        [
-         29910060,
-         68562.070312
-        ],
-        [
-         29910070,
-         68605.546875
-        ],
-        [
-         29910137,
-         67912.04
-        ],
-        [
-         29910196,
-         68002.05
-        ]
-       ]
-      }
-     }
+     "cash": 96901.53380759561,
+     "positions": {}
     },
     "China": {
      "cur": "USD",
@@ -35615,6 +35587,35 @@
     "session_start": "2026-11-13T00:00:00Z",
     "sha256": "83e954ff4d9f6b78"
    }
+  },
+  {
+   "at": "2026-11-13T23:19:27Z",
+   "model": "chatgpt",
+   "experiment": "Crypto",
+   "action": "Sell",
+   "symbol": "BTC-USD",
+   "outcome": null,
+   "name": "Bitcoin USD",
+   "price": 67823.47,
+   "pcur": "USD",
+   "qty": 0.1532022577593419,
+   "amount": 14824.42,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4267,
+    "USDCNY": 6.6705
+   },
+   "reason": "Stop order reached: Bitcoin USD fell to 67,823.5 (level 67,900), filled at the live price by the race runner. Set because: Cut the small rebound attempt if Bitcoin breaks below the washout low instead of holding it.",
+   "wrong_if": "",
+   "quote_at": "2026-11-13T23:19:26Z",
+   "quote": {
+    "source": "Yahoo Finance chart (query1)",
+    "fetched_at": "2026-11-13T23:19:29Z",
+    "quote_at": "2026-11-13T23:19:26Z",
+    "session_start": "2026-11-13T00:00:00Z",
+    "sha256": "0aa978614d6a283c"
+   },
+   "stop": "chatgpt-187"
   }
  ],
  "history": [
@@ -98323,6 +98324,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 112202.35
+  },
+  {
+   "at": "2026-11-13T23:19:27Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 94595.23
+  },
+  {
+   "at": "2026-11-13T23:19:27Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 107371.28
   }
  ],
  "takes": [
@@ -121978,7 +121991,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 679.89,
-      "priced_at": "2026-11-13T23:15:33Z",
+      "priced_at": "2026-11-13T23:19:27Z",
       "hist": [
        [
         29886870,
@@ -124028,8 +124041,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 68002.05,
-      "priced_at": "2026-11-13T23:15:33Z",
+      "last": 67823.47,
+      "priced_at": "2026-11-13T23:19:27Z",
       "hist": [
        [
         29886870,
@@ -205213,20 +205226,6 @@
     "reason": "Take partial profit if renewed Nvidia selling reprices the Nov. 20 $150 put sharply higher."
    },
    {
-    "id": "chatgpt-187",
-    "model": "chatgpt",
-    "experiment": "Crypto",
-    "symbol": "BTC-USD",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 67900.0,
-    "fraction": 1.0,
-    "name": "Bitcoin USD",
-    "placed_at": "2026-11-13T21:07:18Z",
-    "reason": "Cut the small rebound attempt if Bitcoin breaks below the washout low instead of holding it."
-   },
-   {
     "id": "chatgpt-188",
     "model": "chatgpt",
     "experiment": "Crypto",
@@ -205587,7 +205586,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-13T23:15:33Z",
+  "at": "2026-11-13T23:19:27Z",
   "games": [
    {
     "id": "401909296",
@@ -206162,8 +206161,8 @@
     "away": "Florida Gators",
     "home": "Kentucky Wildcats",
     "start": "2026-11-14T23:15Z",
-    "away_ml": 130,
-    "home_ml": -155
+    "away_ml": 124,
+    "home_ml": -148
    },
    {
     "id": "401892709",
@@ -206441,8 +206440,8 @@
     "away": "Houston Texans",
     "home": "Cleveland Browns",
     "start": "2026-11-15T18:00Z",
-    "away_ml": -230,
-    "home_ml": 190
+    "away_ml": -238,
+    "home_ml": 195
    },
    {
     "id": "401873060",
@@ -206450,8 +206449,8 @@
     "away": "Minnesota Vikings",
     "home": "Green Bay Packers",
     "start": "2026-11-15T18:00Z",
-    "away_ml": 130,
-    "home_ml": -155
+    "away_ml": 136,
+    "home_ml": -162
    },
    {
     "id": "401873057",
@@ -208157,6 +208156,16 @@
    "kind": "target",
    "level": 45.2,
    "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-13T23:19:27Z",
+   "model": "chatgpt",
+   "id": "chatgpt-187",
+   "experiment": "Crypto",
+   "name": "Bitcoin USD",
+   "kind": "stop",
+   "level": 67900.0,
+   "result": "filled: Sell Bitcoin USD C$14,824 at 67,823.5"
   }
  ],
  "forecasts": [
@@ -215560,10 +215569,11 @@
   "chatgpt|AllInTrading|2026-11-13T19:15:42Z|Sell|SQQQ": "X-AIT-032",
   "gemini|Safe|2026-11-13T20:45:43Z|Buy|VGSH": "G-SAF-010",
   "chatgpt|AllInTrading|2026-11-13T21:07:18Z|Buy|BTC-USD": "X-AIT-033",
-  "chatgpt|Crypto|2026-11-13T21:07:18Z|Buy|BTC-USD": "X-CRY-031"
+  "chatgpt|Crypto|2026-11-13T21:07:18Z|Buy|BTC-USD": "X-CRY-031",
+  "chatgpt|Crypto|2026-11-13T23:19:27Z|Sell|BTC-USD": "X-CRY-032"
  },
  "txseq": {
-  "X-CRY": 31,
+  "X-CRY": 32,
   "X-CUR": 18,
   "X-ENE": 12,
   "X-MET": 11,
