@@ -101,8 +101,8 @@ def normalize(url):
     return (r or None), ('' if r else 'normalize returned nothing')
 
 
-def schedule_short(video_url, title, text, privacy, when=None, thumb=None, cover_ms=None):
-    """Schedule one YouTube Short. Returns (status, response)."""
+def schedule_short(video_url, title, text, privacy, when=None, thumb=None, cover_ms=None, yt_type='short'):
+    """Schedule one YouTube Short (or, with yt_type='video', a regular video). Returns (status, response)."""
     from datetime import datetime, timedelta
     from zoneinfo import ZoneInfo
     tz = 'America/Toronto'
@@ -114,7 +114,7 @@ def schedule_short(video_url, title, text, privacy, when=None, thumb=None, cover
         'text': text, 'providers': [{'network': 'youtube'}],
         'publicationDate': {'dateTime': at.strftime('%Y-%m-%dT%H:%M:%S'), 'timezone': tz},
         'draft': False, 'autoPublish': True, 'media': [media],
-        'youtubeData': {'title': title[:100], 'type': 'short', 'privacy': privacy, 'madeForKids': False, 'category': 'SCIENCE_TECHNOLOGY',
+        'youtubeData': {'title': title[:100], 'type': yt_type, 'privacy': privacy, 'madeForKids': False, 'category': 'SCIENCE_TECHNOLOGY',
                         'notifySubscribers': privacy == 'public', 'tags': ['AI', 'Claude', 'Gemini', 'ChatGPT', 'paper trading']},
     }
     if thumb:   # the bold cover as the Short's thumbnail (owner, Nov 3: "make sure u add the right thumbnail EVERYTIME")
@@ -425,7 +425,9 @@ def custom():
     if any(p.get('video') == rel and p.get('status') == 'PUBLISHED' for p in log['posts']):
         sys.exit('already posted: ' + rel)
     out = {'kind': 'yt', 'video': rel, 'title': title, 'at': datetime.now().astimezone().isoformat(timespec='seconds'), 'day': datetime.now().date().isoformat()}
-    st, r = schedule_short(url, title, desc, 'public', thumb=th)
+    title = title.replace('<', '').replace('>', ''); desc = desc.replace('<', '').replace('>', '→')   # YouTube refuses < and > (Nov 13)
+    kind = 'video' if '-wide' in rel else 'short'   # a 16:9 '-wide' file goes up as a regular video (owner, Nov 13: "as a short and a video")
+    st, r = schedule_short(url, title, desc, 'public', thumb=th, yt_type=kind)
     if not (st in (200, 201) and isinstance(r, dict)):
         out['status'] = 'ERROR'; out['error'] = str(_scrub(r))[:400]
     else:
