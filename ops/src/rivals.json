@@ -33787,6 +33787,24 @@
    "reason": "Final: Minnesota Wild 5, Toronto Maple Leafs 2.",
    "bet": "G116",
    "final": "Minnesota Wild 5, Toronto Maple Leafs 2"
+  },
+  {
+   "at": "2026-11-13T04:45:10Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "action": "Lost",
+   "symbol": "C12",
+   "outcome": null,
+   "name": "NHL: Dallas Stars moneyline (Winnipeg Jets @ Dallas Stars)",
+   "price": -185,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": -3000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Final: Winnipeg Jets 8, Dallas Stars 3.",
+   "bet": "C12",
+   "final": "Winnipeg Jets 8, Dallas Stars 3"
   }
  ],
  "history": [
@@ -94479,6 +94497,18 @@
    "model": "claude",
    "experiment": "AllInSports",
    "value": 110371.28
+  },
+  {
+   "at": "2026-11-13T04:45:10Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 95272.44
+  },
+  {
+   "at": "2026-11-13T04:45:10Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 107371.28
   }
  ],
  "takes": [
@@ -118784,7 +118814,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 688.17,
-      "priced_at": "2026-11-13T03:24:35Z",
+      "priced_at": "2026-11-13T04:45:10Z",
       "hist": [
        [
         29886870,
@@ -120713,6 +120743,10 @@
        [
         29908994,
         688.17
+       ],
+       [
+        29909085,
+        688.17
        ]
       ]
      },
@@ -120722,8 +120756,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 69150.3,
-      "priced_at": "2026-11-13T03:24:35Z",
+      "last": 68602.53,
+      "priced_at": "2026-11-13T04:45:10Z",
       "hist": [
        [
         29886870,
@@ -122792,6 +122826,10 @@
        [
         29908994,
         69721.37
+       ],
+       [
+        29909085,
+        68602.53
        ]
       ]
      }
@@ -123069,12 +123107,14 @@
       "to_win": 1621.62,
       "starts_at": "2026-11-13T01:00Z",
       "placed_at": "2026-11-12T05:22:08Z",
-      "status": "Open",
-      "result": 0.0,
+      "status": "Lost",
+      "result": -3000.0,
       "reason": "Today's required C$3,000 All in: Sports bet: Dallas is about -185 at home to Winnipeg; a minimum stake on a home favourite meets the daily rule without putting the C$100,000 at real risk.",
       "wrong_if": "Dallas loses to Winnipeg by 1 goal or more, including overtime or a shootout.",
       "closing_odds": -162,
-      "closing_at": "2026-11-13T00:20:39Z"
+      "closing_at": "2026-11-13T00:20:39Z",
+      "settled_at": "2026-11-13T04:45:10Z",
+      "final": "Winnipeg Jets 8, Dallas Stars 3"
      }
     ],
     "penalties": []
@@ -199928,7 +199968,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-13T03:24:35Z",
+  "at": "2026-11-13T04:45:10Z",
   "games": [
    {
     "id": "401909296",
@@ -199981,8 +200021,8 @@
     "away": "Ohio State Buckeyes",
     "home": "UConn Huskies",
     "start": "2026-11-14T00:30Z",
-    "away_ml": 425,
-    "home_ml": -575
+    "away_ml": 500,
+    "home_ml": -700
    },
    {
     "id": "401909298",
@@ -199990,8 +200030,8 @@
     "away": "Cleveland Cavaliers",
     "home": "Miami Heat",
     "start": "2026-11-14T01:00Z",
-    "away_ml": 105,
-    "home_ml": -124
+    "away_ml": 114,
+    "home_ml": -135
    },
    {
     "id": "401909299",
@@ -200017,8 +200057,8 @@
     "away": "Virginia Cavaliers",
     "home": "Maryland Terrapins",
     "start": "2026-11-14T01:00Z",
-    "away_ml": -258,
-    "home_ml": 210
+    "away_ml": -238,
+    "home_ml": 195
    },
    {
     "id": "401917916",
@@ -200062,8 +200102,8 @@
     "away": "Arizona Wildcats",
     "home": "Auburn Tigers",
     "start": "2026-11-14T02:00Z",
-    "away_ml": -122,
-    "home_ml": 102
+    "away_ml": -148,
+    "home_ml": 124
    },
    {
     "id": "401906760",
@@ -209695,7 +209735,8 @@
   "gemini|Sports|2026-11-12T19:45:04Z|Bet|G135": "G-SPT-134",
   "gemini|AllInSports|2026-11-13T03:14:17Z|Won|G116": "G-AIS-115",
   "gemini|Sports|2026-11-13T03:14:17Z|Won|G115": "G-SPT-135",
-  "claude|Sports|2026-11-13T03:15:27Z|Won|S16": "C-SPT-032"
+  "claude|Sports|2026-11-13T03:15:27Z|Won|S16": "C-SPT-032",
+  "claude|AllInSports|2026-11-13T04:45:10Z|Lost|C12": "C-AIS-024"
  },
  "txseq": {
   "X-CRY": 30,
@@ -209731,7 +209772,7 @@
   "G-CHN": 4,
   "C-CHN": 2,
   "G-PRD": 5,
-  "C-AIS": 23,
+  "C-AIS": 24,
   "X-PRD": 2,
   "C-OPT": 2
  },
