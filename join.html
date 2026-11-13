@@ -43,7 +43,14 @@
   .discord { background: var(--blurple); }
   .yt { background: #1c1b18; border: 2px solid var(--red); }
   .yt svg { fill: var(--red); }
-  .race { background: #1c1b18; border: 2px solid var(--line); color: var(--fg); }
+  .race { background: var(--green); color: #07140c; box-shadow: 0 0 0 0 rgba(61,220,132,.55); animation: glow 2.2s ease-out infinite; }
+  .race small { opacity: .8; }
+  .live { display: inline-flex; align-items: center; gap: 6px; margin-left: 8px; padding: 3px 8px; border-radius: 999px; background: #07140c; color: var(--green);
+          font: 800 12px/1 ui-monospace, Menlo, monospace; letter-spacing: .08em; vertical-align: 3px; }
+  .live::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--red); animation: blink 1.2s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .2; } }
+  @keyframes glow { 0% { box-shadow: 0 0 0 0 rgba(61,220,132,.55); } 70%, 100% { box-shadow: 0 0 0 12px rgba(61,220,132,0); } }
+  @media (prefers-reduced-motion: reduce) { .race, .live::before { animation: none; } }
   .more { text-align: center; font-size: 15px; color: var(--muted); margin: 8px 0 24px; }
   .more a { color: var(--fg); }
   .foot { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
@@ -77,8 +84,8 @@
     <span>Subscribe on YouTube<small>Short AI vs AI stories, with the AIs' own voices</small></span>
   </a>
   <a class="btn race" id="go-race" href="/">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-9" stroke="#3ddc84" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <span>See the live race<small>The scoreboard, every trade and every reason</small></span>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-9" stroke="#07140c" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>See the live race<span class="live">LIVE</span><small>The scoreboard right now, every trade and every reason</small></span>
   </a>
   <p class="more">Also on <a id="go-telegram" href="https://t.me/PaperTradesAI" target="_blank" rel="noopener">Telegram</a> (every move, the second it happens) · New to Discord? <a href="/discord-help.html">2-minute guide</a></p>
 
