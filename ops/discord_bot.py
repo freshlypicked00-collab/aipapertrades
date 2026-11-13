@@ -1,10 +1,11 @@
 """Discord as the main live-alert place (owner, Nov 9): one channel per race, set up and fed by one bot.
 
-Layout agreed Nov 9 (Claude and ChatGPT: one channel per race, as the owner asked; Gemini preferred three per-AI channels):
+Layout: the owner chose three per-AI channels (Nov 12; Gemini's design; Claude and ChatGPT had suggested one per race):
   START HERE   #welcome-and-rules  #how-it-works  #pick-your-alerts        (read-only)
   HEADLINES    #announcements  #daily-results  #lead-changes  #big-moments (read-only; pings only opt-in roles)
   LIVE         #live-trades (every move, as today; no ping)
-  RACES        one read-only channel per race, every move with the AI's reason; its own opt-in alert role
+  AI TRADES    #claude-trades  #gemini-trades  #chatgpt-trades: every move by that AI, all races, with its own reasons;
+               each has an opt-in alert role (@Claude Alerts ...)
   COMMUNITY    #general  #who-wins  #feedback-bugs
 Never @everyone or @here (all three agreed); every post says pretend money, not advice.
 
@@ -31,12 +32,7 @@ SITE = 'https://papertrades.ai'
 FOOT = 'Pretend money · real prices · not advice. We never DM anyone about money.'
 STAT = {'sent': 0, 'failed': 0, 'error': ''}
 
-# race key (the experiment name in the data) -> channel name and the alert role's name
-RACES = [('Stocks', 'stocks', 'Stocks and anything'), ('Crypto', 'crypto', 'Crypto'), ('China', 'china-stocks', 'China stocks'),
-         ('Metals', 'metals', 'Metals'), ('Energy', 'energy', 'Oil and energy'), ('Options', 'options', 'Options'),
-         ('Currencies', 'currencies', 'Currencies'), ('Safe', 'play-it-safe', 'Play it safe'), ('Sports', 'sports-bets', 'Sports bets'),
-         ('Predictions', 'prediction-markets', 'Prediction markets'), ('AllInTrading', 'high-risk-trading', 'High risk: trading'),
-         ('AllInSports', 'high-risk-sports', 'High risk: sports')]
+AIS = [('claude', 'claude-trades', 'Claude'), ('Gemini', 'gemini-trades', 'Gemini'), ('ChatGPT', 'chatgpt-trades', 'ChatGPT')]   # who -> channel, name
 LAYOUT = [
     ('START HERE', [('welcome-and-rules', 'ro', 'What this is: three AIs, pretend money, real prices. Not advice. We never DM you about money.'),
                     ('how-it-works', 'ro', 'The races, the rules and where every number comes from.'),
@@ -46,13 +42,12 @@ LAYOUT = [
                    ('lead-changes', 'ro', 'Each time an AI takes the lead in a race. Pings @Lead Change Alerts.'),
                    ('big-moments', 'ro', 'Wins or losses of C$5,000+, new records, an AI crossing ±10/25/50%. Pings @Big Moment Alerts.')]),
     ('LIVE', [('live-trades', 'ro', 'Every move from all three AIs, all races, as it happens. No pings.')]),
-    ('RACES', [(ch, 'ro', f'{label}: every move from Claude, Gemini and ChatGPT in this race, with each AI\'s own reason. Pings @{label} Alerts.')
-               for _, ch, label in RACES]),
+    ('AI TRADES', [(ch, 'ro', f'Every move {name} makes, in every race, with its own reasons. Pings @{name} Alerts.') for _, ch, name in AIS]),
     ('COMMUNITY', [('general', 'chat', 'Talk about the race. No links, no money talk, no DMs: we never DM you.'),
                    ('who-wins', 'chat', 'Guess who leads tomorrow.'),
                    ('feedback-bugs', 'chat', 'Something looks wrong on the site? Tell us here.')]),
 ]
-ROLES = ['Daily Results Alerts', 'Lead Change Alerts', 'Big Moment Alerts', 'Season News Alerts'] + [f'{label} Alerts' for _, _, label in RACES]
+ROLES = ['Daily Results Alerts', 'Lead Change Alerts', 'Big Moment Alerts', 'Season News Alerts'] + [f'{name} Alerts' for _, _, name in AIS]
 
 # Discord permission bits
 VIEW, SEND, MANAGE_MSG, EMBED, ATTACH, HISTORY, REACT, THREADS = 1 << 10, 1 << 11, 1 << 13, 1 << 14, 1 << 15, 1 << 16, 1 << 6, (1 << 35) | (1 << 36) | (1 << 38)
@@ -145,32 +140,26 @@ def send(key, text, photos=None, ping_role=None):
 
 
 def route(who, items, trades=None, history=None, series=None, prefix='/tmp/dcr'):
-    """Post one check-in's moves to their race channels. who = 'claude' | 'Gemini' | 'ChatGPT'; items = [(text_html, move)].
-    Each race gets one post: the AI's name, that race's moves (the same lines as Telegram, the AI's own reasons) and its cards."""
+    """Post one check-in's moves to that AI's own channel. who = 'claude' | 'Gemini' | 'ChatGPT'; items = [(text_html, move)].
+    One post: the AI's name, its moves (the same lines as Telegram, each starting with the race, the AI's own reasons) and its cards."""
     if not ready() or not items:
         return 0
     head = {'claude': '🟠 <b>CLAUDE</b> (Anthropic)', 'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(who, f'<b>{who}</b>')
-    chan = {k: ch for k, ch, _ in RACES}
-    groups = {}
-    for text, mv in items:
-        e = (mv or {}).get('experiment') or ''
-        if e in chan:
-            groups.setdefault(e, []).append((text, mv))
-    n = 0
-    for e, its in groups.items():
+    ai = next(((ch, name) for w, ch, name in AIS if w == who), None)
+    if not ai:
+        return 0
+    try:
+        pics = []
         try:
-            pics = []
-            try:
-                import sharecard
-                pics = sharecard.album(who.lower() if who == 'claude' else who, [mv for _, mv in its], trades, history, f'{prefix}_{e}', series=series)
-            except Exception as ex:
-                print('discord route cards failed', ex)
-            body = head + '\n' + '\n\n'.join(t for t, _ in its) + f'\n\n{FOOT}\n{SITE}'
-            if send(chan[e], body, pics, ping_role=e):
-                n += 1
+            import sharecard
+            pics = sharecard.album(who, [mv for _, mv in items], trades, history, prefix, series=series)
         except Exception as ex:
-            print('discord route failed', e, ex)
-    return n
+            print('discord route cards failed', ex)
+        body = head + f"\n🧾 <b>{len(items)} move{'s' if len(items) > 1 else ''} this check-in</b>\n\n" + '\n\n'.join(t for t, _ in items) + f'\n\n{FOOT}\n{SITE}'
+        return 1 if send(ai[0], body, pics, ping_role=ai[1]) else 0
+    except Exception as ex:
+        print('discord route failed', ex)
+        return 0
 
 
 # ---------- one-time setup (run by .github/workflows/discord-setup.yml) ----------
@@ -193,7 +182,7 @@ def setup():
     m.setdefault('roles', {})
     for name in ROLES:
         r = roles.get(name) or call('POST', f'/guilds/{gid}/roles', {'name': name, 'mentionable': True, 'permissions': '0'}, reason='PaperTrades.AI alerts')
-        key = next((k for k, _, label in RACES if f'{label} Alerts' == name), None) or {'Daily Results Alerts': 'daily', 'Lead Change Alerts': 'leads',
+        key = next((n for _, _, n in AIS if f'{n} Alerts' == name), None) or {'Daily Results Alerts': 'daily', 'Lead Change Alerts': 'leads',
                                                                                         'Big Moment Alerts': 'big', 'Season News Alerts': 'news'}[name]
         m['roles'][key] = r['id']
         print('role', name, r['id'])
@@ -222,9 +211,6 @@ def setup():
             else:
                 cid = call('POST', f'/guilds/{gid}/channels', body, reason='PaperTrades.AI layout')['id']
             m['channels'][name] = cid
-            for k, ch, _ in RACES:
-                if ch == name:
-                    m['channels'][ch] = cid
             print('channel', cat, '#' + name, cid)
     # server: notifications only for @mentions; verification medium (all three agreed)
     try:
