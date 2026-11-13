@@ -2519,7 +2519,7 @@ def main():
             # one picture per move as an album after a cover (owner, Oct 30; design agreed by all three AIs: ops/review/tradecards-oct30.json)
             pics = sharecard.album(r['label'], made, state['trades'], state['history'], f"/tmp/rm_{mid}_{len(state['trades'])}",
                                    series=lambda s, _m={t['symbol']: t['experiment'] for t in made}: sharecard.chart_points(s, _m.get(s)))
-            try:   # the moves also go to this AI's own Discord channel (owner, Nov 12: one channel per AI; does nothing until the bot is set up)
+            try:   # each race's moves also go to that race's own Discord channel (owner, Nov 9; does nothing until the bot is set up)
                 discord_bot.route(r['label'], [(line(t), t) for t in made], state['trades'], state['history'], prefix=f'/tmp/dcr_{mid}',
                                   series=lambda s, _m={t['symbol']: t['experiment'] for t in made}: sharecard.chart_points(s, _m.get(s)))
             except Exception as e:
