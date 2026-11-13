@@ -1,12 +1,12 @@
 {
- "at": "2026-11-12T10:09:35.735500Z",
+ "at": "2026-11-13T09:54:06.498940Z",
  "since": "2026-11-01T02:30:00Z",
  "by_ai": {
   "claude": {
    "kept": 1,
    "broken": 1,
-   "pending": 4,
-   "closed_first": 0,
+   "pending": 3,
+   "closed_first": 1,
    "untestable": 2,
    "items": [
     {
@@ -48,7 +48,7 @@
       "symbol": "GLD",
       "below": 352.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-04T09:50:06-05:00",
@@ -96,69 +96,10 @@
   "gemini": {
    "kept": 7,
    "broken": 4,
-   "pending": 13,
-   "closed_first": 35,
-   "untestable": 7,
+   "pending": 8,
+   "closed_first": 44,
+   "untestable": 9,
    "items": [
-    {
-     "at": "2026-11-06T15:18:16Z",
-     "what": "SPY Nov 20 $730 put",
-     "race": "Options",
-     "tx": "G-OPT-018",
-     "result": "untestable"
-    },
-    {
-     "at": "2026-11-06T17:15:24Z",
-     "what": "State Street Energy Select Sector SPDR ETF",
-     "race": "Energy",
-     "tx": "G-ENE-021",
-     "level": {
-      "symbol": "XLE",
-      "below": 62.0
-     },
-     "breach_at": "2026-11-06T17:30:00Z",
-     "result": "kept: got out after the level was reached"
-    },
-    {
-     "at": "2026-11-06T17:15:24Z",
-     "what": "TLT Nov 20 $81 put",
-     "race": "Options",
-     "tx": "G-OPT-019",
-     "result": "untestable"
-    },
-    {
-     "at": "2026-11-06T18:45:13Z",
-     "what": "SPDR Gold Shares",
-     "race": "Metals",
-     "tx": "G-MET-014",
-     "level": {
-      "symbol": "GLD",
-      "below": 360.0
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-09T17:45:44Z",
-     "what": "NVDA Nov 20 $180 put",
-     "race": "Options",
-     "tx": "G-OPT-023",
-     "level": {
-      "symbol": "NVDA",
-      "above": 190.0
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-09T17:45:44Z",
-     "what": "Graniteshares 2x Short NVDA Daily ETF",
-     "race": "Stocks",
-     "tx": "G-STK-026",
-     "level": {
-      "symbol": "NVDA",
-      "above": 190.0
-     },
-     "result": "closed before the level was reached"
-    },
     {
      "at": "2026-11-10T14:21:59Z",
      "what": "Japanese yen",
@@ -244,7 +185,7 @@
       "symbol": "TMV",
       "below": 41.5
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-10T20:45:24Z",
@@ -278,7 +219,7 @@
       "symbol": "TMV",
       "below": 42.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-11T15:04:34Z",
@@ -300,7 +241,7 @@
       "symbol": "USO",
       "below": 135.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-11T16:14:59Z",
@@ -329,7 +270,7 @@
       "symbol": "USO",
       "below": 135.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-11T18:15:17Z",
@@ -340,7 +281,7 @@
       "symbol": "TMV",
       "below": 42.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-11T18:15:17Z",
@@ -358,7 +299,7 @@
       "symbol": "USO",
       "below": 135.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-11T19:44:44Z",
@@ -376,7 +317,7 @@
       "symbol": "SQQQ",
       "below": 36.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-11T20:14:15Z",
@@ -387,7 +328,7 @@
       "symbol": "SQQQ",
       "below": 36.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-11T20:14:15Z",
@@ -398,7 +339,7 @@
       "symbol": "NVDA261120P00170000",
       "below": 3.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-12T04:14:45Z",
@@ -410,13 +351,71 @@
       "above": 1.1
      },
      "result": "no prices (HTTP Error 404: Not Found)"
+    },
+    {
+     "at": "2026-11-12T16:45:06Z",
+     "what": "ProShares UltraPro Short QQQ",
+     "race": "Stocks",
+     "tx": "G-STK-042",
+     "result": "untestable"
+    },
+    {
+     "at": "2026-11-12T16:45:06Z",
+     "what": "Direxion Daily 20+ Year Treasury Bear 3X Shares",
+     "race": "Stocks",
+     "tx": "G-STK-043",
+     "result": "untestable"
+    },
+    {
+     "at": "2026-11-12T18:44:37Z",
+     "what": "United States Oil Fund, LP",
+     "race": "Energy",
+     "tx": "G-ENE-031",
+     "level": {
+      "symbol": "USO",
+      "below": 135.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-12T19:14:54Z",
+     "what": "NVDA Nov 20 $160 put",
+     "race": "Options",
+     "tx": "G-OPT-035",
+     "level": {
+      "symbol": "NVDA",
+      "above": 180.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-12T19:14:54Z",
+     "what": "Direxion Daily 20+ Year Treasury Bear 3X Shares",
+     "race": "Stocks",
+     "tx": "G-STK-045",
+     "level": {
+      "symbol": "TMV",
+      "below": 43.5
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-12T19:14:54Z",
+     "what": "ProShares UltraPro Short QQQ",
+     "race": "Stocks",
+     "tx": "G-STK-044",
+     "level": {
+      "symbol": "SQQQ",
+      "below": 39.0
+     },
+     "result": "level not reached yet"
     }
    ]
   },
   "chatgpt": {
-   "kept": 11,
+   "kept": 12,
    "broken": 7,
-   "pending": 7,
+   "pending": 6,
    "closed_first": 14,
    "untestable": 2,
    "items": [
@@ -758,7 +757,8 @@
       "symbol": "SLV",
       "below": 45.5
      },
-     "result": "level not reached yet"
+     "breach_at": "2026-11-12T14:30:00Z",
+     "result": "kept: got out after the level was reached"
     }
    ]
   }
