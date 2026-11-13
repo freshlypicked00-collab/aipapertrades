@@ -372,7 +372,9 @@ def lead_change(out, m, i):
         s.t((X0 + 170, y + 55), NAME[k], F('sans', 'Bold', 48), AIC[k], 'lm')
         s.t((X1 - 30, y + 55), ('+' if p >= 0 else '−') + cur + f'{abs(p):,.0f}', F('mono', 'SemiBold', 44), UP if p > 0.5 else DOWN if p < -0.5 else CREAM, 'rm')
         y += 130
-    s.para(X0, y + 20, 'Profit since the Oct 28 restart, this race only.', F('sans', 'Regular', 32), MUTED)
+    s.para(X0, y + 20, 'Profit since the Oct 28 restart, this race only.'
+           + (' All three are down in this race, so 1st place is the one that has lost the least.' if prof and max(prof.values()) < 0 else ''),
+           F('sans', 'Regular', 32), MUTED)   # owner, Nov 12: a leader with a minus sign reads oddly without this
     return s.save(f'{out}/lead-{i}-{m["race"].lower()}-{who}.jpg')
 
 
