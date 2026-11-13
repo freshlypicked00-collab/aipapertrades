@@ -11,6 +11,7 @@ import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import discord  # noqa: E402
+import discord_bot  # noqa: E402
 
 path = sys.argv[1]
 name = os.path.basename(path)
@@ -25,6 +26,7 @@ r = json.load(urllib.request.urlopen(f'https://api.telegram.org/bot{tok}/sendMes
 if not r.get('ok'):
     print('::error::Telegram refused the notice:', str(r)[:300]); sys.exit(1)
 discord.post(text)   # the same notice on Discord (does nothing until DISCORD_WEBHOOK_URL is set)
+discord_bot.send('announcements', text.replace('utm_source=telegram', 'utm_source=discord'), ping_role='news')   # and in #announcements, pinging only @Season News Alerts
 sent.append(name)
 json.dump(sent, open(log, 'w'), indent=1)
 print('::notice::posted ' + name)
