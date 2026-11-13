@@ -26,9 +26,9 @@ SKIP = {'story-daily-2026-10-29', 'story-daily-2026-10-30', 'story-day1-remake-v
         'story-daily-2026-11-01', 'story-daily-2026-11-02',
         # replaced by the colourful highlight stories the owner was sent on Oct 30 (and the wrong '16 min' story)
         'story-feature-binance-v1', 'story-feature-grades-v1', 'story-moment-Crypto-202610290114-claude', 'story-moment-Currencies-202610292122-claude', 'story-moment-Metals-202610291346-chatgpt', 'story-moment-Options-202610291346-gemini', 'story-moment-Sports-202610290414-chatgpt', 'story-moment-Sports-202610300216-gemini', 'story-ten-2026-10-29', 'story-ten-2026-10-30'}
-HIGHLIGHTS = [('Start here', ('story-intro',)), ('Daily', ('story-daily', 'story-ten-')), ('Lead changes', ('story-moment',)),
+HIGHLIGHTS = [('Start here', ('story-intro', 'story-start-')), ('Daily', ('story-daily', 'story-ten-')), ('Lead changes', ('story-moment',)),
               ('Big moments', ('story-feature-binance', 'story-big-')), ('Report cards', ('story-feature-grades', 'story-grades-')),
-              ('Meet the AIs', ('story-meet-',))]   # v2 covers (owner, Oct 30: more colour and drawings): ops/hl_covers.py
+              ('Meet the AIs', ('story-meet-',)), ('Rules', ('story-rules-',))]   # v2 covers (owner, Oct 30: more colour and drawings): ops/hl_covers.py
 NAMES = {'Crypto': 'Crypto', 'Stocks': 'Stocks', 'China': 'China stocks', 'Metals': 'Metals', 'Energy': 'Oil and energy', 'Options': 'Options',
          'Currencies': 'Currencies', 'Safe': 'Play it safe', 'Sports': 'Sports', 'Predictions': 'Prediction markets'}
 

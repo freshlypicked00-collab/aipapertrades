@@ -151,10 +151,11 @@ def due_posts(state):
         for i in range(1, 5):
             if f'story-meet-{wk}-{i}' not in done:
                 out.append({'id': f'story-meet-{wk}-{i}', 'kind': 'story-meet', 'n': i})
-    for n in (2, 3, 4):   # the Rules highlight's 3 new stories (owner, Nov 12: "you post it"), made by ops/rules_stories.py
-        rid = f'story-rules-{n}-v1'
-        if rid not in done and NOW < datetime(2026, 11, 15, 4, 0, tzinfo=timezone.utc):
-            out.append({'id': rid, 'kind': 'story-file', 'src': sorted(glob.glob(f'social/rules/rules-{n}-*.png'))[0]})   # in order, 2 a run (the story cap)
+    one_off = [(f'story-rules-{n}-v1', sorted(glob.glob(f'social/rules/rules-{n}-*.png'))) for n in (2, 3, 4)]   # Rules highlight (owner, Nov 12)
+    one_off += [(f'story-start-v2-{n}', [f'social/start-here-v2/start-here-{n}.png']) for n in (1, 2, 3, 4)]   # Start here, remade Nov 12 (High risk, YouTube, Discord)
+    for rid, src in one_off:
+        if rid not in done and src and os.path.exists(src[0]) and NOW < datetime(2026, 11, 15, 4, 0, tzinfo=timezone.utc):
+            out.append({'id': rid, 'kind': 'story-file', 'src': src[0]})   # in order, 2 a run (the story cap)
     if 'story-feature-gemini-usc-v1' not in done and NOW < datetime(2026, 11, 3, 4, 0, tzinfo=timezone.utc):
         out.append({'id': 'story-feature-gemini-usc-v1', 'kind': 'story-feature-gemini-usc-v1'})
     for fid in ('feature-chatgpt-oilers-v1', 'feature-gemini-options-v1', 'feature-gemini-allin-v1', 'feature-grades-paradox-v1'):   # inserted at the front in turn: the last one goes first   # Oct 30 big wins, one post each (owner); one goes out per run, Gemini's +C$35k first
@@ -196,6 +197,11 @@ def due_reels(done):
         rid = 'reel-' + os.path.basename(v)[:-4]
         if rid in done:
             continue
+        if y.get('kind') == 'story' and datetime.fromisoformat(y['at']) >= datetime(2026, 11, 13, 4, 0, tzinfo=timezone.utc):
+            m = re.search(r'bet C\$([\d,.]+)(K?) on an? ([−+-])(\d+)', y.get('title') or '')
+            stake = float(m.group(1).replace(',', '')) * (1000 if m and m.group(2) else 1) if m else 0
+            if m and stake < 10000 and m.group(3) != '+':   # a routine minimum bet on a favourite: YouTube only, not a Reel
+                continue
         cov = next((c for c in (v[:-4] + '-thumb.png', v[:-4] + '-thumb.jpg', v[:-4] + '-cover.jpg', v[:-4] + '-cover.png') if os.path.exists(c)), None)
         out.append({'id': rid, 'kind': 'reel', 'video': v, 'cover': cov, 'title': y.get('title') or ''})
     return out
@@ -216,6 +222,10 @@ def prepare():
                     cj = f"social/{p['id']}-cover.jpg"
                     Image.open(p['cover']).convert('RGB').save(cj, quality=92); p['images'] = [cj]
                 t = re.sub(r'\s*(#\w+\s*)+$', '', p['title']).replace(' | ', ' · ').strip()
+                om = re.search(r'([−+-])(\d{3,4}) (favourite|underdog)', t)
+                if om:   # betting odds in plain words (owner, Nov 12)
+                    n_ = int(om.group(2))
+                    t += (f"\n\n({om.group(1)}{n_} means a C${n_} bet wins C$100.)" if om.group(1) != '+' else f"\n\n(+{n_} means a C$100 bet wins C${n_}.)")
                 p['caption'] = (t + "\n\nEvery bet and trade, with the AI's own reasons, live at PaperTrades.AI (link in bio).\n\n"
                                 "Pretend money, real " + ('odds' if re.search(r'\bbet|sports', t, re.I) else 'prices') + ". Not financial or betting advice.\n\n" + TAGS)
                 p['reel'] = True; p['image'] = p['images'][0] if p['images'] else None

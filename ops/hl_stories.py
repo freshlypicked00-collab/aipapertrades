@@ -162,7 +162,7 @@ def start_here(out):
     steps = [('Every day', 'Each race has its own leader, shown live on the site.', AMBER),
              ('Nov 28, 4 p.m. ET', 'The ten results are added up in C$. Highest total profit wins the whole thing.', G),
              ('Lose C$100,000', 'An AI that loses C$100,000 in total across its races is eliminated.', DOWN),
-             ('High risk side race', 'Separate, no limits, its own winner. Never counted in the main race.', (167, 139, 250))]
+             ('High risk side race', 'Separate, no position caps, its own winner. Never counted in the main race.', (167, 139, 250))]
     y = 680
     for i, (a, b, c) in enumerate(steps):
         s.d.ellipse([X0, y + 8, X0 + 44, y + 52], fill=c)
@@ -178,26 +178,34 @@ def start_here(out):
     s.kicker(280, 'FOLLOW ALONG')
     s.t((X0, 320), 'Never miss', F('sans', 'Bold', 120)); s.t((X0, 450), 'a trade.', F('sans', 'Bold', 120), G)
     rows = [('telegram', 'Telegram', '@PaperTradesAI', 'every trade and bet, the second it happens', (42, 171, 238)),
+            ('yt', 'YouTube', '@PaperTradesAI', 'AI vs AI Shorts: the best moves, with voices', (255, 60, 60)),
+            ('discord', 'Discord', 'PaperTrades.AI', 'alerts, one channel for each race', (114, 137, 218)),
             ('ig', 'Instagram', '@papertrades.ai', 'daily results, lead changes, big moments', (225, 48, 108)),
             ('x', 'X', '@papertradesai', 'the race, in short', CREAM),
             ('web', 'The website', 'papertrades.ai', 'the full ledger, every reason, every grade', AMBER)]
-    y = 650
+    y = 640   # six rows since Nov 12 (owner: "do whatever you think is best"): YouTube and Discord added
     for k, (key, nm, handle, what, c) in enumerate(rows):
-        s.bubble([X0, y, X1, y + 190], tuple(int(v * .18) for v in c), c)
+        s.bubble([X0, y, X1, y + 140], tuple(int(v * .18) for v in c), c)
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'icons', {'telegram': 'telegram', 'x': 'x'}.get(key, '') + '.png')
-        cx, cy = X0 + 85, y + 95
+        cx, cy = X0 + 85, y + 70
         if key in ('telegram', 'x') and os.path.exists(path):
             ic = Image.open(path).convert('RGBA').resize((90, 90)); s.im.paste(ic, (cx - 45, cy - 45), ic)
         elif key == 'ig':
             s.d.rounded_rectangle([cx - 42, cy - 42, cx + 42, cy + 42], radius=24, outline=c, width=8); s.d.ellipse([cx - 18, cy - 18, cx + 18, cy + 18], outline=c, width=8); s.d.ellipse([cx + 20, cy - 32, cx + 30, cy - 22], fill=c)
+        elif key == 'yt':   # a play button
+            s.d.rounded_rectangle([cx - 46, cy - 32, cx + 46, cy + 32], radius=18, fill=c); s.d.polygon([(cx - 12, cy - 17), (cx - 12, cy + 17), (cx + 20, cy)], fill=CREAM)
+        elif key == 'discord':   # a chat bubble with three dots
+            s.d.rounded_rectangle([cx - 44, cy - 32, cx + 44, cy + 24], radius=18, fill=c); s.d.polygon([(cx - 20, cy + 22), (cx - 2, cy + 22), (cx - 24, cy + 42)], fill=c)
+            for dx in (-22, 0, 22):
+                s.d.ellipse([cx + dx - 7, cy - 10, cx + dx + 7, cy + 4], fill=CREAM)
         else:
             s.d.ellipse([cx - 42, cy - 42, cx + 42, cy + 42], outline=c, width=7); s.d.line([(cx - 42, cy), (cx + 42, cy)], fill=c, width=5); s.d.ellipse([cx - 18, cy - 42, cx + 18, cy + 42], outline=c, width=5)
-        s.t((X0 + 170, y + 40), nm, F('sans', 'Bold', 48), c)
-        s.t((X0 + 170 + F('sans', 'Bold', 48).getlength(nm) + 20, y + 54), handle, F('mono', 'Medium', 28), MUTED)
-        s.para(X0 + 170, y + 110, what, F('sans', 'Regular', 34), CREAM, X1 - X0 - 200)
-        y += 215
-    s.t((X1 - 40, 1560), 'link in bio', F('mono', 'SemiBold', 34), G, 'ra')
-    s.arrow([(X1 - 330, 1590), (X1 - 420, 1500), (X1 - 330, 1450), (X1 - 230, 1530)], G, 7, 90)
+        s.t((X0 + 170, y + 22), nm, F('sans', 'Bold', 46), c)
+        s.t((X0 + 170 + F('sans', 'Bold', 46).getlength(nm) + 20, y + 36), handle, F('mono', 'Medium', 28), MUTED)
+        s.para(X0 + 170, y + 82, what, F('sans', 'Regular', 32), CREAM, X1 - X0 - 200)
+        y += 155
+    s.t((X1 - 40, 1660), 'link in bio', F('mono', 'SemiBold', 34), G, 'ra')
+    s.arrow([(X1 - 330, 1700), (X1 - 420, 1640), (X1 - 330, 1590), (X1 - 230, 1640)], G, 7, 90)
     ps.append(s.save(f'{out}/start-here-4.jpg'))
     return ps
 
