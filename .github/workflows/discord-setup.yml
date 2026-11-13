@@ -5,8 +5,10 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'setup = create and arrange, check = only list what the bot sees, welcome = post the START HERE texts'
+        description: 'setup = create and arrange, check = only list what the bot sees, welcome = post the START HERE texts, invites = one invite per ad, counts = log members and joins per ad'
         default: 'setup'
+  schedule:
+    - cron: '47 1 * * *'   # every evening (8:47 p.m. ET): one line in ops/ads/counts.csv, members and joins per ad
 permissions:
   contents: write
 concurrency:
@@ -22,7 +24,7 @@ jobs:
       - name: Set up the server
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-        run: python3 ops/discord_bot.py "${{ github.event.inputs.mode }}"
+        run: python3 ops/discord_bot.py "${{ github.event.inputs.mode || 'counts' }}"
       - name: Save the channel IDs
         if: github.event.inputs.mode == 'setup'
         run: |
@@ -30,4 +32,12 @@ jobs:
           git add ops/discord_channels.json
           git diff --cached --quiet && exit 0
           git commit -m "Discord: channel and role IDs from setup"
+          for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 5; done
+      - name: Save the ad invites and counts
+        if: github.event.inputs.mode == 'invites' || github.event.inputs.mode == 'counts' || github.event_name == 'schedule'
+        run: |
+          git config user.name "PaperTrades bot"; git config user.email "bot@papertrades.ai"
+          git add ops/discord_invites.json ops/ads/counts.csv 2>/dev/null || true
+          git diff --cached --quiet && exit 0
+          git commit -m "Discord: ad invites and daily counts"
           for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 5; done

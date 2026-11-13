@@ -20,6 +20,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -458,7 +459,45 @@ def check():
         print(' ', 'category' if c['type'] == 4 else '#', c['name'], c['id'])
 
 
+# Ads (owner, Nov 13; Gemini, ChatGPT and Claude agreed on the ad plan): one Discord invite per ad, so Discord itself counts the
+# joins each ad brings. The codes go in ops/discord_invites.json and in join.html's INVITES map.
+ADS = ['yt-ad-1', 'reddit-test-2']
+INV = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'discord_invites.json')
+
+
+def invites():
+    m = load_map()
+    ch = (m.get('channels') or {}).get('welcome-and-rules')
+    have = json.load(open(INV)) if os.path.exists(INV) else {}
+    live = {i['code'] for i in call('GET', f"/guilds/{m['guild']}/invites")}
+    for ad in ADS:
+        if have.get(ad) in live:
+            print(ad, 'already', have[ad])
+            continue
+        inv = call('POST', f'/channels/{ch}/invites', {'max_age': 0, 'max_uses': 0, 'unique': True}, reason=f'ad invite {ad}')
+        have[ad] = inv['code']
+        print(ad, 'new', inv['code'])
+    json.dump(have, open(INV, 'w'), indent=1)
+
+
+def counts():
+    """One line a day in ops/ads/counts.csv: members now and the joins through each ad's invite (owner's daily count)."""
+    m = load_map()
+    g = call('GET', f"/guilds/{m['guild']}?with_counts=true")
+    uses = {i['code']: i.get('uses', 0) for i in call('GET', f"/guilds/{m['guild']}/invites")}
+    have = json.load(open(INV)) if os.path.exists(INV) else {}
+    row = [datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M'), str(g.get('approximate_member_count', ''))] + [str(uses.get(have.get(ad), '')) for ad in ADS]
+    path = os.path.join(os.path.dirname(INV), 'ads', 'counts.csv')
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    new = not os.path.exists(path)
+    with open(path, 'a') as f:
+        if new:
+            f.write('utc,members,' + ','.join(f'joins_{a}' for a in ADS) + ',other_invites\n')
+        f.write(','.join(row) + ',' + ' '.join(f'{k}={v}' for k, v in uses.items() if k not in have.values()) + '\n')
+    print(open(path).read())
+
+
 if __name__ == '__main__':
     if not TOKEN:
         sys.exit('DISCORD_BOT_TOKEN is not set (GitHub: Settings > Secrets and variables > Actions)')
-    {'setup': setup, 'check': check, 'welcome': welcome, 'onboarding': onboarding, 'profile': profile, 'basics': basics}[sys.argv[1] if len(sys.argv) > 1 else 'check']()
+    {'setup': setup, 'check': check, 'welcome': welcome, 'onboarding': onboarding, 'profile': profile, 'basics': basics, 'invites': invites, 'counts': counts}[sys.argv[1] if len(sys.argv) > 1 else 'check']()
