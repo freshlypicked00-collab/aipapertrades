@@ -26,6 +26,7 @@ HL = [
     ('Big moments', 'big-moments', (255, 90, 78), (180, 30, 60), 'The headlines: the Binance hack call, huge wins, painful losses.', '5 to 10'),
     ('Report cards', 'report-cards', (79, 143, 247), (60, 70, 200), 'The AIs grading each other: the harshest Fs and the best As.', '4 to 8'),
     ('Meet the AIs', 'meet-the-ais', (167, 139, 250), (110, 70, 210), 'Claude, Gemini and ChatGPT: who they are and how each one plays.', '4 stories'),
+    ('Rules', 'rules', (45, 200, 210), (20, 110, 150), 'How the race works: the days, how to win, the betting rules, busted and eliminated.', '4 stories'),
 ]
 
 
@@ -109,6 +110,14 @@ def icon(d, name, cx, cy, col, dark):
         d.polygon(p, fill=(255, 209, 102)); wobble(d, p + [p[0]], INK, 8, 56)
         tip = [(cx + 150, cy + 250), (cx + 195, cy + 285), (cx + 140, cy + 305)]
         d.polygon(tip, fill=CREAM); wobble(d, tip + [tip[0]], INK, 7, 57)
+    elif name == 'rules':   # a clipboard with a ticked checklist (owner, Nov 12)
+        d.rounded_rectangle([cx - 175, cy - 210, cx + 175, cy + 235], radius=30, fill=CREAM)
+        wobble(d, [(cx - 175, cy - 210), (cx + 175, cy - 210), (cx + 175, cy + 235), (cx - 175, cy + 235), (cx - 175, cy - 210)], INK, 9, 70)
+        d.rounded_rectangle([cx - 85, cy - 250, cx + 85, cy - 180], radius=20, fill=dark, outline=INK, width=8)
+        for i, dy in enumerate((-95, 15, 125)):
+            y = cy + dy
+            wobble(d, [(cx - 125, y), (cx - 100, y + 28), (cx - 55, y - 30)], (24, 140, 90), 14, 71 + i, 1)
+            wobble(d, [(cx - 20, y), (cx + 125 - (40 if i == 2 else 0), y)], (155, 146, 127), 12, 75 + i, 1)
     elif name == 'meet-the-ais':   # three little robot faces in the AIs' colours
         for i, (fc, tx) in enumerate((((217, 119, 87), -200), ((79, 143, 247), 0), ((242, 242, 242), 200))):
             x, y = cx + tx, cy + (-40 if i == 1 else 40)
