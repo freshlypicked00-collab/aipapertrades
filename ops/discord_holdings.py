@@ -29,6 +29,7 @@ def et_now():
 
 def message(mid, dot, name, maker, es):
     lines = [f'{dot} **{name} holds now** ({maker}) · pretend money', '']
+    allcash = []
     for race, rows in es.items():
         r = next((x for x in rows if x.get('id') == mid), None)
         if not r:
@@ -36,6 +37,9 @@ def message(mid, dot, name, maker, es):
         v, p = float(r.get('value') or 0), float(r.get('profit') or 0)
         pct = p / (v - p) * 100 if v - p else 0
         tag = ' · out of money' if r.get('busted') else ''
+        if not r.get('busted') and all(str(x['name']).startswith(('Cash', 'Not bet')) for x in (r.get('pie') or [])):
+            allcash.append(f"{LABEL.get(race, race)} {money(v, race)} ({'+' if p >= 0 else ''}{money(p, race)})")   # nothing held: one shared line at the end
+            continue
         lines.append(f"**{LABEL.get(race, race)}** {money(v, race)} ({'+' if p >= 0 else ''}{money(p, race)}, {'+' if pct >= 0 else '−'}{abs(pct):.1f}%){tag}")
         pie = sorted(r.get('pie') or [], key=lambda s: -float(s.get('value') or 0))
         held = [s for s in pie if not str(s['name']).startswith(('Cash', 'Not bet'))]
@@ -49,6 +53,8 @@ def message(mid, dot, name, maker, es):
         if cash > 0.5:
             bits.append(f"{'not bet' if race == 'Sports' else 'cash'} {money(cash, race)}" + (' (includes the money from short sales)' if any(short(x) for x in held) else ''))
         lines.append('  ' + (' · '.join(bits) if bits else 'all cash'))
+    if allcash:
+        lines.append('**All cash:** ' + ' · '.join(allcash))
     t = et_now()
     lines += ['', f"Updated {t.strftime('%b %d, %I:%M %p').replace(' 0', ' ')} ET · each trade is in its race channel · "
                   f"full details: <https://papertrades.ai/#ai-{mid}>"]
@@ -68,20 +74,37 @@ def main():
     if not es:
         print('no standings in data.json')
         return
+    data = json.load(open(os.path.join(ROOT, 'data.json')))
+    try:
+        import holdcards as HC
+    except Exception as e:   # no picture library: text only
+        HC = None
+        print('pictures off:', e)
     mine = [m for m in B.call('GET', f'/channels/{ch}/messages?limit=30') if (m.get('author') or {}).get('bot')]
-    for mid, dot, name, maker in AIS:
-        text = message(mid, dot, name, maker, es)
-        old = next((m for m in mine if m.get('content', '').startswith(f'{dot} **{name} holds now**')), None)
+    posts = [(f'{dot} **{name} holds now**', message(mid, dot, name, maker, es),
+              (lambda mid=mid: [HC.portfolio_card(data, mid, f'/tmp/hold_{mid}_1.png'), HC.change_card(data, mid, f'/tmp/hold_{mid}_2.png')]))
+             for mid, dot, name, maker in AIS]
+    hr_text = ('🎲 **HIGH RISK side races** · what each AI holds now · pretend money\n'
+               'Each AI got C$100,000 for each side race; one big swing can end it.\n\n'
+               f"Updated {et_now().strftime('%b %d, %I:%M %p').replace(' 0', ' ')} ET · full details: <https://papertrades.ai/#allin>")
+    posts.append(('🎲 **HIGH RISK side races**', hr_text, (lambda: [HC.highrisk_card(data, '/tmp/hold_highrisk.png')])))
+    for head, text, pics in posts:
+        old = next((m for m in mine if m.get('content', '').startswith(head)), None)
         body = {'content': text, 'allowed_mentions': {'parse': []}, 'flags': 4}
-        if old and old['content'].split('\nUpdated ')[0] == text.split('\nUpdated ')[0]:
-            print(name, 'unchanged')
-            continue
+        files = []
+        if HC:
+            try:
+                files = [p for p in pics() if p]
+            except Exception as e:
+                print('picture failed', head, e)
+        if files:   # the new pictures replace the old ones on the same message
+            body['attachments'] = [{'id': i, 'filename': f'{i + 1:02d}.png'} for i in range(len(files))]
         if old:
-            B.call('PATCH', f'/channels/{ch}/messages/{old["id"]}', body)
-            print(name, 'updated')
+            B.call('PATCH', f'/channels/{ch}/messages/{old["id"]}', body, files=files or None)
+            print(head, 'updated', len(files), 'pictures')
         else:
-            B.call('POST', f'/channels/{ch}/messages', body)
-            print(name, 'posted')
+            B.call('POST', f'/channels/{ch}/messages', body, files=files or None)
+            print(head, 'posted', len(files), 'pictures')
 
 
 if __name__ == '__main__':

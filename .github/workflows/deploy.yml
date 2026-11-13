@@ -76,4 +76,6 @@ jobs:
         timeout-minutes: 2
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-        run: python3 ops/discord_holdings.py
+        run: |
+          pip install -q pillow 2>/dev/null || true
+          python3 ops/discord_holdings.py
