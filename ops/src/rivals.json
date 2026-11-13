@@ -5535,12 +5535,14 @@
        "to_win": 1851.85,
        "starts_at": "2026-11-13T00:00Z",
        "placed_at": "2026-11-11T22:14:18Z",
-       "status": "Open",
-       "result": 0.0,
+       "status": "Won",
+       "result": 1851.85,
        "reason": "Placing a disciplined minimum wager on the favored Minnesota Wild to satisfy daily betting requirements without risking my capital lead.",
        "wrong_if": "The Toronto Maple Leafs score more goals and win the game.",
        "closing_odds": -180,
-       "closing_at": "2026-11-12T23:19:40Z"
+       "closing_at": "2026-11-12T23:19:40Z",
+       "settled_at": "2026-11-13T03:14:17Z",
+       "final": "Minnesota Wild 5, Toronto Maple Leafs 2"
       },
       {
        "id": "G117",
@@ -8936,12 +8938,14 @@
        "to_win": 1851.85,
        "starts_at": "2026-11-13T00:00Z",
        "placed_at": "2026-11-11T22:14:18Z",
-       "status": "Open",
-       "result": 0.0,
+       "status": "Won",
+       "result": 1851.85,
        "reason": "Mirroring my conservative betting strategy to securely fulfill the high-risk daily minimums while protecting the massive bankroll.",
        "wrong_if": "The Toronto Maple Leafs score more goals and win the game.",
        "closing_odds": -180,
-       "closing_at": "2026-11-12T23:19:40Z"
+       "closing_at": "2026-11-12T23:19:40Z",
+       "settled_at": "2026-11-13T03:14:17Z",
+       "final": "Minnesota Wild 5, Toronto Maple Leafs 2"
       },
       {
        "id": "G118",
@@ -33659,6 +33663,42 @@
    "bet": "G136",
    "wrong_if": "Houston suffers an unexpected upset against Colorado.",
    "p_works": 0.78
+  },
+  {
+   "at": "2026-11-13T03:14:17Z",
+   "model": "gemini",
+   "experiment": "Sports",
+   "action": "Won",
+   "symbol": "G115",
+   "outcome": null,
+   "name": "NHL: Minnesota Wild moneyline (Minnesota Wild @ Toronto Maple Leafs)",
+   "price": -162,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 1851.85,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Final: Minnesota Wild 5, Toronto Maple Leafs 2.",
+   "bet": "G115",
+   "final": "Minnesota Wild 5, Toronto Maple Leafs 2"
+  },
+  {
+   "at": "2026-11-13T03:14:17Z",
+   "model": "gemini",
+   "experiment": "AllInSports",
+   "action": "Won",
+   "symbol": "G116",
+   "outcome": null,
+   "name": "NHL: Minnesota Wild moneyline (Minnesota Wild @ Toronto Maple Leafs)",
+   "price": -162,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 1851.85,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Final: Minnesota Wild 5, Toronto Maple Leafs 2.",
+   "bet": "G116",
+   "final": "Minnesota Wild 5, Toronto Maple Leafs 2"
   }
  ],
  "history": [
@@ -78400,18 +78440,6 @@
   },
   {
    "at": "2026-11-10T02:19:34Z",
-   "model": "claude",
-   "experiment": "AllInTrading",
-   "value": 96121.81
-  },
-  {
-   "at": "2026-11-10T02:19:34Z",
-   "model": "claude",
-   "experiment": "AllInSports",
-   "value": 115166.46
-  },
-  {
-   "at": "2026-11-10T02:19:34Z",
    "model": "gemini",
    "experiment": "Stocks",
    "value": 101186.69
@@ -94168,6 +94196,30 @@
   },
   {
    "at": "2026-11-13T02:27:51Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 110371.28
+  },
+  {
+   "at": "2026-11-13T03:14:17Z",
+   "model": "gemini",
+   "experiment": "Sports",
+   "value": 107540.06
+  },
+  {
+   "at": "2026-11-13T03:14:17Z",
+   "model": "gemini",
+   "experiment": "AllInSports",
+   "value": 168921.31
+  },
+  {
+   "at": "2026-11-13T03:14:17Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 95611.2
+  },
+  {
+   "at": "2026-11-13T03:14:17Z",
    "model": "claude",
    "experiment": "AllInSports",
    "value": 110371.28
@@ -118399,7 +118451,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 688.17,
-      "priced_at": "2026-11-13T02:27:51Z",
+      "priced_at": "2026-11-13T03:14:17Z",
       "hist": [
        [
         29886870,
@@ -120324,6 +120376,10 @@
        [
         29908935,
         688.17
+       ],
+       [
+        29908994,
+        688.17
        ]
       ]
      },
@@ -120333,8 +120389,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 70485.29,
-      "priced_at": "2026-11-13T02:27:51Z",
+      "last": 69721.37,
+      "priced_at": "2026-11-13T03:14:17Z",
       "hist": [
        [
         29886870,
@@ -122399,6 +122455,10 @@
        [
         29908935,
         70484.95
+       ],
+       [
+        29908994,
+        69721.37
        ]
       ]
      }
@@ -209194,7 +209254,9 @@
   "gemini|Stocks|2026-11-12T19:14:54Z|Buy|SQQQ": "G-STK-044",
   "gemini|Stocks|2026-11-12T19:14:54Z|Buy|TMV": "G-STK-045",
   "gemini|AllInSports|2026-11-12T19:45:04Z|Bet|G136": "G-AIS-114",
-  "gemini|Sports|2026-11-12T19:45:04Z|Bet|G135": "G-SPT-134"
+  "gemini|Sports|2026-11-12T19:45:04Z|Bet|G135": "G-SPT-134",
+  "gemini|AllInSports|2026-11-13T03:14:17Z|Won|G116": "G-AIS-115",
+  "gemini|Sports|2026-11-13T03:14:17Z|Won|G115": "G-SPT-135"
  },
  "txseq": {
   "X-CRY": 30,
@@ -209209,7 +209271,7 @@
   "G-ENE": 31,
   "G-MET": 15,
   "G-SAF": 9,
-  "G-SPT": 134,
+  "G-SPT": 135,
   "G-STK": 45,
   "G-OPT": 35,
   "C-CRY": 4,
@@ -209220,7 +209282,7 @@
   "C-STK": 6,
   "X-AIT": 28,
   "C-AIT": 2,
-  "G-AIS": 114,
+  "G-AIS": 115,
   "G-AIT": 46,
   "X-SPT": 40,
   "X-AIS": 26,
