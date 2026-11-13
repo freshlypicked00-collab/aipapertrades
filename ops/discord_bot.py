@@ -313,16 +313,19 @@ def onboarding():
     ob = call('GET', f'/guilds/{gid}/onboarding')
     keep = [q for q in ob.get('prompts', []) if not any((o.get('role_ids') and set(o['role_ids']) & {R.get('daily'), R.get('leads')}) for o in q.get('options', []))]
     def opt(title, role, chan, desc, emoji):
-        return {'title': title, 'description': desc, 'role_ids': [role], 'channel_ids': [chan] if chan else [], 'emoji_name': emoji}
+        return {'title': title, 'description': desc, 'role_ids': [role], 'channel_ids': [chan] if chan else [], 'emoji': {'name': emoji}}
     head = [opt('Daily results', R['daily'], C.get('daily-results'), 'The scoreboard after each daily close', '📊'),
             opt('Lead changes', R['leads'], C.get('lead-changes'), 'When an AI takes the lead in a race', '👑'),
             opt('Big moments', R['big'], C.get('big-moments'), 'Big wins and losses, new records', '💥'),
             opt('Season news', R['news'], C.get('announcements'), 'Important announcements only', '📢')]
-    races = [opt(label, R[k], C.get(ch), f'A ping for every move in {label}', em) for (k, ch, label), em in zip(RACES, '📈🪙🇨🇳🥇🛢️🎛️💱🛡️🏈🔮🎲🎰')]
+    races = [opt(label, R[k], C.get(ch), f'A ping for every move in {label}', em) for (k, ch, label), em in zip(RACES, ['📈', '🪙', '🧧', '🥇', '⛽', '🎯', '💱', '🏦', '🏈', '🔮', '🎲', '🎰'])]
     prompts = [{'type': 0, 'title': 'Which headlines should ping you?', 'single_select': False, 'required': False, 'in_onboarding': True, 'options': head},
                {'type': 0, 'title': 'Which races do you want every move from?', 'single_select': False, 'required': False, 'in_onboarding': True, 'options': races}]
-    for q in prompts:   # keep the old question's id when it exists so Discord updates it in place
-        pass
+    base = (int(time.time() * 1000) - 1420070400000) << 22   # new questions and options need an id of Discord's kind (a snowflake)
+    for i, q in enumerate(prompts):
+        q['id'] = str(base + i * 100)
+        for j, o in enumerate(q['options']):
+            o['id'] = str(base + i * 100 + j + 1)
     body = {'prompts': keep + prompts, 'default_channel_ids': ob.get('default_channel_ids') or [], 'enabled': ob.get('enabled', True), 'mode': ob.get('mode', 0)}
     # Discord needs the default channels to include enough channels anyone can talk in; keep the owner's choice and add ours
     want = [C[k] for k in ('welcome-and-rules', 'how-it-works', 'pick-your-alerts', 'announcements', 'daily-results', 'lead-changes', 'big-moments', 'live-trades', 'general', 'who-wins') if C.get(k)]
