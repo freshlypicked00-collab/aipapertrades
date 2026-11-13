@@ -38,7 +38,8 @@ RACES = [('Stocks', 'stocks', 'Stocks and anything'), ('Crypto', 'crypto', 'Cryp
          ('Predictions', 'prediction-markets', 'Prediction markets'), ('AllInTrading', 'high-risk-trading', 'High risk: trading'),
          ('AllInSports', 'high-risk-sports', 'High risk: sports')]
 LAYOUT = [
-    ('START HERE', [('welcome-and-rules', 'ro', 'What this is: three AIs, pretend money, real prices. Not advice. We never DM you about money.'),
+    ('START HERE', [('new-to-discord', 'ro', 'Never used Discord? 2-minute setup: choose what pings you, quiet the rest. Phone and computer steps.'),
+                    ('welcome-and-rules', 'ro', 'What this is: three AIs, pretend money, real prices. Not advice. We never DM you about money.'),
                     ('how-it-works', 'ro', 'The races, the rules and where every number comes from.'),
                     ('pick-your-alerts', 'ro', 'Choose which alerts ping you. Nothing pings you until you pick it.')]),
     ('HEADLINES', [('announcements', 'ro', 'Season news, rule clarifications, data issues.'),
@@ -356,13 +357,89 @@ def profile():
     """The bot's own name and picture: PaperTrades.AI with the logo mark (it was created as "sd")."""
     import base64
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    pic = base64.b64encode(open(os.path.join(root, 'social/brand/papertrades-logo-mark.png'), 'rb').read()).decode()
+    pic = base64.b64encode(open(os.path.join(root, 'brand/logo-512.png'), 'rb').read()).decode()
     r = call('PATCH', '/users/@me', {'username': 'PaperTrades.AI', 'avatar': 'data:image/png;base64,' + pic})
     print('bot is now', r.get('username'))
     try:   # the server nickname too, in case one was set
         call('PATCH', f'/guilds/{load_map()["guild"]}/members/@me', {'nick': None})
     except Exception as e:
         print('nickname not cleared:', e)
+
+
+# #new-to-discord (owner, Nov 13: "for people who are not familiar with discord build something that can help them customize and use the
+# server how they want to ... so once someone joins they can use it easily"). Short messages, phone and computer steps, ready-made setups.
+# The same help, with pictures and a picker, is on the site: https://papertrades.ai/discord-help.html
+def basics_text(C):
+    ch = lambda k: f'<#{C[k]}>' if C.get(k) else '#' + k
+    return [
+f"""👋 **New to Discord? This takes 2 minutes.**
+Discord is a free chat app. This server is where the three AIs' moves land live. You only **read** here; you can't break anything.
+
+**Getting around**
+📱 Phone: swipe right (or tap ☰ at the top left) to see the channel list. Tap a channel to open it.
+💻 Computer: the channel list is on the left.
+
+**The channels, in short**
+📌 {ch('welcome-and-rules')}, {ch('how-it-works')}: what this is
+📢 {ch('daily-results')}, {ch('lead-changes')}, {ch('big-moments')}: the headlines
+⚡ {ch('live-trades')}: every move from all three AIs
+🏁 One channel per race, like {ch('crypto')} or {ch('sports-bets')}
+
+Next: Step 1 below 👇""",
+f"""🔔 **Step 1: choose what pings you**
+Nothing pings you until you pick it.
+📱 Phone: tap the server name **PaperTrades.AI** at the top → **Channels & Roles** → **Customize**.
+💻 Computer: click the server name at the top left → **Channels & Roles** → **Customize**.
+Then tick what you want:
+• **Daily results**: the scoreboard after each daily close
+• **Lead changes**: when an AI takes the lead
+• **Big moments**: big wins, big losses, records
+• Then an AI and its races, e.g. **Gemini → Crypto** = a ping each time Gemini moves in Crypto, nothing else.
+Untick any time, same place.""",
+"""📱 **Step 2: make sure your phone actually rings**
+1. Phone **Settings** → **Notifications** → **Discord** → turn on **Allow notifications**.
+2. In Discord, tap the server name → **Notifications** → choose **Only @mentions**.
+That's the sweet spot: only the alerts you picked in Step 1 ping you, everything else stays quiet.
+💻 Computer: right-click the server icon → **Notification Settings** → **Only @mentions**.""",
+"""🙈 **Step 3: hide what you don't want (optional)**
+📱 Tap the server name → **Channels & Roles** → **Browse Channels** → untick the races you don't care about.
+💻 Same: server name → **Channels & Roles** → **Browse Channels**.
+Or mute just one channel: 📱 long-press it → **Mute Channel** · 💻 right-click it → **Mute Channel**.""",
+f"""🍳 **Ready-made setups: pick one**
+**1. Just the daily scoreboard** (1 ping a day): Step 1 → tick **Daily results** only. Step 2 → **Only @mentions**.
+**2. Follow one AI**: Step 1 → pick your AI, then tick all its races. Step 3 → hide the race channels you don't need.
+**3. Watch everything live** (lots of pings!): long-press {ch('live-trades')} → **Notification Settings** → **All Messages**.
+**4. Quiet reader**: pick nothing. Server → Notifications → **Nothing**. Open the app when you like.
+
+❓ Stuck? Ask in {ch('feedback-bugs')}, or use the picture guide: https://papertrades.ai/discord-help.html
+🔒 We never DM you about money. Pretend money · real prices · not advice.""",
+    ]
+
+
+def basics():
+    """Post (or replace) the #new-to-discord guide, pin its first message, and make the channel one of the first a newcomer sees."""
+    m = load_map(); C = m.get('channels') or {}; gid = m['guild']
+    ch = C.get('new-to-discord')
+    if not ch:
+        sys.exit('run setup first: #new-to-discord does not exist yet')
+    for msg in call('GET', f'/channels/{ch}/messages?limit=50'):
+        if (msg.get('author') or {}).get('bot'):
+            call('DELETE', f'/channels/{ch}/messages/{msg["id"]}'); time.sleep(0.4)
+    first = None
+    for text in basics_text(C):
+        r = call('POST', f'/channels/{ch}/messages', {'content': text, 'allowed_mentions': {'parse': []}, 'flags': 4})
+        first = first or r['id']; time.sleep(0.6)
+    try:
+        call('PUT', f'/channels/{ch}/pins/{first}')
+    except Exception as e:
+        print('pin failed', e)
+    ob = call('GET', f'/guilds/{gid}/onboarding')   # newcomers see it by default; the questions stay exactly as they are
+    dflt = ob.get('default_channel_ids') or []
+    if ch not in dflt:
+        body = {'prompts': ob.get('prompts', []), 'default_channel_ids': [ch] + dflt, 'enabled': ob.get('enabled', True), 'mode': ob.get('mode', 0)}
+        call('PUT', f'/guilds/{gid}/onboarding', body, reason='new-to-discord guide')
+        print('added to the channels newcomers see')
+    print('posted #new-to-discord:', len(basics_text(C)), 'messages')
 
 
 def check():
@@ -375,4 +452,4 @@ def check():
 if __name__ == '__main__':
     if not TOKEN:
         sys.exit('DISCORD_BOT_TOKEN is not set (GitHub: Settings > Secrets and variables > Actions)')
-    {'setup': setup, 'check': check, 'welcome': welcome, 'onboarding': onboarding, 'profile': profile}[sys.argv[1] if len(sys.argv) > 1 else 'check']()
+    {'setup': setup, 'check': check, 'welcome': welcome, 'onboarding': onboarding, 'profile': profile, 'basics': basics}[sys.argv[1] if len(sys.argv) > 1 else 'check']()
