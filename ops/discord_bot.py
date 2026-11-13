@@ -324,6 +324,8 @@ def onboarding():
     live = {r['id'] for r in call('GET', f'/guilds/{gid}/roles')}
     keep = [q for q in ob.get('prompts', []) if not any(set(o.get('role_ids') or []) & ours or (set(o.get('role_ids') or []) - live) for o in q.get('options', []))]
     print('kept your questions:', [q['title'] for q in keep])
+    for q in keep:   # Discord shows at most 5 questions when someone joins: the owner's own questions stay, in Channels & Roles > Customize
+        q['in_onboarding'] = False
     def opt(title, role, chan, desc, emoji):
         return {'title': title, 'description': desc, 'role_ids': [role], 'channel_ids': [chan] if chan else [], 'emoji': {'name': emoji}}
     head = [opt('Daily results', R['daily'], C.get('daily-results'), 'The scoreboard after each daily close', '📊'),
