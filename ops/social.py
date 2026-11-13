@@ -154,8 +154,7 @@ def due_posts(state):
     for n in (2, 3, 4):   # the Rules highlight's 3 new stories (owner, Nov 12: "you post it"), made by ops/rules_stories.py
         rid = f'story-rules-{n}-v1'
         if rid not in done and NOW < datetime(2026, 11, 15, 4, 0, tzinfo=timezone.utc):
-            out.append({'id': rid, 'kind': 'story-file', 'src': sorted(glob.glob(f'social/rules/rules-{n}-*.png'))[0]})
-            break   # one at a time, in order
+            out.append({'id': rid, 'kind': 'story-file', 'src': sorted(glob.glob(f'social/rules/rules-{n}-*.png'))[0]})   # in order, 2 a run (the story cap)
     if 'story-feature-gemini-usc-v1' not in done and NOW < datetime(2026, 11, 3, 4, 0, tzinfo=timezone.utc):
         out.append({'id': 'story-feature-gemini-usc-v1', 'kind': 'story-feature-gemini-usc-v1'})
     for fid in ('feature-chatgpt-oilers-v1', 'feature-gemini-options-v1', 'feature-gemini-allin-v1', 'feature-grades-paradox-v1'):   # inserted at the front in turn: the last one goes first   # Oct 30 big wins, one post each (owner); one goes out per run, Gemini's +C$35k first
