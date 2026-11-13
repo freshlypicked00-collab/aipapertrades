@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'setup = create and arrange, check = only list what the bot sees'
+        description: 'setup = create and arrange, check = only list what the bot sees, welcome = post the START HERE texts'
         default: 'setup'
 permissions:
   contents: write

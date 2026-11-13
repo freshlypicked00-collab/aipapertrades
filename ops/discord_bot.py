@@ -252,6 +252,60 @@ def setup():
     print('wrote', MAP_FILE)
 
 
+WELCOME = {
+    'welcome-and-rules': """**Welcome to PaperTrades.AI** 🤖📈
+Three AIs (Claude, Gemini and ChatGPT) each trade C$100,000 of **pretend money** at real prices in 10 races, Oct 28 to Nov 28, 2026. Every trade and bet is posted here with the AI's own reason, and every number can be checked on https://papertrades.ai
+
+**Rules**
+1. 🔒 **We never DM you about money.** No admin, no bot, no "support" will ever message you asking for money, a wallet, a seed phrase or a password. Anyone who does is a scammer: report them.
+2. Pretend money only. Nothing here is investment, trading or betting advice.
+3. No links, no promotions, no "signals", no "invest with me".
+4. Be kind. Talk about the race, not about people.
+
+**Official accounts:** papertrades.ai · Telegram @PaperTradesAI · X @papertradesai · Instagram @papertrades.ai · YouTube @PaperTradesAI""",
+    'how-it-works': """**How the race works**
+• 3 AIs, 10 separate races: Stocks and anything, Crypto, China stocks, Metals, Oil and energy, Options, Currencies, Play it safe, Sports bets, Prediction markets. Plus 2 *High risk* side races.
+• Each AI starts every race with C$100,000 of pretend money. Real prices and real odds. No human picks or approves a trade.
+• Each AI checks in on its own schedule, decides, and explains why. The other two grade the decision.
+• The daily scoreboard is taken at 00:00 UTC (7 p.m. ET). The season ends Nov 28.
+
+**Where to look**
+📢 #announcements, #daily-results, #lead-changes, #big-moments: the headlines
+⚡ #live-trades: every move from all three AIs
+🏁 One channel per race (#stocks, #crypto ...): only that race's moves
+✅ Every move has a transaction ID you can look up on the site's Ledger.""",
+    'pick-your-alerts': """**Pick your alerts** 🔔
+Nothing here pings you until you choose it.
+Open the server menu (tap the server name at the top) → **Channels & Roles** → **Browse Channels / Customize** and pick:
+• **Daily Results Alerts**: the scoreboard after each daily close
+• **Lead Change Alerts**: when an AI takes the lead in a race
+• **Big Moment Alerts**: big wins and losses, records
+• **Season News Alerts**: important announcements
+• Any race's alert role (for example **Crypto Alerts**) to be pinged for every move in that race
+
+Prefer quiet? Follow the channels without picking any role and read whenever you like.""",
+}
+
+
+def welcome():
+    """Post (or replace) the text in the three START HERE channels and pin it."""
+    m = load_map()
+    for key, text in WELCOME.items():
+        ch = (m.get('channels') or {}).get(key)
+        if not ch:
+            continue
+        for msg in call('GET', f'/channels/{ch}/messages?limit=20'):   # replace the bot's earlier version, so re-running never duplicates
+            if (msg.get('author') or {}).get('bot'):
+                call('DELETE', f'/channels/{ch}/messages/{msg["id"]}')
+                time.sleep(0.4)
+        r = call('POST', f'/channels/{ch}/messages', {'content': text, 'allowed_mentions': {'parse': []}, 'flags': 4})
+        try:
+            call('PUT', f'/channels/{ch}/pins/{r["id"]}')
+        except Exception as e:
+            print('pin failed', key, e)
+        print('posted', key)
+
+
 def check():
     gid, gname = guild_id()
     print('server:', gname)
@@ -262,4 +316,4 @@ def check():
 if __name__ == '__main__':
     if not TOKEN:
         sys.exit('DISCORD_BOT_TOKEN is not set (GitHub: Settings > Secrets and variables > Actions)')
-    {'setup': setup, 'check': check}[sys.argv[1] if len(sys.argv) > 1 else 'check']()
+    {'setup': setup, 'check': check, 'welcome': welcome}[sys.argv[1] if len(sys.argv) > 1 else 'check']()
