@@ -1,24 +1,19 @@
-DESIGN QUESTION from the owner of PaperTrades.AI (Nov 9). NOT a trading turn.
-Owner: "Let's improve the Discord to make it the main place for the real-time notifications, not Telegram, because we can divide and organise the chat much better. How should we set up the Discord to make it better?"
+VIDEO QUESTION from the owner of PaperTrades.AI. NOT a trading turn. Majority wins where you differ; Claude wrote its concept first (attached file).
 
-TODAY: PaperTrades.AI is a public 32-day experiment (Oct 28 - Nov 28, 2026): Claude, Gemini and ChatGPT each trade C$100,000 of pretend money at real prices in 10 races (Stocks, Crypto, China stocks, Metals, Energy, Options, Currencies, Play it safe, Sports bets, Prediction markets) plus 2 "High risk" side races. Every trade/bet is posted with the AI's own reason, a transaction ID and a link to the site. Telegram channel @PaperTradesAI gets everything (5-10 members). Discord server (about 5 members) has 3 channels fed by webhooks: #live-trades (a copy of every Telegram post), #daily-results (race card after each daily close, pings opt-in role @Daily Results Alerts), #lead-changes (pings opt-in role @Lead Change Alerts). Onboarding lets members pick those roles. Site traffic: ~1,150 visits/week, 45% phones; ads in 3 AI newsletters Nov 4-11 and a Show HN.
-Rules that cannot change: pretend money only, never advice, never take deposits, never DM anyone about money (we just got an Instagram DM block for "possible investment advice", so Discord must look clearly safe), the owner stays anonymous, AI reasons are never edited.
+Owner, Nov 13: "make a new commercial for youtube, work with the other models, advertise the website and the discord channel, show how the channels are set up and how you can set up the notifications etc."
 
-CLAUDE'S DRAFT (critique it, change anything):
-- Switch from 3 webhooks to one Discord bot (one token as a GitHub secret) so posts go to any channel by ID and channels/roles can be created by code.
-- Categories:
-  START HERE: #welcome-and-rules (read-only: what this is, pretend money, not advice, we never DM about money, official links), #pick-your-alerts (Onboarding/role picker)
-  HEADLINES: #announcements (lead changes, daily scoreboard at close, big wins/losses, season news) - pings only opt-in roles
-  RACES (one read-only channel each, every trade/bet with reason + ID + link): #stocks #crypto #china-stocks #metals #energy #options #currencies #play-it-safe #sports-bets #prediction-markets #high-risk
-  AI CHANNELS? (maybe: #claude #gemini #chatgpt, each AI's own moves across races) - or skip to avoid duplicate posts
-  COMMUNITY: #general-chat, #predictions-who-wins (members guess), #feedback-and-bugs
-- Roles per race so members only get pinged for races they follow (all mute by default; no @everyone ever).
-- Telegram keeps a lighter feed (headlines only) and points to Discord.
-- Safety: AutoMod blocks links/words like "DM me", "wallet", "invest with", "signals"; slow mode in chat; verification level medium; a pinned "we never DM you" note; server name and icon match the brand so impersonators stand out.
+FACTS you can use:
+- Website papertrades.ai: live scoreboard, 10 races + High risk side race, every trade with the AI's own reason and a Transaction ID (e.g. G-CRY-012), Ledger, report cards where the AIs grade each other. Pretend money, real prices, Oct 28 to Nov 28.
+- Discord (free, read-only, one bot): START HERE (#welcome-and-rules #how-it-works #pick-your-alerts), HEADLINES (#announcements #daily-results #lead-changes #big-moments), LIVE (#live-trades: every move, no pings), RACES (one channel per race: #stocks #crypto #china-stocks #metals #energy #options #currencies #play-it-safe #sports-bets #prediction-markets #high-risk-trading #high-risk-sports), COMMUNITY (#general #who-wins #feedback-bugs). Never @everyone.
+- Alerts: when you join, Discord asks "Which headlines should ping you?" (Daily results, Lead changes, Big moments, Season news), then for each AI "Gemini: which races should ping you?" (pick e.g. Crypto: you're pinged only when Gemini moves in Crypto). Change it any time: tap the server name -> Channels & Roles -> Customize. Nothing pings you until you pick it.
+- Our YouTube views come mostly from Shorts. The owner wants videos that end with "leave a like and subscribe for more trade updates". He said the automatic Shorts looked like "AI slop": this must look high-production.
+- Commercial v1 (Nov 4) told one bet story (Gemini's USC bet) with each AI's voice; it's already posted.
 
-YOUR JOB, brief and concrete:
-1) What would you change, add or cut? (channels, categories, roles, what gets pinged, per-AI channels yes/no)
-2) Exactly which events should ping (and which role), so members aren't spammed but don't miss the big moments.
-3) Biggest risks (spam/scams/impersonation, an empty-feeling server with few members, Discord's own rules on finance content) and the fix for each.
-4) How to move Telegram followers to Discord without losing them.
-5) End with "FINAL LAYOUT:" (the channel list in order) and "TOP 3 IN ORDER:".
+Vote AGREE / DISAGREE / AMEND on each, one line why, then your ideas:
+V1. Format: vertical 1080x1920 Short, about 55 seconds.
+V2. Structure: Claude's 5 parts (hook, real website footage, Discord channels building up, the alerts setup step by step with a real move, CTA).
+V3. The alerts demo uses a trading example (Gemini -> Crypto), not sports odds (ad review).
+V4. The three AIs narrate in turn (each its own voice), captions burned in.
+V5. CTA: logo, papertrades.ai, "free Discord, link in the description", "like and subscribe for more trade updates".
+IDEAS: your best hook line (first 2 seconds), the single most important thing to show, and one thing to avoid.
+Reply with ONLY JSON: {"V1": "...", "V2": "...", "V3": "...", "V4": "...", "V5": "...", "hook": "...", "show": "...", "avoid": "..."}
