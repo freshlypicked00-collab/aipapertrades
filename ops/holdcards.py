@@ -28,9 +28,44 @@ def _money(x, race, sign=False):
     return ('+' if x >= 0 else '−') + s if sign else ('−' + s if x < 0 else s)
 
 
+TALL = 4000   # draw on a tall canvas, then cut it to the content (never shorter than H): every holding always fits
+
+
+def _flow(g, bits, font, maxw):
+    """Lay the pieces out on as many lines as they need, each piece kept whole (a piece longer than a line is broken at a space)."""
+    lines, cur = [], ''
+    for b in bits:
+        cand = f'{cur} · {b}' if cur else b
+        if g.textlength(cand, font=font) <= maxw:
+            cur = cand
+            continue
+        if cur:
+            lines.append(cur)
+        cur = ''
+        for w in b.split(' '):
+            c2 = f'{cur} {w}' if cur else w
+            if g.textlength(c2, font=font) <= maxw or not cur:
+                cur = c2
+            else:
+                lines.append(cur)
+                cur = w
+    if cur:
+        lines.append(cur)
+    return lines
+
+
+def _finish(im, g, y, line, path):
+    h = max(H, int(y) + 150)
+    im = im.crop((0, 0, W, h))
+    from PIL import ImageDraw
+    _foot(ImageDraw.Draw(im), line, h)
+    im.save(path)
+    return path
+
+
 def _canvas(mid, title):
     from PIL import Image, ImageDraw
-    im = Image.new('RGB', (W, H), SC.BG)
+    im = Image.new('RGB', (W, TALL), SC.BG)
     g = ImageDraw.Draw(im)
     name, col = SC.AIS[mid]
     g.rectangle([0, 0, W, 14], fill=col)
@@ -46,10 +81,10 @@ def _canvas(mid, title):
 FG = SC.FG
 
 
-def _foot(g, line):
-    g.text((70, H - 96), line, font=SC._font('med', 26), fill=SC.MUTED)
+def _foot(g, line, h=H):
+    g.text((70, h - 96), line, font=SC._font('med', 26), fill=SC.MUTED)
     f = SC._font('bold', 34)
-    g.text((W - 70 - g.textlength('papertrades.ai', font=f), H - 100), 'papertrades.ai', font=f, fill=FG)
+    g.text((W - 70 - g.textlength('papertrades.ai', font=f), h - 100), 'papertrades.ai', font=f, fill=FG)
 
 
 def _rows(data, mid):
@@ -65,7 +100,7 @@ def _rows(data, mid):
 def portfolio_card(data, mid, path):
     im, g, col = _canvas(mid, 'WHAT IT HOLDS')
     rows = _rows(data, mid)
-    y, rh = 240, 112
+    y, rh = 240, 126
     shades = [col, tuple(int(c * .72) for c in col), tuple(int(c * .5) for c in col), tuple(int(c * .36) for c in col)]
     for race, r in rows:
         v, p = float(r['value']), float(r['profit'])
@@ -91,15 +126,18 @@ def portfolio_card(data, mid, path):
             x += w
         if cashv > 0.5:
             g.rectangle([x, by, x1, by + 16], fill=GREY)
-        lab = ' · '.join(SC.short_name(str(s['name']).split(' (')[0])[:26] for s in held[:3]) + (f' +{len(held) - 3} more' if len(held) > 3 else '')
-        if shorts:
-            lab = (lab + ' · ' if lab else '') + 'short ' + ', '.join(str(s['name'])[:-8].split(' (')[0] for s in shorts[:2])
-        lab = (lab + ' · ' if lab else '') + ('not bet' if race == 'Sports' else 'cash') + f' {_money(cashv, race)}' if cashv > 0.5 else lab
-        g.text((70, by + 24), SC._clip(lab, 80), font=SC._font('reg', 24), fill=SC.MUTED)
-        y += rh
-    _foot(g, 'Bar = how the money is split · grey = cash · China in US$')
-    im.save(path)
-    return path
+        # every holding, full name and amount (owner, Nov 13: "make sure all holdings show ... always")
+        nm = (lambda n: str(n).strip()) if race == 'Predictions' else SC.short_name   # a market's full question and side (Yes/No) matter
+        bits = [f"{nm(s['name'])} {_money(float(s['value']), race)}" for s in held]
+        bits += [f"short {SC.short_name(str(s['name'])[:-8])} {_money(float(s['value']), race)}" for s in shorts]
+        if cashv > 0.5:
+            bits.append(('not bet' if race == 'Sports' else 'cash') + f' {_money(cashv, race)}')
+        fl = SC._font('reg', 24)
+        lines = _flow(g, bits, fl, W - 140)
+        for i, ln in enumerate(lines):
+            g.text((70, by + 24 + i * 30), ln, font=fl, fill=SC.MUTED)
+        y += rh + 30 * max(0, len(lines) - 1)
+    return _finish(im, g, y, 'Bar = how the money is split · grey = cash · China in US$', path)
 
 
 def change_card(data, mid, path):
@@ -139,15 +177,13 @@ def change_card(data, mid, path):
         line.append(f"Best: {SC.LABEL.get(up[0][0], up[0][0])} {_money(up[0][1], up[0][0], True)}")
     if dn:
         line.append(f"Worst: {SC.LABEL.get(dn[0][0], dn[0][0])} {_money(dn[0][1], dn[0][0], True)}")
-    _foot(g, ' · '.join(line) or 'Compared with the check-in nearest to 24 hours ago')
-    im.save(path)
-    return path
+    return _finish(im, g, y, ' · '.join(line) or 'Compared with the check-in nearest to 24 hours ago', path)
 
 
 def highrisk_card(data, path):
     """High risk side races: what each AI holds now in both, and its result so far (owner, Nov 13)."""
     from PIL import Image, ImageDraw
-    im = Image.new('RGB', (W, H), SC.BG)
+    im = Image.new('RGB', (W, TALL), SC.BG)
     g = ImageDraw.Draw(im)
     g.rectangle([0, 0, W, 14], fill=SC.DOWN)
     g.text((70, 62), 'PAPERTRADES.AI', font=SC._font('bold', 30), fill=SC.ORANGE)
@@ -180,23 +216,22 @@ def highrisk_card(data, path):
             if exp == 'AllInSports':
                 bets = [x for x in (b.get('bets') or []) if str(x.get('status', '')).lower() == 'open']
                 stake = lambda x: float(x.get('stake_cad') or x.get('stake') or 0)
-                bits = [f"{SC._clip(str(x.get('pick_team') or x.get('pick') or ''), 30)} {_money(stake(x), exp)}" for x in bets[:3]]
-                if len(bets) > 3:
-                    bits.append(f'+{len(bets) - 3} more')
+                bits = [f"{str(x.get('pick_team') or x.get('pick') or '').strip()} {_money(stake(x), exp)}" for x in bets]
                 bits.append(f'not bet {_money(v - sum(stake(x) for x in bets), exp)}')   # the bankroll minus what is riding (the book's cash is not updated by results)
             else:
                 pos = b.get('positions') or {}
                 wsum = sum(abs(float(q['qty']) * float(q['last'])) for q in pos.values()) or 1
                 held = v - cash
-                bits = [f"{SC.short_name(q.get('name') or k)[:28]}{' (short)' if float(q['qty']) < 0 else ''} {_money(held * abs(float(q['qty']) * float(q['last'])) / wsum, exp)}"
-                        for k, q in sorted(pos.items(), key=lambda kv: -abs(float(kv[1]['qty']) * float(kv[1]['last'])))[:3]]
+                bits = [f"{SC.short_name(q.get('name') or k)}{' (short)' if float(q['qty']) < 0 else ''} {_money(held * abs(float(q['qty']) * float(q['last'])) / wsum, exp)}"
+                        for k, q in sorted(pos.items(), key=lambda kv: -abs(float(kv[1]['qty']) * float(kv[1]['last'])))]
                 bits.append(f'cash {_money(cash, exp)}')
-            g.text((142, y + 50), SC._clip(' · '.join(bits), 74), font=SC._font('reg', 25), fill=SC.MUTED)
-            y += 118
+            fl = SC._font('reg', 25)
+            lines = _flow(g, bits, fl, W - 70 - 142)   # every holding, full name (owner, Nov 13: "make sure all holdings show ... always")
+            for i, ln in enumerate(lines):
+                g.text((142, y + 50 + i * 32), ln, font=fl, fill=SC.MUTED)
+            y += 118 + 32 * max(0, len(lines) - 1)
         y += 30
-    _foot(g, 'Each AI got C$100,000 per side race · one big swing can end it')
-    im.save(path)
-    return path
+    return _finish(im, g, y, 'Each AI got C$100,000 per side race · one big swing can end it', path)
 
 
 if __name__ == '__main__':

@@ -28,6 +28,27 @@ def et_now():
 
 
 def message(mid, dot, name, maker, es):
+    # Every holding is listed, always, with its full name (owner, Nov 13: "dont let it show incomplete stuff make sure all holdings
+    # show ... always"): no "+N more", no cut names. Only if Discord's 2,000-character limit would be passed are the names shortened
+    # (the bracketed part dropped, then the maker's prefix), and every holding still shows.
+    for level in (0, 1, 2):
+        text = _message(mid, dot, name, maker, es, level)
+        if len(text) <= 1990:
+            return text
+    return text[:1990]
+
+
+def _nm(n, level, race=''):
+    n = str(n)
+    if level >= 1 and race != 'Predictions':   # a market's side (Yes/No) is in the brackets: keep it
+        n = n.split(' (')[0]
+    if level >= 2:
+        n = n.split(': ', 1)[-1]
+        n = n[:-4] if n.endswith(' USD') else n
+    return n
+
+
+def _message(mid, dot, name, maker, es, level):
     lines = [f'{dot} **{name} holds now** ({maker}) · pretend money', '']
     allcash = []
     for race, rows in es.items():
@@ -44,12 +65,9 @@ def message(mid, dot, name, maker, es):
         pie = sorted(r.get('pie') or [], key=lambda s: -float(s.get('value') or 0))
         held = [s for s in pie if not str(s['name']).startswith(('Cash', 'Not bet'))]
         cash = sum(float(s['value']) for s in pie if str(s['name']).startswith(('Cash', 'Not bet')))
-        nm = lambda n: (n.split(' (')[0] if len(n) > 40 and ' (' in n else n)[:40] + ('…' if len(n.split(' (')[0] if len(n) > 40 and ' (' in n else n) > 40 else '')
         # a short is money owed back, not money held: say so, and say the cash includes what the short sales brought in
         short = lambda s: str(s['name']).endswith('(short)')
-        bits = [(f"{nm(str(s['name'])[:-8])}: short, owes {money(float(s['value']), race)}" if short(s) else f"{nm(str(s['name']))} {money(float(s['value']), race)}") for s in held[:4]]
-        if len(held) > 4:
-            bits.append(f'+{len(held) - 4} more')
+        bits = [(f"{_nm(str(s['name'])[:-8], level, race)}: short, owes {money(float(s['value']), race)}" if short(s) else f"{_nm(s['name'], level, race)} {money(float(s['value']), race)}") for s in held]
         if cash > 0.5:
             bits.append(f"{'not bet' if race == 'Sports' else 'cash'} {money(cash, race)}" + (' (includes the money from short sales)' if any(short(x) for x in held) else ''))
         lines.append('  ' + (' · '.join(bits) if bits else 'all cash'))
@@ -58,8 +76,7 @@ def message(mid, dot, name, maker, es):
     t = et_now()
     lines += ['', f"Updated {t.strftime('%b %d, %I:%M %p').replace(' 0', ' ')} ET · each trade is in its race channel · "
                   f"full details: <https://papertrades.ai/#ai-{mid}>"]
-    text = '\n'.join(lines)
-    return text if len(text) <= 1990 else text[:1980].rsplit('\n', 1)[0] + '\n…'
+    return '\n'.join(lines)
 
 
 def main():
