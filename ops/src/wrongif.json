@@ -1,5 +1,5 @@
 {
- "at": "2026-11-13T09:54:06.498940Z",
+ "at": "2026-11-14T09:18:07.397972Z",
  "since": "2026-11-01T02:30:00Z",
  "by_ai": {
   "claude": {
@@ -96,44 +96,10 @@
   "gemini": {
    "kept": 7,
    "broken": 4,
-   "pending": 8,
-   "closed_first": 44,
+   "pending": 7,
+   "closed_first": 48,
    "untestable": 9,
    "items": [
-    {
-     "at": "2026-11-10T14:21:59Z",
-     "what": "Japanese yen",
-     "race": "Currencies",
-     "tx": "G-CUR-031",
-     "level": {
-      "symbol": "JPY",
-      "above": 0.0065
-     },
-     "breach_at": "2026-11-10T14:30:00Z",
-     "result": "held on after its own exit level"
-    },
-    {
-     "at": "2026-11-10T15:19:38Z",
-     "what": "NVDA Nov 20 $180 put",
-     "race": "Options",
-     "tx": "G-OPT-025",
-     "level": {
-      "symbol": "NVDA261120P00180000",
-      "below": 5.0
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-10T16:45:35Z",
-     "what": "NVDA Nov 20 $180 put",
-     "race": "Options",
-     "tx": "G-OPT-026",
-     "level": {
-      "symbol": "NVDA261120P00180000",
-      "below": 13.5
-     },
-     "result": "closed before the level was reached"
-    },
     {
      "at": "2026-11-10T17:48:08Z",
      "what": "Direxion Daily 20+ Year Treasury Bear 3X Shares",
@@ -375,7 +341,7 @@
       "symbol": "USO",
       "below": 135.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-12T19:14:54Z",
@@ -386,7 +352,7 @@
       "symbol": "NVDA",
       "above": 180.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-12T19:14:54Z",
@@ -408,72 +374,50 @@
       "symbol": "SQQQ",
       "below": 39.0
      },
+     "result": "closed before the level was reached"
+    },
+    {
+     "at": "2026-11-13T16:46:00Z",
+     "what": "United States Oil Fund, LP",
+     "race": "Energy",
+     "tx": "G-ENE-032",
+     "level": {
+      "symbol": "USO",
+      "below": 138.0
+     },
+     "result": "closed before the level was reached"
+    },
+    {
+     "at": "2026-11-13T17:45:50Z",
+     "what": "NVDA Nov 20 $150 put",
+     "race": "Options",
+     "tx": "G-OPT-037",
+     "level": {
+      "symbol": "NVDA",
+      "above": 175.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-13T20:45:43Z",
+     "what": "Vanguard Short-Term Treasury Index Fund ETF Shares",
+     "race": "Safe",
+     "tx": "G-SAF-010",
+     "level": {
+      "symbol": "VGSH",
+      "below": 57.0
+     },
      "result": "level not reached yet"
     }
    ]
   },
   "chatgpt": {
-   "kept": 12,
+   "kept": 13,
    "broken": 7,
-   "pending": 6,
-   "closed_first": 14,
+   "pending": 4,
+   "closed_first": 20,
    "untestable": 2,
    "items": [
-    {
-     "at": "2026-11-04T15:45:05Z",
-     "what": "Invesco S&P 500 Equal Weight ETF",
-     "race": "Stocks",
-     "tx": "X-STK-006",
-     "level": {
-      "symbol": "RSP",
-      "below": 216.5
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-04T15:45:05Z",
-     "what": "SPY Nov 20 $770 call",
-     "race": "Options",
-     "tx": "X-OPT-011",
-     "level": {
-      "symbol": "SPY",
-      "below": 755.0
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-04T16:16:58Z",
-     "what": "Invesco S&P 500 Equal Weight ETF",
-     "race": "Stocks",
-     "tx": "X-STK-007",
-     "level": {
-      "symbol": "RSP",
-      "below": 216.5
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-04T16:16:58Z",
-     "what": "Bitcoin USD",
-     "race": "Crypto",
-     "tx": "X-CRY-021",
-     "level": {
-      "symbol": "BTC-USD",
-      "below": 73500.0
-     },
-     "result": "closed before the level was reached"
-    },
-    {
-     "at": "2026-11-04T16:16:58Z",
-     "what": "SPY Nov 20 $770 call",
-     "race": "Options",
-     "tx": "X-OPT-012",
-     "level": {
-      "symbol": "SPY261120C00770000",
-      "below": 5.4
-     },
-     "result": "closed before the level was reached"
-    },
     {
      "at": "2026-11-04T18:45:39Z",
      "what": "State Street SPDR S&P 500 ETF Trust",
@@ -642,7 +586,7 @@
       "symbol": "TMV",
       "below": 42.1
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-10T16:17:23Z",
@@ -735,7 +679,7 @@
       "symbol": "TMV",
       "below": 43.6
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-11T17:44:49Z",
@@ -746,7 +690,7 @@
       "symbol": "USO",
       "below": 134.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-11T17:44:49Z",
@@ -758,6 +702,62 @@
       "below": 45.5
      },
      "breach_at": "2026-11-12T14:30:00Z",
+     "result": "kept: got out after the level was reached"
+    },
+    {
+     "at": "2026-11-13T14:36:59Z",
+     "what": "ProShares UltraPro Short QQQ",
+     "race": "Stocks",
+     "tx": "X-STK-017",
+     "level": {
+      "symbol": "SQQQ",
+      "below": 39.4
+     },
+     "result": "closed before the level was reached"
+    },
+    {
+     "at": "2026-11-13T15:15:24Z",
+     "what": "ProShares UltraPro Short QQQ",
+     "race": "Stocks",
+     "tx": "X-STK-019",
+     "level": {
+      "symbol": "SQQQ",
+      "below": 40.8
+     },
+     "result": "closed before the level was reached"
+    },
+    {
+     "at": "2026-11-13T15:15:24Z",
+     "what": "NVDA Nov 20 $160 put",
+     "race": "Options",
+     "tx": "X-OPT-018",
+     "level": {
+      "symbol": "NVDA",
+      "above": 171.0
+     },
+     "result": "closed before the level was reached"
+    },
+    {
+     "at": "2026-11-13T18:15:39Z",
+     "what": "NVDA Nov 20 $150 put",
+     "race": "Options",
+     "tx": "X-OPT-020",
+     "level": {
+      "symbol": "NVDA",
+      "above": 166.5
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-13T21:07:18Z",
+     "what": "Bitcoin USD",
+     "race": "Crypto",
+     "tx": "X-CRY-031",
+     "level": {
+      "symbol": "BTC-USD",
+      "below": 67900.0
+     },
+     "breach_at": "2026-11-13T23:00:00Z",
      "result": "kept: got out after the level was reached"
     }
    ]
