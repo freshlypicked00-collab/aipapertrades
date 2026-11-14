@@ -5637,7 +5637,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
             pc.title = 'Worth now minus what it paid' + (short ? ' (for a short: what it got for selling minus what buying back would cost now)' : '');
             { const rz = Number(cn ? r.realized_usd : r.realized_cad), sold = tr0.some((x) => /^(Sell|Cover)$/.test(x.action));
               if (sold && isFinite(c)) { pc.appendChild(mk('small', 'st-muted gx-sub', 'on the ' + money(Math.abs(c)) + ' still held'));
-                if (isFinite(rz) && Math.abs(rz) >= 0.5) pc.appendChild(mk('small', 'gx-sub ' + upDown(rz), 'part sold: ' + (rz >= 0 ? '+' : '') + money(rz) + ' · total ' + (pl + rz >= 0 ? '+' : '') + money(pl + rz))); } }
+                if (isFinite(rz) && Math.abs(rz) >= 0.5) /* accuracy check Nov 13: SPY and USO were fully sold, then bought again; 'part sold' misread as part of today's position */ pc.appendChild(mk('small', 'gx-sub ' + upDown(rz), (tr0.length && /^(Buy|Short)$/.test(tr0[tr0.length - 1].action) && tr0.slice(0, -1).some((x) => /^(Sell|Cover)$/.test(x.action)) ? 'sold earlier: ' : 'part sold: ') + (rz >= 0 ? '+' : '') + money(rz) + ' · total ' + (pl + rz >= 0 ? '+' : '') + money(pl + rz))); } }
           }
           { const w = td(tr, t ? (t.note || t.reason || (logFor(lgRows, t) || {}).detail || '') : '', 'wrap gx-why', 1, 'Why');
             const g = t && t.pg_key ? pgNode(t.pg_key) : null; if (g) w.appendChild(g); }   // the other AIs' grades (owner, Oct 29)

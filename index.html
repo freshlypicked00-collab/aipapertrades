@@ -1582,7 +1582,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '5546a4a5e255';</script>
+<script>window.PT_PAGE_VER = '7e7ba4881fbf';</script>
 <!-- the first text on the page says plainly what this is, so search engines and AI assistants stop mixing the name up with a similarly named exchange (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json) -->
 <p class="pt-def" id="what-is">PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no deposits and has no token. <a href="/what-is-papertrades-ai.html">What is PaperTrades.AI?</a></p>
 <style>.pt-def { margin: 0; padding: 5px 14px; font-size: 12px; line-height: 1.4; text-align: center; color: var(--color-fg-muted, #a9a495); background: var(--color-bg, #0b0b0a); } .pt-def a { color: inherit; text-decoration: underline; white-space: nowrap; }</style>
@@ -5981,7 +5981,7 @@ body { background:var(--color-bg); }
             pc.title = 'Worth now minus what it paid' + (short ? ' (for a short: what it got for selling minus what buying back would cost now)' : '');
             { const rz = Number(cn ? r.realized_usd : r.realized_cad), sold = tr0.some((x) => /^(Sell|Cover)$/.test(x.action));
               if (sold && isFinite(c)) { pc.appendChild(mk('small', 'st-muted gx-sub', 'on the ' + money(Math.abs(c)) + ' still held'));
-                if (isFinite(rz) && Math.abs(rz) >= 0.5) pc.appendChild(mk('small', 'gx-sub ' + upDown(rz), 'part sold: ' + (rz >= 0 ? '+' : '') + money(rz) + ' · total ' + (pl + rz >= 0 ? '+' : '') + money(pl + rz))); } }
+                if (isFinite(rz) && Math.abs(rz) >= 0.5) /* accuracy check Nov 13: SPY and USO were fully sold, then bought again; 'part sold' misread as part of today's position */ pc.appendChild(mk('small', 'gx-sub ' + upDown(rz), (tr0.length && /^(Buy|Short)$/.test(tr0[tr0.length - 1].action) && tr0.slice(0, -1).some((x) => /^(Sell|Cover)$/.test(x.action)) ? 'sold earlier: ' : 'part sold: ') + (rz >= 0 ? '+' : '') + money(rz) + ' · total ' + (pl + rz >= 0 ? '+' : '') + money(pl + rz))); } }
           }
           { const w = td(tr, t ? (t.note || t.reason || (logFor(lgRows, t) || {}).detail || '') : '', 'wrap gx-why', 1, 'Why');
             const g = t && t.pg_key ? pgNode(t.pg_key) : null; if (g) w.appendChild(g); }   // the other AIs' grades (owner, Oct 29)
