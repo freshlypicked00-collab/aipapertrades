@@ -1,5 +1,5 @@
 {
- "at": "2026-11-14T09:18:07.397972Z",
+ "at": "2026-11-15T09:48:25.445284Z",
  "since": "2026-11-01T02:30:00Z",
  "by_ai": {
   "claude": {
@@ -96,21 +96,10 @@
   "gemini": {
    "kept": 7,
    "broken": 4,
-   "pending": 7,
-   "closed_first": 48,
-   "untestable": 9,
+   "pending": 5,
+   "closed_first": 50,
+   "untestable": 10,
    "items": [
-    {
-     "at": "2026-11-10T17:48:08Z",
-     "what": "Direxion Daily 20+ Year Treasury Bear 3X Shares",
-     "race": "Stocks",
-     "tx": "G-STK-027",
-     "level": {
-      "symbol": "TMV",
-      "below": 43.0
-     },
-     "result": "closed before the level was reached"
-    },
     {
      "at": "2026-11-10T17:48:08Z",
      "what": "Japanese yen",
@@ -316,7 +305,7 @@
       "symbol": "EUR",
       "above": 1.1
      },
-     "result": "no prices (HTTP Error 404: Not Found)"
+     "result": "level not reached yet"
     },
     {
      "at": "2026-11-12T16:45:06Z",
@@ -408,28 +397,23 @@
       "below": 57.0
      },
      "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-14T17:16:03Z",
+     "what": "Another Fed rate hike in 2026?",
+     "race": "Predictions",
+     "tx": "G-PRD-006",
+     "result": "untestable"
     }
    ]
   },
   "chatgpt": {
    "kept": 13,
    "broken": 7,
-   "pending": 4,
-   "closed_first": 20,
+   "pending": 3,
+   "closed_first": 22,
    "untestable": 2,
    "items": [
-    {
-     "at": "2026-11-04T18:45:39Z",
-     "what": "State Street SPDR S&P 500 ETF Trust",
-     "race": "Stocks",
-     "tx": "X-STK-008",
-     "level": {
-      "symbol": "SPY",
-      "below": 759.5
-     },
-     "breach_at": "2026-11-05T14:30:00Z",
-     "result": "kept: got out after the level was reached"
-    },
     {
      "at": "2026-11-04T18:45:39Z",
      "what": "Bitcoin USD",
@@ -461,7 +445,7 @@
       "symbol": "EUR",
       "below": 1.118
      },
-     "result": "no prices (HTTP Error 404: Not Found)"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-05T14:37:09Z",
@@ -759,6 +743,17 @@
      },
      "breach_at": "2026-11-13T23:00:00Z",
      "result": "kept: got out after the level was reached"
+    },
+    {
+     "at": "2026-11-15T08:15:14Z",
+     "what": "Bitcoin USD",
+     "race": "Crypto",
+     "tx": "X-CRY-033",
+     "level": {
+      "symbol": "BTC-USD",
+      "below": 62000.0
+     },
+     "result": "level not reached yet"
     }
    ]
   }
