@@ -38189,6 +38189,24 @@
    "bet": "C39",
    "wrong_if": "Lakers final margin is -1 point or worse.",
    "p_works": 0.62
+  },
+  {
+   "at": "2026-11-15T05:20:26Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "action": "Bet",
+   "symbol": "C15",
+   "outcome": null,
+   "name": "NFL: Buffalo Bills moneyline (Buffalo Bills @ New York Jets)",
+   "price": -380,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 3000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Sunday's All in minimum at C$3,000: Buffalo is priced about -395 at the Jets, the stronger team by a wide margin, so a small favourite bet keeps the book intact.",
+   "bet": "C15",
+   "wrong_if": "The Jets win outright, or Buffalo's price drifts shorter than -250 before the fill."
   }
  ],
  "history": [
@@ -102553,6 +102571,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 108656.9
+  },
+  {
+   "at": "2026-11-15T05:20:26Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 93694.03
+  },
+  {
+   "at": "2026-11-15T05:20:26Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 105240.85
   }
  ],
  "takes": [
@@ -124073,7 +124103,8 @@
    "C11",
    "C12",
    "C13",
-   "C14"
+   "C14",
+   "C15"
   ]
  },
  "tuning_trades": [
@@ -125220,7 +125251,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 679.89,
-      "priced_at": "2026-11-15T05:14:56Z",
+      "priced_at": "2026-11-15T05:20:26Z",
       "hist": [
        [
         29886870,
@@ -127398,8 +127429,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 64890.5,
-      "priced_at": "2026-11-15T05:14:56Z",
+      "last": 64930.53,
+      "priced_at": "2026-11-15T05:20:26Z",
       "hist": [
        [
         29886870,
@@ -130039,6 +130070,25 @@
       "closing_at": "2026-11-14T20:18:54Z",
       "settled_at": "2026-11-15T00:46:11Z",
       "final": "USC Trojans 13, Indiana Hoosiers 27"
+     },
+     {
+      "id": "C15",
+      "game": "401873054",
+      "sport": "football",
+      "league": "nfl",
+      "short": "NFL",
+      "event": "Buffalo Bills @ New York Jets",
+      "pick": "away",
+      "pick_team": "Buffalo Bills",
+      "odds": -380,
+      "stake": 3000.0,
+      "to_win": 789.47,
+      "starts_at": "2026-11-15T18:00Z",
+      "placed_at": "2026-11-15T05:20:26Z",
+      "status": "Open",
+      "result": 0.0,
+      "reason": "Sunday's All in minimum at C$3,000: Buffalo is priced about -395 at the Jets, the stronger team by a wide margin, so a small favourite bet keeps the book intact.",
+      "wrong_if": "The Jets win outright, or Buffalo's price drifts shorter than -250 before the fill."
      }
     ],
     "penalties": []
@@ -130064,7 +130114,8 @@
    "20261111051751-12",
    "20261112052028-13",
    "20261113051617-14",
-   "20261114051639-15"
+   "20261114051639-15",
+   "20261115051556-16"
   ],
   "results": [
    "20261028182237-0: filled Buy Invesco QQQ Trust C$40,000",
@@ -130082,7 +130133,8 @@
    "20261111051751-12: filled Bet NBA: Boston Celtics moneyline (Boston Celtics @ Toronto Raptors) C$3,000",
    "20261112052028-13: filled Bet NHL: Dallas Stars moneyline (Winnipeg Jets @ Dallas Stars) C$3,000",
    "20261113051617-14: filled Bet NBA: Oklahoma City Thunder moneyline (Oklahoma City Thunder @ LA Clippers) C$3,000",
-   "20261114051639-15: filled Bet NCAAF: Indiana Hoosiers moneyline (USC Trojans @ Indiana Hoosiers) C$3,000"
+   "20261114051639-15: filled Bet NCAAF: Indiana Hoosiers moneyline (USC Trojans @ Indiana Hoosiers) C$3,000",
+   "20261115051556-16: filled Bet NFL: Buffalo Bills moneyline (Buffalo Bills @ New York Jets) C$3,000"
   ]
  },
  "price_alerts": {
@@ -211538,7 +211590,8 @@
    "c20261111154619-34",
    "c20261112052028-35",
    "c20261113051617-36",
-   "c20261114051639-37"
+   "c20261114051639-37",
+   "c20261115051556-38"
   ],
   "results": [
    "c20261029222314-0: filled Sell Bitcoin C$11,288 at 79,005.5",
@@ -211587,7 +211640,8 @@
    "c20261112052028-35: filled Bet S16 (NBA: Detroit Pistons moneyline (Detroit Pistons @ Washington Wizards)) C$3,000 at -423",
    "claude-17: stop filled Sell GLD C$20,119 at 356.88",
    "c20261113051617-36: filled Bet S17 (NBA: Orlando Magic moneyline (Milwaukee Bucks @ Orlando Magic)) C$3,000 at -378",
-   "c20261114051639-37: filled Bet S18 (NCAAF: Ohio State Buckeyes moneyline (Northwestern Wildcats @ Ohio State Buckeyes)) C$3,000 at -550"
+   "c20261114051639-37: filled Bet S18 (NCAAF: Ohio State Buckeyes moneyline (Northwestern Wildcats @ Ohio State Buckeyes)) C$3,000 at -550",
+   "c20261115051556-38: filled Bet S19 (NBA: Houston Rockets moneyline (Houston Rockets @ Washington Wizards)) C$3,000 at -438"
   ],
   "codes": {
    "Democrats win the Senate (Yes)": "will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections|Yes"
@@ -211759,7 +211813,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-15T05:14:56Z",
+  "at": "2026-11-15T05:20:26Z",
   "games": [
    {
     "id": "401873053",
@@ -211839,8 +211893,8 @@
     "away": "Indiana Pacers",
     "home": "Philadelphia 76ers",
     "start": "2026-11-15T18:00Z",
-    "away_ml": 227,
-    "home_ml": -277
+    "away_ml": 235,
+    "home_ml": -288
    },
    {
     "id": "401856887",
@@ -220334,7 +220388,8 @@
   "chatgpt|AllInSports|2026-11-15T05:14:56Z|Bet|C39": "X-AIS-032",
   "chatgpt|Sports|2026-11-15T05:14:56Z|Bet|C38": "X-SPT-046",
   "gemini|AllInSports|2026-11-15T05:14:56Z|Bet|G150": "G-AIS-138",
-  "gemini|Sports|2026-11-15T05:14:56Z|Bet|G149": "G-SPT-158"
+  "gemini|Sports|2026-11-15T05:14:56Z|Bet|G149": "G-SPT-158",
+  "claude|AllInSports|2026-11-15T05:20:26Z|Bet|C15": "C-AIS-029"
  },
  "txseq": {
   "X-CRY": 32,
@@ -220370,7 +220425,7 @@
   "G-CHN": 4,
   "C-CHN": 2,
   "G-PRD": 6,
-  "C-AIS": 28,
+  "C-AIS": 29,
   "X-PRD": 2,
   "C-OPT": 2
  },
