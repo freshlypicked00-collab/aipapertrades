@@ -40579,6 +40579,24 @@
    "bet": "C40",
    "wrong_if": "Wrong if Baltimore's final score is less than or equal to Los Angeles's final score.",
    "p_works": 0.72
+  },
+  {
+   "at": "2026-11-16T05:21:41Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "action": "Bet",
+   "symbol": "C16",
+   "outcome": null,
+   "name": "NBA: Denver Nuggets moneyline (Phoenix Suns @ Denver Nuggets)",
+   "price": -438,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 3000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Monday's All in minimum at C$3,000: Denver is priced about -438 at home to Phoenix, the stronger team, so a small favourite bet keeps the book intact.",
+   "bet": "C16",
+   "wrong_if": "Phoenix wins outright in Denver, or Denver's price drifts shorter than -250 before the fill."
   }
  ],
  "history": [
@@ -107667,6 +107685,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 112710.95
+  },
+  {
+   "at": "2026-11-16T05:21:41Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 93660.87
+  },
+  {
+   "at": "2026-11-16T05:21:41Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 106030.32
   }
  ],
  "takes": [
@@ -131781,7 +131811,8 @@
    "C12",
    "C13",
    "C14",
-   "C15"
+   "C15",
+   "C16"
   ]
  },
  "tuning_trades": [
@@ -132928,7 +132959,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 679.89,
-      "priced_at": "2026-11-16T05:14:48Z",
+      "priced_at": "2026-11-16T05:21:41Z",
       "hist": [
        [
         29886870,
@@ -135214,8 +135245,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 64593.53,
-      "priced_at": "2026-11-16T05:14:48Z",
+      "last": 64772.79,
+      "priced_at": "2026-11-16T05:21:41Z",
       "hist": [
        [
         29886870,
@@ -137986,6 +138017,25 @@
       "closing_at": "2026-11-15T17:19:49Z",
       "settled_at": "2026-11-15T21:15:35Z",
       "final": "Buffalo Bills 31, New York Jets 12"
+     },
+     {
+      "id": "C16",
+      "game": "401910001",
+      "sport": "basketball",
+      "league": "nba",
+      "short": "NBA",
+      "event": "Phoenix Suns @ Denver Nuggets",
+      "pick": "home",
+      "pick_team": "Denver Nuggets",
+      "odds": -438,
+      "stake": 3000.0,
+      "to_win": 684.93,
+      "starts_at": "2026-11-17T02:00Z",
+      "placed_at": "2026-11-16T05:21:41Z",
+      "status": "Open",
+      "result": 0.0,
+      "reason": "Monday's All in minimum at C$3,000: Denver is priced about -438 at home to Phoenix, the stronger team, so a small favourite bet keeps the book intact.",
+      "wrong_if": "Phoenix wins outright in Denver, or Denver's price drifts shorter than -250 before the fill."
      }
     ],
     "penalties": []
@@ -138012,7 +138062,8 @@
    "20261112052028-13",
    "20261113051617-14",
    "20261114051639-15",
-   "20261115051556-16"
+   "20261115051556-16",
+   "20261116051542-17"
   ],
   "results": [
    "20261028182237-0: filled Buy Invesco QQQ Trust C$40,000",
@@ -138031,7 +138082,8 @@
    "20261112052028-13: filled Bet NHL: Dallas Stars moneyline (Winnipeg Jets @ Dallas Stars) C$3,000",
    "20261113051617-14: filled Bet NBA: Oklahoma City Thunder moneyline (Oklahoma City Thunder @ LA Clippers) C$3,000",
    "20261114051639-15: filled Bet NCAAF: Indiana Hoosiers moneyline (USC Trojans @ Indiana Hoosiers) C$3,000",
-   "20261115051556-16: filled Bet NFL: Buffalo Bills moneyline (Buffalo Bills @ New York Jets) C$3,000"
+   "20261115051556-16: filled Bet NFL: Buffalo Bills moneyline (Buffalo Bills @ New York Jets) C$3,000",
+   "20261116051542-17: filled Bet NBA: Denver Nuggets moneyline (Phoenix Suns @ Denver Nuggets) C$3,000"
   ]
  },
  "price_alerts": {
@@ -224155,7 +224207,8 @@
    "c20261112052028-35",
    "c20261113051617-36",
    "c20261114051639-37",
-   "c20261115051556-38"
+   "c20261115051556-38",
+   "c20261116051542-39"
   ],
   "results": [
    "c20261029222314-0: filled Sell Bitcoin C$11,288 at 79,005.5",
@@ -224205,7 +224258,8 @@
    "claude-17: stop filled Sell GLD C$20,119 at 356.88",
    "c20261113051617-36: filled Bet S17 (NBA: Orlando Magic moneyline (Milwaukee Bucks @ Orlando Magic)) C$3,000 at -378",
    "c20261114051639-37: filled Bet S18 (NCAAF: Ohio State Buckeyes moneyline (Northwestern Wildcats @ Ohio State Buckeyes)) C$3,000 at -550",
-   "c20261115051556-38: filled Bet S19 (NBA: Houston Rockets moneyline (Houston Rockets @ Washington Wizards)) C$3,000 at -438"
+   "c20261115051556-38: filled Bet S19 (NBA: Houston Rockets moneyline (Houston Rockets @ Washington Wizards)) C$3,000 at -438",
+   "c20261116051542-39: filled Bet S20 (NBA: Cleveland Cavaliers moneyline (Chicago Bulls @ Cleveland Cavaliers)) C$3,000 at -395"
   ],
   "codes": {
    "Democrats win the Senate (Yes)": "will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections|Yes"
@@ -224386,7 +224440,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-16T05:14:48Z",
+  "at": "2026-11-16T05:21:41Z",
   "games": [
    {
     "id": "401909994",
@@ -224430,8 +224484,8 @@
     "away": "Houston Rockets",
     "home": "Miami Heat",
     "start": "2026-11-17T00:30Z",
-    "away_ml": -148,
-    "home_ml": 124
+    "away_ml": -142,
+    "home_ml": 120
    },
    {
     "id": "401892726",
@@ -232529,7 +232583,8 @@
   "chatgpt|AllInSports|2026-11-16T05:14:48Z|Bet|C40": "X-AIS-034",
   "chatgpt|Predictions|2026-11-16T05:14:48Z|Buy|clarity-act-signed-into-law-in-2026": "X-PRD-003",
   "gemini|AllInSports|2026-11-16T05:14:48Z|Bet|G152": "G-AIS-141",
-  "gemini|Sports|2026-11-16T05:14:48Z|Bet|G151": "G-SPT-161"
+  "gemini|Sports|2026-11-16T05:14:48Z|Bet|G151": "G-SPT-161",
+  "claude|AllInSports|2026-11-16T05:21:41Z|Bet|C16": "C-AIS-031"
  },
  "txseq": {
   "X-CRY": 33,
@@ -232565,7 +232620,7 @@
   "G-CHN": 4,
   "C-CHN": 2,
   "G-PRD": 6,
-  "C-AIS": 30,
+  "C-AIS": 31,
   "X-PRD": 3,
   "C-OPT": 2
  },
