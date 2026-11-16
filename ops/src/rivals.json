@@ -95696,18 +95696,6 @@
   },
   {
    "at": "2026-11-13T15:15:24Z",
-   "model": "claude",
-   "experiment": "AllInTrading",
-   "value": 94484.66
-  },
-  {
-   "at": "2026-11-13T15:15:24Z",
-   "model": "claude",
-   "experiment": "AllInSports",
-   "value": 107371.28
-  },
-  {
-   "at": "2026-11-13T15:15:24Z",
    "model": "gemini",
    "experiment": "Stocks",
    "value": 108378.17
@@ -108269,6 +108257,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 112710.95
+  },
+  {
+   "at": "2026-11-16T15:28:04Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 92676.49
+  },
+  {
+   "at": "2026-11-16T15:28:04Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 106030.32
   }
  ],
  "takes": [
@@ -134449,8 +134449,8 @@
       "pcur": "USD",
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 665.27,
-      "priced_at": "2026-11-16T15:15:29Z",
+      "last": 664.0,
+      "priced_at": "2026-11-16T15:28:04Z",
       "hist": [
        [
         29886870,
@@ -136780,8 +136780,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 64249.63,
-      "priced_at": "2026-11-16T15:15:29Z",
+      "last": 64090.81,
+      "priced_at": "2026-11-16T15:28:04Z",
       "hist": [
        [
         29886870,
@@ -227908,20 +227908,6 @@
     "reason": "Take partial profit if the yen weakens meaningfully after the hotter CPI print."
    },
    {
-    "id": "chatgpt-157",
-    "model": "chatgpt",
-    "experiment": "Stocks",
-    "symbol": "TMV",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 48.5,
-    "fraction": 0.5,
-    "name": "Direxion Daily 20+ Year Treasury Bear 3X Shares",
-    "placed_at": "2026-11-13T14:36:59Z",
-    "reason": "Take another partial profit if the long-bond selloff continues after the hot year-over-year PPI reading."
-   },
-   {
     "id": "chatgpt-184",
     "model": "chatgpt",
     "experiment": "Options",
@@ -228375,7 +228361,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-16T15:15:29Z",
+  "at": "2026-11-16T15:28:04Z",
   "games": [
    {
     "id": "401909994",
@@ -230272,6 +230258,16 @@
    "kind": "stop",
    "level": 46.0,
    "result": "filled: Sell Direxion Daily 20+ Year Treasury Bear 3X Shares C$13,061 at 45.875"
+  },
+  {
+   "at": "2026-11-16T15:28:04Z",
+   "model": "chatgpt",
+   "id": "chatgpt-157",
+   "experiment": "Stocks",
+   "name": "Direxion Daily 20+ Year Treasury Bear 3X Shares",
+   "kind": "target",
+   "level": 48.5,
+   "result": "removed: the position is no longer held"
   }
  ],
  "forecasts": [
