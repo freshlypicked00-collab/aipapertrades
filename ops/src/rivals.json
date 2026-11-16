@@ -96612,18 +96612,6 @@
   },
   {
    "at": "2026-11-13T14:36:59Z",
-   "model": "claude",
-   "experiment": "AllInTrading",
-   "value": 95141.67
-  },
-  {
-   "at": "2026-11-13T14:36:59Z",
-   "model": "claude",
-   "experiment": "AllInSports",
-   "value": 107371.28
-  },
-  {
-   "at": "2026-11-13T14:36:59Z",
    "model": "gemini",
    "experiment": "Stocks",
    "value": 107620.8
@@ -109197,6 +109185,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 112710.95
+  },
+  {
+   "at": "2026-11-16T14:44:42Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 93437.21
+  },
+  {
+   "at": "2026-11-16T14:44:42Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 106030.32
   }
  ],
  "takes": [
@@ -135377,8 +135377,8 @@
       "pcur": "USD",
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 668.52,
-      "priced_at": "2026-11-16T14:37:12Z",
+      "last": 671.45,
+      "priced_at": "2026-11-16T14:44:42Z",
       "hist": [
        [
         29886870,
@@ -137704,8 +137704,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 65311.27,
-      "priced_at": "2026-11-16T14:37:12Z",
+      "last": 65235.15,
+      "priced_at": "2026-11-16T14:44:42Z",
       "hist": [
        [
         29886870,
@@ -228973,20 +228973,6 @@
     "reason": "Sell all SSE Dividend ETF (510880) if it falls to 3.20 yuan (stop)."
    },
    {
-    "id": "claude-18",
-    "model": "claude",
-    "experiment": "Energy",
-    "symbol": "USO",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 134.0,
-    "fraction": 1.0,
-    "name": "USO",
-    "placed_at": "2026-11-11T14:37:25Z",
-    "reason": "Stop about 6% under the US$142.56 fill: if oil gives back that much, the Hormuz supply case is not playing out."
-   },
-   {
     "id": "claude-19",
     "model": "claude",
     "experiment": "Stocks",
@@ -228999,13 +228985,27 @@
     "name": "State Street SPDR S&P 500 ETF Trust",
     "placed_at": "2026-11-11T15:49:35Z",
     "reason": "Exit the whole new SPY position if the S&P 500 rebound fails and SPY falls under US$735."
+   },
+   {
+    "id": "claude-20",
+    "model": "claude",
+    "experiment": "Energy",
+    "symbol": "USO",
+    "outcome": null,
+    "kind": "stop",
+    "direction": "below",
+    "level": 137.0,
+    "fraction": 1.0,
+    "name": "USO",
+    "placed_at": "2026-11-16T14:44:42Z",
+    "reason": "Tightening the USO stop from US$134 to US$137: oil is falling on supply-surplus expectations (CNBC, Business Recorder, Nov 16) and USO is back near my entry, so I cap the loss nearer 4%."
    }
   ]
  },
  "stop_seq": {
   "gemini": 315,
   "chatgpt": 197,
-  "claude": 19
+  "claude": 20
  },
  "claude_main": {
   "done": [
@@ -229048,7 +229048,9 @@
    "c20261113051617-36",
    "c20261114051639-37",
    "c20261115051556-38",
-   "c20261116051542-39"
+   "c20261116051542-39",
+   "c20261116143859-40",
+   "c20261116144228-41"
   ],
   "results": [
    "c20261029222314-0: filled Sell Bitcoin C$11,288 at 79,005.5",
@@ -229099,7 +229101,9 @@
    "c20261113051617-36: filled Bet S17 (NBA: Orlando Magic moneyline (Milwaukee Bucks @ Orlando Magic)) C$3,000 at -378",
    "c20261114051639-37: filled Bet S18 (NCAAF: Ohio State Buckeyes moneyline (Northwestern Wildcats @ Ohio State Buckeyes)) C$3,000 at -550",
    "c20261115051556-38: filled Bet S19 (NBA: Houston Rockets moneyline (Houston Rockets @ Washington Wizards)) C$3,000 at -438",
-   "c20261116051542-39: filled Bet S20 (NBA: Cleveland Cavaliers moneyline (Chicago Bulls @ Cleveland Cavaliers)) C$3,000 at -395"
+   "c20261116051542-39: filled Bet S20 (NBA: Cleveland Cavaliers moneyline (Chicago Bulls @ Cleveland Cavaliers)) C$3,000 at -395",
+   "c20261116143859-40: filled Buy Will there be no change in Fed interest rates after the December 2026 meeting? (No) C$3,000 at 0.9655",
+   "c20261116144228-41: stop set: USO below 137 [id claude-20]"
   ],
   "codes": {
    "Democrats win the Senate (Yes)": "will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections|Yes"
@@ -229280,7 +229284,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-16T14:37:12Z",
+  "at": "2026-11-16T14:44:42Z",
   "games": [
    {
     "id": "401909994",
