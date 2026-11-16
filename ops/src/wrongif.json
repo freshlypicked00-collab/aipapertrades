@@ -1,5 +1,5 @@
 {
- "at": "2026-11-15T09:48:25.445284Z",
+ "at": "2026-11-16T10:05:41.925068Z",
  "since": "2026-11-01T02:30:00Z",
  "by_ai": {
   "claude": {
@@ -96,22 +96,10 @@
   "gemini": {
    "kept": 7,
    "broken": 4,
-   "pending": 5,
-   "closed_first": 50,
-   "untestable": 10,
+   "pending": 7,
+   "closed_first": 48,
+   "untestable": 11,
    "items": [
-    {
-     "at": "2026-11-10T17:48:08Z",
-     "what": "Japanese yen",
-     "race": "Currencies",
-     "tx": "G-CUR-032",
-     "level": {
-      "symbol": "JPY",
-      "above": 0.00645
-     },
-     "breach_at": "2026-11-10T18:30:00Z",
-     "result": "held on after its own exit level"
-    },
     {
      "at": "2026-11-10T19:45:56Z",
      "what": "ProShares UltraShort Bloomberg Crude Oil",
@@ -305,7 +293,7 @@
       "symbol": "EUR",
       "above": 1.1
      },
-     "result": "level not reached yet"
+     "result": "no prices (HTTP Error 404: Not Found)"
     },
     {
      "at": "2026-11-12T16:45:06Z",
@@ -404,27 +392,23 @@
      "race": "Predictions",
      "tx": "G-PRD-006",
      "result": "untestable"
+    },
+    {
+     "at": "2026-11-16T06:15:23Z",
+     "what": "Another Fed rate hike in 2026?",
+     "race": "Predictions",
+     "tx": "G-PRD-007",
+     "result": "untestable"
     }
    ]
   },
   "chatgpt": {
    "kept": 13,
    "broken": 7,
-   "pending": 3,
-   "closed_first": 22,
-   "untestable": 2,
+   "pending": 5,
+   "closed_first": 20,
+   "untestable": 3,
    "items": [
-    {
-     "at": "2026-11-04T18:45:39Z",
-     "what": "Bitcoin USD",
-     "race": "Crypto",
-     "tx": "X-CRY-022",
-     "level": {
-      "symbol": "BTC-USD",
-      "below": 79000.0
-     },
-     "result": "closed before the level was reached"
-    },
     {
      "at": "2026-11-05T01:04:42Z",
      "what": "Bitcoin USD",
@@ -445,7 +429,7 @@
       "symbol": "EUR",
       "below": 1.118
      },
-     "result": "closed before the level was reached"
+     "result": "no prices (HTTP Error 404: Not Found)"
     },
     {
      "at": "2026-11-05T14:37:09Z",
@@ -754,6 +738,13 @@
       "below": 62000.0
      },
      "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-16T05:14:48Z",
+     "what": "Clarity Act (H.R.3633) signed into law in 2026?",
+     "race": "Predictions",
+     "tx": "X-PRD-003",
+     "result": "untestable"
     }
    ]
   }
