@@ -1,11 +1,11 @@
 {
- "at": "2026-11-16T14:21:51Z",
+ "at": "2026-11-16T14:41:30Z",
  "since": "2026-10-28T17:45:00Z",
  "summary": {
-  "ok": 1809,
+  "ok": 1810,
   "flag": 2,
-  "no_data": 198,
-  "no_feed": 179,
+  "no_data": 199,
+  "no_feed": 180,
   "backup_pending": 0,
   "backup_wrong": 1
  },
@@ -31355,6 +31355,41 @@
    "holding": "Will there be no change in Fed interest rates after the December 2026 meeting? (No)",
    "action": "",
    "claude": 0.9655,
+   "status": "no_feed",
+   "note": "no matching feed symbol"
+  },
+  {
+   "kind": "value",
+   "at": "2026-11-16T09:15:01-05:00",
+   "holding": "Democrats win the Senate (Yes)",
+   "action": "",
+   "claude": 0.9995,
+   "feed": "Polymarket",
+   "status": "no_data",
+   "note": "the feed has no data for that time"
+  },
+  {
+   "kind": "value",
+   "at": "2026-11-16T09:15:01-05:00",
+   "holding": "Japanese yen",
+   "action": "",
+   "claude": 0.00626641,
+   "feed": "JPY=X",
+   "feed_low": 0.006265,
+   "feed_high": 0.006268,
+   "basis": "1-minute bars within 5 minutes",
+   "gap_pct": 0.0,
+   "gap_abs": null,
+   "tolerance": "0.5%",
+   "status": "ok",
+   "note": "US$ per yen (the feed quotes yen per US$)"
+  },
+  {
+   "kind": "value",
+   "at": "2026-11-16T09:15:01-05:00",
+   "holding": "Will there be no change in Fed interest rates after the December 2026 meeting? (No)",
+   "action": "",
+   "claude": 0.9645,
    "status": "no_feed",
    "note": "no matching feed symbol"
   }
