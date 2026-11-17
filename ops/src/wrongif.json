@@ -1,11 +1,11 @@
 {
- "at": "2026-11-16T10:05:41.925068Z",
+ "at": "2026-11-17T11:02:05.235113Z",
  "since": "2026-11-01T02:30:00Z",
  "by_ai": {
   "claude": {
    "kept": 1,
    "broken": 1,
-   "pending": 3,
+   "pending": 4,
    "closed_first": 1,
    "untestable": 2,
    "items": [
@@ -90,14 +90,25 @@
       "below": 735.0
      },
      "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-16T09:44:42-05:00",
+     "what": "Will there be no change in Fed interest rates after the December 2026 meeting? (No)",
+     "race": "Predictions",
+     "tx": "C-PRD-005",
+     "level": {
+      "symbol": "will-there-be-no-change-in-fed-interest.",
+      "below": 0.9
+     },
+     "result": "no prices (HTTP Error 404: Not Found)"
     }
    ]
   },
   "gemini": {
    "kept": 7,
    "broken": 4,
-   "pending": 7,
-   "closed_first": 48,
+   "pending": 3,
+   "closed_first": 52,
    "untestable": 11,
    "items": [
     {
@@ -293,7 +304,7 @@
       "symbol": "EUR",
       "above": 1.1
      },
-     "result": "no prices (HTTP Error 404: Not Found)"
+     "result": "level not reached yet"
     },
     {
      "at": "2026-11-12T16:45:06Z",
@@ -340,7 +351,7 @@
       "symbol": "TMV",
       "below": 43.5
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-12T19:14:54Z",
@@ -373,7 +384,7 @@
       "symbol": "NVDA",
       "above": 175.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-13T20:45:43Z",
@@ -405,21 +416,10 @@
   "chatgpt": {
    "kept": 13,
    "broken": 7,
-   "pending": 5,
-   "closed_first": 20,
+   "pending": 4,
+   "closed_first": 22,
    "untestable": 3,
    "items": [
-    {
-     "at": "2026-11-05T01:04:42Z",
-     "what": "Bitcoin USD",
-     "race": "Crypto",
-     "tx": "X-CRY-023",
-     "level": {
-      "symbol": "BTC-USD",
-      "below": 79000.0
-     },
-     "result": "closed before the level was reached"
-    },
     {
      "at": "2026-11-05T02:14:51Z",
      "what": "Euro",
@@ -429,7 +429,7 @@
       "symbol": "EUR",
       "below": 1.118
      },
-     "result": "no prices (HTTP Error 404: Not Found)"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-05T14:37:09Z",
@@ -745,6 +745,17 @@
      "race": "Predictions",
      "tx": "X-PRD-003",
      "result": "untestable"
+    },
+    {
+     "at": "2026-11-16T14:37:12Z",
+     "what": "NVDA Nov 20 $150 put",
+     "race": "Options",
+     "tx": "X-OPT-021",
+     "level": {
+      "symbol": "NVDA261120P00150000",
+      "below": 2.1
+     },
+     "result": "level not reached yet"
     }
    ]
   }
