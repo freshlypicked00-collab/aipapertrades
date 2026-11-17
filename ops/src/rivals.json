@@ -41693,6 +41693,24 @@
    "bet": "G162",
    "wrong_if": "The final score shows the Houston Texans with fewer points than the Indianapolis Colts.",
    "p_works": 0.85
+  },
+  {
+   "at": "2026-11-17T08:20:49Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "action": "Bet",
+   "symbol": "C17",
+   "outcome": null,
+   "name": "NBA: LA Clippers moneyline (Utah Jazz @ LA Clippers)",
+   "price": -238,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 3000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Daily All in minimum: the Clippers are home favourites (-238 on the ESPN line) against Utah; kept at the C$3,000 floor.",
+   "bet": "C17",
+   "wrong_if": ""
   }
  ],
  "history": [
@@ -113251,6 +113269,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 109710.95
+  },
+  {
+   "at": "2026-11-17T08:20:49Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 92655.75
+  },
+  {
+   "at": "2026-11-17T08:20:49Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 103030.32
   }
  ],
  "takes": [
@@ -138491,7 +138521,8 @@
    "C13",
    "C14",
    "C15",
-   "C16"
+   "C16",
+   "C17"
   ]
  },
  "tuning_trades": [
@@ -139638,7 +139669,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 661.75,
-      "priced_at": "2026-11-17T08:16:13Z",
+      "priced_at": "2026-11-17T08:20:49Z",
       "hist": [
        [
         29886870,
@@ -142076,8 +142107,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 64540.96,
-      "priced_at": "2026-11-17T08:16:13Z",
+      "last": 64491.88,
+      "priced_at": "2026-11-17T08:20:49Z",
       "hist": [
        [
         29886870,
@@ -145023,6 +145054,25 @@
       "closing_at": "2026-11-17T01:47:25Z",
       "settled_at": "2026-11-17T04:58:45Z",
       "final": "Phoenix Suns 117, Denver Nuggets 105"
+     },
+     {
+      "id": "C17",
+      "game": "401910006",
+      "sport": "basketball",
+      "league": "nba",
+      "short": "NBA",
+      "event": "Utah Jazz @ LA Clippers",
+      "pick": "home",
+      "pick_team": "LA Clippers",
+      "odds": -238,
+      "stake": 3000.0,
+      "to_win": 1260.5,
+      "starts_at": "2026-11-18T03:30Z",
+      "placed_at": "2026-11-17T08:20:49Z",
+      "status": "Open",
+      "result": 0.0,
+      "reason": "Daily All in minimum: the Clippers are home favourites (-238 on the ESPN line) against Utah; kept at the C$3,000 floor.",
+      "wrong_if": ""
      }
     ],
     "penalties": []
@@ -145050,7 +145100,8 @@
    "20261113051617-14",
    "20261114051639-15",
    "20261115051556-16",
-   "20261116051542-17"
+   "20261116051542-17",
+   "20261117081943-18"
   ],
   "results": [
    "20261028182237-0: filled Buy Invesco QQQ Trust C$40,000",
@@ -145070,7 +145121,8 @@
    "20261113051617-14: filled Bet NBA: Oklahoma City Thunder moneyline (Oklahoma City Thunder @ LA Clippers) C$3,000",
    "20261114051639-15: filled Bet NCAAF: Indiana Hoosiers moneyline (USC Trojans @ Indiana Hoosiers) C$3,000",
    "20261115051556-16: filled Bet NFL: Buffalo Bills moneyline (Buffalo Bills @ New York Jets) C$3,000",
-   "20261116051542-17: filled Bet NBA: Denver Nuggets moneyline (Phoenix Suns @ Denver Nuggets) C$3,000"
+   "20261116051542-17: filled Bet NBA: Denver Nuggets moneyline (Phoenix Suns @ Denver Nuggets) C$3,000",
+   "20261117081943-18: filled Bet NBA: LA Clippers moneyline (Utah Jazz @ LA Clippers) C$3,000"
   ]
  },
  "price_alerts": {
@@ -235277,7 +235329,8 @@
    "c20261115051556-38",
    "c20261116051542-39",
    "c20261116143859-40",
-   "c20261116144228-41"
+   "c20261116144228-41",
+   "c20261117081943-42"
   ],
   "results": [
    "c20261029222314-0: filled Sell Bitcoin C$11,288 at 79,005.5",
@@ -235330,7 +235383,8 @@
    "c20261115051556-38: filled Bet S19 (NBA: Houston Rockets moneyline (Houston Rockets @ Washington Wizards)) C$3,000 at -438",
    "c20261116051542-39: filled Bet S20 (NBA: Cleveland Cavaliers moneyline (Chicago Bulls @ Cleveland Cavaliers)) C$3,000 at -395",
    "c20261116143859-40: filled Buy Will there be no change in Fed interest rates after the December 2026 meeting? (No) C$3,000 at 0.9655",
-   "c20261116144228-41: stop set: USO below 137 [id claude-20]"
+   "c20261116144228-41: stop set: USO below 137 [id claude-20]",
+   "c20261117081943-42: filled Bet S21 (NBA: Los Angeles Lakers moneyline (Charlotte Hornets @ Los Angeles Lakers)) C$3,000 at -316"
   ],
   "codes": {
    "Democrats win the Senate (Yes)": "will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections|Yes"
@@ -235520,7 +235574,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-17T08:16:13Z",
+  "at": "2026-11-17T08:20:49Z",
   "games": [
    {
     "id": "401920511",
@@ -244837,7 +244891,8 @@
   "gemini|AllInSports|2026-11-17T05:15:12Z|Bet|G160": "G-AIS-146",
   "gemini|Sports|2026-11-17T05:15:12Z|Bet|G159": "G-SPT-166",
   "gemini|AllInSports|2026-11-17T06:17:02Z|Bet|G162": "G-AIS-147",
-  "gemini|Sports|2026-11-17T06:17:02Z|Bet|G161": "G-SPT-167"
+  "gemini|Sports|2026-11-17T06:17:02Z|Bet|G161": "G-SPT-167",
+  "claude|AllInSports|2026-11-17T08:20:49Z|Bet|C17": "C-AIS-033"
  },
  "txseq": {
   "X-CRY": 33,
@@ -244873,7 +244928,7 @@
   "G-CHN": 4,
   "C-CHN": 2,
   "G-PRD": 7,
-  "C-AIS": 32,
+  "C-AIS": 33,
   "X-PRD": 3,
   "C-OPT": 2
  },
