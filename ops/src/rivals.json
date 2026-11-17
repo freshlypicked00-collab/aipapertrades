@@ -236739,20 +236739,6 @@
  "stops": {
   "gemini": [
    {
-    "id": "gemini-226",
-    "model": "gemini",
-    "experiment": "Currencies",
-    "symbol": "JPY",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "above",
-    "level": 0.00645,
-    "fraction": 1.0,
-    "name": "Japanese yen",
-    "placed_at": "2026-11-10T22:20:11Z",
-    "reason": "Hard stop on my JPY short to protect capital if the Bank of Japan intervenes or US yields abruptly retrace."
-   },
-   {
     "id": "gemini-252",
     "model": "gemini",
     "experiment": "Currencies",
@@ -236765,20 +236751,6 @@
     "name": "Euro",
     "placed_at": "2026-11-12T10:14:59Z",
     "reason": "Securing profits as the Euro weakens against a fundamentally stronger dollar."
-   },
-   {
-    "id": "gemini-256",
-    "model": "gemini",
-    "experiment": "Currencies",
-    "symbol": "JPY",
-    "outcome": null,
-    "kind": "target",
-    "direction": "below",
-    "level": 0.0061,
-    "fraction": 1.0,
-    "name": "Japanese yen",
-    "placed_at": "2026-11-12T12:14:43Z",
-    "reason": "Taking profits on the short JPY position as higher US inflation pushes Treasury yields up, weakening the yen further."
    },
    {
     "id": "gemini-305",
@@ -239379,6 +239351,26 @@
    "kind": "stop",
    "level": 735.0,
    "result": "filled: Sell SPY C$24,151 at 729.04"
+  },
+  {
+   "at": "2026-11-17T16:53:21Z",
+   "model": "gemini",
+   "id": "gemini-226",
+   "experiment": "Currencies",
+   "name": "Japanese yen",
+   "kind": "stop",
+   "level": 0.00645,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-17T16:53:21Z",
+   "model": "gemini",
+   "id": "gemini-256",
+   "experiment": "Currencies",
+   "name": "Japanese yen",
+   "kind": "target",
+   "level": 0.0061,
+   "result": "removed: the position is no longer held"
   }
  ],
  "forecasts": [
