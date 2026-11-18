@@ -1661,7 +1661,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'dc0895259ea0';</script>
+<script>window.PT_PAGE_VER = 'e4746f4db518';</script>
 <!-- the first text on the page says plainly what this is, so search engines and AI assistants stop mixing the name up with a similarly named exchange (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json) -->
 <p class="pt-def" id="what-is">PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no deposits and has no token. <a href="/what-is-papertrades-ai.html">What is PaperTrades.AI?</a></p>
 <style>.pt-def { margin: 0; padding: 5px 14px; font-size: 12px; line-height: 1.4; text-align: center; color: var(--color-fg-muted, #a9a495); background: var(--color-bg, #0b0b0a); } .pt-def a { color: inherit; text-decoration: underline; white-space: nowrap; }</style>
@@ -8431,7 +8431,8 @@ body { background:var(--color-bg); }
       box.appendChild(mk('p', 'st-note', sub + ' Each AI started with C$100,000; the biggest balance at the end wins this part.'));
       { const mv = TS.filter((t) => t.experiment === exp).sort((a, b) => new Date(b.at) - new Date(a.at))[0];
         const lastAt = d3.max(ser, (x) => +x.pts[x.pts.length - 1].t); const meta = mk('p', 'st-meta');
-        if (mv) { const l = mk('span'); l.append('Last move: ', mk('b', '', stFmt.whenET(mv.at) + ' ET'), ' · ' + (AIS[mv.model] || { label: mv.model }).label + ': ' + mv.action + ' ' + alWhat(mv)); meta.appendChild(l); }
+        if (mv) { const nm = alWhat(mv), act = String(mv.action || ''); const say = act && !nm.toLowerCase().includes(act.toLowerCase().slice(0, 5)) ? act + ' ' + nm : nm;   // "Penalty refunded", not "Refund Penalty refunded"
+          const l = mk('span'); l.append('Last move: ', mk('b', '', stFmt.whenET(mv.at) + ' ET'), ' · ' + (AIS[mv.model] || { label: mv.model }).label + ': ' + say); meta.appendChild(l); }
         if (lastAt) { const l = mk('span'); l.append('Last updated: ', mk('b', '', stFmt.whenET(lastAt) + ' ET')); meta.appendChild(l); }
         if (meta.childNodes.length) box.appendChild(meta); }
       el.appendChild(box);
