@@ -1,0 +1,40 @@
+DESIGN REVIEW from the owner of PaperTrades.AI. NOT a trading turn. You are asked as a senior product designer; Claude built the change below and wants your view before it is published.
+
+Owner, Nov 18, 9:05 a.m. ET: "there should be recent moves like how high risk has on all no?"
+Meaning: the High risk page has a "Recent moves" list (every move by all three AIs, newest first). The ten race pages (Stocks, Crypto, China, Metals, Energy, Options, Currencies, Safe, Sports, Predictions) only had a "Decision log" for the ONE AI being viewed. He wants the same list on every race page.
+
+GROUND RULES (not up for change): no number, rule or word an AI wrote changes; the site should stay compact (the owner dislikes long pages); small improvements are welcome when we agree on them.
+
+WHAT CLAUDE BUILT (three pictures attached, default dark theme, Gemini being viewed)
+B1. A "Recent moves" card on each of the ten race pages. It is the SAME list as on High risk (one shared piece of code now): every trade (Sports: every bet and its result) by all three AIs in that race, newest first; an AI menu (All three AIs / one AI), the Show pills, Sort, "Why (estimated)"; columns When | AI | Move | Money | Cost / stake | Profit | Why, with the transaction-ID chips, the competitors' grades and "Looking back" under the reason. One line under the title: "Every trade by all three AIs in this race, newest first."
+B2. Where: right before the "Decision log", which stays as it is. A race page now reads: the race's tiles, Value over time, vs. the market, Holdings, this race's scoreboard + the AI's take + grades, What made or lost money, Coming up, RECENT MOVES (all three AIs), Decision log (the AI being viewed), Rules in force, Sources.
+B3. How many: 5 moves a page on computers and tablets, 3 on phones (on a phone every move is a tall card), with Newer / Older for the rest. The High risk page keeps its 10 a page.
+B4. Phones: a "Moves" chip in the jump row under the first card (Chart, Holdings, Moves, Ledger, Rules).
+Picture 1 (recent-moves-nov18-desktop-stocks.png): computer, Stocks and anything, the new card.
+Picture 2 (recent-moves-nov18-desktop-sports.png): computer, Sports, the new card (bets, results, a refunded fine, an open bet).
+Picture 3 (recent-moves-nov18-phone.png): phone 390 px; left: the jump chips; right: the top of the new card.
+
+MEASURED (Stocks page): computer 4,591 px tall before, 6,008 with the card at 5 a page (it would be 6,916 at 10 a page). Phone 8,024 px before, 10,062 with 3 a page (13,127 at 10 a page). On the Sports page on phones the card starts folded to its title with "Show more", like every lower card on that page already does.
+
+WORDING FIXES in the shared move lists (High risk, the three AI pages, AI vs AI, the new race lists), found while building. Numbers are unchanged; only the words.
+W1. A buy that was sold later said "open" in the Profit column. Example on High risk today: Gemini's Nov 16 buy of Direxion Daily Semiconductor Bear 3X Shares says "open", but it was sold on Nov 17 (+C$903.14 on the sale's own row). New: "sold" (a short: "bought back"; an option or prediction share that ran out: "expired" / "settled"). "open" only while it is still held. The profit stays on the sale's row only.
+W2. Shorts. Money said "put in C$190,000.00" on the short and "took out C$190,812.45" on buying it back, next to a LOSS of C$812.45 (and "took out C$39,751.38" of C$40,000 next to a PROFIT of C$248.62). New: "sold short C$190,000.00" and "bought back for C$190,812.45".
+W3. A cancelled (void) bet said "refunded C$0.00". New: the stake that came back, e.g. "refunded C$10,000.00".
+W4. Fines. "Refund Penalty refunded (outage day) · C$500.00" becomes "Penalty refunded (outage day) · refunded C$500.00". "Penalty Missed daily betting minimum · C$500.00" becomes "Penalty: missed daily betting minimum · fined C$500.00".
+W5. AI vs AI, "Recent trades": Claude's bets were missing (only its trades were listed); now they are in. Claude's rows now show its own reason, as in the Ledger, instead of the log line that first repeats "Bought X: C$… at US$…".
+
+FOUND IN THE LEDGER, NOT CHANGED YET (your view decides)
+L1. A buy that was added to and then sold says "Still held" and "open". Example: Claude's Oct 28 SPY buy (C-STK-002): it was sold on Nov 5 together with the Nov 4 add, and its own row has the button "View sale C-STK-005". Cause: the Ledger only looks at sales that come before the next buy of the same holding.
+L2. The result lands on the wrong buy. The Nov 4 SPY add of C$15,000 shows "Lost −C$1,481.18 (sold)", which is the loss on the whole C$40,000 position. Claude's Oct 28 Bitcoin buy of C$35,000 shows "Lost −C$262.30 (sold)", which is only the Oct 29 part-sale; the rest lost C$1,899.40 on Nov 5.
+L3. A holding sold completely and bought again later: the OLD buys say "Part sold …; rest still held" (Claude's USO: all sold Nov 2, bought again Nov 11).
+Claude's proposal: treat the buys and sales of one holding as one POSITION, from the first buy until it is completely sold. (a) Every buy of a finished position says "Sold at a profit / at a loss" by the whole position's result, never "Still held". (b) In the Profit column a buy of a finished position shows the whole position's result once in words that say so: "Lost −C$1,481.18 (sold; whole position, 2 buys)"; a position with one buy keeps today's "Lost −C$… (sold)". (c) "Still held" and "Part sold …; rest still held" only on buys of a position that is still open now. Sales rows do not change.
+
+QUESTIONS. Answer each with AGREE, CHANGE (say exactly what) or DISAGREE (say why). Think of a first-time visitor on a phone.
+Q1. B2, the place: (a) right before the Decision log, as built; (b) right after the race's scoreboard / take / grades; (c) somewhere else (say where).
+Q2. B3, how many a page: (a) 5 on computers, 3 on phones, as built; (b) 10 like High risk; (c) other numbers. And should the High risk list itself change to the same numbers, or keep its 10?
+Q3. Phones on the nine other race pages: (a) the card open, as built; (b) folded to its title with "Show more" like the lower cards on the Sports page.
+Q4. B1's one-line note and B4's "Moves" chip: fine as they are?
+Q5. W1 to W5: one answer each. For W1, are "sold" / "bought back" / "expired" / "settled" the right words?
+Q6. L1 to L3 and the proposal (a), (b), (c): agree, or a better way to word a buy inside a position of several buys?
+Q7. Anything else small in the three pictures that would make this list easier for a human, without making the page longer.
+Finish with one line: SATISFIED (ready to publish with your changes) or NOT SATISFIED (and what must change).
