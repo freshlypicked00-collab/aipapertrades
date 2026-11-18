@@ -1,11 +1,11 @@
 {
- "at": "2026-11-17T11:02:05.235113Z",
+ "at": "2026-11-18T10:36:20.536617Z",
  "since": "2026-11-01T02:30:00Z",
  "by_ai": {
   "claude": {
-   "kept": 1,
+   "kept": 2,
    "broken": 1,
-   "pending": 4,
+   "pending": 3,
    "closed_first": 1,
    "untestable": 2,
    "items": [
@@ -89,7 +89,8 @@
       "symbol": "SPY",
       "below": 735.0
      },
-     "result": "level not reached yet"
+     "breach_at": "2026-11-17T15:30:00Z",
+     "result": "kept: got out after the level was reached"
     },
     {
      "at": "2026-11-16T09:44:42-05:00",
@@ -107,8 +108,8 @@
   "gemini": {
    "kept": 7,
    "broken": 4,
-   "pending": 3,
-   "closed_first": 52,
+   "pending": 5,
+   "closed_first": 50,
    "untestable": 11,
    "items": [
     {
@@ -304,7 +305,7 @@
       "symbol": "EUR",
       "above": 1.1
      },
-     "result": "level not reached yet"
+     "result": "no prices (HTTP Error 404: Not Found)"
     },
     {
      "at": "2026-11-12T16:45:06Z",
@@ -416,8 +417,8 @@
   "chatgpt": {
    "kept": 13,
    "broken": 7,
-   "pending": 4,
-   "closed_first": 22,
+   "pending": 6,
+   "closed_first": 20,
    "untestable": 3,
    "items": [
     {
@@ -429,7 +430,7 @@
       "symbol": "EUR",
       "below": 1.118
      },
-     "result": "closed before the level was reached"
+     "result": "no prices (HTTP Error 404: Not Found)"
     },
     {
      "at": "2026-11-05T14:37:09Z",
