@@ -252,9 +252,11 @@ jobs:
                   wk0 = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
                   mo0 = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
                   days_wk, days_mo = (now - wk0).total_seconds() / 86400, (now - mo0).total_seconds() / 86400
-                  pace = float(kd.get('usage_weekly') or 0) / days_wk if days_wk >= 1 else float(kd.get('usage_monthly') or 0) / max(1.0, days_mo)
+                  # the higher of this week's and this month's daily spend: a week spent out of credit must not make the pace look slow
+                  pace = max(float(kd.get('usage_weekly') or 0) / max(1.0, days_wk), float(kd.get('usage_monthly') or 0) / max(1.0, days_mo))
                   if left < 15:
-                      print(f"- ChatGPT: OpenRouter credit is down to US${left:.2f}" + (f", about {left / pace:.1f} days at the recent pace of US${pace:.2f} a day" if pace > 0.5 else '') + ". Top up before it runs out: https://openrouter.ai/settings/credits")
+                      print(f"- ChatGPT: OpenRouter credit is down to US${left:.2f}" + (f", about {left / pace:.1f} days at the recent pace of US${pace:.2f} a day" if pace > 0.5 else '') + ". Top up before it runs out: https://openrouter.ai/settings/credits"
+                            + (". That is too little for even one check-in: each call needs about US$2 of room." if left < 2 else ''))
                   lim = kd.get('limit_remaining')
                   if lim is not None and float(lim) < 15:
                       print(f"- ChatGPT: the OpenRouter key's monthly cap is almost used: US${float(lim):.2f} left of US${float(kd.get('limit') or 0):.0f} until it resets on the 1st. Raise the key's limit on openrouter.ai (the Keys page).")
