@@ -34,7 +34,7 @@
       var off = mk('button', '', 'Official accounts'); off.type = 'button';
       off.addEventListener('click', function () { tab('about'); if (window.ptSpot) window.ptSpot(function () { return document.getElementById('official'); }, { wait: 350 }); });
       nav.appendChild(off);
-      foot.parentNode.insertBefore(nav, foot);
+      foot.insertBefore(nav, foot.firstChild);   // inside the footer, above the small print
     }
   } catch (e) {}
 

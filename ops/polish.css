@@ -37,17 +37,18 @@ table.st-table.pt-cards > tbody > tr > td[data-label]::before, .st-riskdash tabl
 .pt-gl-q { width: 18px; height: 18px; font-size: 12px; color: var(--accent, #ffb000); border-color: color-mix(in srgb, var(--accent, #ffb000) 55%, transparent); }
 .pt-gl-q:hover, .pt-gl-q:focus-visible { color: var(--color-bg); background: var(--accent, #ffb000); border-color: var(--accent, #ffb000); }
 
-/* ---- 2. READING ON PHONES: all text 4 percent larger (P2: captions about 13 px, running text about 15 px). --------------
-   One switch that phone browsers apply to every piece of text; computers ignore it. Set it back to 100% to reverse. */
-@media (max-width: 700px) { html { -webkit-text-size-adjust: 104%; text-size-adjust: 104%; } }
+/* ---- 2. READING ON PHONES (P2): tried and switched off. All text 4 percent larger made the Overview 5 percent longer on a phone
+   (measured with the site's real fonts), and the owner wants compact pages. The switch stays here: change 100% to 104% to turn it
+   on (captions about 13 px, running text about 15 px). Block 1 (nothing under 12 px) does the important part. ------------------- */
+@media (max-width: 700px) { html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; } }
 
-/* ---- 3. READING ON COMPUTERS (P3): lines ran to 200 characters; now running text stops at about 115, small notes at about 150,
-   and a long list (six items or more) flows in two columns, so all tabs together are a little shorter than before, not longer.
-   Tables, charts and fact lines keep the full width. ---------------------------------------------------------------------- */
+/* ---- 3. READING ON COMPUTERS (P3): on the reading tabs (News, About, How it works, Guide, Rules & Audit, Support, Data) lines ran
+   to 200 characters. Now text there stops at 700 px (about 120 characters), and a long list (six items or more) flows in two
+   columns, which keeps those tabs from getting longer. Race pages, tables, charts and fact lines keep the full width. ------------ */
 @media (min-width: 1000px) {
-  .st-page :is(p, li):where(:not([class]), .st-note, .st-meta, .st-score-foot, .st-luck-t, .ra-sub, .nm-pub, .pt-verify-p), .st-indep, .st-s2 { max-width: 112ch; }
-  :is(#news, #about-pt, #rules, #guide, #audit, #support, #data) :is(p, li):where(:not([class])), .st-page .nm-lede, .pt-hero-p, .pt-hero-lead { max-width: 88ch; }
-  :is(#news, #about-pt, #rules, #guide, #audit, #support, #data) .nm-list > li { max-width: 124ch; }   /* fact lines ("what it moved", data notes) are data: one long line reads like a table row */
+  :is(#news, #about-pt, #rules, #guide, #audit, #support, #data) :is(p, li):where(:not([class]), .st-note, .nm-pub, .pt-verify-p), .st-page .nm-lede, .pt-hero-p, .pt-hero-lead { max-width: 700px; }
+  #news :is(p, li):where(:not([class]), .st-note, .nm-pub), #news .nm-lede { max-width: 860px; }   /* News is a feed of short cards: a slightly longer line keeps each card compact */
+  :is(#news, #about-pt, #rules, #guide, #audit, #support, #data) .nm-list > li { max-width: 970px; }   /* fact lines ("what it moved", data notes) are data: one long line reads like a table row */
   :is(#rules, #audit, #about-pt, #guide, #support, #data) :is(ul, ol):is(:not([class]), .st-exp-list, .st-how, .au-corr, .st-list):has(> li:nth-child(6)) { display: block; columns: 2; column-gap: 56px; max-width: none; }
   :is(#rules, #audit, #about-pt, #guide, #support, #data) :is(ul, ol):is(:not([class]), .st-exp-list, .st-how, .au-corr, .st-list):has(> li:nth-child(6)) > li { break-inside: avoid; max-width: none; margin: 0 0 7px; }
   .st-table td .pt-t { white-space: nowrap; }   /* a time stays on one line: rows were two lines tall only because "ET" wrapped */
@@ -58,9 +59,9 @@ table.st-table.pt-cards > tbody > tr > td[data-label]::before, .st-riskdash tabl
    Tables set whole sentences in the monospace font, which is about 40 percent wider: reasons ran to 11 lines in a narrow
    column. Now a table reads like a modern trading screen: words in IBM Plex Sans, figures in IBM Plex Mono so decimals line up.
    Gemini warned this is the one the owner may want back: delete this block and every table is monospace again. */
-.st-table td { font-family: var(--font-sans); font-size: 13.5px; }
-.st-table td.wrap { line-height: 1.5; }
-.st-table td.wrap > b:first-child { font-size: 14px; }
+.st-table td { font-family: var(--font-sans); font-size: 13px; }
+.st-table td.wrap { line-height: 1.4; }
+.st-table td.wrap > b:first-child { font-size: 13.5px; }
 .st-table td.num, .st-table td .pt-t, .st-table td .tx-id:not(.tx-go), .st-table td :is(code, kbd, samp) { font-family: var(--font-serif); font-size: 13px; }
 .st-table td .tx-id:not(.tx-go) { font-size: 12px; }
 /* the small chips under a move: the ID stays monospace; "Result", "Game", "Whole story", "More details", "View original bet" are words */
@@ -85,7 +86,8 @@ table.st-table.pt-cards > tbody > tr > td[data-label]::before, .st-riskdash tabl
   .gd-link::after, .ct-addr::after, .say-btn::after { content: ""; position: absolute; left: -4px; right: -4px; top: 50%; height: 38px; transform: translateY(-50%); }
   .pt-gl-q::after { left: -10px; right: -10px; }
   #dash-root details > summary { padding-block: 4px; }
-  .h2h-holds .pt-hold-link { padding-block: 4px; }
+  .h2h-holds .pt-hold-link { position: relative; }
+  .h2h-holds .pt-hold-link::before { content: ""; position: absolute; inset: -7px -3px; }   /* a larger touch area; the line itself stays as tight as before */
 }
 
 /* ---- 6. CONTROLS (P6): one look for every menu and button, one focus ring, the same hover and pressed feedback ------------ */
@@ -135,14 +137,12 @@ button.st-live-btn { border: 0; font-family: inherit; cursor: pointer; }
 /* ---- 9. TABLES AND LOGS (P16; Gemini's ideas 4 and 9) ---------------------------------------------------------------------- */
 @media (hover: hover) { .st-table tbody tr:hover > td { background: color-mix(in srgb, var(--color-fg) 3.5%, transparent); } }
 .st-table th { letter-spacing: .04em; }
-.st-table td, .st-table th { padding: 6px var(--cds-pad-sm); }
 /* bet and move rows (P12): the chips sit side by side and wrap, instead of one small box per line */
 .tx-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 4px; }
 .tx-wrap > .tx-id, .tx-wrap > .tx-next, .tx-wrap > .lg-find, .tx-wrap > .tx-link { margin-top: 0; }
 .tx-id, .lg-find { padding: 1px 7px; border-radius: 4px; }
 .tx-next { opacity: .7; }
 @media (min-width: 701px) { .gx-hold-t td.wrap:first-child { width: 56%; } .gx-hold-t td.wrap[data-label="Placed"] { min-width: 0; white-space: nowrap; } }
-.pg { margin: 8px 0 6px; }
 
 /* ---- 10. AI vs AI "Holding now" (P11): left-aligned, easy to scan; the dot between two holdings stays with the name before it */
 .pt-hold-link { text-align: left; }
@@ -204,21 +204,25 @@ header.st-head .st-progress :is(.st-clock-ny, .st-clock-hk, .st-clock-utc) { gap
 /* ---- 16. PHONES, the first screen ------------------------------------------------------------------------------------------- */
 @media (max-width: 700px) {
   /* the price ticker sits flush under the notice, with air before the logo (it used to touch the logo); slimmer side margins and card
-     padding give every line of text about 5 percent more room, which pays for the larger text */
+     padding give every line of text about 5 percent more room, which is why most tabs are a little shorter on a phone */
   #dash-root { padding-top: 0; padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px)); }
   .pt-mtick { margin: 0 -12px 14px; }
   :root { --cds-pad-lg: 14px; --cds-gap-xl: 22px; }
-  .st-title { font-size: clamp(16px, 5.2vw, 22px) !important; }
+  .st-title { font-size: clamp(16px, 5.2vw, 22px) !important; flex-wrap: wrap !important; row-gap: 6px; }
+  /* big phones (421 to about 560 px wide, e.g. 428 and 430 px iPhones): the AI badge beside the title ran off the screen, so the whole
+     page could be dragged about 100 px sideways. It was like that before the polish; now the badge drops to a second line. */
   .st-title .st-s1-badge { padding: 2px 7px; letter-spacing: .05em; }
-  /* "Pick an AI": the three faces become three full-width buttons with readable names (they were 46 px wide with 8.5 px labels) */
+  /* "Pick an AI": the three faces become three buttons across the screen, face and name side by side (they were 46 px wide with 8.5 px labels) */
   .st-hook-row { flex-wrap: wrap; row-gap: 10px; }
   .st-hook-row > .st-hook-q { flex: 1 1 100%; }
-  .st-hook-row > .st-bots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; }
-  .st-bots .st-bot { min-width: 0; padding: 8px 4px 7px; gap: 4px; border: 1px solid var(--color-border-line); border-radius: 12px; background: var(--color-panel); }
+  .st-hook-row > .st-bots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; gap: 8px; width: 100%; }
+  .st-bots .st-bot { min-width: 0; padding: 7px 4px 6px; display: grid; grid-template-columns: auto auto; justify-content: center; align-content: center; align-items: center; gap: 2px 7px;
+    border: 1px solid var(--color-border-line); border-radius: 12px; background: var(--color-panel); }
   .st-bots .st-bot.is-on { border-color: #ffb000; box-shadow: inset 0 0 0 1px #ffb000; }
-  .st-bots .ai-robot { --rs: 36px; }
-  .st-bots .st-bot-n { font-size: 13px; }
-  .st-bots .st-bot-t { font-size: 12px; white-space: normal; text-align: center; }
+  .st-bots .ai-robot { --rs: 28px; }
+  .st-bots .st-bot-n { font-size: 13.5px; }
+  .st-bots .st-bot-t { grid-column: 1 / -1; font-size: 12px; white-space: normal; text-align: center; line-height: 1.2; }
+  .st-bots .st-bot-t:empty { display: none; }
   /* the alert buttons: Telegram and Discord on top, the other three share the second row; room for the "Day 1" tag above Telegram */
   .st-live-top .st-follow { grid-template-columns: repeat(6, minmax(0, 1fr)); margin-top: 14px; }
   .st-live-top .st-follow > :is(.st-tg-first, .st-follow-dc) { grid-column: span 3; }
@@ -241,13 +245,18 @@ header.st-head .st-progress :is(.st-clock-ny, .st-clock-hk, .st-clock-utc) { gap
 .gd-sec > .gd-link { position: absolute; top: 10px; right: 12px; margin: 0; padding: 4px 8px; }
 /* ---- 18. EMPTY CARDS (P13, Gemini's version): the card stays, with one quiet line instead of a bare title ---------------------- */
 .pt-empty-note { margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
-/* ---- 19. FOOTER (P14): links to the main pages, then the small print left-aligned in a readable column ------------------------- */
-.pt-foot-nav { display: flex; flex-wrap: wrap; gap: 2px 4px; margin: 0 0 4px -12px; padding: 14px 0 0; }
-.pt-foot-nav::before { content: ""; flex: 0 0 calc(100% - 12px); margin: -14px 0 12px 12px; border-top: 1px solid var(--color-border-line); }
-.pt-foot-nav button { font: inherit; font-size: 13.5px; color: var(--color-fg); background: none; border: 0; border-radius: 999px; padding: 7px 12px; cursor: pointer; }
-.pt-foot-nav button:hover { background: color-mix(in srgb, var(--color-fg) 8%, transparent); }
+/* ---- 19. FOOTER (P14): links to the main pages, then the small print left-aligned (two readable columns on a computer) ---------- */
 .st-foot { text-align: left; max-width: 92ch; line-height: 1.6; padding-top: 0; }
+.pt-foot-nav { display: flex; flex-wrap: wrap; gap: 0 2px; margin: 0 0 8px; padding: 10px 0 0; border-top: 1px solid var(--color-border-line); }
+.pt-foot-nav button { font: inherit; font-size: 13.5px; color: var(--color-fg); background: none; border: 0; border-radius: 999px; padding: 6px 10px; cursor: pointer; }
+.pt-foot-nav button:first-child { margin-left: -10px; }
+.pt-foot-nav button:hover { background: color-mix(in srgb, var(--color-fg) 8%, transparent); }
 .st-copy { max-width: 92ch; margin-inline: 0; padding-inline: 0; text-align: left; line-height: 1.6; }
+@media (min-width: 1000px) {
+  .st-foot { max-width: none; columns: 2; column-gap: 56px; }
+  .pt-foot-nav { column-span: all; }
+  .st-copy { max-width: none; }
+}
 @media (max-width: 700px) { .st-copy { margin-bottom: 84px; } }   /* the last lines scroll clear of the Top and ☰ buttons */
 /* ---- 20. THE WELCOME CARD on computers and tablets: the answer to its own question sits on the right ---------------------------
    (Gemini's idea 3, in the smallest form: the three overall totals the site already shows in the leader pill, no new numbers.) */
