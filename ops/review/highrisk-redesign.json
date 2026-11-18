@@ -1,0 +1,36 @@
+{
+ "at": "2026-11-18T06:56:24Z",
+ "question": "The owner of PaperTrades.AI asks: \"Value over time — maybe this should be top on the page. Look at the orders and make the best order you can for the lists now.\" This is about the order of the section cards on each race page (desktop and phone). Today the order on most race pages is:\n  [story card on Crypto only] · score tiles (Value, 24-hour net profit, Total net profit, Worst drop) · Holdings · (Stocks only: Stocks vs. the market) · Value over time (chart) · Distance to the next trade · What made or lost money · Coming up · Rules in force · Decision log · Sources\nEnergy has two extra cards after the tiles: \"The war and the Strait of Hormuz\" and \"Live ship map\". Predictions has \"Betting minimums\" after the tiles. Sports is: tiles · Betting minimums · How big a favourite each AI backs · Bets · Bankroll over time · Coming up · Record · Bet by bet · By sport · Rules · Decision log · Sources. On phones, Sports folds every card after the tiles (Bets starts open); other race pages don't fold. A row of jump chips sits under the first card: Holdings · Chart · Ledger · Rules.\n\nClaude's proposal:\n  score tiles · Value over time · (Stocks: vs. the market) · Holdings · What made or lost money · Distance to the next trade · Coming up · Decision log · Rules in force · Sources\n  Energy: tiles · chart · Holdings · What made or lost money · war/Hormuz · ship map · Distance · Coming up · Decision log · Rules · Sources\n  Predictions: same as generic, with Betting minimums moved down to just before Rules.\n  Sports: tiles · Bankroll over time (starts open on phones) · Bets · Record · Bet by bet · By sport · How big a favourite · Coming up · Decision log · Betting minimums · Rules · Sources\n  Chips: Chart · Holdings · Ledger · Rules. Crypto's story card stays first.\nReasoning: tiles are the score; the chart right under them answers \"how is it going\" at a glance; holdings and what made money explain why; trade triggers and events are what comes next; the decision log (AI's own reasons) beats the rules table for interest; rules and sources are reference.\n\nDo you agree? Reply with: AGREE or CHANGE, then your exact preferred order if different, and one-line reasons. Keep it short.",
+ "files": [
+  "ops/src/index.html"
+ ],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "",
+   "error": "HTTP 402: {\"error\":{\"message\":\"This request requires more credits, or fewer max_tokens. You requested up to 65536 tokens, but can only afford 32738. To increase, visit https://openrouter.ai/workspaces/d/keys/0c0ef4e6d944a9f50e909467e298a4dfa3509e5066ee0a4974c31b21014d0d22 and adjust the key's monthly limit\",\"code\":402,\"metadata\":{\"limit_source\":\"openrouter_credits\",\"remedy_hint\":\"Add credits at https://open"
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "AGREE. The chart immediately visualizes the score, Holdings and \"What made/lost money\" explain it, and moving reference sections like Betting minimums down clears the way for active data.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 398980,
+     "candidatesTokenCount": 39,
+     "totalTokenCount": 399517,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 398980
+      }
+     ],
+     "thoughtsTokenCount": 498,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
