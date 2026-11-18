@@ -1098,7 +1098,7 @@
   @keyframes pt-flash { 0%, 45% { box-shadow: 0 0 0 3px #ffb000; background-color: color-mix(in srgb, #ffb000 14%, transparent); } 100% { box-shadow: 0 0 0 3px transparent; background-color: transparent; } }
   @media (prefers-reduced-motion: reduce) { .pt-flash { animation: none; outline: 3px solid #ffb000; outline-offset: 2px; } }
   /* High risk: the Sports / Trading jump buttons at the top of the page (owner, Oct 30) */
-  .al-jump { display: grid; grid-template-columns: 1fr; gap: var(--cds-gap-sm); margin: 2px 0 4px; }
+  .al-jump { display: grid; grid-template-columns: 1fr 1fr; gap: var(--cds-gap-sm); margin: 2px 0 4px; }   /* Nov 18: both parts side by side, the one on screen lit */
   .al-jump-b { display: flex; align-items: center; gap: 12px; padding: 12px 14px; min-height: 76px; text-align: left; cursor: pointer;
     background: var(--color-bg); color: var(--color-fg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius);
     font: inherit; transition: border-color .15s, transform .15s, box-shadow .15s; }
@@ -1135,15 +1135,62 @@
   @keyframes pt-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
   .pt-takes-fb { margin-left: 6px; font-size: 11px; padding: 0 7px; border-radius: 999px; border: 1px solid var(--color-border-line); color: var(--color-fg-muted); white-space: nowrap; }
   #allin .h2h-cap { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: -4px; }
-  .al-jump-b[hidden], #allin .h2h-exp[hidden] { display: none !important; }   /* only the selected part shows; the button switches to the other (owner, Oct 30) */
+  #allin [data-al-part][hidden] { display: none !important; }   /* only the selected part shows (owner, Oct 30); its button is lit (Nov 18) */
   .al-jump-b:hover, .al-jump-b:focus-visible { transform: translateY(-1px); outline: none; }
   .al-jump-sports:hover, .al-jump-sports:focus-visible { border-color: #f28c28; box-shadow: 0 0 0 1px #f28c28; }
   .al-jump-trading:hover, .al-jump-trading:focus-visible { border-color: #3fb68b; box-shadow: 0 0 0 1px #3fb68b; }
   .al-jump-t { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .al-jump-t b { font-size: 18px; line-height: 1.2; }
   .al-jump-t small { font-size: 12px; color: var(--color-fg-muted); line-height: 1.3; }
-  @media (max-width: 520px) { .al-jump-b { flex-direction: column; align-items: flex-start; gap: 6px; } .al-jump-t small { display: none; } }
+  @media (max-width: 520px) { .al-jump-b { padding: 10px; gap: 8px; min-height: 0; } .al-jump-b svg { width: 34px; height: 34px; } .al-jump-t b { font-size: 16px; } .al-jump-sub { display: none; } }
   @media (prefers-reduced-motion: reduce) { .al-jump-b { transition: none; } .al-jump-b:hover { transform: none; } }
+  /* ---- High risk page, redesigned Nov 18 (owner: "make the high risk section look as good as the rest of the site"): the race pages'
+     look: score tiles, one chart for all three AIs, tables that turn into cards on phones, a card per section */
+  .al-cards { display: contents; }
+  .al-jump-sports { --al-c: #f28c28; } .al-jump-trading { --al-c: #3fb68b; }
+  .al-jump-b[aria-pressed="true"] { border-color: var(--al-c); box-shadow: 0 0 0 1px var(--al-c); background: color-mix(in srgb, var(--al-c) 9%, var(--color-bg)); }
+  .al-jump-b[aria-pressed="false"] { opacity: .8; } .al-jump-b[aria-pressed="false"]:hover, .al-jump-b[aria-pressed="false"]:focus-visible { opacity: 1; }
+  .al-jump-t small.al-jump-lead { color: var(--color-fg); font-weight: 600; font-variant-numeric: tabular-nums; } .al-jump-lead:empty { display: none; }
+  .al-cap { margin: 8px 0 2px; font-size: 12px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); }
+  .al-standings { display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
+  .al-tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: var(--cds-gap-md); }
+  .al-tile { display: flex; flex-direction: column; gap: 3px; min-width: 0; padding: 12px 14px; border: 1px solid var(--color-border-line); border-top: 3px solid var(--ai); border-radius: var(--cds-radius); background: color-mix(in srgb, var(--ai) 5%, transparent); }
+  .al-tile-hd { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; }
+  .al-rank { font-weight: 700; letter-spacing: .04em; }
+  .al-flag { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--color-ok, #3ddc84); } .al-flag.al-busted { color: #ff5a4e; }
+  .al-who { font-weight: 600; font-size: 15px; gap: 6px; }
+  .al-tile .al-l { margin-top: 6px; }
+  .al-bal { font-family: var(--font-anthropic-serif); font-size: 30px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .al-bar { display: block; height: 4px; margin: 4px 0 6px; border-radius: 2px; overflow: hidden; background: color-mix(in srgb, var(--color-fg-muted) 22%, transparent); }
+  .al-bar i { display: block; height: 100%; border-radius: 2px; background: var(--ai); }
+  .al-kv { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding-top: 5px; border-top: 1px solid var(--color-border-line); font-size: 13px; }
+  .al-k { font-size: 12px; color: var(--color-fg-muted); } .al-v { font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+  .al-about > summary { cursor: pointer; font-size: .9em; color: var(--color-fg-muted); } .al-about[open] > summary { margin-bottom: 8px; } .al-about > p + p { margin-top: 8px; }
+  .al-ch-key { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 13px; }
+  .al-ch-k { display: inline-flex; align-items: baseline; flex-wrap: wrap; gap: 2px 7px; font-variant-numeric: tabular-nums; }
+  .al-ch-k i { align-self: center; width: 12px; height: 3px; border-radius: 2px; background: var(--ai); } .al-ch-k b { color: var(--ai); font-weight: 600; } .al-ch-c { font-size: 12.5px; }
+  .al-tip-sw { display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 2px; }
+  .al-table td.al-ai { padding-left: 9px; border-left: 3px solid var(--ai); font-weight: 600; white-space: nowrap; }
+  .al-table .al-sub { display: block; font-size: 12px; color: var(--color-fg-muted); font-weight: 400; }
+  .al-table .al-muted, .al-table .al-muted * { color: var(--color-fg-muted); }
+  .al-table .tx-wrap, .al-table .pt-hold-tx { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+  .al-table td.al-pick { min-width: 12rem; } .al-table td.al-game { min-width: 11rem; } .al-table td.al-when { white-space: nowrap; } .al-table td.al-rec > b { white-space: nowrap; }
+  .al-h3 { margin: 12px 0 0; font-size: 14px; }
+  .al-pies { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: var(--cds-gap-md); }
+  .al-pie { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid var(--color-border-line); border-left: 3px solid var(--ai); border-radius: var(--cds-radius); font-size: 13px; }
+  .al-none { margin-top: 2px; }
+  @media (max-width: 600px) {
+    /* phones: a tighter tile, the name and balance on one line */
+    .al-tile { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 10px; row-gap: 3px; padding: 10px 12px; }
+    .al-tile-hd, .al-bar, .al-kv { grid-column: 1 / -1; }
+    .al-tile .al-l { display: none; }
+    .al-bal { font-size: 24px; text-align: right; }
+    .al-bar { margin: 2px 0 4px; }
+    .al-table td.al-ai { padding-left: 0; border-left: 0; }
+    .al-table td.al-pick, .al-table td.al-game { min-width: 0; } .al-table td.al-when { white-space: normal; }
+    table.st-table.pt-cards.al-table > tbody > tr { padding-left: 10px; border-left: 3px solid var(--ai); }
+    #allin table.al-moves.pt-cards { min-width: 0; }
+  }
   tr.pt-flash > td { animation: pt-flash-bg 2.2s ease-out; } @keyframes pt-flash-bg { 0%, 40% { background: color-mix(in srgb, var(--accent, #ffb000) 22%, transparent); } 100% { background: transparent; } }
   @media (max-width: 999px) { .st-tabs > .st-crowns { display: none; } .st-crown-line { display: flex; flex-direction: column; align-items: flex-start; } .st-crown-line .st-crown-chip { white-space: normal; flex-wrap: wrap; row-gap: 2px; border-radius: 16px; } .st-crown-line .st-crown-chip > * { white-space: nowrap; } .st-crown-line .st-allin-chip .cr-part { flex-wrap: wrap; row-gap: 2px; } .st-crown-line .cr-g { white-space: nowrap; } .st-crown-line .cr-sep { display: none; } .st-crown-line .st-allin-chip .cr-part { flex-basis: 100%; } }   /* tablets and phones: at the top of the page */
   @media (min-width: 701px) { .st-tabs .st-tab { padding: 6px 10px; font-size: 13.5px; } .st-tabs .st-tabgroup { padding-top: 15px; } .st-tabs .st-tabgroup-l { font-size: 10px; } }
@@ -2542,41 +2589,47 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       <p>An AI never feels fear, so we track the mistakes fear usually causes instead: broken rules, losers held too long, and stops moved away. Still pretend money, never advice, results before tax.</p>
     </section>
   </section>
-  <section class="st-page" id="allin" data-page="allin" hidden>
+  <section class="st-page" id="allin" data-page="allin" data-part="AllInSports" hidden>
     <div class="pt-odds" role="note"><span>🎯 <b>The odds are real.</b> <i>High risk: sports</i> bets the same way. Every bet uses the live moneyline from ESPN’s public scoreboards (its sportsbook partner’s line) at the moment the AI bets, and ESPN’s final score settles it. Same odds and results for all three AIs. Only the money is pretend: a real sportsbook could offer a slightly different line or limit big bets.</span><button type="button" class="pt-odds-x" aria-label="Close this note">✕</button></div>
-    <section class="st-card" aria-labelledby="h-allin">
-      <h2 class="st-h2" id="h-allin">High risk</h2>
-      <!-- two big buttons that jump to each part of the side race (owner, Oct 30) -->
+    <!-- High risk, redesigned Nov 18 (owner: "make the high risk section look as good as the rest of the site"): the same cards as
+         the race pages. Both parts' buttons always show, the one on screen is lit; standings first, the full explanation folds. -->
+    <section class="st-card al-head" aria-labelledby="h-allin">
+      <h2 class="st-h2" id="h-allin">High risk <span class="st-h2-sub">side race</span></h2>
+      <p class="st-note">The fun side race, separate from the ten main races: two parts, each with its own winner, no limits, pretend money.</p>
       <nav class="al-jump" aria-label="Switch part of High risk">
-        <button type="button" class="al-jump-b al-jump-sports" data-part="AllInSports" hidden onclick="window.ptGoAllin && window.ptGoAllin('AllInSports')">
+        <button type="button" class="al-jump-b al-jump-sports" data-part="AllInSports" aria-pressed="true" onclick="window.ptGoAllin && window.ptGoAllin('AllInSports')">
           <svg viewBox="0 0 64 64" width="52" height="52" aria-hidden="true">
-            <circle cx="36" cy="10" r="6" fill="currentColor"/>
-            <path d="M33 17 L27 36 L35 37 L39 19 Z" fill="currentColor"/>
-            <path d="M37 19 L49 27 L46 31 L36 25 Z" fill="currentColor"/>
-            <path d="M32 20 L21 29 L18 41 L22 42 L25 32 L33 26 Z" fill="currentColor"/>
-            <path d="M28 35 L22 47 L14 52 L16 56 L26 50 L33 38 Z" fill="currentColor"/>
-            <path d="M33 37 L37 49 L36 60 L41 60 L42 48 L38 36 Z" fill="currentColor"/>
-            <circle cx="19" cy="50" r="7" fill="#f28c28"/>
-            <path d="M12 50 H26 M19 43 V57 M14 45 Q19 50 14 55 M24 45 Q19 50 24 55" stroke="#4a2a0a" stroke-width="1.2" fill="none"/>
+          <circle cx="36" cy="10" r="6" fill="currentColor"/>
+          <path d="M33 17 L27 36 L35 37 L39 19 Z" fill="currentColor"/>
+          <path d="M37 19 L49 27 L46 31 L36 25 Z" fill="currentColor"/>
+          <path d="M32 20 L21 29 L18 41 L22 42 L25 32 L33 26 Z" fill="currentColor"/>
+          <path d="M28 35 L22 47 L14 52 L16 56 L26 50 L33 38 Z" fill="currentColor"/>
+          <path d="M33 37 L37 49 L36 60 L41 60 L42 48 L38 36 Z" fill="currentColor"/>
+          <circle cx="19" cy="50" r="7" fill="#f28c28"/>
+          <path d="M12 50 H26 M19 43 V57 M14 45 Q19 50 14 55 M24 45 Q19 50 24 55" stroke="#4a2a0a" stroke-width="1.2" fill="none"/>
           </svg>
-          <span class="al-jump-t"><b>Switch to Sports</b><small>High risk: sports · bets on real games</small></span>
+          <span class="al-jump-t"><b>Sports</b><small class="al-jump-sub">Bets on real games</small><small class="al-jump-lead" data-lead="AllInSports"></small></span>
         </button>
-        <button type="button" class="al-jump-b al-jump-trading" data-part="AllInTrading" onclick="window.ptGoAllin && window.ptGoAllin('AllInTrading')">
+        <button type="button" class="al-jump-b al-jump-trading" data-part="AllInTrading" aria-pressed="false" onclick="window.ptGoAllin && window.ptGoAllin('AllInTrading')">
           <svg viewBox="0 0 64 64" width="52" height="52" aria-hidden="true">
-            <path d="M32 32 L32 6 A26 26 0 0 1 57.4 37.6 Z" fill="#3fb68b"/>
-            <path d="M32 32 L57.4 37.6 A26 26 0 0 1 20.2 55.2 Z" fill="#4c8dff"/>
-            <path d="M32 32 L20.2 55.2 A26 26 0 0 1 9.5 19 Z" fill="#ffb000"/>
-            <path d="M29 29 L6.5 16 A26 26 0 0 1 29 3 Z" fill="#e5484d"/>
-            <circle cx="32" cy="32" r="26" fill="none" stroke="currentColor" stroke-opacity=".25" stroke-width="1"/>
+          <path d="M32 32 L32 6 A26 26 0 0 1 57.4 37.6 Z" fill="#3fb68b"/>
+          <path d="M32 32 L57.4 37.6 A26 26 0 0 1 20.2 55.2 Z" fill="#4c8dff"/>
+          <path d="M32 32 L20.2 55.2 A26 26 0 0 1 9.5 19 Z" fill="#ffb000"/>
+          <path d="M29 29 L6.5 16 A26 26 0 0 1 29 3 Z" fill="#e5484d"/>
+          <circle cx="32" cy="32" r="26" fill="none" stroke="currentColor" stroke-opacity=".25" stroke-width="1"/>
           </svg>
-          <span class="al-jump-t"><b>Switch to Trading</b><small>High risk: trading · stocks, crypto, options</small></span>
+          <span class="al-jump-t"><b>Trading</b><small class="al-jump-sub">Stocks, crypto, options</small><small class="al-jump-lead" data-lead="AllInTrading"></small></span>
         </button>
       </nav>
-      <p class="st-note">The fun side race, in two parts, <b>each with its own winner</b>: High risk: trading and High risk: sports. Each AI gets an extra C$100,000 in each, with <b>no limits</b>: no position caps, and it can bet the whole lot on one idea. Here the goal is simply the biggest number. From Nov 1, High risk: sports has the same betting minimums as the main Sports race (at least C$3,000 bet every day, C$100,000 in total), so no AI can sit it out. High risk is completely separate: it never counts toward the ten main races, the two parts are never added together, and busting here doesn't eliminate anyone. Same real prices and odds, same check-ins.</p>
-      <p class="st-note">Renamed from “All in” on Nov 1 so nobody thinks anyone is betting everything they have: it is pretend money, and only the rules are “no limits”. Transaction IDs keep their old letters (AIT = trading, AIS = sports) so links already shared still work.</p>
-      <div data-draw="allin" data-source="allin_models allin_history allin_trades"></div>
+      <div class="al-st" data-draw="allin" data-source="allin_models allin_history allin_trades"></div>
+      <details class="al-about">
+        <summary>ⓘ How High risk works</summary>
+        <p class="st-note">The fun side race, in two parts, <b>each with its own winner</b>: High risk: trading and High risk: sports. Each AI gets an extra C$100,000 in each, with <b>no limits</b>: no position caps, and it can bet the whole lot on one idea. Here the goal is simply the biggest number. From Nov 1, High risk: sports has the same betting minimums as the main Sports race (at least C$3,000 bet every day, C$100,000 in total), so no AI can sit it out. High risk is completely separate: it never counts toward the ten main races, the two parts are never added together, and busting here doesn't eliminate anyone. Same real prices and odds, same check-ins.</p>
+        <p class="st-note">Renamed from “All in” on Nov 1 so nobody thinks anyone is betting everything they have: it is pretend money, and only the rules are “no limits”. Transaction IDs keep their old letters (AIT = trading, AIS = sports) so links already shared still work.</p>
+      </details>
     </section>
-    <section class="st-card" aria-labelledby="h-al-min">
+    <div class="al-cards" id="allin-cards"></div>
+    <section class="st-card" aria-labelledby="h-al-min" data-al-part="AllInSports">
       <h2 class="st-h2" id="h-al-min">High risk: sports betting minimums</h2>
       <p class="st-note">From Sun Nov 1, High risk: sports is not optional: every AI must bet at least C$3,000 there every day (ET) and C$100,000 in total by Nov 28. Each missed day costs C$500 off its High risk: sports balance. Same rules as the main Sports race; no caps otherwise.</p>
       <div data-draw="allinmins" data-source="allinmins"></div>
@@ -3275,15 +3328,17 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
   window.ptAllinPart = window.ptAllinPart || 'AllInSports';
   const showAllinPart = () => {
     const cur = window.ptAllinPart;
-    document.querySelectorAll('#allin .h2h-exp[id^="allin-"]').forEach((b) => { b.hidden = b.id !== 'allin-' + cur; });
-    document.querySelectorAll('#allin .al-jump-b').forEach((b) => { b.hidden = b.dataset.part === cur; });
+    // Nov 18 redesign: every card of a part carries data-al-part; both part buttons always show, and the one on screen is lit
+    document.querySelectorAll('#allin [data-al-part]').forEach((b) => { b.hidden = b.dataset.alPart !== cur; });
+    document.querySelectorAll('#allin .al-jump-b').forEach((b) => { b.setAttribute('aria-pressed', String(b.dataset.part === cur)); });
+    const pg = document.getElementById('allin'); if (pg) pg.dataset.part = cur;
   };
   window.ptShowAllinPart = showAllinPart;
   const goAllin = (exp) => {
     if (exp === 'AllInSports' || exp === 'AllInTrading') window.ptAllinPart = exp;
     goTab('allin', false); showAllinPart();
     setTimeout(() => requestAnimationFrame(() => {
-      const t = document.getElementById('allin-' + exp); if (!t) return;
+      const t = document.getElementById('allin-' + exp); if (!t) return;   // the standings tiles of that part (Nov 18)
       const bar = document.querySelector('.st-tabs'); const sticky = bar && getComputedStyle(bar).position === 'sticky' ? bar.offsetHeight : 0;
       // land on the switch button, not past it, so the way back to the other part always stays on screen (owner, Oct 30)
       const sw = document.querySelector('#allin .al-jump') || t;
@@ -7873,16 +7928,121 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     pie.forEach((x, i) => { const li = mk('li'); const sw = mk('i'); sw.style.background = col(x, i); li.append(sw, document.createTextNode(x.name + ' ' + pcts[i] + '%')); ul.appendChild(li); });
     wrap.appendChild(ul); return wrap;
   };
+  // ---------- High risk page, redesigned Nov 18 (owner: "make the high risk section look as good as the rest of the site").
+  // The race pages' building blocks: score tiles, a full-width chart of all three AIs, tables that turn into cards on phones, then
+  // every move. Each part (sports, trading) gets its own set; only the part on screen shows (data-al-part, see showAllinPart).
+  const alMoney = (v) => 'C$' + d3.format(',.0f')(Math.abs(v));
+  const alSigned = (v) => (Math.abs(v) < 0.5 ? 'C$0' : ptSgn0(v) + alMoney(v));
+  const alWhat = (t) => { const n = String(t.name || t.symbol || ''); const m = n.match(/^([A-Z]{2,6}): (.+?) moneyline/); return m ? m[2] + ' (' + m[1] + ')' : n; };
+  const alPx = (v, cur) => { v = Number(v); if (!Number.isFinite(v)) return ''; return (cur === 'USD' ? 'US$' : cur === 'CAD' || !cur ? 'C$' : cur + ' ') + d3.format(Math.abs(v) < 1 ? ',.4f' : ',.2f')(v); };
+  // all three AIs on one chart, in C$, with the race charts' ranges (24 hours / 7 days / All) and exact values on hover or drag
+  const alChart = (el, ser, st) => {
+    el.replaceChildren();
+    if (!ser.length) { el.appendChild(mk('p', 'st-note', 'No check-ins yet.')); return; }
+    const top = mk('div', 'gx-top'), key = mk('div', 'al-ch-key'), rangesEl = mk('div', 'gx-ranges');
+    rangesEl.setAttribute('role', 'group'); rangesEl.setAttribute('aria-label', 'Time range');
+    top.append(key, rangesEl);
+    const plot = mk('div', 'gx-plot al-ch-plot'); el.append(top, plot);
+    const RANGES = [['24 hours', 864e5], ['7 days', 7 * 864e5], ['All', Infinity]];
+    const tEnd = d3.max(ser, (s) => +s.pts[s.pts.length - 1].t), tStart = d3.min(ser, (s) => +s.pts[0].t);
+    const draw = () => {
+      const range = RANGES.some((r) => r[0] === st.range) ? st.range : 'All';
+      rangesEl.replaceChildren();
+      RANGES.forEach(([name]) => { const b = mk('button', '', name); b.type = 'button'; b.setAttribute('aria-pressed', String(name === range)); b.addEventListener('click', () => { st.range = name; draw(); }); rangesEl.appendChild(b); });
+      const span = RANGES.find((r) => r[0] === range)[1];
+      const t0 = span === Infinity ? tStart : Math.max(tStart, tEnd - span);
+      // each line from the value it had at the start of the range to the latest check-in (a balance holds until the next check-in)
+      const vis = ser.map((s) => {
+        let before = null; const inn = [];
+        s.pts.forEach((p) => { if (+p.t <= t0) before = p; else if (+p.t <= tEnd) inn.push(p); });
+        const pts = span === Infinity ? s.pts.filter((p) => +p.t <= tEnd) : (before ? [{ t: new Date(t0), v: before.v }] : []).concat(inn);
+        if (pts.length && +pts[pts.length - 1].t < tEnd) pts.push({ t: new Date(tEnd), v: pts[pts.length - 1].v });
+        return { id: s.id, pts, base: span === Infinity ? 100000 : pts.length ? pts[0].v : 0 };   // All: from the C$100,000 start, the same as the tiles
+      }).filter((s) => s.pts.length).sort((a, b) => a.pts[a.pts.length - 1].v - b.pts[b.pts.length - 1].v);   // the leader drawn last, on top
+      key.replaceChildren();
+      vis.slice().reverse().forEach((s) => {
+        const last = s.pts[s.pts.length - 1].v, ch = last - s.base;
+        const it = mk('span', 'al-ch-k'); it.style.setProperty('--ai', AIS[s.id].color);
+        it.append(mk('i'), mk('b', '', AIS[s.id].label), document.createTextNode(alMoney(last)));
+        const c = mk('span', 'al-ch-c', alSigned(ch) + (range === 'All' ? ' since the start' : ' in ' + range)); tone(c, ch); it.appendChild(c);
+        key.appendChild(it);
+      });
+      plot.replaceChildren();
+      const W = Math.max(280, plot.clientWidth || 600), narrow = W < 560, H = narrow ? 230 : 300;
+      st.w = plot.clientWidth;
+      const m = { t: 14, r: narrow ? 12 : 118, b: 26, l: narrow ? 52 : 62 };
+      const all = vis.flatMap((s) => s.pts.map((p) => p.v));
+      let lo = d3.min(all), hi = d3.max(all);
+      if (range === 'All') { lo = Math.min(lo, 100000); hi = Math.max(hi, 100000); }
+      const pad = Math.max(400, (hi - lo) * 0.08);
+      const x = d3.scaleTime().domain([t0, tEnd]).range([m.l, W - m.r]);
+      const y = d3.scaleLinear().domain([Math.max(0, lo - pad), hi + pad]).nice(5).range([H - m.b, m.t]);
+      const dy = y.domain()[1] - y.domain()[0];
+      const fy = (v) => 'C$' + d3.format(dy >= 20000 ? ',.0f' : ',.1f')(v / 1000) + 'k';
+      const svg = d3.select(plot).append('svg').attr('viewBox', `0 0 ${W} ${H}`).attr('width', W).attr('height', H).attr('role', 'img')
+        .attr('aria-label', 'Balance over time: ' + vis.slice().reverse().map((s) => AIS[s.id].label + ' ' + alMoney(s.pts[s.pts.length - 1].v)).join(', '));
+      svg.append('g').attr('transform', `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(fy).tickSize(-(W - m.l - m.r)))
+        .call((g) => g.select('.domain').remove()).call((g) => g.selectAll('line').style('stroke', 'var(--color-border-line)'))
+        .call((g) => g.selectAll('text').style('fill', 'var(--color-fg-muted)').attr('font-size', 11));
+      { let prev = ''; const day = span > 864e5;
+        svg.append('g').attr('transform', `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(Math.max(2, Math.min(7, Math.floor((W - m.l - m.r) / 95)))).tickSizeOuter(0)
+          .tickFormat((d) => { const s2 = day ? etDay(d) : etHour(d); if (s2 === prev) return ''; prev = s2; return s2; }))
+          .call((g) => g.selectAll('text').style('fill', 'var(--color-fg-muted)').attr('font-size', 11)).call((g) => g.selectAll('line,path').style('stroke', 'var(--color-border-line)')); }
+      if (y.domain()[0] <= 100000 && y.domain()[1] >= 100000) {
+        svg.append('line').attr('x1', m.l).attr('x2', W - m.r).attr('y1', y(100000)).attr('y2', y(100000)).style('stroke', 'var(--color-fg-muted)').attr('stroke-dasharray', '4 4').attr('stroke-opacity', 0.8);
+      }
+      const line = d3.line().curve(d3.curveStepAfter).x((p) => x(p.t)).y((p) => y(p.v));
+      vis.forEach((s) => svg.append('path').attr('d', line(s.pts)).attr('fill', 'none').style('stroke', AIS[s.id].color).attr('stroke-width', 2.2).attr('stroke-linejoin', 'round'));
+      const ends = vis.map((s) => ({ s, v: s.pts[s.pts.length - 1].v, y: y(s.pts[s.pts.length - 1].v) }));
+      ends.forEach((e) => svg.append('circle').attr('cx', x(tEnd)).attr('cy', e.y).attr('r', 3.5).style('fill', AIS[e.s.id].color));
+      if (!narrow) {   // one line per AI at the end of its line ("Claude C$100k"), level with its dot, nudged apart only when they would touch
+        const lab = ends.map((e) => ({ ...e, ly: e.y })).sort((a, b) => a.y - b.y);
+        for (let i = 1; i < lab.length; i++) if (lab[i].ly - lab[i - 1].ly < 16) lab[i].ly = lab[i - 1].ly + 16;
+        const over = lab.length ? lab[lab.length - 1].ly - (H - m.b - 4) : 0; if (over > 0) lab.forEach((e) => { e.ly -= over; });
+        lab.forEach((e) => {
+          if (Math.abs(e.ly - e.y) > 3) svg.append('line').attr('x1', x(tEnd) + 4).attr('x2', x(tEnd) + 9).attr('y1', e.y).attr('y2', e.ly).style('stroke', AIS[e.s.id].color);   // a short tick back to its dot
+          const t = svg.append('text').attr('x', x(tEnd) + 11).attr('y', e.ly).attr('dy', '0.35em').attr('font-size', 12);
+          t.append('tspan').attr('font-weight', 700).style('fill', AIS[e.s.id].color).text(AIS[e.s.id].label + ' ');
+          t.append('tspan').style('fill', 'var(--color-fg)').text(fy(e.v)); });
+      }
+      const rule = svg.append('line').attr('y1', m.t).attr('y2', H - m.b).style('stroke', 'var(--color-fg-muted)').style('display', 'none');
+      const dots = vis.map((s) => svg.append('circle').attr('r', 4).style('fill', AIS[s.id].color).style('stroke', 'var(--color-panel)').attr('stroke-width', 2).style('display', 'none'));
+      const tip = mk('div', 'gx-tip'); tip.style.display = 'none'; plot.appendChild(tip);
+      const at = (s, t) => { let b = null; for (const p of s.pts) { if (+p.t <= t) b = p; else break; } return b; };
+      const move = (ev) => {
+        const [px] = d3.pointer(ev, svg.node()); const t = +x.invert(Math.max(m.l, Math.min(W - m.r, px))); const X = x(t);
+        rule.attr('x1', X).attr('x2', X).style('display', null);
+        tip.replaceChildren(mk('b', '', stFmt.whenET(t) + ' ET'));
+        vis.map((s, i) => ({ s, i, p: at(s, t) })).filter((q) => q.p).sort((a, b) => b.p.v - a.p.v).forEach(({ s, i, p }) => {
+          dots[i].attr('cx', X).attr('cy', y(p.v)).style('display', null);
+          const r = mk('span', 'gx-tip-m'); const sw = mk('i', 'al-tip-sw'); sw.style.background = AIS[s.id].color;
+          r.append(sw, AIS[s.id].label + ': ' + alMoney(p.v) + ' (' + stFmt.pct(p.v / 100000 - 1) + ')'); tip.appendChild(r);
+        });
+        tip.style.display = 'block';
+        const left = X / W * plot.clientWidth; tip.style.left = Math.max(0, Math.min(left + 12, plot.clientWidth - tip.offsetWidth)) + 'px';
+      };
+      const hide = () => { rule.style('display', 'none'); dots.forEach((d) => d.style('display', 'none')); tip.style.display = 'none'; };
+      svg.append('rect').attr('x', m.l).attr('y', m.t).attr('width', Math.max(0, W - m.l - m.r)).attr('height', H - m.t - m.b).attr('fill', 'transparent')
+        .style('cursor', 'crosshair').on('pointermove', move).on('pointerdown', move).on('pointerleave', hide);
+    };
+    draw();
+    // redrawn at its real width when its part comes on screen, or when the window changes size
+    if (st.ro) st.ro.disconnect();
+    if (window.ResizeObserver) { st.ro = new ResizeObserver(() => { const w = plot.clientWidth; if (w && Math.abs(w - (st.w || 0)) > 8) draw(); }); st.ro.observe(plot); }
+  };
+
   dash.draw('allin', (el) => {
     el.replaceChildren();
-    const MS = dash.baseData('allin_models'), HS = dash.baseData('allin_history'), TS = dash.baseData('allin_trades');
+    const host = document.getElementById('allin-cards'); if (host) host.replaceChildren();
+    const MS = dash.baseData('allin_models'), HS = dash.baseData('allin_history'), TS = dash.baseData('allin_trades') || [];
     if (!MS.length) { el.appendChild(mk('p', 'st-note', 'High risk starts at the next check-in.')); return; }
     const usdcad = rates().CAD || 1.38;
     const order = ['claude', 'gemini', 'chatgpt'];
-    [['AllInTrading', 'High risk: trading', 'Any stock, ETF, crypto or option, no caps.'], ['AllInSports', 'High risk: sports', 'Moneyline bets on real games, no caps.']].forEach(([exp, title, sub]) => {
-      const box = mk('div', 'h2h-exp'); box.id = 'allin-' + exp; box.hidden = exp !== (window.ptAllinPart || 'AllInSports');
-      box.appendChild(mk('h3', '', title));
-      box.appendChild(mk('p', 'st-note', sub + ' Started with C$100,000 each.'));
+    const cur = window.ptAllinPart || 'AllInSports';
+    const ALST = (el._al = el._al || {});
+    [['AllInSports', 'High risk: sports', 'Moneyline bets on real games, no caps.'], ['AllInTrading', 'High risk: trading', 'Any stock, ETF, crypto or option, no caps.']].forEach(([exp, title, sub]) => {
+      const sp = exp === 'AllInSports';
+      const stt = (ALST[exp] = ALST[exp] || { m: '', pg: 0, key: '', range: 'All' });
       const ser = order.map((id) => {
         const m = MS.find((x) => x.id === id); if (!m || !m.books || !m.books[exp]) return null;
         const pts = HS.filter((h) => h.model === id && h.experiment === exp).map((h) => ({ t: new Date(h.at), v: Number(h.value) })).sort((a, b) => a.t - b.t);
@@ -7896,68 +8056,138 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         (bk.bets || []).filter((b) => b.status === 'Open').forEach((b) => { if (Number(b.stake) > 0) out.push({ name: b.pick_team || b.pick || b.event, value: Number(b.stake) }); });
         const by = {}; out.forEach((q) => { by[q.name] = (by[q.name] || 0) + q.value; });
         const merged = Object.entries(by).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
-        const free = exp === 'AllInSports' ? Math.max(0, Number(now) - (bk.bets || []).filter((b) => b.status === 'Open').reduce((a, b) => a + Number(b.stake || 0), 0)) : Number(bk.cash);   // sports: bankroll minus open stakes (Oct 29)
-        if (free > 1) merged.push({ name: exp === 'AllInSports' ? 'Not bet' : 'Cash', value: free });
+        const free = sp ? Math.max(0, Number(now) - (bk.bets || []).filter((b) => b.status === 'Open').reduce((a, b) => a + Number(b.stake || 0), 0)) : Number(bk.cash);   // sports: bankroll minus open stakes (Oct 29)
+        if (free > 1) merged.push({ name: sp ? 'Not bet' : 'Cash', value: free });
         const tot = merged.reduce((a, q) => a + q.value, 0);
         return merged.filter((q) => tot && q.value / tot >= 0.005);
       };
       const names = []; ranked.forEach((x) => pieOf(x.book, x.last).forEach((q) => { if (!isCashSlice(q.name) && !names.includes(q.name)) names.push(q.name); }));
       const colorOf = (n) => PIE_COL[Math.max(0, names.indexOf(n)) % PIE_COL.length];
-      const rows = mk('ul', 'h2h-rows');
+      const lead = (i) => i === 0 && ranked.length > 1 && ranked[0].last - ranked[1].last >= 0.5 && !ranked[0].book.busted;
+
+      // ---- 1. standings: the score tiles, in the top card under the part buttons
+      const box = mk('div', 'al-standings'); box.id = 'allin-' + exp; box.dataset.alPart = exp; box.hidden = exp !== cur;
+      box.appendChild(mk('h3', 'al-cap', title + ' · standings'));
+      const tiles = mk('ol', 'al-tiles'); const topV = ranked.length ? Math.max(1, ranked[0].last) : 1;
       ranked.forEach((x, i) => {
-        const li = mk('li', 'h2h-row'); li.style.setProperty('--ai', AIS[x.id].color);
-        const nm = mk('span', 'h2h-name'); { nm.appendChild(whoNode(x.id, 18)); }
-        if (x.book.busted) { const t = mk('span', 'h2h-lead', 'BUSTED'); t.style.color = '#ff5a4e'; nm.appendChild(t); }
-        else if (i === 0 && ranked.length > 1 && x.last !== ranked[1].last) nm.appendChild(mk('span', 'h2h-lead', 'Leading'));
-        li.appendChild(nm);
+        const li = mk('li', 'al-tile'); li.style.setProperty('--ai', AIS[x.id].color);
+        const hd = mk('div', 'al-tile-hd'); hd.appendChild(mk('span', 'al-rank', (lead(i) ? '👑 ' : '') + ['1st', '2nd', '3rd'][i]));
+        if (x.book.busted) hd.appendChild(mk('span', 'al-flag al-busted', 'Busted')); else if (lead(i)) hd.appendChild(mk('span', 'al-flag', 'Leading'));
+        li.append(hd, whoNode(x.id, 20, 'pd-who al-who'), mk('span', 'st-label al-l', 'Balance'), mk('span', 'al-bal', alMoney(Math.max(0, x.last))));
+        { const bar = mk('span', 'al-bar'); const f = mk('i'); f.style.width = Math.max(1.5, 100 * Math.max(0, x.last) / topV) + '%'; bar.appendChild(f); li.appendChild(bar); }
+        const kv = (lab, val, v) => { const r = mk('div', 'al-kv'); const vv = mk('span', 'al-v', val); if (v != null) tone(vv, v); r.append(mk('span', 'al-k', lab), vv); li.appendChild(r); };
         const g = Math.max(0, x.last) - 100000;
-        li.appendChild(mk('span', 'h2h-sub h2h-cap', 'Overall profit since the start'));   // labelled so nobody mistakes it for one bet (owner, Oct 30)
-        const pc = mk('span', 'h2h-pct', ptSgn0(g) + 'C$' + d3.format(',.0f')(Math.abs(g))); tone(pc, g); li.appendChild(pc);
-        { const ob = mk('span', 'h2h-sub'); ob.appendChild(mk('b', '', 'Overall balance: ')); ob.appendChild(document.createTextNode('C$' + d3.format(',.0f')(Math.max(0, x.last)) + ' · ' + stFmt.pct(x.last / 100000 - 1) + ' (started with C$100,000)')); li.appendChild(ob); }
-        const hold = [];
-        Object.entries(x.book.positions || {}).forEach(([k, p]) => { const v = Number(p.qty) * Number(p.last != null ? p.last : p.entry) * (p.pcur === 'USD' ? usdcad : 1); hold.push((p.name || k) + ' C$' + d3.format(',.0f')(v)); });
-        (x.book.bets || []).filter((b) => b.status === 'Open').forEach((b) => hold.push(b.pick_team + ' (' + b.event + ') ' + (b.odds > 0 ? '+' : '') + b.odds + ', C$' + d3.format(',.0f')(b.stake)));
-        if (Number(x.book.cash) > 1 && exp === 'AllInTrading') hold.push('Cash C$' + d3.format(',.0f')(x.book.cash));
-        { const hs = mk('span', 'h2h-sub'); hs.appendChild(document.createTextNode(hold.length ? 'Holding: ' + hold.join(' · ') : 'Holding: all cash, no open bets or positions')); li.appendChild(hs);
-          // Find the buy on every High risk holding too (owner, Nov 1)
-          if (window.ptStory && exp === 'AllInTrading') Object.entries(x.book.positions || {}).forEach(([k, p]) => { const ch = window.ptStory.holdingChips(x.id, exp, p.name || k, k); if (ch) { const ln = mk('span', 'h2h-sub pt-hold-line'); ln.append(mk('b', '', (p.name || k) + ': ')); ln.appendChild(ch); li.appendChild(ln); } });
-          // open bets are holdings too: Find the bet + Whole story
-          if (exp === 'AllInSports') (x.book.bets || []).filter((b) => b.status === 'Open').forEach((b) => { const t = (dash.baseData('allin_trades') || []).find((q) => q.model === x.id && q.experiment === exp && q.bet === b.id && q.tx); if (!t) return;
-            const ln = mk('span', 'h2h-sub pt-hold-line'); ln.append(mk('b', '', b.pick_team + ' C$' + d3.format(',.0f')(b.stake) + ': ')); const w = mk('span', 'tx-wrap pt-hold-tx');
-            const a1 = mk('button', 'tx-id tx-go', 'Find this bet in the ledger ' + t.tx); a1.type = 'button'; a1.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); if (window.ptGoTx) window.ptGoTx(t.tx); }); w.appendChild(a1);
-            if (window.ptStory) { const sb = mk('button', 'tx-id tx-go tx-story', '📜 Whole story'); sb.type = 'button'; sb.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); window.ptStory.openTx(t.tx); }); w.appendChild(sb); }
-            ln.appendChild(w); li.appendChild(ln); }); }
-        { // the most recent win and the most recent loss (owner, Oct 30): settled bets, or closed trades with their profit
-          const res = (t) => (t.action === 'Won' || t.action === 'Lost') ? Number(t.amount) : (t.action === 'Sell' || t.action === 'Cover') && t.pnl != null ? Number(t.pnl) : null;
-          const done = (TS || []).filter((t) => t.model === x.id && t.experiment === exp && res(t) != null && Math.abs(res(t)) >= 0.5).sort((a, b) => new Date(b.at) - new Date(a.at));
-          const what = (t) => { const n = String(t.name || t.symbol || ''); const m = n.match(/^([A-Z]{2,6}): (.+?) moneyline/); return m ? m[2] + ' (' + m[1] + ')' : n; };
-          const best = done.filter((t) => res(t) > 0).sort((a, b) => res(b) - res(a))[0];
-          [[exp === 'AllInSports' ? 'Best single bet' : 'Best trade', best], ['Last win', done.find((t) => res(t) > 0)], ['Last loss', done.find((t) => res(t) < 0)]].forEach(([lab, t]) => {
-            const ln = mk('span', 'h2h-sub h2h-wl'); ln.appendChild(mk('b', '', lab + ': '));
-            if (!t) { ln.appendChild(document.createTextNode('none yet')); }
-            else { const v = res(t); const amt = mk('span', '', ptSgn0(v) + 'C$' + d3.format(',.0f')(Math.abs(v))); tone(amt, v); ln.append(amt, document.createTextNode(' · ' + what(t) + ' · ' + stFmt.whenET(t.at) + ' ET'));
-              if (t.tx && window.ptStory) { const sb = mk('button', 'tx-id tx-go tx-story', '📜 ' + t.tx); sb.type = 'button'; sb.title = 'Every move of this, from the first bet or trade'; sb.addEventListener('click', (ev) => { ev.stopPropagation(); window.ptStory.openTx(t.tx); }); ln.append(' ', sb); } }
-            li.appendChild(ln);
-          });
-        }
-        { const pie = pieOf(x.book, x.last); if (pie.length) { const pn = pieNode(pie, colorOf, 110); pn.classList.add('h2h-pie'); li.appendChild(pn); } }
-        rows.appendChild(li);
+        kv('Profit since the start', alSigned(g) + ' · ' + stFmt.pct(Math.max(0, x.last) / 100000 - 1), g);   // labelled so nobody mistakes it for one bet (owner, Oct 30)
+        { const lastT = +x.pts[x.pts.length - 1].t; let b = null; x.pts.forEach((p) => { if (+p.t <= lastT - 864e5) b = p; }); const d = b ? x.last - b.v : null; kv('Last 24 hours', d == null ? '—' : alSigned(d), d); }
+        { const n = sp ? (x.book.bets || []).filter((b2) => b2.status === 'Open').length : Object.values(x.book.positions || {}).filter((p) => Math.abs(Number(p.qty) || 0) > 1e-9).length;
+          kv(sp ? 'Open bets' : 'Holdings', n ? String(n) : sp ? 'none' : 'all cash', null); }
+        tiles.appendChild(li);
       });
-      box.appendChild(rows);
-      if (ser.some((x) => x.pts.length > 1)) {
-        const legend = mk('p', 'h2h-legend');
-        ser.forEach((x) => { const sp = mk('span', '', AIS[x.id].label); sp.style.setProperty('--ai', AIS[x.id].color); legend.appendChild(sp); });
-        const ch = mk('div', 'h2h-chart'); box.append(legend, ch, fillNote());
-        requestAnimationFrame(() => h2hChart(ch, ser));
+      box.appendChild(tiles);
+      box.appendChild(mk('p', 'st-note', sub + ' Each AI started with C$100,000; the biggest balance at the end wins this part.'));
+      { const mv = TS.filter((t) => t.experiment === exp).sort((a, b) => new Date(b.at) - new Date(a.at))[0];
+        const lastAt = d3.max(ser, (x) => +x.pts[x.pts.length - 1].t); const meta = mk('p', 'st-meta');
+        if (mv) { const l = mk('span'); l.append('Last move: ', mk('b', '', stFmt.whenET(mv.at) + ' ET'), ' · ' + (AIS[mv.model] || { label: mv.model }).label + ': ' + mv.action + ' ' + alWhat(mv)); meta.appendChild(l); }
+        if (lastAt) { const l = mk('span'); l.append('Last updated: ', mk('b', '', stFmt.whenET(lastAt) + ' ET')); meta.appendChild(l); }
+        if (meta.childNodes.length) box.appendChild(meta); }
+      el.appendChild(box);
+      { const lb = document.querySelector('#allin .al-jump-lead[data-lead="' + exp + '"]');   // who leads, on that part's button
+        if (lb) lb.textContent = !ranked.length ? '' : lead(0) ? '👑 ' + AIS[ranked[0].id].label + ' ' + alSigned(ranked[0].last - 100000) : 'Tied at the top'; }
+
+      // ---- the cards below the top card
+      const card = (key, h, note) => {
+        const c = mk('section', 'st-card al-card'); c.dataset.alPart = exp; c.hidden = exp !== cur;
+        const hh = mk('h2', 'st-h2', h); hh.id = 'h-al-' + key + (sp ? '-s' : '-t'); c.setAttribute('aria-labelledby', hh.id); c.appendChild(hh);
+        if (note) c.appendChild(mk('p', 'st-note', note)); if (host) host.appendChild(c); return c;
+      };
+      const table = (heads) => { const wrap = mk('div', 'st-wrap'); const t = mk('table', 'st-table al-table'); const tr = mk('tr'); heads.forEach((h) => tr.appendChild(mk('th', '', h))); const th = mk('thead'); th.appendChild(tr); const tb = mk('tbody'); t.append(th, tb); wrap.appendChild(t); return { wrap, t, tb }; };
+      const aiTd = (id) => { const td = mk('td', 'al-ai', AIS[id].label); return td; };
+      const txBtn = (label, tx, title) => { const b = mk('button', 'tx-id tx-go', label); b.type = 'button'; if (title) b.title = title; b.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); if (window.ptGoTx) window.ptGoTx(tx); }); return b; };
+      const storyBtn = (tx, label) => { if (!window.ptStory || !tx) return null; const b = mk('button', 'tx-id tx-go tx-story', label || '📜 Whole story'); b.type = 'button'; b.title = 'Every move of this, from the first bet or trade'; b.addEventListener('click', (ev) => { ev.stopPropagation(); ev.preventDefault(); window.ptStory.openTx(tx); }); return b; };
+
+      // ---- 2. the chart
+      { const c = card('chart', 'Balance over time', 'All three AIs from the same C$100,000 start; the dashed line is the start. Hover or drag along the chart for exact values.');
+        const ch = mk('div', 'gx al-chart'); c.append(ch, fillNote());
+        alChart(ch, ser, stt); }
+
+      // ---- 3. what is riding right now: open bets, or holdings
+      if (sp) {
+        const c = card('hold', 'Open bets', 'Bets not settled yet, soonest game first. American odds; stakes in Canadian dollars. A potential win is the profit if the pick wins: nothing is won until the game ends.');
+        const T = table(['AI', 'Pick', 'Game', 'Starts', 'Odds', 'Stake', 'Potential win']); const none = [];
+        ranked.forEach((x) => {
+          const ob = (x.book.bets || []).filter((b) => b.status === 'Open').sort((a, b) => String(a.starts_at || '').localeCompare(String(b.starts_at || '')));
+          if (!ob.length) { none.push(AIS[x.id].label); return; }
+          ob.forEach((b) => {
+            const tr = mk('tr'); tr.style.setProperty('--ai', AIS[x.id].color);
+            const pick = mk('td', 'al-pick'); pick.append(mk('b', '', b.pick_team || b.pick || '')); if (b.short) pick.appendChild(mk('span', 'al-sub', b.short));
+            const when = mk('td', 'al-when'); if (b.starts_at) { when.append(stFmt.whenET(b.starts_at) + ' ET'); const h = (Date.parse(b.starts_at) - Date.now()) / 36e5; if (h > 0) when.appendChild(mk('span', 'al-sub', h < 1 ? 'within the hour' : 'in ' + Math.round(h) + ' h')); else when.appendChild(mk('span', 'al-sub', 'started, waiting for the final score')); }
+            const o = Number(b.odds), st2 = Number(b.stake); const w = b.to_win != null ? Number(b.to_win) : o && st2 ? (o > 0 ? st2 * o / 100 : st2 * 100 / -o) : null;
+            { const t = TS.find((q) => q.model === x.id && q.experiment === exp && q.bet === b.id && q.tx); if (t) { const wr = mk('span', 'tx-wrap'); wr.appendChild(txBtn('In the ledger ' + t.tx, t.tx, 'Show this bet in the High risk ledger, highlighted')); const sb = storyBtn(t.tx); if (sb) wr.appendChild(sb); pick.appendChild(wr); } }
+            tr.append(aiTd(x.id), pick, mk('td', 'al-game', b.event || ''), when, mk('td', 'num', Number.isFinite(o) ? (o > 0 ? '+' : '') + o : ''), mk('td', 'num', Number.isFinite(st2) ? 'C$' + d3.format(',.2f')(st2) : ''), mk('td', 'num al-muted', w > 0 ? 'C$' + d3.format(',.2f')(w) : ''));
+            T.tb.appendChild(tr);
+          });
+        });
+        if (T.tb.children.length) c.appendChild(T.wrap);
+        if (none.length) c.appendChild(mk('p', 'st-note al-none', none.length === ranked.length ? 'No AI has an open bet right now.' : none.join(' and ') + (none.length > 1 ? ' have' : ' has') + ' no open bets right now.'));
+        if (typeof ptLabelTable === 'function') ptLabelTable(T.t);
+        { const pies = mk('div', 'al-pies'); ranked.forEach((x) => { const pie = pieOf(x.book, x.last); if (!pie.length) return; const p = mk('div', 'al-pie'); p.style.setProperty('--ai', AIS[x.id].color); p.append(whoNode(x.id, 16, 'pd-who al-who'), pieNode(pie, colorOf, 96)); pies.appendChild(p); });
+          if (pies.children.length) c.append(mk('h3', 'al-h3', 'How much of each balance is riding on open bets'), pies); }
+      } else {
+        const c = card('hold', 'Holdings', 'What each AI holds right now. Values in Canadian dollars at the latest price and exchange rate; prices in each holding’s own currency.');
+        const T = table(['AI', 'Holding', 'Value now', 'Share of its money', 'Average price paid', 'Latest price', 'Since bought']);
+        ranked.forEach((x) => {
+          const ps = Object.entries(x.book.positions || {}).filter(([, p]) => Math.abs(Number(p.qty) || 0) > 1e-9).map(([k, p]) => ({ k, p, v: Number(p.qty) * Number(p.last != null ? p.last : p.entry) * (p.pcur === 'USD' ? usdcad : 1) })).sort((a, b) => Math.abs(b.v) - Math.abs(a.v));
+          const cash = Number(x.book.cash) || 0; const tot = ps.reduce((a, q) => a + Math.max(0, q.v), 0) + Math.max(0, cash);
+          ps.forEach(({ k, p, v }) => {
+            const tr = mk('tr'); tr.style.setProperty('--ai', AIS[x.id].color); const short = Number(p.qty) < 0;
+            const nm = mk('td', 'al-pick'); nm.append(mk('b', '', p.name || k)); nm.appendChild(mk('span', 'al-sub', k + (short ? ' · short' : '')));
+            const last = Number(p.last != null ? p.last : p.entry), entry = Number(p.entry);
+            const chg = entry > 0 && Number.isFinite(last) ? (short ? (entry - last) / entry : last / entry - 1) : null;
+            const ct = mk('td', 'num', chg == null ? '' : stFmt.pct(chg)); if (chg != null) tone(ct, chg * 1000);
+            { const ch = window.ptStory && window.ptStory.holdingChips(x.id, exp, p.name || k, k); if (ch) nm.appendChild(ch); }
+            tr.append(aiTd(x.id), nm, mk('td', 'num', short ? 'owes ' + alMoney(v) : alMoney(v)), mk('td', 'num', !short && tot > 0 ? d3.format('.0%')(v / tot) : ''), mk('td', 'num', alPx(entry, p.pcur)), mk('td', 'num', alPx(last, p.pcur)), ct);
+            T.tb.appendChild(tr);
+          });
+          if (cash > 1 || !ps.length) {
+            const tr = mk('tr'); tr.style.setProperty('--ai', AIS[x.id].color);
+            const nm = mk('td', 'al-pick'); nm.append(mk('b', '', 'Cash')); if (!ps.length) nm.appendChild(mk('span', 'al-sub', 'nothing held right now'));
+            tr.append(aiTd(x.id), nm, mk('td', 'num', alMoney(cash)), mk('td', 'num', tot > 0 ? d3.format('.0%')(Math.max(0, cash) / tot) : ''), mk('td', 'num'), mk('td', 'num'), mk('td', 'num'));
+            T.tb.appendChild(tr);
+          }
+        });
+        c.appendChild(T.wrap); if (typeof ptLabelTable === 'function') ptLabelTable(T.t);
+        { const pies = mk('div', 'al-pies'); ranked.forEach((x) => { const pie = pieOf(x.book, x.last); if (!pie.length) return; const p = mk('div', 'al-pie'); p.style.setProperty('--ai', AIS[x.id].color); p.append(whoNode(x.id, 16, 'pd-who al-who'), pieNode(pie, colorOf, 96)); pies.appendChild(p); });
+          if (pies.children.length) c.append(mk('h3', 'al-h3', 'How each AI’s money is split'), pies); }
       }
+
+      // ---- 4. wins and losses: the record, the best one, the latest win and loss (owner, Oct 30: the most recent win and loss)
+      { const res = (t) => (t.action === 'Won' || t.action === 'Lost') ? Number(t.amount) : (t.action === 'Sell' || t.action === 'Cover') && t.pnl != null ? Number(t.pnl) : null;
+        const c = card('wl', 'Wins and losses', sp ? 'Settled bets only. A win shows the profit on top of the stake; a loss shows the stake lost.' : 'Closed trades only: what each sale made or lost against what was paid.');
+        const T = table(['AI', 'Record', sp ? 'Best single bet' : 'Best trade', 'Last win', 'Last loss']);
+        const cell = (t) => { const td = mk('td', 'wrap'); if (!t) { td.appendChild(mk('span', 'al-muted', 'none yet')); return td; }
+          const v = res(t); const amt = mk('b', '', alSigned(v)); tone(amt, v); td.append(amt, mk('span', 'al-sub', alWhat(t) + ' · ' + stFmt.whenET(t.at) + ' ET'));
+          const sb = storyBtn(t.tx, '📜 ' + t.tx); if (sb) { const w = mk('span', 'tx-wrap'); w.appendChild(sb); td.appendChild(w); } return td; };
+        ranked.forEach((x) => {
+          const done = TS.filter((t) => t.model === x.id && t.experiment === exp && res(t) != null && Math.abs(res(t)) >= 0.5).sort((a, b) => new Date(b.at) - new Date(a.at));
+          const up = done.filter((t) => res(t) > 0), down = done.filter((t) => res(t) < 0);
+          const best = up.slice().sort((a, b) => res(b) - res(a))[0];
+          const tr = mk('tr'); tr.style.setProperty('--ai', AIS[x.id].color);
+          const rec = mk('td', 'al-rec'); rec.append(mk('b', '', sp ? up.length + ' won · ' + down.length + ' lost' : up.length + ' up · ' + down.length + ' down'));
+          if (done.length) rec.appendChild(mk('span', 'al-sub', d3.format('.0%')(up.length / done.length) + (sp ? ' of settled bets won' : ' of closed trades made money')));
+          tr.append(aiTd(x.id), rec, cell(best), cell(up[0]), cell(down[0]));
+          T.tb.appendChild(tr);
+        });
+        c.appendChild(T.wrap); if (typeof ptLabelTable === 'function') ptLabelTable(T.t); }
+
+      // ---- 5. every move (unchanged from before the redesign, now in its own card)
       // every move, 10 a page with Newer / Older, and a menu to see one AI only (owner, Oct 29)
-      const ST = (el._mv = el._mv || {}); const stt = (ST[exp] = ST[exp] || { m: '', pg: 0, key: '' });
-      const mh = mk('div', 'ai-pick'); mh.appendChild(mk('h3', '', 'Recent moves'));
+      const mvCard = card('moves', 'Recent moves', null);
+      const mh = mk('div', 'ai-pick');
       { const l = mk('label', '', 'AI: '); const sel = mk('select'); sel.setAttribute('aria-label', 'Show moves by');
         [['', 'All three AIs']].concat(order.map((id) => [id, aiModel(id)])).forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; sel.appendChild(o); });
         sel.value = stt.m; sel.addEventListener('change', () => { stt.m = sel.value; drawMoves(); }); l.appendChild(sel); mh.appendChild(l); }
-      box.appendChild(mh);
-      const list = mk('div'); box.appendChild(list);
+      mvCard.appendChild(mh);
+      const list = mk('div'); mvCard.appendChild(list);
       { /* "Holding now" on this list too (owner, Nov 2: a Holding filter like Open on bets): the buys behind positions still open, and bets not settled */
         const POS = new Set(), OPEN = new Set();
         (MS || []).forEach((m) => Object.entries(m.books || {}).forEach(([e, bk]) => {
@@ -7971,7 +8201,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         if (!tr0.length) { list.appendChild(mk('p', 'st-note', stt.m ? AIS[stt.m].label + ' has made no moves here yet.' : 'No moves yet.')); return; }
         const MF = mfApply('allin-moves-' + exp, tr0, MF_RIV(), () => { stt.pg = 0; drawMoves(); }, { page: 10 }); list.append(MF.bar, MF.sum);   // Show and Sort (owner, Oct 31)
         const tr = MF.rows; if (!tr.length) return;
-        const wrap = mk('div', 'h2h-scroll st-wrap'); const tb = mk('table', 'h2h-table');
+        const wrap = mk('div', 'h2h-scroll st-wrap'); const tb = mk('table', 'h2h-table st-table al-moves');   // st-table (Nov 18): cards on phones, like every other table
         const hr = mk('tr'); ['When', 'AI', 'Move', 'Money', 'Cost / stake', 'Profit', 'Why'].forEach((h) => hr.appendChild(mk('th', '', h))); { const th = mk('thead'); th.appendChild(hr); tb.appendChild(th); }
         const body = mk('tbody'); tb.appendChild(body);
         tr.forEach((t) => {
@@ -7982,15 +8212,15 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           r.append(window.ptTxWhen(t.at, t.tx), ai, mk('td', '', t.action + ' ' + (t.name || t.symbol)), mk('td', 'num', moneyOf(t)), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p, pl), why);
           body.appendChild(r);
         });
-        wrap.appendChild(tb); list.appendChild(wrap);
+        wrap.appendChild(tb); list.appendChild(wrap); if (typeof ptLabelTable === 'function') ptLabelTable(tb);
         if (stt.key !== stt.m + '|' + MF.key) { stt.key = stt.m + '|' + MF.key; stt.pg = 0; }
         body.dataset.pgNewest = MF.newest ? '1' : '0'; body._pgKey = ''; body._pg = stt.pg || 0;
         pagerFor(body, 10, 'moves');
         const pbar = wrap.nextElementSibling; if (pbar && pbar.classList.contains('st-pager')) { const keep = () => { stt.pg = body._pg || 0; }; pbar.addEventListener('click', keep); pbar.addEventListener('change', keep); }
       };
       drawMoves();
-      el.appendChild(box);
     });
+    if (window.ptShowAllinPart) window.ptShowAllinPart();
   });
 
 
