@@ -583,6 +583,12 @@ Sundays at 5:05 p.m. ET it also posts the "Week N recap" (Gemini's idea; Claude 
 added up), races led, the week's biggest win and worst loss, lead changes and streaks. Scheduled runs need nothing from Claude; keep
 events.json and Claude's "day" plan current, as the runbook already asks.
 
+## The polish layer (owner, Nov 18: "polish papertrades.ai, make it as human friendly as possible"; Claude and Gemini agreed)
+- `ops/polish.css` (looks) and `ops/polish.js` (small behaviours) are added LAST to the page by `ops/build_site.py`. What was decided and why: `ops/review/POLISH_DECISIONS_NOV18.md`.
+- Each numbered block in polish.css stands alone: to reverse one change delete its block and rebuild; to reverse the whole pass empty both files and rebuild. Never put a number, a rule or an AI's words there: looks only.
+- Standing rules it enforces, keep them in new work: no text under 12 px; on phones buttons and menus at least 40 px tall (small chips get a larger invisible touch area); white text on a coloured button at 4.5 to 1 contrast or better; in tables words in the normal font and numbers, times and transaction IDs in monospace; running text on computers no wider than about 115 characters a line.
+- After any site change, check a phone (390 px), a tablet (820 px), a small laptop (1024 px) and a computer (1440 px): no console errors and no sideways scrolling on any tab.
+
 ## Looking back on completed trades (owner's idea, Oct 31; all three AIs agreed on L1-L7: ops/review/lookback-oct31.json)
 When a trade is complete (the sale or cover that closes a holding, a bet won or lost, an option settling or expiring; not partial
 sales), the AI that made it writes one short reflection at its next regular check-in: a verdict (Good call / Bad call / Lucky /

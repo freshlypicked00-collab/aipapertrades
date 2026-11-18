@@ -424,6 +424,13 @@ except Exception as _e:
     print('preview picture not updated:', _e)
 
 SPLASH = '<div id="pt-splash" aria-hidden="true">\n  <style>\n    #pt-splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; background: #0b0b0a; transition: opacity .38s ease; }\n    #pt-splash.out { opacity: 0; pointer-events: none; }\n    #pt-splash .sp-logo { width: 160px; height: 160px; border-radius: 50%; opacity: 0; transform: scale(.6); animation: sp-pop .5s cubic-bezier(.2,.9,.3,1.3) .1s forwards; box-shadow: 0 0 60px rgba(61,220,132,.25); }\n    #pt-splash .sp-grid { stroke: #1f2a24; stroke-width: .6; }\n    #pt-splash .sp-line { stroke-dasharray: 40; stroke-dashoffset: 40; animation: sp-draw .8s cubic-bezier(.6,.1,.2,1) .15s forwards; }\n    #pt-splash .sp-dot { opacity: 0; transform-origin: 25px 11px; animation: sp-pop .35s ease-out .9s forwards; }\n    #pt-splash .sp-name { display: flex; gap: .06em; font: 600 clamp(26px, 6vw, 44px)/1 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .22em; color: #f2e9d8; }\n    #pt-splash .sp-name span { opacity: 0; transform: translateY(14px); animation: sp-up .45s ease-out forwards; }\n    #pt-splash .sp-sub { opacity: 0; font: 500 clamp(13px, 3.4vw, 17px)/1.3 "IBM Plex Sans Condensed", system-ui, sans-serif; letter-spacing: .04em; color: #9b927f; animation: sp-fade .5s ease-out 1.05s forwards; }\n    #pt-splash .sp-sub b { font-weight: 600; }\n    @keyframes sp-draw { to { stroke-dashoffset: 0; } }\n    @keyframes sp-pop { from { opacity: 0; transform: scale(.2); } to { opacity: 1; transform: scale(1); } }\n    @keyframes sp-up { to { opacity: 1; transform: none; } }\n    @keyframes sp-fade { to { opacity: 1; } }\n    @media (prefers-reduced-motion: reduce) { #pt-splash { display: none; } }\n  </style>\n  <img class="sp-logo" src="/brand/mark-192.png?v=logo3" alt="">\n  <div class="sp-name">PAPERTRADES.AI</div>\n  <div class="sp-sub"><b>SEASON 1</b></div>\n  \n  <script>\n    (function () {\n      var el = document.getElementById(\'pt-splash\'); if (!el) return;\n      try { if (sessionStorage.getItem(\'pt-nosplash\')) { sessionStorage.removeItem(\'pt-nosplash\'); el.remove(); return; } } catch (e) {}\n      if (window.matchMedia && window.matchMedia(\'(prefers-reduced-motion: reduce)\').matches) { el.remove(); return; }\n      var n = el.querySelector(\'.sp-name\'), t = n.textContent; n.textContent = \'\';\n      for (var i = 0; i < t.length; i++) { var s = document.createElement(\'span\'); s.textContent = t[i] === \' \' ? \'\\u00a0\' : t[i]; s.style.animationDelay = (0.45 + i * 0.04) + \'s\'; n.appendChild(s); }\n      var done = false;\n      function finish() { if (done) return; done = true; el.classList.add(\'out\'); setTimeout(function () { el.remove(); }, 420); if (!location.hash || location.hash === \'#overview\') window.scrollTo(0, 0); }\n      setTimeout(finish, 1750);\n      [\'click\', \'keydown\', \'touchstart\'].forEach(function (e) { window.addEventListener(e, finish, { once: true, passive: true }); });\n    })();\n  </script>\n</div>\n'   # opening animation (plain string: its CSS braces must not be read as placeholders)
+# The polish pass (owner, Nov 18: "polish papertrades.ai, make it as human friendly as possible ... work with Gemini"; Claude and Gemini:
+# ops/review/polish-nov18.json, ops/review/POLISH_DECISIONS_NOV18.md). It lives in two files of its own, added LAST, so the whole pass
+# can be read in one place and reversed by emptying them: ops/polish.css (looks) and ops/polish.js (small behaviours).
+_pol = os.path.dirname(os.path.abspath(__file__))
+POLISH_CSS = open(os.path.join(_pol, 'polish.css')).read() if os.path.exists(os.path.join(_pol, 'polish.css')) else ''
+POLISH_JS = open(os.path.join(_pol, 'polish.js')).read() if os.path.exists(os.path.join(_pol, 'polish.js')) else ''
+
 html = f"""<!doctype html>
 <html lang="en">
 <head>
@@ -466,6 +473,7 @@ html = f"""<!doctype html>
 <style>{TOKENS}
 {style}
 {TERMINAL}
+{POLISH_CSS}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <script>window.d3 || document.write('<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"><\\/script>');   /* the same d3 from a second CDN if cdnjs is down (all three AIs agreed, Oct 30) */</script>
@@ -505,6 +513,9 @@ html = f"""<!doctype html>
 </div>
 <script>
 {script}
+</script>
+<script>
+{POLISH_JS}
 </script>
 </body>
 </html>

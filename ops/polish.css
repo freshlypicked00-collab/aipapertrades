@@ -1,0 +1,273 @@
+/* =====================================================================================================================
+   THE POLISH PASS (owner, Nov 18: "polish papertrades.ai, make it as human friendly as possible ... work with Gemini ...
+   as high grade as a top tier website"). Claude's audit and 18 proposals, Gemini's review: ops/review/polish-nov18.json;
+   what was decided: ops/review/POLISH_DECISIONS_NOV18.md.
+   This file is added LAST to the page's stylesheet by ops/build_site.py, so it only refines what is already there.
+   Every numbered block stands alone: delete a block to reverse just that change; empty the file to reverse the pass.
+   No number, word or rule of the race is touched here: looks only.
+   ===================================================================================================================== */
+
+:root { --pt-ease: 150ms cubic-bezier(.2, .7, .3, 1); --pt-ring: var(--accent, #ffb000); --pt-tap: 40px; }
+
+/* ---- 1. READING: no text under 12 px (P1; Claude and Gemini agreed). The site had 93 rules from 8 to 11.5 px. ------------ */
+.st-chips .chip-side small, .pt-pwin-l, .pt-pwin-n, .st-chips-lab, .pd-big-from, .lg-find, .st-geo-tag, .st-podium .pd-amt .pd-amt-l,
+.st-side-tag, .pt-story-h .pd-livebadge, .nm-h .pd-livebadge, .tx-id, .tx-next, .lg-lb-h, .st-auto-fp, .mkt-w, .st-callout .gr-h,
+.st-callout .gr-tag, .h2h-row .h2h-lead, .st-plan h4, .ai-stat b, .st-geo-s b, .ai-mdl, .st-fc .st-fc-note, .st-podium .pd-stats dt,
+.st-podium .pd-stats small, .st-podium .pd-mom-t small, .st-podium .pd-live-lg, .pd-livebadge, .st-podium .pd-live-sc .st,
+.st-podium .pd-big-t small, .pt-n-k.pt-n-race, .pt-n-n, .pt-story-f b, .nm-k, .nm-tag, .bg-risk, .pt-takes-fb, #allin .h2h-cap,
+.st-live-top .st-live-badge, .pt-livebox .st-live-badge, .gx-who-l, .cl-by, .lg-spark-cap, .ai-pf-pl, .st-callout .co-h, .pd-live-now,
+.mkt-note, .fp-search, .st-callout .gr-foot, .st-auto, .st-fact b, .st-plan small, .ai-words small, .st-fc small,
+.st-podium .pd-live-sc .wait, .st-podium p.pd-big-note, .gx-led, .fp-hash, .pg-grade, .pg-out, .bg-off, .sp-rec small,
+.sp-list .sp-t small, .st-podium .pd-leads, .pt-join-n, .st-score-cost, .lg-odds, .st-tabgroup-l, .st-label-sub, .lg-rc-badge,
+.st-tabs > .pt-feed .pt-n-k, .st-tabs .st-tabgroup-l, .st-tabs.st-tabs--compact .st-tabgroup-l, .m-menu-l, .st-s1-badge,
+.st-muted.gx-sub, .st-table small, .st-table small .pt-t, .tx-next .pt-t { font-size: 12px; }
+.say-btn, .say-pair .say-btn { font-size: 12px; }
+.st-first-tag { font-size: 12px; letter-spacing: 0; padding: 1px 8px; }
+.pt-lb-tg::after { font-size: 10px; }   /* the tiny "1st" corner mark on the 26 px Telegram icon: the one exception, it is a badge, not reading text */
+.pt-mtick::before, .pt-mtick .pt-tk-i, .st-tabs.st-tabs--compact > .pt-feed .pt-tk-i { font-size: 12px; }
+.ra-t { font-size: 12px; }
+/* computers: the names under the three robot faces, the risk-award notes, the take headers and the newest High risk labels */
+.st-bot-n, .st-bot-t, .ra-sub, .ra-d, .ra-list .ra-d, .ra-list li .ra-d, .ra-how, .ra-how > summary, .ra-how p, .pt-takes-hd, .st-by, .st-h2-sub, .al-flag { font-size: 12px; }
+table.st-table.pt-cards > tbody > tr > td[data-label]::before, .st-riskdash table { font-size: 12px; }
+@media (min-width: 701px) {
+  .st-tabs-tools .st-tt, .st-tabs-tools .st-tt-theme { font-size: 12px; letter-spacing: .04em; }
+  .st-tabs-tools.fit-brand-sm .st-tt-brand span { font-size: 12px; }
+}
+/* the "?" help dots: bigger, in the accent colour, so people see they can be tapped (Gemini's idea 10) */
+.pt-gl-q { width: 18px; height: 18px; font-size: 12px; color: var(--accent, #ffb000); border-color: color-mix(in srgb, var(--accent, #ffb000) 55%, transparent); }
+.pt-gl-q:hover, .pt-gl-q:focus-visible { color: var(--color-bg); background: var(--accent, #ffb000); border-color: var(--accent, #ffb000); }
+
+/* ---- 2. READING ON PHONES: all text 4 percent larger (P2: captions about 13 px, running text about 15 px). --------------
+   One switch that phone browsers apply to every piece of text; computers ignore it. Set it back to 100% to reverse. */
+@media (max-width: 700px) { html { -webkit-text-size-adjust: 104%; text-size-adjust: 104%; } }
+
+/* ---- 3. READING ON COMPUTERS (P3): lines ran to 200 characters; now running text stops at about 115, small notes at about 150,
+   and a long list (six items or more) flows in two columns, so all tabs together are a little shorter than before, not longer.
+   Tables, charts and fact lines keep the full width. ---------------------------------------------------------------------- */
+@media (min-width: 1000px) {
+  .st-page :is(p, li):where(:not([class]), .st-note, .st-meta, .st-score-foot, .st-luck-t, .ra-sub, .nm-pub, .pt-verify-p), .st-indep, .st-s2 { max-width: 112ch; }
+  :is(#news, #about-pt, #rules, #guide, #audit, #support, #data) :is(p, li):where(:not([class])), .st-page .nm-lede, .pt-hero-p, .pt-hero-lead { max-width: 88ch; }
+  :is(#news, #about-pt, #rules, #guide, #audit, #support, #data) .nm-list > li { max-width: 124ch; }   /* fact lines ("what it moved", data notes) are data: one long line reads like a table row */
+  :is(#rules, #audit, #about-pt, #guide, #support, #data) :is(ul, ol):is(:not([class]), .st-exp-list, .st-how, .au-corr, .st-list):has(> li:nth-child(6)) { display: block; columns: 2; column-gap: 56px; max-width: none; }
+  :is(#rules, #audit, #about-pt, #guide, #support, #data) :is(ul, ol):is(:not([class]), .st-exp-list, .st-how, .au-corr, .st-list):has(> li:nth-child(6)) > li { break-inside: avoid; max-width: none; margin: 0 0 7px; }
+  .st-table td .pt-t { white-space: nowrap; }   /* a time stays on one line: rows were two lines tall only because "ET" wrapped */
+}
+.st-page :is(p, li):where(:not([class]), .st-note, .st-score-foot, .st-luck-t, .ra-sub, .nm-pub, .nm-lede), .pt-hero-p, .st-foot, .st-copy { text-wrap: pretty; }   /* no last line of one lonely word */
+
+/* ---- 4. READING: words in the normal font, monospace for numbers, prices, odds, times and transaction IDs (P4) ----------
+   Tables set whole sentences in the monospace font, which is about 40 percent wider: reasons ran to 11 lines in a narrow
+   column. Now a table reads like a modern trading screen: words in IBM Plex Sans, figures in IBM Plex Mono so decimals line up.
+   Gemini warned this is the one the owner may want back: delete this block and every table is monospace again. */
+.st-table td { font-family: var(--font-sans); font-size: 13.5px; }
+.st-table td.wrap { line-height: 1.5; }
+.st-table td.wrap > b:first-child { font-size: 14px; }
+.st-table td.num, .st-table td .pt-t, .st-table td .tx-id:not(.tx-go), .st-table td :is(code, kbd, samp) { font-family: var(--font-serif); font-size: 13px; }
+.st-table td .tx-id:not(.tx-go) { font-size: 12px; }
+/* the small chips under a move: the ID stays monospace; "Result", "Game", "Whole story", "More details", "View original bet" are words */
+.tx-next, .tx-id.tx-go, .lg-find { font-family: var(--font-sans); letter-spacing: 0; font-weight: 500; }
+.pg-row, .pg-out, .lg-lb, .lg-pv-why { font-family: var(--font-sans); }
+.pg-row { font-size: 13px; }
+@media (min-width: 701px) { .st-table:not(.gx-hold-t) td:first-child > .tx-wrap { max-width: 236px; } }   /* the chips wrap inside the When column instead of widening it */
+
+/* ---- 5. TOUCH (P5): phones get 40 px buttons and menus; small chips keep their look and get a larger touch area ---------- */
+@media (max-width: 700px), (pointer: coarse) {
+  #dash-root select, .st-pg-btn, .pt-wel-btn, .m-menu-btn, .st-score-more, .lg-jump-b, .ai-pf-btn, .st-tt-fold, .app-btn { min-height: var(--pt-tap); }
+  .st-pg-btn, .lg-jump-b, .ai-pf-btn { padding-top: 7px; padding-bottom: 7px; }
+  #dash-root input:is([type="text"], [type="search"], :not([type])) { min-height: var(--pt-tap); }
+  .pt-safety-x, .pt-wel-x, .pt-odds-x { min-width: 36px; min-height: 36px; }
+  .pt-x.pt-n-x, .pt-x-sm { position: relative; }
+  .pt-x.pt-n-x::after, .pt-x-sm::after { content: ""; position: absolute; left: -8px; right: -8px; top: 50%; height: 40px; transform: translateY(-50%); }
+  /* chips, links and fold-outs that are under 30 px tall: an invisible pad around them widens the touch area to 36 px or more */
+  .tx-id, .lg-find, .lg-pv, .pt-gl-q, .st-status-dot, .pt-sl-lead, .pt-sl-alert, .st-auto-link, .st-auto-fp, .st-model-cmp,
+  .st-live-status, .gx-key-tog, .ai-pf-chip, .gd-link, .ct-addr, .say-btn { position: relative; }
+  .tx-id::after, .lg-find::after, .lg-pv::after, .pt-gl-q::after, .st-status-dot::after, .pt-sl-lead::after, .pt-sl-alert::after,
+  .st-auto-link::after, .st-auto-fp::after, .st-model-cmp::after, .st-live-status::after, .gx-key-tog::after, .ai-pf-chip::after,
+  .gd-link::after, .ct-addr::after, .say-btn::after { content: ""; position: absolute; left: -4px; right: -4px; top: 50%; height: 38px; transform: translateY(-50%); }
+  .pt-gl-q::after { left: -10px; right: -10px; }
+  #dash-root details > summary { padding-block: 4px; }
+  .h2h-holds .pt-hold-link { padding-block: 4px; }
+}
+
+/* ---- 6. CONTROLS (P6): one look for every menu and button, one focus ring, the same hover and pressed feedback ------------ */
+#dash-root select { font-family: var(--font-sans); border-radius: var(--cds-radius); cursor: pointer; transition: border-color var(--pt-ease), box-shadow var(--pt-ease); }
+#dash-root select:hover { border-color: var(--color-fg-muted); }
+#dash-root .risk-pick { font: inherit; font-size: 14px; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); padding: 6px 8px; min-height: 34px; width: 100%; }
+.st-score-list button.st-score-more, button.st-score-more { font: inherit; font-size: 13px; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 999px; padding: 5px 12px; cursor: pointer; }
+button.st-score-more:hover { border-color: var(--accent, #ffb000); }
+button.st-live-btn { border: 0; font-family: inherit; cursor: pointer; }
+/* one focus ring for keyboard users, everywhere (it replaces a dozen slightly different ones) */
+#dash-root :is(a, button, select, input, summary, [tabindex]):focus-visible, .pt-safety :is(a, button):focus-visible, .m-menu-fab:focus-visible {
+  outline: 2px solid var(--pt-ring); outline-offset: 2px; }
+/* quiet motion (P15): colour and border changes take 150 ms; nothing moves for people who turned animations off */
+@media (prefers-reduced-motion: no-preference) {
+  #dash-root :is(button, a, select, summary, .st-card, .st-tab, .st-score):not(.pt-toast, .bg-toast, .al-jump-b, .pt-top), .pt-safety a {
+    transition: color var(--pt-ease), background-color var(--pt-ease), border-color var(--pt-ease), box-shadow var(--pt-ease), opacity var(--pt-ease), transform var(--pt-ease); }
+  #dash-root :is(.st-pg-btn, .pt-wel-btn, .st-live-btn, .st-theme, .app-btn, .st-tt-fold, .m-menu-btn, .st-score-more):active { transform: scale(.97); }
+}
+
+/* ---- 7. CONTRAST (P7): white button text is at least 4.5 to 1 everywhere --------------------------------------------------
+   Telegram and Discord stay solid (they are the two alert channels); Instagram, YouTube and X become outlined buttons in
+   their own colours, so the row no longer shouts (Gemini's idea 2; Claude kept the two main ones solid). */
+.st-live-btn { background: #0f79b8; }
+.st-live-btn:hover { background: #0c6aa3; }
+.st-follow-dc { background: #4f5ce8 !important; }
+.st-follow-dc:hover { background: #4450d6 !important; }
+.st-follow-ig, .st-follow-yt, .nt-youtube .st-live-btn { background: transparent !important; border: 1px solid; }
+.st-follow-ig { color: #f06aa6 !important; border-color: color-mix(in srgb, #f06aa6 60%, transparent) !important; }
+.st-follow-yt, .nt-youtube .st-live-btn { color: #ff6b6b !important; border-color: color-mix(in srgb, #ff6b6b 60%, transparent) !important; }
+.st-follow-x { background: transparent !important; color: var(--color-fg) !important; border: 1px solid var(--cds-border, #3a372f) !important; }
+.st-follow-ig:hover { background: color-mix(in srgb, #f06aa6 14%, transparent) !important; }
+.st-follow-yt:hover, .nt-youtube .st-live-btn:hover { background: color-mix(in srgb, #ff6b6b 14%, transparent) !important; }
+.st-follow-x:hover { background: color-mix(in srgb, var(--color-fg) 10%, transparent) !important; }
+:root[data-tone="light"] .st-follow-ig { color: #a8246e !important; border-color: #a8246e !important; }
+:root[data-tone="light"] .st-follow-yt, :root[data-tone="light"] .nt-youtube .st-live-btn { color: #c4001f !important; border-color: #c4001f !important; }
+.pt-verify-dl { background: #1c8650 !important; }
+.st-live-top .st-live-badge, .pt-livebox .st-live-badge, .pd-livebadge { background: #dc3033; }
+.st-callout .gr-bad .gr-tag { background: #cf3329; }
+.st-callout .gr-good .gr-tag { background: #1c8650; }
+
+/* ---- 8. LANDING (P8): a tab opened from a link or a reload starts with its title clear of the sticky bar ----------------- */
+.st-page { scroll-margin-top: 44px; }
+@media (min-width: 701px) { .st-page { scroll-margin-top: calc(var(--stick-h, 96px) + 14px); } }
+#dash-root :is(.st-card, section, [id]) { scroll-margin-top: calc(var(--stick-h, 96px) + 14px); }
+@media (max-width: 700px) { #dash-root :is(.st-card, section, [id]) { scroll-margin-top: 44px; } }
+
+/* ---- 9. TABLES AND LOGS (P16; Gemini's ideas 4 and 9) ---------------------------------------------------------------------- */
+@media (hover: hover) { .st-table tbody tr:hover > td { background: color-mix(in srgb, var(--color-fg) 3.5%, transparent); } }
+.st-table th { letter-spacing: .04em; }
+.st-table td, .st-table th { padding: 6px var(--cds-pad-sm); }
+/* bet and move rows (P12): the chips sit side by side and wrap, instead of one small box per line */
+.tx-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 4px; }
+.tx-wrap > .tx-id, .tx-wrap > .tx-next, .tx-wrap > .lg-find, .tx-wrap > .tx-link { margin-top: 0; }
+.tx-id, .lg-find { padding: 1px 7px; border-radius: 4px; }
+.tx-next { opacity: .7; }
+@media (min-width: 701px) { .gx-hold-t td.wrap:first-child { width: 56%; } .gx-hold-t td.wrap[data-label="Placed"] { min-width: 0; white-space: nowrap; } }
+.pg { margin: 8px 0 6px; }
+
+/* ---- 10. AI vs AI "Holding now" (P11): left-aligned, easy to scan; the dot between two holdings stays with the name before it */
+.pt-hold-link { text-align: left; }
+/* the written " · " stays in the page for copying, translating and screen readers; it is only set to zero size, and the dot is drawn at the end of the name */
+.h2h-holds .h2h-sep { font-size: 0; }
+.h2h-holds .pt-hold-link:not(:last-child)::after { content: "\00a0·"; content: "\00a0·" / ""; display: inline-block; text-decoration: none; opacity: .6; }
+.h2h-holds .pt-hold-link { margin-right: 4px; }
+
+/* ---- 11. SHAPES (Gemini's idea 6): data tags are 4 px boxes, status badges are full pills ---------------------------------- */
+.pg-grade, .gr-tag, .st-callout .gr-tag, .nm-tag, .st-side-tag, .st-geo-tag, .lg-rc-badge, .pd-livebadge, .st-live-badge { border-radius: 4px; }
+.st-s1-badge, .pt-ai-badge, .st-status-dot, .st-auto > *, .st-first-tag { border-radius: 999px; }
+
+/* ---- 12. THE LEADER STANDS OUT (Gemini's idea 8): the 1st-place card gets a soft glow in the gold it already has ------------ */
+.st-score-list .st-score-ai.st-score-top { box-shadow: inset 0 0 0 1px rgba(255, 201, 60, .25), 0 0 20px -8px rgba(255, 201, 60, .7); }
+
+/* ---- 13. FEEL (P17): themed scrollbars, selection in the accent colour, tidier link underlines ------------------------------ */
+html { scrollbar-color: var(--cds-border, #3a372f) transparent; }
+::selection { background: color-mix(in srgb, var(--accent, #ffb000) 38%, transparent); color: var(--color-fg); }
+#dash-root details > summary { cursor: pointer; }
+#dash-root details > summary:hover { color: var(--color-fg); }
+#dash-root a { text-underline-offset: 2px; text-decoration-thickness: from-font; }
+#dash-root a:hover { text-decoration-thickness: 2px; }
+
+/* the clocks read as clocks, not as headlines: normal size on every screen; the countdown stays the one big number */
+header.st-head .st-progress :is(.st-clock-ny, .st-clock-hk, .st-clock-utc) .st-count { font-size: 14.5px; color: var(--color-fg); }
+header.st-head .st-progress :is(.st-clock-ny, .st-clock-hk, .st-clock-utc) { gap: 6px; font-size: 13px; }
+/* ---- 14. OVERVIEW TOP, computers and tablets (P9): same parts, tidier ------------------------------------------------------
+   Line 1: day, countdown, last update. Line 2: clocks, markets, system status. Line 3: the settings as one even toolbar.
+   Line 4: the next-scoreboard note. Before: six settings spread unevenly, three big clocks, ragged wrapping on tablets. */
+@media (min-width: 701px) {
+  :is(html:not([data-tab]), html[data-tab="overview"]) header.st-head .st-progress[data-phase="live"] { align-items: center; gap: 6px 16px; }
+  :is(html:not([data-tab]), html[data-tab="overview"]) header.st-head .st-progress[data-phase="live"]::before { content: ""; flex-basis: 100%; height: 0; order: 10; display: none; }
+  :is(html:not([data-tab]), html[data-tab="overview"]) header.st-head .st-progress[data-phase="live"]::after { content: ""; flex-basis: 100%; height: 0; order: 30; }
+  :is(html:not([data-tab]), html[data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > :is(.st-clock-ny, .st-clock-hk, .st-clock-utc) { order: 11; }
+  :is(html:not([data-tab]), html[data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > .st-clock:not(.st-clock-ny):not(.st-clock-hk):not(.st-clock-utc):not(.st-since) { order: 12; }
+  :is(html:not([data-tab]), html[data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > .st-status-dot { order: 9; }
+  :is(html:not([data-tab]), html[data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > :is(.st-lang-wrap, #sound-btn, #beginner-btn, .st-themepick, #fs-btn) { order: 31; margin-left: 0; }
+  :is(html:not([data-tab]), html[data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > .st-dayclose { order: 40; flex-basis: 100%; font-size: 13px; }
+  header.st-head .st-progress .st-lang-wrap .app-btn { margin-left: 2px; }
+  .st > .st-live.st-live-top { margin-top: -8px; margin-bottom: -8px; }
+  header.st-head .st-progress :is(#sound-btn, #beginner-btn, #fs-btn, .app-btn), header.st-head .st-progress .st-lang select { min-height: 32px; }
+}
+@media (min-width: 1000px) { :is(html:not([data-tab]), html[data-tab="overview"]) header.st-head .st-progress[data-phase="live"]::before { display: block; } }
+/* small laptops and tablets on their side (1000 to 1140 px): the sticky bar was wider than the screen on race pages, so the page could be
+   dragged sideways. The AI badge beside the logo (the Model menu next to it says the same) and the full-screen icon step aside there. */
+@media (min-width: 701px) and (max-width: 1140px) {
+  .st-tabs-tools .st-tt-brand .pt-ai-badge, .st-tabs-tools .st-tt-fs { display: none !important; }
+}
+/* ---- 15. THE LIVE ALERTS BOX (P9c): one row on a computer (text left, buttons right); the two small links sit left, not centred */
+.st-live-top .st-live-hook { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 2px 18px; }
+.st-live-top .st-live-hook > :is(.st-live-h, .st-live-last) { flex: 1 1 100%; min-width: 0; }
+.st-live-top .st-live-status { text-align: left; }
+@media (min-width: 900px) {
+  .st-live.st-live-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px 28px; padding: 12px 16px; }
+  .st-live-top .st-follow { flex-wrap: nowrap; }
+  .st-live-top .st-live-btn { min-width: 0; padding: 7px 14px; }
+  .st-live-top .st-follow-x { min-width: 48px; }
+}
+/* ---- 16. PHONES, the first screen ------------------------------------------------------------------------------------------- */
+@media (max-width: 700px) {
+  /* the price ticker sits flush under the notice, with air before the logo (it used to touch the logo); slimmer side margins and card
+     padding give every line of text about 5 percent more room, which pays for the larger text */
+  #dash-root { padding-top: 0; padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px)); }
+  .pt-mtick { margin: 0 -12px 14px; }
+  :root { --cds-pad-lg: 14px; --cds-gap-xl: 22px; }
+  .st-title { font-size: clamp(16px, 5.2vw, 22px) !important; }
+  .st-title .st-s1-badge { padding: 2px 7px; letter-spacing: .05em; }
+  /* "Pick an AI": the three faces become three full-width buttons with readable names (they were 46 px wide with 8.5 px labels) */
+  .st-hook-row { flex-wrap: wrap; row-gap: 10px; }
+  .st-hook-row > .st-hook-q { flex: 1 1 100%; }
+  .st-hook-row > .st-bots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; }
+  .st-bots .st-bot { min-width: 0; padding: 8px 4px 7px; gap: 4px; border: 1px solid var(--color-border-line); border-radius: 12px; background: var(--color-panel); }
+  .st-bots .st-bot.is-on { border-color: #ffb000; box-shadow: inset 0 0 0 1px #ffb000; }
+  .st-bots .ai-robot { --rs: 36px; }
+  .st-bots .st-bot-n { font-size: 13px; }
+  .st-bots .st-bot-t { font-size: 12px; white-space: normal; text-align: center; }
+  /* the alert buttons: Telegram and Discord on top, the other three share the second row; room for the "Day 1" tag above Telegram */
+  .st-live-top .st-follow { grid-template-columns: repeat(6, minmax(0, 1fr)); margin-top: 14px; }
+  .st-live-top .st-follow > :is(.st-tg-first, .st-follow-dc) { grid-column: span 3; }
+  .st-live-top .st-follow > :is(.st-follow-ig, .st-follow-x, .st-follow-yt) { grid-column: span 2; min-height: 40px; min-width: 0; justify-content: center; }
+  .cl-by { white-space: normal; border-radius: 10px; max-width: 100%; }   /* a long "who decided" label wraps instead of pushing the page sideways */
+  /* the leader pills: each place on its own line, so no line starts with a stray dot */
+  .st-crown-line .st-crown-chip { border-radius: 12px; padding: 7px 12px 7px 10px; row-gap: 3px; width: 100%; }
+  .st-crown-line .st-crown-chip:not(.st-allin-chip) { display: grid; grid-template-columns: auto auto auto minmax(0, 1fr) auto; column-gap: 6px; align-items: center; text-align: left; }
+  .st-crown-line .st-crown-chip:not(.st-allin-chip) > .ai-badge { margin-right: 0; }
+  .st-crown-line .st-crown-chip:not(.st-allin-chip) > .cr-p { justify-self: end; }
+  .st-crown-line .st-crown-chip:not(.st-allin-chip) > .cr-s { grid-column: 5; grid-row: 2; justify-self: end; }
+  .st-crown-line .st-crown-chip:not(.st-allin-chip) > .cr-g { grid-column: 1 / -1; }
+  .st-crown-line .st-crown-chip:not(.st-allin-chip) > .cr-s + .cr-g { grid-column: 1 / 5; grid-row: 2; }
+}
+/* ---- 17. (P10 was dropped: the site already has a round ☰ button on phones that comes back at the bottom right when you scroll
+   up; Claude's first check missed it because it only shows while scrolling up. Nothing was added.) ------------------------------- */
+/* ---- 17b. GUIDE: "Show me" is a normal button, not a bar across the whole card; the "#" link to a section sits in the card's corner */
+.gd-sec { position: relative; }
+.gd-sec > .gd-show { align-self: flex-start; padding: 7px 16px; }
+.gd-sec > .gd-link { position: absolute; top: 10px; right: 12px; margin: 0; padding: 4px 8px; }
+/* ---- 18. EMPTY CARDS (P13, Gemini's version): the card stays, with one quiet line instead of a bare title ---------------------- */
+.pt-empty-note { margin: 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+/* ---- 19. FOOTER (P14): links to the main pages, then the small print left-aligned in a readable column ------------------------- */
+.pt-foot-nav { display: flex; flex-wrap: wrap; gap: 2px 4px; margin: 0 0 4px -12px; padding: 14px 0 0; }
+.pt-foot-nav::before { content: ""; flex: 0 0 calc(100% - 12px); margin: -14px 0 12px 12px; border-top: 1px solid var(--color-border-line); }
+.pt-foot-nav button { font: inherit; font-size: 13.5px; color: var(--color-fg); background: none; border: 0; border-radius: 999px; padding: 7px 12px; cursor: pointer; }
+.pt-foot-nav button:hover { background: color-mix(in srgb, var(--color-fg) 8%, transparent); }
+.st-foot { text-align: left; max-width: 92ch; line-height: 1.6; padding-top: 0; }
+.st-copy { max-width: 92ch; margin-inline: 0; padding-inline: 0; text-align: left; line-height: 1.6; }
+@media (max-width: 700px) { .st-copy { margin-bottom: 84px; } }   /* the last lines scroll clear of the Top and ☰ buttons */
+/* ---- 20. THE WELCOME CARD on computers and tablets: the answer to its own question sits on the right ---------------------------
+   (Gemini's idea 3, in the smallest form: the three overall totals the site already shows in the leader pill, no new numbers.) */
+.pt-hero-pod { display: none; }
+@media (min-width: 900px) {
+  .pt-welcome.pt-hero.has-pod { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 380px); column-gap: 32px; align-items: start; padding: 16px 48px 16px 18px; }
+  .pt-welcome.pt-hero.has-pod > * { grid-column: 1; }
+  .pt-welcome.pt-hero.has-pod > .pt-hero-pod { display: block; grid-column: 2; grid-row: 1 / span 8; align-self: center; }
+  .pt-hero-pod { border: 1px solid var(--color-border-line); border-radius: 12px; background: var(--color-bg); padding: 10px 12px; }
+  .pt-hero-pod-h { margin: 0 0 6px; font: 600 12px var(--font-serif); letter-spacing: .06em; text-transform: uppercase; color: var(--color-fg-muted); }
+  .pt-hero-pod-r { display: grid; grid-template-columns: 44px 30px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 7px 4px; border-top: 1px solid var(--color-border-line); font-size: 15px; }
+  .pt-hero-pod-r:first-of-type { border-top: 0; }
+  .pt-hero-pod-k { font-size: 13px; color: var(--color-fg-muted); white-space: nowrap; }
+  .pt-hero-pod-r.is-1 .pt-hero-pod-k { color: var(--accent, #ffb000); font-weight: 600; }
+  .pt-hero-pod-n { font-weight: 600; }
+  .pt-hero-pod-p { font-family: var(--font-serif); font-size: 15px; white-space: nowrap; }
+  .pt-hero-pod-p.up { color: var(--color-ok); } .pt-hero-pod-p.down { color: var(--color-bad); }
+  .pt-hero-pod .ai-robot { --rs: 28px; margin: 0; animation: none; }
+  .pt-hero-pod-f { margin: 6px 0 0; font-size: 12px; color: var(--color-fg-muted); }
+  .pt-hero-h { font-size: 24px; }
+}
+/* ---- 21. Small things -------------------------------------------------------------------------------------------------------------- */
+.st-s2 { text-wrap: pretty; }

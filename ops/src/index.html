@@ -2748,7 +2748,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     <section class="st-card gd-sec" id="guide-yours" aria-labelledby="h-gd-yours">
       <h2 class="st-h2" id="h-gd-yours">Make it yours</h2>
       <div class="gd-mock" aria-hidden="true"><span class="gd-sel">English ▾</span><span class="gd-sel">💱 C$ ▾</span><span class="gd-sel">High contrast ▾</span><span class="gd-pill">🔊 Sound</span></div>
-      <p>At the top of the page: <b>language</b> (16, machine-translated; English is the record), <b>currency</b> (amounts converted at the latest rate), <b>theme</b> and <b>high contrast</b>, <b>sound</b> for trade alerts, and <b>full screen</b>. Your choices stay on your device.</p>
+      <p>At the top of the page: <b>language</b> (16, machine-translated; English is the record), <b>currency</b> (amounts converted at the latest rate), <b>theme</b> and <b>high contrast</b>, <b>sound</b> for trade alerts, and <b>full screen</b>. Your choices stay on your device. On a phone they are in the <b>☰ Menu</b>; a round ☰ button comes back at the bottom right whenever you scroll up.</p>
       <button type="button" class="gd-show" data-gd-tab="overview" data-gd-sel="#cur-pick">Show me →</button> <a class="gd-link" href="#guide-yours" title="Link to this section">#</a>
     </section>
     <section class="st-card gd-sec" id="guide-follow" aria-labelledby="h-gd-follow">
@@ -3314,7 +3314,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     { const t = document.querySelector('.st-tab[aria-selected="true"]'); const bar = document.querySelector('.st-tabs'); if (t && bar && bar.scrollWidth > bar.clientWidth) bar.scrollTo({ left: t.offsetLeft - bar.clientWidth / 2 + t.offsetWidth / 2, behavior: 'smooth' }); }
     if (jump === false) return;
     if (!(window.matchMedia && window.matchMedia('(min-width: 701px)').matches)) {   // phones: open the new tab at its start, like the ☰ Menu does (owner, Nov 18; Claude and Gemini agreed)
-      requestAnimationFrame(() => { const pg = document.querySelector('.st-page:not([hidden])'); if (pg) window.scrollTo({ top: Math.max(0, pg.getBoundingClientRect().top + window.scrollY - 8), behavior: 'auto' }); });
+      requestAnimationFrame(() => { const pg = document.querySelector('.st-page:not([hidden])'); if (pg) window.scrollTo({ top: Math.max(0, pg.getBoundingClientRect().top + window.scrollY - 44), behavior: 'auto' }); });   // 44: clear of the sticky price ticker (polish, Nov 18)
       return;
     }
     // the tabs sit at the top now, so bring the chosen tab's content into view just under the sticky tab bar
@@ -3780,7 +3780,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       const addBtn = (t, box) => {
         const b = document.createElement('button'); b.type = 'button'; b.textContent = t.textContent.trim();
         if (t.getAttribute('aria-selected') === 'true') b.setAttribute('aria-current', 'true');
-        b.addEventListener('click', () => { toggle(false); goTab(t.dataset.tab, false); requestAnimationFrame(() => { const pg = document.querySelector('.st-page:not([hidden])'); if (pg) window.scrollTo({ top: pg.getBoundingClientRect().top + window.scrollY - 8, behavior: 'smooth' }); }); });
+        b.addEventListener('click', () => { toggle(false); goTab(t.dataset.tab, false); requestAnimationFrame(() => { const pg = document.querySelector('.st-page:not([hidden])'); if (pg) window.scrollTo({ top: pg.getBoundingClientRect().top + window.scrollY - 44, behavior: 'smooth' }); }); });
         box.appendChild(b);
       };
       const top = document.createElement('div'); top.className = 'm-menu-group';
@@ -8373,7 +8373,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const sitOut = (e) => e === 'Predictions' && !(((ES[e] || []).find((r) => r.id === id) || {}).last);
     const wrap = mk('div', 'h2h-holds');
     // each holding name opens its whole story, from the first buy (owner, Nov 1)
-    const names = (e, h, into) => h.forEach((x, i) => { if (i) into.append(' · '); const nm = x.replace(/ \(\d+ bets\)$/, ''); into.appendChild(window.ptStory ? window.ptStory.holdingLink(id, e, nm, x) : document.createTextNode(x)); });
+    const names = (e, h, into) => h.forEach((x, i) => { if (i) into.append(mk('span', 'h2h-sep', ' · ')); const nm = x.replace(/ \(\d+ bets\)$/, ''); into.appendChild(window.ptStory ? window.ptStory.holdingLink(id, e, nm, x) : document.createTextNode(x)); });
     if (exp) { const h = list(exp); const sp = mk('span', 'h2h-sub', h.length ? 'Holding: ' : sitOut(exp) ? 'Holding: all cash, ' + SIT : 'Holding: all cash'); names(exp, h, sp); wrap.appendChild(sp); return wrap; }
     wrap.appendChild(mk('b', '', 'Holding now'));
     const ul = mk('ul');
