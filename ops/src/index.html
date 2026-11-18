@@ -1181,6 +1181,8 @@
   @media (min-width: 701px) { html[data-tab]:not([data-tab="overview"]) header.st-head .st-title { display: none !important; } }   /* the sticky top bar already shows the name and the AI */
   @media (max-width: 480px) { .pt-aisw { flex-wrap: nowrap; gap: 5px; } .pt-aisw > span { display: none; } .pt-aisw button { flex: 1 1 0; min-width: 0; justify-content: center; font-size: 13px; padding: 3px 6px 3px 4px; gap: 5px; min-height: 34px; white-space: nowrap; } }   /* one row on a phone; the pressed button shows which AI you are viewing */
   .pt-race-extra { display: flex; flex-direction: column; gap: 14px; margin: 0 0 18px; }
+  .gx-aisw { gap: 5px; } .gx-aisw button { font-size: 13px; min-height: 30px; padding: 2px 10px 2px 4px; }
+  @media (max-width: 700px) { .gx-aisw { width: 100%; } }
   .pt-race-extra > .st-score, .pt-race-extra > .st-take, .pt-race-extra > .st-callout { margin: 0; }
   .pt-race-extra .st-score-list { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
@@ -5726,6 +5728,17 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       const who = mk('p', 'gx-who'); who.appendChild(mk('span', 'gx-who-l', 'Currently viewing'));
       { const g = mk('span', 'gx-who-m'); const b2 = mk('b', '', aiModelCo(dash.model)); b2.setAttribute('translate', 'no'); g.append(aiBadge(dash.model, 18), b2); who.appendChild(g); }
       who.appendChild(mk('span', 'gx-who-s', '· ' + (AL ? ALLIN[p] + ' (side race)' : LABEL[p] || p)));
+      { // switch AI right on the chart, like the switch at the top of a race page (owner, Nov 18: "Value over time should have a button to switch models too")
+        let RL = null; try { RL = raceLeader(p); } catch (e) {}
+        const sw = mk('span', 'pt-aisw gx-aisw'); sw.setAttribute('role', 'group'); sw.setAttribute('aria-label', 'Switch AI (changes the whole site)');
+        ['claude', 'gemini', 'chatgpt'].forEach((x) => {
+          const bt = mk('button'); bt.type = 'button'; bt.style.setProperty('--mc', AIS[x].color); bt.setAttribute('aria-pressed', String(x === dash.model));
+          bt.title = (x === dash.model ? 'Showing ' : 'Show ') + AIS[x].label + '’s own copy of ' + (AL ? ALLIN[p] : LABEL[p] || p) + (x === RL ? ' (👑 1st in this race)' : '');
+          bt.append(aiBadge(x, 18), AIS[x].label + (x === RL ? ' 👑' : ''));
+          bt.addEventListener('click', () => setModel(x)); sw.appendChild(bt);
+        });
+        who.appendChild(sw);
+      }
       if (el.id === 'perf-overview') {   // who is first in this race, at a glance; one tap switches to them (owner, Oct 29)
         const L = raceLeader(p);
         if (window.ptFollowLeader && L && L !== dash.model) setTimeout(() => setModel(L, true), 0);   // "Race leader" picked in the Model menu: every race you pick opens as its winner
@@ -7026,12 +7039,14 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         if (pg) goTab(pg.dataset.page, false); setTimeout(() => { if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150); }); note.appendChild(a); }
     const sw = mk('div', 'pt-aisw'); sw.setAttribute('role', 'group'); sw.setAttribute('aria-label', 'Switch AI');
     top.append(note, sw);
-    const paintSw = () => {
-      const cur = dash.model || 'claude', L = leader(), k = cur + '|' + L; if (sw.dataset.k === k) return; sw.dataset.k = k;
+    const KEY = { stocks: 'Stocks', crypto: 'Crypto', china: 'China', metals: 'Metals', energy: 'Energy', options: 'Options', currencies: 'Currencies', safe: 'Safe', sports: 'Sports', predictions: 'Predictions' };
+    const paintSw = () => {   // on a race page the crown marks who is 1st in THIS race, like the switch on its Value over time chart (the slim line says who leads overall)
+      let L = null; try { L = raceLeader(KEY[tabNow()]); } catch (e) {}
+      const cur = dash.model || 'claude', k = cur + '|' + L + '|' + tabNow(); if (sw.dataset.k === k) return; sw.dataset.k = k;
       sw.replaceChildren(mk('span', '', 'Viewing:'));
       ['claude', 'gemini', 'chatgpt'].forEach((x) => {
         const b = mk('button'); b.type = 'button'; b.style.setProperty('--mc', COL[x]); b.setAttribute('aria-pressed', String(x === cur));
-        b.title = (x === cur ? 'Showing ' : 'Show ') + NAME[x] + '’s own portfolio in this race' + (x === L ? ' (👑 leads overall)' : '');
+        b.title = (x === cur ? 'Showing ' : 'Show ') + NAME[x] + '’s own portfolio in this race' + (x === L ? ' (👑 1st in this race)' : '');
         b.append(aiBadge(x, 20), NAME[x] + (x === L ? ' 👑' : ''));
         b.addEventListener('click', () => { const sel = document.getElementById('model-pick'); if (sel && sel.value !== x) { sel.value = x; sel.dispatchEvent(new Event('change', { bubbles: true })); } setTimeout(paintSw, 60); });
         sw.appendChild(b);
