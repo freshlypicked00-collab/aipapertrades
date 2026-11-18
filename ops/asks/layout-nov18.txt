@@ -1,0 +1,42 @@
+LAYOUT QUESTION from the owner of PaperTrades.AI. NOT a trading turn. You are asked as a design partner; Claude wrote its own votes first (attached file).
+
+Owner, Nov 18: "I don't like how when you are under different things like China stocks you still see 'Pick an AI to see its view / Claude Gemini Chat GPT', 'You don't trade here: you watch three AIs trade...', 'Claude vs Gemini vs ChatGPT, live...', 'Fully autonomous...', and 'Claude Opus 5.5, Gemini 3.1 Pro Preview and ChatGPT trade head to head... This page is managed and updated automatically by AI'. This should only be in the overview. What can we do to remove things that aren't necessary in certain places, in order to create a better flowing page? Work with Gemini."
+
+THE PROBLEM, MEASURED (Nov 18):
+The site is one page with tabs (Overview, Ledger, AI vs AI, News, Data, How it works, Rules & Audit, Guide, ten race tabs, Claude/Gemini/ChatGPT pages, High risk, About, Support). One big shared header sits ABOVE every tab, so every tab repeats it.
+- Phone (390 px wide): after tapping "China stocks" in the menu, the China content starts 7,727 px down, about 9 phone screens. The picture attached shows the first 10 screens in order (left to right, top row then bottom row): the China stocks card only appears on screen 10.
+- Computer: the site jumps past the header to the page content, but the header is still 3,024 px tall above it.
+What the shared header holds, with its height on a phone:
+ H1 Race standings box (overall leaderboard, biggest losses, moments): 1,831 px
+ H2 "Which AI makes the most (pretend) money?" + the three AI faces (switch AI): 110 px
+ H3 "You don't trade here... Pretend money only... We never take deposits... Official accounts": 127 px
+ H4 Tagline "Claude vs Gemini vs ChatGPT, live: 100,000 of pretend money each in ten separate races...": 84 px
+ H5 "Fully autonomous / No human picks / Automatic check-ins / Ledger verified / See exactly what each AI is sent": 142 px
+ H6 Long intro paragraph ("Claude Opus 5.5, Gemini 3.1 Pro Preview and ChatGPT trade head to head... managed and updated automatically by AI"): 363 px
+ H7 Season 2 note: 105 px
+ H8 Best risk manager award: 1,107 px
+ H9 Simulation disclaimer box ("This is a simulation, not investment advice...") + Model box: 747 px
+ H10 "Each experiment is scored on its own against its own starting money..." line: 109 px
+ Race-specific parts already in the header (they follow the open race): that AI's current take on this race (127 px), today's grades for this race (215 px), this race's scoreboard (three AIs ranked in this race, 628 px)
+ Top of the page: the "leads overall" box, the High risk box, day countdown, New York clock, last updated, status warnings: about 530 px; the live alerts box (Telegram, Discord, Instagram, X, YouTube buttons + latest move): about 250 px.
+
+CLAUDE'S PROPOSAL (Overview itself stays exactly as it is today; nothing is deleted from the site):
+P1 Overview only: H1 Race standings box.
+P2 Overview only: H2 the big question and AI faces; on race pages it is replaced by P11.
+P3 Overview only: H3, H4, H5, H6 (the intro, tagline, autonomous badges, long paragraph).
+P4 Overview only: H7 Season 2 note and H8 Best risk manager award.
+P5 Overview only: H9 disclaimer box and Model box. Every other tab instead ends with ONE short line at the bottom: "Pretend money, real prices. Not advice. We never take deposits or ask for money. Official accounts" (so the safety message is still on every page, just not on top).
+P6 H10 scoring line: Overview and How it works only.
+P7 Race pages keep the three race-specific parts (that AI's take on this race, today's grades for this race, this race's scoreboard), but MOVED BELOW the race's own main card (value, profit, holdings), so the race's own numbers come first.
+P8 Non-race tabs (Ledger, AI vs AI, News, Data, How it works, Rules & Audit, Guide, the AI pages, High risk, About, Support) show none of H1 to H10 and none of the race-specific parts: just the slim top and the page itself.
+P9 Top of the page on every tab except Overview: the "leads overall" box, High risk box, countdown, clock and last updated shrink to ONE line, e.g. "Gemini leads overall · Day 22 of 32 · updated 52m ago"; a warning like "ChatGPT check-ins: not working" always stays visible.
+P10 The live alerts box (Telegram, Discord... buttons): Overview only; other tabs keep the small "Get notified" button that is already in the top bar.
+P11 Race pages only: one slim row at the top, "Viewing: Claude | Gemini 👑 | ChatGPT", to switch AI with one tap (the Model picker in the top bar is not visible on phones).
+P12 Phone: after picking a tab in the menu, scroll to the start of that tab's content (today it stays at the very top).
+Expected result: on a phone the China stocks card starts on the first or second screen instead of the tenth.
+
+WHAT WE NEED FROM YOU:
+1. For EACH of P1 to P12: AGREE, CHANGE (say exactly what), or DISAGREE (say why). Be concrete and critical: think of a first-time visitor who lands directly on a race page from a shared link, and of the owner's goal of a better flowing page.
+2. Anything we missed: other parts of the site that repeat or are not needed in certain places. Keep each suggestion specific (which part, which tabs).
+3. The order of blocks on a race page, top to bottom, as you would build it.
+4. Finish with one line: SATISFIED (the plan with your changes is ready to build) or NOT SATISFIED (and what must change).
