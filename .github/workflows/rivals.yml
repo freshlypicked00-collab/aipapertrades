@@ -224,21 +224,42 @@ jobs:
         if: ${{ always() && inputs.mode != 'prices' && inputs.mode != 'ask' }}
         env:
           GH_TOKEN: ${{ github.token }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
           : > /tmp/alert.txt
           python3 - >> /tmp/alert.txt <<'PY' || true
-          import json
+          import json, os, sys
           from datetime import datetime, timezone, timedelta
           now = datetime.now(timezone.utc)
           s = json.load(open('ops/src/rivals.json'))
           for mid, m in s.get('models', {}).items():
-              if m.get('fail_streak', 0) >= 3:
-                  print(f"- {m.get('label', mid)}: the last {m['fail_streak']} check-ins failed. Last error: {(m.get('last_run') or {}).get('status', '')}")
-              else:   # out of API credit: alert on the FIRST failed check-in, not after three (Gemini ran dry on Nov 1, owner)
-                  lr = m.get('last_run') or {}; txt = ' '.join(map(str, lr.get('notes') or [])) + ' ' + str(lr.get('status', ''))
-                  if str(lr.get('status', '')).startswith('error') and any(w in txt.lower() for w in ('402', 'credit', 'quota', 'insufficient', 'billing', 'resource_exhausted')):
-                      print(f"- {m.get('label', mid)} is OUT OF API CREDIT: its {lr.get('at', '')[:16]} UTC check-in failed. Top up now ({'Google AI Studio: https://ai.studio/projects' if mid == 'gemini' else 'OpenRouter: https://openrouter.ai/settings/credits'}). Every hour without credit is a missed check-in.")
+              lr = m.get('last_run') or {}; txt = ' '.join(map(str, lr.get('notes') or [])) + ' ' + str(lr.get('status', ''))
+              if str(lr.get('status', '')).startswith('error') and any(w in txt.lower() for w in ('402', 'credit', 'quota', 'insufficient', 'billing', 'resource_exhausted')):
+                  # out of API credit: alert on the FIRST failed check-in, not after three (Gemini ran dry on Nov 1, owner), and keep saying so
+                  print(f"- {m.get('label', mid)} is OUT OF API CREDIT: {max(1, m.get('fail_streak', 0))} check-in(s) in a row failed, the latest at {lr.get('at', '')[:16]} UTC. Top up now ({'Google AI Studio: https://ai.studio/projects' if mid == 'gemini' else 'OpenRouter: https://openrouter.ai/settings/credits'}). Every hour without credit is a missed check-in, and a day without one costs its betting minimums.")
+              elif m.get('fail_streak', 0) >= 3:
+                  print(f"- {m.get('label', mid)}: the last {m['fail_streak']} check-ins failed. Last error: {lr.get('status', '')}")
           end = datetime(2026, 11, 28, 21, 0, tzinfo=timezone.utc)
+          # Nov 18: warn BEFORE ChatGPT runs dry (it ran out of OpenRouter credit on Nov 3, Nov 12 and Nov 16). Reading the balance is free.
+          try:
+              import urllib.request
+              if os.environ.get('OPENROUTER_API_KEY') and now < end:
+                  def orq(p):
+                      rq = urllib.request.Request('https://openrouter.ai/api/v1/' + p, headers={'Authorization': 'Bearer ' + os.environ['OPENROUTER_API_KEY']})
+                      return json.load(urllib.request.urlopen(rq, timeout=20)).get('data') or {}
+                  c, kd = orq('credits'), orq('key')
+                  left = float(c.get('total_credits') or 0) - float(c.get('total_usage') or 0)
+                  wk0 = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+                  mo0 = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+                  days_wk, days_mo = (now - wk0).total_seconds() / 86400, (now - mo0).total_seconds() / 86400
+                  pace = float(kd.get('usage_weekly') or 0) / days_wk if days_wk >= 1 else float(kd.get('usage_monthly') or 0) / max(1.0, days_mo)
+                  if left < 15:
+                      print(f"- ChatGPT: OpenRouter credit is down to US${left:.2f}" + (f", about {left / pace:.1f} days at the recent pace of US${pace:.2f} a day" if pace > 0.5 else '') + ". Top up before it runs out: https://openrouter.ai/settings/credits")
+                  lim = kd.get('limit_remaining')
+                  if lim is not None and float(lim) < 15:
+                      print(f"- ChatGPT: the OpenRouter key's monthly cap is almost used: US${float(lim):.2f} left of US${float(kd.get('limit') or 0):.0f} until it resets on the 1st. Raise the key's limit on openrouter.ai (the Keys page).")
+          except Exception as e:
+              print(f'(could not read the OpenRouter balance: {str(e)[:160]})', file=sys.stderr)
           try:
               h = json.load(open('ops/src/history.json'))
               last = max(datetime.fromisoformat(x['at'].replace('Z', '+00:00')) for x in h)
@@ -282,10 +303,7 @@ jobs:
           PY
           fails=$(gh run list -R "$GITHUB_REPOSITORY" -w rivals.yml -L 6 --json status,conclusion --jq '[.[] | select(.status == "completed")][:3] | map(select(.conclusion == "failure")) | length' 2>/dev/null || echo 0)
           [ "$fails" = 3 ] && echo "- The Gemini and ChatGPT workflow failed its last 3 runs: https://github.com/$GITHUB_REPOSITORY/actions/workflows/rivals.yml" >> /tmp/alert.txt
-          [ -s /tmp/alert.txt ] || exit 0
           cat /tmp/alert.txt
-          open=$(gh issue list -R "$GITHUB_REPOSITORY" --state open --label health --json number --jq 'length' 2>/dev/null || echo 0)
-          [ "$open" = "0" ] || { echo "a health issue is already open"; exit 0; }
-          gh label create health -R "$GITHUB_REPOSITORY" --color B60205 --description "Automatic health alerts" >/dev/null 2>&1 || true
-          printf '%s\n\n%s\n' "$(cat /tmp/alert.txt)" "Most likely causes: API credit ran out (OpenRouter for ChatGPT, Google billing for Gemini), a key expired, or Claude's scheduled tasks are paused. Fix it and the next run recovers on its own; close this issue when it is fixed." > /tmp/body.txt
-          gh issue create -R "$GITHUB_REPOSITORY" --label health --title "Paper Trades needs attention" --body-file /tmp/body.txt || true
+          # Nov 18: an open alert issue no longer silences new alerts (the Oct 30 one blocked every alert after it):
+          # open an issue, comment on a new problem or every 12 hours while one lasts, close after 2 quiet hours (ops/health_issue.py)
+          python3 ops/health_issue.py /tmp/alert.txt || true

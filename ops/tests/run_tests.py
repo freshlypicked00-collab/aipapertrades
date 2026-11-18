@@ -253,5 +253,16 @@ def test_report_cards_are_graded_once_per_closed_day():
     rs = PG._reports('gemini', st, _d(2026, 10, 31, 20, 0, tzinfo=_tz.utc))
     assert len(rs) == 1 and rs[0]['day'] == '2026-10-29' and 'final' in rs[0]['reason'] and '+1,000 that day' in rs[0]['result'], rs
 
+
+def test_health_alert_is_not_silenced_by_an_open_issue():
+    """Nov 18: an open alert issue (Oct 30, Instagram) silenced every later alert, so ChatGPT ran out of credit three times with no email.
+    The same problem must keep one key from run to run (only its numbers change), and a new problem must get a new key."""
+    import health_issue as H
+    a = '- ChatGPT is OUT OF API CREDIT: 43 check-in(s) in a row failed, the latest at 2026-11-18T05:15 UTC. Top up now'
+    b = '- ChatGPT is OUT OF API CREDIT: 44 check-in(s) in a row failed, the latest at 2026-11-18T06:15 UTC. Top up now'
+    c = '- ChatGPT: OpenRouter credit is down to US$12.40, about 1.4 days at the recent pace of US$8.90 a day.'
+    assert H.key(a) == H.key(b) and H.key(a) != H.key(c), (H.key(a), H.key(b), H.key(c))
+    assert H.MARK.search(H.marker({H.key(a)})) and 'already open' not in open('.github/workflows/rivals.yml').read()
+
 if __name__ == '__main__':
     main()
