@@ -8087,7 +8087,8 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       box.appendChild(mk('p', 'st-note', sub + ' Each AI started with C$100,000; the biggest balance at the end wins this part.'));
       { const mv = TS.filter((t) => t.experiment === exp).sort((a, b) => new Date(b.at) - new Date(a.at))[0];
         const lastAt = d3.max(ser, (x) => +x.pts[x.pts.length - 1].t); const meta = mk('p', 'st-meta');
-        if (mv) { const l = mk('span'); l.append('Last move: ', mk('b', '', stFmt.whenET(mv.at) + ' ET'), ' · ' + (AIS[mv.model] || { label: mv.model }).label + ': ' + mv.action + ' ' + alWhat(mv)); meta.appendChild(l); }
+        if (mv) { const nm = alWhat(mv), act = String(mv.action || ''); const say = act && !nm.toLowerCase().includes(act.toLowerCase().slice(0, 5)) ? act + ' ' + nm : nm;   // "Penalty refunded", not "Refund Penalty refunded"
+          const l = mk('span'); l.append('Last move: ', mk('b', '', stFmt.whenET(mv.at) + ' ET'), ' · ' + (AIS[mv.model] || { label: mv.model }).label + ': ' + say); meta.appendChild(l); }
         if (lastAt) { const l = mk('span'); l.append('Last updated: ', mk('b', '', stFmt.whenET(lastAt) + ' ET')); meta.appendChild(l); }
         if (meta.childNodes.length) box.appendChild(meta); }
       el.appendChild(box);
