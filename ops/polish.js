@@ -8,19 +8,7 @@
   var later = function (fn, ms) { return setTimeout(function () { try { fn(); } catch (e) {} }, ms); };
   var tab = function (name) { var t = $('.st-tab[data-tab="' + name + '"]'); if (t) t.click(); };
 
-  /* 1. A card that has nothing to show keeps its place with one quiet line (P13, Gemini's version), instead of a bare title. */
-  var emptyCards = function () {
-    $$('.st-page:not([hidden]) .st-card').forEach(function (card) {
-      var h = $('h2[id$="-events"], h2#h-events-all', card); if (!h) return;
-      var note = $('.pt-empty-note', card);
-      var shown = Array.prototype.some.call(card.children, function (c) { return c !== h && c !== note && c.offsetParent !== null && c.offsetHeight > 0; });
-      if (!shown && !note) { card.appendChild(mk('p', 'pt-empty-note', 'Nothing scheduled right now.')); }
-      else if (shown && note) note.remove();
-    });
-  };
-  try { later(emptyCards, 1500); later(emptyCards, 5000); window.addEventListener('pt-tab', function () { later(emptyCards, 400); }); setInterval(function () { try { emptyCards(); } catch (e) {} }, 30000); } catch (e) {}
-
-  /* 2. Footer: one row of links to the main pages above the small print (P14). They press the same tabs the menu does. */
+  /* 1. Footer: one row of links to the main pages above the small print (P14). They press the same tabs the menu does. */
   try {
     var foot = $('footer.st-foot');
     if (foot && !$('.pt-foot-nav')) {
@@ -38,7 +26,7 @@
     }
   } catch (e) {}
 
-  /* 3. The welcome card (first visit, computers and tablets): the three overall totals on the right, read from the leader pill the
+  /* 2. The welcome card (first visit, computers and tablets): the three overall totals on the right, read from the leader pill the
         site already fills, so the numbers can never differ from it (Gemini's idea 3 in its smallest form). */
   try {
     var COLORS = { Claude: '#d97757', Gemini: '#4f8ff7', ChatGPT: 'var(--ai-chatgpt, #f2f2f2)' };

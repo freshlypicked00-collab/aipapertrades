@@ -9,7 +9,7 @@ Nothing about the race changed: no rule, no number, no word an AI wrote. Checked
 
 ## Where it lives, and how to reverse it
 
-- ops/polish.css (looks) and ops/polish.js (three small behaviours). ops/build_site.py adds both LAST to the page, so they only refine what is already there.
+- ops/polish.css (looks) and ops/polish.js (two small behaviours: the footer links and the totals box in the welcome card). ops/build_site.py adds both LAST to the page, so they only refine what is already there.
 - Every numbered block in polish.css stands alone. To reverse one change, delete its block and rebuild. To reverse the whole pass, empty both files and rebuild (the hook in build_site.py copes with empty or missing files).
 - Outside those two files the pass touched only: three lines in ops/src/index.html (the dot between two holdings in "Holding now" got a wrapper; two phone scroll offsets changed from 8 to 44), one sentence in the Guide (site and guide.html), and the colours of guide.html.
 - The site before the pass is commit 5bb14931.
@@ -31,12 +31,12 @@ Nothing about the race changed: no rule, no number, no word an AI wrote. Checked
 Reading
 - P1 No text under 12 px anywhere (about 100 style rules; the one exception is the tiny "1st" corner mark on the 26 px Telegram icon).
 - P3 Computers, on the reading tabs only (News, About, How it works, Guide, Rules & Audit, Support, Data): text stops at 700 px, about 120 characters a line (860 px on News); it ran to 205 characters. A long list (six items or more) flows in two columns. Race pages, tables and charts keep the full width.
-- P4 (Gemini's change: IBM Plex Sans for words, IBM Plex Mono for data) Tables: words in the normal font; numbers, prices, odds, times and transaction IDs stay monospace. Reasons no longer wrap to 11 lines in a narrow column.
+- P4 (Gemini's change: IBM Plex Sans for words, IBM Plex Mono for data) Tables: words and dates in the normal font; amounts, prices, odds and transaction IDs stay monospace. Reasons no longer wrap to 11 lines in a narrow column. (Times were monospace at first; a monospace time in the middle of a sentence looked like a typo, so a time now reads like the words around it.)
 - G10 The "?" help dots are larger and in the accent colour.
 
 Touch and controls
 - P5 Phones: buttons and menus at least 40 px tall; small chips, links and close buttons keep their look and get an invisible 38 px touch area.
-- P6 One look for every menu and button (the three grey ones fixed); one focus ring for keyboard users; the same 150 ms hover and pressed feedback (P15), off for people who turned animations off.
+- P6 The three controls with the browser's grey look are styled like the rest (menus keep the shape the site gave them: pills in the settings row, boxes elsewhere); one focus ring for keyboard users; the same 150 ms hover and pressed feedback (P15), off for people who turned animations off.
 - P7 Contrast: Telegram, Discord, the LIVE and DEVELOPING badges, the "Worst" and "Best" grade tags and the audit download button are darker under their white text (all 4.5 to 1 or better now).
 - G2 (Claude's version) Instagram, YouTube and X are outlined buttons in their own colours; Telegram and Discord, the two alert channels, stay solid. Gemini wanted all five outlined.
 - G6 Data tags are 4 px boxes and status badges are pills.
@@ -48,11 +48,12 @@ Layout
 - Phones, Overview: the three AI faces are three buttons across the screen, face and name side by side, with readable names; the leader pill has each place on its own line with the amount on the right; Telegram and Discord on the first row of alert buttons and the other three on the second; the price ticker no longer touches the logo; slimmer side margins (12 px, were 16) and card padding (14 px, were 18).
 - P11 AI vs AI "Holding now": left-aligned; the dot between two holdings stays with the name before it (the written " · " is still in the page for copying, translating and screen readers).
 - P12 Bet and move rows: the chips sit side by side and wrap.
-- P13 (Gemini's change: keep the card) An empty "Coming up" card says "Nothing scheduled right now."
+- P13 (Gemini's change: keep the card) An empty "Coming up" card shows the site's own line again: "Nothing scheduled for this race in the next few days." That line was agreed by all three AIs on Nov 1, but an older style rule (hide the card's intro note when the table is empty) hid it too, leaving a bare title. One CSS rule un-hides it; no new words. (Claude's first version added its own sentence with a script; replaced once the real cause was found.)
 - P14 Footer: one row of links to the main pages (they press the same tabs the menu does) and "Official accounts"; the small print is left-aligned, in two columns on a computer.
 - G8 The 1st-place card on the scoreboard has a soft gold glow.
 - Small laptops and tablets on their side: the AI badge beside the logo and the full-screen icon step aside between 701 and 1140 px, so no page can be dragged sideways (tested at twelve widths from 720 to 1366 px).
 - Big phones (421 to about 560 px wide, for example the 428 and 430 px iPhones): the AI badge beside the title ran off the screen, so every page could be dragged about 100 px sideways. It was like that before the polish; the badge now drops to a second line. Tested at 17 phone widths from 320 to 700 px and 20 widths up to 1920 px: no sideways scrolling.
+- About: a long "who decided" label in Site updates wraps instead of pushing the page sideways (the night's Outage days entry had made About scroll sideways on phones and on tablets around 700 to 750 px); on tablets the label sits under the text; the contact boxes fit a 320 px phone. All 26 tabs tested at 17 screen widths from 320 to 1920 px: no sideways scrolling.
 - Guide tab: "Show me" is a normal button instead of a bar across the card, and the "#" link to a section sits in the card's corner.
 - guide.html (the standalone Guide page) is dark like about.html and what-is-papertrades-ai.html; it was the only light page.
 
@@ -63,18 +64,19 @@ Feel
 
 ## Page lengths, before and after (same data, the site's real fonts, returning visitor)
 
-- Phone (390 px): all 25 tabs together 4.7 percent shorter. 23 tabs are shorter (0.3 to 10 percent). Data is 26 px longer and Support 95 px longer, both from the new footer links. The content of every tab starts 23 px higher. On the Overview the race standings start 117 px higher (111 px for a first-time visitor).
-- Computer (1440 px): all 25 tabs together 3.8 percent shorter. 18 tabs are shorter (How it works 21 percent, Currencies 15, Predictions 12, the High risk page 10, Overview 5). Seven are longer: Data 4 percent (85 px), News 3 (161 px), About 3, ChatGPT's page 2, Guide 2, AI vs AI 2, Claude's page 1. On the Overview the race standings start 84 px higher (69 px for a first-time visitor).
+- Phone (390 px): all 25 tabs together 5.0 percent shorter. 24 tabs are shorter (0.4 to 10 percent); Support is 87 px longer because of the new footer links. The content of every tab starts 31 px higher. On the Overview the race standings start 125 px higher (119 px for a first-time visitor).
+- Computer (1440 px): all 25 tabs together 3.9 percent shorter. 18 tabs are shorter (How it works 21 percent, Currencies 15, Predictions 12, the High risk page 10, Play it safe 8, Overview 4). Seven are longer: Data 4 percent (85 px), About 3 (133 px), News 3 (161 px), ChatGPT's page 2 (146 px), Guide 2 (77 px), AI vs AI 1 (97 px), Claude's page 1 (87 px). On the Overview the race standings start 84 px higher (69 px for a first-time visitor).
+- These are one night's numbers (Nov 18, about 5 a.m. ET); page lengths move with the data.
 
-A mistake in the first measurements, corrected before these numbers: Claude's first before-and-after comparison had the untouched copy falling back to a system font (its test set-up could not load the site's fonts), which made the old pages look longer than they are. The first version of this pass went live for about 40 minutes on those numbers, with phone text 4 percent larger and two lines in Site updates saying so. Measured properly, that version made the phone Overview 5 percent longer, so the text enlargement was taken back, table rows and the footer were tightened, and the six lines the first version had put in Site updates were rewritten as three accurate ones (six lines had pushed the day's Outage days rule out of the first view).
+A mistake in the first measurements, corrected before these numbers: Claude's first before-and-after comparison had the untouched copy falling back to a system font (its test set-up could not load the site's fonts), which made the old pages look longer than they are. The first version of this pass went live for about 40 minutes on those numbers, with phone text 4 percent larger and two lines in Site updates saying so. Measured properly, that version made the phone Overview 5 percent longer, so the text enlargement was taken back, table rows and the footer were tightened, and the six lines the first version had put in Site updates were rewritten as three accurate ones (six lines had pushed the day's Outage days rule out of the first view). One of the three said "23 of 25 tabs" are shorter on a phone; with the final version it is 24, and the line now says "almost every tab" because the count moves with the data.
 
 ## New words on the site (everything else is word for word the same)
 
 - Guide, "Make it yours": "On a phone they are in the ☰ Menu; a round ☰ button comes back at the bottom right whenever you scroll up." (the Guide said the settings are at the top of the page, which is not true on a phone).
-- "Nothing scheduled right now." in an empty Coming up card.
+- Shown again, not new: "Nothing scheduled for this race in the next few days." in an empty Coming up card.
 - The footer links: Overview, Ledger, AI vs AI, News, How it works, Rules & Audit, Guide, About, Support, Official accounts.
 - The welcome card's box: "Overall right now · pretend money", "1st / 2nd / 3rd", "Profit across the ten races. The High risk side race is scored on its own."
-- Three lines in Site updates (About).
+- Four lines in Site updates (About).
 
 ## Not built, and why
 
