@@ -42718,6 +42718,24 @@
    "bet": "G168",
    "wrong_if": "The Detroit Pistons score fewer points than the New Orleans Pelicans on the final scoreboard.",
    "p_works": 0.75
+  },
+  {
+   "at": "2026-11-18T05:19:58Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "action": "Bet",
+   "symbol": "C18",
+   "outcome": null,
+   "name": "NBA: Cleveland Cavaliers moneyline (Memphis Grizzlies @ Cleveland Cavaliers)",
+   "price": -205,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 3000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Wednesday All in: Sports minimum at the floor: Cleveland at home are favourites (-205) over Memphis; I keep the daily bet small rather than chase.",
+   "bet": "C18",
+   "wrong_if": "Memphis beats Cleveland on Nov 18."
   }
  ],
  "history": [
@@ -118140,6 +118158,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 109210.95
+  },
+  {
+   "at": "2026-11-18T05:19:58Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 92469.32
+  },
+  {
+   "at": "2026-11-18T05:19:58Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 103030.32
   }
  ],
  "takes": [
@@ -142874,7 +142904,8 @@
    "C14",
    "C15",
    "C16",
-   "C17"
+   "C17",
+   "C18"
   ]
  },
  "tuning_trades": [
@@ -144021,7 +144052,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 656.95,
-      "priced_at": "2026-11-18T05:15:05Z",
+      "priced_at": "2026-11-18T05:19:58Z",
       "hist": [
        [
         29886870,
@@ -146571,8 +146602,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 64526.33,
-      "priced_at": "2026-11-18T05:15:05Z",
+      "last": 64632.25,
+      "priced_at": "2026-11-18T05:19:58Z",
       "hist": [
        [
         29886870,
@@ -149651,6 +149682,25 @@
       "wrong_if": "",
       "closing_odds": -229,
       "closing_at": "2026-11-18T03:11:03Z"
+     },
+     {
+      "id": "C18",
+      "game": "401910007",
+      "sport": "basketball",
+      "league": "nba",
+      "short": "NBA",
+      "event": "Memphis Grizzlies @ Cleveland Cavaliers",
+      "pick": "home",
+      "pick_team": "Cleveland Cavaliers",
+      "odds": -205,
+      "stake": 3000.0,
+      "to_win": 1463.41,
+      "starts_at": "2026-11-19T00:00Z",
+      "placed_at": "2026-11-18T05:19:58Z",
+      "status": "Open",
+      "result": 0.0,
+      "reason": "Wednesday All in: Sports minimum at the floor: Cleveland at home are favourites (-205) over Memphis; I keep the daily bet small rather than chase.",
+      "wrong_if": "Memphis beats Cleveland on Nov 18."
      }
     ],
     "penalties": []
@@ -149679,7 +149729,8 @@
    "20261114051639-15",
    "20261115051556-16",
    "20261116051542-17",
-   "20261117081943-18"
+   "20261117081943-18",
+   "20261118051542-19"
   ],
   "results": [
    "20261028182237-0: filled Buy Invesco QQQ Trust C$40,000",
@@ -149700,7 +149751,8 @@
    "20261114051639-15: filled Bet NCAAF: Indiana Hoosiers moneyline (USC Trojans @ Indiana Hoosiers) C$3,000",
    "20261115051556-16: filled Bet NFL: Buffalo Bills moneyline (Buffalo Bills @ New York Jets) C$3,000",
    "20261116051542-17: filled Bet NBA: Denver Nuggets moneyline (Phoenix Suns @ Denver Nuggets) C$3,000",
-   "20261117081943-18: filled Bet NBA: LA Clippers moneyline (Utah Jazz @ LA Clippers) C$3,000"
+   "20261117081943-18: filled Bet NBA: LA Clippers moneyline (Utah Jazz @ LA Clippers) C$3,000",
+   "20261118051542-19: filled Bet NBA: Cleveland Cavaliers moneyline (Memphis Grizzlies @ Cleveland Cavaliers) C$3,000"
   ]
  },
  "price_alerts": {
@@ -240456,7 +240508,8 @@
    "c20261116051542-39",
    "c20261116143859-40",
    "c20261116144228-41",
-   "c20261117081943-42"
+   "c20261117081943-42",
+   "c20261118051542-43"
   ],
   "results": [
    "c20261029222314-0: filled Sell Bitcoin C$11,288 at 79,005.5",
@@ -240511,7 +240564,8 @@
    "c20261116143859-40: filled Buy Will there be no change in Fed interest rates after the December 2026 meeting? (No) C$3,000 at 0.9655",
    "c20261116144228-41: stop set: USO below 137 [id claude-20]",
    "c20261117081943-42: filled Bet S21 (NBA: Los Angeles Lakers moneyline (Charlotte Hornets @ Los Angeles Lakers)) C$3,000 at -316",
-   "claude-19: stop filled Sell SPY C$24,151 at 729.04"
+   "claude-19: stop filled Sell SPY C$24,151 at 729.04",
+   "c20261118051542-43: filled Bet S22 (NBA: Oklahoma City Thunder moneyline (Atlanta Hawks @ Oklahoma City Thunder)) C$3,000 at -283"
   ],
   "codes": {
    "Democrats win the Senate (Yes)": "will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections|Yes"
@@ -240710,7 +240764,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-18T05:15:05Z",
+  "at": "2026-11-18T05:19:58Z",
   "games": [
    {
     "id": "401920514",
@@ -249454,7 +249508,8 @@
   "gemini|AllInSports|2026-11-18T05:15:05Z|Bet|G168": "G-AIS-152",
   "gemini|AllInSports|2026-11-18T05:15:05Z|Won|G160": "G-AIS-153",
   "gemini|Sports|2026-11-18T05:15:05Z|Bet|G167": "G-SPT-172",
-  "gemini|Sports|2026-11-18T05:15:05Z|Won|G159": "G-SPT-173"
+  "gemini|Sports|2026-11-18T05:15:05Z|Won|G159": "G-SPT-173",
+  "claude|AllInSports|2026-11-18T05:19:58Z|Bet|C18": "C-AIS-034"
  },
  "txseq": {
   "X-CRY": 33,
@@ -249490,7 +249545,7 @@
   "G-CHN": 4,
   "C-CHN": 2,
   "G-PRD": 7,
-  "C-AIS": 33,
+  "C-AIS": 34,
   "X-PRD": 3,
   "C-OPT": 2
  },
