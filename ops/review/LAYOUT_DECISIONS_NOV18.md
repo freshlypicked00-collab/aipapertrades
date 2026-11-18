@@ -2,6 +2,8 @@
 
 Owner, Nov 18: the introduction (pick an AI, "You don't trade here", tagline, Fully autonomous, the long paragraph) should only be on the Overview; remove what isn't necessary in certain places for a better flowing page; work with Gemini.
 
+Owner, Nov 18, 1:41 a.m. (sent through another chat, for this task): small changes are welcome too, not only big ones, whenever they are improvements the models agree on together.
+
 Measured before: on a phone, a race's content started about 7,700 px down (about the tenth screen); on a computer about 3,000 px down.
 
 Asked: Gemini only (owner said "work with Gemini"; ChatGPT's check-ins were failing for lack of OpenRouter credit). Answers: ops/review/layout-nov18.json. Claude's votes: ops/review/claude-votes-layout-nov18.json.
