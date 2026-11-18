@@ -119920,6 +119920,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 110210.95
+  },
+  {
+   "at": "2026-11-18T14:45:05Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 91913.77
+  },
+  {
+   "at": "2026-11-18T14:45:05Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 100030.32
   }
  ],
  "takes": [
@@ -145336,8 +145348,8 @@
       "pcur": "USD",
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 658.18,
-      "priced_at": "2026-11-18T14:36:45Z",
+      "last": 654.851,
+      "priced_at": "2026-11-18T14:45:05Z",
       "hist": [
        [
         29886870,
@@ -147927,8 +147939,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 63385.97,
-      "priced_at": "2026-11-18T14:36:45Z",
+      "last": 63183.05,
+      "priced_at": "2026-11-18T14:45:05Z",
       "hist": [
        [
         29886870,
@@ -241254,20 +241266,6 @@
     "name": "Euro",
     "placed_at": "2026-11-13T17:45:50Z",
     "reason": "Lowering the stop on the EUR short to lock in gains as the US dollar strengthens alongside surging Treasury yields."
-   },
-   {
-    "id": "gemini-322",
-    "model": "gemini",
-    "experiment": "AllInTrading",
-    "symbol": "NVD",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 7.2,
-    "fraction": 1.0,
-    "name": "Graniteshares 2x Short NVDA Daily ETF",
-    "placed_at": "2026-11-18T04:04:06Z",
-    "reason": "Cutting my NVD 2x short position immediately at the open following Nvidia's blowout earnings and after-hours surge."
    }
   ],
   "chatgpt": [
@@ -241312,20 +241310,6 @@
     "name": "Japanese yen",
     "placed_at": "2026-11-10T14:21:59Z",
     "reason": "Take partial profit if the yen weakens meaningfully after the hotter CPI print."
-   },
-   {
-    "id": "chatgpt-184",
-    "model": "chatgpt",
-    "experiment": "Options",
-    "symbol": "NVDA261120P00150000",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 6.8,
-    "fraction": 0.5,
-    "name": "NVDA Nov 20 $150 put",
-    "placed_at": "2026-11-13T18:44:59Z",
-    "reason": "Take partial profit if renewed Nvidia selling reprices the Nov. 20 $150 put sharply higher."
    },
    {
     "id": "chatgpt-191",
@@ -241762,7 +241746,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-18T14:36:45Z",
+  "at": "2026-11-18T14:45:05Z",
   "games": [
    {
     "id": "401920514",
@@ -241873,6 +241857,15 @@
     "home_ml": -142
    },
    {
+    "id": "401920515",
+    "short": "NCAAB",
+    "away": "Kansas Jayhawks",
+    "home": "West Virginia Mountaineers",
+    "start": "2026-11-19T00:30Z",
+    "away_ml": -425,
+    "home_ml": 330
+   },
+   {
     "id": "401910013",
     "short": "NBA",
     "away": "Detroit Pistons",
@@ -241932,8 +241925,8 @@
     "away": "Utah Jazz",
     "home": "Los Angeles Lakers",
     "start": "2026-11-19T03:00Z",
-    "away_ml": 359,
-    "home_ml": -464
+    "away_ml": 341,
+    "home_ml": -437
    },
    {
     "id": "401910018",
@@ -243827,6 +243820,26 @@
    "kind": "stop",
    "level": 2.1,
    "result": "filled: Sell NVDA Nov 20 $150 put C$3,651 at 1.7"
+  },
+  {
+   "at": "2026-11-18T14:45:05Z",
+   "model": "gemini",
+   "id": "gemini-322",
+   "experiment": "AllInTrading",
+   "name": "Graniteshares 2x Short NVDA Daily ETF",
+   "kind": "stop",
+   "level": 7.2,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-18T14:45:05Z",
+   "model": "chatgpt",
+   "id": "chatgpt-184",
+   "experiment": "Options",
+   "name": "NVDA Nov 20 $150 put",
+   "kind": "target",
+   "level": 6.8,
+   "result": "removed: the position is no longer held"
   }
  ],
  "forecasts": [
