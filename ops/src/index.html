@@ -1269,14 +1269,23 @@
   .pt-verify-dl { background: #1f8f55 !important; } .pt-verify-cp { background: #3a3a34 !important; border: 0; cursor: pointer; font: inherit; font-weight: 600; }
   .pt-verify-d { margin-top: 8px; font-size: 12.5px; color: var(--color-fg-muted); } .pt-verify-d p { margin: 6px 0 0; line-height: 1.45; }
   @media (max-width: 700px) { .pt-verify-b { display: grid; grid-template-columns: 1fr; } .pt-verify-b .st-live-btn { justify-content: center; } }
-  .pt-join { margin-top: 28px; padding: 16px 18px; border: 1px solid var(--color-border, #2a2a26); border-radius: 14px; background: color-mix(in srgb, #2aabee 6%, transparent); display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between; }
-  .pt-join-t { margin: 0 0 4px; font-size: 15px; font-weight: 700; color: var(--color-fg); }
-  .pt-join-p { margin: 0; font-size: 13px; line-height: 1.45; color: var(--color-fg-muted); }
-  .pt-join-p b { color: var(--color-fg); font-weight: 600; }
-  .pt-join-b { display: flex; gap: 8px; flex-wrap: wrap; }
-  .pt-join-b .st-live-btn { min-height: 42px; justify-content: center; min-width: 150px; }
-  .pt-join-n { width: 100%; margin: 0; font-size: 11.5px; color: var(--color-fg-muted); }
-  @media (max-width: 700px) { .pt-join-b { width: 100%; display: grid; grid-template-columns: 1fr 1fr; } .pt-join-b .st-live-btn { min-width: 0; } }
+  /* OFFICIAL CHANNELS (owner, Nov 18: the follow pop-up "feels like a pop up ad more than a professional display on where to find us";
+     Claude and Gemini, ops/review/follow-card-nov18.json). One calm way to show where to find us: the five channels as the same round icons,
+     links and order as the top bar, each with its name. .pt-ch is the row; it is used by the card at the end of every tab (.pt-join) and by
+     the small follow card on phones and tablets (.pt-fp). No emoji, no coloured tint, no big buttons. */
+  .pt-ch { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; }
+  .pt-ch-a { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 4px 2px; border-radius: 10px; color: var(--color-fg); text-decoration: none; font-size: 12px; line-height: 1.25; text-align: center; transition: transform .15s ease; }
+  .pt-ch-a:hover { transform: translateY(-1px); }
+  .pt-ch-a .pt-livebox-a { box-sizing: border-box; width: 38px; height: 38px; } .pt-ch-a .pt-livebox-a svg { width: 19px; height: 19px; } .pt-ch-a .pt-lb-tg::after { content: none; }
+  .pt-ch-n { font-weight: 600; }
+  .pt-ch-w { color: var(--color-fg-muted); }   /* what you find there, on wider screens */
+  .pt-join { margin-top: 28px; padding: 14px 18px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); background: var(--color-panel); box-shadow: inset 0 1px 0 var(--card-inset, transparent);
+    display: grid; grid-template-columns: minmax(170px, auto) minmax(0, 1fr); gap: 10px 24px; align-items: center; }
+  .pt-join-t { margin: 0; }
+  .pt-join-p { margin: 4px 0 0; font-size: 13px; line-height: 1.4; color: var(--color-fg-muted); }
+  .pt-join .pt-ch { gap: 8px; }
+  @media (max-width: 700px) { .pt-join { grid-template-columns: minmax(0, 1fr); padding: 12px 12px 10px; } .pt-join .pt-ch { gap: 2px; } .pt-join .pt-ch-w { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .pt-ch-a { transition: none; } }
   .st-live-text { flex: 1 1 260px; display: flex; flex-direction: column; gap: 2px; }
   .st-live-h { margin: 0; font-size: 14px; font-weight: 600; color: var(--color-fg); display: flex; align-items: center; gap: 8px; }
   .st-live-h .st-live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-ok) 25%, transparent); }
@@ -1373,11 +1382,26 @@ tr.lg-hit .tx-id{opacity:1}
 .nt-card{border:1px solid var(--color-border,#444);border-radius:10px;padding:12px 14px}.nt-card h3{margin:0 0 4px}.nt-card p{margin:0 0 6px}
 .nt-card ol{margin:0 0 10px;padding-left:20px;font-size:14px}.nt-card li{margin:3px 0}.nt-telegram{border-color:#2aabee}
 .st-tt-notify{white-space:nowrap}.nt-youtube .st-live-btn{background:#ff0033;color:#fff;border-color:#ff0033}
-.pt-fp{position:fixed;z-index:9997;right:16px;bottom:16px;max-width:360px;background:#16150f;color:#f2e9d8;border:1px solid #ffb000;border-radius:12px;padding:14px 16px 12px;box-shadow:0 10px 32px rgba(0,0,0,.5);font-size:14px;line-height:1.4}
-.pt-fp-t{margin:0 22px 6px 0;font-weight:700;color:#ffb000}.pt-fp-l{margin:0 0 6px;font-size:13px;opacity:.85}.pt-fp-p{margin:0 0 8px}
-.pt-fp-b{display:flex;flex-wrap:wrap;gap:6px}.pt-fp-b .st-live-btn{font-size:13px;padding:7px 12px}.pt-fp-n{margin:8px 0 0;font-size:12px;opacity:.65}
-.pt-fp-x{position:absolute;top:6px;right:8px;font:inherit;font-size:20px;line-height:1;background:none;border:0;color:inherit;cursor:pointer;padding:4px 6px}
-@media (max-width:700px){.pt-fp{left:8px;right:8px;bottom:8px;max-width:none}}
+/* The follow card (owner, Nov 18; Claude and Gemini): a slim, quiet bar in the site's own panel colours: "Official channels", one line,
+   and the five channels (.pt-ch, above). Phones: the words, then the icons with their names. Wider: one row, icons only. A thin line at the
+   bottom runs out as it gets ready to leave by itself, so nobody has to close it. */
+.pt-fp{position:fixed;z-index:9997;right:16px;bottom:16px;max-width:calc(100vw - 32px);box-sizing:border-box;overflow:hidden;display:grid;grid-template-columns:auto auto auto;align-items:center;column-gap:16px;background:var(--color-panel);color:var(--color-fg);border:1px solid var(--color-border-line);border-radius:14px;padding:10px 10px 12px 16px;box-shadow:0 10px 30px rgba(0,0,0,.35);font-size:13px;line-height:1.35;opacity:0;transform:translateY(8px);transition:opacity .25s ease,transform .25s ease}
+.pt-fp.is-on{opacity:1;transform:none}
+.pt-fp-tx{min-width:0}
+.pt-fp-t{margin:0}
+.pt-fp-s{margin:2px 0 0;font-size:12.5px;color:var(--color-fg-muted)}
+.pt-fp .pt-ch{display:flex;gap:8px}.pt-fp .pt-ch-a{padding:0;border-radius:999px}.pt-fp .pt-ch-a .pt-livebox-a{width:36px;height:36px}.pt-fp .pt-ch-n,.pt-fp .pt-ch-w{display:none}
+.pt-fp-x{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;font:inherit;font-size:18px;line-height:1;background:none;border:0;border-radius:50%;color:var(--color-fg-muted);cursor:pointer}
+.pt-fp-x:hover,.pt-fp-x:focus-visible{color:var(--color-fg);background:color-mix(in srgb,var(--color-fg) 9%,transparent)}
+.pt-fp-bar{position:absolute;left:0;right:0;bottom:0;height:2px;background:color-mix(in srgb,var(--color-fg-muted) 60%,transparent);transform-origin:left center}
+.pt-fp.is-run .pt-fp-bar{animation:pt-fp-run var(--pt-fp-stay,20s) linear forwards}
+@keyframes pt-fp-run{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@media (max-width:700px){.pt-fp{left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));max-width:none;grid-template-columns:minmax(0,1fr) auto;row-gap:8px;padding:10px 10px 12px 14px}
+  .pt-fp-tx{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 10px}.pt-fp-s{margin:0}
+  .pt-fp .pt-ch{grid-column:1 / -1;grid-row:2;display:grid;gap:2px;margin-right:4px}.pt-fp .pt-ch-a{padding:2px 0 2px;border-radius:10px}.pt-fp .pt-ch-a .pt-livebox-a{width:40px;height:40px}.pt-fp .pt-ch-a .pt-livebox-a svg{width:20px;height:20px}.pt-fp .pt-ch-n{display:block;font-weight:400}}
+html.pt-fp-on .pt-top,html.pt-fp-on .m-menu-fab{bottom:calc(var(--pt-fp-h,120px) + 18px + env(safe-area-inset-bottom,0px))}   /* the Top and Menu buttons step up, never covered */
+html.pt-fp-on .pt-toasts,html.pt-fp-on .bg-toast{bottom:calc(var(--pt-fp-h,120px) + 26px + env(safe-area-inset-bottom,0px))}   /* so do the live pop-ups that share its corner */
+@media (prefers-reduced-motion:reduce){.pt-fp{transition:none}.pt-fp.is-run .pt-fp-bar{animation:none}.pt-fp-bar{display:none}}
 .pd-auto{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.pd-auto-l{font-weight:600;white-space:nowrap}.pd-auto-pick{flex:1;min-width:0;max-width:100%;font:inherit;padding:4px 6px;border-radius:6px;background:var(--color-bg,#111);color:inherit;border:1px solid var(--color-border,#444)}
 .st-luck{font-size:12px;line-height:1.45;opacity:.85;margin-top:6px}.st-luck summary{cursor:pointer}.st-luck p{margin:4px 0 0}.st-luck-t{opacity:.75}
 .lg-game{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:4px;font-size:12px;color:var(--color-fg-muted,#9b927f)}
@@ -10986,21 +11010,33 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
   // O7 (all three AIs agreed, Oct 31; ops/MISSION.md): the 7-day return rate. The visitor's own browser keeps only the day of
   // its last visit (nothing personal, never sent anywhere); on a visit on a NEW day it counts one anonymous GoatCounter event:
   // visitor/new, visitor/return-7d (back within 7 days) or visitor/return-later. Return rate = return-7d / new, per week.
-  // Follow card at the bottom of every tab page, and follow clicks counted in GoatCounter as events
-  // (follow/telegram-top, follow/discord-card, ...), so we can see which button brings followers (owner, Oct 31).
+  // OFFICIAL CHANNELS (owner, Nov 18; Claude and Gemini, ops/review/follow-card-nov18.json): one calm way to show where to find us.
+  // ptChannels(where) builds the row of five: the same icons, links and order as the top bar (ptLiveBox), each with its name and what you
+  // find there, so every "where to find us" on the site shows the same thing. where = the suffix its clicks are counted under
+  // (follow/discord-card, follow/telegram-prompt, ...), so we can still see which place brings followers (owner, Oct 31).
+  const ptChannels = (where) => {
+    const NAME = { dc: 'Discord', tg: 'Telegram', ig: 'Instagram', x: 'X', yt: 'YouTube' }, EV = { dc: 'discord', tg: 'telegram', ig: 'instagram', x: 'x', yt: 'youtube' };
+    const WHAT = { dc: 'Real-time custom alerts', tg: 'Every trade as it happens', ig: 'Daily results', x: 'Race updates', yt: 'Short race videos' };
+    const el = (tag, cls, text) => { const x = document.createElement(tag); if (cls) x.className = cls; if (text != null) x.textContent = text; return x; };
+    const row = el('div', 'pt-ch');
+    (window.ptLiveBox ? [...window.ptLiveBox('').querySelectorAll('a.pt-livebox-a')] : []).forEach((a0) => {
+      const k = (a0.className.match(/pt-lb-([a-z]+)/) || [])[1]; if (!NAME[k]) return;
+      const a = el('a', 'pt-ch-a'); a.href = a0.href; a.target = '_blank'; a.rel = 'noopener'; a.title = NAME[k] + ': ' + WHAT[k].charAt(0).toLowerCase() + WHAT[k].slice(1); a.setAttribute('aria-label', a.title); a.dataset.follow = EV[k] + '-' + where;
+      const ic = el('span', 'pt-livebox-a pt-lb-' + k); ic.setAttribute('aria-hidden', 'true'); while (a0.firstChild) ic.appendChild(a0.firstChild);
+      a.append(ic, el('span', 'pt-ch-n', NAME[k]), el('span', 'pt-ch-w', WHAT[k])); row.appendChild(a);
+    });
+    return row;
+  };
+  // The card at the end of every tab: "Official channels" (before Nov 18: a bell, "Don't miss the next move" and two big buttons).
   (() => {
     try {
-      const TG = 'https://t.me/PaperTradesAI', DC = 'https://discord.gg/PkqX3zstD';
-      const tgSvg = '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.4-5 9.1-8.2c.4-.4-.1-.6-.6-.2L6.3 13 1.5 11.5c-1-.3-1-1 .2-1.5L20.6 2.7c.9-.3 1.6.2 1.3 1.6z"/></svg>';
-      const dcSvg = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.3 4.4A19.8 19.8 0 0 0 15.4 3l-.6 1.3a18.3 18.3 0 0 0-5.5 0L8.7 3a19.7 19.7 0 0 0-4.9 1.5C.7 9.1-.2 13.6.3 18.1a19.9 19.9 0 0 0 6 3l1.3-2.1a12.9 12.9 0 0 1-2-1l.5-.4a14.2 14.2 0 0 0 12.2 0l.5.4c-.6.4-1.3.7-2 1l1.3 2.1a19.8 19.8 0 0 0 6-3c.5-5.2-.9-9.7-3.8-13.7zM8.5 15.3c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4zm7 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4z"/></svg>';
       document.querySelectorAll('section.st-page').forEach((pg) => {
         if (pg.querySelector('.pt-join')) return;
-        const c = document.createElement('aside'); c.className = 'pt-join'; c.setAttribute('aria-label', 'Follow the race');
-        c.innerHTML = '<div><p class="pt-join-t">🔔 Don’t miss the next move</p><p class="pt-join-p"><b>Telegram</b>: every trade and bet the second it happens.<br><b>Discord</b>: pick your AI team and get pinged when the lead changes.</p></div>'
-          + '<div class="pt-join-b"><a class="st-live-btn" data-follow="telegram-card" href="' + TG + '" target="_blank" rel="noopener">' + tgSvg + 'Join Telegram</a>'
-          + '<a class="st-live-btn st-follow-dc" data-follow="discord-card" href="' + DC + '" target="_blank" rel="noopener">' + dcSvg + 'Join Discord</a></div>'
-          + '<p class="pt-join-n">Free and read-only. Pretend money, not financial advice.</p>';
-        pg.appendChild(c);
+        const row = ptChannels('card'); if (!row.children.length) return;
+        const c = document.createElement('aside'); c.className = 'pt-join'; c.setAttribute('aria-label', 'Official PaperTrades.AI channels');
+        const tx = document.createElement('div'), t = document.createElement('p'), s2 = document.createElement('p');
+        t.className = 'st-h2 pt-join-t'; t.textContent = 'Official channels'; s2.className = 'pt-join-p'; s2.textContent = 'Follow the race live.'; tx.append(t, s2);
+        c.append(tx, row); pg.appendChild(c);
       });
       const where = (a) => a.dataset.follow || ((/t\.me\//.test(a.href) ? 'telegram' : /discord\.gg/.test(a.href) ? 'discord' : /instagram\.com/.test(a.href) ? 'instagram' : /youtube\.com/.test(a.href) ? 'youtube' : 'x')
         + '-' + (a.closest('.st-live-top') ? 'top' : a.closest('.st-tabs-tools') ? 'tabbar' : a.closest('.pt-join') ? 'card' : 'other'));
@@ -11011,43 +11047,59 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       }, true);
     } catch (e) {}
   })();
-  // P1 of the growth plan (owner, Nov 2; Claude, Gemini and ChatGPT all agreed, ops/review/growth-nov2.json): one follow prompt, shown
-  // after about 20 seconds of reading or when a second tab is opened, never during the tour, at most once every 3 days per device.
-  // Clicks count as follow/<channel>-prompt; prompt/shown and prompt/closed measure how many visitors it turns into followers.
+  // The follow card. P1 of the growth plan (owner, Nov 2; all three AIs agreed, ops/review/growth-nov2.json) asked for one follow prompt.
+  // Owner, Nov 18: it "feels like a pop up ad more than a professional display on where to find us"; redone with Gemini
+  // (ops/review/follow-card-nov18.json). Now:
+  // - a slim bar in the site's own panel colours: "Official channels", "Follow the race live." and the five channels (ptChannels);
+  //   no headline hook, no emoji, no coloured border, no "free";
+  // - only where the same five icons are NOT already on screen: on a computer the sticky top bar always shows them, so nothing pops up
+  //   there (Gemini); on phones and tablets they are tucked in the Menu, so the card shows;
+  // - it waits 45 s (or 10 s after a second tab is opened), never sits on top of the tour or of the Overview's own alerts box;
+  // - it leaves by itself after 20 s, and a thin line at its bottom runs out so people can see that (Gemini); pointing at it holds it;
+  // - at most once every 30 days per device; after a click on a channel, not for a year;
+  // - on phones the Top and Menu buttons step up above it.
+  // Counted as before: follow/<channel>-prompt, prompt/shown, prompt/closed; new: prompt/timeout when it leaves by itself.
+  // To look at it right away on any screen: add ?follow to the address.
   (() => {
     try {
-      const K = 'pt-follow-prompt', now = Date.now();
+      const K = 'pt-follow-card', DAY = 864e5, WAIT = 45000, STAY = 20000;
+      const peek = /[?&]follow\b/.test(location.search);
       let last = 0; try { last = +localStorage.getItem(K) || 0; } catch (e) {}
-      if (now - last < 3 * 864e5) return;
+      if (!peek && Date.now() - last < 30 * DAY) return;
       const ev = (p) => { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: p, title: p, event: true }); } catch (e) {} };
+      const el = (tag, cls, text) => { const x = document.createElement(tag); if (cls) x.className = cls; if (text != null) x.textContent = text; return x; };
+      const onScreen = (x) => { if (!x || x.closest('[hidden]')) return false; const r = x.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.bottom > 0 && r.top < window.innerHeight && r.right > 0 && r.left < window.innerWidth; };
       let shown = false;
       const show = () => {
         if (shown) return;
-        if (document.querySelector('.gd-offer, .gd-tour')) { setTimeout(show, 8000); return; }   // never on top of the tour
-        shown = true; try { localStorage.setItem(K, String(Date.now())); } catch (e) {}
-        const latest = ((document.querySelector('.st-live-last') || {}).textContent || '').replace(/\s+/g, ' ').trim();
-        const b = document.createElement('aside'); b.className = 'pt-fp'; b.setAttribute('role', 'dialog'); b.setAttribute('aria-label', 'Follow the race');
-        b.innerHTML = '<button type="button" class="pt-fp-x" aria-label="Close">×</button>'
-          + '<p class="pt-fp-t">🔔 Get every AI trade the second it happens</p>'
-          + (latest && !/^Real-time/.test(latest) ? '<p class="pt-fp-l"></p>' : '')
-          + '<p class="pt-fp-p">Who wins on Nov 28? Follow the race free:</p>'
-          + '<div class="pt-fp-b"><a class="st-live-btn" data-follow="telegram-prompt" href="https://t.me/PaperTradesAI" target="_blank" rel="noopener">Telegram: every trade live</a>'
-          + '<a class="st-live-btn st-follow-ig" data-follow="instagram-prompt" href="https://www.instagram.com/papertrades.ai/" target="_blank" rel="noopener">Instagram</a>'
-          + '<a class="st-live-btn st-follow-x" data-follow="x-prompt" href="https://x.com/papertradesai" target="_blank" rel="noopener">X</a>'
-          + '<a class="st-live-btn st-follow-yt" data-follow="youtube-prompt" href="https://www.youtube.com/@PaperTradesAI" target="_blank" rel="noopener">YouTube</a></div>'
-          + '<p class="pt-fp-n">Free, read-only. Pretend money, not advice. <a href="#notify" class="pt-fp-more">How to turn on notifications →</a></p>';
-        if (b.querySelector('.pt-fp-l')) b.querySelector('.pt-fp-l').textContent = latest.slice(0, 140);
-        document.body.appendChild(b); ev('prompt/shown');
-        const close = () => { b.remove(); document.removeEventListener('keydown', esc); };
+        if (!peek && [...document.querySelectorAll('.st-tabs-tools .pt-livebox a')].some(onScreen)) return;   // the top bar already shows the five icons (computers): nothing to add
+        // never on top of the tour, and not while the Overview's own alerts box is on screen (the same channels are already there)
+        if (document.querySelector('.gd-offer, .gd-tour') || (!peek && onScreen(document.querySelector('.st-live-top')))) { setTimeout(show, 8000); return; }
+        const row = ptChannels('prompt'); if (!row.children.length) return;
+        shown = true; if (!peek) { try { localStorage.setItem(K, String(Date.now())); } catch (e) {} }
+        const b = el('aside', 'pt-fp'); b.setAttribute('role', 'region'); b.setAttribute('aria-label', 'Official PaperTrades.AI channels'); b.style.setProperty('--pt-fp-stay', STAY + 'ms');
+        const tx = el('div', 'pt-fp-tx'); tx.append(el('p', 'st-h2 pt-fp-t', 'Official channels'), el('p', 'pt-fp-s', 'Follow the race live.'));
+        const x = el('button', 'pt-fp-x', '×'); x.type = 'button'; x.setAttribute('aria-label', 'Close'); x.title = 'Close (it also leaves by itself)';
+        const bar = el('i', 'pt-fp-bar'); bar.setAttribute('aria-hidden', 'true');
+        b.append(tx, row, x, bar); document.body.appendChild(b); ev('prompt/shown');
+        const root = document.documentElement;
+        let timer = null;
+        const hold = () => { clearTimeout(timer); b.classList.remove('is-run'); };
+        const menu = document.getElementById('m-menu'); let mo = null;
+        const close = () => { hold(); if (mo) mo.disconnect(); b.classList.remove('is-on'); root.classList.remove('pt-fp-on'); document.removeEventListener('keydown', esc); setTimeout(() => b.remove(), 300); };
+        if (menu && window.MutationObserver) { mo = new MutationObserver(() => { if (!menu.hidden) close(); }); mo.observe(menu, { attributes: true, attributeFilter: ['hidden'] }); }   // the Menu opens: step aside
         const esc = (e) => { if (e.key === 'Escape') { ev('prompt/closed'); close(); } };
-        b.querySelector('.pt-fp-x').addEventListener('click', () => { ev('prompt/closed'); close(); });
-        { const m = b.querySelector('.pt-fp-more'); if (m) m.addEventListener('click', (e) => { e.preventDefault(); close(); const t = document.querySelector('.st-tt-notify'); if (t) t.click(); }); }
-        b.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setTimeout(close, 300)));
+        const arm = () => { hold(); void b.offsetWidth; b.classList.add('is-run'); timer = setTimeout(() => { ev('prompt/timeout'); close(); }, STAY); };   // it leaves by itself; the line shows how long is left
+        requestAnimationFrame(() => { b.classList.add('is-on'); root.style.setProperty('--pt-fp-h', b.offsetHeight + 'px'); root.classList.add('pt-fp-on'); arm(); });
+        b.addEventListener('mouseenter', hold); b.addEventListener('mouseleave', arm);
+        b.addEventListener('focusin', hold); b.addEventListener('focusout', arm);
+        x.addEventListener('click', () => { ev('prompt/closed'); close(); });
+        row.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => { try { localStorage.setItem(K, String(Date.now() + 335 * DAY)); } catch (e) {} setTimeout(close, 300); }));   // followed: not again for a year
         document.addEventListener('keydown', esc);
       };
-      setTimeout(show, 20000);
+      setTimeout(show, peek ? 1200 : WAIT);
       const first = (location.hash || '#overview').slice(1);
-      window.addEventListener('pt-tab', (e) => { if (e.detail && e.detail !== first && e.detail !== 'overview') setTimeout(show, 1500); });   // a second tab opened
+      window.addEventListener('pt-tab', (e) => { if (e.detail && e.detail !== first && e.detail !== 'overview') setTimeout(show, 10000); });   // a second tab opened: once they have had time to read it
     } catch (e) {}
   })();
   // Devices excluded with #toggle-goatcounter are not counted (GoatCounter skips them).
