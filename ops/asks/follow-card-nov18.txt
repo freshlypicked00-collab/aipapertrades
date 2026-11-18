@@ -1,0 +1,26 @@
+DESIGN REVIEW from the owner of PaperTrades.AI. NOT a trading turn. You are asked as a senior product designer. The owner asked Claude to work with you on this.
+
+Owner, Nov 18, 10:24 a.m. ET: "the pop up button that appears on the right hand side for the socials dont look very good and often i find myself self consciously closing it because it feels like a pop up ad more than a professional display on where to find us". Then: "work with gemini on making that better".
+
+WHAT IT IS TODAY (picture 1, follow-card-nov18-before.png: computer left, phone right)
+The "follow prompt" from the growth plan of Nov 2 (you agreed to it then). It pops up bottom right after about 20 seconds, or 1.5 seconds after a second tab is opened, at most once every 3 days per device, and stays until closed. Amber border, a bold amber headline with a bell emoji ("Get every AI trade the second it happens"), the latest move, "Who wins on Nov 28? Follow the race free:", four buttons of four different shapes and colours (Telegram, Instagram, X, YouTube; Discord is missing), then a disclaimer and a link. 394 x 223 px on a computer; on a phone it covers the bottom 240 px, including the Top and Menu buttons.
+The same channels are already shown elsewhere: five round icons in the sticky top bar on computers (always), in the phone Menu, in the Overview's LIVE alerts box, and in a card at the end of every tab ("Don't miss the next move": Join Telegram, Join Discord).
+
+WHAT CLAUDE BUILT (picture 2, follow-card-nov18-after.png: computer left, phone right; picture 3 shows two options enlarged)
+D1. Look: a slim bar in the site's own panel colours (it follows all eight colour themes). No amber border, no emoji, no headline hook, no "latest move", no disclaimer.
+D2. Content: "Follow the race live" + "Our official channels. Free." and the five official channels as the SAME round icons as the top bar, in the same order: Discord, Telegram, Instagram, X, YouTube.
+D3. Computer and tablet: one row, 429 x 58 px (Option B in picture 3). Phone: the words, then the five icons with their names under them, 374 x 123 px; the Top and Menu buttons step up above it instead of being covered.
+D4. Behaviour: it appears after 45 seconds on the site (was 20), or 10 seconds after a second tab is opened (was 1.5); never on top of the tour; not while the Overview's own LIVE alerts box is on screen (same channels already there). It fades in over 0.25 s.
+D5. It leaves by itself after 20 seconds (it waits while the mouse is on it or it has keyboard focus). Before, it stayed until closed.
+D6. It comes back at most once every 30 days per device (was 3 days); after a click on a channel, not for a year.
+D7. Still counted as before: shown, closed, each channel click; new: left by itself.
+Option A in picture 3 is the alternative Claude also built: a card with the names under the icons on computers too, 340 x 146 px, with a small "Official accounts" link.
+
+QUESTIONS. Answer each with AGREE, CHANGE (say exactly what, with numbers or words) or DISAGREE (say why). Think of two people: the owner, who opens the site every day, and a first-time visitor on a phone who came from a Telegram, Instagram or YouTube link.
+Q1. Computer layout: Option B (slim bar, icons only, built) or Option A (card with names)? Phone layout as built?
+Q2. The words. Title "Follow the race live" and line "Our official channels. Free." Or better words? (Other ideas: line "Every trade as it happens. Free."; title "Find us on".) It should read as an official "where to find us", not an advert. Give the exact words you would use.
+Q3. D4 to D6, the behaviour: are 45 s / 10 s / leaves after 20 s / once in 30 days right? Give your numbers.
+Q4. Should it show at all on computers, where the sticky top bar already shows the same five icons all the time? (a) yes, as built; (b) phones only; (c) nowhere: no card at all, the top bar, the Menu and the end-of-page card are enough.
+Q5. The card at the end of every tab (bell emoji, "Don't miss the next move", two big buttons, blue tint): the owner did not mention it. Leave it, or give it the same calm treatment (no emoji, panel colours, the five official channels)? If you would change it, say exactly how.
+Q6. Anything else, small, that would make this read as a professional "where to find us" rather than an ad.
+Finish with one line: SATISFIED (ready to publish with your changes) or NOT SATISFIED (and what must change).
