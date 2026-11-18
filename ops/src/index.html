@@ -1153,6 +1153,36 @@
     .st > header.st-head, .st > .st-head2, .st > .st-live-top { order: 0; }
     .st > nav.st-tabs { order: 1; position: static; box-shadow: none; margin: 4px 0 8px; }
   }
+  /* Overview keeps the whole introduction; every other tab gets a slim top, so a race starts on the first screen instead of
+     the tenth on a phone (owner, Nov 18: "this should only be in the overview"; Claude and Gemini agreed, ops/review/layout-nov18.json) */
+  html[data-tab]:not([data-tab="overview"]) .st-head2,
+  html[data-tab]:not([data-tab="overview"]) .st-live-top,
+  html[data-tab]:not([data-tab="overview"]) .st-crown-line,
+  html[data-tab]:not([data-tab="overview"]) header.st-head .pt-news,
+  html[data-tab]:not([data-tab="overview"]) .pt-welcome,
+  html[data-tab]:not([data-tab="overview"]) .pt-def,
+  html[data-tab]:not([data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > :not(.st-status-dot):not(.st-lang-wrap):not(.pt-slimline) { display: none !important; }
+  @media (max-width: 700px) { html[data-tab]:not([data-tab="overview"]) .st > nav.st-tabs { display: none !important; } }   /* phones: the ☰ Menu button does this job */
+  .pt-slimline { display: none; }
+  html[data-tab]:not([data-tab="overview"]) .pt-slimline { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 13.5px; line-height: 1.4; color: var(--color-fg-muted); }
+  .pt-slimline b { color: var(--color-fg); font-weight: 600; }
+  .pt-slimline button { font: inherit; background: none; border: 0; padding: 0; margin: 0; color: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .pt-slimline .pt-sl-lead { text-decoration: none; color: var(--color-fg); }
+  .pt-slimline .pt-sl-lead b { color: var(--mc, var(--color-fg)); }
+  .pt-pagetop { display: flex; flex-direction: column; gap: 8px; margin: 0 0 14px; }
+  .pt-slimnote { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--color-fg-muted); }
+  .pt-slimnote b { color: var(--color-fg); font-weight: 600; } .pt-slimnote a { color: inherit; white-space: nowrap; }
+  .pt-aisw { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; }
+  .pt-aisw > span { font-size: 13px; color: var(--color-fg-muted); margin-right: 2px; }
+  .pt-aisw button { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: 13.5px; color: var(--color-fg); background: transparent; border: 1px solid var(--color-border-line); border-radius: 999px; padding: 4px 12px 4px 6px; min-height: 34px; cursor: pointer; }
+  .pt-aisw button:hover { background: var(--card-inset, #1d1c18); }
+  .pt-aisw button[aria-pressed="true"] { border-color: var(--mc, currentColor); box-shadow: inset 0 0 0 1px var(--mc, currentColor); color: var(--mc, inherit); font-weight: 700; }
+  .pt-aisw button:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  @media (min-width: 701px) { html[data-tab]:not([data-tab="overview"]) header.st-head .st-title { display: none !important; } }   /* the sticky top bar already shows the name and the AI */
+  @media (max-width: 480px) { .pt-aisw { flex-wrap: nowrap; gap: 5px; } .pt-aisw > span { display: none; } .pt-aisw button { flex: 1 1 0; min-width: 0; justify-content: center; font-size: 13px; padding: 3px 6px 3px 4px; gap: 5px; min-height: 34px; white-space: nowrap; } }   /* one row on a phone; the pressed button shows which AI you are viewing */
+  .pt-race-extra { display: flex; flex-direction: column; gap: 14px; margin: 0 0 18px; }
+  .pt-race-extra > .st-score, .pt-race-extra > .st-take, .pt-race-extra > .st-callout { margin: 0; }
+  .pt-race-extra .st-score-list { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
   .st-model-cmp { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--color-fg); text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 13px; cursor: pointer; }
   [data-model-hidden], [data-risk-hidden] { display: none !important; }
   :root { --ai-chatgpt: #f2f2f2; }
@@ -1316,6 +1346,9 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
 .lg-money{margin-top:4px;font-size:12.5px;font-weight:600}.lg-odds{font-size:11.5px;color:var(--color-fg-muted)}
 </style>
 
+<script data-early>(function () { var h = (location.hash || '').slice(1).split(/[?&]/)[0];   /* the slim top for every tab but Overview, before the first paint (owner, Nov 18) */
+  if (/^guide-/.test(h)) h = 'guide';
+  if (['h2h','news','data','rules','audit','guide','notify','allin','allinledger','about','ai-claude','ai-gemini','ai-chatgpt','overview','stocks','crypto','metals','sports','china','energy','options','predictions','safe','currencies','support','ledger'].indexOf(h) >= 0) document.documentElement.setAttribute('data-tab', h); })();</script>
 <div class="st">
   <header class="st-head">
     <h1 class="st-title">Simulation Tracker</h1>
@@ -3199,6 +3232,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
   const showTab = (name) => {
     if (/^guide-/.test(name || '')) { const sec = name; name = 'guide'; setTimeout(() => { const t = document.getElementById(sec); if (t) t.scrollIntoView({ block: 'start' }); }, 300); }   // a Guide section link (#guide-ledger)
     if (!TABS.includes(name)) name = 'overview';
+    document.documentElement.setAttribute('data-tab', name);   // the slim top on every tab but Overview (owner, Nov 18)
     document.querySelectorAll('[data-page]').forEach((s) => { s.hidden = s.dataset.page !== name; });
     document.querySelectorAll('.st-tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
     try { window.dispatchEvent(new CustomEvent('pt-tab', { detail: name })); } catch (e) {}   // the headline line follows the tab at once
@@ -3223,7 +3257,11 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     showTab(name); dash.setLink(name);
     if (name !== 'ledger' && window.ptClearFind) window.ptClearFind();
     { const t = document.querySelector('.st-tab[aria-selected="true"]'); const bar = document.querySelector('.st-tabs'); if (t && bar && bar.scrollWidth > bar.clientWidth) bar.scrollTo({ left: t.offsetLeft - bar.clientWidth / 2 + t.offsetWidth / 2, behavior: 'smooth' }); }
-    if (jump === false || !(window.matchMedia && window.matchMedia('(min-width: 701px)').matches)) return;
+    if (jump === false) return;
+    if (!(window.matchMedia && window.matchMedia('(min-width: 701px)').matches)) {   // phones: open the new tab at its start, like the ☰ Menu does (owner, Nov 18; Claude and Gemini agreed)
+      requestAnimationFrame(() => { const pg = document.querySelector('.st-page:not([hidden])'); if (pg) window.scrollTo({ top: Math.max(0, pg.getBoundingClientRect().top + window.scrollY - 8), behavior: 'auto' }); });
+      return;
+    }
     // the tabs sit at the top now, so bring the chosen tab's content into view just under the sticky tab bar
     requestAnimationFrame(() => {
       const pg = document.querySelector('.st-page:not([hidden])'); const bar = document.querySelector('.st-tabs');
@@ -6954,6 +6992,77 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       btn.addEventListener('click', () => { const sel = document.getElementById('model-pick'); if (sel && sel.value !== x) { sel.value = x; sel.dispatchEvent(new Event('change', { bubbles: true })); } setTimeout(fillBots, 60); });
       return btn; })); };
   window.ptFillBots = fillBots; try { dash.onModel(() => setTimeout(fillBots, 0)); } catch (e) {}
+  // Overview keeps the whole introduction; every other tab gets a slim top (owner, Nov 18: "this should only be in the overview";
+  // Claude and Gemini agreed, ops/review/layout-nov18.json). Race pages: slim line → short safety line → AI switch → the race's own
+  // numbers and holdings → this race's scoreboard → that AI's take on it → today's grades. Other tabs: slim line → safety line → the page.
+  (() => {
+    const RACES = ['stocks', 'crypto', 'china', 'metals', 'energy', 'options', 'currencies', 'safe', 'sports', 'predictions'];
+    const COL = { claude: '#d97757', gemini: '#4f8ff7', chatgpt: 'var(--ai-chatgpt)' }, NAME = { claude: 'Claude', gemini: 'Gemini', chatgpt: 'ChatGPT' };
+    const head = document.querySelector('.st-head2'); const prog = document.querySelector('header.st-head .st-progress[data-phase="live"]');
+    if (!head || !prog) return;
+    const tabNow = () => document.documentElement.getAttribute('data-tab') || 'overview';
+    const leader = () => { let L = null; try { L = dash.baseData('leader'); } catch (e) {} return NAME[L] ? L : null; };
+    // 1. the one-line summary in the header: who leads overall, the day, when the AIs last checked in, and a way to get alerts
+    const line = mk('span', 'pt-slimline'); prog.prepend(line);
+    const paintLine = () => {
+      if (tabNow() === 'overview') return;
+      const L = leader(), day = (document.querySelector('[data-draw="day-num"]') || {}).textContent, tot = (document.querySelector('[data-draw="day-total"]') || {}).textContent;
+      const since = document.querySelector('header.st-head .st-since'); const sinceT = since ? since.textContent.replace(/\s+/g, ' ').trim() : '';
+      const k = [L, day, tot, sinceT].join('|'); if (line.dataset.k === k) return; line.dataset.k = k;
+      line.replaceChildren();
+      if (L) { const b = mk('button', 'pt-sl-lead'); b.type = 'button'; b.title = 'Open the Overview: the full race standings'; b.style.setProperty('--mc', COL[L]);
+        b.append('👑 ', mk('b', '', NAME[L]), ' leads overall'); b.addEventListener('click', () => goTab('overview')); line.appendChild(b); }
+      if (day && /\d/.test(day)) line.appendChild(mk('span', '', 'Day ' + day + (tot && /\d/.test(tot) ? ' of ' + tot : '')));
+      if (sinceT) line.appendChild(mk('span', '', sinceT.replace(/ last updated /, ' updated ')));
+      const n = document.querySelector('.st-tt-notify');
+      if (n) { const a = mk('button', 'pt-sl-alert', '🔔 Get alerts'); a.type = 'button'; a.title = 'Get every AI trade the second it happens: Telegram, Discord, X, Instagram, YouTube';
+        a.addEventListener('click', () => n.click()); line.appendChild(a); }
+    };
+    // 2. the top of every tab but the Overview: the short safety line, and on race pages a one-tap AI switch
+    const top = mk('div', 'pt-pagetop');
+    const note = mk('p', 'pt-slimnote'); note.append(mk('b', '', 'Pretend money, real prices. Not advice.'), ' We never take deposits or ask for money. ');
+    { const a = document.createElement('a'); a.href = '#official-accounts'; a.textContent = 'Official accounts';
+      a.addEventListener('click', (e) => { e.preventDefault(); const t = document.getElementById('official-accounts'); const pg = t && t.closest('[data-page]');
+        if (pg) goTab(pg.dataset.page, false); setTimeout(() => { if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150); }); note.appendChild(a); }
+    const sw = mk('div', 'pt-aisw'); sw.setAttribute('role', 'group'); sw.setAttribute('aria-label', 'Switch AI');
+    top.append(note, sw);
+    const paintSw = () => {
+      const cur = dash.model || 'claude', L = leader(), k = cur + '|' + L; if (sw.dataset.k === k) return; sw.dataset.k = k;
+      sw.replaceChildren(mk('span', '', 'Viewing:'));
+      ['claude', 'gemini', 'chatgpt'].forEach((x) => {
+        const b = mk('button'); b.type = 'button'; b.style.setProperty('--mc', COL[x]); b.setAttribute('aria-pressed', String(x === cur));
+        b.title = (x === cur ? 'Showing ' : 'Show ') + NAME[x] + '’s own portfolio in this race' + (x === L ? ' (👑 leads overall)' : '');
+        b.append(aiBadge(x, 20), NAME[x] + (x === L ? ' 👑' : ''));
+        b.addEventListener('click', () => { const sel = document.getElementById('model-pick'); if (sel && sel.value !== x) { sel.value = x; sel.dispatchEvent(new Event('change', { bubbles: true })); } setTimeout(paintSw, 60); });
+        sw.appendChild(b);
+      });
+    };
+    // 3. on a race page, this race's scoreboard, that AI's take and today's grades go under the race's own numbers and holdings
+    const parts = [head.querySelector(':scope > .st-score:not(.st-riskaward)'), head.querySelector('.st-take'), head.querySelector('.st-fact'), head.querySelector('.st-callout')].filter(Boolean);
+    const homes = parts.map((el) => { const m = document.createComment('pt-race-part'); el.before(m); return m; });
+    const box = mk('div', 'pt-race-extra');
+    const goHome = () => { parts.forEach((el, i) => { if (el.parentNode !== homes[i].parentNode || el.previousSibling !== homes[i]) homes[i].after(el); }); box.remove(); };
+    const place = (name) => {
+      name = name || tabNow();
+      const pg = document.getElementById(name);
+      if (name === 'overview' || !pg || !pg.matches('[data-page]')) { goHome(); top.remove(); return; }
+      if (top.parentNode !== pg || pg.firstElementChild !== top) pg.prepend(top);
+      const race = RACES.includes(name); sw.hidden = !race; if (race) paintSw();
+      if (race) {
+        const cards = [...pg.querySelectorAll(':scope > .st-card')];
+        const anchor = cards.find((c) => /^(Holdings|Positions|Bets)\b/.test(((c.querySelector('.st-h2') || {}).textContent || '').trim())) || cards[0];
+        if (anchor && box.previousElementSibling !== anchor) anchor.after(box);
+        parts.forEach((el) => { if (el.parentNode !== box) box.appendChild(el); });
+        parts.forEach((el) => box.appendChild(el));   // keep the order: scoreboard, take, fact check, grades
+      } else goHome();
+      paintLine();
+    };
+    window.addEventListener('pt-tab', (e) => place(e.detail));
+    try { dash.onModel(() => setTimeout(paintSw, 0)); } catch (e) {}
+    try { dash.onData(() => setTimeout(() => { paintLine(); if (!sw.hidden) { sw.dataset.k = ''; paintSw(); } }, 80)); } catch (e) {}
+    setInterval(paintLine, 15000);
+    setTimeout(() => place(), 0);   // after the rest of this script has run (the AI badges are defined further down)
+  })();
   const aiBadge = (id, size) => {
     const w = document.createElement('span'); w.className = 'ai-badge'; w.setAttribute('aria-hidden', 'true');
     if (size) w.style.setProperty('--bs', size + 'px');
@@ -9694,7 +9803,10 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     document.querySelectorAll('.gd-tour-go').forEach((b) => b.addEventListener('click', start));
     // offered once per device, a few seconds after the first visit; never forced
     let seen = '1'; try { seen = localStorage.getItem('pt-tour-offered') || ''; } catch (e) {}
-    if (!seen && !/^#guide/.test(location.hash)) setTimeout(() => {
+    const onOverview = () => (document.documentElement.getAttribute('data-tab') || 'overview') === 'overview';
+    // offered on the Overview only (owner, Nov 18; Claude and Gemini agreed): a visitor who came for one race is not covered by it
+    if (!seen && !/^#guide/.test(location.hash)) { const offer = () => {
+      if (!onOverview()) { const w = (e) => { if (e.detail === 'overview') { window.removeEventListener('pt-tab', w); setTimeout(offer, 4000); } }; window.addEventListener('pt-tab', w); return; }
       try { localStorage.setItem('pt-tour-offered', '1'); } catch (e) {}
       const o = document.createElement('div'); o.className = 'gd-offer'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-label', 'Tour offer');
       o.innerHTML = '<b>New here?</b> A 60-second tour shows where everything is.<br>';
@@ -9702,7 +9814,8 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       const n = document.createElement('button'); n.type = 'button'; n.textContent = 'No thanks'; n.addEventListener('click', () => o.remove());
       const g = document.createElement('button'); g.type = 'button'; g.textContent = 'Read the Guide'; g.addEventListener('click', () => { o.remove(); goTab('guide'); });
       o.append(y, n, g); document.body.appendChild(o);
-    }, 6000);
+      const away = (e) => { if (e.detail !== 'overview') { o.remove(); window.removeEventListener('pt-tab', away); } }; window.addEventListener('pt-tab', away);
+    }; setTimeout(offer, 6000); }
   })();
   // High risk: sports minimums from Nov 1 (owner, Oct 31; all three AIs agreed)
   dash.draw('allinmins', (el) => {
