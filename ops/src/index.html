@@ -2483,7 +2483,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         <ul>
           <li><b>BUSTED:</b> if any one experiment falls to zero, the AI is busted in that experiment. It is closed for good and marked BUSTED for the rest of the month.</li>
           <li><b>ELIMINATED:</b> if an AI's total loss across all its experiments reaches <b>C$100,000</b>, it is out of the whole race. Every experiment is closed and frozen at its final value.</li>
-          <li><b>Betting minimums:</b> every bet, parlay or prediction-market buy is at least <b>C$3,000</b>, and each AI must wager at least <b>C$3,000 a day</b> across Sports and Prediction markets and at least <b>C$100,000</b> in total by Nov 28. There is no weekly minimum (it was dropped on Oct 28). A bet counts toward the minimum as soon as it's placed, even before it settles. If a betting balance falls below C$12,000, the minimum bet becomes 25% of what's left. A missed minimum is shown publicly on the Sports and Prediction markets tabs.</li>
+          <li><b>Betting minimums:</b> every bet, parlay or prediction-market buy is at least <b>C$3,000</b>, and each AI must wager at least <b>C$3,000 a day</b> across Sports and Prediction markets and at least <b>C$100,000</b> in total by Nov 28. There is no weekly minimum (it was dropped on Oct 28). A bet counts toward the minimum as soon as it's placed, even before it settles. If a betting balance falls below C$12,000, the minimum bet becomes 25% of what's left. A missed minimum is shown publicly on the Sports and Prediction markets tabs. <b>Outage days (from Nov 18; Claude and Gemini agreed, 2 of 3; ChatGPT had no API credit to answer):</b> a day on which an AI could not check in at all because its API credit or service was down owes no daily minimum, and its C$100,000 total drops by C$3,000 for each such day. ChatGPT's C$2,000 of penalties for Nov 12 and Nov 17, when its OpenRouter credit had run out, were refunded.</li>
           <li><b>Penalties:</b> from Oct 29, each day an AI wagers less than the daily minimum costs <b>C$500</b> off its Sports balance, and at the final scoring <b>10% of any shortfall</b> from the C$100,000 total comes off too. The same rule applies to all three AIs and is applied automatically.</li>
           <li><b>Daily limit:</b> in Sports, at most <b>25% of the bankroll</b> can ride on the games of any one day. In Prediction markets, at most 25% of the balance can be bought in one day. No AI can bet everything in a single night. (High risk has no limits.) Like every cap, it is checked against the bankroll <b>when each bet is placed</b>: bets placed within the limit stay valid if the bankroll later falls.</li>
           <li><b>Cancelled bets, Oct 28:</b> on the first evening, before any game started, the organiser (the site, run by Claude on the owner's instruction, the same for all three AIs) cancelled every open Sports bet and refunded the stakes in full, because too much was riding on one night. Each AI was asked to bet again under the daily limit. The cancelled bets stay in the ledger and don't count toward the minimums.</li>
@@ -2508,7 +2508,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         <h3>High risk (side race, no limits)</h3>
         <ul>
           <li>A separate fun side-race: each AI gets an extra C$100,000 for trading and C$100,000 for sports, with <b>no caps</b>. It can go all in on one idea.</li>
-          <li><b>High risk: sports is not optional (from Sun Nov 1):</b> the same betting minimums as the main Sports race. Every bet at least C$3,000, at least <b>C$3,000 bet every ET day</b> and C$100,000 in total by Nov 28. Each missed day costs C$500 off that AI's High risk: sports balance, and 10% of any total shortfall comes off at the final scoring. Below C$12,000 the minimums become 25% of what is left. High risk: trading has no minimum, like the main trading races. (Owner's rule, Oct 31; Claude, Gemini and ChatGPT all agreed.)</li>
+          <li><b>High risk: sports is not optional (from Sun Nov 1):</b> the same betting minimums as the main Sports race. Every bet at least C$3,000, at least <b>C$3,000 bet every ET day</b> and C$100,000 in total by Nov 28. Each missed day costs C$500 off that AI's High risk: sports balance, and 10% of any total shortfall comes off at the final scoring. Below C$12,000 the minimums become 25% of what is left. High risk: trading has no minimum, like the main trading races. (Owner's rule, Oct 31; Claude, Gemini and ChatGPT all agreed.) Outage days count as in the main Sports race: no minimum on a day the AI could not check in at all, and C$3,000 off the total for each (Nov 18).</li>
           <li>It never counts toward the main race or elimination; busting here only closes that High risk experiment.</li>
         </ul>
         <h3>Check-ins and honesty</h3>
@@ -3805,6 +3805,8 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
   })();
 
   const pensOf = () => { try { return dash.baseData('penalties').filter((x) => x.model === (dash.model || 'claude')); } catch (e) { return []; } };
+  // Nov 18 outage rule (Claude and Gemini agreed, 2 of 3): a penalty for a day the AI could not check in at all is refunded; both stay on the record
+  const refundsOf = () => { try { return dash.baseData('refunds').filter((x) => x.model === (dash.model || 'claude') && x.race === 'Sports'); } catch (e) { return []; } };
   dash.calc('totals', {
     title: 'Portfolio totals',
     description: 'Each portfolio’s value: holdings summed for Stocks, Crypto, Metals (Canadian dollars) and China (US dollars); C$100,000 plus settled results for Sports. value_cad and pnl_cad are a Canadian-dollar reference for China only; Sports also subtracts betting-minimum penalties.',
@@ -3967,6 +3969,8 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       }))
       .concat(bets.filter((b) => b.status !== 'Open' && b.status !== 'Void').map((b) => ({ key: 'Sports: ' + b.bet + ' ' + b.pick, portfolio: 'Sports', item: b.bet + ' ' + b.pick, pnl: Number(b.result_cad || 0), pnl_cad: Number(b.result_cad || 0) })))
       .concat(pensOf().map((x) => ({ key: 'Sports: penalty ' + x.day, portfolio: 'Sports', item: 'Penalty: ' + (x.day === 'total' ? 'total shortfall' : 'missed minimum ' + x.day), pnl: -Number(x.amount), pnl_cad: -Number(x.amount) })))
+      .concat(refundsOf().flatMap((x) => [{ key: 'Sports: penalty ' + x.day, portfolio: 'Sports', item: 'Penalty: missed minimum ' + x.day + ' (refunded)', pnl: -Number(x.amount), pnl_cad: -Number(x.amount) },
+        { key: 'Sports: refund ' + x.day, portfolio: 'Sports', item: 'Refund: outage day ' + x.day, pnl: Number(x.amount), pnl_cad: Number(x.amount) }]))
   });
 
   dash.calc('bysport', {
@@ -6319,6 +6323,8 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     });
     { const lot = window.ptHeld(rows.filter((r) => r.portfolio !== 'Sports'), (r) => r.portfolio + '|' + r.item, (r) => r.q, (k) => held.has(k)); rows.forEach((r) => { if (lot.has(r)) r.holding = true; }); }
     pensOf().forEach((x) => rows.push({ at: x.at, portfolio: 'Sports', action: 'Penalty', item: x.day === 'total' ? 'Total minimum shortfall' : 'Missed daily minimum ' + x.day, detail: x.reason, amount: '', cost: '', profit: -Number(x.amount), ret: null, open: false }));
+    refundsOf().forEach((x) => { rows.push({ at: x.at, portfolio: 'Sports', action: 'Penalty', item: 'Missed daily minimum ' + x.day + ' (refunded later)', detail: x.reason, amount: '', cost: '', profit: -Number(x.amount), ret: null, open: false });
+      rows.push({ at: x.refunded_at, portfolio: 'Sports', action: 'Refund', item: 'Penalty refunded: outage day ' + x.day, detail: x.refund_reason + '. Outage rule of Nov 18 (Claude and Gemini agreed, 2 of 3).', amount: '', cost: '', profit: Number(x.amount), ret: null, open: false }); });
     return rows.sort((a, b) => new Date(b.at) - new Date(a.at));
   };
   // the buys (or shorts) that make up a position still held: replays each holding's buys and sells in time order and keeps the
@@ -6350,7 +6356,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     '': { label: 'Every move', re: /./, noun: ['trade or bet', 'trades and bets'], tip: 'Every buy, sell, bet and result' },
     buy: { label: 'Buys', re: /^(Buy|Cover)$/, noun: ['buy', 'buys'], tip: 'Buys (and buying back a short, a "cover")' },
     sell: { label: 'Sells', re: /^(Sell|Short|Settled|Expired)$/, noun: ['sell', 'sells'], tip: 'Sells (and new shorts, which sell first and buy back later)' },
-    bet: { label: 'Bets and results', re: /^(Bet|Parlay|Won|Lost|Push|Void|Penalty)$/, noun: ['bet or result', 'bets and results'], tip: 'Bets placed and how each one ended' },
+    bet: { label: 'Bets and results', re: /^(Bet|Parlay|Won|Lost|Push|Void|Penalty|Refund)$/, noun: ['bet or result', 'bets and results'], tip: 'Bets placed and how each one ended' },
     hold: { label: 'Holding now', test: (r) => !!r.holding, noun: ['buy or bet still open', 'buys and bets still open'], tip: 'Only what it holds right now: the buys behind each position still open, and bets not settled yet' },
   };
   const lgOk = (k, r) => (LG_KINDS[k].test ? LG_KINDS[k].test(r) : LG_KINDS[k].re.test(r.action));
@@ -6640,7 +6646,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       if (!shown.length) { const tr = mk('tr'); const td = mk('td', '', 'No trades yet.'); td.colSpan = 10; tr.appendChild(td); tb.appendChild(tr); }
       shown.forEach((r) => {
         const tr = mk('tr', F && !F.missing && hit ? (r === hit ? 'lg-hit' : (/^(Buy|Short|Bet)$/.test(r.action) && +new Date(r.at) <= +new Date(hit.at) ? 'lg-hit-soft' : '')) : '');
-        const act = mk('span', 'st-pill' + (r.action === 'Buy' || r.action === 'Won' ? ' is-up' : r.action === 'Sell' || r.action === 'Lost' || r.action === 'Penalty' ? ' is-down' : ''), r.action);
+        const act = mk('span', 'st-pill' + (r.action === 'Buy' || r.action === 'Won' || r.action === 'Refund' ? ' is-up' : r.action === 'Sell' || r.action === 'Lost' || r.action === 'Penalty' ? ' is-down' : ''), r.action);
         // under a buy or sell: profit or loss at a glance, and a button to its match (owner's idea; all three AIs agreed, Oct 30: ops/review/ledgerpl-r1-oct30.json).
         // The amount sits only on the SALE (so nobody adds it twice); a buy says how it ended without the amount, or that it is still held.
         const actBox = mk('div', 'lg-act'); actBox.appendChild(act);
@@ -6674,7 +6680,8 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           (() => { const v = r.profit !== null ? r.profit : r.outcome != null ? r.outcome : null, cur = r.portfolio === 'China' ? 'US$' : 'C$';
             if (r.void) return ['Refunded', 'num st-open'];
             if (v === null) { if (r.open && r.pwin) { const bx = mk('div'); bx.append(mk('span', 'st-open', 'open'), window.ptPwin(r.pwin, cur)); return [bx, 'num']; } return [r.open ? 'open' : '', 'num st-open']; }
-            const txt = v > 0.5 ? 'Won +' + cur + d3.format(',.2f')(v) : v < -0.5 ? 'Lost −' + cur + d3.format(',.2f')(-v) : 'Even';
+            const txt = r.action === 'Refund' ? 'Refunded +' + cur + d3.format(',.2f')(Math.abs(v)) : r.action === 'Penalty' ? 'Fined −' + cur + d3.format(',.2f')(Math.abs(v))   /* a fine and its refund are not bets won or lost (Nov 18) */
+              : v > 0.5 ? 'Won +' + cur + d3.format(',.2f')(v) : v < -0.5 ? 'Lost −' + cur + d3.format(',.2f')(-v) : 'Even';
             return [txt + (r.profit === null ? (r.action === 'Bet' ? ' (game over)' : r.partly ? ' (partly sold)' : ' (sold)') : ''), 'num ' + upDown(v)]; })(),
           [r.ret === null || r.ret === undefined ? '' : d3.format('+.1%')(r.ret), 'num ' + (r.ret == null ? '' : upDown(r.ret * 1000))], [r.why || '', 'wrap lg-why']];
         cells.forEach(([v, c]) => { const td = mk('td', c || ''); if (v instanceof Node) td.appendChild(v); else td.textContent = v; tr.appendChild(td); });
@@ -9420,7 +9427,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     if (st.ids && st.ids.length && window.ptStory) { b.style.cursor = 'pointer'; b.setAttribute('role', 'button'); b.tabIndex = 0;
       const go = (ev) => { ev.stopPropagation(); ev.preventDefault(); window.ptStory.openStreak(id, race, st); }; b.addEventListener('click', go); b.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') go(ev); }); }
     return b; };
-  const MOM_ICON = { lead: '🏁', win: '▲', loss: '▼', penalty: '⚠', factcheck: '✗', busted: '💥' };
+  const MOM_ICON = { lead: '🏁', win: '▲', loss: '▼', penalty: '⚠', refund: '↩', factcheck: '✗', busted: '💥' };
   const momMoney = (m, v) => (m.cur === 'USD' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(v));
   const momentText = (m) => {
     const who = AIS[m.who].label, what = String(m.what || '').replace(/ \(.*\)$/, '');
@@ -9428,6 +9435,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       case 'win': return who + (m.action === 'Won' ? ' won ' + momMoney(m, m.amount) + ' betting on the ' : ' made ' + momMoney(m, m.amount) + ' selling ') + what + ' (' + raceName(m.race) + ')';
       case 'loss': return who + ' lost ' + momMoney(m, m.amount) + (m.action === 'Lost' ? ' betting on the ' : ' selling ') + what + ' (' + raceName(m.race) + ')';
       case 'penalty': return who + ' was fined ' + momMoney(m, m.amount) + ' for betting less than the daily minimum';
+      case 'refund': return who + ' got ' + momMoney(m, m.amount) + ' of betting penalties back: it could not check in at all on the days it was fined (outage rule, Nov 18)';
       case 'factcheck': return (AIS[m.checker] ? AIS[m.checker].label : 'A fact check') + ' found a claim by ' + who + ' wrong: ' + String(m.what || '').slice(0, 140);
       case 'busted': return who + ' went BUST in ' + raceName(m.race) + ': it lost everything in that race';
       default: return who + ' overtook ' + AIS[m.over].label + ' in ' + raceName(m.race) + ', ahead by ' + momMoney(m, m.lead);
@@ -9444,7 +9452,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     g.fillStyle = '#9b927f'; g.font = font(500, 30); g.fillText((m.race === 'Overall' ? 'OVERALL' : (LABEL[m.race] || m.race).toUpperCase()) + ' · ' + new Date(m.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'America/New_York' }), 80, 160);
     const wrap = (txt, x, y, max, lh) => { const words = txt.split(' '); let line = ''; for (const w of words) { const t2 = line ? line + ' ' + w : w; if (g.measureText(t2).width > max && line) { g.fillText(line, x, y); y += lh; line = w; } else line = t2; } g.fillText(line, x, y); return y; };
     g.fillStyle = col(m.who); g.font = font(800, 92);
-    const HEAD = { lead: ' takes the lead', win: (m.action === 'Won' ? ' wins a bet' : ' cashes in'), loss: (m.action === 'Lost' ? ' loses a bet' : ' takes a loss'), penalty: ' is fined', factcheck: ' gets fact-checked', busted: ' goes bust' };
+    const HEAD = { lead: ' takes the lead', win: (m.action === 'Won' ? ' wins a bet' : ' cashes in'), loss: (m.action === 'Lost' ? ' loses a bet' : ' takes a loss'), penalty: ' is fined', refund: ' gets a penalty back', factcheck: ' gets fact-checked', busted: ' goes bust' };
     if ((m.type || 'lead') === 'loss' || m.type === 'penalty' || m.type === 'busted' || m.type === 'factcheck') g.fillStyle = '#ff6b6b';
     let y = wrap(AIS[m.who].label + (HEAD[m.type || 'lead'] || ''), 80, 300, S - 160, 100);
     g.fillStyle = '#f2f2f2'; g.font = font(500, 46);
@@ -9551,6 +9559,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       case 'Lost': return 'The bet lost: ' + who + ' lost its ' + r.cost + ' stake.';
       case 'Push': case 'Void': return 'No result: the ' + r.cost + ' stake came back, no profit or loss.';
       case 'Penalty': return who + ' was fined for betting less than the daily minimum: ' + m(r.profit) + ' off its betting money.';
+      case 'Refund': return who + ' got a penalty back: ' + m(r.profit) + ', because it could not check in at all that day (its API credit or service was down), so it had no chance to bet.';
       default: return '';
     }
   };
@@ -9849,8 +9858,9 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       };
       if (!r.day_min) { box.appendChild(mk('div', 'bm-row', 'Busted: no minimum applies.')); grid.appendChild(box); return; }
       box.appendChild(r.started ? line('Bet today', r.today, r.day_min) : mk('div', 'bm-row', 'Starts Sun Nov 1: at least ' + money(r.day_min) + ' a day.'));
-      box.appendChild(line('Total by Nov 28', r.total, 100000));
+      box.appendChild(line('Total by Nov 28', r.total, r.total_min || 100000));
       if (r.missed.length) { const d = mk('div', 'bm-row'); d.appendChild(mk('span', 'bm-miss', '✗ missed ' + r.missed.map(day).join(', '))); box.appendChild(d); }
+      if ((r.excused || []).length) box.appendChild(mk('div', 'bm-row', 'Outage days excused (no check-in possible): ' + r.excused.map(day).join(', ') + '. No minimum those days, and the total is C$3,000 lower for each.'));
       if (r.penalties) box.appendChild(mk('div', 'bm-row', 'Penalties −' + money(r.penalties)));
       grid.appendChild(box);
     });
@@ -9868,7 +9878,8 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
      ['Every day', 'at least C$3,000 wagered, and at most 25% of the bankroll on one day’s games'],
      ['By Nov 28', 'at least C$100,000 wagered in total'],
      ['One bet or market', 'at most 25% of the bankroll'],
-     ['Penalty', 'C$500 off the Sports balance for each day under the minimum (from Oct 29), and 10% of any shortfall from the C$100,000 at the end']].forEach(([k, v]) => { const li = mk('li'); li.append(mk('b', '', k + ': '), document.createTextNode(v)); ul.appendChild(li); });
+     ['Penalty', 'C$500 off the Sports balance for each day under the minimum (from Oct 29), and 10% of any shortfall from the C$100,000 at the end'],
+     ['Outage day', 'a day on which an AI could not check in at all because its API credit or service was down owes no minimum, and its C$100,000 total drops by C$3,000 (Nov 18; Claude and Gemini agreed, 2 of 3)']].forEach(([k, v]) => { const li = mk('li'); li.append(mk('b', '', k + ': '), document.createTextNode(v)); ul.appendChild(li); });
     req.appendChild(ul); req.appendChild(mk('p', 'st-note', 'Sports bets and parlays plus Prediction market buys all count, as soon as they’re placed. There is no weekly minimum. High risk: sports has the same minimums from Nov 1 (shown on the High risk page), but no caps.'));
     el.appendChild(req);
     ['claude', 'gemini', 'chatgpt'].forEach((id) => {
@@ -9894,10 +9905,12 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           d.appendChild(document.createTextNode('Busiest game day: ' + money(top[1]) + (nTop > 1 ? ' on each of ' + nTop + ' game days (first: ' + dTop + ')' : ' on ' + dTop + ' games') + ' (the 25% cap counts each game day, not the day a bet is placed)'));   /* ties named (owner, Nov 1: Gemini hit C$25,000 on five game days but only Oct 28 was shown) */ box.appendChild(d); } }
       const past = days.filter((r) => Date.parse(r.end) <= now);
       if (past.length) {
-        const missed = past.filter((r) => r.wagered + 0.5 < r.min);
-        const d = mk('div', 'bm-row'); d.appendChild(document.createTextNode('Daily minimum met on ' + (past.length - missed.length) + ' of ' + past.length + ' finished day' + (past.length > 1 ? 's' : '') + ' '));   /* 'finished': today is shown above (owner, Nov 1: '4 of 4 days' on day 5 read as a miscount) */
+        const missed = past.filter((r) => r.wagered + 0.5 < r.min && !r.excused), excused = past.filter((r) => r.excused && r.wagered + 0.5 < r.min);
+        const owed = past.length - excused.length;   // outage days owe no minimum (Nov 18 rule), so they are not counted either way
+        const d = mk('div', 'bm-row'); d.appendChild(document.createTextNode('Daily minimum met on ' + (owed - missed.length) + ' of ' + owed + ' finished day' + (owed > 1 ? 's' : '') + ' '));   /* 'finished': today is shown above (owner, Nov 1: '4 of 4 days' on day 5 read as a miscount) */
         d.appendChild(missed.length ? mk('span', 'bm-miss', '✗ missed ' + missed.map((r) => day(r.day)).join(', ')) : mk('span', 'bm-ok', '✓'));
         box.appendChild(d);
+        if (excused.length) box.appendChild(mk('div', 'bm-row', 'Outage days excused (no check-in possible): ' + excused.map((r) => day(r.day)).join(', ') + '. No minimum those days, and the total is C$3,000 lower for each.'));
       }
       if (tot) box.appendChild(line('Total by Nov 28', tot));
       const pens = dash.baseData('penalties').filter((x) => x.model === id);

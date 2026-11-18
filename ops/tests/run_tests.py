@@ -264,5 +264,34 @@ def test_health_alert_is_not_silenced_by_an_open_issue():
     assert H.key(a) == H.key(b) and H.key(a) != H.key(c), (H.key(a), H.key(b), H.key(c))
     assert H.MARK.search(H.marker({H.key(a)})) and 'already open' not in open('.github/workflows/rivals.yml').read()
 
+
+def test_outage_days_owe_no_minimum_and_are_refunded():
+    """Nov 18 vote (Claude and Gemini agreed, 2 of 3): a penalty for a day the AI could not check in at all (its API credit or service
+    down) is refunded once, with a Refund line; such a day owes no minimum and lowers the C$100,000 totals by C$3,000; a day with any
+    working check-in, or one that failed for the AI's own reply, still owes the minimum."""
+    saved_now, saved_tg = R.NOW, R.tg
+    R.NOW, R.tg = datetime(2026, 11, 21, 15, 0, tzinfo=timezone.utc), (lambda *a, **k: None)
+    try:
+        pen = lambda d, e='Sports': {'day': d, 'at': d + 'T12:00:00Z', 'amount': 500.0, 'reason': 'missed'}
+        st = {'trades': [], 'notices': {}, 'models': {'chatgpt': {'books': {'Sports': {'bets': [], 'penalties': [pen('2026-11-12'), pen('2026-11-15')]},
+                                                                          'AllInSports': {'bets': [], 'penalties': [pen('2026-11-17')]}},
+                                                                'day_log': {'2026-11-18': {'ok': 0, 'down': 9, 'other': 0},     # out all day: excused
+                                                                            '2026-11-19': {'ok': 1, 'down': 8, 'other': 0},     # one working check-in: owes it
+                                                                            '2026-11-20': {'ok': 0, 'down': 0, 'other': 5}}}}}  # its own replies failed: owes it
+        assert R.excused_days(st, 'chatgpt') == {'2026-11-12', '2026-11-17', '2026-11-18'}, R.excused_days(st, 'chatgpt')
+        assert R.total_min(st, 'chatgpt', R.PENALTY_FROM) == 91000.0
+        R.apply_outage_refunds(st)
+        sp, al = st['models']['chatgpt']['books']['Sports'], st['models']['chatgpt']['books']['AllInSports']
+        assert [p['day'] for p in sp['penalties']] == ['2026-11-15'] and [p['day'] for p in sp['refunded_penalties']] == ['2026-11-12'], sp
+        assert al['penalties'] == [] and al['refunded_penalties'][0]['day'] == '2026-11-17' and R.allin_balance(al) == 100000.0
+        assert [(t['experiment'], t['action'], t['symbol'], t['amount']) for t in st['trades']] == [('Sports', 'Refund', 'R-2026-11-12', 500.0), ('AllInSports', 'Refund', 'RA-2026-11-17', 500.0)]
+        assert 'refunded' in st['notices']['chatgpt'] and st['excused']['chatgpt'] == ['2026-11-12', '2026-11-17', '2026-11-18']
+        R.apply_outage_refunds(st)   # never twice
+        assert len(st['trades']) == 2 and len(sp['refunded_penalties']) == 1
+        assert R.is_outage('error: HTTP Error 402: Payment Required') and R.is_outage('error: <urlopen error timed out>')
+        assert not R.is_outage('error: Expecting value: line 1 column 1 (char 0)') and not R.is_outage('ok')
+    finally:
+        R.NOW, R.tg = saved_now, saved_tg
+
 if __name__ == '__main__':
     main()

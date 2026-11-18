@@ -124,6 +124,9 @@ def build(rivals, claude):
             if t['experiment'] == 'Sports' and t['action'] == 'Penalty':
                 d['log'].append({'at': t['at'], 'portfolio': 'Sports', 'action': 'Penalty', 'detail': f"Penalty −C${abs(t['amount']):,.0f}: {t['reason']}"})
                 continue
+            if t['experiment'] == 'Sports' and t['action'] == 'Refund':   # Nov 18 outage rule: a penalty given back
+                d['log'].append({'at': t['at'], 'portfolio': 'Sports', 'action': 'Refund', 'detail': f"Refund +C${abs(t['amount']):,.0f}: {t['reason']}"})
+                continue
             if t['experiment'] == 'Sports':
                 sign = '' if t['action'] == 'Bet' else ('+' if t['amount'] >= 0 else '−')
                 d['log'].append({'at': t['at'], 'portfolio': 'Sports', 'action': 'Bet' if t['action'] == 'Bet' else 'Settle',

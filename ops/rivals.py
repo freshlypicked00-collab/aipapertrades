@@ -80,6 +80,17 @@ PENALTY_DAY = 500.0     # C$ off the Sports balance for each ET day with less th
 PENALTY_TOTAL = 0.10    # and 10% of any shortfall from the C$100,000 total, at the final scoring
 PENALTY_FROM = '2026-10-29'
 ALLIN_MIN_FROM = '2026-11-01'   # High risk: Sports gets the same betting minimums from this ET day (owner, Oct 31; vote ops/review/allin-min-oct31.json)
+# Outage days (Nov 18 vote, ops/review/outage-refund-nov18.json: Claude and Gemini agreed, 2 of 3; ChatGPT had no API credit to answer):
+# an ET day on which an AI had NO successful check-in because its API credit or service was down owes no daily betting minimum, and
+# each such day lowers that AI's C$100,000 totals (Sports, High risk: Sports) by the C$3,000 daily minimum. Penalties already charged
+# for such a day are refunded (apply_outage_refunds). From OUTAGE_FROM the days are found from the runner's own records (day_log);
+# the two days before it were voted on by name. For Claude, an outage day is a day with no update at all.
+OUTAGE_FROM = '2026-11-18'
+OUTAGE_VOTED = {'chatgpt': {
+    '2026-11-12': 'ChatGPT could not check in at all on Nov 12 (ET): the OpenRouter credit that pays for its API calls had run out, '
+                  'and every call failed with HTTP 402 from Nov 11, 8:39 p.m. to Nov 13, about 6 a.m. ET',
+    '2026-11-17': 'ChatGPT could not check in at all on Nov 17 (ET): the OpenRouter credit that pays for its API calls had run out, '
+                  'and every call failed with HTTP 402 from Nov 16, 1:45 p.m. ET'}}
 # Prediction markets is not optional (owner Nov 2; Claude, Gemini and ChatGPT all agreed: ops/review/pred-sitout-nov2.json):
 # at least C$3,000 bought there each ET week (Mon-Sun) from Mon Nov 2, at least C$15,000 bought there since the Oct 28 restart by
 # Nov 28; C$1,000 off the Prediction markets balance per missed week, 10% of any shortfall from C$15,000 at the final scoring.
@@ -106,7 +117,11 @@ ANNOUNCEMENTS = [('2026-10-29T16:00:00+00:00', 'RULE CHANGE (Oct 28, 5:30 p.m. E
                   'The daily limit (at most 25% of the bankroll on one day) and the 25% cap per bet stay.'),
                  ('2026-11-01T04:00:00+00:00', 'RACE UPDATE (Oct 29, agreed by all three AIs): from 6:00 p.m. ET Claude\'s orders are filled by the same race runner, '
                   'code and live feeds as yours, at the moment they are processed; Claude no longer records its own fill prices. Stop and target orders now '
-                  'exist for all three AIs (see STOPS AND TARGETS), and each AI grades the others\' new trades and bets (see PEER GRADES).')]
+                  'exist for all three AIs (see STOPS AND TARGETS), and each AI grades the others\' new trades and bets (see PEER GRADES).'),
+                 ('2026-11-28T21:00:00+00:00', 'RULE (Nov 18; Claude and Gemini agreed, 2 of 3; ChatGPT had no API credit to answer): an ET day on which an AI had '
+                  'NO successful check-in because its API credit or service was down owes no daily betting minimum (Sports and High risk: Sports), and '
+                  'each such day lowers that AI\'s C$100,000 totals by C$3,000. A day with any working check-in still owes the full minimum. ChatGPT\'s '
+                  'C$2,000 of penalties for Nov 12 and Nov 17 (its OpenRouter credit had run out) were refunded under this rule.')]
 try:
     from zoneinfo import ZoneInfo
     NY = ZoneInfo('America/New_York')
@@ -1413,14 +1428,16 @@ def betting_rule_line(state, mid, fx):
     today = NOW.astimezone(NY).date()
     end = datetime.fromisoformat(BET_END).astimezone(NY).date()
     d0 = FRESH_START.astimezone(NY).date()
-    missed = []
+    ex = excused_days(state, mid)   # outage days owe no minimum (Nov 18 vote)
+    need = total_min(state, mid, PENALTY_FROM)
+    missed, excused = [], []
     d = d0
     while d < today:
         if days.get(d.isoformat(), 0.0) + 0.5 < dmin:
-            missed.append(d.strftime('%b %-d'))
+            (excused if d.isoformat() in ex else missed).append(d.strftime('%b %-d'))
         d += timedelta(days=1)
     done = days.get(today.isoformat(), 0.0)
-    left_total = max(0.0, TOTAL_MIN - total)
+    left_total = max(0.0, need - total)
     days_left = max(1, (end - today).days + 1)
     return ('BETTING MINIMUMS (hard rules for every AI, Claude included): every bet, parlay or prediction-market buy is at least C$3,000 (if your betting balance falls below C$12,000 the minimum becomes 25% of what is left); '
             'DAILY MINIMUM: wager at least C$3,000 every day (ET), across Sports and Prediction markets; one bet at the minimum is enough; '
@@ -1430,8 +1447,9 @@ def betting_rule_line(state, mid, fx):
             'a bet counts toward the minimums as soon as it is placed, even before it settles. '
             f'Today ({today.strftime("%a %b %-d")}, ET) you have wagered {money(done, "CAD")} of the {money(dmin, "CAD")} daily minimum'
             + (' (met). ' if done + 0.5 >= dmin else f' ({money(dmin - done, "CAD")} still to wager today). ')
-            + f'In total you have wagered {money(total, "CAD")} of {money(TOTAL_MIN, "CAD")} ({money(left_total, "CAD")} left, {days_left} days left including today, about {money(left_total / days_left, "CAD")} a day). '
+            + f'In total you have wagered {money(total, "CAD")} of {money(need, "CAD")} ({money(left_total, "CAD")} left, {days_left} days left including today, about {money(left_total / days_left, "CAD")} a day). '
             + (f'Days you missed the daily minimum: {", ".join(missed)}. ' if missed else 'You have not missed a daily minimum so far. ')
+            + (f'Outage days excused (you could not check in at all; no minimum and no penalty, and your total minimum is C$3,000 lower for each): {", ".join(excused)}. ' if excused else '')
             + 'A missed minimum is shown publicly on the site. The 25% cap per bet still applies; pick real value, not filler bets. HOW BETTING IS WON: in Sports and Prediction markets the winner is whoever finishes Nov 28 with the HIGHEST BALANCE, not whoever makes the biggest bets or wins the most bets. You must still reach the wagering minimums, but how you size each bet is up to you: the 25% cap is a limit, not a target, heavy favourites pay little, and one upset can cost more than several wins. YOU DO NOT HAVE TO BET HIGH: the C$3,000 minimum is only there to stop tiny C$1 bets, not a size to aim above. Bet as if it were life or death: the goal is to stay number 1 with the highest balance, and spending too much on bets is how you lose it.')
 
 
@@ -1458,6 +1476,109 @@ def allin_balance(book):
     return START + sum(b['result'] for b in book.get('bets', []) if b['status'] != 'Open') - sum(x['amount'] for x in book.get('penalties', []))
 
 
+_OUTAGE_RE = re.compile(r'http(?: error)? (?:402|429|5\d\d)\b|payment required|credit|quota|billing|insufficient|resource_exhausted|timed out|timeout|'
+                        r'urlopen error|connection (?:reset|refused|aborted)|remote end closed|no model answered in time|overloaded|service unavailable', re.I)
+
+
+def is_outage(status):
+    """A check-in that failed because the AI's API failed (credit, quota, rate limit, server error, timeout), not because of its own reply."""
+    return str(status).startswith('error') and bool(_OUTAGE_RE.search(str(status)))
+
+
+def backfill_day_log(state):
+    """Once, for an AI with no day_log yet: rebuild the days from OUTAGE_FROM out of the search source ledger (one entry per check-in)."""
+    for mid, m in state.get('models', {}).items():
+        if 'day_log' in m:
+            continue
+        log = m['day_log'] = {}
+        for x in state.get('search_log', []):
+            if x.get('model') != mid or not x.get('at'):
+                continue
+            d = et_day(x['at'])
+            if d < OUTAGE_FROM:
+                continue
+            st = x.get('status') or 'ok'
+            k = 'ok' if st == 'ok' else 'down' if is_outage(st) else 'other'
+            row = log.setdefault(d, {'ok': 0, 'down': 0, 'other': 0})
+            row[k] += 1
+
+
+def excused_days(state, mid):
+    """Finished ET days (YYYY-MM-DD) on which this AI owes no daily betting minimum under the Nov 18 outage rule."""
+    today = NOW.astimezone(NY).date().isoformat()
+    out = {d for d in OUTAGE_VOTED.get(mid, {}) if d < today}
+    if mid == 'claude':   # Claude's check-ins are its own scheduled updates: a day with none at all
+        try:
+            seen = {et_day(x['at']) for x in json.load(open('ops/src/history.json')) if x.get('at')}
+        except Exception:
+            return out
+        d = datetime.fromisoformat(OUTAGE_FROM).date()
+        while d.isoformat() < today:
+            if d.isoformat() not in seen:
+                out.add(d.isoformat())
+            d += timedelta(days=1)
+        return out
+    for d, v in (((state.get('models') or {}).get(mid) or {}).get('day_log') or {}).items():
+        if OUTAGE_FROM <= d < today and not v.get('ok') and v.get('down'):
+            out.add(d)
+    return out
+
+
+def total_min(state, mid, since):
+    """The C$100,000 total minimum, less C$3,000 for each outage day from `since` (the race's first minimum day) to the end."""
+    last = datetime.fromisoformat(BET_END).astimezone(NY).date().isoformat()
+    return TOTAL_MIN - DAY_MIN * len([d for d in excused_days(state, mid) if since <= d <= last])
+
+
+def apply_outage_refunds(state):
+    """Nov 18 vote (ops/review/outage-refund-nov18.json; Claude and Gemini agreed, 2 of 3): a betting-minimum penalty charged for an
+    outage day is refunded. It moves from 'penalties' to 'refunded_penalties' (so no balance counts it and it is never charged again),
+    and the ledger gets a matching Refund line; the original Penalty line stays, because the record is append-only."""
+    names = {'claude': 'CLAUDE', 'gemini': 'GEMINI', 'chatgpt': 'CHATGPT'}
+    for mid in list(state.get('models', {})) + ['claude']:
+        ex = excused_days(state, mid)
+        if not ex:
+            continue
+        holders = []
+        if mid == 'claude':
+            holders.append(('Sports', state, 'claude_penalties', 'claude_penalties_refunded'))
+            ab = allin_sports_book(state, 'claude')
+            if ab is not None:
+                holders.append(('AllInSports', ab, 'penalties', 'refunded_penalties'))
+        else:
+            bk = state['models'][mid].get('books') or {}
+            holders += [(e, bk[e], 'penalties', 'refunded_penalties') for e in ('Sports', 'AllInSports') if bk.get(e) is not None]
+        back = []
+        for e, holder, key, rkey in holders:
+            pens = holder.get(key) or []
+            hit = [p for p in pens if p.get('day') in ex]
+            if not hit:
+                continue
+            holder[key] = [p for p in pens if p.get('day') not in ex]
+            for p in hit:
+                d = datetime.fromisoformat(p['day']).date()
+                why = OUTAGE_VOTED.get(mid, {}).get(p['day']) or (
+                    f"{RIVALS[mid]['label'] if mid in RIVALS else 'Claude'} could not check in at all on {d.strftime('%b %-d')} (ET) because its API credit or service was down")
+                label = 'High risk: Sports' if e == 'AllInSports' else 'Sports'
+                amt = float(p.get('amount') or 0)
+                holder.setdefault(rkey, []).append(dict(p, refunded_at=iso(), refund_reason=why))
+                if mid != 'claude':
+                    state['trades'].append({'at': iso(), 'model': mid, 'experiment': e, 'action': 'Refund', 'symbol': ('RA-' if e == 'AllInSports' else 'R-') + p['day'],
+                                            'outcome': None, 'name': 'Penalty refunded (outage day)', 'price': 0, 'pcur': 'CAD', 'qty': 1, 'amount': amt, 'cur': 'CAD',
+                                            'fx': None, 'reason': f"Refund of the {money(amt, 'CAD')} {label} penalty for {d.strftime('%b %-d')}: {why}. "
+                                                                  'Outage rule of Nov 18 (Claude and Gemini agreed, 2 of 3).'})
+                tg(f"⚖️ <b>{names.get(mid, mid)}: +{money(amt, 'CAD')} {label} penalty refunded</b>\n{esc(why)}. Outage rule of Nov 18 (Claude and Gemini agreed, 2 of 3).\n{SITE}")
+                back.append(f"{money(amt, 'CAD')} in {label} for {d.strftime('%b %-d')}")
+        if back and mid != 'claude':
+            note = ('NOTICE (Nov 18 vote; Claude and Gemini agreed, 2 of 3): these betting-minimum penalties were refunded because your API credit had run out '
+                    'and you could not check in at all on those days: ' + '; '.join(back) + '. New standing rule, the same for all three AIs: an ET day with '
+                    'no successful check-in because your API credit or service was down owes no daily betting minimum, and each such day lowers your '
+                    f'C$100,000 totals by C$3,000 (your Sports total minimum is now {money(total_min(state, mid, PENALTY_FROM), "CAD")}, your High risk: '
+                    f'Sports total minimum {money(total_min(state, mid, ALLIN_MIN_FROM), "CAD")}). A day with any working check-in still owes the full minimum.')
+            state.setdefault('notices', {})[mid] = (state.get('notices', {}).get(mid, '') + ' ' + note).strip()
+    state['excused'] = {mid: sorted(excused_days(state, mid)) for mid in list(state.get('models', {})) + ['claude']}
+
+
 def allin_rule_line(state, mid):
     """High risk: Sports betting minimums for the prompt (same rules as the main Sports race, from Nov 1)."""
     book = allin_sports_book(state, mid)
@@ -1469,14 +1590,16 @@ def allin_rule_line(state, mid):
     today = NOW.astimezone(NY).date()
     end = datetime.fromisoformat(BET_END).astimezone(NY).date()
     d0 = datetime.fromisoformat(ALLIN_MIN_FROM).date()
-    missed = []
+    ex = excused_days(state, mid)   # outage days owe no minimum (Nov 18 vote)
+    need = total_min(state, mid, ALLIN_MIN_FROM)
+    missed, excused = [], []
     d = d0
     while d < today:
         if days.get(d.isoformat(), 0.0) + 0.5 < dmin:
-            missed.append(d.strftime('%b %-d'))
+            (excused if d.isoformat() in ex else missed).append(d.strftime('%b %-d'))
         d += timedelta(days=1)
     done = days.get(today.isoformat(), 0.0)
-    left_total = max(0.0, TOTAL_MIN - total)
+    left_total = max(0.0, need - total)
     days_left = max(1, (end - today).days + 1)
     return ('HIGH RISK: SPORTS MINIMUMS (owner, Oct 31; from Sun Nov 1, same as the main Sports race, every AI): High risk: Sports is NOT optional. '
             'Every High risk bet is at least C$3,000; wager at least C$3,000 in High risk: Sports every ET day; at least C$100,000 wagered in High risk: Sports in total by Nov 28. '
@@ -1484,8 +1607,9 @@ def allin_rule_line(state, mid):
             'Below C$12,000 the per-bet and daily minimum become 25% of what is left; a busted book has none. No caps otherwise. '
             + (f'Today ({today.strftime("%a %b %-d")}, ET) you have bet {money(done, "CAD")} of the {money(dmin, "CAD")} High risk daily minimum'
                + (' (met). ' if done + 0.5 >= dmin else f' ({money(dmin - done, "CAD")} still to bet today in High risk: Sports). ') if today >= d0 else '')
-            + f'High risk total so far: {money(total, "CAD")} of {money(TOTAL_MIN, "CAD")} ({money(left_total, "CAD")} left, about {money(left_total / days_left, "CAD")} a day). '
-            + (f'High risk days missed: {", ".join(missed)}. ' if missed else ''))
+            + f'High risk total so far: {money(total, "CAD")} of {money(need, "CAD")} ({money(left_total, "CAD")} left, about {money(left_total / days_left, "CAD")} a day). '
+            + (f'High risk days missed: {", ".join(missed)}. ' if missed else '')
+            + (f'High risk outage days excused (no minimum, no penalty, total minimum C$3,000 lower for each): {", ".join(excused)}. ' if excused else ''))
 
 
 def pred_bought(state, mid):
@@ -1589,14 +1713,16 @@ def apply_allin_penalties(state):
             continue
         pens = book.setdefault('penalties', [])
         days, total = allin_wagered(state, mid)
-        done = {x['day'] for x in pens}
+        done = {x['day'] for x in pens} | {x['day'] for x in book.get('refunded_penalties', [])}
+        ex = excused_days(state, mid)   # outage days owe no minimum (Nov 18 vote)
+        need = total_min(state, mid, ALLIN_MIN_FROM)
         d = datetime.fromisoformat(ALLIN_MIN_FROM).date()
         end = min(today - timedelta(days=1), last) if NOW < RACE_END else last
         name = {'claude': 'CLAUDE', 'gemini': 'GEMINI', 'chatgpt': 'CHATGPT'}.get(mid, mid)
         while d <= end:
             k = d.isoformat()
             bal = allin_balance(book)
-            if bal >= 1 and k not in done:
+            if bal >= 1 and k not in done and k not in ex:
                 dmin = day_min(bal)
                 if days.get(k, 0.0) + 0.5 < dmin:
                     amt = min(PENALTY_DAY, round(bal, 2))
@@ -1606,9 +1732,10 @@ def apply_allin_penalties(state):
                                             'reason': pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:] + '.'})
                     tg(f"⚖️ <b>{name}: −C${amt:,.0f} High risk penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
             d += timedelta(days=1)
-        if NOW >= RACE_END and 'total' not in done and total + 0.5 < TOTAL_MIN and allin_balance(book) >= 1:
-            amt = min(round(PENALTY_TOTAL * (TOTAL_MIN - total), 2), round(allin_balance(book), 2))
-            pens.append({'day': 'total', 'at': iso(), 'amount': amt, 'reason': f'bet {money(total, "CAD")} in High risk: Sports of the C$100,000 required by Nov 28 (10% of the shortfall)'})
+        if NOW >= RACE_END and 'total' not in done and total + 0.5 < need and allin_balance(book) >= 1:
+            amt = min(round(PENALTY_TOTAL * (need - total), 2), round(allin_balance(book), 2))
+            pens.append({'day': 'total', 'at': iso(), 'amount': amt, 'reason': f'bet {money(total, "CAD")} in High risk: Sports of the {money(need, "CAD")} required by Nov 28 (10% of the shortfall)'
+                         + (f' (C$100,000 less C$3,000 for each of {int(round((TOTAL_MIN - need) / DAY_MIN))} outage day(s))' if need < TOTAL_MIN else '')})
             tg(f"⚖️ <b>{name}: −C${amt:,.0f} High risk penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
 
 def public_board(state, me):
@@ -1739,12 +1866,15 @@ def apply_penalties(state, fx):
         else:
             bal = betting_balance(m, fx)
         dmin = day_min(bal)
-        done = {x['day'] for x in pens}
+        refunded = (book or {}).get('refunded_penalties', []) if book is not None else state.get('claude_penalties_refunded', [])
+        done = {x['day'] for x in pens} | {x['day'] for x in refunded}
+        ex = excused_days(state, mid)   # outage days owe no minimum (Nov 18 vote)
+        need = total_min(state, mid, PENALTY_FROM)
         d = datetime.fromisoformat(PENALTY_FROM).date()
         end = min(today - timedelta(days=1), last) if NOW < RACE_END else last
         while d <= end:
             k = d.isoformat()
-            if k not in done and days.get(k, 0.0) + 0.5 < dmin:
+            if k not in done and k not in ex and days.get(k, 0.0) + 0.5 < dmin:
                 amt = PENALTY_DAY
                 pens.append({'day': k, 'at': iso(), 'amount': amt, 'reason': f'missed the daily betting minimum on {d.strftime("%b %-d")} (wagered {money(days.get(k, 0.0), "CAD")} of {money(dmin, "CAD")})'})
                 state['trades'].append({'at': iso(), 'model': mid, 'experiment': 'Sports', 'action': 'Penalty', 'symbol': 'P-' + k, 'outcome': None,
@@ -1752,9 +1882,10 @@ def apply_penalties(state, fx):
                                         'reason': pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:] + '.'}) if mid != 'claude' else None
                 tg(f"⚖️ <b>{ {'claude': 'CLAUDE', 'gemini': 'GEMINI', 'chatgpt': 'CHATGPT'}.get(mid, mid) }: −C${amt:,.0f} penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
             d += timedelta(days=1)
-        if NOW >= RACE_END and 'total' not in done and total + 0.5 < TOTAL_MIN:
-            amt = round(PENALTY_TOTAL * (TOTAL_MIN - total), 2)
-            pens.append({'day': 'total', 'at': iso(), 'amount': amt, 'reason': f'wagered {money(total, "CAD")} of the C$100,000 required by Nov 28 (10% of the shortfall)'})
+        if NOW >= RACE_END and 'total' not in done and total + 0.5 < need:
+            amt = round(PENALTY_TOTAL * (need - total), 2)
+            pens.append({'day': 'total', 'at': iso(), 'amount': amt, 'reason': f'wagered {money(total, "CAD")} of the {money(need, "CAD")} required by Nov 28 (10% of the shortfall)'
+                         + (f' (C$100,000 less C$3,000 for each of {int(round((TOTAL_MIN - need) / DAY_MIN))} outage day(s))' if need < TOTAL_MIN else '')})
             tg(f"⚖️ <b>{ {'claude': 'CLAUDE', 'gemini': 'GEMINI', 'chatgpt': 'CHATGPT'}.get(mid, mid) }: −C${amt:,.0f} penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
 
 
@@ -2170,6 +2301,11 @@ def main():
         price_alerts(state)
     except Exception as e:
         print('price alerts failed', e)
+    try:   # Nov 18 outage rule (Claude and Gemini agreed, 2 of 3): penalties for outage days are refunded before new ones are charged
+        backfill_day_log(state)
+        apply_outage_refunds(state)
+    except Exception as e:
+        print('outage refunds failed', e)
     try:
         if not state.get('final') or not all(x in state['final'] for x in list(state.get('models', {})) + ['claude']):
             apply_penalties(state, fx)   # before the final freeze, so a last missed day counts in the final values
@@ -2518,6 +2654,11 @@ def main():
         except Exception as e:
             print('search ledger failed', e)
         m['fail_streak'] = 0 if status == 'ok' else m.get('fail_streak', 0) + 1   # the workflow opens a GitHub issue at 3
+        try:   # Nov 18 outage rule: what this ET day's check-ins did (ok; down = its API failed; other = its own reply failed)
+            _dl = m.setdefault('day_log', {}).setdefault(NOW.astimezone(NY).date().isoformat(), {'ok': 0, 'down': 0, 'other': 0})
+            _dl['ok' if status == 'ok' else 'down' if is_outage(status) else 'other'] += 1
+        except Exception as e:
+            print('day log failed', e)
         for rr, cl, rc in day_posts:
             n = (datetime.fromisoformat(cl[0]) - datetime(2026, 10, 28)).days + 1
             head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(rr['label'], rr['label'])

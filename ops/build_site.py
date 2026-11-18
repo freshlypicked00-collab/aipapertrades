@@ -861,6 +861,11 @@ def _said(x):   # what the graded decision was; a hold keeps the positions alrea
 
 data['betmins'] = []
 _today = datetime.now(_ny).date()
+# Nov 18 outage rule (Claude and Gemini agreed, 2 of 3): an ET day with no working check-in because the AI's API credit or service was
+# down owes no minimum, and lowers its C$100,000 totals by C$3,000; the race runner keeps each AI's outage days in r['excused']
+_EXC = {k: set(v) for k, v in (r.get('excused') or {}).items()}
+def _need(mid, since):
+    return 100000.0 - 3000.0 * len([d for d in _EXC.get(mid, ()) if since <= d <= '2026-11-28'])
 for _m in ('claude', 'gemini', 'chatgpt'):
     _rs = [(a, v) for a, v in _rows.get(_m, []) if _when(a) >= _when(_BFS)]
     _bal = _betbal(_m)
@@ -870,9 +875,9 @@ for _m in ('claude', 'gemini', 'chatgpt'):
         _a = datetime(_d.year, _d.month, _d.day, tzinfo=_ny); _b = datetime.combine(_d + timedelta(days=1), datetime.min.time(), tzinfo=_ny)
         _a, _b = max(_a, _when(_BFS)), min(_b, _when(_BEND))
         data['betmins'].append({'model': _m, 'week': 'Day', 'day': _d.isoformat(), 'start': _a.isoformat(), 'end': _b.isoformat(), 'min': _dmin,
-                                'wagered': round(sum(v for a, v in _rs if _a <= _when(a) < _b), 2)})
+                                'wagered': round(sum(v for a, v in _rs if _a <= _when(a) < _b), 2), **({'excused': True} if _d.isoformat() in _EXC.get(_m, ()) else {})})
         _d += timedelta(days=1)
-    data['betmins'].append({'model': _m, 'week': 'Total', 'start': _BFS, 'end': _BEND, 'min': 100000, 'wagered': round(sum(v for a, v in _rs), 2), 'day_min': _dmin})
+    data['betmins'].append({'model': _m, 'week': 'Total', 'start': _BFS, 'end': _BEND, 'min': _need(_m, '2026-10-29'), 'wagered': round(sum(v for a, v in _rs), 2), 'day_min': _dmin})
 # Prediction markets minimums from Mon Nov 2 (owner; Claude, Gemini and ChatGPT all agreed: ops/review/pred-sitout-nov2.json):
 # C$3,000 bought each ET week (Mon-Sun), C$15,000 bought since the restart by Nov 28; progress per AI for the Prediction markets tab
 data['predmins'] = []
@@ -897,12 +902,13 @@ for _m in ('claude', 'gemini', 'chatgpt'):
             _k = _when(_t['at']).astimezone(_ny).date().isoformat(); _ad[_k] = _ad.get(_k, 0.0) + float(_t.get('amount') or 0)
     _miss, _d = [], _AFROM.date()
     while _d < min(_today, _when(_BEND).astimezone(_ny).date() + timedelta(days=1)):
-        if _ad.get(_d.isoformat(), 0.0) + 0.5 < _amin:
+        if _ad.get(_d.isoformat(), 0.0) + 0.5 < _amin and _d.isoformat() not in _EXC.get(_m, ()):
             _miss.append(_d.isoformat())
         _d += timedelta(days=1)
     data['allinmins'].append({'model': _m, 'balance': round(_bal, 2), 'day_min': _amin, 'today': round(_ad.get(_today.isoformat(), 0.0), 2),
                               'total': round(sum(v for k, v in _ad.items() if k >= _AFROM.date().isoformat()), 2), 'missed': _miss,   # only bets from Nov 1, when the rule starts (owner, Nov 1: Gemini showed C$331,000 counting Oct bets)
                                'started': _today >= _AFROM.date(),
+                              'excused': sorted(d for d in _EXC.get(_m, ()) if d >= _AFROM.date().isoformat()), 'total_min': _need(_m, _AFROM.date().isoformat()),
                               'penalties': round(sum(float(x['amount']) for x in (_bk or {}).get('penalties', [])), 2)})
 data['betmin_items'] = sorted([dict(_it, day=_when(_it['at']).astimezone(_ny).date().isoformat(), amount=round(_it['amount'], 2)) for _it in _bm_items if _when(_it['at']) >= _when(_BFS)],
                               key=lambda x: _when(x['at']), reverse=True)
@@ -1467,6 +1473,11 @@ def _riskdash():
 
 data['penalties'] = [dict(x, model='claude') for x in r.get('claude_penalties', [])] + \
     [dict(x, model=_mid) for _mid, _m in (r.get('models') or {}).items() for x in ((_m.get('books') or {}).get('Sports') or {}).get('penalties', [])]
+# penalties refunded under the Nov 18 outage rule stay on the record: the ledger shows the penalty and its refund (both races)
+data['refunds'] = [dict(x, model='claude', race='Sports') for x in r.get('claude_penalties_refunded', [])] + \
+    [dict(x, model='claude', race='AllInSports') for x in ((((r.get('claude_allin') or {}).get('books') or {}).get('AllInSports') or {}).get('refunded_penalties', []))] + \
+    [dict(x, model=_mid, race=_e) for _mid, _m in (r.get('models') or {}).items() for _e in ('Sports', 'AllInSports')
+     for x in ((_m.get('books') or {}).get(_e) or {}).get('refunded_penalties', [])]
 data['leader'] = LEADER   # the AI with the highest total profit (None when tied; the amount is never published before Nov 28); the page opens on the leader of the first race unless the viewer picked one
 try:
     data['price_audit'] = [json.load(open(os.path.join(SRC, 'price_audit.json')))]   # Claude's prices vs the feeds (ops/price_audit.py)
@@ -1534,6 +1545,17 @@ def _all_moments():
     for x in data.get('penalties', []):
         if x.get('at'):
             add(x['at'], x.get('model', 'claude'), 'Sports', 'penalty', -abs(float(x.get('amount') or x.get('cad') or 0)), 'less than the daily betting minimum')
+    _rf = {}
+    for x in data.get('refunds', []):   # Nov 18 outage rule: the penalty happened, and so did its refund (Sports, like the penalties)
+        if x.get('race') != 'Sports':
+            continue
+        if x.get('at'):
+            add(x['at'], x.get('model', 'claude'), 'Sports', 'penalty', -abs(float(x.get('amount') or 0)), 'less than the daily betting minimum')
+        if x.get('refunded_at'):   # refunds given back in one run make one moment (one id)
+            g = _rf.setdefault((x.get('model', 'claude'), x['refunded_at']), [0.0, []])
+            g[0] += abs(float(x.get('amount') or 0)); g[1].append(x.get('day', ''))
+    for (who, at), (amt, days) in _rf.items():
+        add(at, who, 'Sports', 'refund', amt, 'penalties refunded for ' + ', '.join(sorted(days)))
     for f in data.get('factcheck', []):
         if f.get('verdict') == 'wrong' and f.get('model') in ('claude', 'gemini', 'chatgpt'):
             add(f['at'], f['model'], 'Overall', 'factcheck', None, str(f.get('text', ''))[:200], {'checker': f.get('checker')})
