@@ -1189,8 +1189,9 @@
     .al-table td.al-ai { padding-left: 0; border-left: 0; }
     .al-table td.al-pick, .al-table td.al-game { min-width: 0; } .al-table td.al-when { white-space: normal; }
     table.st-table.pt-cards.al-table > tbody > tr { padding-left: 10px; border-left: 3px solid var(--ai); }
-    #allin table.al-moves.pt-cards { min-width: 0; }
+    table.al-moves.pt-cards { min-width: 0; }   /* Recent moves, on High risk and on every race page */
   }
+  .pt-moves-hd { display: flex; flex-direction: column; gap: var(--cds-gap-sm); }   /* Recent moves on a race page: title + note stay together (and stay visible when a phone folds the card) */
   tr.pt-flash > td { animation: pt-flash-bg 2.2s ease-out; } @keyframes pt-flash-bg { 0%, 40% { background: color-mix(in srgb, var(--accent, #ffb000) 22%, transparent); } 100% { background: transparent; } }
   @media (max-width: 999px) { .st-tabs > .st-crowns { display: none; } .st-crown-line { display: flex; flex-direction: column; align-items: flex-start; } .st-crown-line .st-crown-chip { white-space: normal; flex-wrap: wrap; row-gap: 2px; border-radius: 16px; } .st-crown-line .st-crown-chip > * { white-space: nowrap; } .st-crown-line .st-allin-chip .cr-part { flex-wrap: wrap; row-gap: 2px; } .st-crown-line .cr-g { white-space: nowrap; } .st-crown-line .cr-sep { display: none; } .st-crown-line .st-allin-chip .cr-part { flex-basis: 100%; } }   /* tablets and phones: at the top of the page */
   @media (min-width: 701px) { .st-tabs .st-tab { padding: 6px 10px; font-size: 13.5px; } .st-tabs .st-tabgroup { padding-top: 15px; } .st-tabs .st-tabgroup-l { font-size: 10px; } }
@@ -1626,6 +1627,11 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         </table>
       </div>
     </section>
+    <section class="st-card pt-moves-card" aria-labelledby="h-s-moves">
+      <div class="pt-moves-hd"><h2 class="st-h2" id="h-s-moves">Recent moves</h2>
+      <p class="st-note">Every trade by all three AIs in this race, newest first.</p></div>
+      <div data-draw="race-moves" data-source="trades bets log holdings rivals_trades rivals_models lookbacks peer_grades peer_outcomes" data-portfolio="Stocks"></div>
+    </section>
     <section class="st-card" aria-labelledby="h-s-log">
       <h2 class="st-h2" id="h-s-log">Decision log</h2>
       <div class="st-wrap">
@@ -1712,6 +1718,11 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         </table>
       </div>
     </section>
+    <section class="st-card pt-moves-card" aria-labelledby="h-c-moves">
+      <div class="pt-moves-hd"><h2 class="st-h2" id="h-c-moves">Recent moves</h2>
+      <p class="st-note">Every trade by all three AIs in this race, newest first.</p></div>
+      <div data-draw="race-moves" data-source="trades bets log holdings rivals_trades rivals_models lookbacks peer_grades peer_outcomes" data-portfolio="Crypto"></div>
+    </section>
     <section class="st-card" aria-labelledby="h-c-log">
       <h2 class="st-h2" id="h-c-log">Decision log</h2>
       <div class="st-wrap">
@@ -1797,6 +1808,11 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           <tbody data-draw="events-body" data-portfolio="Metals" data-limit="6"></tbody>
         </table>
       </div>
+    </section>
+    <section class="st-card pt-moves-card" aria-labelledby="h-m-moves">
+      <div class="pt-moves-hd"><h2 class="st-h2" id="h-m-moves">Recent moves</h2>
+      <p class="st-note">Every trade by all three AIs in this race, newest first.</p></div>
+      <div data-draw="race-moves" data-source="trades bets log holdings rivals_trades rivals_models lookbacks peer_grades peer_outcomes" data-portfolio="Metals"></div>
     </section>
     <section class="st-card" aria-labelledby="h-m-log">
       <h2 class="st-h2" id="h-m-log">Decision log</h2>
@@ -1894,6 +1910,11 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         </table>
       </div>
     </section>
+    <section class="st-card pt-moves-card" aria-labelledby="h-e-moves">
+      <div class="pt-moves-hd"><h2 class="st-h2" id="h-e-moves">Recent moves</h2>
+      <p class="st-note">Every trade by all three AIs in this race, newest first.</p></div>
+      <div data-draw="race-moves" data-source="trades bets log holdings rivals_trades rivals_models lookbacks peer_grades peer_outcomes" data-portfolio="Energy"></div>
+    </section>
     <section class="st-card" aria-labelledby="h-e-log">
       <h2 class="st-h2" id="h-e-log">Decision log</h2>
       <div class="st-wrap">
@@ -1978,6 +1999,11 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         </table>
       </div>
     </section>
+    <section class="st-card pt-moves-card" aria-labelledby="h-o-moves">
+      <div class="pt-moves-hd"><h2 class="st-h2" id="h-o-moves">Recent moves</h2>
+      <p class="st-note">Every trade by all three AIs in this race, newest first.</p></div>
+      <div data-draw="race-moves" data-source="trades bets log holdings rivals_trades rivals_models lookbacks peer_grades peer_outcomes" data-portfolio="Options"></div>
+    </section>
     <section class="st-card" aria-labelledby="h-o-log">
       <h2 class="st-h2" id="h-o-log">Decision log</h2>
       <div class="st-wrap">
@@ -2056,6 +2082,11 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           <tbody data-draw="events-body" data-portfolio="Currencies" data-limit="6"></tbody>
         </table>
       </div>
+    </section>
+    <section class="st-card pt-moves-card" aria-labelledby="h-x-moves">
+      <div class="pt-moves-hd"><h2 class="st-h2" id="h-x-moves">Recent moves</h2>
+      <p class="st-note">Every trade by all three AIs in this race, newest first.</p></div>
+      <div data-draw="race-moves" data-source="trades bets log holdings rivals_trades rivals_models lookbacks peer_grades peer_outcomes" data-portfolio="Currencies"></div>
     </section>
     <section class="st-card" aria-labelledby="h-x-log">
       <h2 class="st-h2" id="h-x-log">Decision log</h2>
@@ -2137,6 +2168,11 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           <tbody data-draw="events-body" data-portfolio="Predictions" data-limit="6"></tbody>
         </table>
       </div>
+    </section>
+    <section class="st-card pt-moves-card" aria-labelledby="h-p-moves">
+      <div class="pt-moves-hd"><h2 class="st-h2" id="h-p-moves">Recent moves</h2>
+      <p class="st-note">Every trade by all three AIs in this race, newest first.</p></div>
+      <div data-draw="race-moves" data-source="trades bets log holdings rivals_trades rivals_models lookbacks peer_grades peer_outcomes" data-portfolio="Predictions"></div>
     </section>
     <section class="st-card" aria-labelledby="h-p-log">
       <h2 class="st-h2" id="h-p-log">Decision log</h2>
@@ -2229,6 +2265,11 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           <tbody data-draw="events-body" data-portfolio="Safe" data-limit="6"></tbody>
         </table>
       </div>
+    </section>
+    <section class="st-card pt-moves-card" aria-labelledby="h-f-moves">
+      <div class="pt-moves-hd"><h2 class="st-h2" id="h-f-moves">Recent moves</h2>
+      <p class="st-note">Every trade by all three AIs in this race, newest first.</p></div>
+      <div data-draw="race-moves" data-source="trades bets log holdings rivals_trades rivals_models lookbacks peer_grades peer_outcomes" data-portfolio="Safe"></div>
     </section>
     <section class="st-card" aria-labelledby="h-f-log">
       <h2 class="st-h2" id="h-f-log">Decision log</h2>
@@ -2337,6 +2378,11 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         </table>
       </div>
     </section>
+    <section class="st-card pt-moves-card" aria-labelledby="h-b-moves">
+      <div class="pt-moves-hd"><h2 class="st-h2" id="h-b-moves">Recent moves</h2>
+      <p class="st-note">Every bet and result by all three AIs in this race, newest first.</p></div>
+      <div data-draw="race-moves" data-source="trades bets log holdings rivals_trades rivals_models lookbacks peer_grades peer_outcomes" data-portfolio="Sports"></div>
+    </section>
     <section class="st-card" aria-labelledby="h-b-log">
       <h2 class="st-h2" id="h-b-log">Decision log</h2>
       <div class="st-wrap">
@@ -2427,6 +2473,11 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
           <tbody data-draw="events-body" data-portfolio="China" data-limit="6"></tbody>
         </table>
       </div>
+    </section>
+    <section class="st-card pt-moves-card" aria-labelledby="h-z-moves">
+      <div class="pt-moves-hd"><h2 class="st-h2" id="h-z-moves">Recent moves</h2>
+      <p class="st-note">Every trade by all three AIs in this race, newest first.</p></div>
+      <div data-draw="race-moves" data-source="trades bets log holdings rivals_trades rivals_models lookbacks peer_grades peer_outcomes" data-portfolio="China"></div>
     </section>
     <section class="st-card" aria-labelledby="h-z-log">
       <h2 class="st-h2" id="h-z-log">Decision log</h2>
@@ -2730,7 +2781,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     <section class="st-card gd-sec" id="guide-ledger" aria-labelledby="h-gd-ledger">
       <h2 class="st-h2" id="h-gd-ledger">Every trade and bet</h2>
       <div class="gd-mock" aria-hidden="true"><span class="gd-lab">Show:</span><span class="gd-pill gd-on">Every move</span><span class="gd-pill">Buys</span><span class="gd-pill">Won</span><span class="gd-lab">Sort:</span><span class="gd-sel">Biggest profit ▾</span><span class="gd-tx">G-CRY-013</span></div>
-      <p>The <b>Ledger</b> lists every move, newest first, each with the AI’s reason in its own words.</p><ul><li><b>Show:</b> Buys, Sells, Shorts, Covers, Bets, Won, Lost, Open bets, Holding now.</li><li><b>Sort:</b> newest, oldest, biggest profit, biggest loss, largest amount.</li><li><b>Why (estimated):</b> groups moves by the kind of reason given (news, price moves, odds, risk, rules). It’s a guess from the words, never the AI’s own label.</li><li>Every move has a <b>transaction ID</b> (like G-CRY-013). <b>↩ View original buy / bet</b> and <b>View sale / result →</b> jump between the two halves of a trade or bet (open bets say “Result: not settled yet”); <b>Whole story</b> shows every step from the first buy with a sum check; <b>What happened next</b> shows the price after it was sold.</li><li><b>Download this list (CSV)</b> gives you exactly the rows shown.</li></ul>
+      <p>The <b>Ledger</b> lists every move, newest first, each with the AI’s reason in its own words. Every race page also has <b>Recent moves</b>: all three AIs’ trades and bets in that race, in one list.</p><ul><li><b>Show:</b> Buys, Sells, Shorts, Covers, Bets, Won, Lost, Open bets, Holding now.</li><li><b>Sort:</b> newest, oldest, biggest profit, biggest loss, largest amount.</li><li><b>Why (estimated):</b> groups moves by the kind of reason given (news, price moves, odds, risk, rules). It’s a guess from the words, never the AI’s own label.</li><li>Every move has a <b>transaction ID</b> (like G-CRY-013). <b>↩ View original buy / bet</b> and <b>View sale / result →</b> jump between the two halves of a trade or bet (open bets say “Result: not settled yet”); <b>Whole story</b> shows every step from the first buy with a sum check; <b>What happened next</b> shows the price after it was sold.</li><li><b>Download this list (CSV)</b> gives you exactly the rows shown.</li></ul>
       <button type="button" class="gd-show" data-gd-tab="ledger" data-gd-sel=".mf-bar">Show me →</button> <a class="gd-link" href="#guide-ledger" title="Link to this section">#</a>
     </section>
     <section class="st-card gd-sec" id="guide-words" aria-labelledby="h-gd-words">
@@ -4727,6 +4778,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         ((bk || {}).bets || []).forEach((b) => { if (b.status === 'Open') OPEN.add(m.id + '|' + b.id); }); }));
       const lot = window.ptHeld(TS.filter((t) => t.action !== 'Bet'), (t) => t.model + '|' + t.experiment + '|' + t.symbol + (t.outcome ? '|' + t.outcome : ''), (t) => t.qty, (k) => POS.has(k));
       TS.forEach((t) => { t._held = lot.has(t) || (t.action === 'Bet' && OPEN.has(t.model + '|' + t.bet)); });
+      markDone(TS, (t) => t.model + '|' + t.experiment + '|' + t.symbol + (t.outcome ? '|' + t.outcome : ''));
       KIND.hold = { test: (a, t) => !!(t && t._held) };   // the regular expressions above ignore the second argument
     }
     el.appendChild(bar);
@@ -4761,7 +4813,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         const bt = t.action === 'Bet' ? BETS[t.model + '|' + t.bet] : null;   // a bet says when its game starts, so the bet time and the game time are never confused
         const pl = pnlOf(t); const why = mk('td', 'wrap', t.reason || ''); { const lb = window.ptLookback(t.tx, t.model); if (lb) setTimeout(() => why.appendChild(lb), 0); }
         { const n = /^(Buy|Sell|Short|Cover|Bet)$/.test(t.action) ? pgNode(PG_KEY(t)) : null; if (n) why.appendChild(n); }
-        const mv = mk('td', 'wrap', t.action + ' ' + String(t.name || t.symbol).replace(/^[A-Z]{2,5}: /, '') + (bt && bt.starts_at ? ' · game starts ' + stFmt.whenET(bt.starts_at) + ' ET' : ''));
+        const mv = mk('td', 'wrap', moveWords(t, String(t.name || t.symbol).replace(/^[A-Z]{2,5}: /, '')) + (bt && bt.starts_at ? ' · game starts ' + stFmt.whenET(bt.starts_at) + ' ET' : ''));
         { const k = GK(t), L = k ? GBA[k] || [] : [];
           if (L.length > 1) { const i = L.indexOf(t), tot = L.reduce((x, y) => x + (+y.amount || 0), 0);
             const res = TS.filter((x) => GK(x) === k && /^(Won|Lost)$/.test(x.action)), net = res.reduce((x, y) => x + (+(y.pnl != null ? y.pnl : y.amount) || 0), 0);
@@ -4772,10 +4824,8 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
               gb.addEventListener('click', () => { el._game = k; el._focus = null; el._pg = 0; draw(); window.ptSpot(el.querySelector('tbody tr') || el); }); g.appendChild(gb); }
             mv.appendChild(g); } }
         { const bm = /^(Bet|Won|Lost|Void|Push)$/.test(t.action) ? betMoney(t) : ''; if (bm) { mv.appendChild(mk('div', 'lg-money', bm)); if (t.action === 'Bet') mv.appendChild(mk('div', 'lg-odds', oddsPlain(t.price))); } }
-        const mlab = t.action === 'Bet' ? 'staked ' : t.action === 'Won' ? 'paid back ' : t.action === 'Lost' ? 'back ' : /^(Void|Push)$/.test(t.action) ? 'refunded ' : t.action === 'Buy' || t.action === 'Short' ? 'put in ' : /^(Sell|Cover)$/.test(t.action) ? 'took out ' : '';
-        const mval = t.action === 'Won' ? Number(t.stake || 0) + Number(t.pnl != null ? t.pnl : t.amount) : t.action === 'Lost' ? 0 : Math.abs(+t.amount);
         r.append(window.ptTxWhen(t.at, t.tx), ai, mk('td', '', ALLIN[t.experiment].replace('High risk: ', '')), mv,
-          mk('td', 'num', Number.isFinite(+t.amount) ? mlab + 'C$' + d3.format(',.2f')(mval) : ''), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p, pl), mk('td', 'num', pl.ret || ''), why);
+          mk('td', 'num', moneyOf(t)), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p, pl), mk('td', 'num', pl.ret || ''), why);   // moneyOf: one set of Money words on every list (Nov 18)
         // the way back and forth (owner, Oct 30; all three AIs agreed): a result finds its bet, a settled bet its result, a sale its buy,
         // a sold buy its sale. Nothing on a bet still open or a position still held.
         { const tAt = Date.parse(t.at), RES = /^(Won|Lost|Push|Void)$/; let pt = null, lab = '';
@@ -6303,7 +6353,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
   const pnlOf = (t) => {
     const a = t.action, sym = t.experiment === 'China' ? 'US$' : 'C$', f = (x) => sym + d3.format(',.2f')(Math.abs(x));
     const sg = (x) => (x >= 0 ? '+' : '−') + f(x);
-    if (a === 'Buy' || a === 'Short') return { cost: '', profit: 'open', ret: '' };
+    if (a === 'Buy' || a === 'Short') return { cost: '', profit: t._done || 'open', ret: '' };   // _done (markDone): 'sold' once its position was closed
     if (a === 'Bet' || a === 'Parlay') { const o = Number(t.price), st = Number(t.stake), pw = t.result != null || t.status === 'Void' ? null : t.to_win != null ? Number(t.to_win) : a === 'Bet' && o && st ? (o > 0 ? st * o / 100 : st * 100 / -o) : null;
       return { cost: t.stake != null ? f(t.stake) : '', profit: t.result != null ? sg(t.result) + (t.status === 'Won' ? ', won' : t.status === 'Lost' ? ', lost' : t.status === 'Void' || t.status === 'Push' ? ', refunded' : '') : 'open', p: t.result, ret: t.result != null && t.stake ? d3.format('+.1%')(t.result / t.stake) : '', win: pw, sym }; }
     if (t.pnl != null) return { cost: t.cost != null ? f(t.cost) : t.stake != null ? f(t.stake) : '', profit: sg(t.pnl), p: t.pnl, ret: (t.cost || t.stake) ? d3.format('+.1%')(t.pnl / (t.cost || t.stake)) : '' };
@@ -6315,6 +6365,10 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
   window.ptPwin = pwinNode;
   const pnlTd = (v, p, pl) => { const td = mk('td', 'num', v); if (p != null) td.classList.add(p > 0.5 ? 'is-up' : p < -0.5 ? 'is-down' : 'x');
     const n = pl && pl.win ? pwinNode(pl.win, pl.sym) : null; if (n) td.appendChild(n); return td; };
+  // the Move words: "Buy X", "Bet Y". A fine or its refund never doubles up: "Penalty refunded (outage day)", not "Refund Penalty refunded
+  // (outage day)"; only those two may drop the action word (a team called Bethune-Cookman keeps its "Bet").
+  const moveWords = (t, what) => { const act = String(t.action || ''); what = String(what || ''); if (!/^(Penalty|Refund)$/.test(act)) return act + ' ' + what;
+    return what.toLowerCase().includes(act.toLowerCase().slice(0, 5)) ? what : act + ': ' + what.charAt(0).toLowerCase() + what.slice(1); };
   // the Money column in the same words as the Ledgers, to the cent (first-visit review, Nov 1; all three AIs agreed, P16)
   const moneyOf = (t) => {
     const a = t.action, amt = Number(t.amount); if (!Number.isFinite(amt)) return '';
@@ -6322,9 +6376,13 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     if (a === 'Won') return Number.isFinite(st) && st > 0 ? 'paid back ' + f(st + Number(t.pnl != null ? t.pnl : amt)) : 'profit ' + f(amt);
     if (a === 'Lost') return 'back ' + f(0);
     if (a === 'Bet' || a === 'Parlay') return 'staked ' + f(amt);
-    if (/^(Void|Push)$/.test(a)) return 'refunded ' + f(amt);
-    if (a === 'Buy' || a === 'Short') return 'put in ' + f(amt);
-    if (/^(Sell|Cover)$/.test(a)) return 'took out ' + f(amt);
+    if (/^(Void|Push)$/.test(a)) return 'refunded ' + f(Number.isFinite(st) && st > 0 ? st : amt);   // the stake that came back, not C$0.00 (Nov 18)
+    if (a === 'Penalty') return 'fined ' + f(amt);
+    if (a === 'Refund') return 'refunded ' + f(amt);
+    if (a === 'Short') return 'sold short ' + f(amt);   // a short sells first and buys back later: paying less to buy back is the profit (Nov 18)
+    if (a === 'Cover') return 'bought back for ' + f(amt);
+    if (a === 'Buy') return 'put in ' + f(amt);
+    if (a === 'Sell') return 'took out ' + f(amt);
     return f(amt);
   };
   const tradeRows = () => {
@@ -6395,6 +6453,15 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     Object.entries(by).forEach(([k, st]) => { if (isHeld(k)) st.lot.forEach((r) => out.add(r)); });
     return out;
   };
+  // "open" only while it is (Nov 18): a buy (or short) whose position was closed later says how it ended, so a sold buy never reads as still
+  // open. Needs _held (ptHeld) on the rows; a buy with no later sale on record stays 'open'. key(r) names the position, as for ptHeld.
+  const markDone = (rows, key) => {
+    const by = {}; rows.forEach((t) => { const k = key(t); if (k) (by[k] = by[k] || []).push(t); });
+    Object.values(by).forEach((L) => { L.sort((a, b) => new Date(a.at) - new Date(b.at)); let end = '';
+      for (let i = L.length - 1; i >= 0; i--) { const t = L[i], a = t.action;
+        if (/^(Sell|Cover|Settled|Expired)$/.test(a)) { if (!end || /^(Buy|Short)$/.test((L[i + 1] || {}).action || '')) end = a; }   // the move that closed each lot
+        else if (/^(Buy|Short)$/.test(a)) t._done = t._held || !end ? '' : end === 'Expired' ? 'expired' : end === 'Settled' ? 'settled' : a === 'Short' ? 'bought back' : 'sold'; } });
+  };
   // ---------- Site updates (About): the public log of changes to the site, posts and accounts, newest first (owner, Oct 30)
   dash.draw('changelog', (el) => {
     el.replaceChildren();
@@ -6456,7 +6523,8 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const st = (MF_STATE[key] = MF_STATE[key] || { k: '', s: 'new', pg: 0, w: '' });
     const K = rows.map((r) => acc.kinds(r));
     const count = (k) => (k ? K.filter((ks) => ks.includes(k)).length : rows.length);
-    const pills = MF_PILLS.filter(([k]) => (!opts.pills || opts.pills.includes(k)) && (k === '' || count(k) > 0));
+    const twin = count('open') > 0 && K.every((ks) => ks.includes('hold') === ks.includes('open'));   // only bets: 'Holding now' would repeat 'Open bets'
+    const pills = MF_PILLS.filter(([k]) => (!opts.pills || opts.pills.includes(k)) && (k === '' || count(k) > 0) && !(k === 'hold' && twin));
     if (st.k && !pills.some((x) => x[0] === st.k)) st.k = '';
     const hasP = acc.profit && rows.some((r) => acc.profit(r) != null), hasA = acc.amount && rows.some((r) => acc.amount(r) != null);
     const sorts = MF_SORTS.filter(([v]) => (!/^(profit|loss)$/.test(v) || hasP) && (v !== 'amount' || hasA));
@@ -7541,13 +7609,10 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const tp = aiPick('_tm'); tbx.appendChild(tp.bar);
     tbx.appendChild(mk('p', 'st-note', 'The 10 newest trades ' + (tp.list.length === 1 ? 'of ' + AIS[tp.list[0]].label : 'for each AI') + (tx ? ' in ' + (LABEL[tx] || tx) : '') + ', newest first. Every trade is kept in the Ledger.'));
     el.appendChild(tbx);
-    const logRows = dash.baseData('log') || [];
-    const claudeTrades = (dash.baseData('trades') || []).filter((t) => !String(t.holding).startsWith('[')).map((t) => {
-      const lg = logFor(logRows, t);
-      return { at: t.at, experiment: t.portfolio, action: t.action, name: t.holding, symbol: t.holding, price: t.price_local != null ? Number(t.price_local) : Number(t.price_usd), pcur: t.portfolio === 'China' ? 'CNY' : t.portfolio === 'Predictions' ? 'P' : 'USD', amount: Number(t.cad != null ? t.cad : t.usd), cost: t.cost, pnl: t.pnl, tx: t.tx, reason: lg ? lg.detail : '' };   /* Claude's transaction IDs too (full-site review, Nov 1: 'ID pending') */
-    });
+    const claudeTrades = claudeMoves();   // its trades and its bets (the bets were missing from this list until Nov 18)
     tp.list.forEach((id) => {
       const src = id === 'claude' ? claudeTrades : (RT.status === 'ok' ? RT.data : []).filter((t) => t.model === id);
+      markHeld(id, src);   // so a buy that was sold later says 'sold', not 'open'
       const trades = src.filter((t) => !tx || t.experiment === tx).slice().sort((p, q) => new Date(q.at) - new Date(p.at)).slice(0, 10);
       const rbox = mk('div', 'h2h-exp');
       const h = mk('h3', '', AIS[id].label); h.style.borderLeft = '3px solid ' + AIS[id].color; h.style.paddingLeft = '8px';
@@ -7559,7 +7624,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         const hr = mk('tr'); ['When', 'Race', 'Trade', 'Price', 'Money', 'Cost / stake', 'Profit', 'Return', 'Why'].forEach((x) => hr.appendChild(mk('th', '', x))); tb.appendChild(hr);
         trades.forEach((t) => {
           const tr = mk('tr');
-          const what = t.action + ' ' + (t.name && t.name !== t.symbol ? t.name + (/^(Sports|Predictions)$/.test(t.experiment) ? '' : ' (' + t.symbol + ')') : t.symbol) + (t.outcome ? ': ' + t.outcome : '');
+          const what = moveWords(t, t.name && t.name !== t.symbol ? t.name + (/^(Sports|Predictions)$/.test(t.experiment) ? '' : ' (' + t.symbol + ')') : t.symbol) + (t.outcome ? ': ' + t.outcome : '');
           const cs = { USD: 'US$', CNY: '¥', CAD: 'C$' }[t.pcur] || 'US$';
           const unit = t.experiment === 'Crypto' ? ' per coin' : (t.experiment === 'Stocks' || t.experiment === 'China') ? ' per share' : '';
           const ok = Number.isFinite(t.price);
@@ -7853,30 +7918,10 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     // every trade, with filters
     const tc = card();
     tc.appendChild(mk('h2', 'st-h2', nm + '’s recent trades'));
-    let all;
-    if (id === 'claude') {
-      const lg = dash.baseData('log');
-      all = dash.baseData('trades').filter((t) => !String(t.holding).startsWith('[')).map((t) => ({ at: t.at, experiment: t.portfolio, action: t.action, name: t.holding, amount: +(t.cad != null ? t.cad : t.usd), cost: t.cost, pnl: t.pnl, q: Number(t.shares || t.qty || 0), tx: t.tx, reason: (logFor(lg, t) || {}).detail || '' }));
-      // Claude's bets live in their own list: add them like Gemini's and ChatGPT's, the bet when placed and its result when settled
-      dash.baseData('bets').filter((x) => x.placed_at && +new Date(x.placed_at) >= RESTART - 60e3).forEach((x) => {
-        const nm2 = x.pick + (x.event ? ' (' + x.event + ')' : ''), st = Number(x.stake_cad) || 0, res = x.status === 'Won' ? Number(x.result_cad) : x.status === 'Lost' ? -st : x.status === 'Void' ? 0 : null;
-        const why = (lg.filter((l) => l.portfolio === 'Sports' && l.at === x.placed_at)[0] || {}).detail || '';
-        all.push({ at: x.placed_at, experiment: 'Sports', action: 'Bet', name: nm2, amount: st, stake: st, result: res, reason: why, _held: x.status === 'Open', tx: x.tx });
-        if (x.settled_at && res !== null) all.push({ at: x.settled_at, experiment: 'Sports', action: x.status, name: nm2, amount: x.status === 'Void' ? 0 : res, stake: st, pnl: res, reason: '', tx: x.tx_result });
-      });
-    } else all = dash.baseData('rivals_trades').filter((t) => t.model === id);
+    // Claude's trades and bets live in their own lists: claudeMoves() puts them in the same form as Gemini's and ChatGPT's
+    let all = id === 'claude' ? claudeMoves() : dash.baseData('rivals_trades').filter((t) => t.model === id);
     all = all.concat(dash.baseData('allin_trades').filter((t) => t.model === id));
-    { // Holding now (owner, Oct 30): the buys behind each position this AI still holds, and its bets not settled yet
-      const POS = new Set(), OPEN = new Set();
-      if (id === 'claude') dash.baseData('holdings').forEach((h) => { if (Math.abs(Number(h.quantity) || 0) > 1e-9 && !/^Cash/.test(h.holding)) POS.add(h.portfolio + '|' + h.holding); });
-      const books = [].concat(id === 'claude' ? [] : (dash.baseData('rivals_models') || []).filter((m) => m.id === id), (dash.baseData('allin_models') || []).filter((m) => m.id === id));
-      books.forEach((m) => Object.entries(m.books || {}).forEach(([e, bk]) => {
-        Object.entries((bk || {}).positions || {}).forEach(([sym, x]) => { if (Math.abs(Number((x || {}).qty) || 0) > 1e-9) POS.add(e + '|' + sym); });
-        ((bk || {}).bets || []).forEach((b) => { if (b.status === 'Open') OPEN.add(e + '|' + b.id); }); }));
-      const keyOf = (t) => t.experiment + '|' + (t.symbol || t.name) + (t.outcome ? '|' + t.outcome : '');   // prediction positions are keyed by market and side
-      const lot = window.ptHeld(all.filter((t) => t.action !== 'Bet'), keyOf, (t) => t.q != null ? t.q : t.qty, (k) => POS.has(k));
-      all.forEach((t) => { if (lot.has(t) || (t.action === 'Bet' && t.bet && OPEN.has(t.experiment + '|' + t.bet))) t._held = true; });
-    }
+    markHeld(id, all);   // Holding now (owner, Oct 30): the buys behind each position this AI still holds, and its bets not settled yet
     if (el._f === undefined) el._f = { exp: '', kind: '' };
     const bar = mk('div', 'ai-pick');
     const mksel = (label, opts, key) => { const l = mk('label', '', label + ' '); const s = mk('select'); opts.forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; s.appendChild(o); }); s.value = String(el._f[key]); s.addEventListener('change', () => { el._f[key] = key === 'n' ? Number(s.value) : s.value; draw(); }); l.appendChild(s); bar.appendChild(l); };
@@ -7894,7 +7939,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       const wrap = mk('div', 'h2h-scroll st-wrap'); const tb = mk('table', 'h2h-table');
       const hr = mk('tr'); ['When', 'Race', 'Trade', 'Amount', 'Cost / stake', 'Profit', 'Return', 'Why'].forEach((x) => hr.appendChild(mk('th', '', x))); { const th = mk('thead'); th.appendChild(hr); tb.appendChild(th); }
       const body = mk('tbody'); tb.appendChild(body);
-      rows.forEach((t) => { const tr = mk('tr'); const pl = pnlOf(t); tr.appendChild(window.ptTxWhen(t.at, t.tx)); [LABEL[t.experiment] || String(t.experiment).replace('AllInTrading', 'High risk: trading').replace('AllInSports', 'High risk: sports'), t.action + ' ' + (t.name || t.symbol), Number.isFinite(+t.amount) ? (t.amount < 0 ? '−' : '') + (t.experiment === 'China' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(t.amount)) : ''].forEach((v) => tr.appendChild(mk('td', '', v))); tr.append(mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p, pl), mk('td', 'num', pl.ret), mk('td', '', t.reason || '')); body.appendChild(tr); });
+      rows.forEach((t) => { const tr = mk('tr'); const pl = pnlOf(t); tr.appendChild(window.ptTxWhen(t.at, t.tx)); [LABEL[t.experiment] || String(t.experiment).replace('AllInTrading', 'High risk: trading').replace('AllInSports', 'High risk: sports'), moveWords(t, t.name || t.symbol), Number.isFinite(+t.amount) ? (t.amount < 0 ? '−' : '') + (t.experiment === 'China' ? 'US$' : 'C$') + d3.format(',.0f')(Math.abs(t.amount)) : ''].forEach((v) => tr.appendChild(mk('td', '', v))); tr.append(mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p, pl), mk('td', 'num', pl.ret), mk('td', '', t.reason || '')); body.appendChild(tr); });
       wrap.appendChild(tb); box.appendChild(wrap);
       // the 10 newest, then Older / Newer for the rest (owner, Oct 29); the page survives refreshes, and resets when a filter changes
       const key = f.exp + '|' + MF.key; if (el._tKey !== key) { el._tKey = key; el._tPg = 0; }
@@ -8087,7 +8132,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       box.appendChild(mk('p', 'st-note', sub + ' Each AI started with C$100,000; the biggest balance at the end wins this part.'));
       { const mv = TS.filter((t) => t.experiment === exp).sort((a, b) => new Date(b.at) - new Date(a.at))[0];
         const lastAt = d3.max(ser, (x) => +x.pts[x.pts.length - 1].t); const meta = mk('p', 'st-meta');
-        if (mv) { const nm = alWhat(mv), act = String(mv.action || ''); const say = act && !nm.toLowerCase().includes(act.toLowerCase().slice(0, 5)) ? act + ' ' + nm : nm;   // "Penalty refunded", not "Refund Penalty refunded"
+        if (mv) { const nm = alWhat(mv), act = String(mv.action || ''); const say = act && !(/^(Penalty|Refund)$/.test(act) && nm.toLowerCase().includes(act.toLowerCase().slice(0, 5))) ? act + ' ' + nm : nm;   // "Penalty refunded", not "Refund Penalty refunded" (only for fines: a team called Bethune-Cookman keeps its "Bet")
           const l = mk('span'); l.append('Last move: ', mk('b', '', stFmt.whenET(mv.at) + ' ET'), ' · ' + (AIS[mv.model] || { label: mv.model }).label + ': ' + say); meta.appendChild(l); }
         if (lastAt) { const l = mk('span'); l.append('Last updated: ', mk('b', '', stFmt.whenET(lastAt) + ' ET')); meta.appendChild(l); }
         if (meta.childNodes.length) box.appendChild(meta); }
@@ -8180,48 +8225,110 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         });
         c.appendChild(T.wrap); if (typeof ptLabelTable === 'function') ptLabelTable(T.t); }
 
-      // ---- 5. every move (unchanged from before the redesign, now in its own card)
-      // every move, 10 a page with Newer / Older, and a menu to see one AI only (owner, Oct 29)
+      // ---- 5. every move: the same list as on the ten race pages (movesList, below), with Newer / Older and a menu to see one AI only (owner, Oct 29)
       const mvCard = card('moves', 'Recent moves', null);
-      const mh = mk('div', 'ai-pick');
-      { const l = mk('label', '', 'AI: '); const sel = mk('select'); sel.setAttribute('aria-label', 'Show moves by');
-        [['', 'All three AIs']].concat(order.map((id) => [id, aiModel(id)])).forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; sel.appendChild(o); });
-        sel.value = stt.m; sel.addEventListener('change', () => { stt.m = sel.value; drawMoves(); }); l.appendChild(sel); mh.appendChild(l); }
-      mvCard.appendChild(mh);
-      const list = mk('div'); mvCard.appendChild(list);
       { /* "Holding now" on this list too (owner, Nov 2: a Holding filter like Open on bets): the buys behind positions still open, and bets not settled */
         const POS = new Set(), OPEN = new Set();
         (MS || []).forEach((m) => Object.entries(m.books || {}).forEach(([e, bk]) => {
           Object.entries((bk || {}).positions || {}).forEach(([sym, x]) => { if (Math.abs(Number((x || {}).qty) || 0) > 1e-9) POS.add(m.id + '|' + e + '|' + sym); });
           ((bk || {}).bets || []).forEach((b) => { if (b.status === 'Open') OPEN.add(m.id + '|' + b.id); }); }));
         const lot = window.ptHeld((TS || []).filter((t) => t.action !== 'Bet'), (t) => t.model + '|' + t.experiment + '|' + t.symbol + (t.outcome ? '|' + t.outcome : ''), (t) => t.qty, (k) => POS.has(k));
-        (TS || []).forEach((t) => { t._held = lot.has(t) || (t.action === 'Bet' && OPEN.has(t.model + '|' + t.bet)); }); }
-      const drawMoves = () => {
-        list.replaceChildren();
-        const tr0 = TS.filter((t) => t.experiment === exp && (!stt.m || t.model === stt.m));
-        if (!tr0.length) { list.appendChild(mk('p', 'st-note', stt.m ? AIS[stt.m].label + ' has made no moves here yet.' : 'No moves yet.')); return; }
-        const MF = mfApply('allin-moves-' + exp, tr0, MF_RIV(), () => { stt.pg = 0; drawMoves(); }, { page: 10 }); list.append(MF.bar, MF.sum);   // Show and Sort (owner, Oct 31)
-        const tr = MF.rows; if (!tr.length) return;
-        const wrap = mk('div', 'h2h-scroll st-wrap'); const tb = mk('table', 'h2h-table st-table al-moves');   // st-table (Nov 18): cards on phones, like every other table
-        const hr = mk('tr'); ['When', 'AI', 'Move', 'Money', 'Cost / stake', 'Profit', 'Why'].forEach((h) => hr.appendChild(mk('th', '', h))); { const th = mk('thead'); th.appendChild(hr); tb.appendChild(th); }
-        const body = mk('tbody'); tb.appendChild(body);
-        tr.forEach((t) => {
-          const r = mk('tr');
-          const ai = mk('td', '', AIS[t.model] ? AIS[t.model].label : t.model); ai.style.borderLeft = '3px solid ' + (AIS[t.model] || {}).color; ai.style.paddingLeft = '6px';
-          const pl = pnlOf(t);
-          const why = mk('td', '', t.reason || ''); { const lb = window.ptLookback(t.tx, t.model); if (lb) setTimeout(() => why.appendChild(lb), 0); } { const n = /^(Buy|Sell|Short|Cover|Bet)$/.test(t.action) ? pgNode(PG_KEY(t)) : null; if (n) why.appendChild(n); }
-          r.append(window.ptTxWhen(t.at, t.tx), ai, mk('td', '', t.action + ' ' + (t.name || t.symbol)), mk('td', 'num', moneyOf(t)), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p, pl), why);
-          body.appendChild(r);
-        });
-        wrap.appendChild(tb); list.appendChild(wrap); if (typeof ptLabelTable === 'function') ptLabelTable(tb);
-        if (stt.key !== stt.m + '|' + MF.key) { stt.key = stt.m + '|' + MF.key; stt.pg = 0; }
-        body.dataset.pgNewest = MF.newest ? '1' : '0'; body._pgKey = ''; body._pg = stt.pg || 0;
-        pagerFor(body, 10, 'moves');
-        const pbar = wrap.nextElementSibling; if (pbar && pbar.classList.contains('st-pager')) { const keep = () => { stt.pg = body._pg || 0; }; pbar.addEventListener('click', keep); pbar.addEventListener('change', keep); }
-      };
-      drawMoves();
+        (TS || []).forEach((t) => { t._held = lot.has(t) || (t.action === 'Bet' && OPEN.has(t.model + '|' + t.bet)); });
+        markDone(TS || [], (t) => t.model + '|' + t.experiment + '|' + t.symbol + (t.outcome ? '|' + t.outcome : '')); }
+      movesList(mvCard, TS.filter((t) => t.experiment === exp), stt, 'allin-moves-' + exp, order);   // 5 a page (3 on phones) like the race pages; it was 10 until Nov 18
     });
     if (window.ptShowAllinPart) window.ptShowAllinPart();
+  });
+
+
+  // ---------- Recent moves: ONE list for High risk and the ten race pages (owner, Nov 18: "there should be recent moves like how high risk
+  // has on all"). Every move by all three AIs in one race, newest first: an AI menu, Show and Sort, 5 a page (3 on phones) with Newer / Older.
+  // rows are in the race runner's form (model, at, experiment, action, name, amount, stake or cost, pnl or result, reason, tx), with _held set
+  // on the buys behind positions still open and on bets not settled; stt keeps the AI picked and the page across refreshes.
+  const movesPer = () => (window.matchMedia && window.matchMedia('(max-width: 600px)').matches ? 3 : 5);   // on a phone every move is a tall card
+  const movesList = (host, rows, stt, key, order, n) => {
+    n = n || movesPer();
+    const mh = mk('div', 'ai-pick');
+    { const l = mk('label', '', 'AI: '); const sel = mk('select'); sel.setAttribute('aria-label', 'Show moves by');
+      [['', 'All three AIs']].concat(order.map((id) => [id, aiModel(id)])).forEach(([v, t]) => { const o = mk('option', '', t); o.value = v; sel.appendChild(o); });
+      sel.value = stt.m; sel.addEventListener('change', () => { stt.m = sel.value; drawMoves(); }); l.appendChild(sel); mh.appendChild(l); }
+    host.appendChild(mh);
+    const list = mk('div'); host.appendChild(list);
+    const drawMoves = () => {
+      list.replaceChildren();
+      const tr0 = rows.filter((t) => !stt.m || t.model === stt.m);
+      if (!tr0.length) { list.appendChild(mk('p', 'st-note', stt.m ? AIS[stt.m].label + ' has made no moves here yet.' : 'No moves yet.')); return; }
+      const MF = mfApply(key, tr0, MF_RIV(), () => { stt.pg = 0; drawMoves(); }, { page: n }); list.append(MF.bar, MF.sum);   // Show and Sort (owner, Oct 31)
+      const tr = MF.rows; if (!tr.length) return;
+      const wrap = mk('div', 'h2h-scroll st-wrap'); const tb = mk('table', 'h2h-table st-table al-moves');   // st-table (Nov 18): cards on phones, like every other table
+      const hr = mk('tr'); ['When', 'AI', 'Move', 'Money', 'Cost / stake', 'Profit', 'Why'].forEach((h) => hr.appendChild(mk('th', '', h))); { const th = mk('thead'); th.appendChild(hr); tb.appendChild(th); }
+      const body = mk('tbody'); tb.appendChild(body);
+      tr.forEach((t) => {
+        const r = mk('tr');
+        const ai = mk('td', '', AIS[t.model] ? AIS[t.model].label : t.model); ai.style.borderLeft = '3px solid ' + (AIS[t.model] || {}).color; ai.style.paddingLeft = '6px';
+        const pl = pnlOf(t);
+        const why = mk('td', '', t.reason || ''); { const lb = window.ptLookback(t.tx, t.model); if (lb) setTimeout(() => why.appendChild(lb), 0); } { const g = /^(Buy|Sell|Short|Cover|Bet)$/.test(t.action) ? pgNode(t.pg || PG_KEY(t)) : null; if (g) why.appendChild(g); }
+        const what = String(t.name || t.symbol || ''), side = t.outcome && !what.endsWith('(' + t.outcome + ')') ? ' (' + t.outcome + ')' : '';   // a prediction market says which side: "… (Yes)", as in Holdings
+        r.append(window.ptTxWhen(t.at, t.tx), ai, mk('td', '', moveWords(t, what) + side), mk('td', 'num', moneyOf(t)), mk('td', 'num', pl.cost), pnlTd(pl.profit, pl.p, pl), why);
+        body.appendChild(r);
+      });
+      wrap.appendChild(tb); list.appendChild(wrap); if (typeof ptLabelTable === 'function') ptLabelTable(tb);
+      if (stt.key !== stt.m + '|' + MF.key) { stt.key = stt.m + '|' + MF.key; stt.pg = 0; }
+      body.dataset.pgNewest = MF.newest ? '1' : '0'; body._pgKey = ''; body._pg = stt.pg || 0;
+      pagerFor(body, n, 'moves');
+      const pbar = wrap.nextElementSibling; if (pbar && pbar.classList.contains('st-pager')) { const keep = () => { stt.pg = body._pg || 0; }; pbar.addEventListener('click', keep); pbar.addEventListener('change', keep); }
+    };
+    drawMoves();
+  };
+  // Claude's trades and bets in the race runner's form (model, experiment, action, name, amount, stake or cost, pnl or result, reason, tx):
+  // the same rows wherever its moves are listed beside Gemini's and ChatGPT's (its AI page, AI vs AI, the race pages). Why: its own note, as in the Ledger.
+  const claudeMoves = () => {
+    const out = [], lg = dash.baseData('log') || [];
+    (dash.baseData('trades') || []).forEach((t) => {
+      if (String(t.holding || '').startsWith('[')) return;   // practice runs before the race
+      out.push({ model: 'claude', at: t.at, experiment: t.portfolio, action: t.action, name: t.holding, symbol: t.holding, price: t.price_local != null ? Number(t.price_local) : Number(t.price_usd),
+        pcur: t.portfolio === 'China' ? 'CNY' : t.portfolio === 'Predictions' ? 'P' : 'USD', amount: +(t.cad != null ? t.cad : t.usd), cost: t.cost, pnl: t.pnl, qty: Number(t.shares || t.qty || 0), tx: t.tx,
+        reason: t.note || t.reason || (logFor(lg, t) || {}).detail || '', pg: t.pg_key });
+    });
+    (dash.baseData('bets') || []).forEach((x) => {   // the bet when placed and its result when settled, like Gemini's and ChatGPT's
+      if (!x.placed_at || +new Date(x.placed_at) < RESTART - 60e3) return;
+      const nm = (x.sport ? x.sport + ': ' : '') + x.pick + (x.event ? ' (' + x.event + ')' : ''), st = Number(x.stake_cad) || 0;
+      const res = x.status === 'Won' ? Number(x.result_cad) : x.status === 'Lost' ? -st : /^(Void|Push)$/.test(x.status) ? 0 : null;
+      out.push({ model: 'claude', at: x.placed_at, experiment: 'Sports', action: 'Bet', symbol: x.bet, bet: x.bet, name: nm, price: Number(x.odds), pcur: 'CAD', amount: st, stake: st, to_win: x.to_win_cad, status: x.status, result: res, tx: x.tx, _held: x.status === 'Open',
+        reason: x.note || x.reason || (lg.filter((l) => l.portfolio === 'Sports' && l.at === x.placed_at)[0] || {}).detail || '', pg: 'claude|' + new Date(x.placed_at).toISOString().slice(0, 19) + 'Z|Sports|' + x.bet + '|Bet' });
+      if (x.settled_at && res !== null) out.push({ model: 'claude', at: x.settled_at, experiment: 'Sports', action: x.status, symbol: x.bet, bet: x.bet, name: nm, price: Number(x.odds), pcur: 'CAD', amount: res, stake: st, pnl: res, tx: x.tx_result, reason: x.final ? 'Final: ' + x.final + '.' : '' });
+    });
+    return out;
+  };
+  // Holding now (owner, Oct 30): flags the buys behind each position one AI still holds, and its bets not settled yet; then a buy whose position
+  // was closed later says so (markDone). rows: that AI's moves in the race runner's form, from the main races and High risk alike.
+  const markHeld = (id, rows) => {
+    const POS = new Set(), OPEN = new Set();
+    if (id === 'claude') (dash.baseData('holdings') || []).forEach((h) => { if (Math.abs(Number(h.quantity) || 0) > 1e-9 && !/^Cash/.test(h.holding)) POS.add(h.portfolio + '|' + h.holding); });
+    const books = [].concat(id === 'claude' ? [] : (dash.baseData('rivals_models') || []).filter((m) => m.id === id), (dash.baseData('allin_models') || []).filter((m) => m.id === id));
+    books.forEach((m) => Object.entries(m.books || {}).forEach(([e, bk]) => {
+      Object.entries((bk || {}).positions || {}).forEach(([sym, x]) => { if (Math.abs(Number((x || {}).qty) || 0) > 1e-9) POS.add(e + '|' + sym); });
+      ((bk || {}).bets || []).forEach((b) => { if (b.status === 'Open') OPEN.add(e + '|' + b.id); }); }));
+    const keyOf = (t) => t.experiment + '|' + (t.symbol || t.name) + (t.outcome ? '|' + t.outcome : '');   // prediction positions are keyed by market and side
+    const lot = window.ptHeld(rows.filter((t) => t.action !== 'Bet'), keyOf, (t) => t.q != null ? t.q : t.qty, (k) => POS.has(k));
+    rows.forEach((t) => { if (lot.has(t) || (t.action === 'Bet' && t.bet && OPEN.has(t.experiment + '|' + t.bet))) t._held = true; });
+    markDone(rows, keyOf);
+  };
+  // one race's moves by all three AIs, for its "Recent moves" list
+  const raceMoves = (exp) => {
+    let out = [];
+    ['claude', 'gemini', 'chatgpt'].forEach((id) => {
+      const rows = id === 'claude' ? claudeMoves().filter((t) => t.experiment === exp) : (dash.baseData('rivals_trades') || []).filter((t) => t.model === id && t.experiment === exp);
+      markHeld(id, rows); out = out.concat(rows);
+    });
+    return out;
+  };
+  dash.draw('race-moves', (el) => {
+    el.replaceChildren();
+    const exp = el.dataset.portfolio; if (!exp) return;
+    if (el.closest('.pt-fold')) return;   // folded to its title on a phone: drawn when it is opened
+    // 5 a page (3 on a phone) keeps the race pages short; Older / Newer reach the rest
+    movesList(el, raceMoves(exp), (el._mv = el._mv || { m: '', pg: 0, key: '' }), 'race-moves-' + exp, ['claude', 'gemini', 'chatgpt'], Number(el.dataset.limit) || 0);
   });
 
 
@@ -10757,7 +10864,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       if (/^ai-/.test(pg.id)) return topCards(pg).slice(2);
       if (pg.id === 'h2h') return [...pg.querySelectorAll('[data-draw="h2h"] > .h2h-exp')].slice(2);
       if (pg.id === 'ledger') return [...pg.querySelectorAll('[data-draw="lg-days"] > .lg-day')];   // the day shown (days before today)
-      return [];
+      return topCards(pg).filter((c) => c.classList.contains('pt-moves-card'));   // race pages: the Recent moves list (Nov 18; Gemini: folded on phones, the Moves chip opens it)
     };
     const keepChild = (b) => { const h = head(b); if (!h) return b.firstElementChild; let c = h; while (c.parentElement && c.parentElement !== b) c = c.parentElement; return c; };
     const fold = (b, key, shut) => {
@@ -10784,7 +10891,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       const first = topCards(pg)[0]; if (!first) return;
       const nav = document.createElement('nav'); nav.className = 'pt-chips'; nav.setAttribute('aria-label', 'Jump to');
       const sp = pg.id === 'sports';
-      [['Chart', /^(Value over time|Bankroll over time)$/], [sp ? 'Bets' : 'Holdings', /^(Holdings|Bets)$/], ['Ledger', null], ['Rules', /^Rules in force$/]].forEach(([t, re]) => {
+      [['Chart', /^(Value over time|Bankroll over time)$/], [sp ? 'Bets' : 'Holdings', /^(Holdings|Bets)$/], ['Moves', /^Recent moves$/], ['Ledger', null], ['Rules', /^Rules in force$/]].forEach(([t, re]) => {
         if (re && !findCard(pg, re)) return;
         const b = document.createElement('button'); b.type = 'button'; b.textContent = t;
         b.addEventListener('click', () => {
