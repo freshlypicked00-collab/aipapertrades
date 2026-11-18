@@ -1612,7 +1612,7 @@ body { background:var(--color-bg); }
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'd36dc775a2e9';</script>
+<script>window.PT_PAGE_VER = '8dd040c9589c';</script>
 <!-- the first text on the page says plainly what this is, so search engines and AI assistants stop mixing the name up with a similarly named exchange (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json) -->
 <p class="pt-def" id="what-is">PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no deposits and has no token. <a href="/what-is-papertrades-ai.html">What is PaperTrades.AI?</a></p>
 <style>.pt-def { margin: 0; padding: 5px 14px; font-size: 12px; line-height: 1.4; text-align: center; color: var(--color-fg-muted, #a9a495); background: var(--color-bg, #0b0b0a); } .pt-def a { color: inherit; text-decoration: underline; white-space: nowrap; }</style>
@@ -1865,16 +1865,13 @@ body { background:var(--color-bg); }
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Stocks"></p>
       <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="Stocks"></details>
     </section>
-    <section class="st-card" aria-labelledby="h-s-hold">
-      <h2 class="st-h2" id="h-s-hold">Holdings</h2>
-      <div class="st-alloc" data-draw="alloc" data-source="holdings" data-portfolio="Stocks"></div>
-      <p class="st-note">Prices in US dollars; values in Canadian dollars at the latest exchange rate.</p>
-      <div class="st-wrap">
-        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
-          <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Quantity</th><th data-field="entry_usd" class="num">Entry (US$)</th><th data-field="price_usd" class="num">Now (US$)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th><th data-field="price_source">Price source</th></tr></thead>
-          <tbody data-draw="holdings-body" data-portfolio="Stocks"></tbody>
-        </table>
-      </div>
+    <section class="st-card" aria-labelledby="h-s-chart">
+      <h2 class="st-h2" id="h-s-chart">Value over time</h2>
+      <p class="st-note">The grey dashed line is the same C$100,000 left in the S&amp;P 500. Hover or drag along the chart for exact values.</p>
+      <div class="gx" id="perf-stocks" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Stocks"></div>
+      <div class="gx-hold" id="perf-stocks-hold" aria-live="polite"></div>
+      <div class="gx-px-wrap" id="perf-stocks-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
+      <div class="gx" id="perf-stocks-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Stocks"></div></div>
     </section>
     <section class="st-card" aria-labelledby="h-s-market">
       <h2 class="st-h2" id="h-s-market">Stocks vs. the market</h2>
@@ -1887,23 +1884,26 @@ body { background:var(--color-bg); }
         <div><span class="st-label">Ahead of the TSX by</span><span class="st-mid" data-draw="idx-diff" data-source="vsindex" data-field="diff" data-where="id=tsx">—</span></div>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-s-chart">
-      <h2 class="st-h2" id="h-s-chart">Value over time</h2>
-      <p class="st-note">The grey dashed line is the same C$100,000 left in the S&amp;P 500. Hover or drag along the chart for exact values.</p>
-      <div class="gx" id="perf-stocks" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Stocks"></div>
-      <div class="gx-hold" id="perf-stocks-hold" aria-live="polite"></div>
-      <div class="gx-px-wrap" id="perf-stocks-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
-      <div class="gx" id="perf-stocks-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Stocks"></div></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-s-trig">
-      <h2 class="st-h2" id="h-s-trig">Distance to the next trade</h2>
-      <p class="st-note">This portfolio's price rules, closest first.</p>
-      <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Stocks"></div>
+    <section class="st-card" aria-labelledby="h-s-hold">
+      <h2 class="st-h2" id="h-s-hold">Holdings</h2>
+      <div class="st-alloc" data-draw="alloc" data-source="holdings" data-portfolio="Stocks"></div>
+      <p class="st-note">Prices in US dollars; values in Canadian dollars at the latest exchange rate.</p>
+      <div class="st-wrap">
+        <table class="st-table" data-source="holdings" data-row-key="portfolio,holding">
+          <thead><tr><th data-field="holding">Holding</th><th data-field="quantity" class="num">Quantity</th><th data-field="entry_usd" class="num">Entry (US$)</th><th data-field="price_usd" class="num">Now (US$)</th><th data-field="change_pct" class="num">Change</th><th data-field="value_cad" class="num">Value (C$)</th><th data-field="price_source">Price source</th></tr></thead>
+          <tbody data-draw="holdings-body" data-portfolio="Stocks"></tbody>
+        </table>
+      </div>
     </section>
     <section class="st-card" aria-labelledby="h-s-contrib">
       <h2 class="st-h2" id="h-s-contrib">What made or lost money</h2>
       <p class="st-note">Profit or loss on each position since it was bought, in Canadian dollars.</p>
       <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="Stocks"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-s-trig">
+      <h2 class="st-h2" id="h-s-trig">Distance to the next trade</h2>
+      <p class="st-note">This portfolio's price rules, closest first.</p>
+      <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Stocks"></div>
     </section>
     <section class="st-card" aria-labelledby="h-s-events">
       <h2 class="st-h2" id="h-s-events">Coming up</h2>
@@ -1915,21 +1915,21 @@ body { background:var(--color-bg); }
         </table>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-s-rules">
-      <h2 class="st-h2" id="h-s-rules">Rules in force</h2>
-      <div class="st-wrap">
-        <table class="st-table" data-source="rules" data-row-key="rule">
-          <thead><tr><th data-field="rule">Rule</th></tr></thead>
-          <tbody data-draw="rules-body" data-portfolio="Stocks"></tbody>
-        </table>
-      </div>
-    </section>
     <section class="st-card" aria-labelledby="h-s-log">
       <h2 class="st-h2" id="h-s-log">Decision log</h2>
       <div class="st-wrap">
         <table class="st-table" data-source="log" data-row-key="at,portfolio">
           <thead><tr><th data-field="at">When</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
           <tbody data-draw="log-body" data-portfolio="Stocks"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-s-rules">
+      <h2 class="st-h2" id="h-s-rules">Rules in force</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="rules" data-row-key="rule">
+          <thead><tr><th data-field="rule">Rule</th></tr></thead>
+          <tbody data-draw="rules-body" data-portfolio="Stocks"></tbody>
         </table>
       </div>
     </section>
@@ -1962,6 +1962,14 @@ body { background:var(--color-bg); }
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Crypto"></p>
       <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="Crypto"></details>
     </section>
+    <section class="st-card" aria-labelledby="h-c-chart">
+      <h2 class="st-h2" id="h-c-chart">Value over time</h2>
+      <p class="st-note">The grey dashed line is the same C$100,000 left in Bitcoin. Hover or drag along the chart for exact values.</p>
+      <div class="gx" id="perf-crypto" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Crypto"></div>
+      <div class="gx-hold" id="perf-crypto-hold" aria-live="polite"></div>
+      <div class="gx-px-wrap" id="perf-crypto-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
+      <div class="gx" id="perf-crypto-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Crypto"></div></div>
+    </section>
     <section class="st-card" aria-labelledby="h-c-hold">
       <h2 class="st-h2" id="h-c-hold">Holdings</h2>
       <div class="st-alloc" data-draw="alloc" data-source="holdings" data-portfolio="Crypto"></div>
@@ -1973,23 +1981,15 @@ body { background:var(--color-bg); }
         </table>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-c-chart">
-      <h2 class="st-h2" id="h-c-chart">Value over time</h2>
-      <p class="st-note">The grey dashed line is the same C$100,000 left in Bitcoin. Hover or drag along the chart for exact values.</p>
-      <div class="gx" id="perf-crypto" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Crypto"></div>
-      <div class="gx-hold" id="perf-crypto-hold" aria-live="polite"></div>
-      <div class="gx-px-wrap" id="perf-crypto-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
-      <div class="gx" id="perf-crypto-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Crypto"></div></div>
+    <section class="st-card" aria-labelledby="h-c-contrib">
+      <h2 class="st-h2" id="h-c-contrib">What made or lost money</h2>
+      <p class="st-note">Profit or loss on each position since it was bought, in Canadian dollars.</p>
+      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="Crypto"></div>
     </section>
     <section class="st-card" aria-labelledby="h-c-trig">
       <h2 class="st-h2" id="h-c-trig">Distance to the next trade</h2>
       <p class="st-note">This portfolio's price rules, closest first.</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Crypto"></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-c-contrib">
-      <h2 class="st-h2" id="h-c-contrib">What made or lost money</h2>
-      <p class="st-note">Profit or loss on each position since it was bought, in Canadian dollars.</p>
-      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="Crypto"></div>
     </section>
     <section class="st-card" aria-labelledby="h-c-events">
       <h2 class="st-h2" id="h-c-events">Coming up</h2>
@@ -2001,21 +2001,21 @@ body { background:var(--color-bg); }
         </table>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-c-rules">
-      <h2 class="st-h2" id="h-c-rules">Rules in force</h2>
-      <div class="st-wrap">
-        <table class="st-table" data-source="rules" data-row-key="rule">
-          <thead><tr><th data-field="rule">Rule</th></tr></thead>
-          <tbody data-draw="rules-body" data-portfolio="Crypto"></tbody>
-        </table>
-      </div>
-    </section>
     <section class="st-card" aria-labelledby="h-c-log">
       <h2 class="st-h2" id="h-c-log">Decision log</h2>
       <div class="st-wrap">
         <table class="st-table" data-source="log" data-row-key="at,portfolio">
           <thead><tr><th data-field="at">When</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
           <tbody data-draw="log-body" data-portfolio="Crypto"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-c-rules">
+      <h2 class="st-h2" id="h-c-rules">Rules in force</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="rules" data-row-key="rule">
+          <thead><tr><th data-field="rule">Rule</th></tr></thead>
+          <tbody data-draw="rules-body" data-portfolio="Crypto"></tbody>
         </table>
       </div>
     </section>
@@ -2047,6 +2047,14 @@ body { background:var(--color-bg); }
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Metals"></p>
       <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="Metals"></details>
     </section>
+    <section class="st-card" aria-labelledby="h-m-chart">
+      <h2 class="st-h2" id="h-m-chart">Value over time</h2>
+      <p class="st-note">The grey dashed line is the same C$100,000 put into gold. Hover or drag along the chart for exact values.</p>
+      <div class="gx" id="perf-metals" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Metals"></div>
+      <div class="gx-hold" id="perf-metals-hold" aria-live="polite"></div>
+      <div class="gx-px-wrap" id="perf-metals-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
+      <div class="gx" id="perf-metals-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Metals"></div></div>
+    </section>
     <section class="st-card" aria-labelledby="h-m-hold">
       <h2 class="st-h2" id="h-m-hold">Holdings</h2>
       <div class="st-alloc" data-draw="alloc" data-source="holdings" data-portfolio="Metals"></div>
@@ -2059,23 +2067,15 @@ body { background:var(--color-bg); }
         </table>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-m-chart">
-      <h2 class="st-h2" id="h-m-chart">Value over time</h2>
-      <p class="st-note">The grey dashed line is the same C$100,000 put into gold. Hover or drag along the chart for exact values.</p>
-      <div class="gx" id="perf-metals" data-draw="perf-chart" data-source="history bench_history" data-portfolio="Metals"></div>
-      <div class="gx-hold" id="perf-metals-hold" aria-live="polite"></div>
-      <div class="gx-px-wrap" id="perf-metals-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
-      <div class="gx" id="perf-metals-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Metals"></div></div>
+    <section class="st-card" aria-labelledby="h-m-contrib">
+      <h2 class="st-h2" id="h-m-contrib">What made or lost money</h2>
+      <p class="st-note">Profit or loss on each position since it was bought, in Canadian dollars.</p>
+      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="Metals"></div>
     </section>
     <section class="st-card" aria-labelledby="h-m-trig">
       <h2 class="st-h2" id="h-m-trig">Distance to the next trade</h2>
       <p class="st-note">This portfolio's price rules, closest first.</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Metals"></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-m-contrib">
-      <h2 class="st-h2" id="h-m-contrib">What made or lost money</h2>
-      <p class="st-note">Profit or loss on each position since it was bought, in Canadian dollars.</p>
-      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="Metals"></div>
     </section>
     <section class="st-card" aria-labelledby="h-m-events">
       <h2 class="st-h2" id="h-m-events">Coming up</h2>
@@ -2087,21 +2087,21 @@ body { background:var(--color-bg); }
         </table>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-m-rules">
-      <h2 class="st-h2" id="h-m-rules">Rules in force</h2>
-      <div class="st-wrap">
-        <table class="st-table" data-source="rules" data-row-key="rule">
-          <thead><tr><th data-field="rule">Rule</th></tr></thead>
-          <tbody data-draw="rules-body" data-portfolio="Metals"></tbody>
-        </table>
-      </div>
-    </section>
     <section class="st-card" aria-labelledby="h-m-log">
       <h2 class="st-h2" id="h-m-log">Decision log</h2>
       <div class="st-wrap">
         <table class="st-table" data-source="log" data-row-key="at,portfolio">
           <thead><tr><th data-field="at">When</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
           <tbody data-draw="log-body" data-portfolio="Metals"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-m-rules">
+      <h2 class="st-h2" id="h-m-rules">Rules in force</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="rules" data-row-key="rule">
+          <thead><tr><th data-field="rule">Rule</th></tr></thead>
+          <tbody data-draw="rules-body" data-portfolio="Metals"></tbody>
         </table>
       </div>
     </section>
@@ -2134,15 +2134,13 @@ body { background:var(--color-bg); }
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Energy"></p>
       <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="Energy"></details>
     </section>
-    <section class="st-card st-geo" aria-labelledby="h-e-geo">
-      <h2 class="st-h2" id="h-e-geo">The war and the Strait of Hormuz</h2>
-      <div data-draw="geo" data-source="geo"></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-e-map">
-      <h2 class="st-h2" id="h-e-map">Live ship map: Strait of Hormuz</h2>
-      <p class="st-note">Live positions of ships around the strait, from their own AIS trackers, shown by VesselFinder. Drag and zoom to explore, and tap a ship to see what it is. Ships can switch their trackers off, so some vessels may be missing, and positions can lag by a few minutes. The map is for context only; the AIs don't use it.</p>
-      <div class="st-shipmap" data-draw="shipmap" data-source="geo"></div>
-      <p class="st-note">Open a bigger map: <a href="https://www.marinetraffic.com/en/ais/home/centerx:56.4/centery:26.4/zoom:8" target="_blank" rel="noopener">MarineTraffic</a> · <a href="https://www.vesselfinder.com/" target="_blank" rel="noopener">VesselFinder</a></p>
+    <section class="st-card" aria-labelledby="h-e-chart">
+      <h2 class="st-h2" id="h-e-chart">Value over time</h2>
+      <p class="st-note">The grey dashed line is the same C$100,000 put into the USO oil fund. Hover or drag along the chart for exact values.</p>
+      <div class="gx" id="perf-energy" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Energy"></div>
+      <div class="gx-hold" id="perf-energy-hold" aria-live="polite"></div>
+      <div class="gx-px-wrap" id="perf-energy-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
+      <div class="gx" id="perf-energy-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Energy"></div></div>
     </section>
     <section class="st-card" aria-labelledby="h-e-hold">
       <h2 class="st-h2" id="h-e-hold">Holdings</h2>
@@ -2155,23 +2153,25 @@ body { background:var(--color-bg); }
         </table>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-e-chart">
-      <h2 class="st-h2" id="h-e-chart">Value over time</h2>
-      <p class="st-note">The grey dashed line is the same C$100,000 put into the USO oil fund. Hover or drag along the chart for exact values.</p>
-      <div class="gx" id="perf-energy" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Energy"></div>
-      <div class="gx-hold" id="perf-energy-hold" aria-live="polite"></div>
-      <div class="gx-px-wrap" id="perf-energy-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
-      <div class="gx" id="perf-energy-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Energy"></div></div>
+    <section class="st-card" aria-labelledby="h-e-contrib">
+      <h2 class="st-h2" id="h-e-contrib">What made or lost money</h2>
+      <p class="st-note">Profit or loss on each position since it was bought, in Canadian dollars.</p>
+      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="Energy"></div>
+    </section>
+    <section class="st-card st-geo" aria-labelledby="h-e-geo">
+      <h2 class="st-h2" id="h-e-geo">The war and the Strait of Hormuz</h2>
+      <div data-draw="geo" data-source="geo"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-e-map">
+      <h2 class="st-h2" id="h-e-map">Live ship map: Strait of Hormuz</h2>
+      <p class="st-note">Live positions of ships around the strait, from their own AIS trackers, shown by VesselFinder. Drag and zoom to explore, and tap a ship to see what it is. Ships can switch their trackers off, so some vessels may be missing, and positions can lag by a few minutes. The map is for context only; the AIs don't use it.</p>
+      <div class="st-shipmap" data-draw="shipmap" data-source="geo"></div>
+      <p class="st-note">Open a bigger map: <a href="https://www.marinetraffic.com/en/ais/home/centerx:56.4/centery:26.4/zoom:8" target="_blank" rel="noopener">MarineTraffic</a> · <a href="https://www.vesselfinder.com/" target="_blank" rel="noopener">VesselFinder</a></p>
     </section>
     <section class="st-card" aria-labelledby="h-e-trig">
       <h2 class="st-h2" id="h-e-trig">Distance to the next trade</h2>
       <p class="st-note">This experiment's price rules, closest first.</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Energy"></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-e-contrib">
-      <h2 class="st-h2" id="h-e-contrib">What made or lost money</h2>
-      <p class="st-note">Profit or loss on each position since it was bought, in Canadian dollars.</p>
-      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="Energy"></div>
     </section>
     <section class="st-card" aria-labelledby="h-e-events">
       <h2 class="st-h2" id="h-e-events">Coming up</h2>
@@ -2183,21 +2183,21 @@ body { background:var(--color-bg); }
         </table>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-e-rules">
-      <h2 class="st-h2" id="h-e-rules">Rules in force</h2>
-      <div class="st-wrap">
-        <table class="st-table" data-source="rules" data-row-key="rule">
-          <thead><tr><th data-field="rule">Rule</th></tr></thead>
-          <tbody data-draw="rules-body" data-portfolio="Energy"></tbody>
-        </table>
-      </div>
-    </section>
     <section class="st-card" aria-labelledby="h-e-log">
       <h2 class="st-h2" id="h-e-log">Decision log</h2>
       <div class="st-wrap">
         <table class="st-table" data-source="log" data-row-key="at,portfolio">
           <thead><tr><th data-field="at">When</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
           <tbody data-draw="log-body" data-portfolio="Energy"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-e-rules">
+      <h2 class="st-h2" id="h-e-rules">Rules in force</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="rules" data-row-key="rule">
+          <thead><tr><th data-field="rule">Rule</th></tr></thead>
+          <tbody data-draw="rules-body" data-portfolio="Energy"></tbody>
         </table>
       </div>
     </section>
@@ -2228,6 +2228,14 @@ body { background:var(--color-bg); }
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Options"></p>
       <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="Options"></details>
     </section>
+    <section class="st-card" aria-labelledby="h-o-chart">
+      <h2 class="st-h2" id="h-o-chart">Value over time</h2>
+      <p class="st-note">The grey dashed line is the same C$100,000 put into the S&amp;P 500. Hover or drag along the chart for exact values.</p>
+      <div class="gx" id="perf-options" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Options"></div>
+      <div class="gx-hold" id="perf-options-hold" aria-live="polite"></div>
+      <div class="gx-px-wrap" id="perf-options-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
+      <div class="gx" id="perf-options-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Options"></div></div>
+    </section>
     <section class="st-card" aria-labelledby="h-o-hold">
       <h2 class="st-h2" id="h-o-hold">Holdings</h2>
       <div class="st-alloc" data-draw="alloc" data-source="holdings" data-portfolio="Options"></div>
@@ -2239,23 +2247,15 @@ body { background:var(--color-bg); }
         </table>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-o-chart">
-      <h2 class="st-h2" id="h-o-chart">Value over time</h2>
-      <p class="st-note">The grey dashed line is the same C$100,000 put into the S&amp;P 500. Hover or drag along the chart for exact values.</p>
-      <div class="gx" id="perf-options" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Options"></div>
-      <div class="gx-hold" id="perf-options-hold" aria-live="polite"></div>
-      <div class="gx-px-wrap" id="perf-options-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
-      <div class="gx" id="perf-options-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Options"></div></div>
+    <section class="st-card" aria-labelledby="h-o-contrib">
+      <h2 class="st-h2" id="h-o-contrib">What made or lost money</h2>
+      <p class="st-note">Profit or loss on each position since it was bought, in Canadian dollars.</p>
+      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="Options"></div>
     </section>
     <section class="st-card" aria-labelledby="h-o-trig">
       <h2 class="st-h2" id="h-o-trig">Distance to the next trade</h2>
       <p class="st-note">This experiment's price rules, closest first.</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Options"></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-o-contrib">
-      <h2 class="st-h2" id="h-o-contrib">What made or lost money</h2>
-      <p class="st-note">Profit or loss on each position since it was bought, in Canadian dollars.</p>
-      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="Options"></div>
     </section>
     <section class="st-card" aria-labelledby="h-o-events">
       <h2 class="st-h2" id="h-o-events">Coming up</h2>
@@ -2267,21 +2267,21 @@ body { background:var(--color-bg); }
         </table>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-o-rules">
-      <h2 class="st-h2" id="h-o-rules">Rules in force</h2>
-      <div class="st-wrap">
-        <table class="st-table" data-source="rules" data-row-key="rule">
-          <thead><tr><th data-field="rule">Rule</th></tr></thead>
-          <tbody data-draw="rules-body" data-portfolio="Options"></tbody>
-        </table>
-      </div>
-    </section>
     <section class="st-card" aria-labelledby="h-o-log">
       <h2 class="st-h2" id="h-o-log">Decision log</h2>
       <div class="st-wrap">
         <table class="st-table" data-source="log" data-row-key="at,portfolio">
           <thead><tr><th data-field="at">When</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
           <tbody data-draw="log-body" data-portfolio="Options"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-o-rules">
+      <h2 class="st-h2" id="h-o-rules">Rules in force</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="rules" data-row-key="rule">
+          <thead><tr><th data-field="rule">Rule</th></tr></thead>
+          <tbody data-draw="rules-body" data-portfolio="Options"></tbody>
         </table>
       </div>
     </section>
@@ -2312,12 +2312,6 @@ body { background:var(--color-bg); }
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Currencies"></p>
       <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="Currencies"></details>
     </section>
-    <section class="st-card" aria-labelledby="h-x-hold">
-      <h2 class="st-h2" id="h-x-hold">Positions</h2>
-      <div class="st-alloc" data-draw="alloc" data-source="holdings" data-portfolio="Currencies"></div>
-      <p class="st-note">Shown like a forex account: the account value is the C$100,000 deposit plus or minus the profit or loss on open positions. Leverage lets the account hold positions larger than its value. "Long" profits when that currency rises; "short" profits when it falls.</p>
-      <div data-draw="fx-positions" data-source="holdings"></div>
-    </section>
     <section class="st-card" aria-labelledby="h-x-chart">
       <h2 class="st-h2" id="h-x-chart">Value over time</h2>
       <p class="st-note">The grey dashed line is the same C$100,000 in a savings account paying 2.25% a year. Hover or drag along the chart for exact values.</p>
@@ -2326,15 +2320,21 @@ body { background:var(--color-bg); }
       <div class="gx-px-wrap" id="perf-currencies-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
       <div class="gx" id="perf-currencies-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Currencies"></div></div>
     </section>
-    <section class="st-card" aria-labelledby="h-x-trig">
-      <h2 class="st-h2" id="h-x-trig">Distance to the next trade</h2>
-      <p class="st-note">This experiment's price rules, closest first.</p>
-      <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Currencies"></div>
+    <section class="st-card" aria-labelledby="h-x-hold">
+      <h2 class="st-h2" id="h-x-hold">Positions</h2>
+      <div class="st-alloc" data-draw="alloc" data-source="holdings" data-portfolio="Currencies"></div>
+      <p class="st-note">Shown like a forex account: the account value is the C$100,000 deposit plus or minus the profit or loss on open positions. Leverage lets the account hold positions larger than its value. "Long" profits when that currency rises; "short" profits when it falls.</p>
+      <div data-draw="fx-positions" data-source="holdings"></div>
     </section>
     <section class="st-card" aria-labelledby="h-x-contrib">
       <h2 class="st-h2" id="h-x-contrib">What made or lost money</h2>
       <p class="st-note">Profit or loss on each position since it was bought, in Canadian dollars.</p>
       <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="Currencies"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-x-trig">
+      <h2 class="st-h2" id="h-x-trig">Distance to the next trade</h2>
+      <p class="st-note">This experiment's price rules, closest first.</p>
+      <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Currencies"></div>
     </section>
     <section class="st-card" aria-labelledby="h-x-events">
       <h2 class="st-h2" id="h-x-events">Coming up</h2>
@@ -2346,21 +2346,21 @@ body { background:var(--color-bg); }
         </table>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-x-rules">
-      <h2 class="st-h2" id="h-x-rules">Rules in force</h2>
-      <div class="st-wrap">
-        <table class="st-table" data-source="rules" data-row-key="rule">
-          <thead><tr><th data-field="rule">Rule</th></tr></thead>
-          <tbody data-draw="rules-body" data-portfolio="Currencies"></tbody>
-        </table>
-      </div>
-    </section>
     <section class="st-card" aria-labelledby="h-x-log">
       <h2 class="st-h2" id="h-x-log">Decision log</h2>
       <div class="st-wrap">
         <table class="st-table" data-source="log" data-row-key="at,portfolio">
           <thead><tr><th data-field="at">When</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
           <tbody data-draw="log-body" data-portfolio="Currencies"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-x-rules">
+      <h2 class="st-h2" id="h-x-rules">Rules in force</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="rules" data-row-key="rule">
+          <thead><tr><th data-field="rule">Rule</th></tr></thead>
+          <tbody data-draw="rules-body" data-portfolio="Currencies"></tbody>
         </table>
       </div>
     </section>
@@ -2389,13 +2389,13 @@ body { background:var(--color-bg); }
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Predictions"></p>
       <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="Predictions"></details>
     </section>
-    <section class="st-card" aria-labelledby="h-pm-min">
-      <h2 class="st-h2" id="h-pm-min">Betting minimums</h2>
-      <p class="st-note">Every AI must wager at least C$3,000 per bet, at least C$3,000 a day and at least C$100,000 in total by Nov 28, across Sports and Prediction markets, with at most 25% of the bankroll on any one day. Parlays are allowed. The winner here is whoever finishes with the highest balance.</p>
-      <h3 class="st-h3">Prediction markets weekly minimum (from Mon Nov 2)</h3>
-      <p class="st-note">Prediction markets is not optional: each AI must buy at least <b>C$3,000</b> in Prediction markets every week (Mon to Sun, ET) and at least <b>C$15,000</b> in total since the Oct 28 restart by Nov 28. A missed week costs <b>C$1,000</b> off its Prediction markets balance, and 10% of any shortfall from C$15,000 comes off at the final scoring. Added Nov 2 after one AI made no prediction-market trade for six days; Claude, Gemini and ChatGPT all agreed. What to buy and how much stays each AI's own choice.</p>
-      <div data-draw="predmins" data-source="predmins"></div>
-      <div data-draw="betmins" data-source="betmins penalties"></div>
+    <section class="st-card" aria-labelledby="h-p-chart">
+      <h2 class="st-h2" id="h-p-chart">Value over time</h2>
+      <p class="st-note">The dotted line is the C$100,000 start. Hover or drag along the chart for exact values.</p>
+      <div class="gx" id="perf-predictions" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Predictions"></div>
+      <div class="gx-hold" id="perf-predictions-hold" aria-live="polite"></div>
+      <div class="gx-px-wrap" id="perf-predictions-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
+      <div class="gx" id="perf-predictions-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Predictions"></div></div>
     </section>
     <section class="st-card" aria-labelledby="h-p-hold">
       <h2 class="st-h2" id="h-p-hold">Holdings</h2>
@@ -2407,23 +2407,15 @@ body { background:var(--color-bg); }
         </table>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-p-chart">
-      <h2 class="st-h2" id="h-p-chart">Value over time</h2>
-      <p class="st-note">The dotted line is the C$100,000 start. Hover or drag along the chart for exact values.</p>
-      <div class="gx" id="perf-predictions" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Predictions"></div>
-      <div class="gx-hold" id="perf-predictions-hold" aria-live="polite"></div>
-      <div class="gx-px-wrap" id="perf-predictions-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
-      <div class="gx" id="perf-predictions-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Predictions"></div></div>
+    <section class="st-card" aria-labelledby="h-p-contrib">
+      <h2 class="st-h2" id="h-p-contrib">What made or lost money</h2>
+      <p class="st-note">Profit or loss on each position since it was bought, in Canadian dollars.</p>
+      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="Predictions"></div>
     </section>
     <section class="st-card" aria-labelledby="h-p-trig">
       <h2 class="st-h2" id="h-p-trig">Distance to the next trade</h2>
       <p class="st-note">This experiment's price rules, closest first.</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Predictions"></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-p-contrib">
-      <h2 class="st-h2" id="h-p-contrib">What made or lost money</h2>
-      <p class="st-note">Profit or loss on each position since it was bought, in Canadian dollars.</p>
-      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="Predictions"></div>
     </section>
     <section class="st-card" aria-labelledby="h-p-events">
       <h2 class="st-h2" id="h-p-events">Coming up</h2>
@@ -2435,21 +2427,29 @@ body { background:var(--color-bg); }
         </table>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-p-rules">
-      <h2 class="st-h2" id="h-p-rules">Rules in force</h2>
-      <div class="st-wrap">
-        <table class="st-table" data-source="rules" data-row-key="rule">
-          <thead><tr><th data-field="rule">Rule</th></tr></thead>
-          <tbody data-draw="rules-body" data-portfolio="Predictions"></tbody>
-        </table>
-      </div>
-    </section>
     <section class="st-card" aria-labelledby="h-p-log">
       <h2 class="st-h2" id="h-p-log">Decision log</h2>
       <div class="st-wrap">
         <table class="st-table" data-source="log" data-row-key="at,portfolio">
           <thead><tr><th data-field="at">When</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
           <tbody data-draw="log-body" data-portfolio="Predictions"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-pm-min">
+      <h2 class="st-h2" id="h-pm-min">Betting minimums</h2>
+      <p class="st-note">Every AI must wager at least C$3,000 per bet, at least C$3,000 a day and at least C$100,000 in total by Nov 28, across Sports and Prediction markets, with at most 25% of the bankroll on any one day. Parlays are allowed. The winner here is whoever finishes with the highest balance.</p>
+      <h3 class="st-h3">Prediction markets weekly minimum (from Mon Nov 2)</h3>
+      <p class="st-note">Prediction markets is not optional: each AI must buy at least <b>C$3,000</b> in Prediction markets every week (Mon to Sun, ET) and at least <b>C$15,000</b> in total since the Oct 28 restart by Nov 28. A missed week costs <b>C$1,000</b> off its Prediction markets balance, and 10% of any shortfall from C$15,000 comes off at the final scoring. Added Nov 2 after one AI made no prediction-market trade for six days; Claude, Gemini and ChatGPT all agreed. What to buy and how much stays each AI's own choice.</p>
+      <div data-draw="predmins" data-source="predmins"></div>
+      <div data-draw="betmins" data-source="betmins penalties"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-p-rules">
+      <h2 class="st-h2" id="h-p-rules">Rules in force</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="rules" data-row-key="rule">
+          <thead><tr><th data-field="rule">Rule</th></tr></thead>
+          <tbody data-draw="rules-body" data-portfolio="Predictions"></tbody>
         </table>
       </div>
     </section>
@@ -2480,6 +2480,14 @@ body { background:var(--color-bg); }
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Safe"></p>
       <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="Safe"></details>
     </section>
+    <section class="st-card" aria-labelledby="h-f-chart">
+      <h2 class="st-h2" id="h-f-chart">Value over time</h2>
+      <p class="st-note">The grey dashed line is the same C$100,000 in a savings account paying 2.25% a year. Hover or drag along the chart for exact values.</p>
+      <div class="gx" id="perf-safe" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Safe"></div>
+      <div class="gx-hold" id="perf-safe-hold" aria-live="polite"></div>
+      <div class="gx-px-wrap" id="perf-safe-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
+      <div class="gx" id="perf-safe-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Safe"></div></div>
+    </section>
     <section class="st-card" aria-labelledby="h-f-hold">
       <h2 class="st-h2" id="h-f-hold">Holdings</h2>
       <div class="st-alloc" data-draw="alloc" data-source="holdings" data-portfolio="Safe"></div>
@@ -2491,23 +2499,15 @@ body { background:var(--color-bg); }
         </table>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-f-chart">
-      <h2 class="st-h2" id="h-f-chart">Value over time</h2>
-      <p class="st-note">The grey dashed line is the same C$100,000 in a savings account paying 2.25% a year. Hover or drag along the chart for exact values.</p>
-      <div class="gx" id="perf-safe" data-draw="perf-chart" data-source="history bench_history indexes" data-portfolio="Safe"></div>
-      <div class="gx-hold" id="perf-safe-hold" aria-live="polite"></div>
-      <div class="gx-px-wrap" id="perf-safe-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
-      <div class="gx" id="perf-safe-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="Safe"></div></div>
+    <section class="st-card" aria-labelledby="h-f-contrib">
+      <h2 class="st-h2" id="h-f-contrib">What made or lost money</h2>
+      <p class="st-note">Profit or loss on each position since it was bought, in Canadian dollars.</p>
+      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="Safe"></div>
     </section>
     <section class="st-card" aria-labelledby="h-f-trig">
       <h2 class="st-h2" id="h-f-trig">Distance to the next trade</h2>
       <p class="st-note">This experiment's price rules, closest first.</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="Safe"></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-f-contrib">
-      <h2 class="st-h2" id="h-f-contrib">What made or lost money</h2>
-      <p class="st-note">Profit or loss on each position since it was bought, in Canadian dollars.</p>
-      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="Safe"></div>
     </section>
     <section class="st-card" aria-labelledby="h-f-events">
       <h2 class="st-h2" id="h-f-events">Coming up</h2>
@@ -2519,21 +2519,21 @@ body { background:var(--color-bg); }
         </table>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-f-rules">
-      <h2 class="st-h2" id="h-f-rules">Rules in force</h2>
-      <div class="st-wrap">
-        <table class="st-table" data-source="rules" data-row-key="rule">
-          <thead><tr><th data-field="rule">Rule</th></tr></thead>
-          <tbody data-draw="rules-body" data-portfolio="Safe"></tbody>
-        </table>
-      </div>
-    </section>
     <section class="st-card" aria-labelledby="h-f-log">
       <h2 class="st-h2" id="h-f-log">Decision log</h2>
       <div class="st-wrap">
         <table class="st-table" data-source="log" data-row-key="at,portfolio">
           <thead><tr><th data-field="at">When</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
           <tbody data-draw="log-body" data-portfolio="Safe"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-f-rules">
+      <h2 class="st-h2" id="h-f-rules">Rules in force</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="rules" data-row-key="rule">
+          <thead><tr><th data-field="rule">Rule</th></tr></thead>
+          <tbody data-draw="rules-body" data-portfolio="Safe"></tbody>
         </table>
       </div>
     </section>
@@ -2563,15 +2563,10 @@ body { background:var(--color-bg); }
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="Sports"></p>
       <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="Sports"></details>
     </section>
-    <section class="st-card" aria-labelledby="h-bm-min">
-      <h2 class="st-h2" id="h-bm-min">Betting minimums</h2>
-      <p class="st-note">Every AI must wager at least C$3,000 per bet, at least C$3,000 a day and at least C$100,000 in total by Nov 28, across Sports and Prediction markets, with at most 25% of the bankroll on any one day. Parlays are allowed. The winner here is whoever finishes with the highest balance.</p>
-      <div data-draw="betmins" data-source="betmins penalties"></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-b-odds">
-      <h2 class="st-h2" id="h-b-odds">How big a favourite each AI backs</h2>
-      <p class="st-note">All three AIs side by side, for every bet since the Oct 28 restart (cancelled bets left out). Heavy favourites win often but pay little: at −1000 a C$10,000 stake wins C$1,000, and one loss wipes out ten wins. The average odds weigh each bet by its stake. No rule limits this; it is shown so you can judge the risk.</p>
-      <div data-draw="oddsprofile" data-source="bets rivals_models allin_models"></div>
+    <section class="st-card" aria-labelledby="h-b-chart">
+      <h2 class="st-h2" id="h-b-chart">Bankroll over time</h2>
+      <p class="st-note">The bankroll only moves when a bet settles. Hover or drag along the chart for exact values.</p>
+      <div class="gx" data-draw="perf-chart" data-source="history" data-portfolio="Sports"></div>
     </section>
     <section class="st-card" aria-labelledby="h-b-bets">
       <h2 class="st-h2" id="h-b-bets">Bets</h2>
@@ -2589,21 +2584,6 @@ body { background:var(--color-bg); }
         <table class="st-table" data-source="bets" data-row-key="bet">
           <thead><tr><th data-field="bet">Bet</th><th data-field="placed">Placed</th><th data-field="event">Game</th><th data-field="pick">Pick</th><th data-field="odds" class="num">Odds</th><th data-field="stake_cad" class="num">Stake (C$)</th><th data-field="to_win_cad" class="num">Potential win (C$)</th><th data-field="status">Status</th><th data-field="result_cad" class="num">Result (C$)</th><th data-field="closing_odds" class="num">Closing odds</th><th data-source="clv" data-field="verdict">Beat the close?</th></tr></thead>
           <tbody data-draw="bets-body"></tbody>
-        </table>
-      </div>
-    </section>
-    <section class="st-card" aria-labelledby="h-b-chart">
-      <h2 class="st-h2" id="h-b-chart">Bankroll over time</h2>
-      <p class="st-note">The bankroll only moves when a bet settles. Hover or drag along the chart for exact values.</p>
-      <div class="gx" data-draw="perf-chart" data-source="history" data-portfolio="Sports"></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-b-events">
-      <h2 class="st-h2" id="h-b-events">Coming up</h2>
-      <p class="st-note">Events ahead that could move this simulation. Times are Eastern (ET); tap or point at a time for UTC and Hong Kong time.</p>
-      <div class="st-wrap">
-        <table class="st-table" data-source="events" data-row-key="at,event">
-          <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
-          <tbody data-draw="events-body" data-portfolio="Sports" data-limit="6"></tbody>
         </table>
       </div>
     </section>
@@ -2631,12 +2611,18 @@ body { background:var(--color-bg); }
         </table>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-b-rules">
-      <h2 class="st-h2" id="h-b-rules">Rules in force</h2>
+    <section class="st-card" aria-labelledby="h-b-odds">
+      <h2 class="st-h2" id="h-b-odds">How big a favourite each AI backs</h2>
+      <p class="st-note">All three AIs side by side, for every bet since the Oct 28 restart (cancelled bets left out). Heavy favourites win often but pay little: at −1000 a C$10,000 stake wins C$1,000, and one loss wipes out ten wins. The average odds weigh each bet by its stake. No rule limits this; it is shown so you can judge the risk.</p>
+      <div data-draw="oddsprofile" data-source="bets rivals_models allin_models"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-b-events">
+      <h2 class="st-h2" id="h-b-events">Coming up</h2>
+      <p class="st-note">Events ahead that could move this simulation. Times are Eastern (ET); tap or point at a time for UTC and Hong Kong time.</p>
       <div class="st-wrap">
-        <table class="st-table" data-source="rules" data-row-key="rule">
-          <thead><tr><th data-field="rule">Rule</th></tr></thead>
-          <tbody data-draw="rules-body" data-portfolio="Sports"></tbody>
+        <table class="st-table" data-source="events" data-row-key="at,event">
+          <thead><tr><th data-field="when">When</th><th data-field="event">Event</th><th data-field="why">Why it matters</th></tr></thead>
+          <tbody data-draw="events-body" data-portfolio="Sports" data-limit="6"></tbody>
         </table>
       </div>
     </section>
@@ -2646,6 +2632,20 @@ body { background:var(--color-bg); }
         <table class="st-table" data-source="log" data-row-key="at,portfolio">
           <thead><tr><th data-field="at">When</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
           <tbody data-draw="log-body" data-portfolio="Sports"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-bm-min">
+      <h2 class="st-h2" id="h-bm-min">Betting minimums</h2>
+      <p class="st-note">Every AI must wager at least C$3,000 per bet, at least C$3,000 a day and at least C$100,000 in total by Nov 28, across Sports and Prediction markets, with at most 25% of the bankroll on any one day. Parlays are allowed. The winner here is whoever finishes with the highest balance.</p>
+      <div data-draw="betmins" data-source="betmins penalties"></div>
+    </section>
+    <section class="st-card" aria-labelledby="h-b-rules">
+      <h2 class="st-h2" id="h-b-rules">Rules in force</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="rules" data-row-key="rule">
+          <thead><tr><th data-field="rule">Rule</th></tr></thead>
+          <tbody data-draw="rules-body" data-portfolio="Sports"></tbody>
         </table>
       </div>
     </section>
@@ -2678,6 +2678,14 @@ body { background:var(--color-bg); }
       <p class="st-luckline" data-draw="luckline" data-source="luck" data-portfolio="China"></p>
       <details class="st-riskdash" data-draw="riskdash" data-source="riskdash" data-portfolio="China"></details>
     </section>
+    <section class="st-card" aria-labelledby="h-z-chart">
+      <h2 class="st-h2" id="h-z-chart">Value over time</h2>
+      <p class="st-note">In US dollars. The grey dashed line is the same US$100,000 put into the CSI 300 index (China's 300 largest companies). Hover or drag along the chart for exact values.</p>
+      <div class="gx" id="perf-china" data-draw="perf-chart" data-source="history bench_history" data-portfolio="China"></div>
+      <div class="gx-hold" id="perf-china-hold" aria-live="polite"></div>
+      <div class="gx-px-wrap" id="perf-china-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
+      <div class="gx" id="perf-china-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="China"></div></div>
+    </section>
     <section class="st-card" aria-labelledby="h-z-hold">
       <h2 class="st-h2" id="h-z-hold">Holdings</h2>
       <div class="st-alloc" data-draw="alloc" data-source="holdings" data-portfolio="China"></div>
@@ -2689,23 +2697,15 @@ body { background:var(--color-bg); }
         </table>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-z-chart">
-      <h2 class="st-h2" id="h-z-chart">Value over time</h2>
-      <p class="st-note">In US dollars. The grey dashed line is the same US$100,000 put into the CSI 300 index (China's 300 largest companies). Hover or drag along the chart for exact values.</p>
-      <div class="gx" id="perf-china" data-draw="perf-chart" data-source="history bench_history" data-portfolio="China"></div>
-      <div class="gx-hold" id="perf-china-hold" aria-live="polite"></div>
-      <div class="gx-px-wrap" id="perf-china-pxw"><h3 class="st-h3">Each holding on its own</h3><p class="st-note">Pick a holding to see its own price since it was bought: the dashed line is the average price paid, ▲ marks each buy, and any stop or target levels are drawn in.</p>
-      <div class="gx" id="perf-china-px" data-draw="price-chart" data-source="prices holdings rules trades" data-portfolio="China"></div></div>
+    <section class="st-card" aria-labelledby="h-z-contrib">
+      <h2 class="st-h2" id="h-z-contrib">What made or lost money</h2>
+      <p class="st-note">Profit or loss on each position since it was bought, in US dollars. Cash is left out.</p>
+      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="China"></div>
     </section>
     <section class="st-card" aria-labelledby="h-z-trig">
       <h2 class="st-h2" id="h-z-trig">Distance to the next trade</h2>
       <p class="st-note">This portfolio's price rules, closest first. Prices in yuan (¥).</p>
       <div class="st-trig" data-draw="triggers" data-source="triggers" data-portfolio="China"></div>
-    </section>
-    <section class="st-card" aria-labelledby="h-z-contrib">
-      <h2 class="st-h2" id="h-z-contrib">What made or lost money</h2>
-      <p class="st-note">Profit or loss on each position since it was bought, in US dollars. Cash is left out.</p>
-      <div class="st-bars" data-draw="contrib-bars" data-source="contrib" data-portfolio="China"></div>
     </section>
     <section class="st-card" aria-labelledby="h-z-events">
       <h2 class="st-h2" id="h-z-events">Coming up</h2>
@@ -2717,21 +2717,21 @@ body { background:var(--color-bg); }
         </table>
       </div>
     </section>
-    <section class="st-card" aria-labelledby="h-z-rules">
-      <h2 class="st-h2" id="h-z-rules">Rules in force</h2>
-      <div class="st-wrap">
-        <table class="st-table" data-source="rules" data-row-key="rule">
-          <thead><tr><th data-field="rule">Rule</th></tr></thead>
-          <tbody data-draw="rules-body" data-portfolio="China"></tbody>
-        </table>
-      </div>
-    </section>
     <section class="st-card" aria-labelledby="h-z-log">
       <h2 class="st-h2" id="h-z-log">Decision log</h2>
       <div class="st-wrap">
         <table class="st-table" data-source="log" data-row-key="at,portfolio">
           <thead><tr><th data-field="at">When</th><th data-field="action">Action</th><th data-field="detail">Detail</th></tr></thead>
           <tbody data-draw="log-body" data-portfolio="China"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="st-card" aria-labelledby="h-z-rules">
+      <h2 class="st-h2" id="h-z-rules">Rules in force</h2>
+      <div class="st-wrap">
+        <table class="st-table" data-source="rules" data-row-key="rule">
+          <thead><tr><th data-field="rule">Rule</th></tr></thead>
+          <tbody data-draw="rules-body" data-portfolio="China"></tbody>
         </table>
       </div>
     </section>
@@ -10869,7 +10869,7 @@ body { background:var(--color-bg); }
       const first = topCards(pg)[0]; if (!first) return;
       const nav = document.createElement('nav'); nav.className = 'pt-chips'; nav.setAttribute('aria-label', 'Jump to');
       const sp = pg.id === 'sports';
-      [[sp ? 'Bets' : 'Holdings', /^(Holdings|Bets)$/], ['Chart', /^(Value over time|Bankroll over time)$/], ['Ledger', null], ['Rules', /^Rules in force$/]].forEach(([t, re]) => {
+      [['Chart', /^(Value over time|Bankroll over time)$/], [sp ? 'Bets' : 'Holdings', /^(Holdings|Bets)$/], ['Ledger', null], ['Rules', /^Rules in force$/]].forEach(([t, re]) => {
         if (re && !findCard(pg, re)) return;
         const b = document.createElement('button'); b.type = 'button'; b.textContent = t;
         b.addEventListener('click', () => {
@@ -10885,7 +10885,7 @@ body { background:var(--color-bg); }
       document.querySelectorAll('.st-page').forEach((pg) => {
         if (RACES.includes(pg.id)) chips(pg);
         blocksOf(pg).forEach((b) => { const key = pg.id + '|' + titleOf(b); if (!phone()) { b.classList.remove('pt-fold'); return; }
-          if (pg.id === 'sports' && /^Bets\b/i.test(titleOf(b)) && !seeded.has(key)) { seeded.add(key); opened.add(key); }   // P17: the bets start open
+          if (pg.id === 'sports' && /^(Bets|Bankroll over time)\b/i.test(titleOf(b)) && !seeded.has(key)) { seeded.add(key); opened.add(key); }   // P17: the bets start open; Nov 18: the bankroll chart too (it now sits right under the tiles)
           fold(b, key, !opened.has(key)); });
       });
     };
