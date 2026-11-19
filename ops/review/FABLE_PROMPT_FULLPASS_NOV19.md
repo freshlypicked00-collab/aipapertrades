@@ -2,6 +2,12 @@
 
 Owner, Nov 19, 4:54 p.m. ET: "make a prompt for fable to go over the full papertrades.ai on mobile/desktop/social medias/posts. everything. tell him to check everything and make improvements".
 Drafted by Claude (the backup chat). It builds on this morning's prompt (ops/review/FABLE_PROMPT_NOV19.md) and Fable's night pass report (ops/review/NIGHT_PASS_REPORT.md).
+Reviewed by Gemini and ChatGPT (ops/asks/fable-fullpass-nov19.txt, answers ops/review/fable-fullpass-nov19.json); both said CHANGE, and every edit below is in:
+- Hold the big "load each tab's data when opened" change for Season 2 (or master's OK); small safe savings only: all three agreed.
+- Posts moved up to third, right after the first visit and the finale: Gemini and Claude.
+- A focus line for the 9 days left; click every link and button; more post checks (repeats, channel, timing, failed uploads); favicon, manifest, robots.txt, titles: ChatGPT and Claude.
+- Hold changes to navigation, tab order, data loading or a channel's identity for master's OK: ChatGPT and Claude (Claude narrowed ChatGPT's wider list, keeping small agreed polish autonomous, as master prefers).
+- Asks avoid the minutes when check-ins start: Gemini's idea, with Claude's correction of the times (check-ins start at about :13 and :43 past each hour, so Gemini's "10 to 45 past the hour" would have hit them).
 
 ```
 PAPERTRADES.AI: FULL PASS. THE SITE, EVERY POST, EVERY CHANNEL
@@ -23,21 +29,23 @@ S2. GROUND RULES (not up for change)
 - I stay anonymous. Nini (Nicole) gets tasks by Telegram only (nicole.yml), and her email never appears anywhere public. Hacker News comments are written by me only: never draft or edit one. Bot tokens live only in GitHub secrets.
 
 S3. CHECK EVERYTHING (in this order, so the most important is done first)
+For the 9 days left, put race-critical clarity, the finale, broken links, overflow, defects in posts and templates, and consistent profiles ahead of broad redesigns or experiments.
 1. First visit, on a phone first. In 5 seconds, can a stranger tell what this is, who is winning, and that it is pretend money? Is the countdown clearly to the Nov 28 finale? Can they turn on alerts in 2 taps? Add a one-line "how to read this" cue by the standings (ChatGPT's pick). Strengthen what is there rather than adding blocks.
 2. The finale. On Nov 28, where will a visitor, a journalist or a newsletter find the final result in one place they can cite and share (MISSION plan item 3)? Audit what exists, then prepare what is missing: page, share card, posts. Hold anything new for my OK.
-3. Every tab at 320, 375, 390, 430, 820, 1024, 1280, 1440 and 1920 px, phone sideways too, in all eight colour themes and in Beginner mode. Check: sideways scrolling, overflow, spacing and alignment, text size, tap targets, contrast, focus with a keyboard, reduced motion, empty and error states, the notch and swipe-bar areas, buttons that stay lit after a tap, and two languages through the language switch.
-4. Long phone pages: Ledger (about 19,200 px), How it works (15,800), Prediction markets (15,300). Fold or tighten them (Gemini's pick) without hiding numbers.
-5. Speed: the page is 1.3 MB and its data file 11 MB. Measure what a phone downloads before it can read the Overview, then plan loading each tab's data when it is opened. This is a big change: plan it, agree it with the models, test it hard, and ship it only if it is safe before the finale.
-6. Numbers that are right but read confusingly, on every page and in every post (my standing rule): C$ vs US$, potential win vs settled, partial sales, totals that don't obviously add up, percent vs points, "since the start" vs "24 hours", time zones.
-7. The site's words: labels, buttons, headings, tooltips, help text, the Guide, About, Rules & Audit, guide.html, join.html, the 404 page. Short, plain, consistent, friendly; the same name for the same thing everywhere.
-8. The automatic posts. Read what actually went out in the last 7 days (ops/src/discord_sent.json, x_sent.json, social.json, youtube.json, tg_video_sent.json, and the Telegram channel), then fix the templates:
+3. The automatic posts (they go out all day, so they come before the long screen checks). Read what actually went out in the last 7 days (ops/src/discord_sent.json, x_sent.json, social.json, youtube.json, tg_video_sent.json, and the Telegram channel), then fix the templates:
    - Discord: #live-trades, every race channel, #holdings and its pictures, #daily-results, #lead-changes, #big-moments, #announcements, the pinned START HERE texts, Onboarding, the bot's name and avatar, AutoMod.
    - Telegram, X, Instagram (posts, carousels, Reels, Stories) and YouTube (titles, descriptions, pinned comments, thumbnails: I have complained that Shorts don't get the right thumbnail, so check every recent one).
    - Share cards and the link previews for X, Discord and iMessage.
+   Also check that a post can't go out twice, goes to the right channel at the right time, says ET or UTC clearly, and that a failed picture or video upload can't leave a confusing text-only post.
    One voice and one brand everywhere, formatted for each platform, readable on a small phone. Test with dry runs only; never send a test to a public channel.
+4. Every tab at 320, 375, 390, 430, 820, 1024, 1280, 1440 and 1920 px, phone sideways too, in all eight colour themes and in Beginner mode. Check: sideways scrolling, overflow, spacing and alignment, text size, tap targets, contrast, focus with a keyboard, reduced motion, empty and error states, the notch and swipe-bar areas, buttons that stay lit after a tap, and two languages through the language switch. Click every link, button, alert and follow button, share button and tab: list any dead link, wrong destination, missing UTM tag, or action that fails silently.
+5. Long phone pages: Ledger (about 19,200 px), How it works (15,800), Prediction markets (15,300). Fold or tighten them (Gemini's pick) without hiding numbers.
+6. Speed: the page is 1.3 MB and its data file 11 MB. Measure what a phone downloads before it can read the Overview, and ship small, low-risk savings. Plan loading each tab's data only when it is opened and agree the plan with the models, but hold that big change for Season 2 unless I say otherwise: it must not risk the live site before the finale.
+7. Numbers that are right but read confusingly, on every page and in every post (my standing rule): C$ vs US$, potential win vs settled, partial sales, totals that don't obviously add up, percent vs points, "since the start" vs "24 hours", time zones.
+8. The site's words: labels, buttons, headings, tooltips, help text, the Guide, About, Rules & Audit, guide.html, join.html, the 404 page. Short, plain, consistent, friendly; the same name for the same thing everywhere.
 9. Profiles and channel pages: names, bios, avatars (the logo only), banners (YouTube safe areas), links (papertrades.ai with UTM tags), pinned posts, descriptions, and the same five official channels in the same order as the top bar (Discord, Telegram, Instagram, X, YouTube). Also the reserved TikTok, Threads and Reddit handles: do they at least show the logo and the link? Hacker News: look only.
 10. Graphics and video: daily cards, share cards, holdings cards, thumbnails, Short covers and first frames, icons. Consistent and sharp on a phone and on high-resolution screens. The animated cards: review only (F3).
-11. Accessibility and SEO: alt text, labels, headings, meta and Open Graph tags, sitemap.xml, llms.txt, structured data.
+11. Accessibility and SEO: alt text, labels, headings, meta and Open Graph tags, sitemap.xml, llms.txt, structured data, the favicon and app icons, the manifest, canonical links, robots.txt, and the page title a phone browser and a share show.
 12. Coming back (MISSION: the 7-day return rate). What brings a visitor back tomorrow? Propose the few best ideas; build only small, agreed ones.
 13. The email list (MISSION O1) does not exist yet. Prepare a short proposal (where the box goes, which service, cost, double opt-in) for my decision.
 
@@ -46,9 +54,9 @@ To see the live pages, ask me ONCE at the start to approve opening papertrades.a
 S4. WORK WITH ALL THREE MODELS
 - Each area: audit and measure first, write numbered proposals, send them with screenshots to Gemini and ChatGPT, then build. Batch your questions: one ask per area, not one per detail.
 - Asks: write ops/asks/<name>.txt plus <name>.files.txt (.png and .jpg files go as pictures), then dispatch rivals.yml with mode=ask and name=<name> through the REST API (gh api .../actions/workflows/rivals.yml/dispatches). Answers land in ops/review/<name>.json.
-- The race check-ins and every ask share one queue ("rivals"), and a newer waiting run CANCELS the older waiting one, which could be a race check-in. Dispatch only when nothing is waiting in that queue; a running one is fine.
+- The race check-ins and every ask share one queue ("rivals"), and a newer waiting run CANCELS the older waiting one, which could be a race check-in. Dispatch only when nothing is waiting in that queue (a running one is fine), and not in the minutes when check-ins start: about :13 to :16 and :43 to :47 past every hour, and :03, :18, :33 and :48 in the evening, overnight and on weekends.
 - If an answer shows ChatGPT out of OpenRouter credit, tell me in one line and continue with Gemini.
-- Ship what the models agree improves things; small polish counts too. If the three disagree, go with the two that agree and write down the dissent. If only two models answer and they split 1-1, ship only small, reversible fixes of real defects (a broken link, a typo, overflow or sideways scrolling, contrast under 4.5 to 1), marked "only Claude", and hold design or wording splits for me with each side's view in one line.
+- Ship the low-risk improvements the models agree on; small polish counts too. Hold for my OK anything that changes navigation, the tab order, how data loads, or a channel's identity (name, handle, avatar). If the three disagree, go with the two that agree and write down the dissent. If only two models answer and they split 1-1, ship only small, reversible fixes of real defects (a broken link, a typo, overflow or sideways scrolling, contrast under 4.5 to 1), marked "only Claude", and hold design or wording splits for me with each side's view in one line.
 
 S5. HOW TO WORK
 - Start with a task list, one item per area in S3, and tick them off. Note the commit you started from.
