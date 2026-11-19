@@ -668,6 +668,8 @@ def _wrap(orig, mpl=False):
                          make_gif(orig, a, k, out[:-4] + '.gif', rec=rec, limit=rest))
                     if g and os.path.getsize(g) > 8 * 1024 * 1024:   # too big to send everywhere: keep the still
                         os.remove(g)
+                    elif g:
+                        print(f'animated card made: {os.path.basename(g)}, {os.path.getsize(g) // 1024} KB, {_time.time() - t0:.1f} s')
                     _MADE[0] += 1
                 except Exception as e:
                     print('animated card skipped:', e)
