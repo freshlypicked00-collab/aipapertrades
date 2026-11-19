@@ -1338,7 +1338,7 @@ def _bet_money(t):
         m = lambda v: money(abs(v), t.get('cur') or 'CAD')
         if t['action'] == 'Bet':
             st = float(t['amount']); win = st * o / 100 if o > 0 else st * 100 / abs(o)
-            return f"Bet {m(st)} at {int(o):+d} · to win {m(win)} profit ({int(o):+d}: {'wins C$' + str(int(o)) + ' for every C$100 bet' if o > 0 else 'bet C$' + str(int(abs(o))) + ' to win C$100'})"
+            return f"Bet {m(st)} at {int(o):+d} · to win {m(win)} profit ({int(o):+d}: {'wins C$' + f'{int(o):,}' + ' for every C$100 bet' if o > 0 else 'bet C$' + f'{int(abs(o)):,}' + ' to win C$100'})"
         pr = float(t['amount'])
         st = float(t.get('stake') or 0) or (abs(pr) if t['action'] == 'Lost' else (pr * 100 / o if o > 0 else pr * abs(o) / 100) if o else 0)
         if t['action'] == 'Won':
@@ -1350,17 +1350,50 @@ def _bet_money(t):
         return ''
 
 
-def tg_trade(label, t, source=None, photo=None):
-    icon = {'Buy': '🟢', 'Sell': '🔴', 'Short': '🔻', 'Cover': '🔺', 'Settled': '🏁', 'Expired': '⌛', 'Bet': '🎯', 'Won': '✅', 'Lost': '❌', 'Push': '➖'}.get(t['action'], '•')
-    what = f"{t['symbol']} {t['outcome']}" if t.get('outcome') else t['symbol']
+# Nov 19 (owner: "the words we post on a trade"; Claude, Gemini and ChatGPT all agreed, ops/review/night-pass-nov19-a.json, W1 to W6):
+# one wording for every move post. Line 1: the action and the race. Line 2: the thing, in plain words (an option's plain name, never its
+# exchange code). Line 3: the money, saying which number is which. The AI's own reason follows, word for word. The last line names the brand.
+POST_ICON = {'Buy': '🟢', 'Sell': '🔴', 'Short': '🔻', 'Cover': '🔺', 'Settled': '🏁', 'Expired': '⌛', 'Bet': '🎯', 'Won': '✅', 'Lost': '❌', 'Push': '➖'}
+POST_VERB = {'Short': 'Sold short', 'Cover': 'Bought back'}   # plain words, as the site's own lists say since Nov 18
+POST_LEAD = {'Buy': 'Bought ', 'Sell': 'Sold for ', 'Short': 'Sold short ', 'Cover': 'Bought back for '}
+
+
+def post_foot():
+    return f'PaperTrades.AI · Claude vs Gemini vs ChatGPT · {SITE}'
+
+
+def post_thing(t):
     if BASE.get(t['experiment'], t['experiment']) == 'Sports':
-        what = t['name']
+        return str(t['name'])
+    if t.get('outcome'):   # a prediction market: the question and the side taken
+        return f"{t['name']} · {t['outcome']}" if t.get('name') and t['name'] != t['symbol'] else f"{t['symbol']} {t['outcome']}"
+    if t.get('name') and re.fullmatch(r'[A-Z.]{1,6}\d{6}[CP]\d{8}', str(t['symbol'])):   # an option: "NVDA Nov 20 $150 put", not NVDA261120P00150000
+        return str(t['name'])
+    return f"{t['name']} ({t['symbol']})" if t.get('name') and t['name'] != t['symbol'] else str(t['symbol'])
+
+
+def post_money(t):
+    bet = _bet_money(t)
+    if bet:
+        return bet
+    if t['action'] in ('Won', 'Lost', 'Push'):
+        return fmt_price(t) + ', ' + ('+' if t['amount'] >= 0 else '−') + money(abs(t['amount']), t['cur'])
+    lead = POST_LEAD.get(t['action'])
+    return f"{lead}{money(t['amount'], t['cur'])} at {fmt_price(t)}" if lead else f"{fmt_price(t)}, {money(t['amount'], t['cur'])}"
+
+
+def post_lines(t):
+    """The three lines every move post starts with (HTML for Telegram; discord.to_md turns it into Markdown)."""
+    return (f"{POST_ICON.get(t['action'], '•')} <b>{POST_VERB.get(t['action'], t['action'])} · {EXP_LABEL[t['experiment']]}</b>\n"
+            f"{esc(post_thing(t))}\n{post_money(t)}")
+
+
+def tg_trade(label, t, source=None, photo=None):
     head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)', 'Claude': '🟠 <b>CLAUDE</b> (Anthropic)'}.get(label, f'<b>{label.upper()}</b>')
-    msg = (f"{head}\n{icon} <b>{EXP_LABEL[t['experiment']]}: {t['action']} {esc(what)}</b>\n" + ('' if BASE.get(t['experiment'], t['experiment']) == 'Sports' else f"{esc(t['name'])}\n") +
-           f"{_bet_money(t) or (fmt_price(t) + ', ' + ((('+' if t['amount'] >= 0 else '−') + money(abs(t['amount']), t['cur'])) if t['action'] in ('Won', 'Lost', 'Push') else money(t['amount'], t['cur'])))}\n<i>{esc(t['reason'])}</i>")
+    msg = f"{head}\n{post_lines(t)}\n<i>{esc(t['reason'])}</i>"
     if source:
         msg += f"\nSource: <a href=\"{esc(source['url'])}\">{esc(source['title'][:80])}</a>"
-    tg_photo(msg + f'\n⚔️ AI vs AI: Claude vs Gemini vs ChatGPT · {SITE}', photo)
+    tg_photo(msg + '\n' + post_foot(), photo)
 
 
 WATCH = [('BTC-USD', 'Bitcoin', 3.0), ('ETH-USD', 'Ethereum', 4.0), ('SOL-USD', 'Solana', 6.0), ('^GSPC', 'S&P 500', 1.5), ('^IXIC', 'Nasdaq', 2.0),
@@ -2699,18 +2732,15 @@ def main():
             pass   # per-AI day closes stay on the site (report cards in the Ledger); the race card is the one daily post
         # one post per AI per check-in: every trade listed, with one chart (the biggest trade's price)
         if made:
-            def line(t):
-                icon = {'Buy': '🟢', 'Sell': '🔴', 'Short': '🔻', 'Cover': '🔺', 'Bet': '🎯'}.get(t['action'], '•')
-                what = t['name'] if BASE.get(t['experiment'], t['experiment']) == 'Sports' else (f"{t['symbol']} {t['outcome']}" if t.get('outcome') else f"{t['name']} ({t['symbol']})" if t['name'] != t['symbol'] else t['symbol'])
-                return (f"{icon} <b>{EXP_LABEL[t['experiment']]}: {t['action']} {esc(what)}</b>\n{fmt_price(t)}, {money(t['amount'], t['cur'])}"
-                        + (f"\n<i>{esc(t['reason'][:400])}</i>" if t.get('reason') else ''))
+            def line(t):   # the same three lines as a single post (post_lines), then the AI's reason
+                return post_lines(t) + (f"\n<i>{esc(t['reason'][:400])}</i>" if t.get('reason') else '')
             head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(r['label'], r['label'])
             body = f"{head}\n🧾 <b>{len(made)} move{'s' if len(made) > 1 else ''} this check-in</b>\n\n" + '\n\n'.join(line(t) for t in made)
             if sources:
                 body += f"\n\nSource: <a href=\"{esc(sources[0]['url'])}\">{esc(sources[0]['title'][:70])}</a>"
             if len(body) > 3700:
                 body = body[:3650].rsplit('\n\n', 1)[0] + '\n\n…and more on the site'
-            body += f'\n⚔️ AI vs AI: Claude vs Gemini vs ChatGPT · {SITE}'
+            body += '\n' + post_foot()
             big = max((t for t in made if t['experiment'] not in ('Predictions', 'Sports', 'AllInSports')), key=lambda t: abs(t['amount']), default=None)
             # one picture per move as an album after a cover (owner, Oct 30; design agreed by all three AIs: ops/review/tradecards-oct30.json)
             pics = sharecard.album(r['label'], made, state['trades'], state['history'], f"/tmp/rm_{mid}_{len(state['trades'])}",

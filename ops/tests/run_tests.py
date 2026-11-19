@@ -360,5 +360,22 @@ def test_animated_card_recorder_cannot_spin_forever():
     assert all(k != v for k, v in rec.alias.items())
     animate.elements(rec)                         # returns; it used to be able to hang here
 
+
+def test_move_posts_say_which_number_is_which():
+    """Nov 19 (all three AIs agreed, W1 to W6): one wording for every move post. The action and the race, then the thing in plain words
+    (an option's plain name, never the exchange code), then a money line that names the amount and the price; the brand on the last line."""
+    opt = {'experiment': 'Options', 'action': 'Buy', 'symbol': 'NVDA261120P00150000', 'outcome': None, 'name': 'NVDA Nov 20 $150 put', 'price': 4.3, 'pcur': 'USD', 'qty': 500, 'amount': 3074.28, 'cur': 'CAD'}
+    assert R.post_lines(opt) == '🟢 <b>Buy · Options</b>\nNVDA Nov 20 $150 put\nBought C$3,074 at US$4.30 per share (5 contracts)', R.post_lines(opt)
+    cov = {'experiment': 'Currencies', 'action': 'Cover', 'symbol': 'EUR', 'outcome': None, 'name': 'Euro', 'price': 1.0971, 'pcur': 'USD', 'qty': 63297.8, 'amount': 99513.29, 'cur': 'CAD'}
+    assert R.post_lines(cov) == '🔺 <b>Bought back · Currencies</b>\nEuro (EUR)\nBought back for C$99,513 at US$1.0971 per EUR', R.post_lines(cov)
+    sh = dict(cov, action='Short', amount=100000.0, price=1.1078)
+    assert R.post_lines(sh).startswith('🔻 <b>Sold short · Currencies</b>\nEuro (EUR)\nSold short C$100,000 at ')
+    bet = {'experiment': 'AllInSports', 'action': 'Bet', 'symbol': 'C99', 'outcome': None, 'name': 'NBA: San Antonio Spurs moneyline (LA Clippers @ San Antonio Spurs)', 'price': -1200, 'pcur': 'CAD', 'qty': 1, 'amount': 3000.0, 'cur': 'CAD'}
+    assert R.post_lines(bet) == ('🎯 <b>Bet · High risk: sports</b>\nNBA: San Antonio Spurs moneyline (LA Clippers @ San Antonio Spurs)\n'
+                                 'Bet C$3,000 at -1200 · to win C$250 profit (-1200: bet C$1,200 to win C$100)'), R.post_lines(bet)
+    pred = {'experiment': 'Predictions', 'action': 'Buy', 'symbol': 'another-fed-rate-hike-in-2026', 'outcome': 'Yes', 'name': 'Another Fed rate hike in 2026?', 'price': 0.962, 'pcur': 'USD', 'qty': 2185.0, 'amount': 3000.0, 'cur': 'CAD'}
+    assert R.post_lines(pred).split('\n')[1] == 'Another Fed rate hike in 2026? · Yes'
+    assert R.post_foot().startswith('PaperTrades.AI · Claude vs Gemini vs ChatGPT · https://')
+
 if __name__ == '__main__':
     main()
