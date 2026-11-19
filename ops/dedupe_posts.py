@@ -1,7 +1,8 @@
 """Find (and, only when told to, delete) exact repeats of an AI's result post on Telegram and in Discord #live-trades.
 
 Why (Nov 19): from Nov 18, 10:14 p.m. ET to Nov 19, 5:14 a.m. ET each hourly Gemini-and-ChatGPT run posted the night's first two
-results and was then stopped before saving, so the same two posts went out about ten times (ops/src/corrections.json).
+results and was then stopped before saving. Claude first believed the same posts went out about ten times; the dry run of Nov 19 found one
+repeat on Telegram (Gemini's Miami Heat win, twice) and none on Discord (ops/src/corrections.json).
 
 DRY RUN by default: it only lists what it would remove. With CONFIRM=delete it keeps the FIRST copy of each repeated post and deletes
 the later copies. Only posts from the last HOURS (default 30) that start with an AI's header are looked at. Deleting cannot be undone,
