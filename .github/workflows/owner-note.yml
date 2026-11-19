@@ -1,0 +1,23 @@
+name: Private note to the owner (Telegram, through the task bot)
+# Sends one text file from the repo to the owner's own chat with the task bot. Nothing public: it never posts to a channel.
+on:
+  workflow_dispatch:
+    inputs:
+      file:
+        description: 'text file in the repo, e.g. ops/review/NIGHT_PASS_TELEGRAM.txt (Telegram HTML: <b>, <i>, <a>)'
+        required: true
+permissions:
+  contents: read
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Send it to the owner only
+        env:
+          NICOLE_BOT_TOKEN: ${{ secrets.NICOLE_BOT_TOKEN }}
+          FILE: ${{ inputs.file }}
+        run: |
+          case "$FILE" in ops/review/*.txt|ops/notices/*.txt) ;; *) echo "only a .txt under ops/review or ops/notices"; exit 1;; esac
+          python3 ops/nicole_bot.py owner "$FILE"

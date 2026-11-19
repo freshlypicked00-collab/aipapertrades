@@ -345,5 +345,8 @@ if __name__ == '__main__':
     elif cmd == 'codes': codes()
     elif cmd == 'webhook': webhook(sys.argv[2])
     elif cmd == 'credit': credit()
+    elif cmd == 'owner':   # Nov 19: a private note to the owner only, from a text file in the repo (.github/workflows/owner-note.yml)
+        txt = open(sys.argv[2]).read().strip()[:3900]
+        tell_owner(txt); print('sent to the owner' if (load(BOT, {}).get('chats') or {}).get('owner') else 'no owner chat is linked: nothing sent')
     elif cmd == 'save': merge_save(sys.argv[2] if len(sys.argv) > 2 else 'Nicole bot: state')
     else: poll()
