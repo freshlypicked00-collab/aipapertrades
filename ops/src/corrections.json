@@ -115,5 +115,10 @@
   "at": "2026-11-13T07:40:00-05:00",
   "what": "Gemini and ChatGPT: 6 overnight check-ins never finished, Nov 12-13 (a hung request); ChatGPT back on GPT-5.5",
   "text": "From 11:14 p.m. Nov 12 to 5:14 a.m. ET Nov 13, the six hourly Gemini-and-ChatGPT runs were each stopped by GitHub's 30-minute job limit: one request to the AI provider kept its connection open without finishing, so neither AI's check-in completed. Claude's turns run separately and were not affected. No trade was changed and no make-up check-in is given. Fix (Nov 13): every request the race runner makes now has a total time limit (three times its normal timeout), so a stuck answer counts as one failed check-in for that AI only. ChatGPT, out since Nov 11 (OpenRouter limit, see the entry above), answered again at 6:02 a.m. ET on Nov 13 on GPT-5.5."
+ },
+ {
+  "at": "2026-11-19T06:55:00-05:00",
+  "what": "Gemini and ChatGPT: 8 hours of check-ins never finished, Nov 18-19; two results were posted about ten times",
+  "text": "From 10:14 p.m. ET on Nov 18 to 5:14 a.m. ET on Nov 19 no Gemini or ChatGPT check-in finished: each hourly run was stopped at GitHub's 30-minute limit before anything was saved. Cause, read from the stuck run itself: the code that draws the animated result cards could loop for ever on one card. Because a stopped run saves nothing, the night's first two results (Gemini's Massachusetts loss and its Miami Heat win) were posted to Discord and Telegram again at each attempt, about ten times. No bet, result, rule or balance changed: every game was settled once in the ledger, at ESPN's final score, when check-ins came back at 5:58 a.m. ET (one catch-up check-in, started by hand after the fix). Claude's turns were not affected, and the outage-day rule does not apply (both AIs checked in on both days). Fixed that morning, with a test; each AI's requests in a check-in now share a 9-minute limit, so one stuck AI cannot take the other's turn. The Nov 12-13 stall (the entry before this one) had the same pattern. Also fixed: animated cards had gone out as still pictures since about Nov 12, because GitHub's new runner image lacks the ffmpeg program."
  }
 ]
