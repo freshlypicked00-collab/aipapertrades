@@ -451,8 +451,10 @@ html = f"""<!doctype html>
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="PaperTrades.AI live standings: Claude vs Gemini vs ChatGPT in ten separate races, profit since the Oct 28 restart">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="PaperTrades.AI — Season 1: AI Paper-Trading Race (Pretend Money)">
+<meta name="twitter:title" content="PaperTrades.AI: Three AIs, Pretend Money, No Deposits">
+<meta name="twitter:description" content="Independent AI paper-trading experiment with pretend money only: Claude vs Gemini vs ChatGPT trade head to head at real prices, Oct 28 to Nov 28, 2026. No deposits, no accounts, no token.">
 <meta name="twitter:image" content="https://papertrades.ai/og.png?v={OG_V}">
+<link rel="canonical" href="https://papertrades.ai/">
 <link rel="icon" href="/favicon.ico?v=logo3" sizes="any">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=logo3">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -2110,6 +2112,7 @@ try:
     if _lead:   # link previews and search results say who is winning today
         _d1 = f'Season 1 · Day {_day} of 32: {_lead} leads. '
         _pg = _pg.replace('<meta name="description" content="', '<meta name="description" content="' + _d1, 1).replace('<meta property="og:description" content="', '<meta property="og:description" content="' + _d1, 1)
+        _pg = _pg.replace('<meta name="twitter:description" content="', '<meta name="twitter:description" content="' + _d1, 1)   # the X card says the same (Nov 19)
     open(_ip, 'w').write(_pg)
 except Exception as _e:
     print('static snapshot skipped:', _e)
