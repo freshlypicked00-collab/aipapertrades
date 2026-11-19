@@ -1,4 +1,4 @@
-# Night pass report (Thu Nov 19, 2026, 5:00 to 7:15 a.m. ET)
+# Night pass report (Thu Nov 19, 2026, 5:00 to 7:20 a.m. ET)
 
 Owner, Nov 19, 5:00 a.m. ET: an all-night quality pass on PaperTrades.AI with all three AIs.
 Asked: Gemini and ChatGPT, twice (`ops/asks/night-pass-nov19-a.txt` and `-b.txt`; answers in `ops/review/night-pass-nov19-a.json` and `-b.json`; Claude's votes, written first, in `ops/review/claude-votes-night-pass-nov19-a.json` and `-b.json`). ChatGPT had credit and answered both times.
@@ -15,9 +15,9 @@ Asked: Gemini and ChatGPT, twice (`ops/asks/night-pass-nov19-a.txt` and `-b.txt`
 
 | What | Who agreed |
 |---|---|
-| The stall: the code that draws the animated result cards could loop for ever (it told pictures apart by a number Python reuses). It hit on the night's first results; each hourly run was stopped at the 30-minute limit before saving. Fixed, with a test. | Only Claude (urgent). Shown to Gemini and ChatGPT afterwards; no objection. |
+| The stall: the code that draws the animated result cards could loop for ever (it told pictures apart by a number Python reuses). It hit on the night's first results; each hourly run was stopped at the 30-minute limit before saving. A loop now raises instead of spinning, with a test, and that code no longer runs in a check-in at all (next row but one). | Only Claude (urgent). Shown to Gemini and ChatGPT afterwards; no objection. |
 | A 9-minute limit shared by all of one AI's requests in a check-in, so one stuck AI can't take the other's turn. The log is written live, and a stuck run prints where it is. | Only Claude (urgent). Same. |
-| Animated cards had been still pictures since about Nov 12: GitHub's new runner image has no ffmpeg. It is installed again. | Only Claude (restores your Nov 1 choice). |
+| **Animated cards are broken, and now switched off on purpose.** They have gone out as still pictures since about Nov 12, because GitHub's new runner image has no ffmpeg. I installed ffmpeg, tested before any card went out, and found the animation is an almost empty card with today's software (only the @PaperTradesAI mark). I took ffmpeg back out and turned the animation off (`PT_GIFS=1` turns it on). Stills continue, as they have for a week. A card now takes 0.1 s instead of about 4 s. | Only Claude. In part A I told Gemini and ChatGPT the cards would animate again; that is not so. |
 | A public entry in Corrections (Rules & Audit) about the stall. | All three |
 
 The stall of Nov 12-13 had the same pattern (overnight, after games ended). It was put down to a hung request then; its logs can't confirm either cause.
@@ -69,6 +69,7 @@ Sold for C$3,651 at US$1.70 per share (15 contracts)
 
 - **A wrong claim, live for about 25 minutes.** I first wrote (to Gemini and ChatGPT, and in the site's correction) that two results had been posted about ten times during the stall. I then counted both channels: one post went out twice on Telegram (Gemini's Miami Heat win) and nothing was repeated on Discord. The correction now says so, and says that it was corrected.
 - **A failing test on main for about one minute** (6:42 to 6:43 a.m. ET). No race run started in that minute.
+- **My first fix for the stall would have broken the animations** (it kept every picture in memory, and the animation then drew nothing). No card went out while it was in place with ffmpeg; I replaced it with the loop guard.
 - **Race runs I started or stopped by hand.** One catch-up check-in at 5:58 a.m. ET after the fix. One test check-in I stopped after 5 minutes to read where it was stuck (it would have been killed anyway). My first start also replaced another chat's queued question to Gemini; that chat asked again and got its answer.
 
 ## 6. Prepared, waiting for your OK
@@ -85,11 +86,11 @@ Sold for C$3,651 at US$1.70 per share (15 contracts)
 
 ## 8. Top 5 next, ranked
 
-1. Sale posts that say the profit or loss (item 1 above).
-2. Fold more on the longest phone pages: Ledger (19,200 px), How it works (15,800 px), Prediction markets (15,300 px). Gemini's pick.
-3. First-load weight: the page is 1.3 MB and its data file 11 MB. Measure what a phone downloads first, then load each tab's data when it is opened.
-4. A one-line "how to read this page" cue by the standings. ChatGPT's pick.
-5. A pass over YouTube, Instagram and the Discord channel texts.
+1. Repair the animated cards and prove them with pictures before turning them back on (your Nov 1 choice; off for a week). The recorder in `ops/animate.py` needs a rewrite: it works by luck with how Python numbers pictures.
+2. Sale posts that say the profit or loss (item 1 in section 6).
+3. Fold more on the longest phone pages: Ledger (19,200 px), How it works (15,800 px), Prediction markets (15,300 px). Gemini's pick.
+4. First-load weight: the page is 1.3 MB and its data file 11 MB. Measure what a phone downloads first, then load each tab's data when it is opened.
+5. A pass over YouTube, Instagram and the Discord channel texts, and a one-line "how to read this page" cue by the standings (ChatGPT's pick).
 
 ## How to reverse
 
