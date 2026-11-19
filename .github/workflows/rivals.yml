@@ -121,6 +121,7 @@ jobs:
           EVENT: ${{ github.event_name }}
           SCHEDULE: ${{ github.event.schedule }}
           MODE: ${{ inputs.mode }}
+          PT_GIFS: ${{ vars.PT_GIFS || '1' }}   # animated cards: on unless the repository variable PT_GIFS is 0 (Nov 19, F3)
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -159,6 +160,7 @@ jobs:
         if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' }}
         env:
           GH_TOKEN: ${{ github.token }}
+          PT_GIFS: ${{ vars.PT_GIFS || '1' }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

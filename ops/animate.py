@@ -545,15 +545,20 @@ def make_gif_mpl(card_fn, args, kwargs, out, width=960, hold=9.0, still=None, li
         still_from = max(max(r['t0'] + r['dur'] for r in rows), total - (hold - 0.5))   # from here on every frame is the same picture
 
         def frames():
+            prev = None
             for i in range(n):
                 t = i / FPS
                 if t >= still_from:
-                    yield last   # drawn once, not once a frame (a matplotlib frame takes about 0.15 s on GitHub's runner)
+                    yield last   # drawn once, not once a frame (a matplotlib frame takes up to 0.4 s on GitHub's runner)
+                    continue
+                if prev is not None and i % 2:
+                    yield prev   # rows fade in at 10 drawings a second: half the time, the same look
                     continue
                 fr = render(t)
                 if t < total - (hold - 0.5):
                     _scanline(fr, t, fr.width, fr.height)
-                yield fr.convert('RGB')
+                prev = fr.convert('RGB')
+                yield prev
         return _encode(frames(), last.size, out, width, limit, t_start)
     finally:
         o_close(fig)
@@ -644,7 +649,7 @@ def _wrap(orig, mpl=False):
         if path and os.path.exists(path[:-4] + '.gif'):
             os.remove(path[:-4] + '.gif')
         left = _BUDGET - _SPENT[0]
-        want = _MADE[0] < _MAX and left > 5
+        want = _MADE[0] < _MAX and left > 5 and _ffmpeg() is not None   # no ffmpeg on this run (a settle run skips the pip step): no recording either
         t0 = _time.time()
         _ACTIVE[0] = True
         try:

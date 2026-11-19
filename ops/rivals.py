@@ -1233,15 +1233,17 @@ def tg_photo(text, photo, silent=False, _dc=True):   # every trade, bet and resu
     b = '----pt' + str(os.getpid())
     parts = [f'--{b}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode() for k, v in (('chat_id', chat), ('caption', text[:1020]), ('parse_mode', 'HTML'), ('disable_notification', 'true' if silent else 'false'))]
     gif = animate.gif_of(photo) if animate else None   # the animated card when there is one (owner, Nov 1)
-    f, kind, ct, meth = (gif, 'animation', 'image/gif', 'sendAnimation') if gif else (photo, 'photo', 'image/png', 'sendPhoto')
-    parts.append(f'--{b}\r\nContent-Disposition: form-data; name="{kind}"; filename="c.{ct[6:]}"\r\nContent-Type: {ct}\r\n\r\n'.encode() + open(f, 'rb').read() + f'\r\n--{b}--\r\n'.encode())
-    try:
-        req = urllib.request.Request(f'https://api.telegram.org/bot{tok}/{meth}', b''.join(parts), {'Content-Type': f'multipart/form-data; boundary={b}'})
-        urllib.request.urlopen(req, timeout=60).read()
-        TGSTAT['sent'] += 1
-    except Exception as e:
-        print('telegram photo failed', e)
-        tg(text, _dc=False)
+    tries = ([(gif, 'animation', 'image/gif', 'sendAnimation')] if gif else []) + [(photo, 'photo', 'image/png', 'sendPhoto')]
+    for f, kind, ct, meth in tries:   # Nov 19: an animation Telegram refuses goes again as the still card, not as words only
+        body = b''.join(parts) + f'--{b}\r\nContent-Disposition: form-data; name="{kind}"; filename="c.{ct[6:]}"\r\nContent-Type: {ct}\r\n\r\n'.encode() + open(f, 'rb').read() + f'\r\n--{b}--\r\n'.encode()
+        try:
+            req = urllib.request.Request(f'https://api.telegram.org/bot{tok}/{meth}', body, {'Content-Type': f'multipart/form-data; boundary={b}'})
+            urllib.request.urlopen(req, timeout=60).read()
+            TGSTAT['sent'] += 1
+            return
+        except Exception as e:
+            print('telegram ' + kind + ' failed', e)
+    tg(text, _dc=False)
 
 
 def chart(label, color, exp, state, mid):
