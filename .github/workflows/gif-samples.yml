@@ -1,0 +1,36 @@
+name: Animated card samples (nothing is posted)
+# Makes sample animated cards from real recent posts on GitHub's own runner, the same machine the check-ins use, and keeps them as a
+# download on this run's page for 14 days. It posts nothing and changes nothing in the repo. (Owner, Nov 19: repair the animated cards;
+# Claude and Gemini agreed the samples must be made here and looked at before animations are switched back on.)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  samples:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -q matplotlib imageio-ffmpeg
+      - name: Make the samples
+        run: |
+          python3 -c "import PIL, matplotlib; print('Pillow', PIL.__version__, 'matplotlib', matplotlib.__version__)"
+          mkdir -p /tmp/gif-samples
+          python3 ops/animate.py samples /tmp/gif-samples
+          python3 - <<'PY'
+          import glob, os, sys, time
+          sys.path.insert(0, 'ops')
+          import animate
+          print('ffmpeg:', animate._ffmpeg())
+          for g in sorted(glob.glob('/tmp/gif-samples/*.gif')):
+              t0 = time.time(); m = animate.as_mp4(g)
+              print(os.path.basename(g), '->', os.path.basename(m) if m else 'NO MP4', f'{time.time() - t0:.1f} s', os.path.getsize(m) // 1024 if m else 0, 'KB')
+          PY
+      - name: Tests
+        run: python3 ops/tests/run_tests.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gif-samples
+          path: /tmp/gif-samples
+          retention-days: 14

@@ -329,37 +329,105 @@ def test_one_ai_cannot_use_up_the_whole_run():
 
 
 def test_animated_card_recorder_cannot_spin_forever():
-    """Nov 19: the recorder for animated cards names images by id(); Python reuses the id of a freed image, two alias links pointed at
-    each other and root() looped for good. Every check-in from Nov 18, 10:14 p.m. ET stalled on one result card until the job limit
-    killed it. A loop now raises (that card goes out as a still) instead of spinning."""
+    """Nov 19: the first recorder for animated cards named pictures by id(); Python reuses the id of a freed picture, two links pointed
+    at each other and the run never ended (every check-in from Nov 18, 10:14 p.m. ET stalled). The rewritten recorder numbers each
+    picture itself (a picture made from another always gets the HIGHER number, so no loop can exist), records each step as the pixels
+    it changed, and must rebuild the still card exactly. The many short-lived crops below are what used to make ids repeat."""
     try:
         import animate
         from PIL import Image, ImageDraw
     except Exception:
         return   # no Pillow on this machine: the race runner skips animated cards too
-    rec = animate._Rec()
-    rec.alias = {1: 2, 2: 1}
-    try:
-        rec.root(1)
-        raise AssertionError('an alias loop did not raise')
-    except RuntimeError:
-        pass
-    rec.alias = {3: 2, 2: 1}
-    assert rec.root(3) == 1 and rec.root(7) == 7
+    tmp = tempfile.mkdtemp()
 
     def card(path):
-        im = Image.new('RGB', (200, 120), (10, 10, 10))
-        for _ in range(60):                       # many short-lived crops: this is what lets ids be reused
-            im = im.crop((0, 0, 200, 120))
-            ImageDraw.Draw(im).rectangle([10, 10, 60, 40], fill=(200, 60, 60))
+        im = Image.new('RGB', (300, 200), (10, 10, 10))
+        ImageDraw.Draw(im).rectangle([0, 0, 300, 6], fill=(255, 176, 0))
+        for i in range(60):
+            im = im.crop((0, 0, 300, 200))
+            ImageDraw.Draw(im).rectangle([10 + i, 20 + i, 60 + i, 40 + i], fill=(200 - i, 60, 60 + i))
+        logo = Image.new('RGBA', (20, 20), (0, 200, 0, 255))
+        base = im.convert('RGBA'); base.alpha_composite(logo, (270, 10)); im.paste(base.convert('RGB'))
+        ImageDraw.Draw(im).text((20, 150), 'C$1,234', fill=(240, 240, 240))
+        im = im.crop((0, 0, 300, 180))
         im.save(path)
         return path
-    out, rec = animate.record(card, '/tmp/_pt_test_card.png')
-    assert rec.saved and all(k != v for k, v in rec.alias.items())
     try:
-        animate.elements(rec)                     # must come back: with its elements, or with the error that sends the still card
-    except RuntimeError as e:
-        assert 'alias loop' in str(e), e
+        still = card(os.path.join(tmp, 'c.png'))
+        on_disk = open(still, 'rb').read()
+        out, rec = animate.record(card, still)
+        assert open(still, 'rb').read() == on_disk             # the recorded run writes nothing: the still stays as it was
+        for t, e in rec.imgs.items():
+            assert e['parent'] is None or e['parent'] < t      # parents always have the lower number: a loop is impossible
+        els, final, base = animate.elements(rec)
+        assert final.size == (300, 180) and len(els) >= 60
+        assert animate.proof(els, final, base) == 0            # the recorded steps rebuild the card pixel for pixel
+        els[5].sprite = Image.new('RGBA', els[5].sprite.size, (255, 0, 255, 255))
+        assert animate.proof(els, final, base) > 0             # and a wrong step is caught
+        g = animate.make_gif(card, (still,), {}, os.path.join(tmp, 'c.gif'), width=300, still=still, limit=60)
+        assert g and os.path.exists(g)
+        gif = Image.open(g); gif.seek(gif.n_frames - 1)
+        d = animate.ImageChops.difference(gif.convert('RGB'), Image.open(still).convert('RGB').resize(gif.size, Image.LANCZOS))
+        assert max(hi for lo, hi in d.getextrema()) < 48 and gif.info.get('duration', 0) >= 6000   # ends on the still card and holds it
+        other = os.path.join(tmp, 'other.png'); Image.new('RGB', (300, 180), (90, 0, 0)).save(other)
+        assert animate.make_gif(card, (still,), {}, os.path.join(tmp, 'd.gif'), width=300, still=other, limit=60) is None   # not the still on disk: no animation
+        try:
+            animate.make_gif(card, (still,), {}, os.path.join(tmp, 'e.gif'), width=300, still=still, limit=-1)
+            raise AssertionError('the time limit did not stop the card')
+        except animate.TooSlow:
+            pass
+        # as a live post makes it: any failure leaves the still card and no animation, and never raises into the check-in
+        calls = []
+        w = animate._wrap(lambda path: calls.append(1) or card(path))
+        old = (animate.make_gif, animate._SPENT[0], animate._MADE[0])
+        try:
+            animate.make_gif = lambda *a, **k: (_ for _ in ()).throw(RuntimeError('boom'))
+            p = w(os.path.join(tmp, 'f.png'))
+            assert p and os.path.exists(p) and not os.path.exists(p[:-4] + '.gif')
+            animate.make_gif = old[0]
+            p = w(os.path.join(tmp, 'g.png'))
+            assert animate.gif_of(p)
+            animate._SPENT[0] = animate._BUDGET + 1                # the run's time budget is used up: stills from here on
+            p = w(os.path.join(tmp, 'h.png'))
+            assert p and os.path.exists(p) and not animate.gif_of(p)
+        finally:
+            animate.make_gif, animate._SPENT[0], animate._MADE[0] = old
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_animated_cards_stay_off_without_the_switch():
+    """Animated cards are sent only when PT_GIFS=1 is set (the owner's OK, Nov 19). Without it no card function is wrapped."""
+    try:
+        import animate, sharecard
+    except Exception:
+        return
+    if os.environ.get('PT_GIFS', '0') == '1':
+        return
+    animate.install()
+    assert not getattr(sharecard.move_card, '_animated', False) and not getattr(sharecard._trade_card, '_animated', False)
+
+
+def test_sale_picture_shows_the_ledgers_profit():
+    """Nov 19: the picture of a sale worked its profit out from the price move alone (no exchange rate) and disagreed with the Ledger
+    (ChatGPT's Bitcoin sale: picture −C$460, Ledger −C$376.83). It now takes the Ledger's figure for every sale on record."""
+    try:
+        import sharecard
+    except Exception:
+        return
+    import saleresult as S
+    st = json.load(open(os.path.join(ROOT, 'ops', 'src', 'rivals.json')))
+    n = 0
+    for t, cost, pnl, part in S.rival_results(st['trades']):
+        if t['action'] not in ('Sell', 'Cover'):
+            continue
+        bi = sharecard.exit_info(t, st['trades'])
+        if bi is None:
+            continue
+        assert bi.get('pnl') == pnl, (t['model'], t['experiment'], t['symbol'], bi.get('pnl'), pnl)
+        assert cost <= 0 or abs(bi['ret'] - pnl / cost) < 1e-12
+        n += 1
+    assert n >= 100, n
 
 
 def test_move_posts_say_which_number_is_which():
