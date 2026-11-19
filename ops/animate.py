@@ -27,9 +27,18 @@ MONEY = re.compile(r'^([+−\-]?)(C\$|US\$|¥)([\d,]+(?:\.\d+)?)(.*)$')
 class _Rec:
     def __init__(self):
         self.ops, self.saved, self.alias = [], None, {}
+        # Nov 19: every image seen while recording is kept alive here. The record identifies images by id(), and Python reuses the id
+        # of an image that was freed: a cropped copy could get the id of the image it was cropped from, two alias links then pointed
+        # at each other, and root() never returned. That stopped every Gemini and ChatGPT check-in from Nov 18, 10:14 p.m. ET to
+        # Nov 19, 6 a.m. ET (the run was killed at the 30-minute job limit each hour, before anything was saved).
+        self.keep = []
 
     def root(self, i):
+        seen = set()
         while i in self.alias:
+            if i in seen:   # can't happen while the images are kept alive; if it ever does, skip the animation instead of spinning
+                raise RuntimeError('animate: alias loop')
+            seen.add(i)
             i = self.alias[i]
         return i
 
@@ -45,6 +54,7 @@ def record(fn, *a, **k):
         f = orig[name]
 
         def w(self, *aa, **kk):
+            rec.keep.append(getattr(self, '_image', None))
             rec.ops.append((id(getattr(self, '_image', None)), name, aa, kk))
             return f(self, *aa, **kk)
         return w
@@ -54,6 +64,7 @@ def record(fn, *a, **k):
     def paste(self, im, box=None, mask=None):
         src = im.copy() if isinstance(im, Image.Image) else im
         msk = mask.copy() if isinstance(mask, Image.Image) else mask
+        rec.keep.append(self)
         rec.ops.append((id(self), 'paste', (src, box, msk), {}))
         return o_paste(self, im, box, mask)
 
@@ -62,8 +73,10 @@ def record(fn, *a, **k):
         return o_save(self, *aa, **kk)
     def crop(self, box=None):
         out = o_crop(self, box)
+        rec.keep += [self, out]
         if box is None or (box[0] == 0 and box[1] == 0):   # same origin: the card trimmed to fit
-            rec.alias[id(out)] = id(self)
+            if id(out) != id(self):
+                rec.alias[id(out)] = id(self)
         return out
     I.paste, I.save, I.crop = paste, save, crop
     try:
