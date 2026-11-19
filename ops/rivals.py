@@ -1444,7 +1444,7 @@ def price_alerts(state):
             since = datetime.fromisoformat(b['at'].replace('Z', '+00:00')).astimezone(NY).strftime('%a %-I:%M %p ET')
             tg(f"{'🚀' if up else '📉'} <b>Market alert: {name} {'up' if up else 'down'} {abs(ch) * 100:.1f}%</b>\n"
                f"Now {unit}{fmt(px)}, {'+' if up else '−'}{unit}{fmt(abs(px - b['px']))} since {since} ({unit}{fmt(b['px'])}).\n"
-               f"Watch how Claude, Gemini and ChatGPT react: {SITE}")
+               f"Watch how Claude, Gemini and ChatGPT react on PaperTrades.AI: {SITE}")
             a['sent'].append(iso())
             sent_today.append(iso())
             a['base'][sym] = {'px': px, 'at': iso()}
@@ -1636,7 +1636,7 @@ def apply_outage_refunds(state):
                                             'outcome': None, 'name': 'Penalty refunded (outage day)', 'price': 0, 'pcur': 'CAD', 'qty': 1, 'amount': amt, 'cur': 'CAD',
                                             'fx': None, 'reason': f"Refund of the {money(amt, 'CAD')} {label} penalty for {d.strftime('%b %-d')}: {why}. "
                                                                   'Outage rule of Nov 18 (Claude and Gemini agreed, 2 of 3).'})
-                tg(f"⚖️ <b>{names.get(mid, mid)}: +{money(amt, 'CAD')} {label} penalty refunded</b>\n{esc(why)}. Outage rule of Nov 18 (Claude and Gemini agreed, 2 of 3).\n{SITE}")
+                tg(f"⚖️ <b>{names.get(mid, mid)}: +{money(amt, 'CAD')} {label} penalty refunded</b>\n{esc(why)}. Outage rule of Nov 18 (Claude and Gemini agreed, 2 of 3).\n{post_foot()}")
                 back.append(f"{money(amt, 'CAD')} in {label} for {d.strftime('%b %-d')}")
         if back and mid != 'claude':
             note = ('NOTICE (Nov 18 vote; Claude and Gemini agreed, 2 of 3): these betting-minimum penalties were refunded because your API credit had run out '
@@ -1758,14 +1758,14 @@ def apply_pred_penalties(state):
                     state['trades'].append({'at': iso(), 'model': mid, 'experiment': 'Predictions', 'action': 'Penalty', 'symbol': 'PP-' + k, 'outcome': None,
                                             'name': 'Missed weekly Prediction markets minimum', 'price': 0, 'pcur': 'CAD', 'qty': 1, 'amount': -amt, 'cur': 'CAD', 'fx': None,
                                             'reason': pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:] + '.'})
-                tg(f"⚖️ <b>{name}: −C${amt:,.0f} Prediction markets penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
+                tg(f"⚖️ <b>{name}: −C${amt:,.0f} Prediction markets penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{post_foot()}")
             d += timedelta(days=7)
         if NOW >= RACE_END and 'total' not in done and total + 0.5 < PRED_TOTAL_MIN:
             amt = round(PRED_PEN_TOTAL * (PRED_TOTAL_MIN - total), 2)
             pens.append({'week': 'total', 'at': iso(), 'amount': amt, 'reason': f'bought {money(total, "CAD")} in Prediction markets of the {money(PRED_TOTAL_MIN, "CAD")} required by Nov 28 (10% of the shortfall)'})
             if book is not None:
                 book['cash'] = round(float(book.get('cash') or 0) - amt, 2)
-            tg(f"⚖️ <b>{name}: −C${amt:,.0f} Prediction markets penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
+            tg(f"⚖️ <b>{name}: −C${amt:,.0f} Prediction markets penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{post_foot()}")
 
 
 def apply_allin_penalties(state):
@@ -1799,13 +1799,13 @@ def apply_allin_penalties(state):
                     state['trades'].append({'at': iso(), 'model': mid, 'experiment': 'AllInSports', 'action': 'Penalty', 'symbol': 'PA-' + k, 'outcome': None,
                                             'name': 'Missed High risk daily betting minimum', 'price': 0, 'pcur': 'CAD', 'qty': 1, 'amount': -amt, 'cur': 'CAD', 'fx': None,
                                             'reason': pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:] + '.'})
-                    tg(f"⚖️ <b>{name}: −C${amt:,.0f} High risk penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
+                    tg(f"⚖️ <b>{name}: −C${amt:,.0f} High risk penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{post_foot()}")
             d += timedelta(days=1)
         if NOW >= RACE_END and 'total' not in done and total + 0.5 < need and allin_balance(book) >= 1:
             amt = min(round(PENALTY_TOTAL * (need - total), 2), round(allin_balance(book), 2))
             pens.append({'day': 'total', 'at': iso(), 'amount': amt, 'reason': f'bet {money(total, "CAD")} in High risk: Sports of the {money(need, "CAD")} required by Nov 28 (10% of the shortfall)'
                          + (f' (C$100,000 less C$3,000 for each of {int(round((TOTAL_MIN - need) / DAY_MIN))} outage day(s))' if need < TOTAL_MIN else '')})
-            tg(f"⚖️ <b>{name}: −C${amt:,.0f} High risk penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
+            tg(f"⚖️ <b>{name}: −C${amt:,.0f} High risk penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{post_foot()}")
 
 def public_board(state, me):
     """What everyone can see on papertrades.ai about the OTHER AIs: their current take, plans and recent trades with reasons.
@@ -1891,7 +1891,7 @@ def claude_allin(state, fx):
         if v <= 0 and not b.get('busted') and not any(x['status'] == 'Open' for x in b.get('bets', [])):
             b['busted'] = iso()
             b['positions'], b['cash'] = {}, 0.0
-            tg(f"{head}\n💥 <b>BUSTED in {EXP_LABEL[e]}</b>\nClaude lost the whole 100,000 in this High risk, high reward experiment. (It does not count in the main race.)\n{SITE}", silent=False)
+            tg(f"{head}\n💥 <b>BUSTED in {EXP_LABEL[e]}</b>\nClaude lost the whole C$100,000 in this High risk, high reward experiment. (It does not count in the main race.)\n{post_foot()}", silent=False)
 
 
 def et_event_time(at, when):
@@ -1949,13 +1949,13 @@ def apply_penalties(state, fx):
                 state['trades'].append({'at': iso(), 'model': mid, 'experiment': 'Sports', 'action': 'Penalty', 'symbol': 'P-' + k, 'outcome': None,
                                         'name': 'Missed daily betting minimum', 'price': 0, 'pcur': 'CAD', 'qty': 1, 'amount': -amt, 'cur': 'CAD', 'fx': None,
                                         'reason': pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:] + '.'}) if mid != 'claude' else None
-                tg(f"⚖️ <b>{ {'claude': 'CLAUDE', 'gemini': 'GEMINI', 'chatgpt': 'CHATGPT'}.get(mid, mid) }: −C${amt:,.0f} penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
+                tg(f"⚖️ <b>{ {'claude': 'CLAUDE', 'gemini': 'GEMINI', 'chatgpt': 'CHATGPT'}.get(mid, mid) }: −C${amt:,.0f} Sports penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{post_foot()}")
             d += timedelta(days=1)
         if NOW >= RACE_END and 'total' not in done and total + 0.5 < need:
             amt = round(PENALTY_TOTAL * (need - total), 2)
             pens.append({'day': 'total', 'at': iso(), 'amount': amt, 'reason': f'wagered {money(total, "CAD")} of the {money(need, "CAD")} required by Nov 28 (10% of the shortfall)'
                          + (f' (C$100,000 less C$3,000 for each of {int(round((TOTAL_MIN - need) / DAY_MIN))} outage day(s))' if need < TOTAL_MIN else '')})
-            tg(f"⚖️ <b>{ {'claude': 'CLAUDE', 'gemini': 'GEMINI', 'chatgpt': 'CHATGPT'}.get(mid, mid) }: −C${amt:,.0f} penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{SITE}")
+            tg(f"⚖️ <b>{ {'claude': 'CLAUDE', 'gemini': 'GEMINI', 'chatgpt': 'CHATGPT'}.get(mid, mid) }: −C${amt:,.0f} Sports penalty</b>\n{esc(pens[-1]['reason'][0].upper() + pens[-1]['reason'][1:])}.\n{post_foot()}")
 
 
 def settle_watch(state):
@@ -2772,7 +2772,7 @@ def main():
                 b['busted'] = iso()
                 b['positions'], b['cash'] = {}, 0.0   # closed for good at zero: it can't drift back up or lose more than its 100,000
                 head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(r['label'], r['label'])
-                tg(f"{head}\n💥 <b>BUSTED in {EXP_LABEL[e]}</b>\n{r['label']} lost the whole 100,000 in this experiment and is out of that race for the rest of the month.\n{SITE}", silent=False)
+                tg(f"{head}\n💥 <b>BUSTED in {EXP_LABEL[e]}</b>\n{r['label']} lost the whole C$100,000 in this experiment and is out of that race for the rest of the month.\n{post_foot()}", silent=False)
         overall = sum((max(values[e], 0) - 100000) * (fx['USDCAD'] if e == 'China' else 1) for e in exps if e in RACE_EXPS)
         if overall <= -100000 and NOW >= FRESH_START:
             m['eliminated'] = iso()
@@ -2780,7 +2780,7 @@ def main():
                 if e in RACE_EXPS:
                     m['books'][e].setdefault('busted', iso())
             head = {'Gemini': '🔵 <b>GEMINI</b> (Google)', 'ChatGPT': '⚪ <b>CHATGPT</b> (OpenAI)'}.get(r['label'], r['label'])
-            tg(f"{head}\n☠️ <b>ELIMINATED</b>\n{r['label']} has lost C${-overall:,.0f} in total across its experiments, past the C$100,000 limit. It is out of the whole race: every experiment is closed and frozen at its final value for the rest of the month.\n{SITE}", silent=False)
+            tg(f"{head}\n☠️ <b>ELIMINATED</b>\n{r['label']} has lost C${-overall:,.0f} in total across its experiments, past the C$100,000 limit. It is out of the whole race: every experiment is closed and frozen at its final value for the rest of the month.\n{post_foot()}", silent=False)
         if take:
             last = next((x for x in reversed(state['takes']) if x['model'] == mid), None)
             n_today = sum(1 for x in state['takes'] if x['model'] == mid and x['at'][:10] == NOW.date().isoformat())

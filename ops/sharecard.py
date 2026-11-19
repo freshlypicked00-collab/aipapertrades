@@ -96,7 +96,7 @@ def _base(who, race, when=None):
     im = Image.new('RGB', (S, S), BG)
     g = ImageDraw.Draw(im)
     g.rectangle([0, 0, S, 14], fill=AIS[who][1])
-    g.text((80, 78), 'PAPER TRADES · AI VS AI', font=_font('bold', 30), fill=ORANGE)
+    g.text((80, 78), 'PAPERTRADES.AI · AI VS AI', font=_font('bold', 30), fill=ORANGE)
     w = (when or datetime.now(timezone.utc)).astimezone(__import__('zoneinfo').ZoneInfo('America/New_York'))
     sub = (LABEL.get(race, race) if race else 'ALL TEN RACES').upper() + ' · ' + w.strftime('%b %-d, %-I:%M %p ET').replace('AM', 'a.m.').replace('PM', 'p.m.')
     g.text((80, 128), sub, font=_font('med', 30), fill=MUTED)
@@ -529,7 +529,7 @@ def _quote(g, text, x, y, maxw, color_bar):
 def _head(g, who, exp, at, idx=None, total=None, top=None):
     nm_ai, col_ai = AIS[who]
     g.rectangle([0, 0, S, 14], fill=col_ai)
-    g.text((80, 70), 'PAPER TRADES · AI VS AI', font=_font('bold', 30), fill=ORANGE)
+    g.text((80, 70), 'PAPERTRADES.AI · AI VS AI', font=_font('bold', 30), fill=ORANGE)
     w, hm, day = _et(at)
     sub = (top or LABEL.get(exp, exp).upper()) + (f' · {day}, {hm}' if hm else '')
     g.text((80, 116), sub, font=_font('med', 30), fill=MUTED)

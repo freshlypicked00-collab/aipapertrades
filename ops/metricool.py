@@ -317,12 +317,18 @@ def story():
         import txids as _TX
         last_ai, last_race = (mine[-1].get('tx') or '?')[:1], _TX.RACE.get(mine[-1].get('race') or '', '?')
         picks = sorted(picks, key=lambda tx: (tx[:1] == last_ai, tx.split('-')[1] == last_race))   # stable: biggest first within each group
-    st_ = None
-    for tx in picks:
+    st_, alt = None, None
+    game = lambda x: '|'.join(sorted([str(x.get('away')), str(x.get('home'))])) + '|' + str(x.get('day'))
+    last_game = mine[-1].get('game') if mine else None   # full pass, Nov 20: two Shorts in a row told the same game with only the AI's
+    for tx in picks:                                      # name changed (Nov 17). Another game goes first when there is one.
         try:
-            st_ = SS.bet_story(tx, d); break
+            cand = SS.bet_story(tx, d)
         except SS.StoryError as e:
-            print('skipped', tx, e)
+            print('skipped', tx, e); continue
+        if not want and last_game and game(cand) == last_game and alt is None:
+            alt = cand; print('same game as the last Short; another story goes first if there is one:', tx); continue
+        st_ = cand; break
+    st_ = st_ or alt
     if not st_:
         print('no story today: no settled bet with a full ledger record'); return
     mp4, title, desc = SS.render(st_, os.path.join(root, 'social', 'stories'))
@@ -335,7 +341,7 @@ def story():
     if not _push(f'YouTube story Short: {st_["res_tx"]} ({today})', [rel, stem + '.json', stem + '-thumb.png', stem + '-thumb.jpg']):
         print('could not push the video'); sys.exit(1)
     out = {'kind': 'story', 'tx': st_['res_tx'], 'txs': st_.get('res_txs') or [st_['res_tx']], 'day': today.isoformat(), 'at': datetime.now(NY).isoformat(timespec='seconds'),
-           'race': st_['race'], 'video': rel, 'title': title}
+           'race': st_['race'], 'video': rel, 'title': title, 'game': game(st_)}
     import subprocess
     subprocess.run(['gh', 'workflow', 'run', 'deploy.yml', '--ref', 'main'], capture_output=True)
     url = 'https://papertrades.ai/' + rel

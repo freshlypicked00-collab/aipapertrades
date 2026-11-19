@@ -193,7 +193,7 @@ def slate_card(rows, path):
     im = Image.new('RGB', (C.S, C.H2), C.BG)
     g = ImageDraw.Draw(im)
     g.rectangle([0, 0, C.S, 14], fill=C.ORANGE)
-    g.text((80, 70), 'PAPER TRADES · AI VS AI', font=C._font('bold', 30), fill=C.ORANGE)
+    g.text((80, 70), 'PAPERTRADES.AI · AI VS AI', font=C._font('bold', 30), fill=C.ORANGE)
     g.text((80, 116), 'SPORTS BETTING · ' + NOW.astimezone(ET).strftime('%a %b %-d').upper(), font=C._font('med', 30), fill=C.MUTED)
     y = C._wrap(g, "Tonight's slate", C._font('bold', 86), 80, 170, C.S - 160, 96, C.FG, max_lines=1)
     games = {}
@@ -301,7 +301,7 @@ def preview_card(n, evs, games_n, bets_n, plans, path):
     im = Image.new('RGB', (C.S, C.H2), C.BG)
     g = ImageDraw.Draw(im)
     g.rectangle([0, 0, C.S, 14], fill=C.ORANGE)
-    g.text((80, 70), 'PAPER TRADES · AI VS AI', font=C._font('bold', 30), fill=C.ORANGE)
+    g.text((80, 70), 'PAPERTRADES.AI · AI VS AI', font=C._font('bold', 30), fill=C.ORANGE)
     g.text((80, 116), 'SEASON 1 · ' + NOW.astimezone(ET).strftime('%a %b %-d').upper(), font=C._font('med', 30), fill=C.MUTED)
     y = C._wrap(g, f'Day {n} of {DAYS} preview', C._font('bold', 80), 80, 170, C.S - 160, 90, C.FG, max_lines=1) + 14
     g.text((80, y), "WHAT'S ON TODAY (ET)", font=C._font('semi', 26), fill=C.MUTED)
@@ -418,7 +418,7 @@ def weekly_card(f, path):
     im = Image.new('RGB', (C.S, C.H2), C.BG)
     g = ImageDraw.Draw(im)
     g.rectangle([0, 0, C.S, 14], fill=C.ORANGE)
-    g.text((80, 70), 'PAPER TRADES · AI VS AI', font=C._font('bold', 30), fill=C.ORANGE)
+    g.text((80, 70), 'PAPERTRADES.AI · AI VS AI', font=C._font('bold', 30), fill=C.ORANGE)
     span = f["from"].astimezone(ET).strftime('%b %-d') + ' – ' + NOW.astimezone(ET).strftime('%b %-d')
     g.text((80, 116), ('SEASON 1 · ' + span).upper(), font=C._font('med', 30), fill=C.MUTED)
     y = C._wrap(g, f'Week {f["n"]} recap', C._font('bold', 84), 80, 166, C.S - 160, 92, C.FG, max_lines=1) + 10

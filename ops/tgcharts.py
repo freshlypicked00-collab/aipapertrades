@@ -72,7 +72,7 @@ def price_chart(symbol, title, color=None, mark_price=None, action='Buy', path='
             for sp in ax.spines.values():
                 sp.set_color(LINE)
             ax.grid(color=LINE, lw=.6)
-        fig.suptitle(f'PAPER TRADES · {title} · {long}', color=color or '#ffb000', fontsize=13, x=.01, ha='left', fontweight='bold')
+        fig.suptitle(f'PAPERTRADES.AI · {title} · {long}', color=color or '#ffb000', fontsize=13, x=.01, ha='left', fontweight='bold')
         foot = (f'{action} at {sym}{mark_price:,.4g} (dashed line) · ' if mark_price else '') + 'Simulation only · papertrades.ai'
         fig.text(.99, .01, foot, color=MUTED, ha='right', fontsize=9)
         fig.tight_layout(rect=(0, .03, 1, .93))
