@@ -1,0 +1,75 @@
+CO-AUTHOR REVIEW from the owner of PaperTrades.AI. NOT a trading turn. Nothing in your books changes.
+
+You are asked as a co-author. The owner wants a prompt that Claude and Gemini drafted and AGREED on together. He will paste it into a separate Claude chat ("Fable", a strong Claude model that works on the PaperTrades.AI repo) to run an all-night improvement pass. Claude wrote the first draft below; your job is to make it better until you are satisfied with it.
+
+The owner's request, Nov 19, 4:53 a.m. ET (his words): "build a prompt for me to send fable to improve papertrades. i want him to work on the site all night. i want him to look over the entire project: the graphics, whats being posted where, like for example the words we post on a trade. review everything down to the last point with all models and make paper trades the cleanest easiest to use platform with the best feeling possible for user experience. i want fable to take as much usage as he needs to improve every side of papertrades down to the last needle." Then: "build a prompt that you and gemini drafted and agreed on".
+
+What the owner already decided, which the prompt must respect: the ground rules of the Nov 18 polish pass you did with Claude (attached: ops/review/POLISH_DECISIONS_NOV18.md): no rule, number or AI-written word changes; nothing deleted from the site; the safety wording stays; the dark Terminal look, IBM Plex fonts, three AI colours, the round logo, the tab order and the slim top stay; pages stay compact (he dislikes long pages); the brand is written "PaperTrades.AI"; the side race is "High risk", never "All in"; holdings are always shown in full; fact checks live on the site only and the AIs are never corrected; public posting of NEW content needs his explicit OK; anything important is checked with all three AIs, and he wants every report to say whether all three agreed, which two agreed, or only Claude. He also said small changes are welcome, not only big ones, whenever the models agree they are improvements. He is new to most platforms: the final report must be short and beginner-friendly.
+
+PLEASE REPLY IN THIS SHAPE:
+1. For each section S1 to S7 of the draft: AGREE, or CHANGE with the exact replacement text (write the full new lines, not a description).
+2. MISSING: anything a top product designer and engineer would add for a pass like this (numbered, with exact text to add and which section it goes in). Think about: what a first-time visitor feels in the first 5 seconds; the phone; the Nov 28 finale (9 days away); the words posted on Telegram, Discord and YouTube for each trade, bet and result; consistency of graphics; speed; anything Fable could break.
+3. REMOVE: anything that is wrong, risky, vague, or would waste the night (with the reason).
+4. Your verdict on the whole prompt with your changes applied: SATISFIED or NOT SATISFIED, and one line why.
+
+===== CLAUDE'S DRAFT (v1) =====
+
+S0 (opening)
+PAPERTRADES.AI: ALL-NIGHT POLISH PASS
+Call me "master". Tonight you own a full quality pass on PaperTrades.AI. Work autonomously through the night and make the calls yourself; use as much time, effort and usage as it takes. Quality over speed. The goal: by morning, PaperTrades.AI is the cleanest, easiest, best-feeling AI race a visitor has ever used, on the site and everywhere we post, down to the last detail.
+
+S1. CONTEXT
+- PaperTrades.AI is a public Season 1 race (Oct 28 to Nov 28, 2026): Claude vs Gemini vs ChatGPT trading and betting pretend money in ten races, plus the High risk side race. Final scoring Sat Nov 28, 4:01 p.m. ET. Everything tonight should help a first-time visitor get it fast and make the finale land.
+- Repo: freshlypicked00-collab/aipapertrades. Run `git pull --rebase origin main` before you start and before every push (other chats and the hourly UPDATE ALL runs commit too). Never force-push.
+- The site is built by ops/build_site.py from ops/src/index.html. Never hand-edit the built files.
+- Read first: ops/review/POLISH_DECISIONS_NOV18.md (last night's polish with Gemini: what was built, what was measured, what was taken back and why), ops/polish.css and ops/polish.js. Build on that pass; don't redo or undo it without a measured reason.
+- To ask the other AIs: write ops/asks/<name>.txt (+ <name>.files.txt; .png files are sent as pictures), run rivals.yml with mode=ask and name=<name> (only=gemini or only=chatgpt to ask one). Answers land in ops/review/<name>.json; ops/review/diag.json shows the OpenRouter credit left.
+
+S2. GROUND RULES (not up for change)
+- The Season 1 rules, every number, and every word an AI wrote stay exactly as they are. Don't touch trading, betting, scoring, settling, the ledgers or the append-only record.
+- Nothing is deleted from the site. The safety wording (pretend money, no deposits, not advice) stays.
+- Keep the dark "Terminal" look, IBM Plex Sans and Mono, the three AI colours, the tab order and the slim top. The only logo is brand/logo.png and its derived sizes.
+- Pages stay compact, especially on a phone; master dislikes long pages. A change that makes a page longer needs a clear reason.
+- The brand is always written "PaperTrades.AI" (lowercase only in the web address). The side race is "High risk", never "All in".
+- Holdings are always shown in full: no cut-off names, no "+N more".
+- Fact checks live on the site only; the AIs are never corrected. Where an AI's reason contradicts its own numbers, add a clear fact-check note next to it and never edit the AI's words (example: Gemini's Nov 12 bet on Colorado says "the massive favorite (-380)", but Colorado was the +300 underdog).
+
+S3. REVIEW EVERY SURFACE, EVERY WORD
+a) The site: every tab at 320, 390, 430, 820, 1024, 1440 and 1920 px wide: spacing, alignment, sideways scrolling, text size, tap targets, contrast, empty, loading and error states, all eight colour themes.
+b) Numbers: correct AND easy to read. Flag numbers that are right but confusing (a partial sale, C$ vs US$, potential win vs settled, totals that don't obviously add up).
+c) The site's own words: labels, buttons, headings, tooltips, help text, the Guide, About, Rules & Audit. Short, plain, consistent, friendly.
+d) What we post: the text for trades, bets, results and alerts on Telegram and Discord (channels, onboarding, #new-to-discord, bot messages), YouTube titles, descriptions, pinned comments and thumbnails, the email banner, share cards, the app manifest and icons. One voice and one brand everywhere; the AI's own words stay word for word.
+e) First visit: in 5 seconds, can a new visitor tell what this is, who's winning, and that it's pretend money? Can they turn on alerts (Discord or Telegram) in 2 taps?
+f) Graphics: charts, badges, cards, AI colours, icons and videos: consistent and crisp on a phone.
+g) Speed, accessibility and SEO: page weight, alt text, labels, headings, meta tags, sitemap, llms.txt.
+
+S4. WORK WITH ALL THREE MODELS
+- For each area: audit and measure first, write numbered proposals, send them with screenshots to Gemini and ChatGPT (ask mode), then build.
+- Ship what the models agree improves things; small polish counts too. If they disagree, go with the two that agree and write down the dissent.
+- Check ops/review/diag.json first; if ChatGPT's OpenRouter credit is out, say so and continue with Claude and Gemini.
+- Batch your questions (one ask per area, not one per detail) to save credit and Actions minutes.
+
+S5. HOW TO WORK
+- Start with a task list, one item per area in S3, and tick them off.
+- Keep every change reversible: new looks go in numbered, stand-alone blocks in ops/polish.css or ops/polish.js. Note the commit you started from.
+- Small commits with clear messages; rebuild, verify, then push. Check the live site after each deploy.
+- Prove nothing about the race changed: compare every tab before and after with the same data and a frozen clock; every money and percent figure must match.
+- Measure, don't guess: page length per tab (phone and computer), sideways scrolling at every width, smallest text, smallest tap target, contrast ratios. Screenshot before and after for anything visual.
+- Test changes to posting text with dry runs or a private test channel; never send test messages to public channels.
+
+S6. HARD STOPS (prepare it, then leave it for me)
+- Never type or reveal keys, passwords or card numbers; never open card screens.
+- Nothing that costs money, can't be undone, or posts new public content (YouTube, socials, new channels) without my explicit OK. Improving the wording of the existing automatic posts is fine.
+- No human picks for the AIs. Keep Nini's (Nicole's) email off public pages; Nini is reached by Telegram only.
+
+S7. MORNING REPORT
+Write ops/review/NIGHT_PASS_DECISIONS_NOV19.md in the same style as POLISH_DECISIONS_NOV18.md, and leave me a short, beginner-friendly summary in this chat:
+- What changed, grouped by area, with before and after screenshots and measurements.
+- For every decision: all three agreed, which two agreed, or only Claude.
+- How to reverse each change.
+- What you prepared but held for my OK.
+- Your top 5 next improvements, ranked.
+
+Begin now. Make it the best PaperTrades.AI has ever been.
+
+===== END OF DRAFT =====
