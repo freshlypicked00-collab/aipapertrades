@@ -125606,6 +125606,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 107210.95
+  },
+  {
+   "at": "2026-11-19T18:49:20Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 91597.25
+  },
+  {
+   "at": "2026-11-19T18:49:20Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 97030.32
   }
  ],
  "takes": [
@@ -150590,8 +150602,8 @@
       "pcur": "USD",
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 651.09,
-      "priced_at": "2026-11-19T18:45:22Z",
+      "last": 649.57,
+      "priced_at": "2026-11-19T18:49:20Z",
       "hist": [
        [
         29886870,
@@ -153345,8 +153357,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 62998.64,
-      "priced_at": "2026-11-19T18:45:22Z",
+      "last": 62887.31,
+      "priced_at": "2026-11-19T18:49:20Z",
       "hist": [
        [
         29886870,
@@ -250297,34 +250309,6 @@
     "name": "Invesco QQQ Trust",
     "placed_at": "2026-11-19T14:37:08Z",
     "reason": "Take most of the QQQ profit if the Anthropic-led rebound extends into a strong short-term move."
-   },
-   {
-    "id": "chatgpt-200",
-    "model": "chatgpt",
-    "experiment": "AllInTrading",
-    "symbol": "TQQQ",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 49.5,
-    "fraction": 1.0,
-    "name": "ProShares UltraPro QQQ",
-    "placed_at": "2026-11-19T14:37:08Z",
-    "reason": "Limit the high-risk Nasdaq swing if the post-IPO tech rebound reverses quickly."
-   },
-   {
-    "id": "chatgpt-201",
-    "model": "chatgpt",
-    "experiment": "AllInTrading",
-    "symbol": "TQQQ",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 58.0,
-    "fraction": 0.75,
-    "name": "ProShares UltraPro QQQ",
-    "placed_at": "2026-11-19T14:37:08Z",
-    "reason": "Lock most of the high-risk TQQQ gain if the Nasdaq rebound accelerates."
    }
   ],
   "claude": [
@@ -250689,7 +250673,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-19T18:45:22Z",
+  "at": "2026-11-19T18:49:20Z",
   "games": [
    {
     "id": "401920517",
@@ -253315,6 +253299,26 @@
    "kind": "stop",
    "level": 137.0,
    "result": "filled: Sell USO C$24,173 at 136.99"
+  },
+  {
+   "at": "2026-11-19T18:49:20Z",
+   "model": "chatgpt",
+   "id": "chatgpt-200",
+   "experiment": "AllInTrading",
+   "name": "ProShares UltraPro QQQ",
+   "kind": "stop",
+   "level": 49.5,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-19T18:49:20Z",
+   "model": "chatgpt",
+   "id": "chatgpt-201",
+   "experiment": "AllInTrading",
+   "name": "ProShares UltraPro QQQ",
+   "kind": "target",
+   "level": 58.0,
+   "result": "removed: the position is no longer held"
   }
  ],
  "forecasts": [
