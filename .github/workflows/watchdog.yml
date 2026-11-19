@@ -2,9 +2,15 @@ name: Race watchdog (tells the owner when an AI has not checked in for 2 hours)
 # Its own workflow on its own timer, on purpose: the health check inside the race run cannot report a run that was stopped (Nov 18 to 19:
 # 8 hours with no check-in and no alert). This one only reads the saved records. Alerts are private: a GitHub issue (email) and a
 # Telegram note to the owner through the task bot. See ops/watchdog.py.
+# Two starters that do not depend on each other or on the race run (Nov 20): GitHub's own timer proved late on the first evening (no
+# start in the first 100 minutes), so the watchdog also runs after every "Post updates to Telegram" run, which Claude's hourly update
+# sets off by a push (about 30 to 40 times a day). One short job each time; the timer is hourly to save Actions minutes.
 on:
   schedule:
-    - cron: '7,27,47 * * * *'
+    - cron: '27 * * * *'
+  workflow_run:
+    workflows: ["Post updates to Telegram"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       dry:

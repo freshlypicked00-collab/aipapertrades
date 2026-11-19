@@ -407,6 +407,8 @@ html[data-tab]:not([data-tab="overview"]) .pt-final { display: none; }   /* the 
   .st-model-cmp, .st-auto-link, .gx-key-tog, .pd-streak, .pt-sl-lead, .pt-sl-alert, .pt-hold-link { padding-block: 5px; margin-block: -5px; }
   .pt-gl-q { min-width: 24px; min-height: 24px; display: inline-flex; align-items: center; justify-content: center; }
   .pt-x { min-width: 32px; min-height: 32px; }
+  header.st-head .pt-sl-lead, header.st-head .pt-sl-alert { padding-block: 5px !important; margin-block: -5px !important; }   /* the slim line's own rule sets padding 0 */
+  .lg-find { min-height: 24px; }
 }
 /* ---- 38. Full pass (Nov 20), phones: the Ledger's "Every trade and bet" list. It was the one list still drawn as a ten-column table,
         1,442 px wide inside a 336 px box, so the reason for each move sat off-screen to the right. It now uses the same cards as every

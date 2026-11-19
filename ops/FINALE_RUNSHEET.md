@@ -20,7 +20,7 @@ computer). All times ET. "Runner" = the Head to head workflow (rivals.yml). Noth
 2. **Sat 3:45 p.m.:** open the Actions page. If a race run has been "queued" or "in progress" for more than 20 minutes, tell Claude ("the race is stalled"). Do not cancel or rerun anything by hand.
 3. **Sat about 4:20 p.m.:** check the final scoring run finished (green). If GitHub has not started it by 4:50 p.m., tell Claude: the run can be started with mode "force"; it changes nothing but the freeze, because no order is accepted after 4:00 p.m.
 4. **Sat evening, after the last game with an open bet ends:** the numbers are final. Only now publish the final result (below).
-5. **Sun Nov 29:** post-season steps: the correction window, the research notes, Season 2 decisions (ops/SEASON2.md).
+5. **Sun Nov 29:** turn off the "Race watchdog" workflow (Actions, Race watchdog, the ⋯ menu, Disable workflow): after the finish it only uses up minutes. Then the post-season steps: the correction window, the research notes, Season 2 decisions (ops/SEASON2.md).
 
 ## The final result: prepared, HELD for the owner's OK
 Nothing below is posted or built into the site yet (new public content needs the owner's yes).

@@ -605,7 +605,7 @@ def test_watchdog_tells_when_an_ai_has_not_checked_in():
     assert [x.split(':')[0] for x in W.problems(st, [{'at': '2026-11-19T04:00:00Z'}], now)] == ['ChatGPT', 'Claude']
     assert W.problems(st, hist, datetime(2026, 11, 28, 22, 0, tzinfo=timezone.utc)) == []   # after the finish there is nothing to watch
     wf = open(os.path.join(ROOT, '.github', 'workflows', 'watchdog.yml')).read()
-    assert 'schedule:' in wf and 'ops/watchdog.py' in wf and 'rivals' not in wf.split('concurrency:')[1].split('jobs:')[0]   # its own timer, its own queue
+    assert 'schedule:' in wf and 'workflow_run:' in wf and 'ops/watchdog.py' in wf and 'rivals' not in wf.split('concurrency:')[1].split('jobs:')[0]   # two starters of its own, its own queue
 
 
 def test_a_question_cannot_cancel_a_queued_race_run():

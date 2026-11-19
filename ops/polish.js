@@ -199,11 +199,12 @@
     };
     // h) each card of the Ledger's trade list shows when, race, action, what and the profit; one button shows the details, the money
     //    figures and the reason. A row that carries a fact-check note, or that a link jumps to, starts open.
+    var PH6 = window.matchMedia('(max-width: 600px)');
     var ledgerRows = function () {
       $$('#lg-trades table.st-table.pt-cards > tbody > tr').forEach(function (tr) {
         var tds = tr.children, btn = tr.querySelector('.pt-row-btn');
         if (tds.length !== 10) return;
-        if (!PH.matches) { tr.classList.remove('pt-row-shut'); if (btn) btn.remove(); return; }
+        if (!PH6.matches) { tr.classList.remove('pt-row-shut'); if (btn) btn.remove(); return; }   // cards are drawn at 600 px and under
         var open = tr.dataset.ptOpen === '1' || !!tr.querySelector('.pt-fcnote');
         tr.classList.toggle('pt-row-shut', !open);
         if (!btn) { btn = mk('button', 'pt-c-btn pt-row-btn'); btn.type = 'button';
@@ -253,7 +254,7 @@
     var timer = null, kick = function () { if (busy) return; clearTimeout(timer); timer = setTimeout(sweep, 250); };
     later(sweep, 600); later(sweep, 2500);
     if (window.MutationObserver) new MutationObserver(kick).observe(document.getElementById('dash-root') || document.body, { childList: true, subtree: true });
-    if (PH.addEventListener) PH.addEventListener('change', sweep);
+    if (PH.addEventListener) { PH.addEventListener('change', sweep); PH6.addEventListener('change', sweep); }
     window.addEventListener('pt-tab', kick);
   } catch (e) {}
   /* 7. Improvement pass (Nov 19): one line under the leader box that says how to read it (owner: "a one-line 'how to read this page' cue
