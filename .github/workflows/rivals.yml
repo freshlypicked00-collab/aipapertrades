@@ -89,12 +89,11 @@ jobs:
             git push -q origin HEAD:main && break
             sleep $((i * 7))
           done
-      - run: |
-          pip install -q matplotlib
-          # Nov 19: the runner image changed to ubuntu-26.04 (between Nov 10 and Nov 16) and no longer ships ffmpeg, so every animated
-          # card (owner, Nov 1) silently fell back to a still. A static ffmpeg from pip takes a few seconds; if it fails, stills as before.
-          command -v ffmpeg >/dev/null || { pip install -q imageio-ffmpeg && sudo ln -sf "$(python3 -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')" /usr/local/bin/ffmpeg; } || true
-          ffmpeg -version 2>/dev/null | head -1 || echo "no ffmpeg: animated cards will be stills"
+      # Nov 19: the runner image changed to ubuntu-26.04 (between Nov 10 and Nov 16) and no longer ships ffmpeg, so every animated card
+      # (owner, Nov 1) has gone out as a still picture since. Installing ffmpeg again was tried for an hour on Nov 19 and taken back:
+      # a local test of the animation then drew EMPTY frames, and a blank animation must never reach the channels. Stills stay until the
+      # animation is proven on the new image (see ops/review/NIGHT_PASS_REPORT.md).
+      - run: pip install -q matplotlib
         if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' && !startsWith(github.event.schedule, '3,18,33,48') }}
       - name: "Tests of the race code (root-cause vote R7, Oct 31); a failure stops this run and opens an alert"
         if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' }}

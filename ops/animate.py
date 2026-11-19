@@ -367,7 +367,7 @@ def make_gif(card_fn, args, kwargs, out, width=720, hold=None):
     h = int(H * width / W) // 2 * 2
     vf = f'fps={FPS},scale={width}:{h}:flags=lanczos,split[a][b];[a]palettegen=max_colors=200:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle'
     os.makedirs(os.path.dirname(out) or '.', exist_ok=True)
-    r = subprocess.run(['ffmpeg', '-y', '-v', 'error', '-framerate', str(FPS), '-i', os.path.join(tmp, '%04d.png'), '-vf', vf, '-loop', '0', out])
+    r = subprocess.run(['ffmpeg', '-nostdin', '-y', '-v', 'error', '-framerate', str(FPS), '-i', os.path.join(tmp, '%04d.png'), '-vf', vf, '-loop', '0', out], stdin=subprocess.DEVNULL, timeout=120)   # Nov 19: one encode can never hold a check-in
     shutil.rmtree(tmp)
     return out if r.returncode == 0 else None
 
@@ -429,7 +429,7 @@ def make_gif_mpl(card_fn, args, kwargs, out, width=960, hold=9.0):   # owner, No
     W0, H0 = Image.open(os.path.join(tmp, '0000.png')).size
     h = int(H0 * width / W0) // 2 * 2
     vf = f'fps={FPS},scale={width}:{h}:flags=lanczos,split[a][b];[a]palettegen=max_colors=200:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle'
-    r = subprocess.run(['ffmpeg', '-y', '-v', 'error', '-framerate', str(FPS), '-i', os.path.join(tmp, '%04d.png'), '-vf', vf, '-loop', '0', out])
+    r = subprocess.run(['ffmpeg', '-nostdin', '-y', '-v', 'error', '-framerate', str(FPS), '-i', os.path.join(tmp, '%04d.png'), '-vf', vf, '-loop', '0', out], stdin=subprocess.DEVNULL, timeout=120)   # Nov 19: one encode can never hold a check-in
     shutil.rmtree(tmp)
     return out if r.returncode == 0 else None
 
@@ -519,7 +519,7 @@ def gif_of(photo):
 def as_mp4(gif):
     """A GIF as a short silent MP4 (Telegram albums take videos, not GIFs). Returns the path or None."""
     out = gif[:-4] + '.mp4'
-    r = subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', gif, '-movflags', '+faststart', '-pix_fmt', 'yuv420p', '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '22', out])
+    r = subprocess.run(['ffmpeg', '-nostdin', '-y', '-v', 'error', '-i', gif, '-movflags', '+faststart', '-pix_fmt', 'yuv420p', '-vf', 'scale=trunc(iw/2)*2:trunc(ih/2)*2', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '22', out], stdin=subprocess.DEVNULL, timeout=120)   # Nov 19: one encode can never hold a check-in
     return out if r.returncode == 0 else None
 
 
