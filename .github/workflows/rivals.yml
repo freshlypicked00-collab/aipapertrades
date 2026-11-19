@@ -41,8 +41,11 @@ permissions:
   pages: write
   issues: write
   actions: write   # to start deploy.yml after pushing
+# One race run at a time, and GitHub keeps only ONE waiting run per group: a newer waiting run cancels an older one. A question for the
+# AIs (mode ask) and a price-feed test (mode prices) change nothing in the race, so since Nov 19 they wait in their own groups and can
+# never cancel a queued race run, or be cancelled by one (it happened on Nov 19: a question replaced a queued check-in).
 concurrency:
-  group: rivals
+  group: ${{ inputs.mode == 'ask' && 'rivals-ask' || inputs.mode == 'prices' && 'rivals-prices' || 'rivals' }}
   cancel-in-progress: false
 jobs:
   run:
@@ -312,6 +315,8 @@ jobs:
           PY
           fails=$(gh run list -R "$GITHUB_REPOSITORY" -w rivals.yml -L 6 --json status,conclusion --jq '[.[] | select(.status == "completed")][:3] | map(select(.conclusion == "failure")) | length' 2>/dev/null || echo 0)
           [ "$fails" = 3 ] && echo "- The Gemini and ChatGPT workflow failed its last 3 runs: https://github.com/$GITHUB_REPOSITORY/actions/workflows/rivals.yml" >> /tmp/alert.txt
+          # Nov 19: a check-in that ran out of time is stopped by the runner itself (ops/rivals.py run()), so this step still runs and says so
+          [ -f /tmp/run_stopped.txt ] && echo "- A check-in was stopped at its time limit ($(cat /tmp/run_stopped.txt)). What was saved before that is published; the next run carries on. If this repeats, something is stuck: https://github.com/$GITHUB_REPOSITORY/actions/workflows/rivals.yml" >> /tmp/alert.txt
           cat /tmp/alert.txt
           # Nov 18: an open alert issue no longer silences new alerts (the Oct 30 one blocked every alert after it):
           # open an issue, comment on a new problem or every 12 hours while one lasts, close after 2 quiet hours (ops/health_issue.py)

@@ -1,0 +1,35 @@
+name: Race watchdog (tells the owner when an AI has not checked in for 2 hours)
+# Its own workflow on its own timer, on purpose: the health check inside the race run cannot report a run that was stopped (Nov 18 to 19:
+# 8 hours with no check-in and no alert). This one only reads the saved records. Alerts are private: a GitHub issue (email) and a
+# Telegram note to the owner through the task bot. See ops/watchdog.py.
+on:
+  schedule:
+    - cron: '7,27,47 * * * *'
+  workflow_dispatch:
+    inputs:
+      dry:
+        description: 'yes = only print what it would do, send nothing'
+        default: 'no'
+        type: choice
+        options: ['no', 'yes']
+permissions:
+  contents: read
+  issues: write
+  actions: read
+concurrency:
+  group: watchdog
+  cancel-in-progress: true
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: When did each AI last check in?
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NICOLE_BOT_TOKEN: ${{ secrets.NICOLE_BOT_TOKEN }}
+          WATCHDOG_DRY: ${{ inputs.dry == 'yes' && '1' || '' }}
+        run: python3 ops/watchdog.py

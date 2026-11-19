@@ -498,5 +498,122 @@ def test_sale_picture_shows_the_ledgers_profit():
         n += 1
     assert n >= 100, n
 
+
+def test_a_stuck_picture_or_run_is_stopped():
+    """Nov 19 (owner: "the race must never stop again"): a picture that never finishes is dropped after CARD_BUDGET and the post goes
+    out without it; a whole check-in that is still going after RUN_BUDGET is stopped by us, in time for the publish and health steps.
+    The stall of Nov 18 was a loop inside a picture that asked the network for nothing, so no request timeout could end it."""
+    import time
+    import timelimit as T
+    import sharecard
+
+    def spin(*a, **k):
+        while True:
+            try:
+                time.sleep(0.01)
+            except Exception:      # like the retry loops in the real code: an ordinary "except Exception" must not swallow the stop
+                pass
+    saved = sharecard.trade_card, sharecard.album, sharecard.moves_card, R.tgcharts.price_chart, R.chart, R.CARD_BUDGET, R.RUN_BUDGET, R.main
+    try:
+        sharecard.trade_card = sharecard.album = spin
+        R.CARD_BUDGET = 0.2
+        R.guard_pictures()
+        t0 = time.monotonic()
+        assert sharecard.trade_card('Gemini', {}) is None and sharecard.album('Gemini', []) == []
+        assert time.monotonic() - t0 < 2.5
+        R.guard_pictures()                                 # twice is safe: no guard around a guard
+        with T.limit(5, 'outer'):                          # a limit inside a limit: the inner one fires, the outer one lives on
+            assert T.guarded(spin, 0.1, 'inner')() is None
+        try:
+            with T.limit(0.2, 'outer'):
+                T.guarded(lambda: time.sleep(0.01), 5, 'inner')()
+                spin()
+            raise AssertionError('the outer limit was lost after an inner one')
+        except T.StepTimeout:
+            pass
+        R.main, R.RUN_BUDGET = spin, 0.3
+        if os.path.exists('/tmp/run_stopped.txt'):
+            os.remove('/tmp/run_stopped.txt')
+        t0 = time.monotonic()
+        R.run()                                            # comes back by itself, and leaves the note the health check reads
+        assert time.monotonic() - t0 < 3 and 'the whole check-in' in open('/tmp/run_stopped.txt').read()
+        os.remove('/tmp/run_stopped.txt')
+    finally:
+        sharecard.trade_card, sharecard.album, sharecard.moves_card, R.tgcharts.price_chart, R.chart, R.CARD_BUDGET, R.RUN_BUDGET, R.main = saved
+
+
+def test_each_turn_is_saved_and_pushed_as_it_goes():
+    """Nov 19 (owner: "save each AI's turn as soon as it is done"): checkpoint() writes the records at once and, on GitHub's runner,
+    pushes that one file to main from a scratch copy, leaving the run's own folder alone (so the Publish step still sees a change to
+    publish). Tried here against a throwaway repository. A push that cannot work never raises into the check-in."""
+    tmp = tempfile.mkdtemp()
+    saved = R.STATE, os.getcwd(), os.environ.get('GITHUB_ACTIONS'), dict(R.SAVED)
+    g = lambda *a, cwd=None: subprocess.run(['git', '-c', 'user.name=t', '-c', 'user.email=t@t', '-c', 'init.defaultBranch=main', *a], cwd=cwd, capture_output=True, text=True)
+    try:
+        origin, work = os.path.join(tmp, 'origin.git'), os.path.join(tmp, 'work')
+        g('init', '-q', '--bare', origin)
+        g('clone', '-q', origin, work)
+        os.makedirs(os.path.join(work, 'ops', 'src'))
+        json.dump({'trades': [], 'models': {}}, open(os.path.join(work, 'ops', 'src', 'rivals.json'), 'w'))
+        g('add', '-A', cwd=work); g('commit', '-qm', 'start', cwd=work); g('push', '-q', 'origin', 'HEAD:main', cwd=work)
+        os.chdir(work)
+        R.STATE = 'ops/src/rivals.json'
+        state = {'trades': [], 'models': {'gemini': {'last_run': {'at': 'x', 'status': 'ok'}}}, 'history': [{'at': '2026-10-28T00:00:00Z', 'model': 'gemini', 'experiment': 'Stocks', 'value': 1}] * 3}
+        os.environ.pop('GITHUB_ACTIONS', None)
+        assert R.checkpoint(state, 'local') is True                      # off GitHub: the file is written, nothing is pushed
+        assert json.load(open(R.STATE))['models']['gemini']['last_run']['status'] == 'ok' and len(json.load(open(R.STATE))['history']) == 3   # nothing thinned
+        assert g('rev-list', '--count', 'main', cwd=origin).stdout.strip() == '1'
+        os.environ['GITHUB_ACTIONS'] = 'true'
+        assert R.checkpoint(state, "Gemini's turn") is True
+        assert g('rev-list', '--count', 'main', cwd=origin).stdout.strip() == '2'
+        assert 'last_run' in g('show', 'main:ops/src/rivals.json', cwd=origin).stdout
+        assert "Gemini's turn" in g('log', '-1', '--format=%s', 'main', cwd=origin).stdout
+        assert g('diff', '--quiet', '--', 'ops/src/rivals.json', cwd=work).returncode == 1   # the run's own folder still shows the change: Publish goes ahead
+        assert g('rev-list', '--count', 'HEAD', cwd=work).stdout.strip() == '1' and not os.path.exists('/tmp/pt_checkpoint')
+        state['models']['gemini']['last_run']['status'] = 'second'
+        other = os.path.join(tmp, 'other'); g('clone', '-q', origin, other)   # someone else pushes in between: the checkpoint still lands on top
+        open(os.path.join(other, 'x.txt'), 'w').write('x'); g('add', '-A', cwd=other); g('commit', '-qm', 'other', cwd=other); g('push', '-q', 'origin', 'HEAD:main', cwd=other)
+        assert R.checkpoint(state, 'ChatGPT') is True
+        assert g('rev-list', '--count', 'main', cwd=origin).stdout.strip() == '4' and 'second' in g('show', 'main:ops/src/rivals.json', cwd=origin).stdout
+        assert g('show', 'main:x.txt', cwd=origin).stdout == 'x'
+        g('remote', 'set-url', 'origin', os.path.join(tmp, 'nowhere.git'), cwd=work)
+        state['models']['gemini']['last_run']['status'] = 'third'
+        assert R.checkpoint(state, 'no remote') is False                 # cannot push: says so, does not raise; the file on disk is still written
+        assert json.load(open(R.STATE))['models']['gemini']['last_run']['status'] == 'third'
+    finally:
+        os.chdir(saved[1]); R.STATE = saved[0]
+        R.SAVED.clear(); R.SAVED.update(saved[3])
+        if saved[2] is None:
+            os.environ.pop('GITHUB_ACTIONS', None)
+        else:
+            os.environ['GITHUB_ACTIONS'] = saved[2]
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_watchdog_tells_when_an_ai_has_not_checked_in():
+    """Nov 19 (owner: "alert me when Gemini or ChatGPT has had no finished check-in for 2 hours"). The 8-hour stall raised no alert
+    because the only health check was a step of the stalled run itself. ops/watchdog.py runs on its own and reads only the records."""
+    import watchdog as W
+    now = datetime(2026, 11, 19, 8, 0, tzinfo=timezone.utc)
+    st = {'models': {'gemini': {'label': 'Gemini', 'last_run': {'at': '2026-11-19T03:14:00Z'}}, 'chatgpt': {'label': 'ChatGPT', 'last_run': {'at': '2026-11-19T06:30:00Z'}}}}
+    hist = [{'at': '2026-11-19T07:15:00Z'}]
+    p = W.problems(st, hist, now)
+    assert len(p) == 1 and p[0].startswith('Gemini: no finished check-in for 4 h 46 min') and '10:14 p.m. ET' in p[0], p
+    st['models']['gemini']['last_run']['at'] = '2026-11-19T06:01:00Z'
+    assert W.problems(st, hist, now) == []                                         # 1 h 59 min: not yet
+    st['models']['chatgpt']['last_run']['at'] = '2026-11-19T05:59:00Z'
+    assert [x.split(':')[0] for x in W.problems(st, [{'at': '2026-11-19T04:00:00Z'}], now)] == ['ChatGPT', 'Claude']
+    assert W.problems(st, hist, datetime(2026, 11, 28, 22, 0, tzinfo=timezone.utc)) == []   # after the finish there is nothing to watch
+    wf = open(os.path.join(ROOT, '.github', 'workflows', 'watchdog.yml')).read()
+    assert 'schedule:' in wf and 'ops/watchdog.py' in wf and 'rivals' not in wf.split('concurrency:')[1].split('jobs:')[0]   # its own timer, its own queue
+
+
+def test_a_question_cannot_cancel_a_queued_race_run():
+    """Nov 19: GitHub keeps one waiting run per concurrency group, and a newer one cancels it. Questions for the AIs (mode ask) used
+    the race's group, so a question could replace a queued check-in. They now wait in a group of their own."""
+    wf = open(os.path.join(ROOT, '.github', 'workflows', 'rivals.yml')).read()
+    grp = re.search(r"^concurrency:\n  group: (.+)\n  cancel-in-progress: false", wf, re.M).group(1)
+    assert "inputs.mode == 'ask' && 'rivals-ask'" in grp and "inputs.mode == 'prices' && 'rivals-prices'" in grp and grp.rstrip(' }').endswith("|| 'rivals'"), grp
+
 if __name__ == '__main__':
     main()

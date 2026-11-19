@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import tgcharts  # noqa: E402
 import sharecard  # noqa: E402
 import saleresult  # noqa: E402
+import timelimit  # noqa: E402
 try:   # animated cards on Telegram and Discord instead of stills (owner, Nov 1)
     import animate  # noqa: E402
     animate.install()
@@ -2148,6 +2149,68 @@ def save_state(state):
     os.replace(tmp, STATE)
 
 
+RUN_BUDGET = 24 * 60   # seconds for one whole check-in; the job itself is stopped by GitHub at 30 minutes, and then nothing after it runs
+CARD_BUDGET = 45       # seconds for drawing one picture or album; past that the post goes out without it
+SAVED = {'n': 0, 'pushed': 0}
+
+
+def checkpoint(state, what):
+    """Nov 19 (owner: "save each AI's turn as soon as it is done"): write the records to disk now and, on GitHub's runner, push that
+    file to main at once. Until now a run saved only at its very end, so a run that was stopped late lost every turn in it, while the
+    posts of those turns had already gone out: the next run then settled and posted the same results again (the repeated Telegram post
+    of Nov 19), or the AI simply played the round a second time. Called between steps only, when the records are whole.
+    Nothing is thinned or archived here (the end of the run does that); transaction IDs are given, as at every save.
+    The push uses its own scratch copy of main, so the run's working folder is not touched and the Publish step works as before.
+    A failure here never stops the check-in: the end of the run saves and publishes everything anyway."""
+    try:
+        try:
+            import txids as TX
+            TX.assign(state)
+        except Exception as e:
+            print('checkpoint: transaction IDs failed', e)
+        tmp = STATE + '.tmp'
+        with open(tmp, 'w') as f:
+            json.dump(state, f, indent=1)
+        os.replace(tmp, STATE)
+        SAVED['n'] += 1
+    except Exception as e:
+        print('checkpoint: could not write the records', e)
+        return False
+    if os.environ.get('GITHUB_ACTIONS') != 'true' or os.environ.get('PT_CHECKPOINT', '1') != '1':
+        return True
+    import subprocess
+    scratch = '/tmp/pt_checkpoint'
+    git = lambda *a, cwd=None, t=60: subprocess.run(['git', '-c', 'user.name=paper-trades-bot', '-c', 'user.email=paper-trades-bot@users.noreply.github.com', *a],
+                                                    cwd=cwd, capture_output=True, text=True, timeout=t)
+    ok = False
+    try:
+        with timelimit.limit(150, 'saving the turn to main'):
+            for i in range(3):
+                git('worktree', 'remove', '--force', scratch)
+                if git('fetch', '-q', 'origin', 'main').returncode or git('worktree', 'add', '-q', '--detach', scratch, 'FETCH_HEAD').returncode:
+                    continue
+                import shutil
+                shutil.copyfile(STATE, os.path.join(scratch, STATE))
+                git('add', STATE, cwd=scratch)
+                if git('diff', '--cached', '--quiet', cwd=scratch).returncode == 0:
+                    ok = True
+                    break
+                if git('commit', '-qm', f'Check-in saved as it goes: {what}', cwd=scratch).returncode == 0 and git('push', '-q', 'origin', 'HEAD:main', cwd=scratch).returncode == 0:
+                    ok = True
+                    break
+    except (Exception, timelimit.StepTimeout) as e:
+        print('checkpoint: not pushed', e)
+    finally:
+        try:
+            git('worktree', 'remove', '--force', scratch, t=20)
+        except Exception:
+            pass
+    if ok:
+        SAVED['pushed'] += 1
+    print(f"checkpoint ({what}): {'pushed to main' if ok else 'NOT pushed (the end of the run saves it)'}")
+    return ok
+
+
 def claude_feed_values(state, fx):
     """V5 of the full-audit vote (Oct 31; all three AIs agreed): at every check-in the race runner also values Claude's holdings at
     its own feed prices, with the same code it uses for Gemini and ChatGPT (value_book), so all three are priced from one source at
@@ -2427,6 +2490,8 @@ def main():
         for t in settled:
             tc = dict(t, streak=sharecard.streak_of(m['books'][t['experiment']].get('bets', []))) if t.get('action') in ('Won', 'Lost') and t['experiment'] in ('Sports', 'AllInSports') else t   # streak on the picture only, never stored
             tg_trade(r['label'], t, None, sharecard.trade_card(r['label'], tc, f"/tmp/rc_{mid}_{len(state['trades'])}_{t.get('bet') or t.get('symbol')}.png") or chart(r['label'], r['color'], t['experiment'], state, mid))
+        if settled:   # results that were just posted are saved at once: a run stopped later can never settle and post them a second time
+            checkpoint(state, f"{r['label']}: {len(settled)} result(s) settled")
         values = frozen_values(state, mid, m['books'], exps, fx, notes)
         if NOW >= RACE_END:
             freeze_final(state, mid, exps, values)
@@ -2808,6 +2873,7 @@ def main():
                 tg(body)
             QUIET_TG = False
         ran.append(f"{r['label']} ({m.get('model')}): {status}, {len(made)} trade(s), " + ', '.join(f'{e} {money(values[e], m["books"][e]["cur"])}' for e in exps))
+        checkpoint(state, f"{r['label']}'s turn ({status}, {len(made)} move(s))")   # this AI's turn is safe whatever happens to the rest of the run
     if not ran:
         print('no rival API keys set; nothing to do')
         return
@@ -2905,5 +2971,33 @@ def main():
     print('\n'.join(ran))
 
 
+def guard_pictures():
+    """Nov 19: every picture of a check-in is drawn under a time limit (CARD_BUDGET). The stall of Nov 18 was a picture that never
+    finished; a picture that takes too long is now dropped and the post goes out without it (or with the plain chart)."""
+    me = sys.modules[__name__]
+    for mod, names in ((sharecard, ('trade_card', 'album', 'moves_card')), (tgcharts, ('price_chart',)), (me, ('chart',))):
+        for nm in names:
+            f = getattr(mod, nm, None)
+            if f and not getattr(f, '_guarded', False):   # an album is up to ten pictures: it gets three times as long
+                setattr(mod, nm, timelimit.guarded(f, CARD_BUDGET * (3 if nm == 'album' else 1), f'picture ({nm})', [] if nm == 'album' else None))
+
+
+def run():
+    """main() under the whole-run limit. A run that is still going after RUN_BUDGET is stopped here, by us, while there is still time
+    for the steps after it (publishing what the checkpoints saved, the health check): GitHub's own 30-minute stop runs nothing after it.
+    What a stopped run had not yet saved is dropped as a whole (the records on disk are the last checkpoint), never half-written."""
+    guard_pictures()
+    try:
+        with timelimit.limit(RUN_BUDGET, 'the whole check-in'):
+            main()
+    except timelimit.StepTimeout as e:
+        print(f'::error title=Check-in stopped::{e}. Saved before that: {SAVED["n"]} checkpoint(s), {SAVED["pushed"]} pushed. The next run carries on from there.')
+        try:
+            with open('/tmp/run_stopped.txt', 'w') as f:
+                f.write(str(e))
+        except Exception:
+            pass
+
+
 if __name__ == '__main__':
-    main()
+    run()
