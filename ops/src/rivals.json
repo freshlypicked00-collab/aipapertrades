@@ -43332,6 +43332,24 @@
    "bet": "C42",
    "wrong_if": "Oklahoma City finishes with fewer points than Atlanta in game 401910014.",
    "p_works": 0.7
+  },
+  {
+   "at": "2026-11-19T02:43:26Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "action": "Lost",
+   "symbol": "C18",
+   "outcome": null,
+   "name": "NBA: Cleveland Cavaliers moneyline (Memphis Grizzlies @ Cleveland Cavaliers)",
+   "price": -205,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": -3000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Final: Memphis Grizzlies 124, Cleveland Cavaliers 121.",
+   "bet": "C18",
+   "final": "Memphis Grizzlies 124, Cleveland Cavaliers 121"
   }
  ],
  "history": [
@@ -107494,18 +107512,6 @@
    "value": 112710.95
   },
   {
-   "at": "2026-11-16T02:23:11Z",
-   "model": "claude",
-   "experiment": "AllInTrading",
-   "value": 93771.73
-  },
-  {
-   "at": "2026-11-16T02:23:11Z",
-   "model": "claude",
-   "experiment": "AllInSports",
-   "value": 106030.32
-  },
-  {
    "at": "2026-11-16T02:36:46Z",
    "model": "claude",
    "experiment": "AllInTrading",
@@ -123050,6 +123056,18 @@
    "model": "claude",
    "experiment": "AllInSports",
    "value": 100030.32
+  },
+  {
+   "at": "2026-11-19T02:43:26Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 92141.34
+  },
+  {
+   "at": "2026-11-19T02:43:26Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 97030.32
   }
  ],
  "takes": [
@@ -148749,7 +148767,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 659.51,
-      "priced_at": "2026-11-19T02:23:42Z",
+      "priced_at": "2026-11-19T02:43:26Z",
       "hist": [
        [
         29886870,
@@ -151414,6 +151432,10 @@
        [
         29917575,
         659.51
+       ],
+       [
+        29917603,
+        659.51
        ]
       ]
      },
@@ -151423,8 +151445,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 62735.36,
-      "priced_at": "2026-11-19T02:23:42Z",
+      "last": 62628.35,
+      "priced_at": "2026-11-19T02:43:26Z",
       "hist": [
        [
         29886870,
@@ -154229,6 +154251,10 @@
        [
         29917575,
         62769.86
+       ],
+       [
+        29917603,
+        62628.35
        ]
       ]
      }
@@ -154644,12 +154670,14 @@
       "to_win": 1463.41,
       "starts_at": "2026-11-19T00:00Z",
       "placed_at": "2026-11-18T05:19:58Z",
-      "status": "Open",
-      "result": 0.0,
+      "status": "Lost",
+      "result": -3000.0,
       "reason": "Wednesday All in: Sports minimum at the floor: Cleveland at home are favourites (-205) over Memphis; I keep the daily bet small rather than chase.",
       "wrong_if": "Memphis beats Cleveland on Nov 18.",
       "closing_odds": -191,
-      "closing_at": "2026-11-18T23:23:02Z"
+      "closing_at": "2026-11-18T23:23:02Z",
+      "settled_at": "2026-11-19T02:43:26Z",
+      "final": "Memphis Grizzlies 124, Cleveland Cavaliers 121"
      }
     ],
     "penalties": []
@@ -247604,25 +247632,16 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-19T02:23:42Z",
+  "at": "2026-11-19T02:43:26Z",
   "games": [
-   {
-    "id": "401910015",
-    "short": "NBA",
-    "away": "Boston Celtics",
-    "home": "Denver Nuggets",
-    "start": "2026-11-19T02:30Z",
-    "away_ml": -136,
-    "home_ml": 115
-   },
    {
     "id": "401910017",
     "short": "NBA",
     "away": "Utah Jazz",
     "home": "Los Angeles Lakers",
     "start": "2026-11-19T03:00Z",
-    "away_ml": 424,
-    "home_ml": -567
+    "away_ml": 411,
+    "home_ml": -545
    },
    {
     "id": "401910018",
@@ -247713,6 +247732,15 @@
     "start": "2026-11-20T00:30Z",
     "away_ml": 124,
     "home_ml": -148
+   },
+   {
+    "id": "401910022",
+    "short": "NBA",
+    "away": "LA Clippers",
+    "home": "San Antonio Spurs",
+    "start": "2026-11-20T01:00Z",
+    "away_ml": 720,
+    "home_ml": -1140
    },
    {
     "id": "401892748",
@@ -256573,7 +256601,8 @@
   "gemini|Currencies|2026-11-18T16:14:54Z|Cover|EUR": "G-CUR-036",
   "claude|Energy|2026-11-18T16:45:02Z|Sell|USO": "C-ENE-007",
   "chatgpt|AllInSports|2026-11-18T23:14:53Z|Bet|C42": "X-AIS-039",
-  "chatgpt|Sports|2026-11-18T23:14:53Z|Bet|C41": "X-SPT-051"
+  "chatgpt|Sports|2026-11-18T23:14:53Z|Bet|C41": "X-SPT-051",
+  "claude|AllInSports|2026-11-19T02:43:26Z|Lost|C18": "C-AIS-036"
  },
  "txseq": {
   "X-CRY": 33,
@@ -256609,7 +256638,7 @@
   "G-CHN": 4,
   "C-CHN": 2,
   "G-PRD": 7,
-  "C-AIS": 35,
+  "C-AIS": 36,
   "X-PRD": 3,
   "C-OPT": 2
  },
