@@ -176,6 +176,43 @@
       box.classList.toggle('pt-b-fold', !open);
       say(b, open, false, more);
     };
+    // f) a long reason in a trade list shows its first four lines with "more" (the words themselves are untouched and all still in the page;
+    //    a reason that carries a fact-check note is never shortened, so the note is always in view)
+    var INLINE = { SPAN: 1, B: 1, I: 1, EM: 1, A: 1, FONT: 1, STRONG: 1, SMALL: 1 };
+    var clampWhy = function (td) {
+      var sp = td.querySelector(':scope > .pt-why'), btn = td.querySelector(':scope > .pt-why-btn');
+      if (!PH.matches) { if (sp) sp.classList.remove('pt-why-shut'); if (btn) btn.remove(); return; }
+      if (!sp) {
+        var run = [], len = 0, n = td.firstChild;
+        while (n && (n.nodeType === 3 || (n.nodeType === 1 && INLINE[n.tagName] && !/tx-wrap|pt-why-btn|pt-c-btn|lg-lb|st-pill/.test(n.className || '')))) { run.push(n); len += (n.textContent || '').length; n = n.nextSibling; }
+        if (len < 260 || !run.length || run[0].nodeType !== 3) return;
+        sp = mk('span', 'pt-why'); td.insertBefore(sp, run[0]); run.forEach(function (x) { sp.appendChild(x); });
+      }
+      var open = td.dataset.ptWhy === '1' || !!sp.querySelector('.pt-fcnote');
+      sp.classList.toggle('pt-why-shut', !open);
+      if (!open && sp.scrollHeight - sp.clientHeight < 50) { sp.classList.remove('pt-why-shut'); if (btn) btn.remove(); return; }   // folding would save under two lines: leave it whole
+      if (sp.querySelector('.pt-fcnote')) { if (btn) btn.remove(); return; }
+      if (!btn) { btn = mk('button', 'pt-why-btn'); btn.type = 'button';
+        btn.addEventListener('click', function (e) { e.stopPropagation(); td.dataset.ptWhy = td.dataset.ptWhy === '1' ? '0' : '1'; clampWhy(td); });
+        sp.parentNode.insertBefore(btn, sp.nextSibling); }
+      var t = open ? 'less ▴' : 'more ▾'; if (btn.textContent !== t) btn.textContent = t; btn.setAttribute('aria-expanded', String(open));
+    };
+    // h) each card of the Ledger's trade list shows when, race, action, what and the profit; one button shows the details, the money
+    //    figures and the reason. A row that carries a fact-check note, or that a link jumps to, starts open.
+    var ledgerRows = function () {
+      $$('#lg-trades table.st-table.pt-cards > tbody > tr').forEach(function (tr) {
+        var tds = tr.children, btn = tr.querySelector('.pt-row-btn');
+        if (tds.length !== 10) return;
+        if (!PH.matches) { tr.classList.remove('pt-row-shut'); if (btn) btn.remove(); return; }
+        var open = tr.dataset.ptOpen === '1' || !!tr.querySelector('.pt-fcnote');
+        tr.classList.toggle('pt-row-shut', !open);
+        if (!btn) { btn = mk('button', 'pt-c-btn pt-row-btn'); btn.type = 'button';
+          btn.addEventListener('click', function (e) { e.stopPropagation(); tr.dataset.ptOpen = tr.dataset.ptOpen === '1' ? '0' : '1'; ledgerRows(); });
+          tds[7].appendChild(btn); }
+        var t = open ? 'Show less ▴' : 'Details and reason ▾'; if (btn.textContent !== t) btn.textContent = t; btn.setAttribute('aria-expanded', String(open));
+      });
+    };
+    var LEDGER_CARDS = true;   // h) the Ledger's "Every trade and bet" list as cards on phones (it was a 1,442 px wide table in a 336 px box)
     var ruleSet = {};   // rule groups the visitor opened or closed by hand keep that state; the others: the first open, the rest closed
     document.addEventListener('click', function (e) { var sm = e.target.closest && e.target.closest('.au-rules > details > summary'); if (!sm) return;
       ruleSet[sm.textContent.trim().slice(0, 40)] = !sm.parentNode.open; }, true);
@@ -187,6 +224,10 @@
         $$('.pg').forEach(function (g) { var rows = $$(':scope > .pg-row', g); if (!rows.length) return;
           var marks = rows.map(function (r) { var f = r.firstElementChild; var t = f ? f.textContent.trim() : ''; return t.length <= 2 ? t : ''; }).filter(Boolean);
           foldBody(g, null, (rows.length === 1 ? 'Peer grade' : 'Peer grades') + (marks.length === rows.length ? ': ' + marks.join(' · ') : ' (' + rows.length + ')'), false); });
+        if (LEDGER_CARDS && typeof ptLabelTable === 'function') $$('#lg-trades table.st-table').forEach(function (t) { if (!t.classList.contains('pt-cards') || t.querySelector(':scope > tbody > tr > td:not([data-label])')) ptLabelTable(t); }); if (LEDGER_CARDS) ledgerRows();   // h) see polish.css 38
+        $$('#predictions > section.st-card').forEach(function (c) { var h = c.querySelector(':scope > h2'); if (h && /^Betting minimums/.test(h.textContent.trim())) foldBody(c, ':scope > h2', 'Show more', false); });   // g) as the Sports page already does
+        $$('.lg-lb').forEach(function (g) { if (g.querySelector(':scope > .lg-lb-h')) foldBody(g, '.lg-lb-h', 'Read the look-back', false); });   // e) full pass, Nov 20
+        $$('td.lg-why, td.gx-why, table.pt-cards td.wrap').forEach(clampWhy);                                                              // f)
         if (PH.matches) $$('.au-rules').forEach(function (box) { $$(':scope > details', box).forEach(function (d, i) {
           var key = (d.querySelector('summary') || d).textContent.trim().slice(0, 40), want = key in ruleSet ? ruleSet[key] : i === 0;
           if (d.open !== want) d.open = want; }); });
@@ -200,6 +241,8 @@
       while (n && n !== document.body) {
         if (n.classList && n.classList.contains('pt-c-hid') && n.parentNode && n.parentNode.dataset.ptOpen !== '1') { n.parentNode.dataset.ptOpen = '1'; changed = true; }
         if (n.classList && n.classList.contains('pt-b-fold')) { n.dataset.ptOpen = '1'; changed = true; }
+        if (n.classList && n.classList.contains('pt-why-shut') && n.parentNode) { n.parentNode.dataset.ptWhy = '1'; changed = true; }
+        if (n.classList && n.classList.contains('pt-row-shut')) { n.dataset.ptOpen = '1'; changed = true; }
         if (n.tagName === 'DETAILS' && !n.open && n.parentNode && n.parentNode.classList.contains('au-rules')) { ruleSet[(n.querySelector('summary') || n).textContent.trim().slice(0, 40)] = true; n.open = true; }
         n = n.parentNode;
       }
@@ -247,5 +290,98 @@
       });
     };
     later(finale, 900); setInterval(function () { try { finale(); } catch (e) {} }, 4000);
+  } catch (e) {}
+  /* 9. Full pass (Nov 19 to 20), HELD for the owner's OK: the "Final result" card, the one place to cite and share when Season 1 ends
+        (MISSION plan item 3). It is NOT shown to visitors yet: FINAL_LIVE is false, so it appears only when the address ends in ?finale
+        (a preview with today's standings, clearly marked). When the owner says yes, set FINAL_LIVE to true: from Sat Nov 28, 4:00 p.m. ET
+        the card then sits at the top of the Overview by itself, with its own address (papertrades.ai/#final).
+        Every figure is read from the same data as the leader box and the race standings; nothing is worked out differently here.
+        "Won" is used only once the final scoring is recorded and no bet is open; until then it says "finished first" (all three AIs agreed). */
+  try {
+    var FINAL_LIVE = false;
+    var F_END = Date.parse('2026-11-28T16:00:00-05:00');
+    var fPreview = /[?&]finale?\b/.test(location.search);
+    var fOn = function () { return fPreview || (FINAL_LIVE && Date.now() >= F_END); };
+    var fmtC = function (v, race) { return (typeof stFmt !== 'undefined' && stFmt.signed) ? stFmt.signed(v, race || 'Stocks') : (v >= 0 ? '+' : '−') + 'C$' + Math.round(Math.abs(v)).toLocaleString('en-US'); };
+    var whenET = function (t) { try { return new Date(t).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).replace('AM', 'a.m.').replace('PM', 'p.m.') + ' ET'; } catch (e) { return ''; } };
+    var nameOf = function (id) { var a = (typeof AIS !== 'undefined' && AIS[id]) || {}; var b = mk('b', 'pt-fin-n', a.label || id); if (a.color) b.style.color = a.color; return b; };
+    var finalCard = function () {
+      var pg = $('header.st-head'); if (!pg || !pg.parentNode || typeof dash === 'undefined') return;   // right under the header, above everything else on the Overview
+      var old = document.getElementById('final');
+      if (!fOn()) { if (old) old.remove(); return; }
+      var st = dash.baseData('standings'), es = dash.baseData('exp_standings'); var ES = Array.isArray(es) ? es[0] : es;
+      if (!Array.isArray(st) || !st.length || !ES) return;
+      var rows = st.filter(function (r) { return typeof r.profit === 'number'; }).slice().sort(function (a, b) { return b.profit - a.profit; });
+      if (rows.length < 2) return;
+      // what is still moving: the final scoring (recorded in the value history) and bets on games not finished yet
+      var hist = dash.baseData('rivals_history') || [], finals = hist.filter(function (h) { return h && h.final; });
+      var scoredAt = finals.length ? finals.map(function (h) { return Date.parse(h.at); }).sort()[0] : null;
+      var open = 0, lastSettled = 0;
+      var seeBet = function (b) { if (!b) return; if (b.status === 'Open') open++; var t = Date.parse(b.settled_at || ''); if (t && t > lastSettled) lastSettled = t; };
+      (dash.baseData('bets') || []).forEach(seeBet);
+      (dash.baseData('rivals_models') || []).forEach(function (m) { var bk = m.books || {}; Object.keys(bk).forEach(function (e) { ((bk[e] || {}).bets || []).forEach(seeBet); }); });
+      var ended = Date.now() >= F_END, settled = ended && scoredAt && open === 0;
+      var sig = JSON.stringify([rows.map(function (r) { return [r.id, Math.round(r.profit)]; }), Object.keys(ES).map(function (e) { return (ES[e] || []).map(function (r) { return Math.round(r.profit); }); }), ended, scoredAt, open, lastSettled]);
+      if (old && old._sig === sig) return;
+      var card = mk('section', 'st-card pt-final'); card.id = 'final'; card._sig = sig; card.setAttribute('aria-labelledby', 'h-final');
+      var h = mk('h2', 'st-h2', (ended ? '🏁 Final result' : '🏁 Final result (preview)') + ' · Season 1'); h.id = 'h-final'; card.appendChild(h);
+      card.appendChild(mk('p', 'pt-fin-sub', 'Claude vs Gemini vs ChatGPT · Oct 28 to Nov 28, 2026 · pretend money, real prices'));
+      var status = !ended ? 'Preview only: these are today’s standings, not the final result. This card appears by itself at the finish, Sat Nov 28, 4:00 p.m. ET.'
+        : !scoredAt ? 'The race ended at 4:00 p.m. ET. Final scoring is being done now; the figures below are from the last check-in.'
+        : open ? 'Final scoring done ' + whenET(scoredAt) + '. ' + open + (open === 1 ? ' Sports bet is' : ' Sports bets are') + ' still open, so the Sports totals can still change. Until then this is the order at the finish.'
+        : 'Final. Scoring done ' + whenET(scoredAt) + (lastSettled > F_END ? '; the last open bet settled ' + whenET(lastSettled) : '') + '. Includes every penalty, refund, voided bet and settled bet. Nothing changes after this.';
+      card.appendChild(mk('p', 'pt-fin-status' + (settled ? ' is-final' : ''), status));
+      var lead = mk('p', 'pt-fin-lead'); lead.appendChild(document.createTextNode(settled ? '🏆 ' : '👑 ')); lead.appendChild(nameOf(rows[0].id));
+      lead.appendChild(document.createTextNode((settled ? ' won Season 1' : ended ? ' finished first' : ' leads') + ' with the most total profit: '));
+      var top = mk('b', 'pt-fin-amt ' + (rows[0].profit >= 0 ? 'is-up' : 'is-down'), fmtC(rows[0].profit)); lead.appendChild(top); lead.appendChild(mk('span', 'pt-fin-tag', ' pretend money')); card.appendChild(lead);
+      var ol = mk('ol', 'pt-fin-order');
+      rows.forEach(function (r, i) { var li = mk('li'); li.appendChild(mk('span', 'pt-fin-medal', ['🥇', '🥈', '🥉'][i] || String(i + 1)));
+        li.appendChild(nameOf(r.id)); li.appendChild(mk('span', 'pt-fin-amt ' + (r.profit >= 0 ? 'is-up' : 'is-down'), fmtC(r.profit)));
+        var n = (r.leads || []).length; li.appendChild(mk('span', 'pt-fin-won', 'first in ' + n + ' of ' + Object.keys(ES).length + ' races')); ol.appendChild(li); });
+      card.appendChild(ol);
+      card.appendChild(mk('p', 'pt-fin-note', 'Total profit or loss across the ten races. Each AI started every race with C$100,000 of pretend money (China stocks: US$100,000, converted to C$ for the total). The most total profit wins.'));
+      card.appendChild(mk('h3', 'st-h3', settled ? 'The ten races: who finished first' : 'The ten races: who is first'));
+      var grid = mk('div', 'pt-fin-races');
+      Object.keys(ES).forEach(function (e) { var rr = (ES[e] || []).slice().sort(function (a, b) { return b.profit - a.profit; }); if (!rr.length) return;
+        var row = mk('div', 'pt-fin-race'); row.appendChild(mk('span', 'pt-fin-rl', (typeof LABEL !== 'undefined' && LABEL[e]) || e));
+        var tie = rr.length > 1 && rr[0].profit - rr[1].profit < 0.5;
+        if (tie) row.appendChild(mk('span', 'pt-fin-n', 'tie')); else row.appendChild(nameOf(rr[0].id));
+        row.appendChild(mk('span', 'pt-fin-amt ' + (rr[0].profit >= 0 ? 'is-up' : 'is-down'), fmtC(rr[0].profit, e))); grid.appendChild(row); });
+      card.appendChild(grid);
+      try { var side = [['AllInTrading', 'trading'], ['AllInSports', 'sports']].map(function (x) { var rr = allinRows(x[0]).slice().sort(function (a, b) { return b.profit - a.profit; }); return rr.length ? [x[1], rr[0]] : null; }).filter(Boolean);
+        if (side.length) { var sp = mk('p', 'pt-fin-note pt-fin-side'); sp.appendChild(mk('b', '', 'High risk side race (never counted in the result): '));
+          side.forEach(function (x, i) { if (i) sp.appendChild(document.createTextNode(' · ')); sp.appendChild(document.createTextNode(x[0] + ' ')); sp.appendChild(nameOf(x[1].id)); sp.appendChild(document.createTextNode(' ' + fmtC(x[1].profit))); }); card.appendChild(sp); } } catch (e) {}
+      var act = mk('div', 'pt-fin-act'), url = 'https://papertrades.ai/#final';
+      var words = 'PaperTrades.AI, Season 1 ' + (settled ? 'final result' : ended ? 'at the finish' : 'standings') + ': ' + ((typeof AIS !== 'undefined' && AIS[rows[0].id] || {}).label || rows[0].id) + (settled ? ' won' : ended ? ' finished first' : ' leads') + ' with ' + fmtC(rows[0].profit) + ' of pretend money. Claude vs Gemini vs ChatGPT, ten races, real prices.';
+      var sh = mk('button', 'pt-fin-btn is-main', 'Share'); sh.type = 'button';
+      sh.addEventListener('click', function () { if (navigator.share) navigator.share({ title: 'PaperTrades.AI: Season 1 final result', text: words, url: url }).catch(function () {}); else if (navigator.clipboard) navigator.clipboard.writeText(words + ' ' + url).then(function () { sh.textContent = 'Copied ✓'; later(function () { sh.textContent = 'Share'; }, 1800); }); });
+      var cp = mk('button', 'pt-fin-btn', 'Copy link'); cp.type = 'button';
+      cp.addEventListener('click', function () { if (navigator.clipboard) navigator.clipboard.writeText(url).then(function () { cp.textContent = 'Copied ✓'; later(function () { cp.textContent = 'Copy link'; }, 1800); }); });
+      var a1 = mk('a', 'pt-fin-link', 'Audit pack'); a1.href = 'data/papertrades-audit-pack.zip'; a1.title = 'Check it yourself: every rule, trade, bet and price check in one file';
+      var a2 = mk('button', 'pt-fin-link', 'Rules + fingerprints'); a2.type = 'button'; a2.addEventListener('click', function () { tab('audit'); });
+      act.appendChild(sh); act.appendChild(cp); act.appendChild(a1); act.appendChild(a2); card.appendChild(act);
+      card.appendChild(mk('p', 'pt-fin-foot', 'Pretend money only. No deposits, no accounts, no token. Not investment or betting advice. One month is short, so luck matters.'));
+      if (old) old.replaceWith(card); else { pg.parentNode.insertBefore(card, pg.nextSibling);
+        if (location.hash === '#final') later(function () { try { card.scrollIntoView({ block: 'start' }); } catch (e) {} }, 200); }
+    };
+    if (fPreview || FINAL_LIVE) { later(finalCard, 1200); later(finalCard, 3500); setInterval(function () { try { finalCard(); } catch (e) {} }, 20000);
+      if (typeof dash !== 'undefined' && dash.onData) dash.onData(function () { later(finalCard, 300); }); }
+  } catch (e) {}
+  /* 10. Full pass (Nov 20; Claude, Gemini and ChatGPT all picked this one): "Add to calendar" beside the countdown. One tap saves the
+         finish (Sat Nov 28, 4:00 p.m. ET) to the visitor's own calendar, with a reminder 15 minutes before and the link to the result.
+         A reason to come back at the one moment that matters; no new number on the site, nothing sent anywhere. Gone after the finish. */
+  try {
+    var calBtn = function () {
+      var sp = $('header.st-head .st-progress [data-draw="countdown"]'); if (!sp || !sp.parentNode || $('.pt-cal') || Date.now() >= Date.parse('2026-11-28T16:00:00-05:00')) return;
+      var ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//PaperTrades.AI//Season 1//EN', 'BEGIN:VEVENT', 'UID:season1-final@papertrades.ai', 'DTSTAMP:20261120T000000Z',
+        'DTSTART:20261128T210000Z', 'DTEND:20261128T213000Z', 'SUMMARY:PaperTrades.AI: Season 1 final result (Claude vs Gemini vs ChatGPT)',
+        'DESCRIPTION:The race ends at 4:00 p.m. ET. See who finished first: https://papertrades.ai/?utm_source=calendar#final\\nPretend money only. Not investment or betting advice.',
+        'URL:https://papertrades.ai/?utm_source=calendar#final', 'BEGIN:VALARM', 'TRIGGER:-PT15M', 'ACTION:DISPLAY', 'DESCRIPTION:PaperTrades.AI: the final result in 15 minutes', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+      var a = mk('a', 'pt-cal', '📅 Add to calendar'); a.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics); a.download = 'papertrades-ai-season-1-final.ics';
+      a.title = 'Save the finish (Sat Nov 28, 4:00 p.m. ET) to your calendar'; a.setAttribute('aria-label', 'Add the finish, Saturday November 28 at 4:00 p.m. Eastern, to your calendar');
+      a.addEventListener('click', function () { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'finale/calendar', title: 'Add to calendar', event: true }); } catch (e) {} });
+      sp.parentNode.appendChild(document.createTextNode(' ')); sp.parentNode.appendChild(a);
+    };
+    later(calBtn, 800); later(calBtn, 3000);
   } catch (e) {}
 })();

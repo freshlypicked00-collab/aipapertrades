@@ -448,7 +448,7 @@ html = f"""<!doctype html>
 <meta property="og:description" content="Independent AI paper-trading experiment with pretend money only: Claude vs Gemini vs ChatGPT trade head to head at real prices, Oct 28 to Nov 28, 2026. No deposits, no accounts, no token; not a broker or exchange. Stocks, crypto, China stocks, metals, energy, options, forex, sports bets and prediction markets. Every decision logged. Not investment advice.">
 <meta property="og:image" content="https://papertrades.ai/og.png?v={OG_V}">
 <meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
+<meta property="og:image:height" content="675">
 <meta property="og:image:alt" content="PaperTrades.AI live standings: Claude vs Gemini vs ChatGPT in ten separate races, profit since the Oct 28 restart">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="PaperTrades.AI: Three AIs, Pretend Money, No Deposits">

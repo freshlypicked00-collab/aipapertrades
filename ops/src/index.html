@@ -2806,7 +2806,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     <section class="st-card gd-sec" id="guide-ledger" aria-labelledby="h-gd-ledger">
       <h2 class="st-h2" id="h-gd-ledger">Every trade and bet</h2>
       <div class="gd-mock" aria-hidden="true"><span class="gd-lab">Show:</span><span class="gd-pill gd-on">Every move</span><span class="gd-pill">Buys</span><span class="gd-pill">Won</span><span class="gd-lab">Sort:</span><span class="gd-sel">Biggest profit ▾</span><span class="gd-tx">G-CRY-013</span></div>
-      <p>The <b>Ledger</b> lists every move, newest first, each with the AI’s reason in its own words. Every race page also has <b>Recent moves</b>: all three AIs’ trades and bets in that race, in one list.</p><ul><li><b>Show:</b> Buys, Sells, Shorts, Covers, Bets, Won, Lost, Open bets, Holding now.</li><li><b>Sort:</b> newest, oldest, biggest profit, biggest loss, largest amount.</li><li><b>Why (estimated):</b> groups moves by the kind of reason given (news, price moves, odds, risk, rules). It’s a guess from the words, never the AI’s own label.</li><li>Every move has a <b>transaction ID</b> (like G-CRY-013). <b>↩ View original buy / bet</b> and <b>View sale / result →</b> jump between the two halves of a trade or bet (open bets say “Result: not settled yet”); <b>Whole story</b> shows every step from the first buy with a sum check; <b>What happened next</b> shows the price after it was sold.</li><li><b>Download this list (CSV)</b> gives you exactly the rows shown.</li></ul>
+      <p>The <b>Ledger</b> lists every move, newest first, each with the AI’s reason in its own words. Every race page also has <b>Recent moves</b>: all three AIs’ trades and bets in that race, in one list. On a phone each move in the Ledger is a short card: tap <b>Details and reason</b> for the money figures and the AI’s own reason.</p><ul><li><b>Show:</b> Buys, Sells, Shorts, Covers, Bets, Won, Lost, Open bets, Holding now.</li><li><b>Sort:</b> newest, oldest, biggest profit, biggest loss, largest amount.</li><li><b>Why (estimated):</b> groups moves by the kind of reason given (news, price moves, odds, risk, rules). It’s a guess from the words, never the AI’s own label.</li><li>Every move has a <b>transaction ID</b> (like G-CRY-013). <b>↩ View original buy / bet</b> and <b>View sale / result →</b> jump between the two halves of a trade or bet (open bets say “Result: not settled yet”); <b>Whole story</b> shows every step from the first buy with a sum check; <b>What happened next</b> shows the price after it was sold.</li><li><b>Download this list (CSV)</b> gives you exactly the rows shown.</li></ul>
       <button type="button" class="gd-show" data-gd-tab="ledger" data-gd-sel=".mf-bar">Show me →</button> <a class="gd-link" href="#guide-ledger" title="Link to this section">#</a>
     </section>
     <section class="st-card gd-sec" id="guide-words" aria-labelledby="h-gd-words">
@@ -3247,7 +3247,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
         <tbody>
           <tr><td class="st-nowrap">Oct 27, 2026, 10:03 p.m.</td><td class="wrap">PaperTrades.AI site first published (the first entry in its version history).</td></tr>
           <tr><td class="st-nowrap">Oct 27 to 28, 2026</td><td class="wrap">Practice and tuning runs (not counted).</td></tr>
-          <tr><td class="st-nowrap">Oct 28, 2026, 1:45 p.m.</td><td class="wrap">The race starts: every race of all three AIs at 100,000.</td></tr>
+          <tr><td class="st-nowrap">Oct 28, 2026, 1:45 p.m.</td><td class="wrap">The race starts: every race of all three AIs at C$100,000 (China stocks: US$100,000).</td></tr>
           <tr><td class="st-nowrap">Oct 29, 2026</td><td class="wrap">First nightly ledger fingerprint published; first Instagram stories.</td></tr>
           <tr><td class="st-nowrap">Nov 28, 2026, 4:00 p.m.</td><td class="wrap">Final scoring: the ten results added up to name the overall winner.</td></tr>
         </tbody>
@@ -6421,6 +6421,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       if (t.portfolio === 'Predictions') return d3.format('.1f')(t.price_usd * 100) + '¢ per share';
       if (t.holding === 'Japanese yen') return 'USD/JPY ' + d3.format('.2f')(1 / t.price_usd);
       if (t.holding === 'US dollar') return 'US dollars, valued in Canadian dollars at the time';
+      if (t.portfolio === 'Currencies' && t.price_usd) { const c = [t.symbol, t.code].find((x) => /^[A-Z]{3}$/.test(x || '')); return 'US$' + d3.format(',.4f')(t.price_usd) + ' per ' + (c || String(t.holding || 'unit').toLowerCase()); }   // full pass, Nov 20: a euro was "US$1.10 per share"
       const v = t.price_usd;
       const num = 'US$' + (v >= 1000 ? d3.format(',.0f')(v) : v >= 0.1 ? d3.format(',.2f')(v) : d3.format('.4~r')(v));
       const unit = COIN[t.holding] ? ' per ' + COIN[t.holding] : t.portfolio === 'Crypto' ? ' per coin' : t.portfolio === 'Metals' && dash.model === 'claude' ? ' per ounce' : t.portfolio === 'Metals' ? '' : t.portfolio === 'Options' ? ' per share (100 shares per contract)' : ' per share';
@@ -8602,7 +8603,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       el.textContent = meta.label + '’s own copy of this experiment' + (st ? ', started ' + (Math.abs(Date.parse(st) - RESTART) > 5 * 60e3 ? stFmt.when(st) : 'at the Oct 28, 1:45 p.m. ET restart') : '') + ' with ' + (el.dataset.modelText === 'China' ? 'US$100,000' : 'C$100,000') + '. Holdings, trades and decisions below are ' + meta.label + '’s; it checks in at the same times as Claude and searches the news itself.';
     });
     document.querySelectorAll('[data-model-note]').forEach((n) => {
-      n.textContent = meta ? 'Showing ' + meta.label + '’s own copy of all ' + exps.length + ' races' + (meta.model ? ' (model: ' + prettyModel(meta.model) + ')' : '') + '. Each started with its own 100,000 at the Oct 28 1:45 p.m. ET restart.' : 'Showing Claude’s ten races (model: Claude Opus 5.5).';
+      n.textContent = meta ? 'Showing ' + meta.label + '’s own copy of all ' + exps.length + ' races' + (meta.model ? ' (model: ' + prettyModel(meta.model) + ')' : '') + '. Each started with its own C$100,000 (China stocks: US$100,000) at the Oct 28, 1:45 p.m. ET restart.' : 'Showing Claude’s ten races (model: Claude Opus 5.5).';
     });
     const take = document.querySelector('.st-take-l'); if (take) take.textContent = (meta ? meta.label : 'Claude') + '’s current take';
     Object.entries(TABOF).forEach(([pf, tab]) => {
