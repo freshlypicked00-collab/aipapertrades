@@ -340,3 +340,27 @@ header.st-head .st-progress :is(.st-clock-ny, .st-clock-hk, .st-clock-utc) { gap
 /* ---- 30. The sticky bar's Telegram icon loses its tiny "1st" mark: Discord is listed first now and carries the "Every trade, instantly"
         tag, so "1st" on Telegram pointed the wrong way (B4). About still says Telegram was the first channel. ------------------------ */
 .pt-lb-tg::after { content: none; }
+/* ---- 31. Improvement pass (Nov 19): phones fold more on the longest pages (polish.js 6). A folded row or part is only hidden, never
+        removed; computers never see these rules. Delete this block and behaviour 6 to reverse. -------------------------------------- */
+.pt-c-btn { display: none; }
+@media (max-width: 700px) {
+  .pt-c-hid { display: none !important; }
+  .pt-b-fold > :not(.pt-b-keep) { display: none !important; }
+  .pt-c-btn { display: inline-flex; align-items: center; margin: 6px 0 2px; padding: 6px 14px; min-height: 36px; font: inherit; font-size: 13px; color: var(--accent, #ffb000);
+    background: transparent; border: 1px solid var(--color-border-line); border-radius: 999px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .pt-c-btn:focus-visible { outline: 2px solid var(--pt-ring); outline-offset: 2px; }
+  .pg.pt-b-fold { margin: 2px 0; padding: 0; border: 0; background: none; }
+  .pg > .pt-c-btn { min-height: 30px; padding: 3px 12px; font-size: 12px; color: var(--color-fg-muted); margin: 2px 0; align-self: flex-start; width: auto; }
+  .pg.pt-b-fold { display: block; }
+  .nm-card.pt-b-fold > .nm-lede { display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
+}
+/* ---- 32. The one-line "How to read this" cue under the leader box (polish.js 7). Small and quiet: it explains, it does not compete. --- */
+.pt-cue { margin: 4px 2px 0; font-size: 12.5px; line-height: 1.45; color: var(--color-fg-muted); max-width: 70ch; }
+.pt-cue b { font-weight: 600; color: var(--color-fg); }
+html[data-tone="light"] .pt-cue { color: var(--color-fg); }   /* the light themes: the muted grey and the site's green fell under 4.5 to 1 at this size */
+html[data-tone="light"] .pt-cue :is(.is-up, .is-down) { color: inherit; font-weight: 600; }
+/* ---- 33. The narrowest phones (320 px): the two market lines ("CHINA MARKET CLOSED · OPENS IN 3 H 14 MIN") were kept on one line by
+        block 22 and stuck out 33 px, so the whole Overview scrolled sideways. Under 350 px they may wrap and sit a little tighter. --- */
+@media (max-width: 350px) {
+  header.st-head .st-progress .st-clock > .st-mkt { white-space: normal; letter-spacing: .03em; }
+}
