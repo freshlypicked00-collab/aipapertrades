@@ -67,4 +67,42 @@
     var tries = 0; var iv = setInterval(function () { watch(); if (++tries > 40) clearInterval(iv); }, 1500);
     later(watch, 800);
   } catch (e) {}
+
+  /* 3. Night pass (Nov 19), S2: a site-only fact check beside a bet's reason when the reason contradicts the recorded numbers. The AI's
+        words stay exactly as written; the note is added after them wherever that reason is shown. One entry per reason: the exact
+        opening words to look for, and the note. (Claude scanned all 237 sports bets on Nov 19: these two are the only ones.)
+     4. S7: the day menu of the "what moved" bars gets a name for screen readers. */
+  try {
+    var NOTES = [
+      ['Backing the massive favorite Colorado Buffaloes (-380)', 'the recorded line for this bet was Colorado +300, the underdog, not a \u2212380 favourite (Houston was the favourite). Gemini\u2019s words are shown as written.'],
+      ['Using the heavy favorite Colorado Buffaloes', 'the recorded line for this bet was Colorado +300, the underdog, not the favourite (Houston was the favourite). Gemini\u2019s words are shown as written.']
+    ];
+    var label = function () { $$('[data-draw="contrib-bars"] select:not([aria-label])').forEach(function (s) { s.setAttribute('aria-label', 'Choose a day'); }); };
+    var noteIn = function (root) {   // rows that are in the page but folded away or on another page of a list are noted too, so the note is there when they show
+      var hits = [], check = function (n) {
+        var v = n.nodeValue, pe = n.parentNode;
+        if (!v || v.length < 40 || !pe || pe.nodeName === 'SCRIPT' || pe.nodeName === 'STYLE' || (pe.classList && pe.classList.contains('pt-fcnote'))) return;
+        for (var i = 0; i < NOTES.length; i++) { if (v.indexOf(NOTES[i][0]) !== -1) { hits.push([n, NOTES[i][1]]); return; } }
+      };
+      if (root.nodeType === 3) check(root);
+      else if (root.nodeType === 1) { var tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); for (var n = tw.nextNode(); n; n = tw.nextNode()) check(n); }
+      hits.forEach(function (h) {
+        var n = h[0], nx = n.nextSibling;
+        if (!n.parentNode || (nx && nx.nodeType === 1 && nx.classList.contains('pt-fcnote'))) return;   // gone, or already noted
+        var note = mk('span', 'pt-fcnote'); note.appendChild(mk('b', '', 'Fact check (site note): ')); note.appendChild(document.createTextNode(h[1]));
+        n.parentNode.insertBefore(note, nx);
+      });
+    };
+    var queue = [], due = null;
+    var run = function () { due = null; var q = queue; queue = []; try { label(); } catch (e) {}
+      q.forEach(function (x) { try { if (x.isConnected) noteIn(x); } catch (e) {} }); };
+    if (window.MutationObserver) {
+      new MutationObserver(function (ms) {
+        for (var i = 0; i < ms.length; i++) { var a = ms[i].addedNodes; for (var j = 0; j < a.length; j++) { var x = a[j];
+          if (x.nodeType === 1 ? !x.classList.contains('pt-fcnote') && (x.childElementCount > 0 || (x.textContent || '').length >= 40) : x.nodeType === 3 && (x.nodeValue || '').length >= 40) queue.push(x); } }
+        if (queue.length && !due) due = setTimeout(run, 400);
+      }).observe(document.body, { childList: true, subtree: true });
+    }
+    later(function () { label(); noteIn(document.body); }, 1500);
+  } catch (e) {}
 })();
