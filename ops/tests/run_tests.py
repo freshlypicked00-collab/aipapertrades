@@ -356,10 +356,49 @@ def test_animated_card_recorder_cannot_spin_forever():
         return path
     out, rec = animate.record(card, '/tmp/_pt_test_card.png')
     assert rec.saved and all(k != v for k, v in rec.alias.items())
+    els, base, final = animate.elements(rec)      # Nov 19 repair: tags are never reused, so this always comes back, with the elements
+    animate.check(els, base, final)               # ... and they put the still card back together exactly
+
+
+def test_animation_always_ends_on_the_still_card():
+    """Nov 19 (owner; Claude and Gemini agreed, ops/review/followups-nov19.json, F3): an animation is only used if its last frame is the
+    still card. A card like the real ones (header bar, text, a robot pasted on a converted copy, trimmed to fit) passes; a recording that
+    lost its drawing steps (what happened on GitHub's new runner: an almost empty card) is refused, so the still goes out."""
     try:
-        animate.elements(rec)                     # must come back: with its elements, or with the error that sends the still card
+        import animate
+        from PIL import Image, ImageDraw
+    except Exception:
+        return
+
+    def card(path):
+        im = Image.new('RGB', (400, 520), (18, 18, 16))
+        g = ImageDraw.Draw(im)
+        g.rectangle([0, 0, 400, 8], fill=(79, 143, 247))
+        g.text((20, 30), 'Gemini sells Bitcoin', fill=(242, 233, 216))
+        g.rounded_rectangle([20, 80, 200, 160], radius=12, fill=(30, 30, 28), outline=(70, 70, 66), width=2)
+        g.text((30, 100), 'C$29,246', fill=(61, 220, 132))
+        bot = Image.new('RGBA', (40, 40), (0, 0, 0, 0)); ImageDraw.Draw(bot).ellipse([0, 0, 39, 39], fill=(79, 143, 247, 255))
+        base = im.convert('RGBA'); base.alpha_composite(bot, (340, 20)); im.paste(base.convert(im.mode))   # sharecard._robot on an RGB card
+        im = im.crop((0, 0, 400, 300))                                                                       # sharecard._finish
+        ImageDraw.Draw(im).text((20, 270), '@PaperTradesAI', fill=(155, 146, 127))
+        im.save(path)
+        return path
+    _, rec = animate.record(card, '/tmp/_pt_test_card2.png')
+    els, base, final = animate.elements(rec)
+    mean, off = animate.check(els, base, final)
+    assert mean == 0 and off == 0 and any(e.kind == 'paste' and e.sprite.size[0] <= 45 for e in els), (mean, off, [(e.kind, e.sprite.size) for e in els])
+    rec.ops = [op for op in rec.ops if op[1] == 'text' and '@PaperTradesAI' in str(op[2][1:2])]   # only the mark is left
+    els, base, final = animate.elements(rec)
+    try:
+        animate.check(els, base, final)
+        raise AssertionError('an almost empty animation passed the check')
     except RuntimeError as e:
-        assert 'alias loop' in str(e), e
+        assert 'does not end on the still card' in str(e), e
+    try:
+        animate.make_gif(card, ('/tmp/_pt_test_card2.png',), {}, '/tmp/_pt_never.gif', rec=rec)
+        raise AssertionError('make_gif made a GIF from a recording that does not end on the still')
+    except RuntimeError:
+        assert not os.path.exists('/tmp/_pt_never.gif')
 
 
 def test_move_posts_say_which_number_is_which():

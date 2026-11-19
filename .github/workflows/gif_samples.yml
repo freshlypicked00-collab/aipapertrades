@@ -1,0 +1,24 @@
+name: Animated card samples (made on GitHub's runner, looked at before animations are switched on)
+# Nov 19 (owner: "ask Gemini and do whatever you guys agree on"; Claude and Gemini agreed, ops/review/followups-nov19.json, F3 e):
+# the animations of real recent posts, made on the same runner image as the check-ins, with the same ffmpeg (imageio-ffmpeg).
+# Nothing is posted. The GIFs, a strip of frames from each and summary.json are kept as this run's "gif-samples" artifact.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  samples:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -q matplotlib imageio-ffmpeg
+      - name: Make the samples
+        run: |
+          python3 -c "import PIL, sys; print('Pillow', PIL.__version__, '· Python', sys.version.split()[0])"
+          which ffmpeg || echo "no system ffmpeg: the one from imageio-ffmpeg is used"
+          python3 ops/animate.py samples
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gif-samples
+          path: social/gif-samples/
