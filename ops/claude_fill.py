@@ -453,6 +453,17 @@ def apply(path=BATCH):
             cm['results'] = [x for x in cm.get('results', []) if not x.startswith(f"{f['id']}: filled") and not x.startswith(f"{f['id']}: stop filled") and not x.startswith(f"{f['id']}: target filled")]
             cm['results'].append(f"{f['id']}: refused at publish ({why[:200]})")
         json.dump(st, open(R.STATE, 'w'), indent=1)
+    try:   # Nov 19: a sale's post says what it made or lost, the same figure the Ledger shows (ops/saleresult.py); no figure, no line
+        import saleresult
+        tr, hd = json.load(open(os.path.join(SRC, 'trades.json'))), json.load(open(os.path.join(SRC, 'holdings.json')))
+        sold = [(f, f['frag']['trades'][0]) for f in ok if f['engine'].get('action') in saleresult.CLOSES and len(f['frag'].get('trades') or []) == 1]
+        for f, row in sold:
+            same = [1 for _, r in sold if (r['portfolio'], r['holding'], r['action']) == (row['portfolio'], row['holding'], row['action'])]
+            res = saleresult.for_claude(tr, hd, row['portfolio'], row['holding'], row['action']) if len(same) == 1 else None
+            if res:
+                f['engine']['_result'] = res
+    except Exception as e:
+        print('sale results not added to the posts:', e)
     posts = [f['engine'] for f in ok] + (batch.get('posts') or [])
     json.dump(posts, open(POSTS, 'w'), default=str)
     shutil.rmtree(snap, ignore_errors=True)

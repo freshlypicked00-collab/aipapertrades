@@ -18,6 +18,7 @@ from datetime import datetime, timezone, timedelta
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import tgcharts  # noqa: E402
 import sharecard  # noqa: E402
+import saleresult  # noqa: E402
 try:   # animated cards on Telegram and Discord instead of stills (owner, Nov 1)
     import animate  # noqa: E402
     animate.install()
@@ -1382,10 +1383,26 @@ def post_money(t):
     return f"{lead}{money(t['amount'], t['cur'])} at {fmt_price(t)}" if lead else f"{fmt_price(t)}, {money(t['amount'], t['cur'])}"
 
 
+POST_STATE = None   # the runner's records for this check-in (main() sets it): a sale's result is worked out from them, as the Ledger does
+
+
+def post_result(t):
+    """Nov 19 (owner; Claude and Gemini agreed, followups-nov19): a post that closes something says what it made or lost, the Ledger's own
+    figure (ops/saleresult.py). '' when there is no figure: the line is left out, never guessed."""
+    try:
+        if t.get('action') not in saleresult.CLOSES:
+            return ''
+        res = t.get('_result') or (saleresult.for_rival(POST_STATE['trades'], t) if POST_STATE else None)
+        return saleresult.line(t['action'], res)
+    except Exception:
+        return ''
+
+
 def post_lines(t):
-    """The three lines every move post starts with (HTML for Telegram; discord.to_md turns it into Markdown)."""
+    """The three lines every move post starts with (HTML for Telegram; discord.to_md turns it into Markdown); a sale has a fourth, its result."""
+    res = post_result(t)
     return (f"{POST_ICON.get(t['action'], '•')} <b>{POST_VERB.get(t['action'], t['action'])} · {EXP_LABEL[t['experiment']]}</b>\n"
-            f"{esc(post_thing(t))}\n{post_money(t)}")
+            f"{esc(post_thing(t))}\n{post_money(t)}" + (f"\n{res}" if res else ''))
 
 
 def tg_trade(label, t, source=None, photo=None):
@@ -2259,7 +2276,9 @@ def main():
         assert g
         return
     sys.modules.setdefault('rivals', sys.modules[__name__])
+    global POST_STATE
     state = load_state()
+    POST_STATE = state
     # CATCH-UP (owner, Nov 2: "make sure none of the models miss any"): GitHub's timer sometimes drops or delays a scheduled check-in.
     # The 15-minute stops and settle runs therefore look at the last check-in: if it is overdue (more than 40 minutes in US market
     # hours, when check-ins are every 30 minutes; more than 70 minutes otherwise, when they are hourly), this run becomes a normal

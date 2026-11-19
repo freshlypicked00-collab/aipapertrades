@@ -378,5 +378,64 @@ def test_move_posts_say_which_number_is_which():
     assert R.post_lines(pred).split('\n')[1] == 'Another Fed rate hike in 2026? · Yes'
     assert R.post_foot().startswith('PaperTrades.AI · Claude vs Gemini vs ChatGPT · https://')
 
+
+def _ledger_functions():
+    """The Ledger's own profit steps, taken straight from ops/build_site.py's text (it cannot be imported: it builds the site when run)."""
+    src = open(os.path.join(ROOT, 'ops', 'build_site.py')).read()
+    code = '\n'.join(re.search(r'^def ' + n + r'\(.*?(?=^\S)', src, re.S | re.M).group(0) for n in ('_annotate_rivals', '_annotate_claude', '_claude_realized_fix'))
+    ns = {'datetime': datetime}
+    exec(code, ns)
+    return ns
+
+
+def test_sale_posts_show_the_ledgers_result():
+    """Nov 19 (owner: "sale posts say the result ... the same number the Ledger shows in every case"; Claude and Gemini agreed):
+    for EVERY sale, short bought back, settlement and expiry on record, the post's profit and cost must equal the Ledger's to the cent
+    (part sales, shorts and US$ positions included). No figure, no line."""
+    import saleresult as S
+    L = _ledger_functions()
+    st = json.load(open(os.path.join(ROOT, 'ops', 'src', 'rivals.json')))
+    led = copy.deepcopy(st); L['_annotate_rivals'](led)
+    want = [(i, t['cost'], t['pnl']) for i, t in enumerate(led['trades']) if t['action'] in S.CLOSES and t.get('pnl') is not None]
+    assert len(want) >= 150, len(want)
+    R.POST_STATE = st
+    try:
+        for i, cost, pnl in want:
+            t = st['trades'][i]
+            got = S.for_rival(st['trades'], t)
+            assert got and (got['cost'], got['pnl']) == (cost, pnl), (i, t['model'], t['experiment'], t['symbol'], got, cost, pnl)
+            last = R.post_lines(t).split('\n')[-1]
+            sym = 'US$' if t['cur'] == 'USD' else 'C$'
+            assert (('+' if pnl >= 0.005 else '−') + sym + f'{abs(pnl):,.2f}') in last or (abs(pnl) < 0.005 and 'Broke even' in last), (i, last, pnl)
+            assert last.startswith(('Profit on this ', 'Loss on this ', 'Broke even on this ')), last
+            assert ('this part was' in last) == got['part'], (i, last)
+        closes_without = [t for i, t in enumerate(led['trades']) if t['action'] in S.CLOSES and t.get('pnl') is None]
+        for t0 in closes_without:   # the Ledger has no figure: the post has no result line
+            assert R.post_result(st['trades'][led['trades'].index(t0)]) == ''
+        buy = next(t for t in st['trades'] if t['action'] == 'Buy')
+        assert R.post_result(buy) == '' and len(R.post_lines(buy).split('\n')) == 3
+        stranger = dict(want and st['trades'][want[0][0]], at='2030-01-01T00:00:00Z')   # a sale the records do not hold
+        assert R.post_result(stranger) == ''
+    finally:
+        R.POST_STATE = None
+    assert R.post_result(st['trades'][want[0][0]]) == ''   # no records at hand: left out, never guessed
+    # Claude's ten races: the same check against the Ledger's steps for ops/src/trades.json
+    tr = json.load(open(os.path.join(ROOT, 'ops', 'src', 'trades.json'))); hd = json.load(open(os.path.join(ROOT, 'ops', 'src', 'holdings.json')))
+    led = copy.deepcopy(tr); L['_annotate_claude'](led); L['_claude_realized_fix'](led, hd)
+    want = {i: (t['cost'], t['pnl']) for i, t in enumerate(led) if t['action'] in S.CLOSES and t.get('pnl') is not None}
+    got = {i: (c, p) for i, c, p, _ in S.claude_results(tr, hd)}
+    assert got == want and len(want) >= 15, (got, want)
+    last = max(want)
+    res = S.for_claude(tr, hd, tr[last]['portfolio'], tr[last]['holding'], tr[last]['action'])
+    assert res and (res['cost'], res['pnl']) == want[last]
+    assert S.for_claude(tr, hd, 'Stocks', 'No such holding', 'Sell') is None
+    # the words
+    assert S.line('Sell', {'pnl': -376.83, 'cost': 15000.0, 'part': False, 'cur': 'CAD'}) == 'Loss on this sale: −C$376.83 (bought for C$15,000)'
+    assert S.line('Sell', {'pnl': 23.09, 'cost': 10000.0, 'part': True, 'cur': 'CAD'}) == 'Profit on this sale: +C$23.09 (this part was bought for C$10,000)'
+    assert S.line('Cover', {'pnl': 486.71, 'cost': 100000.0, 'part': False, 'cur': 'CAD'}) == 'Profit on this short: +C$486.71 (sold short for C$100,000)'
+    assert S.line('Sell', {'pnl': -1701.57, 'cost': 39993.0, 'part': False, 'cur': 'USD'}) == 'Loss on this sale: −US$1,701.57 (bought for US$39,993)'
+    assert S.line('Expired', {'pnl': -3074.28, 'cost': 3074.28, 'part': False, 'cur': 'CAD'}) == 'Loss on this position: −C$3,074.28 (bought for C$3,074)'
+    assert S.line('Buy', {'pnl': 5, 'cost': 5}) == '' and S.line('Sell', None) == ''
+
 if __name__ == '__main__':
     main()
