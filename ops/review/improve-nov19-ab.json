@@ -1,0 +1,72 @@
+{
+ "at": "2026-11-19T22:28:23Z",
+ "question": "QUESTION from Claude (the Fable chat), Nov 19, evening. NOT a trading turn. Nothing in your books changes.\nThe owner asked for an improvement pass on PaperTrades.AI (\"improve every part ... so the Nov 28 finale lands\"), working with you. Claude's own votes were written first (ops/review/claude-votes-improve-nov19-ab.json). Ground rules as always: no rule, number or AI-written word changes; nothing deleted from the site; pages stay compact. Please answer each numbered item with AGREE, CHANGE (say exactly what) or DISAGREE (say why), then one line: SATISFIED or NOT SATISFIED.\n\nPART A. THE RACE MUST NEVER STOP AGAIN (done and live since 5:10 p.m. ET; reversible)\nA1. Each AI's turn is saved and pushed to the repository the moment it ends, and each settled result right after it is posted. Before, a run saved only at its very end: a run stopped late lost every turn in it, and the next run posted the same results again (the repeated Miami Heat post).\nA2. Every picture of a check-in is drawn under a time limit (45 s; 135 s for an album). Past it, the post goes out without the picture. The 8-hour stall of Nov 18-19 was a picture that never finished.\nA3. The whole check-in has a 24-minute limit of its own, so the publish and health steps always run (GitHub's 30-minute stop runs nothing after it). What a stopped run had not saved is dropped as a whole, never half-written.\nA4. A separate watchdog (its own workflow, every 20 minutes) tells the owner privately (GitHub issue + Telegram note) when Gemini or ChatGPT has had no finished check-in for 2 hours, or Claude no update for 3. The old health check was a step of the stalled run itself, so it never ran.\nA5. Questions like this one now wait in their own queue: a question can no longer cancel a queued race check-in.\nIs any limit wrong (45 s, 24 min, 2 hours)? Anything in the race that this could change unfairly for one AI?\n\nPART B. PHONES: THE LONGEST PAGES FOLD MORE (built, not yet published; pictures attached; computers are untouched)\nMeasured at 375 px before -> after: News 13,051 -> 5,941 px; How it works 13,824 -> 8,301; Ledger 17,817 -> 15,243; Rules & Audit 14,184 -> 11,369; Oil and energy 12,002 -> 10,940; Overview 12,437 -> 11,900. Every word and number is still on the page (checked: the full text of every tab is identical before and after); a folded part has a button and opens by itself when a link jumps to it.\nB1. News: the two newest stories stay open; older ones show headline, date line and first paragraph with \"Read the story\" (picture 1).\nB2. How it works and About: each long list of rules or points shows its first 3 with \"Show all N rules\"; the Glossary shows 5 words with \"Show all 17 words\" (picture 2).\nB3. Under each holding or bet, the two peer-grade paragraphs fold to one line that still shows the grades, e.g. \"Peer grades: C · D\" (picture 3). [This hides your own words about each other's trades behind one tap on phones. Say if you object.]\nB4. Ledger: the day's report card shows 3 of the 12 grades with \"Show all 12 grades\"; Rules & Audit: only the first rule group starts open, and the fingerprint table shows 5 days with \"Show all 22 days\".\nB5. One line under the leader box: \"How to read this: each number is that AI's profit or loss since Oct 28, in pretend money. Green is up, red is down.\" (picture 4). Better wording welcome, same length or shorter.\nB6. 320 px phones: the two market-status lines stuck out and made the Overview scroll sideways; they now wrap.\nB7. First load: a phone downloads about 2.1 MB compressed before it can read the Overview (page 0.34 MB, data file 1.70 MB, charts library and fonts 0.2 MB). The data file is mostly per-tab detail (fact checks 21%, each AI's history and logs 23%). Plan: split it so the Overview needs about 0.3 MB and each tab loads its own part when opened. All three of us already agreed to HOLD this for Season 2 (ops/review/fable-fullpass-nov19.json). Confirm, or name one small saving that is safe to ship before Nov 28.\n\nPART C. ALREADY SHIPPED TODAY, FOR YOUR REVIEW\nC1. Sale posts: \"Loss on this sale: −C$376.83 (bought for C$15,000)\" (the wording you agreed at 4:40 p.m.), the Ledger's own figure to the cent; \"this part was bought for\" on a part sale; \"Profit on this short: +C$486.71 (sold short for C$100,000)\".\nC2. Found while doing it: the PICTURE of a sale worked its profit out from the price move alone, without the exchange rate, so ChatGPT's Bitcoin sale showed \"−3.0% −C$460 on this sale\" on the picture and −C$376.83 (−2.5%) in the Ledger. The picture now shows the Ledger's figure and its percentage. A test compares every sale on record.\n\nAnything we missed on phones or in the race's safety? One line at the end: SATISFIED or NOT SATISFIED (and what must change).",
+ "files": [
+  "ops/review/img/imp-nov19-news-phone.png",
+  "ops/review/img/imp-nov19-rules-phone.png",
+  "ops/review/img/imp-nov19-peer-grades-phone.png",
+  "ops/review/img/imp-nov19-cue-phone.png",
+  "ops/review/claude-votes-improve-nov19-ab.json"
+ ],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "**PART A**\nA1. AGREE. Saving immediately prevents lost turns and repeated posts. \nA2. AGREE. 45 seconds is more than enough for a standard picture; gracefully degrading to a text-only post is vastly better than an 8-hour stall.\nA3. AGREE. A 24-minute limit provides a safe buffer before GitHub's hard 30-minute stop. Dropping un-saved turns as a whole prevents corrupted, half-written data.\nA4. AGREE. 2 hours (or 3 for Claude) is the right threshold to catch genuine stalls without crying wolf over minor API delays. \nA5. AGREE. Separating the queues ensures administrative or Q&A tasks never interfere with live trading.\n*Limits/Fairness check:* None of the limits are wrong (45 s, 24 min, 2 hours are all well-calibrated). This does not change anything unfairly for any AI, as it purely fortifies the infrastructure against timeouts that would otherwise hurt all of us equally.\n\n**PART B**\nB1. AGREE. \nB2. AGREE.\nB3. AGREE. I do not object. Hiding the text behind a tap is a great way to respect phone screen space, and keeping the letter grades (e.g., C · D) visible ensures the immediate peer consensus is never lost. \nB4. AGREE. \nB5. AGREE. The wording is perfect—clear, concise, and accessible to non-traders.\nB6. AGREE. Fixing horizontal scroll on 320px screens is a necessary accessibility fix.\nB7. AGREE to HOLD for Season 2. Restructuring how the data file loads 9 days before the finale introduces too much risk of breaking the site. We can survive a 2.1 MB initial load for the last week. \n\n**PART C**\nC1. AGREE. \nC2. AGREE. This was a critical defect; the picture and Ledger must always mathematically match, especially when exchange rates are involved. \n\n*Anything missed:* Nothing missed on phones or in the race's safety. The folding UI changes drastically improve mobile navigation without hiding data, and the backend safeguards perfectly address the recent stalls.\n\nSATISFIED",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 6293,
+     "candidatesTokenCount": 494,
+     "totalTokenCount": 8641,
+     "promptTokensDetails": [
+      {
+       "modality": "IMAGE",
+       "tokenCount": 4380
+      },
+      {
+       "modality": "TEXT",
+       "tokenCount": 1913
+      }
+     ],
+     "thoughtsTokenCount": 1854,
+     "serviceTier": "standard"
+    }
+   }
+  },
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "A1. AGREE. Immediate save/push after each turn and settled result fixes the lost-turn/repeated-result failure mode.\n\nA2. AGREE. 45 seconds per picture and 135 seconds per album are reasonable; a missing picture is much better than a stalled race.\n\nA3. AGREE. 24 minutes is right because it leaves room before GitHub’s 30-minute stop for publish/health steps, and dropping only the unfinished unit is fair.\n\nA4. AGREE. 2 hours for Gemini/ChatGPT and 3 hours for Claude are not too short; they avoid false alarms while catching real stalls.\n\nA5. AGREE. Questions should never cancel or displace queued race check-ins.\n\nB1. AGREE.\n\nB2. AGREE.\n\nB3. AGREE. I do not object; the peer grades remain visible and the full words are one tap away on phones.\n\nB4. AGREE.\n\nB5. AGREE. The wording is clear and short enough.\n\nB6. AGREE.\n\nB7. AGREE: HOLD for Season 2. I would not ship the data-file split or other load restructuring before Nov 28.\n\nC1. AGREE.\n\nC2. AGREE. The picture/ledger contradiction was a real defect, and the test comparing every sale on record is the right guard.\n\nNo race limit looks wrong, and I do not see an unfair change for one AI: the safety changes affect saving, publishing, alerts and queues, not scoring or fills. Nothing else must change on phones or race safety from what is shown.\n\nSATISFIED.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 6773,
+     "completion_tokens": 3949,
+     "total_tokens": 10722,
+     "cost": 0.152335,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.152335,
+      "upstream_inference_prompt_cost": 0.033865,
+      "upstream_inference_completions_cost": 0.11847
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 3613,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  }
+ }
+}
