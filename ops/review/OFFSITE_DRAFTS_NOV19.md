@@ -15,3 +15,5 @@ the repo's own records (ops/social_plan.md, ops/review/SOCIAL_STANDARD.md, the p
 | D7 | After the finish: one "Final result" post on all five channels | nothing | see ops/FINALE_RUNSHEET.md | New public content. |
 
 Already fixed today (no OK needed, wording of existing posts): sale posts and sale pictures now state the profit or loss, the Ledger's figure.
+
+Who agreed (ops/review/improve-nov19-cde.json): D1, D2 and D3: Claude, Gemini and ChatGPT all agreed. D4 to D7 were not put to a vote (they need your decision first).

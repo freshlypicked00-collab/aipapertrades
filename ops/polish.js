@@ -227,4 +227,25 @@
     };
     later(cue, 700); later(cue, 2600); later(cue, 6000);
   } catch (e) {}
+  /* 8. Improvement pass (Nov 19): the finish. A dress rehearsal with the clock set past Sat Nov 28, 4:00 p.m. ET showed the top of the
+        site still saying "0d 00h 00m 00s left until final scoring" and "Gemini leads overall", as if the race were still on (the old rule
+        that hid the countdown hides the wrong line since the slim top was added). From the finish on, and never before it: the countdown
+        line becomes "Season 1 is over" (polish.css 34) and "leads" becomes "finished first". Words only; every number is left alone.
+        To look at it before the day: add ?finale to the address. */
+  try {
+    var END = Date.parse('2026-11-28T16:00:00-05:00');
+    var over = function () { return Date.now() >= END || /[?&]finale\b/.test(location.search); };
+    var SWAPS = [[/\bleads overall\b/g, 'finished first overall'], [/\bleads (trading|sports)\b/g, 'finished first in $1'], [/^Right now: /, 'At the finish: '],
+      [/\bleads both ways right now\b/, 'finished first both ways']];   // site-written lines only (the roots below): never a line an AI wrote
+    var finale = function () {
+      if (!over()) return;
+      document.documentElement.classList.add('pt-finale');
+      $$('header.st-head, .st-crowns, .pt-wel, .st-bots, #viewing-name, .pt-slimline, .ra-both').forEach(function (root) {
+        var tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n, v, w;
+        while ((n = tw.nextNode())) { v = n.nodeValue; if (!v || v.indexOf('leads') === -1 && v.indexOf('Right now') === -1) continue;
+          w = v; SWAPS.forEach(function (x) { w = w.replace(x[0], x[1]); }); if (w !== v) n.nodeValue = w; }
+      });
+    };
+    later(finale, 900); setInterval(function () { try { finale(); } catch (e) {} }, 4000);
+  } catch (e) {}
 })();

@@ -364,3 +364,8 @@ html[data-tone="light"] .pt-cue :is(.is-up, .is-down) { color: inherit; font-wei
 @media (max-width: 350px) {
   header.st-head .st-progress .st-clock > .st-mkt { white-space: normal; letter-spacing: .03em; }
 }
+/* ---- 34. The finish (polish.js 8 adds html.pt-finale from Sat Nov 28, 4:00 p.m. ET, never before): the countdown line, which would sit at
+        "0d 00h 00m 00s left", says the race is over instead. ----------------------------------------------------------------------- */
+html.pt-finale header.st-head .st-progress > span:has(> [data-draw="countdown"]) { font-size: 0 !important; }
+html.pt-finale header.st-head .st-progress > span:has(> [data-draw="countdown"]) > * { display: none !important; }
+html.pt-finale header.st-head .st-progress > span:has(> [data-draw="countdown"])::after { content: "🏁 Season 1 is over. Final scoring was Sat Nov 28, 4:00 p.m. ET."; font-size: 14.5px; font-weight: 600; color: var(--color-fg); }

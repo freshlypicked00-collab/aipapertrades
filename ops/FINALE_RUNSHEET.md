@@ -27,6 +27,8 @@ Nothing below is posted or built into the site yet (new public content needs the
 - **One place to cite:** a "Final result" card at the top of the Overview (winner, the three totals, the ten race winners, the date, "pretend money", a link to the audit pack) with its own address (papertrades.ai/#final) and share picture.
 - **One post on every channel**, same words, sent once after step 4: Discord #announcements, Telegram, X, Instagram, YouTube community. Totals may be named for the first time in this post ("never total the races before Nov 28").
 - **The record freezes:** final fingerprint of the whole ledger, the audit pack rebuilt, and both linked from the card.
+- The card must also say (Gemini and ChatGPT, Nov 19): when the last open bet settled, the time the result was made final (ET), the final fingerprint with its link, and that the result includes penalties, refunds, voided bets and every settled bet.
+- The site says "finished first" from 4:00 p.m.; "won" is used only in this final post (all three AIs agreed, ops/review/improve-nov19-cde.json).
 - Drafts of the card and the post: to be written with Gemini and ChatGPT in the week of Nov 23, from the real standings of that week.
 
 ## Found in the rehearsal (Nov 19)
