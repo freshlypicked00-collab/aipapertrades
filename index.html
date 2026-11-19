@@ -1992,6 +1992,8 @@ html[data-tab]:not([data-tab="overview"]) .pt-final { display: none; }   /* the 
   .st-model-cmp, .st-auto-link, .gx-key-tog, .pd-streak, .pt-sl-lead, .pt-sl-alert, .pt-hold-link { padding-block: 5px; margin-block: -5px; }
   .pt-gl-q { min-width: 24px; min-height: 24px; display: inline-flex; align-items: center; justify-content: center; }
   .pt-x { min-width: 32px; min-height: 32px; }
+  header.st-head .pt-sl-lead, header.st-head .pt-sl-alert { padding-block: 5px !important; margin-block: -5px !important; }   /* the slim line's own rule sets padding 0 */
+  .lg-find { min-height: 24px; }
 }
 /* ---- 38. Full pass (Nov 20), phones: the Ledger's "Every trade and bet" list. It was the one list still drawn as a ten-column table,
         1,442 px wide inside a 336 px box, so the reason for each move sat off-screen to the right. It now uses the same cards as every
@@ -2124,7 +2126,7 @@ html[data-tab]:not([data-tab="overview"]) .pt-final { display: none; }   /* the 
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = '4faad6180e23';</script>
+<script>window.PT_PAGE_VER = '29dd0c7e7c2f';</script>
 <!-- the first text on the page says plainly what this is, so search engines and AI assistants stop mixing the name up with a similarly named exchange (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json) -->
 <p class="pt-def" id="what-is">PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no deposits and has no token. <a href="/what-is-papertrades-ai.html">What is PaperTrades.AI?</a></p>
 <style>.pt-def { margin: 0; padding: 5px 14px; font-size: 12px; line-height: 1.4; text-align: center; color: var(--color-fg-muted, #a9a495); background: var(--color-bg, #0b0b0a); } .pt-def a { color: inherit; text-decoration: underline; white-space: nowrap; }</style>
@@ -12242,11 +12244,12 @@ html[data-tab]:not([data-tab="overview"]) .pt-final { display: none; }   /* the 
     };
     // h) each card of the Ledger's trade list shows when, race, action, what and the profit; one button shows the details, the money
     //    figures and the reason. A row that carries a fact-check note, or that a link jumps to, starts open.
+    var PH6 = window.matchMedia('(max-width: 600px)');
     var ledgerRows = function () {
       $$('#lg-trades table.st-table.pt-cards > tbody > tr').forEach(function (tr) {
         var tds = tr.children, btn = tr.querySelector('.pt-row-btn');
         if (tds.length !== 10) return;
-        if (!PH.matches) { tr.classList.remove('pt-row-shut'); if (btn) btn.remove(); return; }
+        if (!PH6.matches) { tr.classList.remove('pt-row-shut'); if (btn) btn.remove(); return; }   // cards are drawn at 600 px and under
         var open = tr.dataset.ptOpen === '1' || !!tr.querySelector('.pt-fcnote');
         tr.classList.toggle('pt-row-shut', !open);
         if (!btn) { btn = mk('button', 'pt-c-btn pt-row-btn'); btn.type = 'button';
@@ -12296,7 +12299,7 @@ html[data-tab]:not([data-tab="overview"]) .pt-final { display: none; }   /* the 
     var timer = null, kick = function () { if (busy) return; clearTimeout(timer); timer = setTimeout(sweep, 250); };
     later(sweep, 600); later(sweep, 2500);
     if (window.MutationObserver) new MutationObserver(kick).observe(document.getElementById('dash-root') || document.body, { childList: true, subtree: true });
-    if (PH.addEventListener) PH.addEventListener('change', sweep);
+    if (PH.addEventListener) { PH.addEventListener('change', sweep); PH6.addEventListener('change', sweep); }
     window.addEventListener('pt-tab', kick);
   } catch (e) {}
   /* 7. Improvement pass (Nov 19): one line under the leader box that says how to read it (owner: "a one-line 'how to read this page' cue
