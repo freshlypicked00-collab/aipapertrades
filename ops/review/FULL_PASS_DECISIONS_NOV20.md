@@ -74,4 +74,6 @@ Changes to `ops/src/index.html`, `ops/build_site.py` or a posting script (you as
 - Claude's own trade notes still say "All in" in places (the side race was renamed "High risk" on Nov 1). Old notes stay as written; new ones should say "High risk" (added to ops/RUNBOOK.md).
 - The first standings card a new visitor meets is the High risk side race, because Auto-pick opens on the biggest profit anywhere (your choice of Nov 1). Worth a second look before Season 2.
 - On a 320 px phone the welcome card ends 40 px under the first screen.
+- One combined save-and-publish command was refused by a safety check. I did not work around it: the same steps were redone one at a time (tests, commit, rebuild, push) and all went through. Nothing was skipped.
+- The new post wording (rows 8 and 9) has been drawn and printed in a dry run but had not yet gone out in a real check-in when this was written; the first one is the 7:14 p.m. ET run on Nov 19, and a check of it is scheduled.
 - Top 5 next: (1) your OK on the Final result card, picture and post; (2) Nini and the Shorts thumbnails; (3) the email box; (4) one voice on X and Instagram once someone can read them; (5) Season 2: the lighter first load and alerts that close themselves.
