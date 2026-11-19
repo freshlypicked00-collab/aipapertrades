@@ -365,7 +365,7 @@ def test_move_posts_say_which_number_is_which():
     """Nov 19 (all three AIs agreed, W1 to W6): one wording for every move post. The action and the race, then the thing in plain words
     (an option's plain name, never the exchange code), then a money line that names the amount and the price; the brand on the last line."""
     opt = {'experiment': 'Options', 'action': 'Buy', 'symbol': 'NVDA261120P00150000', 'outcome': None, 'name': 'NVDA Nov 20 $150 put', 'price': 4.3, 'pcur': 'USD', 'qty': 500, 'amount': 3074.28, 'cur': 'CAD'}
-    assert R.post_lines(opt) == '🟢 <b>Buy · Options</b>\nNVDA Nov 20 $150 put\nBought C$3,074 at US$4.30 per share (5 contracts)', R.post_lines(opt)
+    assert R.post_lines(opt) == '🟢 <b>Bought · Options</b>\nNVDA Nov 20 $150 put\nBought C$3,074 at US$4.30 per share (5 contracts)', R.post_lines(opt)
     cov = {'experiment': 'Currencies', 'action': 'Cover', 'symbol': 'EUR', 'outcome': None, 'name': 'Euro', 'price': 1.0971, 'pcur': 'USD', 'qty': 63297.8, 'amount': 99513.29, 'cur': 'CAD'}
     assert R.post_lines(cov) == '🔺 <b>Bought back · Currencies</b>\nEuro (EUR)\nBought back for C$99,513 at US$1.0971 per EUR', R.post_lines(cov)
     sh = dict(cov, action='Short', amount=100000.0, price=1.1078)
