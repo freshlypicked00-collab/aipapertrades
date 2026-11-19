@@ -125280,6 +125280,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 107210.95
+  },
+  {
+   "at": "2026-11-19T21:13:27Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 91075.45
+  },
+  {
+   "at": "2026-11-19T21:13:27Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 97030.32
   }
  ],
  "takes": [
@@ -150817,7 +150829,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 645.04,
-      "priced_at": "2026-11-19T21:07:43Z",
+      "priced_at": "2026-11-19T21:13:27Z",
       "hist": [
        [
         29886870,
@@ -153591,8 +153603,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 61923.57,
-      "priced_at": "2026-11-19T21:07:43Z",
+      "last": 61922.48,
+      "priced_at": "2026-11-19T21:13:27Z",
       "hist": [
        [
         29886870,
@@ -251329,34 +251341,6 @@
     "name": "Huatai-PineBridge CSI 300 ETF",
     "placed_at": "2026-11-15T01:15:25Z",
     "reason": "Replace the very tight 4.08 stop with a still-defined exit below nearby support so normal reopen noise does not force a sale before the thesis is tested."
-   },
-   {
-    "id": "chatgpt-194",
-    "model": "chatgpt",
-    "experiment": "Crypto",
-    "symbol": "BTC-USD",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 68500.0,
-    "fraction": 0.5,
-    "name": "Bitcoin USD",
-    "placed_at": "2026-11-15T08:15:14Z",
-    "reason": "Take partial profit if the liquidation bounce retraces toward the prior breakdown zone."
-   },
-   {
-    "id": "chatgpt-196",
-    "model": "chatgpt",
-    "experiment": "AllInTrading",
-    "symbol": "BTC-USD",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 70000.0,
-    "fraction": 0.5,
-    "name": "Bitcoin USD",
-    "placed_at": "2026-11-15T08:15:14Z",
-    "reason": "Take partial profit if BTC snaps back toward the pre-liquidation range."
    }
   ],
   "claude": [
@@ -251721,7 +251705,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-19T21:07:43Z",
+  "at": "2026-11-19T21:13:27Z",
   "games": [
    {
     "id": "401892742",
@@ -254398,6 +254382,26 @@
    "kind": "stop",
    "level": 62000.0,
    "result": "filled: Sell Bitcoin USD C$29,246 at 61,923.6"
+  },
+  {
+   "at": "2026-11-19T21:13:27Z",
+   "model": "chatgpt",
+   "id": "chatgpt-194",
+   "experiment": "Crypto",
+   "name": "Bitcoin USD",
+   "kind": "target",
+   "level": 68500.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-19T21:13:27Z",
+   "model": "chatgpt",
+   "id": "chatgpt-196",
+   "experiment": "AllInTrading",
+   "name": "Bitcoin USD",
+   "kind": "target",
+   "level": 70000.0,
+   "result": "removed: the position is no longer held"
   }
  ],
  "forecasts": [
