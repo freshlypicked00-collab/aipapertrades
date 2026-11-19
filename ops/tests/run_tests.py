@@ -476,5 +476,27 @@ def test_sale_posts_show_the_ledgers_result():
     assert S.line('Expired', {'pnl': -3074.28, 'cost': 3074.28, 'part': False, 'cur': 'CAD'}) == 'Loss on this position: −C$3,074.28 (bought for C$3,074)'
     assert S.line('Buy', {'pnl': 5, 'cost': 5}) == '' and S.line('Sell', None) == ''
 
+
+def test_sale_picture_shows_the_ledgers_profit():
+    """Nov 19: the picture of a sale worked its profit out from the price move alone (no exchange rate) and disagreed with the Ledger
+    (ChatGPT's Bitcoin sale: picture −C$460, Ledger −C$376.83). It now takes the Ledger's figure for every sale on record."""
+    try:
+        import sharecard
+    except Exception:
+        return   # no Pillow on this machine: no pictures are made either
+    import saleresult as S
+    st = json.load(open(os.path.join(ROOT, 'ops', 'src', 'rivals.json')))
+    n = 0
+    for t, cost, pnl, part in S.rival_results(st['trades']):
+        if t['action'] not in ('Sell', 'Cover'):
+            continue
+        bi = sharecard.exit_info(t, st['trades'])
+        if bi is None:
+            continue
+        assert bi.get('pnl') == pnl, (t['model'], t['experiment'], t['symbol'], bi.get('pnl'), pnl)
+        assert cost <= 0 or abs(bi['ret'] - pnl / cost) < 1e-12
+        n += 1
+    assert n >= 100, n
+
 if __name__ == '__main__':
     main()

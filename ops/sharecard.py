@@ -434,6 +434,21 @@ def exit_info(t, trades):
         bi.setdefault('n', 2)
     if t.get('pnl') is not None and t.get('action') in ('Sell', 'Cover'):
         bi['pnl'] = float(t['pnl'])
+        if t.get('cost'):
+            bi['ret'] = float(t['pnl']) / float(t['cost'])
+    elif t.get('action') in ('Sell', 'Cover') and t.get('experiment') and t.get('model'):
+        # Nov 19: a runner's sale has no profit stored on it, and the picture worked one out from the price move alone (no exchange
+        # rate): ChatGPT's Bitcoin sale showed "−C$460 on this sale" while the Ledger said −C$376.83. The picture now shows the
+        # Ledger's own figure (ops/saleresult.py), and the % is that profit over what the part sold cost, as in the Ledger.
+        try:
+            import saleresult
+            res = saleresult.for_rival(trades or [], t)
+            if res:
+                bi['pnl'] = res['pnl']
+                if res.get('cost'):
+                    bi['ret'] = res['pnl'] / res['cost']
+        except Exception:
+            pass
     if not bi.get('avg'):
         return None
     if t.get('held_before') is not None:
@@ -630,8 +645,8 @@ def move_card(who, t, path='/tmp/move_card.png', buyin=None, race_val=None, spar
             when0 = (f', first on {d0} at {hm0}' if buyin.get('n', 1) > 1 else f' on {d0} at {hm0}') if d0 else ''
             y = _wrap(g, f"{lab}{price(buyin['avg'], pc)}{unit1}{when0}", _font('med', 34), 80, y + 4, S - 160, 44, FG, max_lines=2)
             y = _wrap(g, f"{'Covered' if short else 'Sold'} at {price(px, pc)}{unit1} on {_et(t.get('at'))[2]} at {_et(t.get('at'))[1]}", _font('med', 34), 80, y, S - 160, 44, FG, max_lines=2)
-            res = f"{buyin['pct'] * 100:+.1f}%".replace('-', '−') + (f"   {'+' if buyin['pnl'] >= 0 else '−'}{money(buyin['pnl'], cur)} on this {'cover' if short else 'sale'}" if buyin.get('pnl') is not None else '')
-            g.text((80, y + 6), res, font=_font('bold', 54), fill=UP if buyin['pct'] >= 0 else DOWN)
+            res = f"{buyin.get('ret', buyin['pct']) * 100:+.1f}%".replace('-', '−') + (f"   {'+' if buyin['pnl'] >= 0 else '−'}{money(buyin['pnl'], cur)} on this {'cover' if short else 'sale'}" if buyin.get('pnl') is not None else '')
+            g.text((80, y + 6), res, font=_font('bold', 54), fill=UP if buyin.get('pnl', buyin['pct']) >= 0 else DOWN)
             y += 92
         why = _clip(t.get('reason'), WHY_MAX)
         if act in ('Won', 'Lost', 'Push', 'Void') and (score_of(t) or legs_of(t)) and str(t.get('reason') or '').startswith(('Final: ', 'Legs: ')):
