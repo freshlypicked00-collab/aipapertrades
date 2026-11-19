@@ -128,7 +128,7 @@ jobs:
           X_API_SECRET: ${{ secrets.X_API_SECRET }}
           X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
           X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
-        run: python3 ops/rivals.py
+        run: python3 -u ops/rivals.py   # -u: the log shows each line at once, so a run that is stopped still says where it was (Nov 19)
       - name: Check Claude's prices against the same feeds (ops/price_audit.py)
         if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' && !startsWith(github.event.schedule, '3,18,33,48') && github.event.schedule != '8,23,38,53 13-21 * * 1-5' }}
         continue-on-error: true

@@ -293,5 +293,39 @@ def test_outage_days_owe_no_minimum_and_are_refunded():
     finally:
         R.NOW, R.tg = saved_now, saved_tg
 
+
+def test_one_ai_cannot_use_up_the_whole_run():
+    """Nov 19: from Nov 18, 10:14 p.m. ET every check-in was killed at the 30-minute job limit before anything was saved, and Gemini
+    and ChatGPT both missed 8 hours. Each AI's model requests now share one clock (MODEL_BUDGET): a request to a model host is cut
+    off when the clock runs out, other requests are untouched, and 2 AIs x the budget fits well inside the job limit."""
+    import time
+    saved = R._fetch, R.ASK['deadline'], R.ASK_FLOOR
+    slow = {'s': 3}
+    R._fetch = lambda *a, **k: (time.sleep(slow['s']), {'ok': 1})[1]
+    try:
+        R.ASK_FLOOR = 0.2
+        R.ASK['deadline'] = time.monotonic() + 1            # 1 s left on the clock; the answer would take 3 s
+        t0 = time.monotonic()
+        try:
+            R.get_json('https://openrouter.ai/api/v1/chat/completions', {}, b'{}', timeout=60)
+            raise AssertionError('a hung model request was not cut off')
+        except TimeoutError as e:
+            assert 'no full answer after' in str(e) and time.monotonic() - t0 < 2.5, (str(e), time.monotonic() - t0)
+        slow['s'] = 0
+        R.ASK_FLOOR = 15
+        R.ASK['deadline'] = time.monotonic() + 5            # under the floor: refused at once
+        try:
+            R.get_json('https://generativelanguage.googleapis.com/v1beta/models/x:generateContent?key=k', {}, b'{}', timeout=60)
+            raise AssertionError('a request after the deadline was sent')
+        except TimeoutError as e:
+            assert 'out of time' in str(e), str(e)
+        assert R.get_json('https://query1.finance.yahoo.com/v8/finance/chart/X', timeout=60) == {'ok': 1}   # prices are not model requests
+        R.ASK['deadline'] = None
+        assert R.get_json('https://openrouter.ai/api/v1/chat/completions', {}, b'{}', timeout=60) == {'ok': 1}
+        assert R.is_outage('error: no full answer after 540 s from https://openrouter.ai/api/v1/chat/completions') and R.is_outage('error: out of time: the 540 s this AI has for one check-in are used up')
+        assert 2 * R.MODEL_BUDGET + R.NEWS_BUDGET <= 22 * 60, 'two AI turns and the news must fit well inside the 30-minute job'
+    finally:
+        R._fetch, R.ASK['deadline'], R.ASK_FLOOR = saved
+
 if __name__ == '__main__':
     main()

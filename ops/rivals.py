@@ -56,6 +56,15 @@ START = 100000.0
 MAX_ORDERS = 10
 MODEL_TIMEOUT = 240   # seconds per model request
 MODEL_BUDGET = 540    # seconds per AI per check-in, across all fallbacks
+# Nov 19: the budget is now a hard clock, not only a check before a fallback. Nov 18, 10:14 p.m. to Nov 19, 5:14 a.m. ET: every check-in
+# ran into the 30-minute job limit and was killed before anything was saved, so Gemini and ChatGPT both missed 8 hours of check-ins.
+# One hung request may take 12 minutes (3x its timeout) and each AI can make several (a retry, a fallback model, a JSON re-ask), which no
+# longer fits in the job. While an AI's turn is on, ASK['deadline'] caps every request to a model host: when it passes, the turn fails
+# like any other error and the other AI still gets its turn. Worst case now: 2 x 9 minutes, well inside the 30.
+ASK = {'deadline': None}
+ASK_FLOOR = 15        # seconds: with less than this left on the AI's clock, a new model request is not even started
+MODEL_HOSTS = ('generativelanguage.googleapis.com', 'openrouter.ai/api', 'api.openai.com')
+NEWS_BUDGET = 150     # seconds for all the news requests of one run together (each is small; a slow feed must not eat the run)
 UA = {'User-Agent': 'Mozilla/5.0 (PaperTrades price check)'}
 SITE = 'https://papertrades.ai'
 NOW = datetime.now(timezone.utc).replace(microsecond=0)
@@ -194,11 +203,18 @@ def get_json(url, headers=None, data=None, timeout=60):
             box['v'] = _fetch(url, headers, data, timeout)
         except BaseException as e:
             box['e'] = e
+    limit = timeout * 3
+    if ASK['deadline'] is not None and data is not None and any(h in url for h in MODEL_HOSTS):
+        import time
+        left = ASK['deadline'] - time.monotonic()
+        if left < ASK_FLOOR:
+            raise TimeoutError(f'out of time: the {MODEL_BUDGET} s this AI has for one check-in are used up')
+        limit = min(limit, left)
     t = threading.Thread(target=go, daemon=True)
     t.start()
-    t.join(timeout * 3)
+    t.join(limit)
     if t.is_alive():
-        raise TimeoutError(f'no full answer after {timeout * 3} s from {url.split("?")[0][:80]}')
+        raise TimeoutError(f'no full answer after {int(limit)} s from {url.split("?")[0][:80]}')
     if 'e' in box:
         raise box['e']
     return box['v']
@@ -1477,7 +1493,7 @@ def allin_balance(book):
 
 
 _OUTAGE_RE = re.compile(r'http(?: error)? (?:402|429|5\d\d)\b|payment required|credit|quota|billing|insufficient|resource_exhausted|timed out|timeout|'
-                        r'urlopen error|connection (?:reset|refused|aborted)|remote end closed|no model answered in time|overloaded|service unavailable', re.I)
+                        r'urlopen error|connection (?:reset|refused|aborted)|remote end closed|no model answered in time|no full answer after|out of time: |overloaded|service unavailable', re.I)
 
 
 def is_outage(status):
@@ -2461,12 +2477,15 @@ def main():
                                   ' '.join([state.get('notices', {}).get(mid, '')] + [t for u, t in ANNOUNCEMENTS if NOW < datetime.fromisoformat(u)]).strip(), dr_due)
             import time as _time
             t0 = _time.time()
+            ASK['deadline'] = _time.monotonic() + MODEL_BUDGET   # every request of this AI's turn shares one clock (see MODEL_BUDGET)
             for i, model in enumerate(picks):
                 if i and _time.time() - t0 > MODEL_BUDGET:
                     notes.append('out of time for more fallbacks this check-in')
                     raise RuntimeError('no model answered in time')
                 try:
+                    print(f'{mid}: asking {model} ({len(prompt):,} characters)', flush=True)
                     text, sources = r['ask'](key, model, prompt)
+                    print(f'{mid}: {model} answered after {int(_time.time() - t0)} s', flush=True)
                     searched = LAST_SEARCHES
                     m['model'] = model
                     break
@@ -2490,6 +2509,7 @@ def main():
                 sources = sources or src2
                 state['audit'][mid]['reply'] = str(text)[:40000]
                 reply = parse_reply(text)
+            ASK['deadline'] = None   # this AI has answered; the clock is only for its model requests
             take = clip(reply.get('take', ''), 600) or None
             try:
                 ng = PG.store(state, mid, reply.get('grades'), pg_map, iso())
@@ -2616,7 +2636,9 @@ def main():
                     what = o.get('symbol') or (f"game {o.get('game')} {o.get('pick')}" if o.get('game') else '')
                     notes.append(f'order refused ({o.get("experiment")} {o.get("action")} {what}): {e}')
         except Exception as e:
+            ASK['deadline'] = None
             status = f'error: {e}'[:300]
+            print(f'{mid}: check-in failed: {status}', flush=True)
             print(r['label'], status)
         values = {e: value_book(e, m['books'][e], fx, notes) for e in exps}
         for e in exps:
@@ -2783,13 +2805,20 @@ def main():
             cb = json.load(open('ops/src/bets.json'))
         except Exception:
             cb = []
+        import time as _nt
+        _n0 = _nt.monotonic()
+
+        def _news_get(url, *a, **k):   # Nov 19: all the news requests of a run share NEWS_BUDGET seconds
+            if _nt.monotonic() - _n0 > NEWS_BUDGET:
+                raise TimeoutError(f'news skipped: the {NEWS_BUDGET} s for news in one run are used up')
+            return get_json(url, *a, **k)
         try:
-            sports = NEWS.sports_items(get_json, state, cb, NOW, [(sp, lg, sh) for sp, lg, sh in LEAGUES])
+            sports = NEWS.sports_items(_news_get, state, cb, NOW, [(sp, lg, sh) for sp, lg, sh in LEAGUES])
         except Exception as e:
             print('sports news failed', e)
             sports = []
         try:
-            rnews = NEWS.race_news(get_json, NOW)
+            rnews = NEWS.race_news(_news_get, NOW)
         except Exception as e:
             print('race news failed', e)
             rnews = (state.get('pulse') or {}).get('news') or {}
