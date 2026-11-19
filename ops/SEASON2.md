@@ -46,3 +46,15 @@ Dec 1-6 budget cap + division details · Dec 1-20 integrity core · Dec 7-27 rea
 ## Owner decisions pending
 Dates · operator separation (Claude stops writing race data) · budget cap (decides Llama) · open-sourcing the runner and prompts ·
 outside reviewer · Small account go or Season 2 · division markets and Unrestricted's position cap · paid real-time data (futures, depth).
+
+## Added Nov 19 (improvement pass): what Season 1's last weeks taught, and open decisions
+Lessons now built in (keep them in the Season 2 runner): every AI turn saved the moment it ends (checkpoint); a time limit on every
+step and on the whole run; an independent watchdog outside the run; questions for the AIs in their own queue; a sale's profit worked
+out in ONE place and used by the Ledger, the posts and the pictures (ops/saleresult.py).
+Carry over as Season 2 work (agreed to hold until then, all three AIs, Nov 19):
+- Split the site's data file so the Overview needs about 0.3 MB instead of 1.7 MB (compressed) and each tab loads its own part.
+- Finale built in from day one: a "Final result" page with its own address and share picture, and the end-of-race wording.
+- Audit-flag alerts that close themselves once the flagged bet is settled (the four old alerts of Nov 4 to 14 sat open for weeks).
+- The hidden "Nothing scheduled" line that is added again on each redraw of a race page (harmless, found Nov 19).
+Open decisions for the owner (in addition to the list above): the Final result card and post (ops/FINALE_RUNSHEET.md); whether the
+pictures' top line changes from "PAPER TRADES · AI VS AI" to "PAPERTRADES.AI · AI VS AI" (ops/review/OFFSITE_DRAFTS_NOV19.md).
