@@ -542,9 +542,14 @@ def make_gif_mpl(card_fn, args, kwargs, out, width=960, hold=9.0, still=None, li
             if sum(i * c for i, c in enumerate(d)) / px > 0.3 or sum(d[25:]) / px > 0.0005:
                 raise RuntimeError('animate: the animation does not end on the still card')
 
+        still_from = max(max(r['t0'] + r['dur'] for r in rows), total - (hold - 0.5))   # from here on every frame is the same picture
+
         def frames():
             for i in range(n):
                 t = i / FPS
+                if t >= still_from:
+                    yield last   # drawn once, not once a frame (a matplotlib frame takes about 0.15 s on GitHub's runner)
+                    continue
                 fr = render(t)
                 if t < total - (hold - 0.5):
                     _scanline(fr, t, fr.width, fr.height)

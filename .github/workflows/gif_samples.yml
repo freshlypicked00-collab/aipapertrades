@@ -1,11 +1,13 @@
 name: Animated card samples (made on GitHub's runner, looked at before animations are switched on)
 # Nov 19 (owner: "ask Gemini and do whatever you guys agree on"; Claude and Gemini agreed, ops/review/followups-nov19.json, F3 e):
 # the animations of real recent posts, made on the same runner image as the check-ins, with the same ffmpeg (imageio-ffmpeg).
-# Nothing is posted. The GIFs, a strip of frames from each and summary.json are kept as this run's "gif-samples" artifact.
+# Nothing is posted. The GIFs, a strip of frames from each and summary.json are saved in ops/review/gif-samples/ to be looked at.
 on:
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
+concurrency:
+  group: gif-samples
 jobs:
   samples:
     runs-on: ubuntu-latest
@@ -17,8 +19,18 @@ jobs:
         run: |
           python3 -c "import PIL, sys; print('Pillow', PIL.__version__, '· Python', sys.version.split()[0])"
           which ffmpeg || echo "no system ffmpeg: the one from imageio-ffmpeg is used"
-          python3 ops/animate.py samples
-      - uses: actions/upload-artifact@v4
-        with:
-          name: gif-samples
-          path: social/gif-samples/
+          python3 -c "import sys; sys.path.insert(0, 'ops'); import animate; animate.samples('/tmp/gif-samples')"
+      - name: Save them for review
+        run: |
+          git config user.name "paper-trades-bot"
+          git config user.email "paper-trades-bot@users.noreply.github.com"
+          for i in 1 2 3 4 5; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            rm -rf ops/review/gif-samples && mkdir -p ops/review/gif-samples && cp /tmp/gif-samples/* ops/review/gif-samples/
+            git add ops/review/gif-samples
+            git diff --cached --quiet && exit 0
+            git commit -qm "Animated card samples made on GitHub's runner (for review; nothing posted)"
+            git push -q origin HEAD:main && exit 0
+            sleep $((i * 7))
+          done
+          exit 1
