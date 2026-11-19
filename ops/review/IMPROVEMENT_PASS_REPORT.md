@@ -1,4 +1,4 @@
-# Improvement pass report (Nov 19, 4:43 p.m. to about 7 p.m. ET)
+# Improvement pass report (Nov 19, 4:43 p.m. to 5:45 p.m. ET)
 
 Master, this is what changed, who agreed, what is waiting for you, what I got wrong, and what to improve next.
 Started from commit fba318f6. Race tests: 20 before, 27 now, all passing. Questions and answers: `ops/review/improve-nov19-ab.json`, `ops/review/improve-nov19-cde.json` (my votes were written first each time).
@@ -53,7 +53,7 @@ Full texts: `ops/review/OFFSITE_DRAFTS_NOV19.md`.
 8. Sale-post wording: keep "Profit / Loss on this sale", or your "Result on this position"?
 
 ## 4. What I got wrong
-- I wrote a full repair of the animated cards before noticing your commercials chat was already doing it (its note went in two minutes after my last look). About an hour of duplicate work. I did not push mine to main; it is parked on the branch `fable-animate-pillow-only`.
+- I wrote a full repair of the animated cards before noticing your commercials chat was already doing it (its note went in two minutes after my last look). That was duplicate work. I did not push mine to main; it is parked on the branch `fable-animate-pillow-only`.
 - My first note on the three audit alerts miscounted the bets (20; it is 24). Corrected on each alert within minutes.
 - A site-updates line failed my own length check, so the first publish went out without it; added four minutes later.
 - I could not see the live site or channels (no approval to open them), so everything was tested on a local copy of the same build, and the channel profiles are not checked.
