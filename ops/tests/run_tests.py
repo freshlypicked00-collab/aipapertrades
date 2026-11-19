@@ -329,9 +329,9 @@ def test_one_ai_cannot_use_up_the_whole_run():
 
 
 def test_animated_card_recorder_cannot_spin_forever():
-    """Nov 19: the recorder for animated cards named images by id(); Python reuses the id of a freed image, two alias links pointed at
-    each other and root() looped for good. Every check-in from Nov 18, 10:14 p.m. ET stalled on one settled-bet card until the job
-    limit killed it. Images are now kept alive while recording (so ids stay unique) and a loop raises instead of spinning."""
+    """Nov 19: the recorder for animated cards names images by id(); Python reuses the id of a freed image, two alias links pointed at
+    each other and root() looped for good. Every check-in from Nov 18, 10:14 p.m. ET stalled on one result card until the job limit
+    killed it. A loop now raises (that card goes out as a still) instead of spinning."""
     try:
         import animate
         from PIL import Image, ImageDraw
@@ -349,16 +349,17 @@ def test_animated_card_recorder_cannot_spin_forever():
 
     def card(path):
         im = Image.new('RGB', (200, 120), (10, 10, 10))
-        for _ in range(40):                       # many short-lived crops: this is what let ids be reused
+        for _ in range(60):                       # many short-lived crops: this is what lets ids be reused
             im = im.crop((0, 0, 200, 120))
             ImageDraw.Draw(im).rectangle([10, 10, 60, 40], fill=(200, 60, 60))
         im.save(path)
         return path
     out, rec = animate.record(card, '/tmp/_pt_test_card.png')
-    ids = [id(x) for x in rec.keep if x is not None]
-    assert rec.saved and len(rec.keep) >= 80 and rec.root(rec.saved[0]) in ids, (len(rec.keep), rec.saved and rec.saved[0])
-    assert all(k != v for k, v in rec.alias.items())
-    animate.elements(rec)                         # returns; it used to be able to hang here
+    assert rec.saved and all(k != v for k, v in rec.alias.items())
+    try:
+        animate.elements(rec)                     # must come back: with its elements, or with the error that sends the still card
+    except RuntimeError as e:
+        assert 'alias loop' in str(e), e
 
 
 def test_move_posts_say_which_number_is_which():

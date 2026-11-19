@@ -90,9 +90,10 @@ jobs:
             sleep $((i * 7))
           done
       # Nov 19: the runner image changed to ubuntu-26.04 (between Nov 10 and Nov 16) and no longer ships ffmpeg, so every animated card
-      # (owner, Nov 1) has gone out as a still picture since. Installing ffmpeg again was tried for an hour on Nov 19 and taken back:
-      # a local test of the animation then drew EMPTY frames, and a blank animation must never reach the channels. Stills stay until the
-      # animation is proven on the new image (see ops/review/NIGHT_PASS_REPORT.md).
+      # (owner, Nov 1) has gone out as a still picture since. Installing ffmpeg again was tried for half an hour on Nov 19 and taken
+      # back: a test showed the animation is an almost EMPTY card with today's Pillow (only the @PaperTradesAI mark), and that must
+      # never reach the channels. Animated cards are now off in ops/animate.py (PT_GIFS=1 turns them on) until the recorder is repaired
+      # and proven with pictures (ops/review/NIGHT_PASS_REPORT.md).
       - run: pip install -q matplotlib
         if: ${{ inputs.mode != 'prices' && inputs.mode != 'ask' && !startsWith(github.event.schedule, '3,18,33,48') }}
       - name: "Tests of the race code (root-cause vote R7, Oct 31); a failure stops this run and opens an alert"

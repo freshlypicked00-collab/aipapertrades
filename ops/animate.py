@@ -27,16 +27,17 @@ MONEY = re.compile(r'^([+−\-]?)(C\$|US\$|¥)([\d,]+(?:\.\d+)?)(.*)$')
 class _Rec:
     def __init__(self):
         self.ops, self.saved, self.alias = [], None, {}
-        # Nov 19: every image seen while recording is kept alive here. The record identifies images by id(), and Python reuses the id
-        # of an image that was freed: a cropped copy could get the id of the image it was cropped from, two alias links then pointed
-        # at each other, and root() never returned. That stopped every Gemini and ChatGPT check-in from Nov 18, 10:14 p.m. ET to
-        # Nov 19, 6 a.m. ET (the run was killed at the 30-minute job limit each hour, before anything was saved).
-        self.keep = []
 
     def root(self, i):
+        # Nov 19: the record identifies images by id(), and Python reuses the id of an image that was freed. A cropped copy can get the
+        # id of the image it was cropped from; two alias links then point at each other and this loop never ended. That stopped every
+        # Gemini and ChatGPT check-in from Nov 18, 10:14 p.m. ET to Nov 19, 6 a.m. ET (each run was killed at the 30-minute job limit
+        # before anything was saved). A loop now raises, so that one card goes out as a still. (Keeping every image alive instead was
+        # tried the same morning and taken back: the animation came out EMPTY, because the recorder also relies on a card's final
+        # image taking over the id of the image it replaces. The recorder needs a real rewrite before that can change.)
         seen = set()
         while i in self.alias:
-            if i in seen:   # can't happen while the images are kept alive; if it ever does, skip the animation instead of spinning
+            if i in seen:
                 raise RuntimeError('animate: alias loop')
             seen.add(i)
             i = self.alias[i]
@@ -54,7 +55,6 @@ def record(fn, *a, **k):
         f = orig[name]
 
         def w(self, *aa, **kk):
-            rec.keep.append(getattr(self, '_image', None))
             rec.ops.append((id(getattr(self, '_image', None)), name, aa, kk))
             return f(self, *aa, **kk)
         return w
@@ -64,7 +64,6 @@ def record(fn, *a, **k):
     def paste(self, im, box=None, mask=None):
         src = im.copy() if isinstance(im, Image.Image) else im
         msk = mask.copy() if isinstance(mask, Image.Image) else mask
-        rec.keep.append(self)
         rec.ops.append((id(self), 'paste', (src, box, msk), {}))
         return o_paste(self, im, box, mask)
 
@@ -73,7 +72,6 @@ def record(fn, *a, **k):
         return o_save(self, *aa, **kk)
     def crop(self, box=None):
         out = o_crop(self, box)
-        rec.keep += [self, out]
         if box is None or (box[0] == 0 and box[1] == 0):   # same origin: the card trimmed to fit
             if id(out) != id(self):
                 rec.alias[id(out)] = id(self)
@@ -498,7 +496,11 @@ def _wrap(orig, mpl=False):
 
 def install():
     """Call once in a poster (telegram.py, rivals.py). Safe to call twice."""
-    if os.environ.get('PT_GIFS', '1') == '0':
+    # Nov 19: animated cards are OFF unless PT_GIFS=1 is set. They had silently gone out as stills since about Nov 12 (the new runner
+    # image has no ffmpeg), and a test with ffmpeg on Nov 19 showed why they must not simply come back: with today's Pillow the recorder
+    # captures only the "@PaperTradesAI" mark, so the animation is an almost empty card. Until the recorder is repaired and proven with
+    # pictures, no poster wraps its cards, so nothing is recorded and a still is always sent. (It also saves about 4 s a card.)
+    if os.environ.get('PT_GIFS', '0') != '1':
         return
     import sharecard, racecard
     for nm in ('_trade_card', 'moves_card', 'move_card', 'one_card'):
