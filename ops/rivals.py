@@ -2206,6 +2206,11 @@ def shared_steps(state, fx, games=True):
 
 # ---------------- main ----------------
 def main():
+    try:   # Nov 19: a run still going after 4 minutes (a normal check-in takes 2 to 4) prints where it is, and again every 4 minutes,
+        import faulthandler   # so a stuck run can be diagnosed from its log instead of guessed at
+        faulthandler.dump_traceback_later(240, repeat=True, file=sys.stderr)
+    except Exception:
+        pass
     if '--prices' in sys.argv:
         print('fx', get_fx())
         for s_ in ('NVDA', 'GLD', 'CL=F', 'BTC-USD', '588000.SS', '159995.SZ'):
