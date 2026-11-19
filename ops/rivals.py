@@ -1354,7 +1354,7 @@ def _bet_money(t):
 # one wording for every move post. Line 1: the action and the race. Line 2: the thing, in plain words (an option's plain name, never its
 # exchange code). Line 3: the money, saying which number is which. The AI's own reason follows, word for word. The last line names the brand.
 POST_ICON = {'Buy': '🟢', 'Sell': '🔴', 'Short': '🔻', 'Cover': '🔺', 'Settled': '🏁', 'Expired': '⌛', 'Bet': '🎯', 'Won': '✅', 'Lost': '❌', 'Push': '➖'}
-POST_VERB = {'Short': 'Sold short', 'Cover': 'Bought back'}   # plain words, as the site's own lists say since Nov 18
+POST_VERB = {'Buy': 'Bought', 'Sell': 'Sold', 'Short': 'Sold short', 'Cover': 'Bought back'}   # plain words in the past tense, like the money line under them (B1)
 POST_LEAD = {'Buy': 'Bought ', 'Sell': 'Sold for ', 'Short': 'Sold short ', 'Cover': 'Bought back for '}
 
 

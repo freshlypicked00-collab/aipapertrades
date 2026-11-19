@@ -332,3 +332,11 @@ header.st-head .st-progress :is(.st-clock-ny, .st-clock-hk, .st-clock-utc) { gap
   .st-crown-line .st-crown-chip:not(.st-allin-chip) > .cr-s { position: absolute; top: -9px; right: 12px; grid-column: auto; grid-row: auto; padding: 1px 8px; border-radius: 999px;
     font-size: 12px; line-height: 1.3; font-weight: 600; color: #1a1400; background: #f5c542; white-space: nowrap; }
 }
+/* ---- 29. Rules & Audit, "Corrections made by hand": the three newest stay open; an older one folds to its title and two lines and opens
+        on a tap (polish.js 5). Nothing is removed and every title stays visible; the page was the longest on a phone (B5) ---------- */
+#au-corr-list > li.pt-fold { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; cursor: pointer; }
+#au-corr-list > li.pt-fold:hover, #au-corr-list > li.pt-fold:focus-visible { color: var(--color-fg); }
+.pt-fold-all { margin: 6px 0 2px 18px; padding: 6px 12px; border: 1px solid var(--color-border-line); border-radius: 999px; background: none; color: var(--color-fg); font: inherit; font-size: 13px; cursor: pointer; }
+/* ---- 30. The sticky bar's Telegram icon loses its tiny "1st" mark: Discord is listed first now and carries the "Every trade, instantly"
+        tag, so "1st" on Telegram pointed the wrong way (B4). About still says Telegram was the first channel. ------------------------ */
+.pt-lb-tg::after { content: none; }

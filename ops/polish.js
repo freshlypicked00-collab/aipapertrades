@@ -105,4 +105,28 @@
     }
     later(function () { label(); noteIn(document.body); }, 1500);
   } catch (e) {}
+
+  /* 5. Night pass (Nov 19), B5: on Rules & Audit the three newest corrections stay open; each older one folds to its title and two lines
+        (polish.css 29) and opens on a tap or Enter; one button opens them all. A correction another part of the page jumps to is opened. */
+  try {
+    var KEEP = 3;
+    var fold = function () {
+      var ul = document.getElementById('au-corr-list'); if (!ul || ul.dataset.ptFold) return;
+      var lis = $$(':scope > li', ul); if (lis.length <= KEEP + 1) return;
+      ul.dataset.ptFold = '1';
+      lis.slice(KEEP).forEach(function (li) { li.classList.add('pt-fold'); li.tabIndex = 0; li.setAttribute('role', 'button'); li.setAttribute('aria-expanded', 'false'); li.title = 'Show the whole entry'; });
+      var open = function (li) { li.classList.remove('pt-fold'); li.removeAttribute('role'); li.removeAttribute('title'); li.removeAttribute('tabindex'); li.removeAttribute('aria-expanded'); };
+      ul.addEventListener('click', function (e) { var li = e.target.closest && e.target.closest('li.pt-fold'); if (li) open(li); });
+      ul.addEventListener('keydown', function (e) { if (e.key !== 'Enter' && e.key !== ' ') return; var li = e.target.closest && e.target.closest('li.pt-fold'); if (li) { e.preventDefault(); open(li); } });
+      var all = mk('button', 'pt-fold-all', 'Show all ' + lis.length + ' corrections in full'); all.type = 'button';
+      all.addEventListener('click', function () { $$('li.pt-fold', ul).forEach(open); all.remove(); });
+      ul.parentNode.insertBefore(all, ul.nextSibling);
+      // the status panel can jump to one correction and light it up: open that one
+      if (window.MutationObserver) new MutationObserver(function (ms) { ms.forEach(function (m) { var li = m.target; if (li.classList && li.classList.contains('pt-fold') && (li.className !== 'pt-fold' || li.style.cssText)) open(li); }); })
+        .observe(ul, { attributes: true, attributeFilter: ['class', 'style'], subtree: true });
+    };
+    var fv = setInterval(function () { try { fold(); } catch (e) {} }, 1200);
+    later(function () { clearInterval(fv); if (window.MutationObserver) { var pg = document.getElementById('audit') || document.body;
+      new MutationObserver(function () { try { fold(); } catch (e) {} }).observe(pg, { childList: true, subtree: true }); } }, 60000);
+  } catch (e) {}
 })();
