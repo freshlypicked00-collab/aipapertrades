@@ -1,0 +1,69 @@
+{
+ "at": "2026-11-20T21:35:43Z",
+ "question": "ROUND 2 of the phone design review (Claude, the Fable chat, Fri Nov 20, about 4:40 p.m. ET). NOT a trading turn. Nothing in your books changes. Short: confirm or object. Round 1 and both your answers are in ops/review/phone-nov20.json; Claude's votes for this round were written first (ops/review/claude-votes-phone-nov20-b.json). Same ground rules: phones only (700 px and under), computers unchanged, no number or AI-written word changes, nothing deleted, safety wording stays.\n\nWHERE ROUND 1 LANDED. All three of us agreed on: the front page (day, question, podium read from the leader box, cue, clock card), the bars in the podium, the headline for returning visitors too, hiding the \"GEMINI\" chip on the phone Overview, \"The ten races\" with the leader only, a bar at the bottom that is always visible (Overview · Races · Ledger · AI vs AI · Menu), every table as cards at once, the High risk ledger as cards, the 400-row list folded to 10, and 16 px form fields.\n\nONE PICTURE: phone-nov20-5.png (390 px; left to right: first visit screens 1 to 3, then the High risk ledger).\n\nAnswer each with AGREE, CHANGE (say exactly what) or DISAGREE (say why).\n\n1. THE ORDER (ChatGPT's change; Claude agreed after thinking again; Gemini had agreed to the first order). \"The ten races\" now comes straight after the top of the page, BEFORE the \"Get every AI trade the second it happens\" alerts box, which follows it. The one-line \"Big news\" strip stays where it was, under the clock, as on a newspaper. The Race standings card comes after the alerts box. Gemini: do you agree to the alerts box moving below the list? ChatGPT: is the news strip above the list acceptable, and the alerts box between the list and Race standings (not below Race standings, so the way to follow the race stays in the first three screens)?\n2. THE SAFETY BANNER (all three asked): every word and the link kept, left-aligned, 12 px like the line under it, less padding: four lines instead of five at 390 px. OK?\n3. THE \"TOP\" BUTTON (ChatGPT's point 4): it now sits in the right-hand corner above the bar and shows only while you scroll back UP (it used to stay on screen all the time after two screens, on top of cards and buttons). OK?\n4. THE HIGH RISK LEDGER lights \"Ledger\" in the bar, not \"Races\" (ChatGPT's point). The High risk page itself still lights \"Races\". OK?\n5. LINKS STRAIGHT TO A PAGE (all three asked): papertrades.ai/#ledger now lands exactly on the page's first line; the top of the site used to grow by a few lines after the page had scrolled into place, and on iPhones nothing corrected it. Done by putting the page back on its first line during the first three seconds unless the visitor has touched the screen. OK?\n6. Small things done from your lists: every row of \"The ten races\" is one full-width button 48 px high with a pressed and a focus state, its arrow centred (Gemini 3 and 5, ChatGPT 3); the podium and the two first-visit buttons have pressed and focus states; the hidden welcome card and leader box are \"display: none\" on phones, so a screen reader or the Tab key never meets them twice (ChatGPT); the six names in \"Biggest profits / Biggest losses\" wrap instead of ending in \"…\". Anything missing?\n7. NOT DONE TODAY, told plainly: ChatGPT's point 5 (draw the heavy lower sections only when needed) and the size of the data file (11.6 MB, 1.75 MB zipped) both change how the site loads its data, which the owner has kept for his own OK. They go on his list as the next step for phones. Do you agree that is the right call for today?\n8. LAST LOOK: is there anything in this picture you would not ship to a first-time visitor today?\n\nEnd with SATISFIED or NOT SATISFIED.",
+ "files": [
+  "ops/review/img/phone-nov20-5.png",
+  "ops/review/claude-votes-phone-nov20-b.json"
+ ],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "1. AGREE. The news strip above the list is acceptable, and the alerts box between “The ten races” and Race standings is the right compromise. It keeps the race-following path in the first three screens.\n\n2. AGREE.\n\n3. AGREE.\n\n4. AGREE.\n\n5. AGREE.\n\n6. AGREE. Nothing missing from my list that I can see. The full-width 48 px race rows, focus/pressed states, hidden duplicate content on phones, and name wrapping all sound right.\n\n7. AGREE. Both deferred items affect loading/data behavior, so they should stay on the owner’s next-step list rather than be rushed into today’s phone pass.\n\n8. AGREE. I would ship this to a first-time visitor today.\n\nSATISFIED",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 3054,
+     "completion_tokens": 683,
+     "total_tokens": 3737,
+     "cost": 0.03576,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.03576,
+      "upstream_inference_prompt_cost": 0.01527,
+      "upstream_inference_completions_cost": 0.02049
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 516,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "1. AGREE. The order is logical. Placing the \"Big news\" strip just below the clock works well visually as a timely update, and putting \"The ten races\" immediately after it gives the users exactly what they came for. The alerts box still sits high enough (within the first few screens) to drive conversions without blocking the primary content.\n2. AGREE. The left alignment and reduced padding make it much cleaner, taking up only 4 lines and preserving valuable vertical space on mobile.\n3. AGREE. A \"scroll-up-to-reveal\" button is best practice for mobile. It prevents the button from obscuring important data or buttons while the user is actively reading downward. \n4. AGREE. The High risk ledger is fundamentally a ledger view, so lighting up \"Ledger\" in the bottom navigation bar is exactly where users will expect to find and track it.\n5. AGREE. Forcing the page to hold the first line prevents the jarring layout shifts (scroll jumps) that often happen on mobile when dynamic content loads above an anchor link.\n6. AGREE. Full-width 48px tap targets for the races ensure mobile accessibility, and hiding the welcome/leader elements from screen readers on mobile prevents frustrating double-reads. Nothing missing.\n7. AGREE. Restructuring how the 11.6 MB data file loads is a significant architectural change. It deserves its own dedicated technical review by the owner and shouldn't hold up today's UI/UX improvements.\n8. AGREE. The screens look highly polished, the touch targets are properly sized, and the information hierarchy is clear. I would ship it as-is.\n\nSATISFIED.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 2381,
+     "candidatesTokenCount": 353,
+     "totalTokenCount": 4884,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 1301
+      },
+      {
+       "modality": "IMAGE",
+       "tokenCount": 1080
+      }
+     ],
+     "thoughtsTokenCount": 2150,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
