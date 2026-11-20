@@ -1,5 +1,5 @@
 {
- "at": "2026-11-19T10:41:57.846579Z",
+ "at": "2026-11-20T10:22:16.617432Z",
  "since": "2026-11-01T02:30:00Z",
  "by_ai": {
   "claude": {
@@ -416,23 +416,12 @@
    ]
   },
   "chatgpt": {
-   "kept": 13,
+   "kept": 15,
    "broken": 7,
-   "pending": 4,
+   "pending": 3,
    "closed_first": 22,
    "untestable": 3,
    "items": [
-    {
-     "at": "2026-11-05T02:14:51Z",
-     "what": "Euro",
-     "race": "Currencies",
-     "tx": "X-CUR-011",
-     "level": {
-      "symbol": "EUR",
-      "below": 1.118
-     },
-     "result": "no prices (HTTP Error 404: Not Found)"
-    },
     {
      "at": "2026-11-05T14:37:09Z",
      "what": "SPY Nov 20 $770 call",
@@ -739,7 +728,8 @@
       "symbol": "BTC-USD",
       "below": 62000.0
      },
-     "result": "level not reached yet"
+     "breach_at": "2026-11-19T20:00:00Z",
+     "result": "kept: got out after the level was reached"
     },
     {
      "at": "2026-11-16T05:14:48Z",
@@ -758,6 +748,18 @@
       "below": 2.1
      },
      "result": "closed before the level was reached"
+    },
+    {
+     "at": "2026-11-19T14:37:08Z",
+     "what": "Invesco QQQ Trust",
+     "race": "Stocks",
+     "tx": "X-STK-024",
+     "level": {
+      "symbol": "QQQ",
+      "below": 645.0
+     },
+     "breach_at": "2026-11-19T19:30:00Z",
+     "result": "kept: got out after the level was reached"
     }
    ]
   }

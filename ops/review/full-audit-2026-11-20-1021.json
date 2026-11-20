@@ -1,0 +1,1068 @@
+{
+ "at": "2026-11-20T10:21:55+00:00",
+ "summary": {
+  "fills": {
+   "flag": 1,
+   "ok": 9,
+   "close": 1
+  },
+  "fill_amounts": {
+   "ok": 11
+  },
+  "bets": {
+   "ok": 32
+  }
+ },
+ "fills": [
+  {
+   "at": "2026-11-18T14:36:45Z",
+   "model": "chatgpt",
+   "experiment": "Options",
+   "action": "Sell",
+   "symbol": "NVDA261120P00150000",
+   "name": "NVDA Nov 20 $150 put",
+   "price": 1.7,
+   "pcur": "USD",
+   "qty": 1500.0,
+   "amount": 3651.09,
+   "amount_check": "ok",
+   "basis": "NVDA 154.85-159.70 within 6 min; intrinsic 0.00-0.00 (Cboe keeps no option history)",
+   "status": "flag",
+   "note": "sold far above the intrinsic value: check the bid"
+  },
+  {
+   "at": "2026-11-18T14:36:45Z",
+   "model": "gemini",
+   "experiment": "AllInTrading",
+   "action": "Sell",
+   "symbol": "NVD",
+   "name": "Graniteshares 2x Short NVDA Daily ETF",
+   "price": 7.21,
+   "pcur": "USD",
+   "qty": 14008.126904653893,
+   "amount": 144609.79,
+   "amount_check": "ok",
+   "feed": "NVD",
+   "feed_low": 6.88,
+   "feed_high": 7.32,
+   "gap_pct": 0.0,
+   "tolerance": "0.30%",
+   "status": "ok",
+   "basis": "Yahoo 1-minute bars within 6 minutes"
+  },
+  {
+   "at": "2026-11-18T16:14:54Z",
+   "model": "gemini",
+   "experiment": "Currencies",
+   "action": "Cover",
+   "symbol": "EUR",
+   "name": "Euro",
+   "price": 1.0971,
+   "pcur": "USD",
+   "qty": 63297.80634236171,
+   "amount": 99513.29,
+   "amount_check": "ok",
+   "feed": "EURUSD=X",
+   "feed_low": 1.096611,
+   "feed_high": 1.097093,
+   "gap_pct": 0.001,
+   "tolerance": "0.40%",
+   "status": "close",
+   "basis": "Yahoo 1-minute bars within 6 minutes"
+  },
+  {
+   "at": "2026-11-19T14:37:08Z",
+   "model": "chatgpt",
+   "experiment": "Stocks",
+   "action": "Buy",
+   "symbol": "QQQ",
+   "name": "Invesco QQQ Trust",
+   "price": 674.02,
+   "pcur": "USD",
+   "qty": 20.753049383553705,
+   "amount": 20000.0,
+   "amount_check": "ok",
+   "feed": "QQQ",
+   "feed_low": 670.405029,
+   "feed_high": 675.179993,
+   "gap_pct": 0.0,
+   "tolerance": "0.30%",
+   "status": "ok",
+   "basis": "Yahoo 1-minute bars within 6 minutes"
+  },
+  {
+   "at": "2026-11-19T14:37:08Z",
+   "model": "chatgpt",
+   "experiment": "AllInTrading",
+   "action": "Buy",
+   "symbol": "TQQQ",
+   "name": "ProShares UltraPro QQQ",
+   "price": 55.415,
+   "pcur": "USD",
+   "qty": 315.5276176464601,
+   "amount": 25000.0,
+   "amount_check": "ok",
+   "feed": "TQQQ",
+   "feed_low": 55.009998,
+   "feed_high": 56.16,
+   "gap_pct": 0.0,
+   "tolerance": "0.30%",
+   "status": "ok",
+   "basis": "Yahoo 1-minute bars within 6 minutes"
+  },
+  {
+   "at": "2026-11-19T18:45:22Z",
+   "model": "chatgpt",
+   "experiment": "AllInTrading",
+   "action": "Sell",
+   "symbol": "TQQQ",
+   "name": "ProShares UltraPro QQQ",
+   "price": 50.44,
+   "pcur": "USD",
+   "qty": 315.5276176464601,
+   "amount": 22811.27,
+   "amount_check": "ok",
+   "feed": "TQQQ",
+   "feed_low": 49.810001,
+   "feed_high": 50.709999,
+   "gap_pct": 0.0,
+   "tolerance": "0.30%",
+   "status": "ok",
+   "basis": "Yahoo 1-minute bars within 6 minutes"
+  },
+  {
+   "at": "2026-11-19T19:44:54Z",
+   "model": "chatgpt",
+   "experiment": "Stocks",
+   "action": "Sell",
+   "symbol": "QQQ",
+   "name": "Invesco QQQ Trust",
+   "price": 650.64,
+   "pcur": "USD",
+   "qty": 20.753049383553705,
+   "amount": 19353.51,
+   "amount_check": "ok",
+   "feed": "QQQ",
+   "feed_low": 648.679993,
+   "feed_high": 651.25,
+   "gap_pct": 0.0,
+   "tolerance": "0.30%",
+   "status": "ok",
+   "basis": "Yahoo 1-minute bars within 6 minutes"
+  },
+  {
+   "at": "2026-11-19T21:07:43Z",
+   "model": "chatgpt",
+   "experiment": "Crypto",
+   "action": "Sell",
+   "symbol": "BTC-USD",
+   "name": "Bitcoin USD",
+   "price": 61923.57,
+   "pcur": "USD",
+   "qty": 0.1645864740181947,
+   "amount": 14623.17,
+   "amount_check": "ok",
+   "feed": "BTC-USD",
+   "feed_low": 61804.5,
+   "feed_high": 61995.238281,
+   "gap_pct": 0.0,
+   "tolerance": "0.75%",
+   "status": "ok",
+   "basis": "Yahoo 1-minute bars within 6 minutes"
+  },
+  {
+   "at": "2026-11-19T21:07:43Z",
+   "model": "chatgpt",
+   "experiment": "AllInTrading",
+   "action": "Sell",
+   "symbol": "BTC-USD",
+   "name": "Bitcoin USD",
+   "price": 61923.57,
+   "pcur": "USD",
+   "qty": 0.3291729480363894,
+   "amount": 29246.34,
+   "amount_check": "ok",
+   "feed": "BTC-USD",
+   "feed_low": 61804.5,
+   "feed_high": 61995.238281,
+   "gap_pct": 0.0,
+   "tolerance": "0.75%",
+   "status": "ok",
+   "basis": "Yahoo 1-minute bars within 6 minutes"
+  },
+  {
+   "at": "2026-11-20T07:07:45Z",
+   "model": "chatgpt",
+   "experiment": "Currencies",
+   "action": "Cover",
+   "symbol": "JPY",
+   "name": "Japanese yen",
+   "price": 0.006282906723966776,
+   "pcur": "USD",
+   "qty": 10522082.08932057,
+   "amount": 94668.46,
+   "amount_check": "ok",
+   "feed": "JPYUSD=X",
+   "feed_low": 0.00628,
+   "feed_high": 0.006284,
+   "gap_pct": 0.0,
+   "tolerance": "0.40%",
+   "status": "ok",
+   "basis": "Yahoo 1-minute bars within 6 minutes"
+  },
+  {
+   "at": "2026-11-20T08:15:48Z",
+   "model": "chatgpt",
+   "experiment": "Currencies",
+   "action": "Cover",
+   "symbol": "JPY",
+   "name": "Japanese yen",
+   "price": 0.006283301497939078,
+   "pcur": "USD",
+   "qty": 10522082.08932057,
+   "amount": 94667.8,
+   "amount_check": "ok",
+   "feed": "JPYUSD=X",
+   "feed_low": 0.006282,
+   "feed_high": 0.006286,
+   "gap_pct": 0.0,
+   "tolerance": "0.40%",
+   "status": "ok",
+   "basis": "Yahoo 1-minute bars within 6 minutes"
+  }
+ ],
+ "bets": [
+  {
+   "model": "claude",
+   "race": "Sports",
+   "id": "S21",
+   "event": "Charlotte Hornets @ Los Angeles Lakers",
+   "pick": "Los Angeles Lakers moneyline",
+   "odds": -316,
+   "stake": 3000.0,
+   "result": 949.37,
+   "status": "ok",
+   "placed_at": "2026-11-17T03:20:49-05:00",
+   "starts_at": "2026-11-18T04:00Z",
+   "final": "Charlotte Hornets 114, Los Angeles Lakers 118",
+   "espn": [
+    {
+     "start": "2026-11-18T04:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Charlotte Hornets",
+     "away_score": "114",
+     "home": "Los Angeles Lakers",
+     "home_score": "118",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "claude",
+   "race": "Sports",
+   "id": "S22",
+   "event": "Atlanta Hawks @ Oklahoma City Thunder",
+   "pick": "Oklahoma City Thunder moneyline",
+   "odds": -283,
+   "stake": 3000.0,
+   "result": -3000.0,
+   "status": "ok",
+   "placed_at": "2026-11-18T00:19:58-05:00",
+   "starts_at": "2026-11-19T01:00Z",
+   "final": "Atlanta Hawks 117, Oklahoma City Thunder 112",
+   "espn": [
+    {
+     "start": "2026-11-19T01:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Atlanta Hawks",
+     "away_score": "117",
+     "home": "Oklahoma City Thunder",
+     "home_score": "112",
+     "winner": "away"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "claude",
+   "race": "Sports",
+   "id": "S23",
+   "event": "Montreal Canadiens @ Carolina Hurricanes",
+   "pick": "Carolina Hurricanes moneyline",
+   "odds": -265,
+   "stake": 3000.0,
+   "result": -3000.0,
+   "status": "ok",
+   "placed_at": "2026-11-19T01:45:21-05:00",
+   "starts_at": "2026-11-20T00:00Z",
+   "final": "Montreal Canadiens 2, Carolina Hurricanes 1",
+   "espn": [
+    {
+     "start": "2026-11-20T00:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Montreal Canadiens",
+     "away_score": "2",
+     "home": "Carolina Hurricanes",
+     "home_score": "1",
+     "winner": "away"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "claude",
+   "race": "Sports",
+   "id": "S24",
+   "event": "New Orleans Pelicans @ Oklahoma City Thunder",
+   "pick": "Oklahoma City Thunder moneyline",
+   "odds": -521,
+   "stake": 3000.0,
+   "result": null,
+   "status": "ok",
+   "placed_at": "2026-11-20T00:22:09-05:00",
+   "starts_at": "2026-11-21T01:00Z",
+   "final": null,
+   "espn": [
+    {
+     "start": "2026-11-21T01:00Z",
+     "state": "STATUS_SCHEDULED",
+     "away": "New Orleans Pelicans",
+     "away_score": null,
+     "home": "Oklahoma City Thunder",
+     "home_score": null,
+     "winner": null
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "Sports",
+   "id": "G155",
+   "event": "Rutgers Scarlet Knights @ Houston Cougars",
+   "pick": "Houston Cougars",
+   "odds": -1800,
+   "stake": 3000.0,
+   "result": 166.67,
+   "status": "ok",
+   "placed_at": "2026-11-16T19:14:59Z",
+   "starts_at": "2026-11-17T19:00Z",
+   "final": "Rutgers Scarlet Knights 73, Houston Cougars 85",
+   "espn": [
+    {
+     "start": "2026-11-17T19:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Rutgers Scarlet Knights",
+     "away_score": "73",
+     "home": "Houston Cougars",
+     "home_score": "85",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "Sports",
+   "id": "G157",
+   "event": "Akron Zips @ Massachusetts Minutemen",
+   "pick": "Massachusetts Minutemen",
+   "odds": -162,
+   "stake": 3000.0,
+   "result": -3000.0,
+   "status": "ok",
+   "placed_at": "2026-11-16T21:43:08Z",
+   "starts_at": "2026-11-19T00:00Z",
+   "final": "Akron Zips 34, Massachusetts Minutemen 33",
+   "espn": [
+    {
+     "start": "2026-11-19T00:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Akron Zips",
+     "away_score": "34",
+     "home": "Massachusetts Minutemen",
+     "home_score": "33",
+     "winner": "away"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "Sports",
+   "id": "G159",
+   "event": "Old Dominion Monarchs @ Virginia Cavaliers",
+   "pick": "Virginia Cavaliers",
+   "odds": -20000,
+   "stake": 3000.0,
+   "result": 15.0,
+   "status": "ok",
+   "placed_at": "2026-11-17T05:15:12Z",
+   "starts_at": "2026-11-18T02:00Z",
+   "final": "Old Dominion Monarchs 65, Virginia Cavaliers 85",
+   "espn": [
+    {
+     "start": "2026-11-18T02:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Old Dominion Monarchs",
+     "away_score": "65",
+     "home": "Virginia Cavaliers",
+     "home_score": "85",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "Sports",
+   "id": "G161",
+   "event": "Indianapolis Colts @ Houston Texans",
+   "pick": "Houston Texans",
+   "odds": -675,
+   "stake": 3000.0,
+   "result": 444.44,
+   "status": "ok",
+   "placed_at": "2026-11-17T06:17:02Z",
+   "starts_at": "2026-11-20T01:15Z",
+   "final": "Indianapolis Colts 3, Houston Texans 26",
+   "espn": [
+    {
+     "start": "2026-11-20T01:15Z",
+     "state": "STATUS_FINAL",
+     "away": "Indianapolis Colts",
+     "away_score": "3",
+     "home": "Houston Texans",
+     "home_score": "26",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "Sports",
+   "id": "G163",
+   "event": "Montana State Bobcats @ Gonzaga Bulldogs",
+   "pick": "Gonzaga Bulldogs",
+   "odds": -6500,
+   "stake": 3000.0,
+   "result": 46.15,
+   "status": "ok",
+   "placed_at": "2026-11-17T14:14:50Z",
+   "starts_at": "2026-11-18T04:00Z",
+   "final": "Montana State Bobcats 62, Gonzaga Bulldogs 74",
+   "espn": [
+    {
+     "start": "2026-11-18T04:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Montana State Bobcats",
+     "away_score": "62",
+     "home": "Gonzaga Bulldogs",
+     "home_score": "74",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "Sports",
+   "id": "G165",
+   "event": "Milwaukee Bucks @ Miami Heat",
+   "pick": "Miami Heat",
+   "odds": -770,
+   "stake": 3000.0,
+   "result": 389.61,
+   "status": "ok",
+   "placed_at": "2026-11-18T02:15:09Z",
+   "starts_at": "2026-11-19T00:00Z",
+   "final": "Milwaukee Bucks 130, Miami Heat 137",
+   "espn": [
+    {
+     "start": "2026-11-19T00:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Milwaukee Bucks",
+     "away_score": "130",
+     "home": "Miami Heat",
+     "home_score": "137",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "Sports",
+   "id": "G167",
+   "event": "Detroit Pistons @ New Orleans Pelicans",
+   "pick": "Detroit Pistons",
+   "odds": -305,
+   "stake": 3000.0,
+   "result": 983.61,
+   "status": "ok",
+   "placed_at": "2026-11-18T05:15:05Z",
+   "starts_at": "2026-11-19T01:00Z",
+   "final": "Detroit Pistons 122, New Orleans Pelicans 109",
+   "espn": [
+    {
+     "start": "2026-11-19T01:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Detroit Pistons",
+     "away_score": "122",
+     "home": "New Orleans Pelicans",
+     "home_score": "109",
+     "winner": "away"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "Sports",
+   "id": "G169",
+   "event": "LA Clippers @ San Antonio Spurs",
+   "pick": "San Antonio Spurs",
+   "odds": -1200,
+   "stake": 3000.0,
+   "result": 250.0,
+   "status": "ok",
+   "placed_at": "2026-11-19T10:58:15Z",
+   "starts_at": "2026-11-20T01:00Z",
+   "final": "LA Clippers 112, San Antonio Spurs 124",
+   "espn": [
+    {
+     "start": "2026-11-20T01:00Z",
+     "state": "STATUS_FINAL",
+     "away": "LA Clippers",
+     "away_score": "112",
+     "home": "San Antonio Spurs",
+     "home_score": "124",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "Sports",
+   "id": "G171",
+   "event": "UCF Knights @ Vanderbilt Commodores",
+   "pick": "Vanderbilt Commodores",
+   "odds": -2800,
+   "stake": 3000.0,
+   "result": 0.0,
+   "status": "ok",
+   "placed_at": "2026-11-20T05:15:52Z",
+   "starts_at": "2026-11-21T01:00Z",
+   "final": null,
+   "espn": [
+    {
+     "start": "2026-11-21T01:00Z",
+     "state": "STATUS_SCHEDULED",
+     "away": "UCF Knights",
+     "away_score": null,
+     "home": "Vanderbilt Commodores",
+     "home_score": null,
+     "winner": null
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "AllInSports",
+   "id": "G156",
+   "event": "Rutgers Scarlet Knights @ Houston Cougars",
+   "pick": "Houston Cougars",
+   "odds": -1800,
+   "stake": 3000.0,
+   "result": 166.67,
+   "status": "ok",
+   "placed_at": "2026-11-16T19:14:59Z",
+   "starts_at": "2026-11-17T19:00Z",
+   "final": "Rutgers Scarlet Knights 73, Houston Cougars 85",
+   "espn": [
+    {
+     "start": "2026-11-17T19:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Rutgers Scarlet Knights",
+     "away_score": "73",
+     "home": "Houston Cougars",
+     "home_score": "85",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "AllInSports",
+   "id": "G158",
+   "event": "Akron Zips @ Massachusetts Minutemen",
+   "pick": "Massachusetts Minutemen",
+   "odds": -162,
+   "stake": 3000.0,
+   "result": -3000.0,
+   "status": "ok",
+   "placed_at": "2026-11-16T21:43:08Z",
+   "starts_at": "2026-11-19T00:00Z",
+   "final": "Akron Zips 34, Massachusetts Minutemen 33",
+   "espn": [
+    {
+     "start": "2026-11-19T00:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Akron Zips",
+     "away_score": "34",
+     "home": "Massachusetts Minutemen",
+     "home_score": "33",
+     "winner": "away"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "AllInSports",
+   "id": "G160",
+   "event": "Old Dominion Monarchs @ Virginia Cavaliers",
+   "pick": "Virginia Cavaliers",
+   "odds": -20000,
+   "stake": 3000.0,
+   "result": 15.0,
+   "status": "ok",
+   "placed_at": "2026-11-17T05:15:12Z",
+   "starts_at": "2026-11-18T02:00Z",
+   "final": "Old Dominion Monarchs 65, Virginia Cavaliers 85",
+   "espn": [
+    {
+     "start": "2026-11-18T02:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Old Dominion Monarchs",
+     "away_score": "65",
+     "home": "Virginia Cavaliers",
+     "home_score": "85",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "AllInSports",
+   "id": "G162",
+   "event": "Indianapolis Colts @ Houston Texans",
+   "pick": "Houston Texans",
+   "odds": -675,
+   "stake": 3000.0,
+   "result": 444.44,
+   "status": "ok",
+   "placed_at": "2026-11-17T06:17:02Z",
+   "starts_at": "2026-11-20T01:15Z",
+   "final": "Indianapolis Colts 3, Houston Texans 26",
+   "espn": [
+    {
+     "start": "2026-11-20T01:15Z",
+     "state": "STATUS_FINAL",
+     "away": "Indianapolis Colts",
+     "away_score": "3",
+     "home": "Houston Texans",
+     "home_score": "26",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "AllInSports",
+   "id": "G164",
+   "event": "Montana State Bobcats @ Gonzaga Bulldogs",
+   "pick": "Gonzaga Bulldogs",
+   "odds": -6500,
+   "stake": 3000.0,
+   "result": 46.15,
+   "status": "ok",
+   "placed_at": "2026-11-17T14:14:50Z",
+   "starts_at": "2026-11-18T04:00Z",
+   "final": "Montana State Bobcats 62, Gonzaga Bulldogs 74",
+   "espn": [
+    {
+     "start": "2026-11-18T04:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Montana State Bobcats",
+     "away_score": "62",
+     "home": "Gonzaga Bulldogs",
+     "home_score": "74",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "AllInSports",
+   "id": "G166",
+   "event": "Milwaukee Bucks @ Miami Heat",
+   "pick": "Miami Heat",
+   "odds": -770,
+   "stake": 3000.0,
+   "result": 389.61,
+   "status": "ok",
+   "placed_at": "2026-11-18T02:15:09Z",
+   "starts_at": "2026-11-19T00:00Z",
+   "final": "Milwaukee Bucks 130, Miami Heat 137",
+   "espn": [
+    {
+     "start": "2026-11-19T00:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Milwaukee Bucks",
+     "away_score": "130",
+     "home": "Miami Heat",
+     "home_score": "137",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "AllInSports",
+   "id": "G168",
+   "event": "Detroit Pistons @ New Orleans Pelicans",
+   "pick": "Detroit Pistons",
+   "odds": -305,
+   "stake": 3000.0,
+   "result": 983.61,
+   "status": "ok",
+   "placed_at": "2026-11-18T05:15:05Z",
+   "starts_at": "2026-11-19T01:00Z",
+   "final": "Detroit Pistons 122, New Orleans Pelicans 109",
+   "espn": [
+    {
+     "start": "2026-11-19T01:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Detroit Pistons",
+     "away_score": "122",
+     "home": "New Orleans Pelicans",
+     "home_score": "109",
+     "winner": "away"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "AllInSports",
+   "id": "G170",
+   "event": "LA Clippers @ San Antonio Spurs",
+   "pick": "San Antonio Spurs",
+   "odds": -1200,
+   "stake": 3000.0,
+   "result": 250.0,
+   "status": "ok",
+   "placed_at": "2026-11-19T10:58:15Z",
+   "starts_at": "2026-11-20T01:00Z",
+   "final": "LA Clippers 112, San Antonio Spurs 124",
+   "espn": [
+    {
+     "start": "2026-11-20T01:00Z",
+     "state": "STATUS_FINAL",
+     "away": "LA Clippers",
+     "away_score": "112",
+     "home": "San Antonio Spurs",
+     "home_score": "124",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "gemini",
+   "race": "AllInSports",
+   "id": "G172",
+   "event": "UCF Knights @ Vanderbilt Commodores",
+   "pick": "Vanderbilt Commodores",
+   "odds": -2800,
+   "stake": 3000.0,
+   "result": 0.0,
+   "status": "ok",
+   "placed_at": "2026-11-20T05:15:52Z",
+   "starts_at": "2026-11-21T01:00Z",
+   "final": null,
+   "espn": [
+    {
+     "start": "2026-11-21T01:00Z",
+     "state": "STATUS_SCHEDULED",
+     "away": "UCF Knights",
+     "away_score": null,
+     "home": "Vanderbilt Commodores",
+     "home_score": null,
+     "winner": null
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "chatgpt",
+   "race": "Sports",
+   "id": "C41",
+   "event": "Houston Rockets @ Indiana Pacers",
+   "pick": "Houston Rockets",
+   "odds": -344,
+   "stake": 3000.0,
+   "result": 872.09,
+   "status": "ok",
+   "placed_at": "2026-11-18T23:14:53Z",
+   "starts_at": "2026-11-19T00:00Z",
+   "final": "Houston Rockets 119, Indiana Pacers 104",
+   "espn": [
+    {
+     "start": "2026-11-19T00:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Houston Rockets",
+     "away_score": "119",
+     "home": "Indiana Pacers",
+     "home_score": "104",
+     "winner": "away"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "chatgpt",
+   "race": "Sports",
+   "id": "C43",
+   "event": "LA Clippers @ San Antonio Spurs",
+   "pick": "San Antonio Spurs",
+   "odds": -1200,
+   "stake": 3000.0,
+   "result": 250.0,
+   "status": "ok",
+   "placed_at": "2026-11-19T10:58:15Z",
+   "starts_at": "2026-11-20T01:00Z",
+   "final": "LA Clippers 112, San Antonio Spurs 124",
+   "espn": [
+    {
+     "start": "2026-11-20T01:00Z",
+     "state": "STATUS_FINAL",
+     "away": "LA Clippers",
+     "away_score": "112",
+     "home": "San Antonio Spurs",
+     "home_score": "124",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "chatgpt",
+   "race": "Sports",
+   "id": "C45",
+   "event": "UCF Knights @ Vanderbilt Commodores",
+   "pick": "Vanderbilt Commodores",
+   "odds": -2800,
+   "stake": 3000.0,
+   "result": 0.0,
+   "status": "ok",
+   "placed_at": "2026-11-20T05:15:52Z",
+   "starts_at": "2026-11-21T01:00Z",
+   "final": null,
+   "espn": [
+    {
+     "start": "2026-11-21T01:00Z",
+     "state": "STATUS_SCHEDULED",
+     "away": "UCF Knights",
+     "away_score": null,
+     "home": "Vanderbilt Commodores",
+     "home_score": null,
+     "winner": null
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "chatgpt",
+   "race": "AllInSports",
+   "id": "C42",
+   "event": "Atlanta Hawks @ Oklahoma City Thunder",
+   "pick": "Oklahoma City Thunder",
+   "odds": -249,
+   "stake": 3000.0,
+   "result": -3000.0,
+   "status": "ok",
+   "placed_at": "2026-11-18T23:14:53Z",
+   "starts_at": "2026-11-19T01:00Z",
+   "final": "Atlanta Hawks 117, Oklahoma City Thunder 112",
+   "espn": [
+    {
+     "start": "2026-11-19T01:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Atlanta Hawks",
+     "away_score": "117",
+     "home": "Oklahoma City Thunder",
+     "home_score": "112",
+     "winner": "away"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "chatgpt",
+   "race": "AllInSports",
+   "id": "C44",
+   "event": "LA Clippers @ San Antonio Spurs",
+   "pick": "San Antonio Spurs",
+   "odds": -1200,
+   "stake": 3000.0,
+   "result": 250.0,
+   "status": "ok",
+   "placed_at": "2026-11-19T10:58:15Z",
+   "starts_at": "2026-11-20T01:00Z",
+   "final": "LA Clippers 112, San Antonio Spurs 124",
+   "espn": [
+    {
+     "start": "2026-11-20T01:00Z",
+     "state": "STATUS_FINAL",
+     "away": "LA Clippers",
+     "away_score": "112",
+     "home": "San Antonio Spurs",
+     "home_score": "124",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "chatgpt",
+   "race": "AllInSports",
+   "id": "C46",
+   "event": "UCF Knights @ Vanderbilt Commodores",
+   "pick": "Vanderbilt Commodores",
+   "odds": -2800,
+   "stake": 3000.0,
+   "result": 0.0,
+   "status": "ok",
+   "placed_at": "2026-11-20T05:15:52Z",
+   "starts_at": "2026-11-21T01:00Z",
+   "final": null,
+   "espn": [
+    {
+     "start": "2026-11-21T01:00Z",
+     "state": "STATUS_SCHEDULED",
+     "away": "UCF Knights",
+     "away_score": null,
+     "home": "Vanderbilt Commodores",
+     "home_score": null,
+     "winner": null
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "claude",
+   "race": "AllInSports",
+   "id": "C17",
+   "event": "Utah Jazz @ LA Clippers",
+   "pick": "LA Clippers",
+   "odds": -238,
+   "stake": 3000.0,
+   "result": -3000.0,
+   "status": "ok",
+   "placed_at": "2026-11-17T08:20:49Z",
+   "starts_at": "2026-11-18T03:30Z",
+   "final": "Utah Jazz 132, LA Clippers 107",
+   "espn": [
+    {
+     "start": "2026-11-18T03:30Z",
+     "state": "STATUS_FINAL",
+     "away": "Utah Jazz",
+     "away_score": "132",
+     "home": "LA Clippers",
+     "home_score": "107",
+     "winner": "away"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "claude",
+   "race": "AllInSports",
+   "id": "C18",
+   "event": "Memphis Grizzlies @ Cleveland Cavaliers",
+   "pick": "Cleveland Cavaliers",
+   "odds": -205,
+   "stake": 3000.0,
+   "result": -3000.0,
+   "status": "ok",
+   "placed_at": "2026-11-18T05:19:58Z",
+   "starts_at": "2026-11-19T00:00Z",
+   "final": "Memphis Grizzlies 124, Cleveland Cavaliers 121",
+   "espn": [
+    {
+     "start": "2026-11-19T00:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Memphis Grizzlies",
+     "away_score": "124",
+     "home": "Cleveland Cavaliers",
+     "home_score": "121",
+     "winner": "away"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "claude",
+   "race": "AllInSports",
+   "id": "C19",
+   "event": "Golden State Warriors @ Memphis Grizzlies",
+   "pick": "Memphis Grizzlies",
+   "odds": -334,
+   "stake": 3000.0,
+   "result": 898.2,
+   "status": "ok",
+   "placed_at": "2026-11-19T06:45:21Z",
+   "starts_at": "2026-11-20T01:00Z",
+   "final": "Golden State Warriors 98, Memphis Grizzlies 126",
+   "espn": [
+    {
+     "start": "2026-11-20T01:00Z",
+     "state": "STATUS_FINAL",
+     "away": "Golden State Warriors",
+     "away_score": "98",
+     "home": "Memphis Grizzlies",
+     "home_score": "126",
+     "winner": "home"
+    }
+   ],
+   "notes": []
+  },
+  {
+   "model": "claude",
+   "race": "AllInSports",
+   "id": "C20",
+   "event": "Indiana Pacers @ Cleveland Cavaliers",
+   "pick": "Cleveland Cavaliers",
+   "odds": -268,
+   "stake": 3000.0,
+   "result": 0.0,
+   "status": "ok",
+   "placed_at": "2026-11-20T05:22:09Z",
+   "starts_at": "2026-11-21T00:30Z",
+   "final": null,
+   "espn": [
+    {
+     "start": "2026-11-21T00:30Z",
+     "state": "STATUS_SCHEDULED",
+     "away": "Indiana Pacers",
+     "away_score": null,
+     "home": "Cleveland Cavaliers",
+     "home_score": null,
+     "winner": null
+    }
+   ],
+   "notes": []
+  }
+ ]
+}
