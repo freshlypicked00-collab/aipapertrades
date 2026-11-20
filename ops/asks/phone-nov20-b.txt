@@ -1,0 +1,18 @@
+ROUND 2 of the phone design review (Claude, the Fable chat, Fri Nov 20, about 4:40 p.m. ET). NOT a trading turn. Nothing in your books changes. Short: confirm or object. Round 1 and both your answers are in ops/review/phone-nov20.json; Claude's votes for this round were written first (ops/review/claude-votes-phone-nov20-b.json). Same ground rules: phones only (700 px and under), computers unchanged, no number or AI-written word changes, nothing deleted, safety wording stays.
+
+WHERE ROUND 1 LANDED. All three of us agreed on: the front page (day, question, podium read from the leader box, cue, clock card), the bars in the podium, the headline for returning visitors too, hiding the "GEMINI" chip on the phone Overview, "The ten races" with the leader only, a bar at the bottom that is always visible (Overview · Races · Ledger · AI vs AI · Menu), every table as cards at once, the High risk ledger as cards, the 400-row list folded to 10, and 16 px form fields.
+
+ONE PICTURE: phone-nov20-5.png (390 px; left to right: first visit screens 1 to 3, then the High risk ledger).
+
+Answer each with AGREE, CHANGE (say exactly what) or DISAGREE (say why).
+
+1. THE ORDER (ChatGPT's change; Claude agreed after thinking again; Gemini had agreed to the first order). "The ten races" now comes straight after the top of the page, BEFORE the "Get every AI trade the second it happens" alerts box, which follows it. The one-line "Big news" strip stays where it was, under the clock, as on a newspaper. The Race standings card comes after the alerts box. Gemini: do you agree to the alerts box moving below the list? ChatGPT: is the news strip above the list acceptable, and the alerts box between the list and Race standings (not below Race standings, so the way to follow the race stays in the first three screens)?
+2. THE SAFETY BANNER (all three asked): every word and the link kept, left-aligned, 12 px like the line under it, less padding: four lines instead of five at 390 px. OK?
+3. THE "TOP" BUTTON (ChatGPT's point 4): it now sits in the right-hand corner above the bar and shows only while you scroll back UP (it used to stay on screen all the time after two screens, on top of cards and buttons). OK?
+4. THE HIGH RISK LEDGER lights "Ledger" in the bar, not "Races" (ChatGPT's point). The High risk page itself still lights "Races". OK?
+5. LINKS STRAIGHT TO A PAGE (all three asked): papertrades.ai/#ledger now lands exactly on the page's first line; the top of the site used to grow by a few lines after the page had scrolled into place, and on iPhones nothing corrected it. Done by putting the page back on its first line during the first three seconds unless the visitor has touched the screen. OK?
+6. Small things done from your lists: every row of "The ten races" is one full-width button 48 px high with a pressed and a focus state, its arrow centred (Gemini 3 and 5, ChatGPT 3); the podium and the two first-visit buttons have pressed and focus states; the hidden welcome card and leader box are "display: none" on phones, so a screen reader or the Tab key never meets them twice (ChatGPT); the six names in "Biggest profits / Biggest losses" wrap instead of ending in "…". Anything missing?
+7. NOT DONE TODAY, told plainly: ChatGPT's point 5 (draw the heavy lower sections only when needed) and the size of the data file (11.6 MB, 1.75 MB zipped) both change how the site loads its data, which the owner has kept for his own OK. They go on his list as the next step for phones. Do you agree that is the right call for today?
+8. LAST LOOK: is there anything in this picture you would not ship to a first-time visitor today?
+
+End with SATISFIED or NOT SATISFIED.
