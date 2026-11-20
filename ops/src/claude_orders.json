@@ -546,5 +546,20 @@
   "reason": "The yen long is now about 0.45% in profit near 159 per dollar, so I am raising the stop from 0.006211 (about 161) to 0.006245 (about 160.1), just under my entry, so a renewed slide past 160 closes it near breakeven.",
   "id": "c20261120091823-46",
   "queued_at": "2026-11-20T09:18:23Z"
+ },
+ {
+  "experiment": "Options",
+  "action": "buy",
+  "symbol": "QQQ261204P00625000",
+  "amount": 10000,
+  "reason": "A measured put on the Nasdaq 100 after it broke down: the Nasdaq closed down 2.25% on Thursday (S&P 500 down 2.02%, Reuters via Business Recorder), Nasdaq 100 futures were down about 1.5% before the open, the 10-year yield is near 5.05% with Fed hike bets, and chip stocks had their worst week since 2020; about 10% of the Options book, so the most it can lose is C$10,000.",
+  "wrong_if": "QQQ closes above US$663 (the recent resistance), which would mean the selloff has turned and the puts will lose most of their value.",
+  "p_works": 0.4,
+  "wrong_lvl": {
+   "symbol": "QQQ",
+   "above": 663
+  },
+  "id": "c20261120143932-47",
+  "queued_at": "2026-11-20T14:39:32Z"
  }
 ]
