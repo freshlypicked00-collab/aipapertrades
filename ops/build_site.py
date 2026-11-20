@@ -430,6 +430,11 @@ SPLASH = '<div id="pt-splash" aria-hidden="true">\n  <style>\n    #pt-splash { p
 _pol = os.path.dirname(os.path.abspath(__file__))
 POLISH_CSS = open(os.path.join(_pol, 'polish.css')).read() if os.path.exists(os.path.join(_pol, 'polish.css')) else ''
 POLISH_JS = open(os.path.join(_pol, 'polish.js')).read() if os.path.exists(os.path.join(_pol, 'polish.js')) else ''
+# The phone pass (owner, Nov 20: "does papertrades.ai look 10/10 on mobile? make it 10/10 ... happy with the current layout on desktop";
+# ops/review/PHONE_PASS_NOV20.md). Two files of its own, added after the polish pass: every rule and behaviour in them applies only at
+# 700 px wide and under, so computers draw what they drew before. Reverse the pass by emptying them.
+PHONE_CSS = open(os.path.join(_pol, 'phone.css')).read() if os.path.exists(os.path.join(_pol, 'phone.css')) else ''
+PHONE_JS = open(os.path.join(_pol, 'phone.js')).read() if os.path.exists(os.path.join(_pol, 'phone.js')) else ''
 
 html = f"""<!doctype html>
 <html lang="en">
@@ -476,6 +481,7 @@ html = f"""<!doctype html>
 {style}
 {TERMINAL}
 {POLISH_CSS}
+{PHONE_CSS}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 <script>window.d3 || document.write('<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"><\\/script>');   /* the same d3 from a second CDN if cdnjs is down (all three AIs agreed, Oct 30) */</script>
@@ -518,6 +524,9 @@ html = f"""<!doctype html>
 </script>
 <script>
 {POLISH_JS}
+</script>
+<script>
+{PHONE_JS}
 </script>
 </body>
 </html>

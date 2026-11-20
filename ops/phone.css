@@ -1,0 +1,220 @@
+/* THE PHONE PASS (owner, Nov 20, 2026: "does papertrades.ai look 10/10 on mobile? make it 10/10 ... happy with the current layout on
+   desktop"). Looks for ops/phone.js; decisions in ops/review/PHONE_PASS_NOV20.md.
+   EVERY RULE IN THIS FILE SITS INSIDE "max-width: 700px" (the site's own phone width), except the one line just below, which keeps the
+   phone-only parts out of sight on anything wider. So a computer or tablet draws exactly what it drew before this file existed.
+   Reverse the whole pass by emptying this file and ops/phone.js. */
+@media (min-width: 701px) { .pt-fr, .pt-fr2, .pt-races, .pt-bar-nav, .pt-bar-shade, .pt-pick-h { display: none !important; } }
+
+@media (max-width: 700px) {
+  /* ---- P1. THE FRONT PAGE (phone.js P1): the day, the question, the three totals as a podium, how to read them, then the countdown ---- */
+  .pt-fr, .pt-fr2 { display: none; }
+  html:is(:not([data-tab]), [data-tab="overview"]) .pt-fr { display: flex; flex-direction: column; gap: 9px; margin: 8px 0 0; }
+  html:is(:not([data-tab]), [data-tab="overview"]) .pt-fr2 { display: flex; flex-direction: column; gap: 10px; margin: 6px 0 4px; }
+  .pt-fr-k { margin: 0; font: 600 12px/1.3 var(--font-serif, ui-monospace, monospace); letter-spacing: .14em; text-transform: uppercase; color: var(--accent, #ffb000); }
+  .pt-fr-h { margin: 0; font: 600 clamp(25px, 7.7vw, 32px)/1.08 var(--font-sans, inherit); letter-spacing: -.005em; color: var(--color-fg); text-wrap: balance; }
+  .pt-fr-p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--color-fg-muted); text-wrap: pretty; }
+  .pt-fr-p a { color: var(--color-fg); white-space: nowrap; }
+  /* the podium: one button (it opens AI vs AI, as the leader box does) */
+  .pt-pod { display: flex; flex-direction: column; width: 100%; margin: 3px 0 0; padding: 0; text-align: left; font: inherit; color: var(--color-fg); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: 12px; overflow: hidden; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .pt-pod:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .pt-pod:active { border-color: var(--color-fg-muted); }
+  .pt-fr-btn:focus-visible, .pt-fr-hide:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .pt-fr-btn:active { opacity: .8; }
+  .pt-pod-h { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 8px; padding: 9px 12px 8px 14px; font-size: 12.5px; line-height: 1.3; color: var(--color-fg-muted); }
+  .pt-pod-h b { font: 600 12px/1.3 var(--font-serif, ui-monospace, monospace); letter-spacing: .14em; text-transform: uppercase; color: var(--color-fg); }
+  .pt-pod-tag { margin-left: auto; padding: 1px 8px; border-radius: 999px; font-size: 12px; line-height: 1.3; font-weight: 600; color: #1a1400; background: #f5c542; white-space: nowrap; }
+  .pt-pod-r { display: grid; grid-template-columns: 30px 46px minmax(0, 1fr) auto; column-gap: 10px; row-gap: 6px; align-items: center; padding: 10px 14px 11px; border-top: 1px solid var(--color-border-line); }
+  .pt-pod-r.is-1 { padding-block: 12px 13px; background: color-mix(in srgb, var(--ai, #ffb000) 10%, transparent); }
+  .pt-pod-k { grid-row: 1 / span 2; font: 600 13px/1 var(--font-serif, ui-monospace, monospace); color: var(--color-fg-muted); }
+  .pt-pod-r.is-1 .pt-pod-k { color: var(--color-fg); }   /* the crown is on its robot; plain strong type reads in every colour theme */
+  .pt-pod-face { grid-row: 1 / span 2; display: flex; align-items: center; justify-content: center; }
+  .pt-pod-face .ai-robot { --rs: 38px; margin: 0; animation: none; }
+  .pt-pod-r.is-1 .pt-pod-face .ai-robot { --rs: 46px; }
+  .pt-pod-n { min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 7px; line-height: 1.15; }
+  .pt-pod-n b { font-size: 18px; font-weight: 600; color: var(--ai, inherit); }
+  .pt-pod-r.is-1 .pt-pod-n b { font-size: 22px; }
+  .pt-pod-n small { font-size: 12.5px; color: var(--color-fg-muted); white-space: nowrap; }
+  .pt-pod-p { font: 600 18px/1.1 var(--font-serif, ui-monospace, monospace); font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+  .pt-pod-r.is-1 .pt-pod-p { font-size: 23px; }
+  .pt-pod-p.up { color: var(--color-ok); } .pt-pod-p.down { color: var(--color-bad); }
+  /* one thin bar per AI from a middle line: right and green for a profit, left and red for a loss, its length the size of the amount */
+  .pt-pod-b { grid-column: 3 / -1; position: relative; height: 4px; border-radius: 2px; background: var(--color-border-line); }
+  .pt-pod-b::after { content: ""; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--color-fg-muted); }
+  .pt-pod-b i { position: absolute; top: 0; bottom: 0; border-radius: 2px; }
+  .pt-pod-b.up i { left: 50%; background: var(--color-ok); } .pt-pod-b.down i { right: 50%; background: var(--color-bad); }
+  .pt-pod-f { padding: 9px 14px 0; border-top: 1px solid var(--color-border-line); font-size: 12.5px; line-height: 1.4; color: var(--color-fg-muted); }
+  .pt-pod-go { padding: 5px 14px 11px; font-size: 13.5px; line-height: 1.4; color: var(--color-fg); text-decoration: underline; text-decoration-color: var(--color-fg-muted); text-underline-offset: 3px; }
+  .pt-pod-r + .pt-pod-go { border-top: 1px solid var(--color-border-line); padding-top: 9px; }
+  @media (max-width: 370px) {   /* the narrowest phones: the same row, slightly smaller, so a name never runs into its amount */
+    .pt-pod-r { grid-template-columns: 26px 36px minmax(0, 1fr) auto; column-gap: 8px; padding-inline: 12px; }
+    .pt-pod-h, .pt-pod-f, .pt-pod-go { padding-inline: 12px; }
+    .pt-pod-face .ai-robot { --rs: 32px; } .pt-pod-r.is-1 .pt-pod-face .ai-robot { --rs: 36px; }
+    .pt-pod-n b { font-size: 16.5px; } .pt-pod-r.is-1 .pt-pod-n b { font-size: 18px; }
+    .pt-pod-p { font-size: 16px; } .pt-pod-r.is-1 .pt-pod-p { font-size: 18.5px; }
+    .pt-pod-k { font-size: 12px; }
+    .pt-fr-btn { font-size: 14.5px; }
+  }
+  /* first visit: the two buttons and the fairness note of the welcome card */
+  .pt-fr-cta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pt-fr-btn { min-height: 48px; padding: 8px 10px; font: inherit; font-size: 15.5px; font-weight: 600; line-height: 1.2; color: var(--color-fg); background: transparent; border: 1px solid var(--color-fg-muted); border-radius: 999px; cursor: pointer; }
+  .pt-fr-btn.is-main { color: var(--color-bg); background: var(--color-fg); border-color: var(--color-fg); }
+  .pt-fr-fair { margin: 2px 0 0; font-size: 13px; line-height: 1.5; color: var(--color-fg-muted); text-wrap: pretty; }
+  .pt-fr-fair b { color: var(--color-fg); font-weight: 600; } .pt-fr-fair a { color: inherit; }
+  .pt-fr-hide { align-self: flex-start; min-height: 32px; margin: -4px 0 0; padding: 4px 0; font: inherit; font-size: 12.5px; color: var(--color-fg-muted); background: none; border: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  /* what the front page stands in for stays in the page, out of sight: the welcome card (first visit) and the leader box */
+  html.pt-fr-new:is(:not([data-tab]), [data-tab="overview"]) header.st-head .pt-welcome { display: none !important; }
+  html.pt-pod-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head .st-crown-line .st-crown-chip:not(.st-allin-chip) { display: none !important; }
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head .st-title .pt-ai-badge { display: none; }   /* "● GEMINI" under the name: on this page all three AIs are on show; the faces further down say whose view is open */
+  /* the order of the header's parts on the Overview */
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head > * { order: 3; }
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head > .st-title { order: 0; }
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head > .pt-fr { order: 1; }
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head > .pt-cue { order: 2; margin-top: 2px; }
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head > .pt-fr2 { order: 4; }
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head > .st-crown-line { order: 5; }
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head > .st-progress { order: 6; }
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head > .pt-news { order: 7; }
+  /* the status lines under it: the countdown in a box of its own with the calendar button, then markets, clock, last update, next scoreboard */
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head .st-progress[data-phase="live"] { margin-top: 6px; gap: 6px 14px; align-items: center; }
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > span:has(> b.st-season) { display: none; }   /* the day is in the line over the headline */
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > span:has(> [data-draw="countdown"]) { order: 1; flex: 1 1 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 10px; padding: 8px 10px 9px 14px; border: 1px solid var(--color-border-line); border-radius: 12px; background: var(--color-panel); font-size: 13px; line-height: 1.35; color: var(--color-fg-muted); }
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > span > [data-draw="countdown"] { grid-column: 1; grid-row: 1; font-size: 21px; line-height: 1.25; }
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > span > .pt-cal { grid-column: 2; grid-row: 1 / span 2; margin: 0; }
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > .st-clock:has(.st-mkt) { order: 2; flex: 1 1 100%; }
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > .st-clock-ny, html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > .st-since { order: 3; }
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > .st-since .st-count { font-size: 14.5px; }
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > .st-lang-wrap { order: 4; }
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > .st-dayclose { order: 5; flex: 1 1 100%; font-size: 12.5px; line-height: 1.45; }
+  html.pt-fr-on.pt-finale:is(:not([data-tab]), [data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > span:has(> [data-draw="countdown"]) { display: block; padding: 10px 14px; }
+
+  /* ---- P2. THE TEN RACES at a glance (phone.js P2) ---- */
+  html[data-tab]:not([data-tab="overview"]) .pt-races { display: none !important; }   /* the Overview only */
+  .st > .pt-races { order: 0; }   /* right under the top of the page, before the alerts box */
+  .pt-races { display: flex; flex-direction: column; margin: 0; padding: 12px 12px 12px 14px; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius, 2px); background: var(--color-panel); scroll-margin-top: 40px; }
+  .pt-races h2 { margin: 0; font-size: 13px; line-height: 1.3; letter-spacing: .12em; text-transform: uppercase; color: var(--accent, #ffb000); }
+  .pt-races-sub { margin: 3px 0 8px; font-size: 13px; line-height: 1.45; color: var(--color-fg-muted); }
+  .pt-rc-l { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .pt-rc { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(78px, auto) 12px; align-items: center; column-gap: 9px; width: 100%; min-height: 48px; padding: 6px 0 6px 10px; font: inherit; text-align: left; color: var(--color-fg); background: none; border: 0; border-top: 1px solid var(--color-border-line); box-shadow: inset 3px 0 0 var(--ai, var(--color-border-line)); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .pt-rc:active { background: color-mix(in srgb, var(--color-fg) 6%, transparent); }
+  .pt-rc:focus-visible { outline: 2px solid var(--color-fg); outline-offset: -2px; }
+  .pt-rc-n { min-width: 0; font-size: 15px; font-weight: 500; line-height: 1.25; }
+  .pt-rc-w { display: inline-flex; align-items: center; gap: 5px; font-size: 13.5px; font-weight: 600; color: var(--ai, inherit); white-space: nowrap; }
+  .pt-rc-w .ai-badge { margin: 0; }
+  .pt-rc-lv { grid-column: 2 / span 2; justify-self: end; font-weight: 400; color: var(--color-fg-muted); }
+  .pt-rc-p { text-align: right; font: 500 14px/1.2 var(--font-serif, ui-monospace, monospace); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pt-rc-p.up { color: var(--color-ok); } .pt-rc-p.down { color: var(--color-bad); }
+  .pt-rc-go { font-size: 18px; line-height: 1; color: var(--color-fg-muted); }
+  .pt-races-side { margin: 12px 0 4px; font-size: 12px; line-height: 1.3; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); }
+  .pt-races-f { margin: 0; padding-top: 9px; border-top: 1px solid var(--color-border-line); font-size: 12.5px; line-height: 1.45; color: var(--color-fg-muted); }
+
+  /* ---- P3. THE BAR AT THE BOTTOM (phone.js P3) ---- */
+  html.pt-bar { --pt-bar-h: 58px; }
+  .pt-bar-nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 62; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); height: calc(var(--pt-bar-h, 58px) + env(safe-area-inset-bottom, 0px)); padding: 0 4px env(safe-area-inset-bottom, 0px); background: var(--color-bg); background: color-mix(in srgb, var(--color-bg) 90%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-top: 1px solid var(--color-border-line); }   /* the first background is for older phones that do not know the second */
+  .pt-bar-nav button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-width: 0; margin: -1px 0 0; padding: 5px 2px 6px; font: inherit; font-size: 12px; line-height: 1.15; color: var(--color-fg-muted); background: none; border: 0; border-top: 2px solid transparent; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .pt-bar-nav button svg { display: block; }
+  .pt-bar-nav button[aria-current="page"] { color: var(--color-fg); border-top-color: var(--accent, #ffb000); }
+  .pt-bar-nav button[aria-current="page"] span { font-weight: 600; }
+  .pt-bar-nav button:active { background: color-mix(in srgb, var(--color-fg) 8%, transparent); }
+  .pt-bar-nav button:focus-visible { outline: 2px solid var(--color-fg); outline-offset: -3px; }
+  .pt-bar-shade { position: fixed; inset: 0; z-index: 60; background: rgba(0, 0, 0, .55); }
+  .pt-bar-nav button, .pt-rc, .pt-pod, .pt-fr-btn { touch-action: manipulation; }   /* a tap is a tap at once: no wait for a possible double-tap zoom */
+  html:has(#dash-root input[type="search"]:focus, #dash-root input[type="text"]:focus) .pt-bar-nav { display: none; }   /* while you type in a search box the bar steps aside, so it never sits between the box and the keyboard */
+  .pt-bar-shade[hidden] { display: none; }
+  /* the Menu's sheet opens from the bar upward, and everything that used to sit at the bottom edge steps up over the bar */
+  html.pt-bar .m-menu:not([hidden]) { top: auto; bottom: calc(var(--pt-bar-h) + env(safe-area-inset-bottom, 0px) + 8px); max-height: calc(100vh - var(--pt-bar-h) - 90px); max-height: calc(100dvh - var(--pt-bar-h) - env(safe-area-inset-bottom, 0px) - 56px); }
+  html.pt-bar body { padding-bottom: calc(var(--pt-bar-h) + env(safe-area-inset-bottom, 0px) + 20px); }
+  html.pt-bar .m-menu-fab { display: none !important; }
+  html.pt-bar header.st-head .m-menu-btn { display: none !important; }
+  html.pt-bar .pt-top { left: auto; right: 12px; bottom: calc(var(--pt-bar-h) + 12px + env(safe-area-inset-bottom, 0px)); }   /* the right-hand corner is free now (the round Menu button is gone), and text starts on the left */
+  html.pt-bar:not(.pt-going-up) .pt-top.is-on { opacity: 0; pointer-events: none; }   /* while you scroll down it steps aside (phone.js P3) */
+  html.pt-bar.pt-fp-on .pt-top { bottom: calc(var(--pt-fp-h, 120px) + var(--pt-bar-h) + 22px + env(safe-area-inset-bottom, 0px)); }
+  html.pt-bar .pt-toasts, html.pt-bar .st-lang-note, html.pt-bar .pt-fp, html.pt-bar .gd-offer { bottom: calc(var(--pt-bar-h) + 12px + env(safe-area-inset-bottom, 0px)); }
+  html.pt-bar .bg-toast { bottom: calc(var(--pt-bar-h) + 18px + env(safe-area-inset-bottom, 0px)); }
+  html.pt-bar .st-copy { margin-bottom: 24px; }
+  header.st-head { overflow-anchor: none; }   /* a browser that keeps your place while a page loads must hold on to the page, not to a line of the header above it (phone.js P5) */
+  /* with the bar there, the long list of text links moves from the middle of the Overview to its end, just above the small print */
+  html.pt-bar .st > nav.st-tabs { order: 3; margin-top: 18px; }
+  html.pt-bar .st > footer.st-foot { order: 4; }
+
+  /* ---- P4. THE ORDER OF THE OVERVIEW under the front page: the races, the standings card, the AI faces and the day's takes and grades,
+          the Scoreboard and the risk award; the three "what this is" paragraphs follow those instead of standing in front of them.
+          Nothing is removed. ---- */
+  html.pt-fr-on .st-head2 > .st-hook { display: contents; }
+  html.pt-fr-on .st-head2 > *, html.pt-fr-on .st-head2 > .st-hook > * { order: 7; }
+  html.pt-fr-on .st-head2 > .st-hook > .st-podium { order: 2; }
+  html.pt-fr-on .st-head2 > .st-hook > .st-hook-row { order: 3; margin-top: 14px; }
+  html.pt-fr-on .st-head2 > .st-hook > .st-indep { order: 4; }
+  html.pt-fr-on .st-head2 > .st-hook > .st-take { order: 5; margin-top: 8px; }
+  html.pt-fr-on .st-head2 > .st-hook > .st-fact { order: 6; }
+  html.pt-fr-on .st-head2 > .st-hook > .st-callout { order: 7; }
+  html.pt-fr-on .st-head2 > .st-score { order: 8; }
+  html.pt-fr-on .st-head2 > .st-riskaward { order: 9; }
+  html.pt-fr-on .st-head2 > .st-hook > .st-tagline { order: 10; margin-top: 14px; }
+  html.pt-fr-on .st-head2 > .st-hook > .st-auto { order: 11; }
+  html.pt-fr-on .st-head2 > .st-hook > .st-hook-sub { order: 12; }
+  html.pt-fr-on .st-head2 > .st-hook > .hook-more { order: 13; }
+  html.pt-fr-on .st-head2 > .st-hook > .st-s2 { order: 14; }
+  html.pt-fr-on .st-head2 > .st-notice-row { order: 15; }
+  html.pt-fr-on .st-head2 > .st-viewing { order: 16; }
+  html.pt-fr-on .st-head2 > .st-lede { order: 17; }
+  html.pt-fr-on .st-hook-row > .st-hook-q { display: none; }   /* the question is the headline at the top of the page now */
+  .pt-pick-h { margin: 0; font-size: 20px; font-weight: 600; line-height: 1.2; color: var(--color-fg); }
+  /* the simulation notice keeps every word and its frame; on a phone its type matches the text around it (it was 17 px, a third of a screen) */
+  html.pt-fr-on .st-head2 .st-notice { font-size: 15px; line-height: 1.5; padding: 13px 14px; gap: 10px; }
+  .st-riskaward > [data-draw="riskaward"].pt-b-fold > .ra-both { margin: 0; font-size: 14px; color: var(--color-fg); }
+}
+
+/* ---- P6. Text boxes and drop-down menus: 16 px type on phones. An iPhone zooms the whole page in when you tap a field whose type is
+        smaller than 16 px, and leaves you zoomed in afterwards; the site's fields were 13 to 15 px. Only the type inside the field
+        grows; nothing else moves. -------------------------------------------------------------------------------------------------- */
+@media (max-width: 700px) {
+  #dash-root select, #dash-root input[type="search"], #dash-root input[type="text"], #dash-root textarea, #m-menu select { font-size: 16px; }
+  #dash-root select { max-width: 100%; min-width: 0; }   /* a menu with a long choice shrinks to its row instead of pushing the page sideways (two did at 320 px) */
+  #dash-root .tx-search input { letter-spacing: 0; padding-inline: 8px; }
+  #dash-root .tx-search input::placeholder { font-size: 13px; }   /* its example text ("Transaction ID, e.g. G-MET-007") still fits; what you type is 16 px */
+}
+
+/* ---- P7. The Overview's clock: the countdown, the two markets, the time, the last update and the next daily scoreboard are one card
+        (they were a box and four loose lines in three sizes of type). Same words, same live numbers. ----------------------------- */
+@media (max-width: 700px) {
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head .st-progress[data-phase="live"] { margin-top: 8px; padding: 10px 12px 11px 14px; gap: 5px 14px; border: 1px solid var(--color-border-line); border-radius: 12px; background: var(--color-panel); }
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > span:has(> [data-draw="countdown"]) { padding: 0 0 9px; border: 0; border-bottom: 1px solid var(--color-border-line); border-radius: 0; background: none; margin-bottom: 3px; }
+  html.pt-fr-on.pt-finale:is(:not([data-tab]), [data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > span:has(> [data-draw="countdown"]) { padding: 0 0 9px; }
+  html.pt-fr-on:is(:not([data-tab]), [data-tab="overview"]) header.st-head .st-progress[data-phase="live"] > .st-dayclose { color: var(--color-fg-muted); margin-top: 2px; }
+}
+
+/* ---- P8. The safety banner a new visitor sees first (all three AIs, Nov 20): every word and its link stay; on a phone it is set like
+        the line under it, left-aligned with less padding, so it takes four lines instead of five and the page starts sooner. ------ */
+@media (max-width: 700px) {
+  #pt-safety.pt-safety { justify-content: flex-start; padding: 6px 46px 7px 12px; font-size: 12px; line-height: 1.42; text-align: left; }
+}
+
+/* ---- P9. Small things on phones ------------------------------------------------------------------------------------------------- */
+@media (max-width: 700px) {
+  #dash-root .st-corr-link { padding-block: 5px; margin-block: -5px; }
+  .st-podium .pd-big-what { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }   /* "Biggest profits" and "Biggest losses": the six names were cut off with "…" ("USC Trojans (Ohio State Buckeyes @ U…"); they wrap to a second line now */   /* a text link in System status: now inside a card, its tap area was 18 px high */
+}
+
+/* ---- P5. THE HIGH RISK LEDGER on phones: the same cards as the Ledger (polish.js 6 k labels the cells and adds the "Details and reason"
+        button). It was a nine-column table 896 px wide in a 336 px box: the move, the money and the reason sat off-screen to the right.
+        Each card: when and the ID, the AI and the part, the move, the profit; the money figures and the reason open on a tap. -------- */
+@media (max-width: 600px) {
+  [data-draw="allin-ledger"] .h2h-scroll:has(> table.pt-cards) { overflow-x: visible; }
+  [data-draw="allin-ledger"] table.h2h-table.pt-cards, [data-draw="allin-ledger"] table.h2h-table.pt-cards > tbody { display: block; width: auto; min-width: 0; }
+  [data-draw="allin-ledger"] table.h2h-table.pt-cards > thead { display: none; }
+  [data-draw="allin-ledger"] table.h2h-table.pt-cards > tbody > tr { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 10px; row-gap: 2px; padding: 10px 2px 12px 10px; border-bottom: 1px solid var(--color-border-line); border-left: 3px solid var(--ai, var(--color-border-line)); }
+  [data-draw="allin-ledger"] table.h2h-table.pt-cards > tbody > tr[hidden] { display: none !important; }
+  [data-draw="allin-ledger"] table.h2h-table.pt-cards > tbody > tr > td { display: block; grid-column: 1 / -1; width: auto; min-width: 0 !important; max-width: none; padding: 2px 0 !important; border: 0 !important; text-align: left; white-space: normal; overflow-wrap: anywhere; }
+  [data-draw="allin-ledger"] table.h2h-table.pt-cards > tbody > tr > td:empty { display: none; }
+  [data-draw="allin-ledger"] table.h2h-table.pt-cards > tbody > tr > td[data-label]::before { content: attr(data-label); display: block; margin: 4px 0 0; font-family: var(--font-sans, inherit); font-size: 12px; font-weight: 400; letter-spacing: .03em; text-transform: uppercase; color: var(--color-fg-muted); }
+  [data-draw="allin-ledger"] table.h2h-table.pt-cards > tbody > tr > td:nth-child(1)[data-label]::before { content: none; }
+  [data-draw="allin-ledger"] table.h2h-table.pt-cards > tbody > tr > td:nth-child(2), [data-draw="allin-ledger"] table.h2h-table.pt-cards > tbody > tr > td:nth-child(3) { grid-column: span 2; }
+  [data-draw="allin-ledger"] table.h2h-table.pt-cards > tbody > tr > td:nth-child(2) { color: var(--ai, inherit); font-weight: 600; }
+  [data-draw="allin-ledger"] table.h2h-table.pt-cards > tbody > tr > td:nth-child(4) { font-weight: 600; }
+  [data-draw="allin-ledger"] table.h2h-table.pt-cards > tbody > tr > td:nth-child(n+5):nth-child(-n+8) { grid-column: span 2; }
+  [data-draw="allin-ledger"] table.h2h-table.pt-cards > tbody > tr.pt-row-shut > td:nth-child(5), [data-draw="allin-ledger"] table.h2h-table.pt-cards > tbody > tr.pt-row-shut > td:nth-child(6),
+  [data-draw="allin-ledger"] table.h2h-table.pt-cards > tbody > tr.pt-row-shut > td:nth-child(8), [data-draw="allin-ledger"] table.h2h-table.pt-cards > tbody > tr.pt-row-shut > td:nth-child(9) { display: none !important; }
+  [data-draw="allin-ledger"] table.h2h-table.pt-cards > tbody > tr.pt-row-shut > td:nth-child(7) { grid-column: 1 / -1; }
+  [data-draw="allin-ledger"] .pt-row-btn { display: inline-flex; width: auto; margin: 6px 0 0; min-height: 32px; font-family: var(--font-sans); font-size: 12.5px; white-space: nowrap; }
+  [data-draw="allin-ledger"] table.h2h-table.pt-cards > tbody > tr.pt-row-shut > td:first-child .tx-wrap > .tx-go { display: none !important; }   /* "Whole story" and "More details" come back with the details */
+}

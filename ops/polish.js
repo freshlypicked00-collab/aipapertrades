@@ -144,7 +144,9 @@
     var LISTS = [   // [selector, rows that stay, what the rows are, elements per row]
       ['.lg-review-box > ul', 3, 'grades', 1], ['.lg-sims', 4, 'races', 1], ['ul.st-how', 3, 'points', 1], ['ul.st-exp-list', 4, 'lines', 1],
       ['.st-about > ul:not(.st-how):not(.st-exp-list)', 3, 'points', 1], ['dl.pt-gl-list', 5, 'words', 2],
-      ['.rules-doc > ul', 3, 'rules', 1], ['ul.st-geo-up', 3, 'updates', 1], ['#fingerprints tbody', 5, 'days', 1]];
+      ['.rules-doc > ul', 3, 'rules', 1], ['ul.st-geo-up', 3, 'updates', 1], ['#fingerprints tbody', 5, 'days', 1],
+      ['[data-draw="priceaudit"] details tbody', 10, 'checks', 1],   // phone pass, Nov 20: "every price check" opened to 400 rows, about 60 screens
+      ['.st-podium .pd-big ul', 1, 'results', 1]];   // phone pass: the Overview's "Biggest profits" and "Biggest losses" show the biggest one each, the other two on a tap (the new list of races above them added 760 px; this keeps the page the length it was)
     var busy = false;
     var btnFor = function (box, after) {
       var b = box._ptBtn;
@@ -200,18 +202,32 @@
     // h) each card of the Ledger's trade list shows when, race, action, what and the profit; one button shows the details, the money
     //    figures and the reason. A row that carries a fact-check note, or that a link jumps to, starts open.
     var PH6 = window.matchMedia('(max-width: 600px)');
+    var CARD_ROWS = [   // [the rows, cells in a row, the cell that carries the button]
+      ['#lg-trades table.st-table.pt-cards > tbody > tr', 10, 7],
+      ['[data-draw="allin-ledger"] table.h2h-table.pt-cards > tbody > tr', 9, 6]];   // k) phone pass, Nov 20: the High risk ledger, the last list still a wide table (896 px in a 336 px box)
     var ledgerRows = function () {
-      $$('#lg-trades table.st-table.pt-cards > tbody > tr').forEach(function (tr) {
+      CARD_ROWS.forEach(function (C, ci) { $$(C[0]).forEach(function (tr) {
         var tds = tr.children, btn = tr.querySelector('.pt-row-btn');
-        if (tds.length !== 10) return;
+        if (tds.length !== C[1]) return;
         if (!PH6.matches) { tr.classList.remove('pt-row-shut'); if (btn) btn.remove(); return; }   // cards are drawn at 600 px and under
-        var open = tr.dataset.ptOpen === '1' || !!tr.querySelector('.pt-fcnote');
+        if (ci === 1 && !tr.style.getPropertyValue('--ai') && tds[1].style.borderLeftColor) tr.style.setProperty('--ai', tds[1].style.borderLeftColor);   // the AI's colour, from its own cell, for the card's edge
+        var open = tr.dataset.ptOpen === '1' || !!tr.querySelector('.pt-fcnote') || (ci === 1 && tr.classList.contains('lg-hit'));   // a move a link jumped to starts open
         tr.classList.toggle('pt-row-shut', !open);
         if (!btn) { btn = mk('button', 'pt-c-btn pt-row-btn'); btn.type = 'button';
           btn.addEventListener('click', function (e) { e.stopPropagation(); tr.dataset.ptOpen = tr.dataset.ptOpen === '1' ? '0' : '1'; ledgerRows(); });
-          tds[7].appendChild(btn); }
+          tds[C[2]].appendChild(btn); }
         var t = open ? 'Show less ▴' : 'Details and reason ▾'; if (btn.textContent !== t) btn.textContent = t; btn.setAttribute('aria-expanded', String(open));
-      });
+      }); });
+    };
+    // j) phone pass, Nov 20: every table is cards from the moment it is drawn. The site's own rule (W5, Oct 30, all three AIs) already turns
+    //    every table into cards on a phone, but only at its next data refresh, so a table drawn when its page opens (15 of them: Luck
+    //    check, Decision quality, System status, Price check ...) sat as a wide table with hidden columns for the first minutes.
+    var cardsNow = function () {
+      if (typeof ptLabelTable !== 'function') return;
+      if (PH6.matches) {
+        $$('table.st-table:not(.pt-cards)').forEach(function (t) { ptLabelTable(t); });
+        $$('[data-draw="allin-ledger"] table.h2h-table').forEach(function (t) { if (!t.classList.contains('pt-cards') || t.querySelector(':scope > tbody > tr > td:not([data-label])')) ptLabelTable(t); });
+      } else $$('[data-draw="allin-ledger"] table.h2h-table.pt-cards').forEach(function (t) { t.classList.remove('pt-cards'); });
     };
     var LEDGER_CARDS = true;   // h) the Ledger's "Every trade and bet" list as cards on phones (it was a 1,442 px wide table in a 336 px box)
     var ruleSet = {};   // rule groups the visitor opened or closed by hand keep that state; the others: the first open, the rest closed
@@ -225,10 +241,12 @@
         $$('.pg').forEach(function (g) { var rows = $$(':scope > .pg-row', g); if (!rows.length) return;
           var marks = rows.map(function (r) { var f = r.firstElementChild; var t = f ? f.textContent.trim() : ''; return t.length <= 2 ? t : ''; }).filter(Boolean);
           foldBody(g, null, (rows.length === 1 ? 'Peer grade' : 'Peer grades') + (marks.length === rows.length ? ': ' + marks.join(' · ') : ' (' + rows.length + ')'), false); });
+        cardsNow();
         if (LEDGER_CARDS && typeof ptLabelTable === 'function') $$('#lg-trades table.st-table').forEach(function (t) { if (!t.classList.contains('pt-cards') || t.querySelector(':scope > tbody > tr > td:not([data-label])')) ptLabelTable(t); }); if (LEDGER_CARDS) ledgerRows();   // h) see polish.css 38
         $$('#predictions > section.st-card').forEach(function (c) { var h = c.querySelector(':scope > h2'); if (h && /^Betting minimums/.test(h.textContent.trim())) foldBody(c, ':scope > h2', 'Show more', false); });   // g) as the Sports page already does
         $$('.lg-lb').forEach(function (g) { if (g.querySelector(':scope > .lg-lb-h')) foldBody(g, '.lg-lb-h', 'Read the look-back', false); });   // e) full pass, Nov 20
         $$('td.lg-why, td.gx-why, table.pt-cards td.wrap').forEach(clampWhy);                                                              // f)
+        $$('.st-riskaward > [data-draw="riskaward"]').forEach(function (d) { if (d.querySelector(':scope > .ra-both')) foldBody(d, ':scope > .ra-both', 'Show both rankings', false); });   // i) phone pass, Nov 20: the Overview's "Best risk manager" shows its one-line result; the two rankings of three open on a tap
         if (PH.matches) $$('.au-rules').forEach(function (box) { $$(':scope > details', box).forEach(function (d, i) {
           var key = (d.querySelector('summary') || d).textContent.trim().slice(0, 40), want = key in ruleSet ? ruleSet[key] : i === 0;
           if (d.open !== want) d.open = want; }); });
@@ -256,6 +274,7 @@
     if (window.MutationObserver) new MutationObserver(kick).observe(document.getElementById('dash-root') || document.body, { childList: true, subtree: true });
     if (PH.addEventListener) { PH.addEventListener('change', sweep); PH6.addEventListener('change', sweep); }
     window.addEventListener('pt-tab', kick);
+    window.addEventListener('pt-tab', function () { requestAnimationFrame(function () { try { cardsNow(); ledgerRows(); } catch (e) {} }); });   // a page that opens shows its cards at once, not a quarter of a second later
   } catch (e) {}
   /* 7. Improvement pass (Nov 19): one line under the leader box that says how to read it (owner: "a one-line 'how to read this page' cue
         by the standings"; ChatGPT's pick in the full-pass review). Words only; no number is read or changed (polish.css 32). */
