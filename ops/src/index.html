@@ -10186,7 +10186,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       ['overview', '.pd-auto-pick', 'Auto-pick', 'Let the site choose the race: the live market, the biggest profit or loss, the closest race… Pick one yourself any time.'],
       ['overview', '#model-pick', 'The AI menu', 'See the whole page through one AI’s eyes: its holdings, charts and trades.'],
       ['ledger', '.mf-bar', 'Every move', 'Every trade and bet with the AI’s own reason. Filter, sort, and tap an ID to see the whole story.'],
-      ['overview', '.st-follow', 'Follow along', 'Every trade lands on Telegram the moment it happens. That’s it: enjoy the race! Pretend money, never advice.']];
+      ['overview', '.st-follow', 'Follow along', 'Every trade lands on Discord the moment it happens; Telegram gets the results and the daily race update. That’s it: enjoy the race! Pretend money, never advice.']];   // Nov 21: trades moved to Discord on Nov 16 (the night pass of Nov 19 fixed the other places)
     let box = null, step = 0;
     const end = () => { if (box) box.remove(); box = null; document.querySelectorAll('.gd-flash').forEach((x) => x.classList.remove('gd-flash')); document.removeEventListener('keydown', esc); };
     const esc = (ev) => { if (ev.key === 'Escape') end(); };
@@ -10227,7 +10227,16 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       const g = document.createElement('button'); g.type = 'button'; g.textContent = 'Read the Guide'; g.addEventListener('click', () => { o.remove(); goTab('guide'); });
       o.append(y, n, g); document.body.appendChild(o);
       const away = (e) => { if (e.detail !== 'overview') { o.remove(); window.removeEventListener('pt-tab', away); } }; window.addEventListener('pt-tab', away);
-    }; setTimeout(offer, 6000); }
+      // and it steps out of the way whenever the podium scrolls back under it (Nov 21, below)
+      const dodge = () => { if (!o.isConnected) { window.removeEventListener('scroll', dodge); return; } o.style.visibility = podiumOnScreen() ? 'hidden' : ''; };
+      window.addEventListener('scroll', dodge, { passive: true });
+    };
+    // Nov 21 (Claude, Gemini and ChatGPT agreed, ops/review/fable-check-nov21.json P4): on a phone the offer covered 3rd place of the
+    // front page's podium (.pt-pod), the very answer that screen is for. It now waits until the podium is off the screen (the visitor
+    // scrolled past it), never sits on it, and never comes up while the follow card is showing. Computers have no podium: unchanged.
+    const podiumOnScreen = () => { const p = document.querySelector('.pt-pod'); if (!p || !p.offsetParent) return false; const r = p.getBoundingClientRect(); return r.bottom > 0 && r.top < window.innerHeight; };
+    const when = () => { if (podiumOnScreen() || document.querySelector('.pt-fp.is-on')) { setTimeout(when, 1500); return; } offer(); };
+    setTimeout(when, 6000); }
   })();
   // High risk: sports minimums from Nov 1 (owner, Oct 31; all three AIs agreed)
   dash.draw('allinmins', (el) => {
