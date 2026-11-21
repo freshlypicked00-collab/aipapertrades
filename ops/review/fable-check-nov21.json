@@ -1,0 +1,69 @@
+{
+ "at": "2026-11-21T04:19:37Z",
+ "question": "REVIEW for the owner of PaperTrades.AI. NOT a trading turn. Nothing in your books changes.\n\nThe owner asked Claude (Nov 20, 11:06 p.m. ET): \"work with all models to see if anything needs to be changed from fables changes check the entire project\". Fable (another Claude chat) made three rounds of changes since Nov 19, 5 p.m. ET: race safety nets (each AI's turn and each result saved and pushed as it goes, time limits, a watchdog, asks in their own queue), a full pass (phone folds, post wording, Add to calendar, finale wording) and today's phone pass (front page with a podium, \"The ten races\", a bottom bar, every table as cards on phones; computers unchanged). Reports: ops/review/IMPROVEMENT_PASS_REPORT.md, FULL_PASS_DECISIONS_NOV20.md, PHONE_PASS_NOV20.md.\n\nWHAT CLAUDE CHECKED (independently, tonight)\n- Race: all 100 race runs since Nov 19, 5 p.m. ET succeeded; Gemini and ChatGPT both checked in at 10:15 p.m. ET with no failures in a row; no open alerts; 43 watchdog runs, all fine; the race runner's 27 tests pass.\n- Site: all 25 pages at 390 px (phone) and 1280 px: no script errors, no sideways scrolling, nothing hidden under the new bottom bar. The finale switch (4:00 p.m. ET Nov 28 = 21:00 UTC) and the calendar event time are right. Nini's email is on no public page. Discord #holdings still updates after every publish.\n- Pictures 1 (first visit on a phone, three screens) and 2 (High risk, Stocks, Ledger on a phone) are attached.\n\nWHAT CLAUDE FOUND, AND PROPOSES\n\nP1. A repeated Telegram post (real, found with the dry-run repeat check over 48 hours): Gemini's \"Won · Sports, Houston Texans\" went out twice (#1431 and #1433) at 11:16 p.m. ET Nov 19. Cause: the race runner sends the animated card; the upload timed out after 60 s (\"telegram animation failed: The read operation timed out\"), but Telegram had received it and posted it; the runner then sent the still card as a fallback. Discord had no repeats.\nProposal: (a) give an animated card 120 s instead of 60 s; (b) when the send TIMES OUT (Telegram may have posted it), do not send it again: log it and move on; send the still card or the words only when Telegram ANSWERS with an error (it clearly refused). (c) The same rule for the album sender (a timed-out album is not followed by a summary picture). Risk accepted: in the rare case a timed-out upload really was lost, that one result is missing from Telegram but is still on Discord and the site.\n\nP2. Deleting the repeat (#1433, keeping the first copy) cannot be undone, so it waits for the owner's OK (Telegram allows it until about Nov 21, 11:16 p.m. ET). Information only.\n\nP3. Site publishing fails now and then on GitHub's side (\"Fetching artifact metadata failed ... No artifacts named github-pages\"): 0 to 1 a day until Nov 18, then 6 on Nov 19 and 11 on Nov 20 (about 120 publishes a day; it began before Fable's changes). After a failure the site stays on the previous version until the next push: usually 1 to 26 minutes, but 57, 42 and 38 minutes three times.\nProposal: in the publish workflow, if that step fails, wait 45 seconds and try it once more; the publish counts as failed only if both tries fail.\n\nP4. First visit on a phone (picture 1, first screen): the \"New here? A 60-second tour\" prompt sits over 3rd place of the new podium, the very answer the front page was built to show; on the next page the \"Official channels\" card can pop up too.\nProposal: show the tour prompt only once the visitor has scrolled past the podium (or after 20 seconds, whichever comes first), never on top of it; never show the tour prompt and the follow card at the same time (the second waits until the first is closed). No words change.\n\nQUESTIONS\n1. P1 (a, b, c): AGREE or CHANGE?\n2. P3: AGREE or CHANGE?\n3. P4: AGREE or CHANGE?\n4. Looking at the two pictures and the list of Fable's changes: is there anything else that should change before the finale (Sat Nov 28)? At most 3 items, each one line, most important first, or \"nothing\".\nReply in that order, short. End with SATISFIED or NOT SATISFIED.",
+ "files": [
+  "ops/review/img/check-nov21-phone-first-visit.jpg",
+  "ops/review/img/check-nov21-phone-pages.jpg"
+ ],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "1. P1: AGREE.  \n2. P3: AGREE.  \n3. P4: AGREE — never cover the podium, even if the 20-second timer fires.  \n4. Move the floating red close button on phone pages so it never covers news/headline text.\n\nSATISFIED",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 3665,
+     "completion_tokens": 1105,
+     "total_tokens": 4770,
+     "cost": 0.051475,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.051475,
+      "upstream_inference_prompt_cost": 0.018325,
+      "upstream_inference_completions_cost": 0.03315
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 1034,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "1. AGREE\n2. AGREE\n3. AGREE\n4. \n- The \"Official channels\" popup lacks a solid background, causing underlying page text to bleed through (Picture 2, Screen 3).\n- An orphaned red \"X\" close button is floating on the bottom right, colliding with the new bottom navigation bar (Picture 1, Screens 2 and 3).\n\nSATISFIED",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 3495,
+     "candidatesTokenCount": 87,
+     "totalTokenCount": 7754,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 1311
+      },
+      {
+       "modality": "IMAGE",
+       "tokenCount": 2184
+      }
+     ],
+     "thoughtsTokenCount": 4172,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
