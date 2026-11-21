@@ -1,0 +1,28 @@
+REVIEW for the owner of PaperTrades.AI. NOT a trading turn. Nothing in your books changes.
+
+The owner asked Claude (Nov 20, 11:06 p.m. ET): "work with all models to see if anything needs to be changed from fables changes check the entire project". Fable (another Claude chat) made three rounds of changes since Nov 19, 5 p.m. ET: race safety nets (each AI's turn and each result saved and pushed as it goes, time limits, a watchdog, asks in their own queue), a full pass (phone folds, post wording, Add to calendar, finale wording) and today's phone pass (front page with a podium, "The ten races", a bottom bar, every table as cards on phones; computers unchanged). Reports: ops/review/IMPROVEMENT_PASS_REPORT.md, FULL_PASS_DECISIONS_NOV20.md, PHONE_PASS_NOV20.md.
+
+WHAT CLAUDE CHECKED (independently, tonight)
+- Race: all 100 race runs since Nov 19, 5 p.m. ET succeeded; Gemini and ChatGPT both checked in at 10:15 p.m. ET with no failures in a row; no open alerts; 43 watchdog runs, all fine; the race runner's 27 tests pass.
+- Site: all 25 pages at 390 px (phone) and 1280 px: no script errors, no sideways scrolling, nothing hidden under the new bottom bar. The finale switch (4:00 p.m. ET Nov 28 = 21:00 UTC) and the calendar event time are right. Nini's email is on no public page. Discord #holdings still updates after every publish.
+- Pictures 1 (first visit on a phone, three screens) and 2 (High risk, Stocks, Ledger on a phone) are attached.
+
+WHAT CLAUDE FOUND, AND PROPOSES
+
+P1. A repeated Telegram post (real, found with the dry-run repeat check over 48 hours): Gemini's "Won · Sports, Houston Texans" went out twice (#1431 and #1433) at 11:16 p.m. ET Nov 19. Cause: the race runner sends the animated card; the upload timed out after 60 s ("telegram animation failed: The read operation timed out"), but Telegram had received it and posted it; the runner then sent the still card as a fallback. Discord had no repeats.
+Proposal: (a) give an animated card 120 s instead of 60 s; (b) when the send TIMES OUT (Telegram may have posted it), do not send it again: log it and move on; send the still card or the words only when Telegram ANSWERS with an error (it clearly refused). (c) The same rule for the album sender (a timed-out album is not followed by a summary picture). Risk accepted: in the rare case a timed-out upload really was lost, that one result is missing from Telegram but is still on Discord and the site.
+
+P2. Deleting the repeat (#1433, keeping the first copy) cannot be undone, so it waits for the owner's OK (Telegram allows it until about Nov 21, 11:16 p.m. ET). Information only.
+
+P3. Site publishing fails now and then on GitHub's side ("Fetching artifact metadata failed ... No artifacts named github-pages"): 0 to 1 a day until Nov 18, then 6 on Nov 19 and 11 on Nov 20 (about 120 publishes a day; it began before Fable's changes). After a failure the site stays on the previous version until the next push: usually 1 to 26 minutes, but 57, 42 and 38 minutes three times.
+Proposal: in the publish workflow, if that step fails, wait 45 seconds and try it once more; the publish counts as failed only if both tries fail.
+
+P4. First visit on a phone (picture 1, first screen): the "New here? A 60-second tour" prompt sits over 3rd place of the new podium, the very answer the front page was built to show; on the next page the "Official channels" card can pop up too.
+Proposal: show the tour prompt only once the visitor has scrolled past the podium (or after 20 seconds, whichever comes first), never on top of it; never show the tour prompt and the follow card at the same time (the second waits until the first is closed). No words change.
+
+QUESTIONS
+1. P1 (a, b, c): AGREE or CHANGE?
+2. P3: AGREE or CHANGE?
+3. P4: AGREE or CHANGE?
+4. Looking at the two pictures and the list of Fable's changes: is there anything else that should change before the finale (Sat Nov 28)? At most 3 items, each one line, most important first, or "nothing".
+Reply in that order, short. End with SATISFIED or NOT SATISFIED.
