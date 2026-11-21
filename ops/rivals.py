@@ -1239,10 +1239,18 @@ def tg_photo(text, photo, silent=False, _dc=True):   # every trade, bet and resu
         body = b''.join(parts) + f'--{b}\r\nContent-Disposition: form-data; name="{kind}"; filename="c.{ct[6:]}"\r\nContent-Type: {ct}\r\n\r\n'.encode() + open(f, 'rb').read() + f'\r\n--{b}--\r\n'.encode()
         try:
             req = urllib.request.Request(f'https://api.telegram.org/bot{tok}/{meth}', body, {'Content-Type': f'multipart/form-data; boundary={b}'})
-            urllib.request.urlopen(req, timeout=60).read()
+            urllib.request.urlopen(req, timeout=120 if kind == 'animation' else 60).read()   # Nov 21: an animated card gets 120 s (60 s was too short once)
             TGSTAT['sent'] += 1
             return
-        except Exception as e:
+        except TimeoutError as e:
+            # Nov 21 (Claude, Gemini and ChatGPT agreed, ops/review/fable-check-nov21.json P1): the post went out whole but no answer came in
+            # time. Telegram may well have posted it: on Nov 19, 11:16 p.m. ET, Gemini's Texans win timed out here, was posted anyway, and
+            # the still card then went out too (a repeated post). So nothing is sent again. (A timeout while still SENDING arrives as a
+            # URLError, below, and does fall back: that post never got there whole.)
+            print('telegram ' + kind + ' sent, but no answer in time; not sent again in case it was posted:', e)
+            TGSTAT['sent'] += 1
+            return
+        except Exception as e:   # Telegram answered with an error (it refused this one), or the post never left: the next try goes
             print('telegram ' + kind + ' failed', e)
     tg(text, _dc=False)
 

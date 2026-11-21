@@ -936,6 +936,8 @@ def tg_album(token, chat, photos, caption='', silent=False):
     try:
         req = urllib.request.Request(f'https://api.telegram.org/bot{token}/sendMediaGroup', b''.join(parts), {'Content-Type': f'multipart/form-data; boundary={b}'})
         urllib.request.urlopen(req, timeout=120).read()
+    except TimeoutError as e:   # Nov 21 (all three AIs agreed, P1): sent whole, no answer in time; it may well be posted, so the caller sends nothing again
+        print('telegram album sent, but no answer in time; not sent again in case it was posted:', e)
     except Exception as e:
         print('telegram album failed:', e)
         return False

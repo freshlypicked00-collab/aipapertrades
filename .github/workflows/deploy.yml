@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 10
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -50,7 +50,17 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
+      # Nov 21 (Claude, Gemini and ChatGPT agreed, ops/review/fable-check-nov21.json P3): GitHub's side sometimes fails this step
+      # ("Fetching artifact metadata failed ... No artifacts named github-pages"): 17 times on Nov 19-20, leaving the site up to 57 minutes
+      # behind. One more try 45 s later; the publish counts as failed only if both fail.
       - id: deployment
+        continue-on-error: true
+        uses: actions/deploy-pages@v4
+      - name: Wait before the second try
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 45
+      - id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@v4
       # IndexNow (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json): tells Bing (which feeds ChatGPT search, Copilot and
       # DuckDuckGo), Yandex and others that pages changed. Pings the static pages when they change, and the home page once a day.

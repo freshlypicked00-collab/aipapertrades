@@ -615,5 +615,67 @@ def test_a_question_cannot_cancel_a_queued_race_run():
     grp = re.search(r"^concurrency:\n  group: (.+)\n  cancel-in-progress: false", wf, re.M).group(1)
     assert "inputs.mode == 'ask' && 'rivals-ask'" in grp and "inputs.mode == 'prices' && 'rivals-prices'" in grp and grp.rstrip(' }').endswith("|| 'rivals'"), grp
 
+
+def test_a_picture_that_timed_out_is_not_posted_twice():
+    """Nov 21: Gemini's Texans win (Nov 19, 11:16 p.m. ET) went out twice on Telegram. The animated card's upload got no answer within
+    60 s although Telegram had posted it, and the runner then sent the still card as well. Now a post that went out whole but got no
+    answer in time is not sent again (and an animation gets 120 s); one Telegram refused, or one that never left, still falls back to
+    the still card. The album sender follows the same rule."""
+    import urllib.error
+    import urllib.request
+    import sharecard
+    tmp = tempfile.mkdtemp()
+    png, png2, gif = os.path.join(tmp, 'c.png'), os.path.join(tmp, 'd.png'), os.path.join(tmp, 'c.gif')
+    for f in (png, png2, gif):
+        open(f, 'wb').write(b'x')
+    calls, texts = [], []
+
+    def fake(*outcomes):
+        it = iter(outcomes)
+
+        def urlopen(req, timeout=None):
+            calls.append((req.full_url.rsplit('/', 1)[1], timeout))
+            o = next(it)
+            if isinstance(o, BaseException):
+                raise o
+
+            class Ok:
+                def read(self):
+                    return b'{"ok": true, "result": {"message_id": 1}}'
+            return Ok()
+        return urlopen
+    assert R.animate, 'the animated cards module is missing'
+    saved = urllib.request.urlopen, R.tg, R.QUIET_TG, R.animate.gif_of, os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID')
+    try:
+        os.environ['TELEGRAM_BOT_TOKEN'], os.environ['TELEGRAM_CHAT_ID'] = 't', 'c'
+        R.QUIET_TG = False
+        R.tg = lambda text, **k: texts.append(text)
+        R.animate.gif_of = lambda p: gif
+        urllib.request.urlopen = fake(TimeoutError('The read operation timed out'))            # sent whole, no answer: nothing more
+        R.tg_photo('Won', png, _dc=False)
+        assert calls == [('sendAnimation', 120)] and texts == [], (calls, texts)
+        calls.clear()
+        urllib.request.urlopen = fake(urllib.error.HTTPError('u', 400, 'Bad Request', {}, None), 'ok')   # refused: the still card goes
+        R.tg_photo('Won', png, _dc=False)
+        assert [c[0] for c in calls] == ['sendAnimation', 'sendPhoto'] and texts == [], (calls, texts)
+        calls.clear()
+        urllib.request.urlopen = fake(urllib.error.URLError(TimeoutError('timed out')), 'ok')   # never got there whole: the still card goes
+        R.tg_photo('Won', png, _dc=False)
+        assert [c[0] for c in calls] == ['sendAnimation', 'sendPhoto'] and texts == [], (calls, texts)
+        calls.clear()
+        R.animate.gif_of = lambda p: None
+        urllib.request.urlopen = fake(TimeoutError('The read operation timed out'), 'ok')       # an album: sent whole, no answer
+        assert sharecard.tg_album('t', 'c', [png, png2], 'short caption') is True and [c[0] for c in calls] == ['sendMediaGroup'], calls
+        calls.clear()
+        urllib.request.urlopen = fake(urllib.error.HTTPError('u', 400, 'Bad Request', {}, None))
+        assert sharecard.tg_album('t', 'c', [png, png2], 'short caption') is False and [c[0] for c in calls] == ['sendMediaGroup'], calls
+    finally:
+        urllib.request.urlopen, R.tg, R.QUIET_TG, R.animate.gif_of = saved[:4]
+        for k, v in (('TELEGRAM_BOT_TOKEN', saved[4]), ('TELEGRAM_CHAT_ID', saved[5])):
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+
 if __name__ == '__main__':
     main()
