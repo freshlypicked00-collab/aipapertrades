@@ -1,5 +1,5 @@
 {
- "at": "2026-11-20T10:22:16.617432Z",
+ "at": "2026-11-21T10:06:42.077884Z",
  "since": "2026-11-01T02:30:00Z",
  "by_ai": {
   "claude": {
@@ -416,48 +416,12 @@
    ]
   },
   "chatgpt": {
-   "kept": 15,
+   "kept": 17,
    "broken": 7,
    "pending": 3,
-   "closed_first": 22,
+   "closed_first": 23,
    "untestable": 3,
    "items": [
-    {
-     "at": "2026-11-05T14:37:09Z",
-     "what": "SPY Nov 20 $770 call",
-     "race": "Options",
-     "tx": "X-OPT-014",
-     "level": {
-      "symbol": "SPY",
-      "below": 755.5
-     },
-     "breach_at": "2026-11-05T14:37:09Z",
-     "result": "kept: got out after the level was reached"
-    },
-    {
-     "at": "2026-11-05T17:15:13Z",
-     "what": "SPDR Gold Shares",
-     "race": "Metals",
-     "tx": "X-MET-005",
-     "level": {
-      "symbol": "GLD",
-      "below": 374.8
-     },
-     "breach_at": "2026-11-06T14:30:00Z",
-     "result": "kept: got out after the level was reached"
-    },
-    {
-     "at": "2026-11-05T20:45:24Z",
-     "what": "SPDR Gold Shares",
-     "race": "Metals",
-     "tx": "X-MET-006",
-     "level": {
-      "symbol": "GLD",
-      "below": 371.5
-     },
-     "breach_at": "2026-11-06T14:30:00Z",
-     "result": "kept: got out after the level was reached"
-    },
     {
      "at": "2026-11-05T22:15:48Z",
      "what": "Bitcoin USD",
@@ -759,6 +723,41 @@
       "below": 645.0
      },
      "breach_at": "2026-11-19T19:30:00Z",
+     "result": "kept: got out after the level was reached"
+    },
+    {
+     "at": "2026-11-20T15:15:44Z",
+     "what": "State Street SPDR S&P 500 ETF Trust",
+     "race": "Stocks",
+     "tx": "X-STK-026",
+     "level": {
+      "symbol": "SPY",
+      "below": 706.5
+     },
+     "breach_at": "2026-11-20T15:30:00Z",
+     "result": "kept: got out after the level was reached"
+    },
+    {
+     "at": "2026-11-20T16:45:43Z",
+     "what": "ProShares UltraPro Short QQQ",
+     "race": "Stocks",
+     "tx": "X-STK-028",
+     "level": {
+      "symbol": "QQQ",
+      "above": 643.25
+     },
+     "result": "closed before the level was reached"
+    },
+    {
+     "at": "2026-11-20T23:15:25Z",
+     "what": "Bitcoin USD",
+     "race": "Crypto",
+     "tx": "X-CRY-035",
+     "level": {
+      "symbol": "BTC-USD",
+      "below": 56800.0
+     },
+     "breach_at": "2026-11-21T03:00:00Z",
      "result": "kept: got out after the level was reached"
     }
    ]
