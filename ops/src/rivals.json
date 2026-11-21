@@ -116109,18 +116109,6 @@
   },
   {
    "at": "2026-11-18T04:14:35Z",
-   "model": "claude",
-   "experiment": "AllInTrading",
-   "value": 92379.3
-  },
-  {
-   "at": "2026-11-18T04:14:35Z",
-   "model": "claude",
-   "experiment": "AllInSports",
-   "value": 103030.32
-  },
-  {
-   "at": "2026-11-18T04:14:35Z",
    "model": "gemini",
    "experiment": "Stocks",
    "value": 108138.76
@@ -131298,6 +131286,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 107568.09
+  },
+  {
+   "at": "2026-11-21T04:19:49Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 87062.79
+  },
+  {
+   "at": "2026-11-21T04:19:49Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 99047.92
   }
  ],
  "takes": [
@@ -160881,7 +160881,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 608.45,
-      "priced_at": "2026-11-21T04:15:16Z",
+      "priced_at": "2026-11-21T04:19:49Z",
       "hist": [
        [
         29886870,
@@ -163831,8 +163831,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 55814.59,
-      "priced_at": "2026-11-21T04:15:16Z",
+      "last": 55823.98,
+      "priced_at": "2026-11-21T04:19:49Z",
       "hist": [
        [
         29886870,
@@ -269054,34 +269054,6 @@
     "name": "ProShares UltraPro Short QQQ",
     "placed_at": "2026-11-20T20:45:17Z",
     "reason": "I want the remaining high-risk SQQQ position closed if the Nasdaq rebound is strong enough to pull SQQQ below 55.90."
-   },
-   {
-    "id": "chatgpt-227",
-    "model": "chatgpt",
-    "experiment": "Crypto",
-    "symbol": "BTC-USD",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 64500.0,
-    "fraction": 0.75,
-    "name": "Bitcoin USD",
-    "placed_at": "2026-11-20T23:15:25Z",
-    "reason": "If Bitcoin rebounds toward the pre-flush zone, I want to bank most of the tactical position rather than overstay a countertrend bounce."
-   },
-   {
-    "id": "chatgpt-229",
-    "model": "chatgpt",
-    "experiment": "AllInTrading",
-    "symbol": "BTC-USD",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 65000.0,
-    "fraction": 0.75,
-    "name": "Bitcoin USD",
-    "placed_at": "2026-11-20T23:15:25Z",
-    "reason": "A rebound to US$65,000 would be enough to harvest most of the high-risk crypto trade while leaving a small runner."
    }
   ],
   "claude": [
@@ -269471,7 +269443,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-21T04:15:16Z",
+  "at": "2026-11-21T04:19:49Z",
   "games": [
    {
     "id": "401879233",
@@ -269506,7 +269478,7 @@
     "away": "Leeds United",
     "home": "Chelsea",
     "start": "2026-11-21T15:00Z",
-    "away_ml": 270,
+    "away_ml": 280,
     "home_ml": 100
    },
    {
@@ -269650,8 +269622,8 @@
     "away": "Milwaukee Bucks",
     "home": "Philadelphia 76ers",
     "start": "2026-11-21T18:00Z",
-    "away_ml": 492,
-    "home_ml": -680
+    "away_ml": 474,
+    "home_ml": -650
    },
    {
     "id": "401892754",
@@ -270109,8 +270081,8 @@
     "away": "LA Clippers",
     "home": "Dallas Mavericks",
     "start": "2026-11-22T01:00Z",
-    "away_ml": 168,
-    "home_ml": -201
+    "away_ml": 180,
+    "home_ml": -217
    },
    {
     "id": "401910026",
@@ -270118,8 +270090,8 @@
     "away": "Memphis Grizzlies",
     "home": "Minnesota Timberwolves",
     "start": "2026-11-22T01:00Z",
-    "away_ml": 168,
-    "home_ml": -201
+    "away_ml": 180,
+    "home_ml": -217
    },
    {
     "id": "401910027",
@@ -270262,7 +270234,7 @@
     "away": "Tennessee Titans",
     "home": "Dallas Cowboys",
     "start": "2026-11-22T18:00Z",
-    "away_ml": 305,
+    "away_ml": 304,
     "home_ml": -383
    },
    {
@@ -272309,6 +272281,26 @@
    "kind": "stop",
    "level": 56500.0,
    "result": "filled: Sell Bitcoin USD C$14,190 at 55,814.6"
+  },
+  {
+   "at": "2026-11-21T04:19:49Z",
+   "model": "chatgpt",
+   "id": "chatgpt-227",
+   "experiment": "Crypto",
+   "name": "Bitcoin USD",
+   "kind": "target",
+   "level": 64500.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-21T04:19:49Z",
+   "model": "chatgpt",
+   "id": "chatgpt-229",
+   "experiment": "AllInTrading",
+   "name": "Bitcoin USD",
+   "kind": "target",
+   "level": 65000.0,
+   "result": "removed: the position is no longer held"
   }
  ],
  "forecasts": [
