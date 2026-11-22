@@ -434,3 +434,127 @@ html[data-tab]:not([data-tab="overview"]) .pt-final { display: none; }   /* the 
 .pt-cal:hover { border-color: var(--color-fg-muted); }
 .pt-cal:focus-visible { outline: 2px solid var(--pt-ring); outline-offset: 2px; }
 @media (max-width: 700px) { .pt-fin-act .pt-fin-link { min-height: 32px; padding: 4px 6px; border: 0; text-decoration: underline; text-underline-offset: 3px; } }
+/* ---- 40. The Ledger, one race at a time (owner, Nov 21: "what if the ledger had this and u can select each race to view better (also show
+        like a view winner button next to models) to show whos winning too"). A race picker at the top of the Ledger; a picked race shows
+        its own numbers, its Value over time chart and what the AI holds (markup and script: ops/src/index.html, "The Ledger, one race at a
+        time"). Also here: each AI's profit on the AI buttons of every Value over time chart, and the "View who's winning" button. ------- */
+.lg-race > .st-note { margin-bottom: 10px; }
+.lg-race-chips button { display: inline-flex; align-items: baseline; gap: 6px; padding: 5px 12px; }
+.lg-race-chips button[hidden] { display: none; }
+.lg-rc-c { font-size: .85em; }
+.lg-rc-pl { font-family: var(--font-serif); font-size: 12px; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+.lg-rc-pl.is-up { color: var(--color-ok); }
+.lg-rc-pl.is-down { color: var(--color-bad); }
+.lg-race-chips button[aria-pressed="true"] .lg-rc-pl { color: inherit; font-weight: 600; }   /* on the light pressed button the sign says up or down */
+.lg-race-sel { display: none; }
+.lg-race-view { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--color-border-line); transition: opacity .12s ease; }
+.lg-race-view.lg-busy { opacity: .5; }   /* a race was just picked: its numbers arrive with the page's next redraw */
+.lg-race-stats { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 30px; margin: 0 0 18px; }
+.lg-stat { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.lg-stat[hidden] { display: none; }
+.lg-stat-l { font-family: var(--font-serif); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); }
+.lg-stat b { font-weight: 500; font-size: 15px; color: var(--color-fg); }
+.lg-stat b.is-up { color: var(--color-ok); }
+.lg-stat b.is-down { color: var(--color-bad); }
+.lg-race-stats .lg-race-open { margin-left: auto; }
+.lg-race-cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: start; }
+.lg-race-cols > [hidden] { display: none; }
+@media (min-width: 1100px) { .lg-race-cols.has-pie { grid-template-columns: minmax(0, 7fr) minmax(300px, 4fr); gap: 30px; } }
+.gx-ai-pl { font-family: var(--font-serif); font-size: 12px; font-weight: 500; letter-spacing: 0; color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.gx-ai-pl.is-up { color: var(--color-ok); }
+.gx-ai-pl.is-down { color: var(--color-bad); }
+.gx-who .gx-lead { min-height: 30px; padding: 3px 12px; font-size: 13px; }
+@media (max-width: 700px) {
+  .lg-race-chips { display: none; }
+  .lg-race-sel { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--color-fg-muted); }
+  .lg-race-sel select { flex: 1 1 auto; min-width: 0; min-height: 44px; font: inherit; font-size: 16px; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: 6px 10px; }
+  .lg-race-stats { gap: 10px 22px; }
+  .lg-race-stats .lg-race-open { margin-left: 0; }
+  .gx-who .gx-lead { margin-left: 0; min-height: 36px; }
+}
+@media (max-width: 480px) {   /* a phone: the AI and its name on the first line, the amount under it (with the crown, so the name always fits) */
+  .gx-aisw button { flex-wrap: wrap; row-gap: 0; column-gap: 4px; padding: 4px 5px; }
+  .gx-aisw .gx-ai-pl { flex: 0 0 100%; text-align: center; font-size: 11.5px; }
+  .gx-aisw .gx-ai-cr { display: none; }
+  .gx-aisw button.is-lead .gx-ai-pl::before { content: '👑 '; }
+}
+@media (max-width: 360px) { .gx-aisw button { font-size: 12.5px; } .gx-aisw .ai-badge { flex: none; } }
+/* ---- 41. The Ledger on a computer (owner, Nov 21: "make improvements to the ledger. and make sure it looks A1"). Two lists were wider
+        than their box on every computer screen, so their last columns sat off-screen to the right behind a sideways scroll bar:
+        a) "Every trade and bet" was 1,604 px wide in a 1,142 px box: Profit, Return and the reason were cut off, and each row was as tall
+           as the hidden reason. Now the nine columns sit on one line and the reason gets its own full-width line under them; on a small
+           laptop (961 to 1179 px) the four money figures go on a second line, each with its name. The same cells in the same order:
+           only the layout changes. Phones keep their cards (block 38); 601 to 960 px keeps the sideways scroll.
+        b) "What <AI> holds in <race> now" (under every Value over time chart) lost its "Why" column the same way for about one race in
+           three (the owner's own picture of the China page shows it cut off). The small lines under a profit now wrap, and the first
+           column no longer asks for 56% of the width (a rule meant for the bets table), so "Why" fits. ------------------------------- */
+@media (min-width: 961px) {
+  #lg-trades > .st-wrap { overflow-x: visible; }
+  #lg-trades > .st-wrap > table.st-table, #lg-trades > .st-wrap > table.st-table > thead, #lg-trades > .st-wrap > table.st-table > tbody { display: block; width: 100%; }
+  /* small laptops (961 to 1179 px): two lines. When, race, action, what and details; under them the four money figures, each with its name */
+  #lg-trades > .st-wrap > table.st-table > thead > tr, #lg-trades > .st-wrap > table.st-table > tbody > tr { display: grid; align-items: start; grid-template-columns: repeat(20, minmax(0, 1fr)); }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr[hidden] { display: none !important; }
+  #lg-trades > .st-wrap > table.st-table > thead > tr { border-bottom: 1px solid var(--color-border-line); }
+  #lg-trades > .st-wrap > table.st-table > thead > tr > th { border-bottom: 0; white-space: normal; }
+  #lg-trades > .st-wrap > table.st-table > thead > tr > th:nth-child(n+6) { display: none; }   /* the money figures and the reason carry their own names */
+  #lg-trades > .st-wrap > table.st-table > tbody > tr { border-bottom: 1px solid var(--color-border-line); padding: 8px 0 10px; }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td { border-bottom: 0; min-width: 0; overflow-wrap: break-word; }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td.num { white-space: normal; overflow-wrap: normal; }   /* an amount may sit on two lines, but a number is never broken */
+  #lg-trades > .st-wrap > table.st-table > * > tr > :nth-child(1) { grid-area: 1 / 1 / auto / span 6; }
+  #lg-trades > .st-wrap > table.st-table > * > tr > :nth-child(2) { grid-area: 1 / 7 / auto / span 2; }
+  #lg-trades > .st-wrap > table.st-table > * > tr > :nth-child(3) { grid-area: 1 / 9 / auto / span 4; }
+  #lg-trades > .st-wrap > table.st-table > * > tr > :nth-child(4) { grid-area: 1 / 13 / auto / span 3; }
+  #lg-trades > .st-wrap > table.st-table > * > tr > :nth-child(5) { grid-area: 1 / 16 / auto / span 5; }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td:nth-child(6) { grid-area: 2 / 1 / auto / span 6; }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td:nth-child(7) { grid-area: 2 / 7 / auto / span 5; }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td:nth-child(8) { grid-area: 2 / 12 / auto / span 5; }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td:nth-child(9) { grid-area: 2 / 17 / auto / span 4; }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td:nth-child(n+6):nth-child(-n+9) { text-align: left; padding-top: 6px; }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td:nth-child(n+6):nth-child(-n+9):empty { display: none; }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td:nth-child(n+6):nth-child(-n+9)::before,
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td:nth-child(10):not(.lg-why-none)::before { display: inline-block; margin-right: 10px; font-family: var(--font-serif); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-fg-muted); }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td:nth-child(6)::before { content: 'Money'; }   /* the column names, written out: a freshly drawn list has no data-label yet */
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td:nth-child(7)::before { content: 'Cost / stake'; }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td:nth-child(8)::before { content: 'Profit'; }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td:nth-child(9)::before { content: 'Return'; }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td:nth-child(10):not(.lg-why-none)::before { content: 'Why'; }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td:nth-child(10) { grid-area: 3 / 1 / auto / -1; max-width: none; padding-top: 6px; }   /* the reason: its own full-width line */
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td:nth-child(10):empty { display: none; }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td[colspan] { grid-area: auto / 1 / auto / -1; }
+  #lg-trades .lg-find, #lg-trades .lg-pl { white-space: normal; text-align: left; }
+  /* a highlighted move is one band across the whole row (cell by cell it came out as patches of different heights) */
+  #lg-trades > .st-wrap > table.st-table > tbody > tr.lg-hit { background: color-mix(in srgb, var(--accent, #ffb000) 20%, transparent); box-shadow: inset 4px 0 0 var(--accent, #ffb000); }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr.lg-hit-soft { background: color-mix(in srgb, var(--accent, #ffb000) 8%, transparent); box-shadow: inset 4px 0 0 color-mix(in srgb, var(--accent, #ffb000) 55%, transparent); }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr:is(.lg-hit, .lg-hit-soft) > td { background: transparent; box-shadow: none; }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr.pt-flash { animation: pt-flash-bg 2.2s ease-out; }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr.pt-flash > td { animation: none; }
+}
+@media (min-width: 1180px) {   /* a full-width computer screen: all nine columns on one line, the reason under them */
+  #lg-trades > .st-wrap > table.st-table > thead > tr, #lg-trades > .st-wrap > table.st-table > tbody > tr { grid-template-columns: minmax(214px, 1.6fr) minmax(86px, .8fr) minmax(146px, 1.3fr) minmax(96px, 1fr) minmax(150px, 2fr) minmax(126px, 1.15fr) minmax(104px, 1fr) minmax(118px, 1.1fr) minmax(66px, .56fr); }
+  #lg-trades > .st-wrap > table.st-table > * > tr > :nth-child(-n+9) { grid-area: auto; }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td:nth-child(n+6):nth-child(-n+9) { grid-area: auto; text-align: right; padding-top: var(--cds-pad-xs); }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td:nth-child(n+6):nth-child(-n+9):empty { display: block; }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td:nth-child(n+6):nth-child(-n+9)::before { content: none; }
+  #lg-trades > .st-wrap > table.st-table > thead > tr > th:nth-child(n+6):nth-child(-n+9) { display: block; }
+  #lg-trades > .st-wrap > table.st-table > tbody > tr > td:nth-child(10) { grid-area: auto / 1 / auto / -1; }
+}
+@media (min-width: 701px) {
+  .gx-hold-t td.num .gx-sub { white-space: normal; }
+  .gx-hold-t td.wrap:first-child:has(~ td.gx-why) { width: auto; min-width: 11rem; }
+  .gx-hold-t td.wrap[data-label="When"] { min-width: 12.5rem; }
+  .gx-hold-t td[data-label="Profit or loss"] { max-width: 230px; }
+  .gx-hold-t td.gx-why { width: 34%; max-width: none; }
+  .gx-hold-t td.wrap[data-label="Game"] { min-width: 11rem; }   /* the open-bets table was a few px wider than its box */
+}
+@media (min-width: 701px) and (max-width: 1180px) {   /* 41 b on a small laptop or a tablet on its side: tighter still, so "Why" stays in view */
+  .gx-hold-t td.wrap:first-child:has(~ td.gx-why) { min-width: 9.5rem; }
+  .gx-hold-t td.num:not([data-label="Worth now"]):not([data-label="Stake"]):not([data-label="Odds"]) { white-space: normal; }   /* "Bought" over its amount; a profit's percent or a bet's result on a second line, when there is no room */
+  .gx-hold-t td.gx-why { min-width: 150px; width: 30%; }
+  #hold-all-body td.src { min-width: 9rem; }   /* the Ledger's Holdings table was 16 px wider than its box at 961 px */
+}
+@media (min-width: 701px) and (max-width: 1023px) {   /* and the last few px, for a window narrower than 1024 */
+  .gx-hold-t td.wrap[data-label="When"] { min-width: 12rem; }
+  .gx-hold-t td.wrap[data-label="Game"] { min-width: 8.5rem; }
+  .gx-hold-t td.wrap[data-label="Placed"] { white-space: normal; }
+}
+@media (max-width: 340px) { .gx-aisw .ai-badge { display: none; } }   /* 40, the narrowest phones: the name and the amount without the small icon */
