@@ -1,0 +1,56 @@
+diff --git a/ops/rivals.py b/ops/rivals.py
+index bb1e79f2..15c5bcc8 100644
+--- a/ops/rivals.py
++++ b/ops/rivals.py
+@@ -1595,9 +1595,20 @@ def excused_days(state, mid):
+                 out.add(d.isoformat())
+             d += timedelta(days=1)
+         return out
+-    for d, v in (((state.get('models') or {}).get(mid) or {}).get('day_log') or {}).items():
++    log = ((state.get('models') or {}).get(mid) or {}).get('day_log') or {}
++    for d, v in log.items():
+         if OUTAGE_FROM <= d < today and not v.get('ok') and v.get('down'):
+             out.add(d)
++    # Nov 22 (PROPOSED, not yet voted): a finished ET day with NO check-in on record at all is the runner itself being down (GitHub
++    # refused to start every run from Nov 21, 12:14 p.m. ET). The AI was never asked, so its service was down in the rule's own words,
++    # exactly as a day with no update at all already is for Claude. Counted only from the first day the log holds, so a state from
++    # before the log existed excuses nothing by mistake.
++    if log:
++        d = datetime.fromisoformat(max(OUTAGE_FROM, min(log))).date()
++        while d.isoformat() < today:
++            if d.isoformat() not in log:
++                out.add(d.isoformat())
++            d += timedelta(days=1)
+     return out
+ 
+ 
+diff --git a/ops/tests/run_tests.py b/ops/tests/run_tests.py
+index 72fca2fb..de80d951 100644
+--- a/ops/tests/run_tests.py
++++ b/ops/tests/run_tests.py
+@@ -294,6 +294,25 @@ def test_outage_days_owe_no_minimum_and_are_refunded():
+         R.NOW, R.tg = saved_now, saved_tg
+ 
+ 
++def test_a_day_the_runner_never_ran_owes_no_minimum():
++    """Nov 22 (proposed): GitHub refused to start every run from Nov 21, 12:14 p.m. ET. A finished ET day with no check-in on record
++    at all (the runner never asked the AI) is an outage day like one whose API was down: no daily minimum, C$3,000 off the totals.
++    A day with a working check-in, or with only the AI's own failed replies, still owes it; with no log at all nothing is excused."""
++    saved_now, saved_tg = R.NOW, R.tg
++    R.NOW, R.tg = datetime(2026, 11, 24, 15, 0, tzinfo=timezone.utc), (lambda *a, **k: None)
++    try:
++        st = {'trades': [], 'models': {'gemini': {'books': {'Sports': {'bets': [], 'penalties': []}}, 'day_log': {
++            '2026-11-20': {'ok': 31, 'down': 0, 'other': 0}, '2026-11-21': {'ok': 12, 'down': 0, 'other': 0},
++            # Nov 22: nothing at all (the runner never ran)
++            '2026-11-23': {'ok': 0, 'down': 0, 'other': 4}}}}}   # its own replies failed: still owes it
++        assert R.excused_days(st, 'gemini') == {'2026-11-22'}, R.excused_days(st, 'gemini')
++        assert R.total_min(st, 'gemini', R.PENALTY_FROM) == R.TOTAL_MIN - R.DAY_MIN
++        assert R.excused_days({'models': {'gemini': {}}}, 'gemini') == set()   # no log yet: nothing is excused by mistake
++        assert R.excused_days({'models': {'gemini': {'day_log': {}}}}, 'gemini') == set()
++    finally:
++        R.NOW, R.tg = saved_now, saved_tg
++
++
+ def test_one_ai_cannot_use_up_the_whole_run():
+     """Nov 19: from Nov 18, 10:14 p.m. ET every check-in was killed at the 30-minute job limit before anything was saved, and Gemini
+     and ChatGPT both missed 8 hours. Each AI's model requests now share one clock (MODEL_BUDGET): a request to a model host is cut
