@@ -126397,18 +126397,6 @@
   },
   {
    "at": "2026-11-20T21:07:40Z",
-   "model": "claude",
-   "experiment": "AllInTrading",
-   "value": 87878.3
-  },
-  {
-   "at": "2026-11-20T21:07:40Z",
-   "model": "claude",
-   "experiment": "AllInSports",
-   "value": 97928.52
-  },
-  {
-   "at": "2026-11-20T21:07:40Z",
    "model": "gemini",
    "experiment": "Stocks",
    "value": 108138.76
@@ -130462,6 +130450,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 107651.42
+  },
+  {
+   "at": "2026-11-23T21:14:37Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 91283.35
+  },
+  {
+   "at": "2026-11-23T21:14:37Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 98947.92
   }
  ],
  "takes": [
@@ -153289,7 +153289,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 651.03,
-      "priced_at": "2026-11-23T21:08:55Z",
+      "priced_at": "2026-11-23T21:14:37Z",
       "hist": [
        [
         29886870,
@@ -156303,8 +156303,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 61345.96,
-      "priced_at": "2026-11-23T21:08:55Z",
+      "last": 61259.66,
+      "priced_at": "2026-11-23T21:14:37Z",
       "hist": [
        [
         29886870,
@@ -262028,10 +262028,10 @@
    "c20261121051532-48",
    "c20261122051642-49",
    "c20261123081616-50",
-   "c20261123202625-51"
+   "c20261123202625-51",
+   "c20261123211156-52"
   ],
   "results": [
-   "claude-4: stop filled Sell Gold C$28,697 at 3,887.7",
    "claude-2: stop filled Sell QQQ C$18,859 at 684.97",
    "c20261030185630-2: filled Bet S3 (NBA: New York Knicks moneyline (New York Knicks @ Philadelphia 76ers)) C$3,000 at -125",
    "c20261031042227-3: filled Bet S4 (NBA: Philadelphia 76ers moneyline (Philadelphia 76ers @ Charlotte Hornets)) C$3,000 at -120",
@@ -262090,7 +262090,8 @@
    "c20261121051532-48: filled Bet S25 (NBA: San Antonio Spurs moneyline (New Orleans Pelicans @ San Antonio Spurs)) C$3,000 at -1560",
    "c20261122051642-49: refused (team \"Kansas City Chiefs\" matches 0 open games (give the game id from `python3 ops/orders.py games`))",
    "c20261123081616-50: filled Bet S26 (NFL: Cincinnati Bengals moneyline (Cincinnati Bengals @ Washington Commanders)) C$3,000 at -300",
-   "c20261123202625-51: refused (no Polymarket market will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections)"
+   "c20261123202625-51: refused (no Polymarket market will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections)",
+   "c20261123211156-52: filled Buy Will there be no change in Fed interest rates after the December 2026 meeting? (No) C$3,000 at 0.9675"
   ],
   "codes": {
    "Democrats win the Senate (Yes)": "will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections|Yes"
@@ -262326,7 +262327,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-23T21:08:55Z",
+  "at": "2026-11-23T21:14:37Z",
   "games": [
    {
     "id": "401921708",
@@ -262334,8 +262335,8 @@
     "away": "Washington Huskies",
     "home": "BYU Cougars",
     "start": "2026-11-23T22:00Z",
-    "away_ml": 525,
-    "home_ml": -750
+    "away_ml": 455,
+    "home_ml": -625
    },
    {
     "id": "401910036",
@@ -262451,8 +262452,8 @@
     "away": "Cincinnati Bengals",
     "home": "Washington Commanders",
     "start": "2026-11-24T01:15Z",
-    "away_ml": -300,
-    "home_ml": 244
+    "away_ml": -304,
+    "home_ml": 247
    },
    {
     "id": "401910043",
@@ -262543,6 +262544,15 @@
     "start": "2026-11-25T00:00Z",
     "away_ml": 220,
     "home_ml": -270
+   },
+   {
+    "id": "401916319",
+    "short": "NCAAB",
+    "away": "Vanderbilt Commodores",
+    "home": "Ohio State Buckeyes",
+    "start": "2026-11-25T00:00Z",
+    "away_ml": -142,
+    "home_ml": 120
    },
    {
     "id": "401892780",
