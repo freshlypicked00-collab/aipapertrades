@@ -45981,6 +45981,25 @@
    "reason": "Fulfilling the weekly prediction market minimum with a position in a likely Fed rate hike scenario, supported by recent Fed minutes indicating higher interest rates may be needed in December.",
    "wrong_if": "The Federal Reserve's target interest rate remains at or below 4.00% after the December 2026 FOMC meeting.",
    "p_works": 0.85
+  },
+  {
+   "at": "2026-11-23T20:32:52Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "action": "Bet",
+   "symbol": "C23",
+   "outcome": null,
+   "name": "NBA: Cleveland Cavaliers moneyline (Cleveland Cavaliers @ Chicago Bulls)",
+   "price": -336,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 5000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Pacing High risk: Sports toward its C$100,000 total (C$68,000 so far, five days left): Cleveland are -336 road favourites at Chicago on the runner ESPN list, so the stake adds volume at modest risk.",
+   "bet": "C23",
+   "wrong_if": "Chicago win outright; at -336 the line implies about a 77% Cleveland win chance.",
+   "p_works": 0.76
   }
  ],
  "history": [
@@ -130073,6 +130092,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 107651.42
+  },
+  {
+   "at": "2026-11-23T20:32:52Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 91380.26
+  },
+  {
+   "at": "2026-11-23T20:32:52Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 98947.92
   }
  ],
  "takes": [
@@ -151737,7 +151768,8 @@
    "C19",
    "C20",
    "C21",
-   "C22"
+   "C22",
+   "C23"
   ]
  },
  "tuning_trades": [
@@ -152883,8 +152915,8 @@
       "pcur": "USD",
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 652.75,
-      "priced_at": "2026-11-23T20:26:13Z",
+      "last": 652.38,
+      "priced_at": "2026-11-23T20:32:52Z",
       "hist": [
        [
         29886870,
@@ -155877,6 +155909,10 @@
        [
         29924416,
         651.9
+       ],
+       [
+        29924432,
+        652.38
        ]
       ]
      },
@@ -155886,8 +155922,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 61043.98,
-      "priced_at": "2026-11-23T20:26:13Z",
+      "last": 61187.81,
+      "priced_at": "2026-11-23T20:32:52Z",
       "hist": [
        [
         29886870,
@@ -159020,6 +159056,10 @@
        [
         29924416,
         61345.57
+       ],
+       [
+        29924432,
+        61187.81
        ]
       ]
      }
@@ -159529,6 +159569,25 @@
       "result": 0.0,
       "reason": "Monday High risk sports minimum: Cincinnati are road favourites at Washington tonight (-298 on the runner ESPN list, 6.5-point favourites on Covers); kept at the C$3,000 floor.",
       "wrong_if": "Washington win outright; at about -298 the line implies roughly a 75% Cincinnati win chance."
+     },
+     {
+      "id": "C23",
+      "game": "401910041",
+      "sport": "basketball",
+      "league": "nba",
+      "short": "NBA",
+      "event": "Cleveland Cavaliers @ Chicago Bulls",
+      "pick": "away",
+      "pick_team": "Cleveland Cavaliers",
+      "odds": -336,
+      "stake": 5000.0,
+      "to_win": 1488.1,
+      "starts_at": "2026-11-24T01:00Z",
+      "placed_at": "2026-11-23T20:32:52Z",
+      "status": "Open",
+      "result": 0.0,
+      "reason": "Pacing High risk: Sports toward its C$100,000 total (C$68,000 so far, five days left): Cleveland are -336 road favourites at Chicago on the runner ESPN list, so the stake adds volume at modest risk.",
+      "wrong_if": "Chicago win outright; at -336 the line implies about a 77% Cleveland win chance."
      }
     ],
     "penalties": [
@@ -159571,7 +159630,8 @@
    "20261121051532-22",
    "20261121171556-23",
    "20261122061520-24",
-   "20261123091653-25"
+   "20261123091653-25",
+   "20261123202625-26"
   ],
   "results": [
    "20261028182237-0: filled Buy Invesco QQQ Trust C$40,000",
@@ -159599,7 +159659,8 @@
    "20261121051532-22: filled Bet NCAAF: Georgia Bulldogs moneyline (Georgia Bulldogs @ South Carolina Gamecocks) C$3,000",
    "20261121171556-23: refused (game '401856755' is not in the list of games open for betting)",
    "20261122061520-24: refused (game '401873070' is not in the list of games open for betting)",
-   "20261123091653-25: filled Bet NFL: Cincinnati Bengals moneyline (Cincinnati Bengals @ Washington Commanders) C$3,000"
+   "20261123091653-25: filled Bet NFL: Cincinnati Bengals moneyline (Cincinnati Bengals @ Washington Commanders) C$3,000",
+   "20261123202625-26: filled Bet NBA: Cleveland Cavaliers moneyline (Cleveland Cavaliers @ Chicago Bulls) C$5,000"
   ]
  },
  "price_alerts": {
@@ -261197,10 +261258,10 @@
    "c20261120143932-47",
    "c20261121051532-48",
    "c20261122051642-49",
-   "c20261123081616-50"
+   "c20261123081616-50",
+   "c20261123202625-51"
   ],
   "results": [
-   "c20261030143035-1: filled Buy USO C$10,000 at 170.77",
    "claude-4: stop filled Sell Gold C$28,697 at 3,887.7",
    "claude-2: stop filled Sell QQQ C$18,859 at 684.97",
    "c20261030185630-2: filled Bet S3 (NBA: New York Knicks moneyline (New York Knicks @ Philadelphia 76ers)) C$3,000 at -125",
@@ -261259,7 +261320,8 @@
    "c20261120143932-47: refused (no price from the feed for 6 hours (HTTP Error 403: Forbidden); check the symbol)",
    "c20261121051532-48: filled Bet S25 (NBA: San Antonio Spurs moneyline (New Orleans Pelicans @ San Antonio Spurs)) C$3,000 at -1560",
    "c20261122051642-49: refused (team \"Kansas City Chiefs\" matches 0 open games (give the game id from `python3 ops/orders.py games`))",
-   "c20261123081616-50: filled Bet S26 (NFL: Cincinnati Bengals moneyline (Cincinnati Bengals @ Washington Commanders)) C$3,000 at -300"
+   "c20261123081616-50: filled Bet S26 (NFL: Cincinnati Bengals moneyline (Cincinnati Bengals @ Washington Commanders)) C$3,000 at -300",
+   "c20261123202625-51: refused (no Polymarket market will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections)"
   ],
   "codes": {
    "Democrats win the Senate (Yes)": "will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections|Yes"
@@ -261495,7 +261557,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-23T20:26:13Z",
+  "at": "2026-11-23T20:32:52Z",
   "games": [
    {
     "id": "401921708",
@@ -261656,8 +261718,8 @@
     "away": "San Antonio Spurs",
     "home": "Sacramento Kings",
     "start": "2026-11-24T03:00Z",
-    "away_ml": -484,
-    "home_ml": 371
+    "away_ml": -597,
+    "home_ml": 443
    },
    {
     "id": "401892779",
@@ -268907,7 +268969,8 @@
   "chatgpt|Stocks|2026-11-23T20:16:06Z|Buy|QQQ": "X-STK-031",
   "claude|Sports|2026-11-23T20:16:06Z|Bet|S26": "C-SPT-050",
   "claude|Sports|2026-11-23T20:16:06Z|Won|S25": "C-SPT-051",
-  "gemini|Predictions|2026-11-23T20:26:13Z|Buy|another-fed-rate-hike-in-2026": "G-PRD-008"
+  "gemini|Predictions|2026-11-23T20:26:13Z|Buy|another-fed-rate-hike-in-2026": "G-PRD-008",
+  "claude|AllInSports|2026-11-23T20:32:52Z|Bet|C23": "C-AIS-045"
  },
  "txseq": {
   "X-CRY": 36,
@@ -268943,7 +269006,7 @@
   "G-CHN": 4,
   "C-CHN": 2,
   "G-PRD": 8,
-  "C-AIS": 44,
+  "C-AIS": 45,
   "X-PRD": 4,
   "C-OPT": 2
  },
