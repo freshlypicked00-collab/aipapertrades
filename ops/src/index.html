@@ -9757,12 +9757,25 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const rows = (ES[race] || []).filter((r) => AIS[r.id]).slice().sort((a, b) => Number(b.profit) - Number(a.profit));
     return rows.length > 1 && Number(rows[0].profit) - Number(rows[1].profit) >= 0.5 ? rows[0].id : null;
   };
-  // each AI's profit in one race, the figures Race standings shows (for the AI buttons on the charts; owner, Nov 21)
+  // each AI's profit in one race (for the AI buttons on the charts; owner, Nov 21). A race valued from its holdings uses the same sum as
+  // that AI's own Value tile and chart headline (holdings priced after the last check-in can move it a few dollars from the Race
+  // standings figure: on Nov 23 a button said +C$2,006 over a headline of +C$2,049), so a button never disagrees with its chart.
   const raceProfits = (race) => {
     const out = {};
     if (ALLIN[race]) { allinRows(race).forEach((r) => { out[r.id] = Number(r.profit); }); return out; }
     const all = dash.baseData('exp_standings'); const ES = (Array.isArray(all) ? all[0] : all) || {};
     (ES[race] || []).forEach((r) => { if (AIS[r.id]) out[r.id] = Number(r.profit); });
+    if (race !== 'Sports') {
+      let MS = {}; try { MS = dash.models() || {}; } catch (e) {}
+      const f = race === 'China' ? 'value_usd' : 'value_cad';
+      Object.keys(out).forEach((id) => {
+        const hs = id === 'claude' ? dash.baseData('holdings') : (MS[id] || {}).holdings;
+        const rows = Array.isArray(hs) ? hs.filter((h) => h.portfolio === race) : [];
+        if (!rows.length) return;
+        const v = rows.reduce((a, h) => a + Number(h[f] || 0), 0);
+        if (isFinite(v) && v > 0) out[id] = v - 100000;
+      });
+    }
     return out;
   };
   const setModel = (id, byLeader) => { const mp = document.getElementById('model-pick'); if (!mp || !AIS[id] || mp.value === id) return; if (byLeader) window.__leaderPick = id; mp.value = id; mp.dispatchEvent(new Event('change')); };
