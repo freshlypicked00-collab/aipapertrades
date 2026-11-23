@@ -96,12 +96,24 @@ ALLIN_MIN_FROM = '2026-11-01'   # High risk: Sports gets the same betting minimu
 # each such day lowers that AI's C$100,000 totals (Sports, High risk: Sports) by the C$3,000 daily minimum. Penalties already charged
 # for such a day are refunded (apply_outage_refunds). From OUTAGE_FROM the days are found from the runner's own records (day_log);
 # the two days before it were voted on by name. For Claude, an outage day is a day with no update at all.
+# A finished ET day with no check-in on record at all, good or bad, is the race runner itself being down (GitHub started no run
+# from Sat Nov 21, 12:14 p.m. ET to Mon Nov 23, 3:12 p.m. ET): the AI was never asked, so it is an outage day too (no_run_days).
+# In the code since Nov 23, 1:22 a.m. ET with the owner's OK; voted Nov 23 (ops/review/outage-no-run-day.json): all three agreed.
+# Claude's bets are placed by the same runner, so its Sunday bets stayed queued and it was fined for Nov 22 at the first run. It did
+# not vote on its own fine; Gemini and ChatGPT both voted to waive it (same file, Q4), so Nov 22 is voted on by name for Claude.
 OUTAGE_FROM = '2026-11-18'
+NO_RUN_VOTE = 'all three agreed, Nov 23'   # who agreed that a day the runner never ran is an outage day, for the public lines
 OUTAGE_VOTED = {'chatgpt': {
     '2026-11-12': 'ChatGPT could not check in at all on Nov 12 (ET): the OpenRouter credit that pays for its API calls had run out, '
                   'and every call failed with HTTP 402 from Nov 11, 8:39 p.m. to Nov 13, about 6 a.m. ET',
     '2026-11-17': 'ChatGPT could not check in at all on Nov 17 (ET): the OpenRouter credit that pays for its API calls had run out, '
-                  'and every call failed with HTTP 402 from Nov 16, 1:45 p.m. ET'}}
+                  'and every call failed with HTTP 402 from Nov 16, 1:45 p.m. ET'},
+                'claude': {
+    '2026-11-22': 'Claude had queued its Nov 22 (ET) bets just after midnight, but the race runner that places them did not run at all '
+                  'that day (GitHub started no run from Nov 21, 12:14 p.m. ET to Nov 23, 3:12 p.m. ET)'}}
+# A day voted on by name can carry its own "who decided" sentence for the ledger line and the public post (default: the Nov 18 rule).
+OUTAGE_CITE = {('claude', '2026-11-22'): 'Waived by Gemini and ChatGPT on Nov 23, the same remedy as for their own outage day; '
+                                         'Claude did not vote on its own fine.'}
 # Prediction markets is not optional (owner Nov 2; Claude, Gemini and ChatGPT all agreed: ops/review/pred-sitout-nov2.json):
 # at least C$3,000 bought there each ET week (Mon-Sun) from Mon Nov 2, at least C$15,000 bought there since the Oct 28 restart by
 # Nov 28; C$1,000 off the Prediction markets balance per missed week, 10% of any shortfall from C$15,000 at the final scoring.
@@ -132,7 +144,10 @@ ANNOUNCEMENTS = [('2026-10-29T16:00:00+00:00', 'RULE CHANGE (Oct 28, 5:30 p.m. E
                  ('2026-11-28T21:00:00+00:00', 'RULE (Nov 18; Claude and Gemini agreed, 2 of 3; ChatGPT had no API credit to answer): an ET day on which an AI had '
                   'NO successful check-in because its API credit or service was down owes no daily betting minimum (Sports and High risk: Sports), and '
                   'each such day lowers that AI\'s C$100,000 totals by C$3,000. A day with any working check-in still owes the full minimum. ChatGPT\'s '
-                  'C$2,000 of penalties for Nov 12 and Nov 17 (its OpenRouter credit had run out) were refunded under this rule.')]
+                  'C$2,000 of penalties for Nov 12 and Nov 17 (its OpenRouter credit had run out) were refunded under this rule.'
+                  + (' A day on which the race runner itself never ran, so you were never asked, counts as such a day too (' + NO_RUN_VOTE + '): '
+                     'Sunday Nov 22 is such a day for all three AIs. Claude\'s C$1,000 of penalties for Nov 22 (its bets were queued but the runner '
+                     'never placed them) were waived by Gemini and ChatGPT on Nov 23; Claude did not vote on its own fine.' if NO_RUN_VOTE else ''))]
 try:
     from zoneinfo import ZoneInfo
     NY = ZoneInfo('America/New_York')
@@ -1595,20 +1610,27 @@ def excused_days(state, mid):
                 out.add(d.isoformat())
             d += timedelta(days=1)
         return out
-    log = ((state.get('models') or {}).get(mid) or {}).get('day_log') or {}
-    for d, v in log.items():
+    for d, v in (((state.get('models') or {}).get(mid) or {}).get('day_log') or {}).items():
         if OUTAGE_FROM <= d < today and not v.get('ok') and v.get('down'):
             out.add(d)
-    # Nov 22 (PROPOSED, not yet voted): a finished ET day with NO check-in on record at all is the runner itself being down (GitHub
-    # refused to start every run from Nov 21, 12:14 p.m. ET). The AI was never asked, so its service was down in the rule's own words,
-    # exactly as a day with no update at all already is for Claude. Counted only from the first day the log holds, so a state from
-    # before the log existed excuses nothing by mistake.
-    if log:
-        d = datetime.fromisoformat(max(OUTAGE_FROM, min(log))).date()
-        while d.isoformat() < today:
-            if d.isoformat() not in log:
-                out.add(d.isoformat())
-            d += timedelta(days=1)
+    return out | no_run_days(state, mid)
+
+
+def no_run_days(state, mid):
+    """Finished ET days on which the race runner never asked this AI at all (Gemini, ChatGPT): no check-in on record, good or bad.
+    Counted only from the first day the log holds, so a state from before the log existed excuses nothing by mistake. Claude's test
+    stays its own (a day with no update at all), so this is always empty for Claude."""
+    m = (state.get('models') or {}).get(mid) or {}
+    log = m.get('day_log') or {}
+    out = set()
+    if not log or m.get('eliminated'):
+        return out
+    today = NOW.astimezone(NY).date().isoformat()
+    d = datetime.fromisoformat(max(OUTAGE_FROM, min(log))).date()
+    while d.isoformat() < today:
+        if d.isoformat() not in log:
+            out.add(d.isoformat())
+        d += timedelta(days=1)
     return out
 
 
@@ -1636,7 +1658,7 @@ def apply_outage_refunds(state):
         else:
             bk = state['models'][mid].get('books') or {}
             holders += [(e, bk[e], 'penalties', 'refunded_penalties') for e in ('Sports', 'AllInSports') if bk.get(e) is not None]
-        back = []
+        back, norun, cause = [], no_run_days(state, mid), set()
         for e, holder, key, rkey in holders:
             pens = holder.get(key) or []
             hit = [p for p in pens if p.get('day') in ex]
@@ -1645,22 +1667,30 @@ def apply_outage_refunds(state):
             holder[key] = [p for p in pens if p.get('day') not in ex]
             for p in hit:
                 d = datetime.fromisoformat(p['day']).date()
+                who = RIVALS[mid]['label'] if mid in RIVALS else 'Claude'
+                gone = p['day'] in norun and p['day'] not in OUTAGE_VOTED.get(mid, {})   # the runner never ran that day
+                cause.add('runner' if gone else 'api')
                 why = OUTAGE_VOTED.get(mid, {}).get(p['day']) or (
-                    f"{RIVALS[mid]['label'] if mid in RIVALS else 'Claude'} could not check in at all on {d.strftime('%b %-d')} (ET) because its API credit or service was down")
+                    f"{who} was never asked on {d.strftime('%b %-d')} (ET): the race runner did not run at all that day" if gone else
+                    f"{who} could not check in at all on {d.strftime('%b %-d')} (ET) because its API credit or service was down")
+                rule = OUTAGE_CITE.get((mid, p['day'])) or ('Outage rule of Nov 18 (Claude and Gemini agreed, 2 of 3)' + (
+                    ', which also covers a day the race runner never ran' + (f' ({NO_RUN_VOTE})' if NO_RUN_VOTE else '') if gone else '') + '.')
                 label = 'High risk: Sports' if e == 'AllInSports' else 'Sports'
                 amt = float(p.get('amount') or 0)
-                holder.setdefault(rkey, []).append(dict(p, refunded_at=iso(), refund_reason=why))
-                if mid != 'claude':
+                holder.setdefault(rkey, []).append(dict(p, refunded_at=iso(), refund_reason=why, refund_rule=rule))
+                if mid != 'claude' or e == 'AllInSports':   # Claude's High risk fine is a ledger line here too, so its refund is one as well
                     state['trades'].append({'at': iso(), 'model': mid, 'experiment': e, 'action': 'Refund', 'symbol': ('RA-' if e == 'AllInSports' else 'R-') + p['day'],
                                             'outcome': None, 'name': 'Penalty refunded (outage day)', 'price': 0, 'pcur': 'CAD', 'qty': 1, 'amount': amt, 'cur': 'CAD',
-                                            'fx': None, 'reason': f"Refund of the {money(amt, 'CAD')} {label} penalty for {d.strftime('%b %-d')}: {why}. "
-                                                                  'Outage rule of Nov 18 (Claude and Gemini agreed, 2 of 3).'})
-                tg(f"⚖️ <b>{names.get(mid, mid)}: +{money(amt, 'CAD')} {label} penalty refunded</b>\n{esc(why)}. Outage rule of Nov 18 (Claude and Gemini agreed, 2 of 3).\n{post_foot()}")
+                                            'fx': None, 'reason': f"Refund of the {money(amt, 'CAD')} {label} penalty for {d.strftime('%b %-d')}: {why}. {rule}"})
+                tg(f"⚖️ <b>{names.get(mid, mid)}: +{money(amt, 'CAD')} {label} penalty refunded</b>\n{esc(why)}. {esc(rule)}\n{post_foot()}")
                 back.append(f"{money(amt, 'CAD')} in {label} for {d.strftime('%b %-d')}")
         if back and mid != 'claude':
-            note = ('NOTICE (Nov 18 vote; Claude and Gemini agreed, 2 of 3): these betting-minimum penalties were refunded because your API credit had run out '
-                    'and you could not check in at all on those days: ' + '; '.join(back) + '. New standing rule, the same for all three AIs: an ET day with '
-                    'no successful check-in because your API credit or service was down owes no daily betting minimum, and each such day lowers your '
+            note = ('NOTICE (Nov 18 vote; Claude and Gemini agreed, 2 of 3): these betting-minimum penalties were refunded because '
+                    + ('the race runner itself was down and you were never asked on those days: ' if cause == {'runner'} else
+                       'your API credit had run out and you could not check in at all on those days: ' if cause == {'api'} else
+                       'you could not check in at all on those days (your API credit had run out, or the race runner itself was down): ')
+                    + '; '.join(back) + '. Standing rule, the same for all three AIs: an ET day with '
+                    'no successful check-in because your API credit or service was down, or because the race runner never ran, owes no daily betting minimum, and each such day lowers your '
                     f'C$100,000 totals by C$3,000 (your Sports total minimum is now {money(total_min(state, mid, PENALTY_FROM), "CAD")}, your High risk: '
                     f'Sports total minimum {money(total_min(state, mid, ALLIN_MIN_FROM), "CAD")}). A day with any working check-in still owes the full minimum.')
             state.setdefault('notices', {})[mid] = (state.get('notices', {}).get(mid, '') + ' ' + note).strip()

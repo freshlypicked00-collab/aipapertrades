@@ -295,9 +295,10 @@ def test_outage_days_owe_no_minimum_and_are_refunded():
 
 
 def test_a_day_the_runner_never_ran_owes_no_minimum():
-    """Nov 22 (proposed): GitHub refused to start every run from Nov 21, 12:14 p.m. ET. A finished ET day with no check-in on record
-    at all (the runner never asked the AI) is an outage day like one whose API was down: no daily minimum, C$3,000 off the totals.
-    A day with a working check-in, or with only the AI's own failed replies, still owes it; with no log at all nothing is excused."""
+    """GitHub would not start any run from Nov 21, 12:14 p.m. ET. A finished ET day with no check-in on record at all (the runner never
+    asked the AI) is an outage day like one whose API was down: no daily minimum, C$3,000 off the totals. A day with a working
+    check-in, or with only the AI's own failed replies, still owes it; with no log at all nothing is excused; Claude's own test
+    (a day with no update at all) is not touched."""
     saved_now, saved_tg = R.NOW, R.tg
     R.NOW, R.tg = datetime(2026, 11, 24, 15, 0, tzinfo=timezone.utc), (lambda *a, **k: None)
     try:
@@ -305,12 +306,77 @@ def test_a_day_the_runner_never_ran_owes_no_minimum():
             '2026-11-20': {'ok': 31, 'down': 0, 'other': 0}, '2026-11-21': {'ok': 12, 'down': 0, 'other': 0},
             # Nov 22: nothing at all (the runner never ran)
             '2026-11-23': {'ok': 0, 'down': 0, 'other': 4}}}}}   # its own replies failed: still owes it
-        assert R.excused_days(st, 'gemini') == {'2026-11-22'}, R.excused_days(st, 'gemini')
+        assert R.no_run_days(st, 'gemini') == {'2026-11-22'} and R.excused_days(st, 'gemini') == {'2026-11-22'}, R.excused_days(st, 'gemini')
         assert R.total_min(st, 'gemini', R.PENALTY_FROM) == R.TOTAL_MIN - R.DAY_MIN
         assert R.excused_days({'models': {'gemini': {}}}, 'gemini') == set()   # no log yet: nothing is excused by mistake
         assert R.excused_days({'models': {'gemini': {'day_log': {}}}}, 'gemini') == set()
+        assert R.no_run_days(st, 'claude') == set()   # Claude's test is its own
+        st['models']['gemini']['eliminated'] = True   # an AI that is out of the race has no check-ins by design
+        assert R.no_run_days(st, 'gemini') == set()
     finally:
         R.NOW, R.tg = saved_now, saved_tg
+
+
+def test_a_fine_for_a_day_the_runner_never_ran_is_refunded_in_the_right_words():
+    """If the first run after the gap has already fined the AIs for the missed day, the next run with this rule refunds each fine once,
+    and the ledger line, the public post and the AI's notice say what really happened (the runner never ran), not 'API credit'."""
+    saved_now, saved_tg, saved_vote, posts = R.NOW, R.tg, R.NO_RUN_VOTE, []
+    R.NOW, R.tg = datetime(2026, 11, 23, 15, 0, tzinfo=timezone.utc), (lambda text, *a, **k: posts.append(text))
+    R.NO_RUN_VOTE = ''   # first without the "who agreed" words, then with them
+    try:
+        pen = lambda d: {'day': d, 'at': d + 'T05:10:00Z', 'amount': 500.0, 'reason': 'missed'}
+        log = {'2026-11-20': {'ok': 31, 'down': 0, 'other': 0}, '2026-11-21': {'ok': 12, 'down': 0, 'other': 0}, '2026-11-23': {'ok': 2, 'down': 0, 'other': 0}}
+        st = {'trades': [], 'notices': {}, 'models': {
+            'gemini': {'books': {'Sports': {'bets': [], 'penalties': [pen('2026-11-22')]}, 'AllInSports': {'bets': [], 'penalties': [pen('2026-11-22')]}}, 'day_log': dict(log)},
+            'chatgpt': {'books': {'Sports': {'bets': [], 'penalties': [pen('2026-11-19'), pen('2026-11-22')]}},   # Nov 19: its API was down all day
+                        'day_log': dict(log, **{'2026-11-19': {'ok': 0, 'down': 9, 'other': 0}})}}}
+        R.apply_outage_refunds(st)
+        g = st['models']['gemini']['books']
+        assert g['Sports']['penalties'] == [] and g['AllInSports']['penalties'] == [] and R.allin_balance(g['AllInSports']) == 100000.0
+        assert [p['day'] for p in g['Sports']['refunded_penalties']] == ['2026-11-22']
+        lines = {(t['model'], t['experiment'], t['symbol']): t for t in st['trades']}
+        assert set(lines) == {('gemini', 'Sports', 'R-2026-11-22'), ('gemini', 'AllInSports', 'RA-2026-11-22'),
+                              ('chatgpt', 'Sports', 'R-2026-11-19'), ('chatgpt', 'Sports', 'R-2026-11-22')}, set(lines)
+        assert all(t['action'] == 'Refund' and t['amount'] == 500.0 for t in lines.values())
+        why = lines[('gemini', 'Sports', 'R-2026-11-22')]['reason']
+        assert 'Gemini was never asked on Nov 22 (ET): the race runner did not run at all that day.' in why, why
+        assert why.endswith('Outage rule of Nov 18 (Claude and Gemini agreed, 2 of 3), which also covers a day the race runner never ran.'), why
+        assert 'API credit' not in why
+        old = lines[('chatgpt', 'Sports', 'R-2026-11-19')]['reason']   # a day its API was down keeps the Nov 18 words
+        assert 'because its API credit or service was down. Outage rule of Nov 18 (Claude and Gemini agreed, 2 of 3).' in old and 'runner' not in old, old
+        assert 'the race runner itself was down and you were never asked on those days' in st['notices']['gemini']
+        assert 'or the race runner itself was down' in st['notices']['chatgpt']   # one day of each kind
+        assert 'Sports total minimum is now C$97,000' in st['notices']['gemini'], st['notices']['gemini']
+        assert len(posts) == 4 and all('penalty refunded' in x for x in posts) and sum('never asked' in x for x in posts) == 3
+        assert st['excused'] == {'gemini': ['2026-11-22'], 'chatgpt': ['2026-11-12', '2026-11-17', '2026-11-19', '2026-11-22'], 'claude': st['excused']['claude']}
+        R.apply_outage_refunds(st)   # never twice
+        assert len(st['trades']) == 4 and len(posts) == 4
+        # once the vote is in, the public lines say who agreed
+        R.NO_RUN_VOTE = 'Gemini and ChatGPT agreed, Nov 23'
+        st2 = {'trades': [], 'notices': {}, 'models': {'gemini': {'books': {'Sports': {'bets': [], 'penalties': [pen('2026-11-22')]}}, 'day_log': dict(log)}}}
+        R.apply_outage_refunds(st2)
+        assert st2['trades'][0]['reason'].endswith('which also covers a day the race runner never ran (Gemini and ChatGPT agreed, Nov 23).'), st2['trades'][0]['reason']
+        # Claude, Nov 22: voted on by name (Gemini and ChatGPT waived its fines; Claude did not vote). Its Sports fine lives in
+        # claude_penalties (no ledger line here); its High risk fine is a ledger line here, so the refund must be one too. The line
+        # says who decided, not "Outage rule of Nov 18".
+        assert R.excused_days({'models': {}}, 'claude') >= {'2026-11-22'} and R.total_min({'models': {}}, 'claude', R.PENALTY_FROM) == R.TOTAL_MIN - R.DAY_MIN
+        st3 = {'trades': [], 'notices': {}, 'models': {}, 'claude_penalties': [pen('2026-11-22'), pen('2026-11-05')],
+               'claude_allin': {'books': {'AllInSports': {'bets': [], 'penalties': [pen('2026-11-22')]}}}}
+        n = len(posts)
+        R.apply_outage_refunds(st3)
+        assert [p['day'] for p in st3['claude_penalties']] == ['2026-11-05'] and [p['day'] for p in st3['claude_penalties_refunded']] == ['2026-11-22']
+        ab = st3['claude_allin']['books']['AllInSports']
+        assert ab['penalties'] == [] and ab['refunded_penalties'][0]['day'] == '2026-11-22' and R.allin_balance(ab) == 100000.0
+        assert [(t['model'], t['experiment'], t['action'], t['symbol'], t['amount']) for t in st3['trades']] == [('claude', 'AllInSports', 'Refund', 'RA-2026-11-22', 500.0)], st3['trades']
+        why = st3['trades'][0]['reason']
+        assert 'Claude had queued its Nov 22 (ET) bets just after midnight' in why and 'Outage rule of Nov 18' not in why, why
+        assert why.endswith('Waived by Gemini and ChatGPT on Nov 23, the same remedy as for their own outage day; Claude did not vote on its own fine.'), why
+        assert st3['claude_penalties_refunded'][0]['refund_rule'].startswith('Waived by Gemini and ChatGPT on Nov 23') and len(posts) == n + 2
+        assert all('Waived by Gemini and ChatGPT' in x for x in posts[n:]) and 'notices' in st3 and 'claude' not in st3['notices']
+        R.apply_outage_refunds(st3)   # never twice
+        assert len(st3['trades']) == 1 and len(posts) == n + 2
+    finally:
+        R.NOW, R.tg, R.NO_RUN_VOTE = saved_now, saved_tg, saved_vote
 
 
 def test_one_ai_cannot_use_up_the_whole_run():
