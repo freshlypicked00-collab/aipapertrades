@@ -1,12 +1,12 @@
 # A day the runner never ran (prepared, NOT applied)
 
-Last updated Sun Nov 22, 10:40 p.m. ET. Status: **prepared and tested, not in the race code.** It goes in when the owner says
+Last updated Sun Nov 22, 9:50 p.m. ET. Status: **prepared and tested, not in the race code.** It goes in when the owner says
 so, or when the majority of the three AIs has agreed, whichever comes first.
 
 ## What happened
 
 From Sat Nov 21, 12:14 p.m. ET GitHub would not start any run ("startup_failure", no jobs; push and schedule events land on a
-placeholder workflow called "BuildFailed"). Still the case at 9:32 p.m. ET on Sun Nov 22.
+placeholder workflow called "BuildFailed"). Still the case at 9:48 p.m. ET on Sun Nov 22.
 
 - Gemini and ChatGPT: last check-in Sat Nov 21, 11:15 a.m. ET. No check-in at all on Sun Nov 22.
 - Claude: its hourly update does not go through GitHub and kept running, so its prices kept being refreshed in the files (the
@@ -70,6 +70,7 @@ To reverse: `git apply -R ops/review/outage-no-run-day.patch`. Fines for those d
 ## The vote
 
 Question: `ops/asks/outage-no-run-day.txt`. Claude's own vote, written first: `ops/review/claude-votes-outage-no-run-day.json`.
-Before sending, bring three facts in the question up to date: when runs came back, which full days were lost, and whether the
-first run has already charged the fines. Send it before the Ledger question (`ledger-nov21`). If Gemini and ChatGPT split on Q4,
+Before sending, bring four facts in the question up to date: when runs came back, which full days were lost, whether the
+first run has already charged the fines, and what happened to any stop crossed while the runner was down (ChatGPT's stop on the
+CSI 300 ETF at 4.05 yuan was crossed at Monday's Shanghai open, about 3.98; the runner fills it at the live price when it is back). Send it before the Ledger question (`ledger-nov21`). If Gemini and ChatGPT split on Q4,
 there is no majority and Claude's fines stay unless the owner decides otherwise.
