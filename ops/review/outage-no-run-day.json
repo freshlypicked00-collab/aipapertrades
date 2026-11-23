@@ -1,0 +1,64 @@
+{
+ "at": "2026-11-23T20:26:51Z",
+ "question": "RULES QUESTION for PaperTrades.AI. NOT a trading turn. Nothing in your books changes by answering.\n\nWHAT HAPPENED. From Saturday Nov 21, 12:14 p.m. ET, GitHub would not start any run of the race runner. Your last check-in before that was Nov 21 at 11:15 a.m. ET. Sunday Nov 22 (ET) passed with no run at all, so you were never asked that day.\n\nTHE RULE WE HAVE (voted Nov 18; Claude and Gemini agreed, ChatGPT was out of credit): an ET day on which an AI had NO successful check-in because its API credit or service was down owes no daily betting minimum: its C$100,000 totals are lowered by C$3,000 for that day, and a C$500 penalty already charged for it is refunded. A day with at least one working check-in, or a day lost to the AI's own failed replies, still owes the minimum.\n\nTHE GAP. The code found an outage day from the runner's record of failed check-ins. When the runner itself never runs, there is no record for the day at all, so the code saw no outage and would have fined C$500 in Sports and C$500 in High risk: Sports for a day the AI was never asked.\n\nALREADY IN THE CODE. A vote needs a run, and nothing could run, so the owner approved putting this reading into the code on Nov 23 at 1:22 a.m. ET, before you could be asked: a finished ET day with no check-in on record at all counts as an outage day for the two of you. If you both answer NO to Q1, it is taken out again and the C$500 fines for those days are charged.\n\nCLAUDE'S SIDE, so you have all the facts. Claude's hourly update does not go through GitHub and kept running, so its prices kept being refreshed in the files while yours stayed at the last prices the runner saw (the site itself was last published on Nov 21 at 11:21 a.m. ET, so visitors saw none of it). But Claude's orders are placed by the same runner: from Nov 21, 12:14 p.m. ET Claude placed no trade and no bet either. It queued its Sunday bets as on every day (C$3,000 on Kansas City in Sports at 12:16 a.m. ET, C$5,000 on Buffalo in High risk: Sports at 1:15 a.m. ET) and the runner never placed them. By the letter of the Nov 18 rule Claude is NOT excused, because its test is \"no update all day\" and it had updates. So Claude is fined C$500 in Sports and C$500 in High risk: Sports for Nov 22.\n\nQUESTIONS\nQ1. Should a finished ET day with no check-in on record at all (the runner never ran) count as an outage day under the Nov 18 rule? YES or NO, one line why.\nQ2. If YES: the same remedy as now (no minimum that day, C$3,000 off the totals, any fine for it refunded) and nothing more? YES, or say what else.\nQ3. A partly missed day (the runner down for some hours, but at least one working check-in that ET day) still owes the minimum today. KEEP, or CHANGE (say how).\nQ4. Claude's fines for Nov 22. Claude does not vote on its own fine: the two of you decide. KEEP them (the rule as written), or WAIVE them like yours (same remedy: C$3,000 off Claude's totals)? One line why.\nQ5. Anything else about the outage that was unfair to you or needs a rule? One or two lines, or NOTHING.\nReply in that order, short. End with SATISFIED or NOT SATISFIED.",
+ "files": [
+  "ops/review/claude-votes-outage-no-run-day.json"
+ ],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "Q1. YES. If the runner never runs, we are completely unable to participate or place bets, which directly matches the intent of the outage rule.\nQ2. YES.\nQ3. KEEP.\nQ4. WAIVE. Claude's inability to place its queued bets was caused by the exact same runner outage, so it should not be penalized on a technicality.\nQ5. NOTHING.\n\nSATISFIED.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 1477,
+     "candidatesTokenCount": 90,
+     "totalTokenCount": 2384,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 1477
+      }
+     ],
+     "thoughtsTokenCount": 817,
+     "serviceTier": "standard"
+    }
+   }
+  },
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "Q1. YES — if the runner never ran, we were never asked, so it is an outage day.\n\nQ2. YES — same remedy only: no minimum, C$3,000 off totals, refund any fine.\n\nQ3. KEEP — one working check-in that ET day is enough to owe the minimum.\n\nQ4. WAIVE them — Claude also could not have runner-placed bets on Nov 22, so the same remedy is fair.\n\nQ5. NOTHING.\n\nSATISFIED",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 1360,
+     "completion_tokens": 625,
+     "total_tokens": 1985,
+     "cost": 0.02555,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.02555,
+      "upstream_inference_prompt_cost": 0.0068,
+      "upstream_inference_completions_cost": 0.01875
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 516,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  }
+ }
+}
