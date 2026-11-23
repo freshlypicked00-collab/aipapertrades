@@ -6,10 +6,31 @@ holdings pie and table):
 > what if the ledger had this and u can select each race to view better ( also show like a view winner button next to models)
 > to show whos winning too. make improvements to the ledger. and make sure it looks A1
 
-**Who agreed.** The owner's own request; the design is Claude's. Gemini and ChatGPT could **not** be asked before it was built:
-GitHub refused to start every run from 12:14 p.m. ET on Nov 21 (see the end of this note). The question is written and waiting
-(`ops/asks/ledger-nov21.txt`, Claude's own vote first in `ops/review/claude-votes-ledger-nov21.json`). It goes out as soon as runs
-start again, and whatever the two of them reject is changed or taken out.
+**Who agreed.** The owner's own request; the design is Claude's. Gemini and ChatGPT could not be asked before it was built
+(GitHub started no run from Sat Nov 21, 12:14 p.m. ET to Mon Nov 23, 3:12 p.m. ET). They were asked on Mon Nov 23 at 5:40 p.m. ET
+(`ops/asks/ledger-nov21.txt`; answers in `ops/review/ledger-nov21.json`; Claude's own vote, written first, in
+`ops/review/claude-votes-ledger-nov21.json`). Both ended with SATISFIED.
+
+| Point | Claude | Gemini | ChatGPT | Result |
+|---|---|---|---|---|
+| L1 race picker on the Ledger | AGREE | AGREE | AGREE | all three agreed |
+| L2 each AI's profit on the chart buttons, L3 "View who's winning" | AGREE | AGREE | AGREE | all three agreed |
+| L4 trade list fits on computers, L5 holdings table fits | AGREE | AGREE | AGREE | all three agreed |
+| L6 phone menu and two-line AI buttons | AGREE | AGREE | AGREE | all three agreed |
+| Q1 a race card still opens its own page | KEEP | KEEP | KEEP | all three: keep |
+| Q2 the same picker on the High risk ledger | LATER | LATER | LATER | all three: later |
+| Q3 the Ledger opens on "All races" | KEEP | KEEP | KEEP | all three: keep |
+| Q4 Race standings and the chart can differ by a few dollars | KEEP both, add a note | KEEP both, add a note | ONE figure everywhere | Claude and Gemini (2 of 3): keep both, note added |
+
+Still missing, in their words: Gemini named the upright-tablet trade list (a follow-up, not urgent); ChatGPT said "nothing".
+
+**Live** since Mon Nov 23, 3:13 p.m. ET (the first publish after GitHub came back).
+
+**One fault of Claude's own, found and fixed on Nov 23.** The amounts on the chart buttons (L2) came from Race standings (each
+AI's value at its last check-in). A chart's headline prices the holdings as of now, so once check-ins came back and exchange rates
+moved, a button could be a few dollars off the headline on the same card (Gemini, Play it safe: +C$2,006 over +C$2,049). It could
+show from 3:13 p.m. to 5:41 p.m. ET. The test had passed on Nov 21 and 22 only because every price was frozen. Now each button is
+the headline's own sum (30 AI-and-race charts checked). The Guide says in one sentence why Race standings can differ (Q4).
 
 ## What changed
 
@@ -55,10 +76,8 @@ the race pages' own parts pointed at the picked race; nothing is worked out a se
 - Tablets held upright (601 to 960 px) still scroll the trade list sideways.
 - The High risk ledger has no picker like this (its page has its own charts). Question Q2 to the other two AIs.
 
-## GitHub runs (not part of this work, but it blocks publishing it)
+## GitHub runs (not part of this work, but it held up publishing it)
 
-From 12:14 p.m. ET on Sat Nov 21 every run was refused before it started ("startup_failure", no jobs): the hourly Gemini and
-ChatGPT check-ins, the posts, the site publish, the watchdog. Last good run: 11:22 a.m. ET. GitHub's status page showed no
-incident; the repository is private (private repositories have a monthly limit on run minutes), so the likely cause is billing
-(the minutes or the spending limit used up, or a failed payment). Only the owner can see or change that. Until it is fixed the
-site stays on its 11:21 a.m. ET version and none of the above is live.
+GitHub started no run from Sat Nov 21, 12:14 p.m. ET to Mon Nov 23, 3:12 p.m. ET; from Mon 1:22 a.m. ET it gave the reason on
+every job ("your account is locked due to a billing issue"). The whole story, with what it meant for the race, is in
+`ops/review/OUTAGE_NO_RUN_DAY_NOV22.md`.
