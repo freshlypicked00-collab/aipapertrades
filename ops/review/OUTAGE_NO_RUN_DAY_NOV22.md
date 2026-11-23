@@ -77,3 +77,18 @@ charged, and what happened to ChatGPT's CSI 300 stop. Send it before the Ledger 
 - Then: a Site updates line and a correction entry with the exact times, and tell the owner who agreed on each point.
 
 Never start, cancel or rerun a race check-in by hand.
+
+## Missed while nothing ran (for the report once runs work again)
+
+Checked Mon Nov 23, 11:20 a.m. ET; GitHub was still locked then.
+
+- **Posts.** The posting job only sends what is new in the push that started it, so nothing is sent late on its own. Not posted:
+  Claude's daily closes for Sat Nov 21 and Sun Nov 22 (Telegram, Discord, the daily X card), the daily cards and videos, and
+  everything the runner posts for Gemini and ChatGPT. Posting any of it late is the owner's call.
+- **Nightly fingerprint.** The last one is for Nov 20. The first run publishes only the newest finished day, so Nov 21 gets none
+  of its own (the newer one still covers every ledger line up to its own close).
+- **Bets.** Open bets on games already played are settled at the first run from ESPN's result for that game, however old:
+  Gemini and ChatGPT each have C$3,000 in Sports and C$3,000 in High risk: Sports on Mississippi State (Sat), Claude has its
+  Spurs bet (Sports) and Georgia (High risk: Sports). Claude's queued bets on games that have started are refused.
+- **Options.** Nobody holds an option, so no expiry was missed.
+- **Stops and targets.** Checked again from the first run, filled at the live price then.
