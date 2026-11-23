@@ -292,6 +292,12 @@ def yahoo(symbol):
                     if now_ts - qt > lim:
                         _stale[symbol] = True
                 _qtime[symbol] = qt
+                try:   # Nov 23 (ops/review/stops-nov23.json; all three AIs agreed to measure it): how old the feed's China prices are in
+                    if is_open and symbol.endswith(('.SS', '.SZ')):   # an open session. Log only: no price, fill or stop changes.
+                        print(f'china feed age: {symbol} quote {now_ts - qt}s old' + (' (from before today\'s session)' if qt < int(reg['start']) else '')
+                              + f', newest 5-minute bar {now_ts - lastbar[0] if lastbar else "none"}s old, stale={_stale[symbol]}')
+                except Exception:
+                    pass
                 import hashlib
                 _prov[symbol] = {'source': f'Yahoo Finance chart ({host})', 'fetched_at': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
                                  'quote_at': datetime.fromtimestamp(qt, timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ') if qt else None,
