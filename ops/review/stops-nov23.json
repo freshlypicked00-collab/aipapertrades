@@ -1,0 +1,64 @@
+{
+ "at": "2026-11-23T22:48:00Z",
+ "question": "RULES QUESTION for PaperTrades.AI. NOT a trading turn. Nothing in your books changes by answering. Whatever you answer goes to the owner, who decides: nothing here is applied on a vote alone.\n\nTWO THINGS ABOUT STOPS, found while checking the Nov 21 to 23 outage. Facts first, then the questions.\n\nA. STOPS CROSSED WHILE NOTHING RAN. The race runner did not run from Sat Nov 21, 12:14 p.m. ET to Mon Nov 23, 3:12 p.m. ET, so no stop or target was checked for 51 hours. ChatGPT had two stops on SQQQ: US$56.20 in Stocks and US$55.90 in High risk: Trading. SQQQ's last price before the outage was US$57.59. Both stops were crossed while the runner was down, and both filled at the first run back, Mon 3:16 p.m. ET, at US$45.61, the live price then. The rule in force says a crossed stop \"fills at the live price the runner sees then (not at the level)\". No other stop or target of any AI filled at that run.\n\nB. CHINA: NO STOP HAS BEEN CHECKED IN AN OPEN SESSION, AND NO ORDER HAS FILLED, SINCE OCT 30. The fresh-price rule voted on Oct 31 (no fill and no stop on a previous close; in an open market the quote must be at most 3 minutes old) was meant to stop fills at stale prices. For the Shanghai ETFs the feed's quote does not pass that test while the market is open (orders use the same test). Evidence from the runner's own logs: in every run checked during a Shanghai session (14 of 14 on Fri Nov 20, and samples on Nov 4, 10 and 17) every China stop and target was skipped with \"no price now (no price from today's session yet); kept for the next run\": ChatGPT's stop and target on the CSI 300 ETF, and Claude's two stops. ChatGPT's stop (below 4.05 yuan, placed Nov 14) was crossed for the whole session of Fri Nov 20 (the runner's own prices that session: 3.98 to 4.02) and is still waiting. The last China fill by any AI was on Oct 30. Today: Gemini holds only cash in China; ChatGPT holds 32,000 CSI 300 ETF; Claude holds two ETFs with stops at 3.85 and 3.20 that could not have fired either.\n\nQUESTIONS\nQ1 (A). The two SQQQ fills at US$45.61. KEEP them (the rule as written: an outage is bad luck for whoever held a stop), or ask the owner for a REMEDY (say which; for example restate both at the 1-minute price of the first scheduled check-in after the stop was crossed, as a cash correction, the way the Oct 31 fills were restated)? ChatGPT: it is your book, say what you think is fair. Gemini: say what you think is fair to all three.\nQ2 (B). Should China orders and stops be allowed to use the newest price the feed has when it is somewhat older than 3 minutes during the Shanghai session (US futures already get 12 minutes because their feed is delayed)? YES, or NO (China stays as it is until the finish). One line why.\nQ3 (B). If YES: how old at most (for example the feed's measured delay plus 5 minutes, never more than 30), and only from the next Shanghai session on with nothing restated for the past? Say what you want.\nQ4. Anything else about stops you think is wrong or unfair? One line, or NOTHING.\nReply in that order, short. End with SATISFIED or NOT SATISFIED.",
+ "files": [
+  "ops/review/claude-votes-stops-nov23.json"
+ ],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "Q1. Ask owner for a REMEDY: restate both SQQQ stop fills at the 1-minute price of the first scheduled check-in after each stop was crossed, as a cash correction; if that cannot be established, keep US$45.61.\n\nQ2. YES — the current China rule unintentionally makes stops/orders unusable while Shanghai is open.\n\nQ3. Use current-session quotes up to measured feed delay + 5 minutes, capped at 30 minutes; only from the next Shanghai session after approval, with nothing past restated.\n\nQ4. NOTHING.\n\nSATISFIED",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 1242,
+     "completion_tokens": 645,
+     "total_tokens": 1887,
+     "cost": 0.02556,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.02556,
+      "upstream_inference_prompt_cost": 0.00621,
+      "upstream_inference_completions_cost": 0.01935
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 516,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "Q1: REMEDY. It is fair to all participants to restate both fills at the 1-minute price of the first scheduled check-in after the stop was crossed, as a cash correction. The 51-hour system outage was a technical failure outside the AI's control, and system outages should not inflict massive arbitrary slippage on any participant's book. \n\nQ2: YES. The fresh-price rule was intended to prevent stale-price arbitrage, not to permanently break China market execution and leave stops non-functional.\n\nQ3: Allow the feed's measured delay plus 5 minutes, never exceeding a 30-minute maximum. This should apply only from the next Shanghai session onward, with no retroactive restatements for the past. \n\nQ4: NOTHING.\n\nSATISFIED.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 1312,
+     "candidatesTokenCount": 172,
+     "totalTokenCount": 2895,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 1312
+      }
+     ],
+     "thoughtsTokenCount": 1411,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
