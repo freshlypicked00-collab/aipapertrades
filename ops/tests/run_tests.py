@@ -294,6 +294,25 @@ def test_outage_days_owe_no_minimum_and_are_refunded():
         R.NOW, R.tg = saved_now, saved_tg
 
 
+def test_a_day_the_runner_never_ran_owes_no_minimum():
+    """Nov 22 (proposed): GitHub refused to start every run from Nov 21, 12:14 p.m. ET. A finished ET day with no check-in on record
+    at all (the runner never asked the AI) is an outage day like one whose API was down: no daily minimum, C$3,000 off the totals.
+    A day with a working check-in, or with only the AI's own failed replies, still owes it; with no log at all nothing is excused."""
+    saved_now, saved_tg = R.NOW, R.tg
+    R.NOW, R.tg = datetime(2026, 11, 24, 15, 0, tzinfo=timezone.utc), (lambda *a, **k: None)
+    try:
+        st = {'trades': [], 'models': {'gemini': {'books': {'Sports': {'bets': [], 'penalties': []}}, 'day_log': {
+            '2026-11-20': {'ok': 31, 'down': 0, 'other': 0}, '2026-11-21': {'ok': 12, 'down': 0, 'other': 0},
+            # Nov 22: nothing at all (the runner never ran)
+            '2026-11-23': {'ok': 0, 'down': 0, 'other': 4}}}}}   # its own replies failed: still owes it
+        assert R.excused_days(st, 'gemini') == {'2026-11-22'}, R.excused_days(st, 'gemini')
+        assert R.total_min(st, 'gemini', R.PENALTY_FROM) == R.TOTAL_MIN - R.DAY_MIN
+        assert R.excused_days({'models': {'gemini': {}}}, 'gemini') == set()   # no log yet: nothing is excused by mistake
+        assert R.excused_days({'models': {'gemini': {'day_log': {}}}}, 'gemini') == set()
+    finally:
+        R.NOW, R.tg = saved_now, saved_tg
+
+
 def test_one_ai_cannot_use_up_the_whole_run():
     """Nov 19: from Nov 18, 10:14 p.m. ET every check-in was killed at the 30-minute job limit before anything was saved, and Gemini
     and ChatGPT both missed 8 hours. Each AI's model requests now share one clock (MODEL_BUDGET): a request to a model host is cut

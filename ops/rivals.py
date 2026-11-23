@@ -1595,9 +1595,20 @@ def excused_days(state, mid):
                 out.add(d.isoformat())
             d += timedelta(days=1)
         return out
-    for d, v in (((state.get('models') or {}).get(mid) or {}).get('day_log') or {}).items():
+    log = ((state.get('models') or {}).get(mid) or {}).get('day_log') or {}
+    for d, v in log.items():
         if OUTAGE_FROM <= d < today and not v.get('ok') and v.get('down'):
             out.add(d)
+    # Nov 22 (PROPOSED, not yet voted): a finished ET day with NO check-in on record at all is the runner itself being down (GitHub
+    # refused to start every run from Nov 21, 12:14 p.m. ET). The AI was never asked, so its service was down in the rule's own words,
+    # exactly as a day with no update at all already is for Claude. Counted only from the first day the log holds, so a state from
+    # before the log existed excuses nothing by mistake.
+    if log:
+        d = datetime.fromisoformat(max(OUTAGE_FROM, min(log))).date()
+        while d.isoformat() < today:
+            if d.isoformat() not in log:
+                out.add(d.isoformat())
+            d += timedelta(days=1)
     return out
 
 

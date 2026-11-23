@@ -74,3 +74,10 @@ Before sending, bring four facts in the question up to date: when runs came back
 first run has already charged the fines, and what happened to any stop crossed while the runner was down (ChatGPT's stop on the
 CSI 300 ETF at 4.05 yuan was crossed at Monday's Shanghai open, about 3.98; the runner fills it at the live price when it is back). Send it before the Ledger question (`ledger-nov21`). If Gemini and ChatGPT split on Q4,
 there is no majority and Claude's fines stay unless the owner decides otherwise.
+
+**Applied** Mon Nov 23, 1:22 a.m. ET by Claude (the backup chat), with the owner's OK ("ok", 1:21 a.m. ET), before the repository is made
+public again. Cause of the outage: the repository went **private** on Sat Nov 21 between 11:22 a.m. ET (the last run, still unbilled,
+so still public) and 12:14 p.m. ET (the first refused run); every run since failed to start ("startup_failure"). Sunday Nov 22 passed
+with no check-in at all, so without this the first check-in would have fined Gemini and ChatGPT for it. Checks: race tests 29 of 29
+pass; the excused days on the records before Sunday are the same with and without it (Gemini none; ChatGPT Nov 12 and Nov 17; Claude
+none). The vote is still owed: dispatch `ops/asks/outage-no-run-day.txt` as soon as runs start again.
