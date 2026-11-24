@@ -24,6 +24,8 @@ agreed**, on the condition that a drill never delays a check-in.
 
 - `.github/workflows/drill.yml`: the save step adds the two fixed paths and the pattern separately; the drill has its own queue
   (`group: drill`) instead of the race runner's, so it can never hold up a check-in. Commit `6e2e0252a`.
+- The same workflow: after the finish (Sat Nov 28, 4:00 p.m. ET) its timers do nothing more, so no second drill opens on Monday
+  Nov 30 and nothing is asked again over the saved answers. A run started by hand still works.
 - `ops/drill.py`: an answer and a grade are final. A second run of the ask or grade step never replaces one already saved.
 - `ops/polish.css` block 42: the answer rows are shown. Remove the block to undo.
 - Drill #1 opened by hand on Tue Nov 24 at 8:31 a.m. ET (`python3 ops/drill.py open`: the question only). Scenario 1 of 8:
