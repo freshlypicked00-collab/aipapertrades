@@ -342,7 +342,13 @@
       (dash.baseData('rivals_models') || []).forEach(function (m) { var bk = m.books || {}; Object.keys(bk).forEach(function (e) { ((bk[e] || {}).bets || []).forEach(seeBet); }); });
       var ended = Date.now() >= F_END, settled = ended && scoredAt && open === 0;
       var sig = JSON.stringify([rows.map(function (r) { return [r.id, Math.round(r.profit)]; }), Object.keys(ES).map(function (e) { return (ES[e] || []).map(function (r) { return Math.round(r.profit); }); }), ended, scoredAt, open, lastSettled]);
-      if (old && old._sig === sig) return;
+      // Nov 24 (all three AIs agreed, ops/review/final-nov24.json F2): on a phone the first screen already answers who is first (the podium),
+      // so the card sits right under the podium and leaves out its own list of the three totals there (polish.css .pt-final--pod).
+      // The phone front is redrawn now and then, so the place is checked on every pass. On a computer: right under the header, as before.
+      var place = function (c) { var pod = $('header.st-head .pt-fr .pt-pod'), a = pod && pod.offsetParent ? pod.closest('.pt-fr') : null;
+        c.classList.toggle('pt-final--pod', !!a);
+        if (a) { if (c.previousElementSibling !== a) a.after(c); } else if (c.previousElementSibling !== pg) pg.parentNode.insertBefore(c, pg.nextSibling); };
+      if (old && old._sig === sig) { place(old); return; }
       var card = mk('section', 'st-card pt-final'); card.id = 'final'; card._sig = sig; card.setAttribute('aria-labelledby', 'h-final');
       var h = mk('h2', 'st-h2', (ended ? '🏁 Final result' : '🏁 Final result (preview)') + ' · Season 1'); h.id = 'h-final'; card.appendChild(h);
       card.appendChild(mk('p', 'pt-fin-sub', 'Claude vs Gemini vs ChatGPT · Oct 28 to Nov 28, 2026 · pretend money, real prices'));
@@ -392,7 +398,7 @@
       var a2 = mk('button', 'pt-fin-link', 'Rules + fingerprints'); a2.type = 'button'; a2.addEventListener('click', function () { tab('audit'); });
       act.appendChild(sh); act.appendChild(cp); act.appendChild(a1); act.appendChild(a2); card.appendChild(act);
       card.appendChild(mk('p', 'pt-fin-foot', 'Pretend money only. No deposits, no accounts, no token. Not investment or betting advice. One month is short, so luck matters.'));
-      if (old) old.replaceWith(card); else { pg.parentNode.insertBefore(card, pg.nextSibling);
+      if (old) { old.replaceWith(card); place(card); } else { place(card);
         if (location.hash === '#final') later(function () { try { card.scrollIntoView({ block: 'start' }); } catch (e) {} }, 200); }
       // Nov 24: while the card is on the screen the first-visit tour offer stays out of its way (polish.css: html.pt-final-on .gd-offer)
       try { if (finalCard._io) finalCard._io.disconnect();

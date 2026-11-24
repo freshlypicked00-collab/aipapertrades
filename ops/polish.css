@@ -385,6 +385,9 @@ html[data-tab]:not([data-tab="overview"]) .pt-final { display: none; }   /* the 
   .pt-final .pt-fin-order li { border: 1px solid var(--color-border-line); border-radius: 8px; padding: 10px 14px; }
 }
 .pt-final .pt-fin-act > .pt-fin-btn, .pt-final .pt-fin-act > .pt-fin-link { box-sizing: border-box; height: 40px; line-height: 1.2; }   /* Nov 24: the link was 14px taller than the buttons beside it */
+.pt-final.pt-final--pod .pt-fin-order { display: none; }   /* Nov 24 (all three AIs, F2): on a phone the card sits right under the podium, which already shows the three totals */
+.pt-final.pt-final--pod { margin: 12px 0 6px; }
+#dash-root header.st-head > .pt-final.pt-final--pod { order: 3 !important; }   /* the phone header orders its parts: title 0, podium 1, the line that explains it 2, then this card, then the rest (phone.css) */
 html.pt-final-on .gd-offer { visibility: hidden !important; }   /* Nov 24: the first-visit tour offer never sits on the result (the rule all three agreed for the phone podium, Nov 21) */
 .pt-fin-lead { margin: 4px 0 0; font-size: 17px; line-height: 1.4; }
 .pt-fin-tag { font-size: 12px; color: var(--color-fg-muted); }
