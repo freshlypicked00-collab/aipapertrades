@@ -53,6 +53,8 @@ jobs:
         if: ${{ steps.s.outputs.step == 'grade' }}
         run: |
           N=$(python3 -c "import json; print(json.load(open('ops/src/drills.json'))[-1]['n'])")
+          # Nov 24: once both have graded, a second run (the timer after a start by hand, or the other way round) asks nobody again
+          if python3 ops/drill.py is_graded; then echo "Drill $N already has the grades of Gemini and ChatGPT: nobody is asked again."; exit 0; fi
           python3 ops/drill.py grade_q
           ASK_NAME=drill-$N-grades python3 ops/ask_rivals.py || true
           python3 ops/drill.py grades ops/review/drill-$N-grades.json

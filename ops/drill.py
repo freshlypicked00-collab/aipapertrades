@@ -191,6 +191,16 @@ def cmd_claude_grade(js):
     print('Claude graded drill #', dr['n'])
 
 
+def cmd_is_graded():
+    """Exit code 0 when Gemini and ChatGPT have both graded every answer that is not their own in the newest drill.
+    Nov 24: the grade step asks nobody a second time (the timer and a start by hand can both come on the same day)."""
+    d = load()
+    dr = d[-1] if d else None
+    ok = bool(dr) and bool(dr.get('answers')) and all(g in (dr.get('grades') or {}).get(ai, {}) for g in ('gemini', 'chatgpt') for ai in dr['answers'] if ai != g)
+    print('graded' if ok else 'not graded yet')
+    sys.exit(0 if ok else 1)
+
+
 def cmd_status():
     d = load()
     if not d:
@@ -205,5 +215,5 @@ def cmd_status():
 
 if __name__ == '__main__':
     c = sys.argv[1] if len(sys.argv) > 1 else 'status'
-    {'open': cmd_open, 'grade_q': cmd_grade_q, 'status': cmd_status}.get(c, lambda: None)() if c in ('open', 'grade_q', 'status') else \
+    {'open': cmd_open, 'grade_q': cmd_grade_q, 'status': cmd_status, 'is_graded': cmd_is_graded}.get(c, lambda: None)() if c in ('open', 'grade_q', 'status', 'is_graded') else \
         {'collect': cmd_collect, 'claude': cmd_claude, 'grades': cmd_grades, 'claude_grade': cmd_claude_grade}[c](sys.argv[2])
