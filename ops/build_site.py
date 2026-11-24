@@ -413,9 +413,27 @@ try:
     _old = json.load(open(_ogj)).get('sig') if os.path.exists(_ogj) else None
     _tab, _ = racecard.races(None, SRC)
     _sig = hashlib.sha1(json.dumps({e: [[m, round(p / 50)] for m, p in v] for e, v in _tab.items()}).encode()).hexdigest()[:10]
+    # Nov 24 (all three AIs agreed, ops/review/final-nov24.json F4): after the finish the share picture no longer says "Live standings".
+    # "finish" = the race has ended; "final" = the final scoring is on record for Gemini and ChatGPT and no bet of any AI is still open
+    # (the same test as the Final result card). Before the finish nothing here changes, the signature included.
+    _phase = 'live'
+    try:
+        if datetime.now(timezone.utc) >= datetime(2026, 11, 28, 21, 0, tzinfo=timezone.utc):
+            _phase = 'finish'
+            _rv = json.load(open(os.path.join(SRC, 'rivals.json')))
+            _bets = [b for m in _rv.get('models', {}).values() for bk in (m.get('books') or {}).values() for b in bk.get('bets', [])]
+            _bets += [b for bk in ((_rv.get('claude_allin') or {}).get('books') or {}).values() for b in bk.get('bets', [])]
+            _bets += json.load(open(os.path.join(SRC, 'bets.json')))
+            if _rv.get('models') and all(m in (_rv.get('final') or {}) for m in _rv['models']) and not any(b.get('status') == 'Open' for b in _bets):
+                _phase = 'final'
+    except Exception as _e:
+        print('share picture phase:', _e)
+    if _phase != 'live':
+        _sig = hashlib.sha1((_sig + _phase).encode()).hexdigest()[:10]   # so the picture is drawn again when the phase changes
     if _tab and (_sig != _old or not os.path.exists(os.path.join(OUT, 'og.png'))):
         _now = datetime.now(timezone.utc).astimezone(__import__('zoneinfo').ZoneInfo('America/New_York'))
-        racecard.races_card(_tab, None, 'Live standings · ' + _now.strftime('%a %b %-d, %-I:%M %p ET'), os.path.join(OUT, 'og.png'))
+        _ttl = {'finish': 'Standings at the finish · Season 1', 'final': 'Final standings · Season 1'}.get(_phase) or 'Live standings · ' + _now.strftime('%a %b %-d, %-I:%M %p ET')
+        racecard.races_card(_tab, None, _ttl, os.path.join(OUT, 'og.png'))
         json.dump({'sig': _sig, 'at': _now.isoformat()}, open(_ogj, 'w'))
     OG_V = _sig
     STANDINGS = [{'id': r['id'], 'total': round(r['total'], 2)} for r in _rows]
