@@ -5123,7 +5123,11 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const gl = (ai) => { const g = (dr.grades || {})[ai] || {}; return Object.entries(g).map(([gr, v]) => AIS[gr].label + ' ' + v.grade).join(', '); };
     ids.forEach((ai) => { const a = (dr.answers || {})[ai]; const d = mk('details', 'st-riskdash'); const sm = mk('summary'); const b = mk('b', '', AIS[ai].label); b.style.color = AIS[ai].color; sm.append(b);
       sm.append(a ? (gl(ai) ? ' · graded: ' + gl(ai) : (dr.status === 'grading' ? ' · being graded' : '')) : (dr.claude_missed && ai === 'claude' ? ' · did not answer in time' : ' · waiting for its answer')); d.appendChild(sm);
-      if (a) { const pre = mk('div', 'st-plan'); pre.style.whiteSpace = 'pre-wrap'; pre.textContent = a.text; d.appendChild(pre); const g = (dr.grades || {})[ai] || {}; Object.entries(g).forEach(([gr, v]) => d.appendChild(mk('p', 'st-note', AIS[gr].label + ' (' + v.grade + '): ' + v.why))); }
+      // Nov 24: an AI that writes **bold** in its answer gets bold, not the asterisks. Looks only: every word stays as the AI wrote it
+      // (the stored text and ops/review/drill-N.json are untouched).
+      if (a) { const pre = mk('div', 'st-plan'); pre.style.whiteSpace = 'pre-wrap';
+        String(a.text).split(/(\*\*[^*\n]+\*\*)/).forEach((seg) => { const m = /^\*\*([^*\n]+)\*\*$/.exec(seg); pre.appendChild(m ? mk('b', '', m[1]) : document.createTextNode(seg)); });
+        d.appendChild(pre); const g = (dr.grades || {})[ai] || {}; Object.entries(g).forEach(([gr, v]) => d.appendChild(mk('p', 'st-note', AIS[gr].label + ' (' + v.grade + '): ' + v.why))); }
       box.appendChild(d); });
     box.appendChild(mk('p', 'st-note', 'Claude answers first, before the other two are asked, so it never sees their answers; grades are given without knowing which AI wrote which answer. A made-up scenario: nothing here places an order or changes any score. Agreed by Claude, Gemini and ChatGPT.'));
     el.appendChild(box);
