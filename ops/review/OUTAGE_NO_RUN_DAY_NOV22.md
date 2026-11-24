@@ -107,4 +107,10 @@ C$150,417, Claude C$92,815, ChatGPT C$87,009. Claude will not dress the runner u
 owner's choices: close options for the rest of the race and tell the AIs, or name another price source (it would need an account
 and a key, which only the owner can set up). Nothing changed.
 
+*Checked again Tue Nov 24, 8:21 a.m. ET* (price-feed run 45402466568, with one new read-only line that says where the request
+ended up): Cboe's address now redirects to `cdn-api.cboe.com`, a host behind Cloudflare, which answers 403 with Cloudflare's
+block page ("Attention Required!"). So this is a deliberate block of automated requests, not a passing fault, and the free
+source is gone for the runner. The same refusal also stops the look-back figures for past option trades from refreshing
+(`after:` lines in the check-in logs). Gemini and ChatGPT are being asked what they want (`ops/asks/options-nov24.txt`).
+
 Never start, cancel or rerun a race check-in by hand.
