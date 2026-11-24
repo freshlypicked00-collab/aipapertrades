@@ -1,5 +1,5 @@
 {
- "at": "2026-11-21T10:06:42.077884Z",
+ "at": "2026-11-24T12:52:17.275916Z",
  "since": "2026-11-01T02:30:00Z",
  "by_ai": {
   "claude": {
@@ -7,7 +7,7 @@
    "broken": 1,
    "pending": 2,
    "closed_first": 1,
-   "untestable": 2,
+   "untestable": 3,
    "items": [
     {
      "at": "2026-11-01T03:24:18-05:00",
@@ -103,23 +103,23 @@
       "below": 0.9
      },
      "result": "no prices (HTTP Error 404: Not Found)"
+    },
+    {
+     "at": "2026-11-23T16:14:37-05:00",
+     "what": "Will there be no change in Fed interest rates after the December 2026 meeting? (No)",
+     "race": "Predictions",
+     "tx": "C-PRD-006",
+     "result": "untestable"
     }
    ]
   },
   "gemini": {
    "kept": 7,
    "broken": 4,
-   "pending": 5,
-   "closed_first": 50,
-   "untestable": 11,
+   "pending": 2,
+   "closed_first": 53,
+   "untestable": 12,
    "items": [
-    {
-     "at": "2026-11-10T19:45:56Z",
-     "what": "ProShares UltraShort Bloomberg Crude Oil",
-     "race": "Energy",
-     "tx": "G-ENE-023",
-     "result": "untestable"
-    },
     {
      "at": "2026-11-10T20:14:59Z",
      "what": "SPY Nov 20 $740 put",
@@ -306,7 +306,7 @@
       "symbol": "EUR",
       "above": 1.1
      },
-     "result": "no prices (HTTP Error 404: Not Found)"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-12T16:45:06Z",
@@ -412,59 +412,23 @@
      "race": "Predictions",
      "tx": "G-PRD-007",
      "result": "untestable"
+    },
+    {
+     "at": "2026-11-23T20:26:13Z",
+     "what": "Another Fed rate hike in 2026?",
+     "race": "Predictions",
+     "tx": "G-PRD-008",
+     "result": "untestable"
     }
    ]
   },
   "chatgpt": {
    "kept": 17,
    "broken": 7,
-   "pending": 3,
-   "closed_first": 23,
-   "untestable": 3,
+   "pending": 4,
+   "closed_first": 25,
+   "untestable": 4,
    "items": [
-    {
-     "at": "2026-11-05T22:15:48Z",
-     "what": "Bitcoin USD",
-     "race": "Crypto",
-     "tx": "X-CRY-028",
-     "level": {
-      "symbol": "BTC-USD",
-      "below": 73500.0
-     },
-     "breach_at": "2026-11-10T13:00:00Z",
-     "result": "kept: got out after the level was reached"
-    },
-    {
-     "at": "2026-11-09T10:15:06Z",
-     "what": "Clarity Act (H.R.3633) signed into law in 2026?",
-     "race": "Predictions",
-     "tx": "X-PRD-002",
-     "result": "untestable"
-    },
-    {
-     "at": "2026-11-09T19:15:16Z",
-     "what": "Bitcoin USD",
-     "race": "Crypto",
-     "tx": "X-CRY-029",
-     "level": {
-      "symbol": "BTC-USD",
-      "below": 73500.0
-     },
-     "breach_at": "2026-11-10T13:00:00Z",
-     "result": "kept: got out after the level was reached"
-    },
-    {
-     "at": "2026-11-10T14:21:59Z",
-     "what": "Japanese yen",
-     "race": "Currencies",
-     "tx": "X-CUR-013",
-     "level": {
-      "symbol": "JPY",
-      "above": 0.0064
-     },
-     "breach_at": "2026-11-10T14:30:00Z",
-     "result": "held on after its own exit level"
-    },
     {
      "at": "2026-11-10T14:37:32Z",
      "what": "State Street SPDR S&P 500 ETF Trust",
@@ -759,6 +723,46 @@
      },
      "breach_at": "2026-11-21T03:00:00Z",
      "result": "kept: got out after the level was reached"
+    },
+    {
+     "at": "2026-11-23T20:16:06Z",
+     "what": "Clarity Act (H.R.3633) signed into law in 2026?",
+     "race": "Predictions",
+     "tx": "X-PRD-004",
+     "result": "untestable"
+    },
+    {
+     "at": "2026-11-23T20:16:06Z",
+     "what": "Invesco QQQ Trust",
+     "race": "Stocks",
+     "tx": "X-STK-031",
+     "level": {
+      "symbol": "QQQ",
+      "below": 625.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-23T21:08:55Z",
+     "what": "Bitcoin USD",
+     "race": "Crypto",
+     "tx": "X-CRY-037",
+     "level": {
+      "symbol": "BTC-USD",
+      "below": 59000.0
+     },
+     "result": "level not reached yet"
+    },
+    {
+     "at": "2026-11-23T21:08:55Z",
+     "what": "Ethereum USD",
+     "race": "Crypto",
+     "tx": "X-CRY-038",
+     "level": {
+      "symbol": "ETH-USD",
+      "below": 1660.0
+     },
+     "result": "level not reached yet"
     }
    ]
   }
