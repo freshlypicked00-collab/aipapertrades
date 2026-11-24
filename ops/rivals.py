@@ -2383,6 +2383,11 @@ def main():
         pass
     if '--prices' in sys.argv:
         print('fx', get_fx())
+        try:   # Nov 23, read-only (ops/outage_stops.py): what restating ChatGPT's two late SQQQ stop fills would come to. The owner decides.
+            import outage_stops
+            outage_stops.report(get_json)
+        except Exception as e:
+            print('outage stops report failed:', e)
         for s_ in ('NVDA', 'GLD', 'CL=F', 'BTC-USD', '588000.SS', '159995.SZ'):
             print(s_, yahoo(s_))
         j = get_json('https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=1&order=volume24hr&ascending=false', timeout=20)
@@ -2394,11 +2399,6 @@ def main():
         g = espn_games()
         print('espn games', len(g), sum(1 for x in g.values() if x['home_ml']), 'with moneylines')
         assert g
-        try:   # Nov 23, read-only (ops/outage_stops.py): what restating ChatGPT's two late SQQQ stop fills would come to. The owner decides.
-            import outage_stops
-            outage_stops.report(get_json)
-        except Exception as e:
-            print('outage stops report failed:', e)
         return
     sys.modules.setdefault('rivals', sys.modules[__name__])
     global POST_STATE
