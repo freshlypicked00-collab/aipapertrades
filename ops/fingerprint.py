@@ -74,8 +74,34 @@ def _j(name):
         return []
 
 
+LAST_DAY = '2026-11-28'   # the last race day: its record closes at 00:00 UTC on Nov 29 (Sat 7:00 p.m. ET), three hours after the finish
+
+
+def _make(state, day, close, now):
+    ls = lines(_j('trades'), _j('bets'), state.get('trades', []), close, corrections(state))
+    return {'day': day, 'close_at': close.strftime('%Y-%m-%dT%H:%M:%SZ'), 'sha256': digest(ls), 'records': len(ls), 'at': now.strftime('%Y-%m-%dT%H:%M:%SZ')}
+
+
+def _store(state, f, post):
+    try:   # the search source ledger's day file gets its own SHA-256 beside it (all three AIs agreed, Oct 30); the rule above is unchanged
+        import searchlog as SL
+        h, n = SL.freeze(f['day'], state)
+        if h:
+            f['search_sha256'], f['search_checkins'] = h, n
+    except Exception as e:
+        print('search ledger fingerprint failed', e)
+    state.setdefault('fingerprints', []).append(f)
+    if post:
+        try:
+            post(f)
+        except Exception as e:
+            print('fingerprint post failed', e)
+    return f
+
+
 def maybe_publish(state, now, post=None):
-    """At the first run 2 hours or more after a daily close that has no fingerprint yet: compute it, store it, post it."""
+    """At the first run 2 hours or more after a daily close that has no fingerprint yet: compute it, store it, post it.
+    Days after the last race day belong to after_finish() below, which publishes one only when the record changed."""
     fps = state.setdefault('fingerprints', [])
     have = {f['day'] for f in fps}
     first = datetime(2026, 10, 29, tzinfo=timezone.utc)   # the first full race day closed at 00:00 UTC Oct 29
@@ -83,24 +109,33 @@ def maybe_publish(state, now, post=None):
     if now < close + timedelta(hours=2) or now > datetime(2026, 12, 1, tzinfo=timezone.utc):
         return None
     day = (close - timedelta(days=1)).date().isoformat()
-    if day in have:
+    if day in have or day > LAST_DAY:
         return None
-    ls = lines(_j('trades'), _j('bets'), state.get('trades', []), close, corrections(state))
-    f = {'day': day, 'close_at': close.strftime('%Y-%m-%dT%H:%M:%SZ'), 'sha256': digest(ls), 'records': len(ls), 'at': now.strftime('%Y-%m-%dT%H:%M:%SZ')}
-    try:   # the search source ledger's day file gets its own SHA-256 beside it (all three AIs agreed, Oct 30); the rule above is unchanged
-        import searchlog as SL
-        h, n = SL.freeze(day, state)
-        if h:
-            f['search_sha256'], f['search_checkins'] = h, n
-    except Exception as e:
-        print('search ledger fingerprint failed', e)
-    fps.append(f)
-    if post:
-        try:
-            post(f)
-        except Exception as e:
-            print('fingerprint post failed', e)
-    return f
+    return _store(state, _make(state, day, close, now), post)
+
+
+def after_finish(state, now, post=None):
+    """After the finish, whatever run comes first publishes what is due (all three AIs agreed, Nov 24: ops/review/final-nov24.json F5).
+    Until then the fingerprint was published only inside a full check-in or fill run, and once the race is over and every bet is settled
+    no such run happens any more: the last day's fingerprint would never have appeared.
+    1. The last race day (Nov 28) is published at the first run 2 hours or more after its close, whenever that run comes; never skipped.
+    2. A later day is published only if its fingerprint differs from the newest one published (a bet that settled after the previous
+       close, or a correction), so there is one clear final fingerprint and no empty repeats.
+    Publishing only: it reads the record and changes no trade, bet, price or score. Returns the fingerprints published now."""
+    fps = state.setdefault('fingerprints', [])
+    out = []
+    day = datetime.fromisoformat(LAST_DAY).replace(tzinfo=timezone.utc)
+    while day < datetime(2026, 12, 31, tzinfo=timezone.utc):
+        close = day + timedelta(days=1)
+        if now < close + timedelta(hours=2):
+            break
+        d = day.date().isoformat()
+        if d not in {f['day'] for f in fps}:
+            f = _make(state, d, close, now)
+            if d == LAST_DAY or not fps or f['sha256'] != fps[-1]['sha256']:
+                out.append(_store(state, f, post))
+        day += timedelta(days=1)
+    return out
 
 
 if __name__ == '__main__':

@@ -790,5 +790,55 @@ def test_a_picture_that_timed_out_is_not_posted_twice():
             else:
                 os.environ[k] = v
 
+
+# ---- Nov 24 (all three AIs agreed, ops/review/final-nov24.json F5): the last fingerprints are still published after the finish.
+# Before this, once the race was over and every bet settled, every kind of run stopped before the step that publishes the nightly
+# fingerprint, so the last race day's fingerprint would never have appeared. ----
+def test_the_last_fingerprints_are_published_after_the_finish():
+    import inspect
+    import fingerprint as FP
+    import searchlog as SL
+    saved = FP._j, SL.freeze, R.NOW, R.tg
+    posts = []
+    try:
+        FP._j = lambda name: []                       # Claude's own files: none in this test
+        SL.freeze = lambda day, state: (None, 0)      # the test writes no day file
+        R.tg = lambda text, **k: posts.append(text)
+        u = lambda t: datetime.fromisoformat(t).replace(tzinfo=timezone.utc)
+        state = {'trades': [{'model': 'gemini', 'at': '2026-11-27T15:00:00Z', 'experiment': 'Stocks', 'action': 'Buy', 'symbol': 'QQQ', 'amount': 5000.0, 'price': 500.0},
+                            {'model': 'gemini', 'at': '2026-11-28T22:10:00Z', 'experiment': 'Sports', 'action': 'Won', 'symbol': 'G1', 'amount': 2500.0, 'price': None}],
+                 'fingerprints': [{'day': '2026-11-27', 'close_at': '2026-11-28T00:00:00Z', 'sha256': 'x' * 64, 'records': 1, 'at': '2026-11-28T02:13:00Z'}]}
+        # 1. not due until 2 hours after the last day's close (Sat 7:00 p.m. ET = 00:00 UTC Nov 29)
+        assert FP.after_finish(state, u('2026-11-29T01:59:00')) == [] and len(state['fingerprints']) == 1
+        # 2. due: published once
+        got = FP.after_finish(state, u('2026-11-29T02:00:00'))
+        assert [f['day'] for f in got] == ['2026-11-28'] and got[0]['records'] == 2 and got[0]['close_at'] == '2026-11-29T00:00:00Z', got
+        assert FP.after_finish(state, u('2026-11-29T05:00:00')) == []
+        # 3. a later day with nothing new: no repeat
+        assert FP.after_finish(state, u('2026-11-30T03:00:00')) == [] and [f['day'] for f in state['fingerprints']] == ['2026-11-27', '2026-11-28']
+        # 4. a bet that settled after the last close: the next day's fingerprint is published, and it differs
+        state['trades'].append({'model': 'chatgpt', 'at': '2026-11-29T00:40:00Z', 'experiment': 'Sports', 'action': 'Lost', 'symbol': 'C9', 'amount': -3000.0, 'price': None})
+        got = FP.after_finish(state, u('2026-11-30T03:00:00'))
+        assert [f['day'] for f in got] == ['2026-11-29'] and got[0]['records'] == 3 and got[0]['sha256'] != state['fingerprints'][-2]['sha256'], got
+        # 5. the last day is never skipped, even when the first run after the finish comes days later
+        late = {'trades': list(state['trades']), 'fingerprints': [state['fingerprints'][0]]}
+        assert [f['day'] for f in FP.after_finish(late, u('2026-12-02T12:00:00'))] == ['2026-11-28', '2026-11-29']
+        # 6. the nightly rule before the finish is unchanged, and it leaves the days after the last race day to after_finish
+        early = {'trades': list(state['trades'][:1]), 'fingerprints': []}
+        assert FP.maybe_publish(early, u('2026-11-28T02:30:00'))['day'] == '2026-11-27'
+        assert FP.maybe_publish({'trades': [], 'fingerprints': []}, u('2026-11-30T03:00:00')) is None
+        # 7. the runner: after the finish it publishes this way and says so on Telegram once, and the step sits before every place where
+        #    a run of a finished race stops (the fill run, the settle watcher, "nothing left to do")
+        fresh = {'trades': list(state['trades'][:2]), 'fingerprints': [state['fingerprints'][0]]}
+        R.NOW = u('2026-11-29T02:13:00')
+        assert R.publish_fingerprints(fresh) is True and fresh['fingerprints'][-1]['day'] == '2026-11-28', fresh['fingerprints']
+        assert len(posts) == 1 and 'race day Nov 28' in posts[0], posts
+        assert R.publish_fingerprints(fresh) is False and len(posts) == 1
+        src = inspect.getsource(R.main)
+        i = src.index('publish_fingerprints(state)')
+        assert i < src.index("MODE') == 'fill'") and i < src.index('settle_watch(state)') and i < src.index('nothing left to do'), 'the fingerprint step must come before every early stop'
+    finally:
+        FP._j, SL.freeze, R.NOW, R.tg = saved
+
 if __name__ == '__main__':
     main()

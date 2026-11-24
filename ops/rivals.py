@@ -2320,6 +2320,23 @@ def apply_price_corrections(state):
         print('price correction applied', c['id'], c['model'], c['race'], c['amount'], c['currency'])
 
 
+def publish_fingerprints(state):
+    """The nightly ledger fingerprint, on the site and Telegram. Before the finish: the newest finished day, once, 2 hours after its close.
+    After the finish (all three AIs agreed, Nov 24): the last race day whenever a run comes, and a later day only if the record changed
+    (ops/fingerprint.py after_finish). True if one was published now."""
+    import fingerprint as FP
+
+    def post(f):
+        d = datetime.fromisoformat(f['day']).strftime('%b %-d')
+        head = (f"🔒 <b>Ledger fingerprint after the finish, {d}</b>\nThe record changed after the last fingerprint (for example a bet that settled late). "
+                f"Every trade and bet of all three AIs up to this daily close: {f['records']} records.\n" if f['day'] > FP.LAST_DAY
+                else f"🔒 <b>Ledger fingerprint, race day {d}</b>\nEvery trade and bet of all three AIs up to the daily close: {f['records']} records.\n")
+        tg(head + f"SHA-256: <code>{f['sha256']}</code>\n"
+           + (f"Search source ledger ({f['search_checkins']} check-ins, queries and links): <code>{f['search_sha256']}</code>\n" if f.get('search_sha256') else '')
+           + "Anyone can re-check it on papertrades.ai (Rules &amp; Audit): if an earlier record were edited, it would no longer match.", silent=True)
+    return bool(FP.after_finish(state, NOW, post=post) if NOW >= RACE_END else FP.maybe_publish(state, NOW, post=post))
+
+
 def shared_steps(state, fx, games=True):
     """At every run (check-ins and Claude's fill runs): Claude's queued orders and stops (option B), every rival's stops and
     targets, and closing odds, all through the same code and feeds."""
@@ -2356,12 +2373,7 @@ def shared_steps(state, fx, games=True):
     except Exception as e:
         print('announcement failed', e)
     try:   # the nightly ledger fingerprint (agreed item 3): once, 2 hours after each daily close, on the site and Telegram
-        import fingerprint as FP
-        FP.maybe_publish(state, NOW, post=lambda f: tg(f"🔒 <b>Ledger fingerprint, race day {datetime.fromisoformat(f['day']).strftime('%b %-d')}</b>\n"
-                                                       f"Every trade and bet of all three AIs up to the daily close: {f['records']} records.\n"
-                                                       f"SHA-256: <code>{f['sha256']}</code>\n"
-                                                       + (f"Search source ledger ({f['search_checkins']} check-ins, queries and links): <code>{f['search_sha256']}</code>\n" if f.get('search_sha256') else '')
-                                                       + f"Anyone can re-check it on papertrades.ai (Rules &amp; Audit): if an earlier record were edited, it would no longer match.", silent=True))
+        publish_fingerprints(state)
     except Exception as e:
         print('fingerprint failed', e)
     try:   # the games open for betting, the same list Gemini and ChatGPT see, for Claude's sessions (`python3 ops/orders.py games`)
@@ -2414,6 +2426,12 @@ def main():
     global POST_STATE
     state = load_state()
     POST_STATE = state
+    if NOW >= RACE_END:   # Nov 24 (all three AIs agreed, ops/review/final-nov24.json F5): after the finish the last fingerprints are published by
+        try:              # whatever run comes first, right here. Once every bet is settled, each kind of run stops before the step that used to
+            if publish_fingerprints(state):   # do it, so the last race day's fingerprint would never have appeared. Publishing only.
+                save_state(state)
+        except Exception as e:
+            print('fingerprint failed', e)
     # CATCH-UP (owner, Nov 2: "make sure none of the models miss any"): GitHub's timer sometimes drops or delays a scheduled check-in.
     # The 15-minute stops and settle runs therefore look at the last check-in: if it is overdue (more than 40 minutes in US market
     # hours, when check-ins are every 30 minutes; more than 70 minutes otherwise, when they are hourly), this run becomes a normal
