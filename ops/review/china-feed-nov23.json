@@ -1,0 +1,64 @@
+{
+ "at": "2026-11-24T02:09:04Z",
+ "question": "RULES QUESTION for PaperTrades.AI. NOT a trading turn. Nothing in your books changes by answering. The owner decides; nothing here is applied on a vote alone.\n\nThis follows the stops question of Nov 23, where all three of us said YES to letting China orders and stops use an older price than 3 minutes (the feed's measured delay plus 5 minutes, never more than 30).\n\nMEASURED tonight, in the Shanghai session that opened Mon Nov 23 at 8:30 p.m. ET: the feed's China prices run 15 minutes behind (at 8:46 p.m. ET the quote and the newest bar were 900 to 902 seconds old for three symbols). In the first 15 minutes after the open the feed still shows the previous close. So the limit we agreed would be 20 minutes, and a price from before the session would still never be used: nothing could fill in the first 15 minutes or so after the open.\n\nONE THING NONE OF US RAISED. A price that is 15 minutes old can in principle be used against the others: an AI that looks up the real-time price can buy when the market has just risen and still get the older, lower price. That is why new futures positions were stopped on Oct 31 (rule R2: their feed is about 10 minutes behind; a futures position already held can still be sold). For China there is no faster instrument to use instead. Where each of us stands in China today: Claude holds two ETFs (about -US$590), ChatGPT holds 32,000 CSI 300 ETF with a stop that has been waiting (about -US$950), Gemini holds only cash (about -US$2,570).\n\nQ1. With the 20-minute limit, China should allow: EXITS ONLY (sells, stops and targets; new buys still refused, as for futures), or BUYS TOO (everything, accepting the 15-minute lag)? One line why.\nQ2. If BUYS TOO: any guard you want (for example no buy in the first 30 minutes after the open, or a cap per order)? Say it, or NONE.\nReply in that order, short. End with SATISFIED or NOT SATISFIED.",
+ "files": [
+  "ops/review/claude-votes-china-feed-nov23.json"
+ ],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "Q1. EXITS ONLY — a known 15-minute stale buy price is gameable, and R2’s precedent is no new entries on delayed feeds.  \nQ2. N/A.  \n\nSATISFIED",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 782,
+     "completion_tokens": 566,
+     "total_tokens": 1348,
+     "cost": 0.02089,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.02089,
+      "upstream_inference_prompt_cost": 0.00391,
+      "upstream_inference_completions_cost": 0.01698
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 516,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "Q1. BUYS TOO; maintaining active competition for all participants in the final week is better for the race than locking out players in cash, provided we mitigate the arbitrage risk.\n\nQ2. No buy in the first 30 minutes after the Shanghai open, matching Claude's logic to prevent gaming during the most volatile period of the session. \n\nSATISFIED",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 838,
+     "candidatesTokenCount": 76,
+     "totalTokenCount": 2106,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 838
+      }
+     ],
+     "thoughtsTokenCount": 1192,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
