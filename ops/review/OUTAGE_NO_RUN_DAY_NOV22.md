@@ -1,7 +1,6 @@
 # A day the runner never ran (Nov 21 to 23)
 
-Last updated Mon Nov 23, 6:21 p.m. ET. **Status: closed for the betting minimums.** Two things about stops wait for the owner
-(last section).
+Last updated Mon Nov 23, 9:21 p.m. ET. **Status: closed for the betting minimums.** Three things wait for the owner (last section).
 
 ## What happened
 
@@ -59,7 +58,7 @@ charged again at the next run. `ops/review/outage-no-run-day-followup.patch` is 
   that had started were refused.
 - **Options.** Nobody held an option, so no expiry was missed.
 
-## Two things about stops, waiting for the owner
+## Three things waiting for the owner
 
 Found on Nov 23 while checking the outage. Question `ops/asks/stops-nov23.txt`, asked Mon 5:47 p.m. ET, answers in
 `ops/review/stops-nov23.json`, Claude's own vote first in `ops/review/claude-votes-stops-nov23.json`. The question said that
@@ -72,6 +71,11 @@ crossed stop fills at the live price the runner sees then. All three AIs ask the
 cash correction, the way the Oct 31 fills were restated (`ops/src/price_corrections.json`); if that price cannot be
 established, keep US$45.61.
 
+*What it would come to* (worked out Mon 9:20 p.m. ET by the read-only report `ops/outage_stops.py`, from Yahoo's 1-minute bars):
+SQQQ opened far below both stops. At the first scheduled run of the day, 9:35 a.m. ET, it was US$46.93, so both stops would
+have filled there. Restating US$45.61 to US$46.93 gives ChatGPT **+C$181.26 in Stocks and +C$453.14 in High risk: Trading**
+(C$634.40 in all). The rest of the fall from US$57.59 was the market's gap over the weekend, not the outage. Not applied.
+
 **B. China: no stop can be checked in an open Shanghai session, and no order has filled, since Oct 30.** The fresh-price rule
 of Oct 31 (no fill and no stop on a previous close; a quote at most 3 minutes old in an open market) is never met by the feed's
 Shanghai quotes while that market is open. The runner's own logs: every China stop and target skipped with "no price now (no
@@ -81,5 +85,15 @@ orders and stops to use the newest price up to the feed's measured delay plus 5 
 Shanghai session after the owner agrees, with nothing restated for the past. A log-only line (`china feed age:`) measures the
 delay from Mon Nov 23's evening session on; it changes no price, fill or stop. **Measured that evening: 15 minutes.** The rest of
 this story (the second vote, on buys; the prepared patch) is in `ops/review/CHINA_FEED_NOV23.md`.
+
+**C. Options: the price source has refused the runner since Thu Nov 19 evening.** Found Mon Nov 23, 9:17 p.m. ET, when the
+price-feed test stopped on it. The runner prices options from Cboe's delayed quotes; that address now answers "403 Forbidden".
+From the runner's logs it still worked at 3:14 p.m. ET on Thu Nov 19 and was refusing by 9:10 p.m. ET that evening, and it
+refused again tonight. So no option order has been able to fill for any AI since Fri Nov 20: the last option fill was ChatGPT's
+on Nov 18 at 9:36 a.m. ET, and Claude's QQQ put order of Fri Nov 20 was refused after six hours ("no price from the feed (HTTP
+Error 403: Forbidden); check the symbol"). Nobody holds an option, so nothing is stuck. Options race now, all cash: Gemini
+C$150,417, Claude C$92,815, ChatGPT C$87,009. Claude will not dress the runner up as a browser to get around a refusal. The
+owner's choices: close options for the rest of the race and tell the AIs, or name another price source (it would need an account
+and a key, which only the owner can set up). Nothing changed.
 
 Never start, cancel or rerun a race check-in by hand.
