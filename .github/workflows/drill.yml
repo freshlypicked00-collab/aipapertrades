@@ -14,7 +14,7 @@ on:
 permissions:
   contents: write
 concurrency:
-  group: rivals
+  group: drill   # Nov 24 (all three AIs: a drill must never delay a check-in): its own queue, no longer the race runner's
   cancel-in-progress: false
 jobs:
   drill:
@@ -60,7 +60,9 @@ jobs:
           for i in 1 2 3 4 5; do
             git fetch -q origin main && git reset -q --hard origin/main
             cp /tmp/dr/drills.json ops/src/drills.json; cp /tmp/dr/drill_question.txt ops/drill_question.txt 2>/dev/null || true; cp /tmp/dr/drill-*.json ops/review/ 2>/dev/null || true
-            git add ops/src/drills.json ops/drill_question.txt ops/review/drill-*.json 2>/dev/null || true
+            git add ops/src/drills.json ops/drill_question.txt 2>/dev/null || true
+            git add ops/review/drill-*.json 2>/dev/null || true   # Nov 24: on its own line. In one command, a pattern that matches no file made git add nothing at all,
+            # so the drill opened on Mondays was never saved and the two later steps failed (every week from Nov 2 to Nov 24)
             git diff --cached --quiet && exit 0
             git commit -qm "Weekly stress drill: ${{ steps.s.outputs.step }}" && git push -q origin HEAD:main && exit 0
             sleep $((i * 7))
