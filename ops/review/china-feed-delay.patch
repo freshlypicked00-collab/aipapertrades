@@ -1,0 +1,188 @@
+diff --git a/ops/fillcheck.py b/ops/fillcheck.py
+index bd40c4c9c..12ab07f6e 100644
+--- a/ops/fillcheck.py
++++ b/ops/fillcheck.py
+@@ -172,7 +172,7 @@ def run(state, now=None):
+             pcs.append(entry)
+             checks[key] = {**rec, 'status': 'corrected', 'correction': cid}
+             made.append(entry)
+-        elif age is not None and age > (R.MAX_AGE_FUT if feed.endswith('=F') else R.MAX_AGE):
++        elif age is not None and age > (R.MAX_AGE_FUT if feed.endswith('=F') else R.MAX_AGE_CN if feed.endswith(('.SS', '.SZ')) else R.MAX_AGE):
+             checks[key] = {**rec, 'status': 'stale_quote', 'quote_age_s': int(age)}
+         else:
+             checks[key] = {**rec, 'status': 'ok'}
+diff --git a/ops/rivals.py b/ops/rivals.py
+index 804c8180e..1d355302f 100644
+--- a/ops/rivals.py
++++ b/ops/rivals.py
+@@ -135,6 +135,10 @@ TG_ANNOUNCE = [('option-b', '2026-10-29T22:00:00+00:00',
+                 '• <b>Peer grades:</b> each AI grades the others\' new trades and bets, A to F with one sentence, anonymously and on what was known at the time. A competitor\'s opinion; it never changes any score.\n'
+                 '• <b>Ledger fingerprints:</b> every night a SHA-256 of every trade and bet, re-checkable by anyone on papertrades.ai.\n'
+                 'Details: papertrades.ai → Rules &amp; Audit.')]
++# China (see MAX_AGE_CN): what fills on its 15-minute-delayed feed, and the day the change went in (for the texts the AIs read)
++CN_NEW_BUYS = False    # False: sells, stops and targets only (as for futures, R2). True: buys too, but none before CN_BUY_FROM. Gemini and
++CN_BUY_FROM = 600      # ChatGPT split on this (ops/review/china-feed-nov23.json; Claude did not vote, it led China), so the owner decided.
++CN_RULE_DAY = 'Nov 24'   # CN_BUY_FROM is 10:00 a.m. Beijing in minutes after midnight: no buy in the first 30 minutes after the open
+ ANNOUNCEMENTS = [('2026-10-29T16:00:00+00:00', 'RULE CHANGE (Oct 28, 5:30 p.m. ET): the C$25,000 weekly betting minimum has been dropped. '
+                   'The betting minimums are now only: at least C$3,000 per bet, at least C$3,000 wagered every day, and at least C$100,000 wagered in total by Nov 28. '
+                   'The daily limit (at most 25% of the bankroll on one day) and the 25% cap per bet stay.'),
+@@ -147,7 +151,14 @@ ANNOUNCEMENTS = [('2026-10-29T16:00:00+00:00', 'RULE CHANGE (Oct 28, 5:30 p.m. E
+                   'C$2,000 of penalties for Nov 12 and Nov 17 (its OpenRouter credit had run out) were refunded under this rule.'
+                   + (' A day on which the race runner itself never ran, so you were never asked, counts as such a day too (' + NO_RUN_VOTE + '): '
+                      'Sunday Nov 22 is such a day for all three AIs. Claude\'s C$1,000 of penalties for Nov 22 (its bets were queued but the runner '
+-                     'never placed them) were waived by Gemini and ChatGPT on Nov 23; Claude did not vote on its own fine.' if NO_RUN_VOTE else ''))]
++                     'never placed them) were waived by Gemini and ChatGPT on Nov 23; Claude did not vote on its own fine.' if NO_RUN_VOTE else '')),
++                 ('2026-11-28T21:00:00+00:00', f'RULE CHANGE ({CN_RULE_DAY}; all three AIs agreed, the owner decided): the China price feed runs 15 minutes behind, '
++                  'so from the Oct 31 fresh-price rule until now no China stop could be checked and no China order could fill while Shanghai was open. '
++                  'From now a China price up to 20 minutes old counts as live; a price from before the session is never used, so nothing fills in '
++                  'about the first 15 minutes after the open or after the lunch break. '
++                  + ('Buys fill too, but only from 10:00 a.m. Beijing time. ' if CN_NEW_BUYS else 'Only sells, stops and targets fill; new China buys are refused, as for futures. ')
++                  + 'A stop that is already crossed fills at the first price that passes this test. Nothing is restated for the past. Every China fill is '
++                  'still compared with the 1-minute bar of its minute about 20 minutes later and restated if it is more than 0.3% outside it.')]
+ try:
+     from zoneinfo import ZoneInfo
+     NY = ZoneInfo('America/New_York')
+@@ -251,6 +262,10 @@ _qtime = {}   # symbol -> the quote's own time (epoch seconds), recorded with ev
+ _prov = {}    # symbol -> provenance of the price used (R1 amended by ChatGPT): source, fetched, quote time, session start, sha256
+ MAX_AGE = 180          # R1: a quote older than 3 minutes in an open market is not used for a fill or a stop
+ MAX_AGE_FUT = 720      # futures (=F): Yahoo's exchange data is delayed about 10 minutes, so 12 minutes there
++MAX_AGE_CN = 1200      # Shanghai and Shenzhen (.SS, .SZ): the feed runs 15 minutes behind (measured Nov 23, 8:46 p.m. ET: quote and newest
++#                        bar 900 to 902 s old), so 20 minutes there. Until this went in, no China stop could be checked and no China order
++#                        could fill while Shanghai was open (from the Oct 31 fresh-price rule on). Vote: ops/review/stops-nov23.json (all
++#                        three AIs agreed); the owner decided. Nothing is restated for the past.
+ 
+ 
+ def yahoo(symbol):
+@@ -276,10 +291,12 @@ def yahoo(symbol):
+                 reg = (m.get('currentTradingPeriod') or {}).get('regular') or {}
+                 now_ts = int(_wall().timestamp())
+                 is_open = bool(reg.get('start') and reg.get('end') and int(reg['start']) <= now_ts <= int(reg['end']))
+-                _stale[symbol] = bool(is_open and qt and qt < int(reg['start']) and now_ts - qt > 900)   # crypto just past 00:00 UTC is not stale
++                cn = symbol.endswith(('.SS', '.SZ'))   # their feed is 15 minutes behind: for the first 15 minutes of a session it still shows the
++                # previous close or the pre-open price, which is never used, however recent it looks
++                _stale[symbol] = bool(is_open and qt and qt < int(reg['start']) and (cn or now_ts - qt > 900))   # crypto just past 00:00 UTC is not stale
+                 # R1 (root-cause vote, Oct 31): in an open market the quote must be recent. If Yahoo's quote field lags (it did by 15 to
+                 # 300 minutes on 8 fills), use the newest 1-minute bar when it is recent; otherwise the price is stale for fills and stops.
+-                lim = MAX_AGE_FUT if symbol.endswith('=F') else MAX_AGE
++                lim = MAX_AGE_FUT if symbol.endswith('=F') else MAX_AGE_CN if cn else MAX_AGE
+                 if is_open and px and qt and now_ts - qt > lim and not _stale[symbol]:
+                     try:
+                         r1 = get_json(f'https://{host}.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(symbol)}?range=1d&interval=1m', timeout=20)['chart']['result'][0]
+@@ -736,7 +753,8 @@ RIVALS = {
+ RULES = {
+     'Stocks': 'Stocks and anything: any US-listed stock or ETF priced in US$ (leveraged and inverse ETFs allowed), Yahoo Finance symbols like NVDA, SOXL, SPY. Counted in C$.',
+     'Crypto': 'Crypto: Yahoo Finance crypto symbols ending in -USD, like BTC-USD, ETH-USD, SOL-USD. Counted in C$.',
+-    'China': 'China stocks: Shanghai and Shenzhen A-shares and ETFs, Yahoo Finance symbols ending in .SS or .SZ (for example 600519.SS, 588000.SS, 159995.SZ), priced in yuan. Counted in US$ (starts at US$100,000). Buys are rounded down to lots of 100 shares. Shares bought today (Beijing date) cannot be sold until the next trading day (T+1). Orders are only filled while the market is open: 9:30-11:30 and 13:00-15:00 Beijing time on weekdays.',
++    'China': 'China stocks: Shanghai and Shenzhen A-shares and ETFs, Yahoo Finance symbols ending in .SS or .SZ (for example 600519.SS, 588000.SS, 159995.SZ), priced in yuan. Counted in US$ (starts at US$100,000). Buys are rounded down to lots of 100 shares. Shares bought today (Beijing date) cannot be sold until the next trading day (T+1). Orders are only filled while the market is open: 9:30-11:30 and 13:00-15:00 Beijing time on weekdays. The China price feed runs 15 minutes behind, so a price up to 20 minutes old counts as live there, a price from before the session is never used, and nothing fills in about the first 15 minutes after the open or after the lunch break. '
++             + ('Buys fill only from 10:00 a.m. Beijing time.' if CN_NEW_BUYS else 'Only sells, stops and targets fill; new buys are refused (as for futures).'),
+     'Metals': 'Metals: precious and industrial metals through US$-priced ETFs or miners, Yahoo Finance symbols like GLD, SLV, PPLT, CPER, GDX, NUGT (no new futures positions since Oct 31: their feed is 10 minutes delayed; a futures position you already hold can still be sold). Counted in C$.',
+     'Energy': 'Oil and energy: oil, gas and energy through US$-priced ETFs or stocks, Yahoo Finance symbols like USO, BNO, XLE, XOM, UNG, GUSH (no new futures positions since Oct 31: their feed is 10 minutes delayed; a futures position you already hold can still be sold). Counted in C$.',
+     'Predictions': 'Prediction markets: Polymarket markets, named by their URL slug (the part after polymarket.com/event/ or /market/), buying "Yes" or "No" shares that pay US$1 if right. Minimum C$3,000 per buy (it counts as a bet). The market must be open; resolved markets settle automatically. Counted in C$.',
+@@ -804,7 +822,7 @@ def build_prompt(label, exps, books, values, fx, recent, closed_day=None, refuse
+         'You do NOT have to put all the money at stake. Keeping some or most of an experiment in cash is allowed and fine, you can use any size from a small position to the whole amount, you do not need to use leverage, and you can spread money over several holdings or bets instead of one. Cash is safe: it never busts. Sizing is entirely your choice.',
+         '',
+         'Rules (no fees; fills are at the live price when this run executes; except where an experiment below says otherwise, you buy with cash you have, no margin and no short selling: Currencies allow shorts and leverage, Options allow buying calls and puts, High risk has no caps):',
+-        '- US-listed stocks and ETFs fill only while the US market is open (9:30 a.m. to 4:00 p.m. ET, weekdays); crypto any time. Every fill needs a live price (at most 3 minutes old); otherwise it is refused and you can send it again next check-in.',
++        '- US-listed stocks and ETFs fill only while the US market is open (9:30 a.m. to 4:00 p.m. ET, weekdays); crypto any time. Every fill needs a live price (at most 3 minutes old; 20 minutes for China, whose feed runs 15 minutes behind); otherwise it is refused and you can send it again next check-in.',
+     ]
+     lines += ['- ' + RULES[e] for e in exps]
+     lines += list(race)
+@@ -936,6 +954,12 @@ def execute(model_id, exps, books, order, fx, state):
+         raise ValueError('US market is closed; US-listed orders fill only 9:30 a.m. to 4:00 p.m. ET on weekdays (closed Thanksgiving Nov 26; 1:00 p.m. close Nov 27)')
+     if exp == 'China' and not china_open():
+         raise ValueError('China market is closed; orders fill only during Shanghai/Shenzhen trading hours')
++    if exp == 'China' and action == 'buy':   # the China feed runs 15 minutes behind (see MAX_AGE_CN)
++        if not CN_NEW_BUYS:
++            raise ValueError(f'{sym}: new China buys are not filled (the China price feed runs 15 minutes behind, so since {CN_RULE_DAY} only sells, stops and targets fill there, as for futures); a position you hold can still be sold')
++        bj = NOW.astimezone(BJ)
++        if bj.hour * 60 + bj.minute < CN_BUY_FROM:
++            raise ValueError(f'{sym}: no China buys in the first 30 minutes after the Shanghai open (the China price feed runs 15 minutes behind); send it again from 10:00 a.m. Beijing time')
+     if exp == 'Currencies' and not fx_open():
+         raise ValueError('forex is closed (it trades Sunday 5 p.m. to Friday 5 p.m. ET)')
+     if sym.endswith('=F') and action in ('buy', 'short'):   # R2 (root-cause vote Oct 31; Gemini and ChatGPT, against Claude): no new futures positions
+diff --git a/ops/src/index.html b/ops/src/index.html
+index 7d81b9dbd..cdf8820e5 100644
+--- a/ops/src/index.html
++++ b/ops/src/index.html
+@@ -2619,7 +2619,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
+         <ul>
+           <li><b>Stocks and anything:</b> any US-listed stock or ETF, including leveraged and inverse ETFs.</li>
+           <li><b>Crypto:</b> coins like Bitcoin, Ethereum and Solana, traded around the clock.</li>
+-          <li><b>China stocks (US$):</b> Shanghai and Shenzhen shares and ETFs, priced in yuan, counted in US$. Lots of 100 shares; shares bought today can't be sold until the next trading day (T+1). Only while the Shanghai market is open.</li>
++          <li><b>China stocks (US$):</b> Shanghai and Shenzhen shares and ETFs, priced in yuan, counted in US$. Lots of 100 shares; shares bought today can't be sold until the next trading day (T+1). Only while the Shanghai market is open. <b>From Nov 24:</b> the price feed for China runs 15 minutes behind, so a China sell, stop or target uses a price up to 20 minutes old (all three AIs agreed), and new China buys are refused, as for futures (the owner's decision). From Oct 31 until then no China order or stop could fill while Shanghai was open.</li>
+           <li><b>Metals:</b> gold, silver, platinum, copper and more through ETFs, miners or futures.</li>
+           <li><b>Oil and energy:</b> oil, gas and energy ETFs, stocks or futures.</li>
+           <li><b>Options:</b> buy calls or puts on US stocks and ETFs (no writing options). Buys fill at the Cboe ask, sells at the bid. US market hours only.</li>
+diff --git a/ops/tests/run_tests.py b/ops/tests/run_tests.py
+index e13c16546..9871122ce 100644
+--- a/ops/tests/run_tests.py
++++ b/ops/tests/run_tests.py
+@@ -62,6 +62,68 @@ def test_china_open_uses_todays_bar():
+     assert R.yahoo('510300.SS')[0] == 4.066 and not R.stale_quote('China', '510300.SS')
+ 
+ 
++# ---- China's feed runs 15 minutes behind (measured Nov 23): 20 minutes there, and never a price from before the session ----
++def test_china_price_15_minutes_old_is_live_but_never_one_from_before_the_session():
++    o, c, y = ts('2026-11-24T01:30:00+00:00'), ts('2026-11-24T07:00:00+00:00'), ts('2026-11-23T07:00:00+00:00')
++    at('2026-11-24T01:46:36+00:00'); q = ts('2026-11-24T01:31:36+00:00')   # as measured: the feed shows 9:31 a.m. Beijing, 900 s old
++    feed({'510300.SS': chart(4.02, q, [(q, 4.02)], (o, c))})
++    assert R.yahoo('510300.SS')[0] == 4.02 and not R.stale_quote('China', '510300.SS'), 'a 15-minute-old China price must count as live'
++    at('2026-11-24T02:10:00+00:00'); q = ts('2026-11-24T01:49:00+00:00')   # 21 minutes old: too old even there
++    feed({'510300.SS': chart(4.02, q, [(q, 4.02)], (o, c))})
++    R.yahoo('510300.SS')
++    assert R.stale_quote('China', '510300.SS'), 'a 21-minute-old China price must not fill'
++    at('2026-11-24T01:36:00+00:00'); q = ts('2026-11-24T01:26:00+00:00')   # a pre-open price only 10 minutes old: never used
++    feed({'159915.SZ': chart(2.5, q, [(q, 2.5)], (o, c))})
++    R.yahoo('159915.SZ')
++    assert R.stale_quote('China', '159915.SZ'), 'a China price from before the session must not fill, however recent'
++    at('2026-11-24T01:38:59+00:00')   # the previous close just after the open (as before)
++    feed({'510880.SS': chart(3.2, y, [(y - 60, 3.2)], (o, c))})
++    R.yahoo('510880.SS')
++    assert R.stale_quote('China', '510880.SS')
++    at('2026-11-24T15:00:00+00:00'); uo, uc, q = ts('2026-11-24T14:30:00+00:00'), ts('2026-11-24T21:00:00+00:00'), ts('2026-11-24T14:45:00+00:00')
++    feed({'SQQQ': chart(45.0, q, [(q, 45.0)], (uo, uc), 'USD')})   # everything else keeps its 3 minutes
++    R.yahoo('SQQQ')
++    assert R.stale_quote('Stocks', 'SQQQ'), 'a 15-minute-old US price must still be refused'
++
++
++def test_china_buys_follow_the_owners_switch_and_sells_fill():
++    saved = R.CN_NEW_BUYS
++    o, c = ts('2026-11-24T01:30:00+00:00'), ts('2026-11-24T07:00:00+00:00')
++    fx = {'USDCAD': 1.4, 'USDCNY': 7.1}
++    def books():
++        return {'China': {'cur': 'USD', 'cash': 50000.0, 'positions': {'510300.SS': {'qty': 32000, 'entry': 4.2, 'pcur': 'CNY', 'name': 'CSI 300 ETF',
++                                                                                   'opened_at': '2026-10-29T02:00:00Z', 'last': 4.02}}}}
++    def order(action, **k):
++        return dict({'experiment': 'China', 'action': action, 'symbol': '510300.SS'}, **k)
++    def refused(bk, od, word):
++        try:
++            R.execute('chatgpt', ['China'], bk, od, fx, {'trades': []})
++        except ValueError as e:
++            assert word in str(e), str(e)
++            return
++        raise AssertionError('was not refused: ' + word)
++    try:
++        at('2026-11-24T02:20:00+00:00'); q = ts('2026-11-24T02:05:00+00:00')   # 10:20 a.m. Beijing, the feed 15 minutes behind
++        feed({'510300.SS': chart(4.02, q, [(q, 4.02)], (o, c))})
++        R.CN_NEW_BUYS = False   # sells, stops and targets only
++        refused(books(), order('buy', amount=5000), 'new China buys are not filled')
++        bk = books()
++        R.execute('chatgpt', ['China'], bk, order('sell', fraction=1), fx, {'trades': []})   # the exit fills at the feed's newest price
++        assert '510300.SS' not in bk['China']['positions'] and abs(bk['China']['cash'] - (50000.0 + 32000 * 4.02 / 7.1)) < 0.01, bk
++        R.CN_NEW_BUYS = True    # buys too, from 10:00 a.m. Beijing
++        bk = books()
++        R.execute('chatgpt', ['China'], bk, order('buy', amount=5000), fx, {'trades': []})
++        assert bk['China']['positions']['510300.SS']['qty'] > 32000
++        at('2026-11-24T01:50:00+00:00'); q = ts('2026-11-24T01:35:00+00:00')   # 9:50 a.m. Beijing: inside the first 30 minutes
++        feed({'510300.SS': chart(4.02, q, [(q, 4.02)], (o, c))})
++        refused(books(), order('buy', amount=5000), 'first 30 minutes')
++        bk = books()
++        R.execute('chatgpt', ['China'], bk, order('sell', fraction=1), fx, {'trades': []})   # a sell is not held back
++        assert '510300.SS' not in bk['China']['positions']
++    finally:
++        R.CN_NEW_BUYS = saved
++
++
+ # ---- C1: Yahoo's quote field lagging during the session (SQQQ 49 min, Oct 30) ----
+ def test_lagging_quote_uses_fresh_minute_bar():
+     at('2026-10-30T19:44:20+00:00')

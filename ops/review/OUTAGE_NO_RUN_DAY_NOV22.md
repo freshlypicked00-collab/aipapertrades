@@ -79,6 +79,7 @@ price from today's session yet)" in 14 of 14 runs on Fri Nov 20 and in the sampl
 the CSI 300 ETF (4.05 yuan) has been crossed since Thu Nov 19, 9:16 p.m. ET and is still waiting. All three AIs want China
 orders and stops to use the newest price up to the feed's measured delay plus 5 minutes (never more than 30), from the next
 Shanghai session after the owner agrees, with nothing restated for the past. A log-only line (`china feed age:`) measures the
-delay from Mon Nov 23's evening session on; it changes no price, fill or stop.
+delay from Mon Nov 23's evening session on; it changes no price, fill or stop. **Measured that evening: 15 minutes.** The rest of
+this story (the second vote, on buys; the prepared patch) is in `ops/review/CHINA_FEED_NOV23.md`.
 
 Never start, cancel or rerun a race check-in by hand.
