@@ -748,7 +748,15 @@ def test_a_picture_that_timed_out_is_not_posted_twice():
                     return b'{"ok": true, "result": {"message_id": 1}}'
             return Ok()
         return urlopen
-    assert R.animate, 'the animated cards module is missing'
+    # The picture libraries are installed only in the runs that make pictures; the 15-minute settle runs skip them, so the animated
+    # cards module is absent there. This test used to insist on it, so it failed in every settle run and stopped it with a "tests
+    # failing" alert (both that fired: Nov 21, 7:14 a.m. ET and Nov 24, 1:48 a.m. ET). The rule under test needs only gif_of, so
+    # a stand-in lets it run everywhere.
+    had_cards = R.animate
+    if not had_cards:
+        class _Cards:
+            gif_of = staticmethod(lambda p: None)
+        R.animate = _Cards()
     saved = urllib.request.urlopen, R.tg, R.QUIET_TG, R.animate.gif_of, os.environ.get('TELEGRAM_BOT_TOKEN'), os.environ.get('TELEGRAM_CHAT_ID')
     try:
         os.environ['TELEGRAM_BOT_TOKEN'], os.environ['TELEGRAM_CHAT_ID'] = 't', 'c'
@@ -775,6 +783,7 @@ def test_a_picture_that_timed_out_is_not_posted_twice():
         assert sharecard.tg_album('t', 'c', [png, png2], 'short caption') is False and [c[0] for c in calls] == ['sendMediaGroup'], calls
     finally:
         urllib.request.urlopen, R.tg, R.QUIET_TG, R.animate.gif_of = saved[:4]
+        R.animate = had_cards
         for k, v in (('TELEGRAM_BOT_TOKEN', saved[4]), ('TELEGRAM_CHAT_ID', saved[5])):
             if v is None:
                 os.environ.pop(k, None)
