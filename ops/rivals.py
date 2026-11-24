@@ -2394,6 +2394,11 @@ def main():
         g = espn_games()
         print('espn games', len(g), sum(1 for x in g.values() if x['home_ml']), 'with moneylines')
         assert g
+        try:   # Nov 23, read-only (ops/outage_stops.py): what restating ChatGPT's two late SQQQ stop fills would come to. The owner decides.
+            import outage_stops
+            outage_stops.report(get_json)
+        except Exception as e:
+            print('outage stops report failed:', e)
         return
     sys.modules.setdefault('rivals', sys.modules[__name__])
     global POST_STATE

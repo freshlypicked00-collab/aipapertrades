@@ -379,6 +379,25 @@ def test_a_fine_for_a_day_the_runner_never_ran_is_refunded_in_the_right_words():
         R.NOW, R.tg, R.NO_RUN_VOTE = saved_now, saved_tg, saved_vote
 
 
+def test_late_stop_remedy_is_the_first_scheduled_run_at_or_below_the_level():
+    """ops/outage_stops.py (read-only): where each of ChatGPT's two SQQQ stops would have filled on Mon Nov 23 had the runner run, and
+    the cash correction that would restate it. The first chance is the 9:35 a.m. ET run; a price above the level waits for a later run."""
+    import outage_stops as O
+    ms = O.scheduled_minutes()
+    assert [t.strftime('%H:%M') for t in ms[:6]] == ['14:35', '14:38', '14:43', '14:53', '15:08', '15:13'] and ms[-1].strftime('%H:%M') == '20:53', ms[:6]
+    ep = lambda hm: int(datetime.fromisoformat(f'2026-11-23T{hm}:00+00:00').timestamp())
+    low = {ep('14:30') + 60 * i: 49.8 for i in range(390)}          # opened far below both stops: both fill at the 9:35 run
+    a, b = O.plan(low)
+    assert a['bar_minute'] == b['bar_minute'] == '2026-11-23T14:35Z' and a['bar_price'] == 49.8
+    assert a['correction'] == round(6262.91 * (49.8 / 45.61 - 1), 2) and b['correction'] == round(15657.28 * (49.8 / 45.61 - 1), 2)
+    later = {k: 57.0 for k in low}; later[ep('14:38')] = 56.0; later[ep('14:43')] = 55.5   # crosses 56.20 first, 55.90 one run later
+    a, b = O.plan(later)
+    assert (a['bar_minute'], a['bar_price']) == ('2026-11-23T14:38Z', 56.0) and (b['bar_minute'], b['bar_price']) == ('2026-11-23T14:43Z', 55.5)
+    between = {k: 57.0 for k in low}; between[ep('14:36')] = 50.0   # a dip between two scheduled runs is not a fill: the runner was not looking
+    assert all('bar_price' not in r for r in O.plan(between))
+    assert all('bar_price' not in r for r in O.plan({k: 57.0 for k in low})) and all('bar_price' not in r for r in O.plan({}))
+
+
 def test_one_ai_cannot_use_up_the_whole_run():
     """Nov 19: from Nov 18, 10:14 p.m. ET every check-in was killed at the 30-minute job limit before anything was saved, and Gemini
     and ChatGPT both missed 8 hours. Each AI's model requests now share one clock (MODEL_BUDGET): a request to a model host is cut
