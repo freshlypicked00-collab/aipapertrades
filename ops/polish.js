@@ -328,7 +328,7 @@
     var finalCard = function () {
       var pg = $('header.st-head'); if (!pg || !pg.parentNode || typeof dash === 'undefined') return;   // right under the header, above everything else on the Overview
       var old = document.getElementById('final');
-      if (!fOn()) { if (old) old.remove(); return; }
+      if (!fOn()) { if (old) { old.remove(); document.documentElement.classList.remove('pt-final-on'); } return; }
       var st = dash.baseData('standings'), es = dash.baseData('exp_standings'); var ES = Array.isArray(es) ? es[0] : es;
       if (!Array.isArray(st) || !st.length || !ES) return;
       var rows = st.filter(function (r) { return typeof r.profit === 'number'; }).slice().sort(function (a, b) { return b.profit - a.profit; });
@@ -351,6 +351,17 @@
         : open ? 'Final scoring done ' + whenET(scoredAt) + '. ' + open + (open === 1 ? ' Sports bet is' : ' Sports bets are') + ' still open, so the Sports totals can still change. Until then this is the order at the finish.'
         : 'Final. Scoring done ' + whenET(scoredAt) + (lastSettled > F_END ? '; the last open bet settled ' + whenET(lastSettled) : '') + '. Includes every penalty, refund, voided bet and settled bet. Nothing changes after this.';
       card.appendChild(mk('p', 'pt-fin-status' + (settled ? ' is-final' : ''), status));
+      // Nov 24 (Gemini and ChatGPT asked for it on Nov 19): once the result is final the card names the final fingerprint and links to the
+      // place where anyone can re-check it. It is the first nightly fingerprint whose daily close (7:00 p.m. ET) comes after the finish
+      // and after the last bet settled, so it covers the whole final record. Read from the same list as Rules & Audit; nothing new is worked out.
+      if (settled) { var needT = Math.max(F_END, lastSettled || 0), fin = (dash.baseData('fingerprints') || []).filter(function (f) { return f && f.sha256 && Date.parse(f.close_at) >= needT; })[0];
+        var fpP = mk('p', 'pt-fin-fp');
+        if (fin) { fpP.appendChild(document.createTextNode('🔒 Final fingerprint of the whole record (every trade and bet up to ' + whenET(fin.close_at) + '): '));
+          var fb = mk('button', 'pt-fin-fpb', fin.sha256.slice(0, 16) + '…'); fb.type = 'button'; fb.title = 'SHA-256 ' + fin.sha256 + '. Open Rules & Audit to re-check it in your own browser.';
+          fb.setAttribute('aria-label', 'Final fingerprint, SHA-256 ' + fin.sha256 + '. Open Rules and Audit to re-check it.'); fb.addEventListener('click', function () { tab('audit'); }); fpP.appendChild(fb);
+          fpP.appendChild(document.createTextNode(' · ' + fin.records + ' records · re-check it yourself on Rules & Audit.')); }
+        else fpP.appendChild(document.createTextNode('🔒 The final fingerprint of the whole record is published after the next daily close (7:00 p.m. ET) and will be shown here.'));
+        card.appendChild(fpP); }
       var lead = mk('p', 'pt-fin-lead'); lead.appendChild(document.createTextNode(settled ? '🏆 ' : '👑 ')); lead.appendChild(nameOf(rows[0].id));
       lead.appendChild(document.createTextNode((settled ? ' won Season 1' : ended ? ' finished first' : ' leads') + ' with the most total profit: '));
       var top = mk('b', 'pt-fin-amt ' + (rows[0].profit >= 0 ? 'is-up' : 'is-down'), fmtC(rows[0].profit)); lead.appendChild(top); lead.appendChild(mk('span', 'pt-fin-tag', ' pretend money')); card.appendChild(lead);
@@ -383,6 +394,9 @@
       card.appendChild(mk('p', 'pt-fin-foot', 'Pretend money only. No deposits, no accounts, no token. Not investment or betting advice. One month is short, so luck matters.'));
       if (old) old.replaceWith(card); else { pg.parentNode.insertBefore(card, pg.nextSibling);
         if (location.hash === '#final') later(function () { try { card.scrollIntoView({ block: 'start' }); } catch (e) {} }, 200); }
+      // Nov 24: while the card is on the screen the first-visit tour offer stays out of its way (polish.css: html.pt-final-on .gd-offer)
+      try { if (finalCard._io) finalCard._io.disconnect();
+        if ('IntersectionObserver' in window) { finalCard._io = new IntersectionObserver(function (es) { document.documentElement.classList.toggle('pt-final-on', es.some(function (x) { return x.isIntersecting; })); }); finalCard._io.observe(card); } } catch (e) {}
     };
     if (fPreview || FINAL_LIVE) { later(finalCard, 1200); later(finalCard, 3500); setInterval(function () { try { finalCard(); } catch (e) {} }, 20000);
       if (typeof dash !== 'undefined' && dash.onData) dash.onData(function () { later(finalCard, 300); }); }
