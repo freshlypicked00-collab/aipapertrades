@@ -1,7 +1,8 @@
 # China: no stop could fire and no order could fill since Oct 31 (prepared fix, NOT applied)
 
-Written Mon Nov 23, 9:20 p.m. ET. **Status: waiting for the owner.** The fix is prepared and tested in
-`ops/review/china-feed-delay.patch`; nothing in the race code has changed except one log line that measures the feed.
+Written Mon Nov 23, 9:20 p.m. ET; last checked Tue Nov 24, 8:25 a.m. ET. **Status: waiting for the owner.** The fix is prepared
+and tested in `ops/review/china-feed-delay.patch`; nothing in the race code has changed except one log line that measures the
+feed. Three Shanghai sessions are left before the finale: they open Tue Nov 24, Wed Nov 25 and Thu Nov 26 at 8:30 p.m. ET.
 
 ## What is wrong
 
@@ -30,6 +31,8 @@ Gemini cash only, about -US$2,570.
 | 8:47:45 p.m. | 159915.SZ, 510300.SS | 901 and 903 seconds old |
 
 So the feed is 15 minutes behind, and for the first 15 minutes of a session it shows only prices from before the session.
+The rest of that session gave the same answer in every run sampled (Mon 9:15 p.m., 10:15 p.m., Tue 12:16 a.m., 12:58 a.m. and
+1:16 a.m. ET): 900 to 910 seconds, and all four China stops and targets (ChatGPT's stop and its target, Claude's two stops) skipped each time.
 
 ## The votes
 
@@ -56,7 +59,8 @@ a 15-minute-old price would be put right the same way, so what could be gained f
 - The rule text each AI reads says so, and a notice tells them once. The independent fill check uses the same limit.
 - One sentence in the public Rules list.
 
-Race tests with it: 32 of 32 (two new). Simulated on the real books for Tuesday's session with a 15-minute-old price of 4.02:
+Race tests with it: 33 of 33 (two new; run again Tue Nov 24, 8:25 a.m. ET on the current code, where the patch still applies
+cleanly). Simulated on the real books for Tuesday's session with a 15-minute-old price of 4.02:
 ChatGPT's waiting stop fills (32,000 CSI 300 ETF sold, about US$19,300), nothing else moves. As the code is today, the same run fills
 nothing.
 
@@ -66,7 +70,7 @@ nothing.
 2. In `ops/rivals.py` set `CN_NEW_BUYS` (False = exits only, True = buys too) and `CN_RULE_DAY` to the day it goes in.
 3. If buys too: in `ops/src/index.html` change the new sentence in the Rules list to say "a China order, stop or target uses a
    price up to 20 minutes old, and buys fill only from 10:00 a.m. Beijing time" instead of "new China buys are refused".
-4. `python3 ops/tests/run_tests.py` must pass (32). Publish. Never start, cancel or rerun a check-in by hand.
+4. `python3 ops/tests/run_tests.py` must pass (33). Publish. Never start, cancel or rerun a check-in by hand.
 5. A Site updates line and a correction entry: since Oct 31 no China order or stop could fill while Shanghai was open; what
    changes; who agreed and who decided.
 

@@ -1,6 +1,7 @@
 # A day the runner never ran (Nov 21 to 23)
 
-Last updated Mon Nov 23, 9:21 p.m. ET. **Status: closed for the betting minimums.** Three things wait for the owner (last section).
+Last updated Tue Nov 24, 8:20 a.m. ET. **Status: closed for the betting minimums and for the two SQQQ stops** (A below; the owner
+agreed Mon 9:58 p.m. ET). **Two things still wait for the owner: China (B) and options (C).**
 
 ## What happened
 
@@ -58,11 +59,11 @@ charged again at the next run. `ops/review/outage-no-run-day-followup.patch` is 
   that had started were refused.
 - **Options.** Nobody held an option, so no expiry was missed.
 
-## Three things waiting for the owner
+## Three things found on Nov 23: one decided, two waiting for the owner
 
 Found on Nov 23 while checking the outage. Question `ops/asks/stops-nov23.txt`, asked Mon 5:47 p.m. ET, answers in
 `ops/review/stops-nov23.json`, Claude's own vote first in `ops/review/claude-votes-stops-nov23.json`. The question said that
-nothing would be applied on a vote alone, so **nothing has been changed**.
+nothing would be applied on a vote alone. A went in only once the owner had agreed; for B and C **nothing has been changed**.
 
 **A. ChatGPT's two SQQQ stops filled 51 hours late.** Stops at US$56.20 (Stocks) and US$55.90 (High risk: Trading); last price
 before the outage US$57.59; both crossed while nothing ran and filled at the first run back at US$45.61. The rule says a
@@ -74,7 +75,15 @@ established, keep US$45.61.
 *What it would come to* (worked out Mon 9:20 p.m. ET by the read-only report `ops/outage_stops.py`, from Yahoo's 1-minute bars):
 SQQQ opened far below both stops. At the first scheduled run of the day, 9:35 a.m. ET, it was US$46.93, so both stops would
 have filled there. Restating US$45.61 to US$46.93 gives ChatGPT **+C$181.26 in Stocks and +C$453.14 in High risk: Trading**
-(C$634.40 in all). The rest of the fall from US$57.59 was the market's gap over the weekend, not the outage. Not applied.
+(C$634.40 in all). The rest of the fall from US$57.59 was the market's gap over the weekend, not the outage.
+
+*Decided and applied.* The owner agreed on Mon Nov 23 at 9:58 p.m. ET, in another Claude chat, which entered the two
+corrections as PC12 and PC13 in `ops/src/price_corrections.json` (commit `5ce113453`). The race runner applied them once, at
+10:15:56 p.m. ET: ChatGPT's Stocks cash C$73,917.55 to C$74,098.81 and its High risk: Trading cash C$44,070.83 to C$44,523.97.
+The two original fills at US$45.61 stay in the ledger as they were. Public: the Corrections entry on Rules & Audit, the list of
+price corrections under it, and a Telegram notice (10:19 p.m. ET). Checked Tue 8:15 a.m. ET by this chat: both amounts equal
+the read-only report, the race tests pass (31 of 31) and the morning's full audit found no problem. To reverse: a new entry
+with the opposite amounts (an applied correction is never deleted).
 
 **B. China: no stop can be checked in an open Shanghai session, and no order has filled, since Oct 30.** The fresh-price rule
 of Oct 31 (no fill and no stop on a previous close; a quote at most 3 minutes old in an open market) is never met by the feed's
@@ -83,8 +92,10 @@ price from today's session yet)" in 14 of 14 runs on Fri Nov 20 and in the sampl
 the CSI 300 ETF (4.05 yuan) has been crossed since Thu Nov 19, 9:16 p.m. ET and is still waiting. All three AIs want China
 orders and stops to use the newest price up to the feed's measured delay plus 5 minutes (never more than 30), from the next
 Shanghai session after the owner agrees, with nothing restated for the past. A log-only line (`china feed age:`) measures the
-delay from Mon Nov 23's evening session on; it changes no price, fill or stop. **Measured that evening: 15 minutes.** The rest of
-this story (the second vote, on buys; the prepared patch) is in `ops/review/CHINA_FEED_NOV23.md`.
+delay from Mon Nov 23's evening session on; it changes no price, fill or stop. **Measured that evening: 15 minutes**, and the
+same in every run sampled through the whole session (900 to 910 seconds, Mon 9:15 p.m. to Tue 1:16 a.m. ET); every China stop
+was skipped again in each of them. Three Shanghai sessions are left before the finale; the next opens Tue Nov 24, 8:30 p.m. ET.
+The rest of this story (the second vote, on buys; the prepared patch) is in `ops/review/CHINA_FEED_NOV23.md`.
 
 **C. Options: the price source has refused the runner since Thu Nov 19 evening.** Found Mon Nov 23, 9:17 p.m. ET, when the
 price-feed test stopped on it. The runner prices options from Cboe's delayed quotes; that address now answers "403 Forbidden".
