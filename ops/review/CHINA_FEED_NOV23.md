@@ -1,6 +1,6 @@
 # China: no stop could fire and no order could fill since Oct 31 (prepared fix, NOT applied)
 
-Written Mon Nov 23, 9:20 p.m. ET; last checked Tue Nov 24, 8:25 a.m. ET. **Status: waiting for the owner.** The fix is prepared
+Written Mon Nov 23, 9:20 p.m. ET; last checked Tue Nov 24, 8:17 a.m. ET. **Status: waiting for the owner.** The fix is prepared
 and tested in `ops/review/china-feed-delay.patch`; nothing in the race code has changed except one log line that measures the
 feed. Three Shanghai sessions are left before the finale: they open Tue Nov 24, Wed Nov 25 and Thu Nov 26 at 8:30 p.m. ET.
 
@@ -59,7 +59,7 @@ a 15-minute-old price would be put right the same way, so what could be gained f
 - The rule text each AI reads says so, and a notice tells them once. The independent fill check uses the same limit.
 - One sentence in the public Rules list.
 
-Race tests with it: 33 of 33 (two new; run again Tue Nov 24, 8:25 a.m. ET on the current code, where the patch still applies
+Race tests with it: 33 of 33 (two new; run again Tue Nov 24, 8:17 a.m. ET on the current code, where the patch still applies
 cleanly). Simulated on the real books for Tuesday's session with a 15-minute-old price of 4.02:
 ChatGPT's waiting stop fills (32,000 CSI 300 ETF sold, about US$19,300), nothing else moves. As the code is today, the same run fills
 nothing.

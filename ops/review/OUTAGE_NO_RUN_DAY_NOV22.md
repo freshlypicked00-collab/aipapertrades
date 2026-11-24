@@ -1,6 +1,6 @@
 # A day the runner never ran (Nov 21 to 23)
 
-Last updated Tue Nov 24, 8:20 a.m. ET. **Status: closed for the betting minimums and for the two SQQQ stops** (A below; the owner
+Last updated Tue Nov 24, 8:18 a.m. ET. **Status: closed for the betting minimums and for the two SQQQ stops** (A below; the owner
 agreed Mon 9:58 p.m. ET). **Two things still wait for the owner: China (B) and options (C).**
 
 ## What happened
@@ -81,7 +81,7 @@ have filled there. Restating US$45.61 to US$46.93 gives ChatGPT **+C$181.26 in S
 corrections as PC12 and PC13 in `ops/src/price_corrections.json` (commit `5ce113453`). The race runner applied them once, at
 10:15:56 p.m. ET: ChatGPT's Stocks cash C$73,917.55 to C$74,098.81 and its High risk: Trading cash C$44,070.83 to C$44,523.97.
 The two original fills at US$45.61 stay in the ledger as they were. Public: the Corrections entry on Rules & Audit, the list of
-price corrections under it, and a Telegram notice (10:19 p.m. ET). Checked Tue 8:15 a.m. ET by this chat: both amounts equal
+price corrections under it, and a Telegram notice (10:19 p.m. ET). Checked Tue Nov 24, about 8:10 a.m. ET, by this chat: both amounts equal
 the read-only report, the race tests pass (31 of 31) and the morning's full audit found no problem. To reverse: a new entry
 with the opposite amounts (an applied correction is never deleted).
 
