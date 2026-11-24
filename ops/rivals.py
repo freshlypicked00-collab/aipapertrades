@@ -2393,7 +2393,17 @@ def main():
         j = get_json('https://gamma-api.polymarket.com/markets?active=true&closed=false&limit=1&order=volume24hr&ascending=false', timeout=20)
         print('polymarket', j[0]['slug'], poly(j[0]['slug']))
         print('JPY', quote('Currencies', 'JPY'))
-        c = get_json('https://cdn.cboe.com/api/global/delayed_quotes/options/NVDA.json', timeout=30)['data']['options']
+        try:
+            c = get_json('https://cdn.cboe.com/api/global/delayed_quotes/options/NVDA.json', timeout=30)['data']['options']
+        except Exception as e:   # Nov 24, read-only: the options source has refused the runner since Nov 19 (HTTP 403 after a redirect).
+            try:                 # Say where the request ended up and what answered, then fail exactly as before. Nothing is worked around.
+                hd = {k.lower(): str(v) for k, v in (getattr(e, 'headers', None) or {}).items()}
+                print('cboe refused:', getattr(e, 'code', None), '| the request ended at', getattr(e, 'url', None),
+                      '| headers:', {k: hd[k][:160] for k in ('server', 'content-type', 'location', 'via', 'x-cache', 'cf-mitigated', 'retry-after', 'www-authenticate') if k in hd},
+                      '| answer starts:', (e.read(400) if hasattr(e, 'read') else b'').decode('utf-8', 'replace').replace('\n', ' ')[:400])
+            except Exception as e2:
+                print('cboe refused; no details readable:', e2)
+            raise
         print('cboe NVDA options', len(c), c[0]['option'])
         assert c
         g = espn_games()
