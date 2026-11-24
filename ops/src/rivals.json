@@ -24947,12 +24947,14 @@
        "to_win": 1000.0,
        "starts_at": "2026-11-24T01:15Z",
        "placed_at": "2026-11-23T20:16:06Z",
-       "status": "Open",
-       "result": 0.0,
+       "status": "Lost",
+       "result": -3000.0,
        "reason": "This meets the Monday high-risk sports daily minimum with a floor-sized stake on Cincinnati, the listed road favorite at Washington.",
        "wrong_if": "Washington wins the game outright by any final score.",
        "closing_odds": -301,
-       "closing_at": "2026-11-24T01:14:08Z"
+       "closing_at": "2026-11-24T01:14:08Z",
+       "settled_at": "2026-11-24T05:16:58Z",
+       "final": "Cincinnati Bengals 20, Washington Commanders 22"
       }
      ],
      "penalties": [],
@@ -46771,6 +46773,24 @@
    "bet": "G178",
    "wrong_if": "Indiana Hoosiers lose the game to Jacksonville Dolphins.",
    "p_works": 0.999
+  },
+  {
+   "at": "2026-11-24T05:16:58Z",
+   "model": "chatgpt",
+   "experiment": "AllInSports",
+   "action": "Lost",
+   "symbol": "C49",
+   "outcome": null,
+   "name": "NFL: Cincinnati Bengals moneyline (Cincinnati Bengals @ Washington Commanders)",
+   "price": -300,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": -3000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Final: Cincinnati Bengals 20, Washington Commanders 22.",
+   "bet": "C49",
+   "final": "Cincinnati Bengals 20, Washington Commanders 22"
   }
  ],
  "history": [
@@ -273097,7 +273117,8 @@
   "claude|AllInSports|2026-11-24T04:21:35Z|Lost|C22": "C-AIS-048",
   "claude|Sports|2026-11-24T04:21:35Z|Lost|S26": "C-SPT-052",
   "gemini|AllInSports|2026-11-24T05:16:58Z|Bet|G178": "G-AIS-166",
-  "gemini|Sports|2026-11-24T05:16:58Z|Bet|G177": "G-SPT-186"
+  "gemini|Sports|2026-11-24T05:16:58Z|Bet|G177": "G-SPT-186",
+  "chatgpt|AllInSports|2026-11-24T05:16:58Z|Lost|C49": "X-AIS-048"
  },
  "txseq": {
   "X-CRY": 38,
@@ -273126,7 +273147,7 @@
   "G-AIS": 166,
   "G-AIT": 55,
   "X-SPT": 58,
-  "X-AIS": 47,
+  "X-AIS": 48,
   "C-PRD": 6,
   "C-SPT": 52,
   "X-CHN": 4,
