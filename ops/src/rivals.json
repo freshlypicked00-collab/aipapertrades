@@ -8310,12 +8310,14 @@
        "to_win": 142.86,
        "starts_at": "2026-11-24T04:30Z",
        "placed_at": "2026-11-23T20:16:06Z",
-       "status": "Open",
-       "result": 0.0,
+       "status": "Won",
+       "result": 142.86,
        "reason": "Fulfilling the Monday daily betting minimum using a floor-sized stake on the ultra-heavy -2100 favorite Arizona Wildcats to maximize safety.",
        "wrong_if": "Colorado State wins outright, which would indicate a massive fundamental breakdown in Arizona's play.",
        "closing_odds": -2100,
-       "closing_at": "2026-11-24T04:21:35Z"
+       "closing_at": "2026-11-24T04:21:35Z",
+       "settled_at": "2026-11-24T07:09:02Z",
+       "final": "Colorado State Rams 83, Arizona Wildcats 96"
       },
       {
        "id": "G177",
@@ -13799,12 +13801,14 @@
        "to_win": 142.86,
        "starts_at": "2026-11-24T04:30Z",
        "placed_at": "2026-11-23T20:16:06Z",
-       "status": "Open",
-       "result": 0.0,
+       "status": "Won",
+       "result": 142.86,
        "reason": "Fulfilling the Monday High-risk daily betting minimum using a floor-sized stake on the ultra-heavy -2100 favorite Arizona Wildcats to securely protect the bankroll.",
        "wrong_if": "Colorado State wins outright, pulling off a statistical miracle against a heavily favored home team.",
        "closing_odds": -2100,
-       "closing_at": "2026-11-24T04:21:35Z"
+       "closing_at": "2026-11-24T04:21:35Z",
+       "settled_at": "2026-11-24T07:09:02Z",
+       "final": "Colorado State Rams 83, Arizona Wildcats 96"
       },
       {
        "id": "G178",
@@ -46973,6 +46977,42 @@
    "bet": "C24",
    "wrong_if": "Dallas win in Denver (the Nuggets moneyline loses).",
    "p_works": 0.75
+  },
+  {
+   "at": "2026-11-24T07:09:02Z",
+   "model": "gemini",
+   "experiment": "Sports",
+   "action": "Won",
+   "symbol": "G175",
+   "outcome": null,
+   "name": "NCAAB: Arizona Wildcats moneyline (Colorado State Rams @ Arizona Wildcats)",
+   "price": -2100,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 142.86,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Final: Colorado State Rams 83, Arizona Wildcats 96.",
+   "bet": "G175",
+   "final": "Colorado State Rams 83, Arizona Wildcats 96"
+  },
+  {
+   "at": "2026-11-24T07:09:02Z",
+   "model": "gemini",
+   "experiment": "AllInSports",
+   "action": "Won",
+   "symbol": "G176",
+   "outcome": null,
+   "name": "NCAAB: Arizona Wildcats moneyline (Colorado State Rams @ Arizona Wildcats)",
+   "price": -2100,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 142.86,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Final: Colorado State Rams 83, Arizona Wildcats 96.",
+   "bet": "G176",
+   "final": "Colorado State Rams 83, Arizona Wildcats 96"
   }
  ],
  "history": [
@@ -132745,6 +132785,18 @@
    "model": "claude",
    "experiment": "AllInSports",
    "value": 91447.92
+  },
+  {
+   "at": "2026-11-24T07:09:02Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 91020.25
+  },
+  {
+   "at": "2026-11-24T07:09:02Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 91447.92
   }
  ],
  "takes": [
@@ -156132,7 +156184,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 651.03,
-      "priced_at": "2026-11-24T06:22:37Z",
+      "priced_at": "2026-11-24T07:09:02Z",
       "hist": [
        [
         29886870,
@@ -159181,6 +159233,10 @@
        [
         29925016,
         651.03
+       ],
+       [
+        29925069,
+        651.03
        ]
       ]
      },
@@ -159190,8 +159246,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 60375.52,
-      "priced_at": "2026-11-24T06:22:37Z",
+      "last": 60477.64,
+      "priced_at": "2026-11-24T07:09:02Z",
       "hist": [
        [
         29886870,
@@ -162380,6 +162436,10 @@
        [
         29925016,
         60365.04
+       ],
+       [
+        29925069,
+        60477.64
        ]
       ]
      }
@@ -267391,7 +267451,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-24T06:22:37Z",
+  "at": "2026-11-24T07:09:02Z",
   "games": [
    {
     "id": "401906853",
@@ -267489,8 +267549,8 @@
     "away": "Dallas Mavericks",
     "home": "Denver Nuggets",
     "start": "2026-11-25T03:00Z",
-    "away_ml": 260,
-    "home_ml": -322
+    "away_ml": 261,
+    "home_ml": -324
    },
    {
     "id": "401906762",
@@ -267534,8 +267594,8 @@
     "away": "Chicago Bears",
     "home": "Detroit Lions",
     "start": "2026-11-26T18:00Z",
-    "away_ml": -146,
-    "home_ml": 124
+    "away_ml": -144,
+    "home_ml": 122
    },
    {
     "id": "401873080",
@@ -267544,7 +267604,7 @@
     "home": "Dallas Cowboys",
     "start": "2026-11-26T21:30Z",
     "away_ml": 361,
-    "home_ml": -466
+    "home_ml": -467
    },
    {
     "id": "401856879",
@@ -274672,7 +274732,9 @@
   "chatgpt|AllInSports|2026-11-24T05:16:58Z|Bet|C51": "X-AIS-049",
   "chatgpt|Sports|2026-11-24T05:16:58Z|Bet|C50": "X-SPT-059",
   "claude|AllInSports|2026-11-24T05:22:06Z|Bet|C24": "C-AIS-049",
-  "claude|Sports|2026-11-24T05:22:06Z|Bet|S27": "C-SPT-053"
+  "claude|Sports|2026-11-24T05:22:06Z|Bet|S27": "C-SPT-053",
+  "gemini|AllInSports|2026-11-24T07:09:02Z|Won|G176": "G-AIS-167",
+  "gemini|Sports|2026-11-24T07:09:02Z|Won|G175": "G-SPT-187"
  },
  "txseq": {
   "X-CRY": 38,
@@ -274687,7 +274749,7 @@
   "G-ENE": 33,
   "G-MET": 15,
   "G-SAF": 10,
-  "G-SPT": 186,
+  "G-SPT": 187,
   "G-STK": 47,
   "G-OPT": 38,
   "C-CRY": 4,
@@ -274698,7 +274760,7 @@
   "C-STK": 7,
   "X-AIT": 44,
   "C-AIT": 2,
-  "G-AIS": 166,
+  "G-AIS": 167,
   "G-AIT": 55,
   "X-SPT": 59,
   "X-AIS": 49,
