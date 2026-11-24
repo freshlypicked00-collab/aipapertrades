@@ -136824,6 +136824,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 104651.42
+  },
+  {
+   "at": "2026-11-24T20:50:39Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 89658.51
+  },
+  {
+   "at": "2026-11-24T20:50:39Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 91447.92
   }
  ],
  "takes": [
@@ -162039,8 +162051,8 @@
       "pcur": "USD",
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 636.4,
-      "priced_at": "2026-11-24T20:46:24Z",
+      "last": 637.64,
+      "priced_at": "2026-11-24T20:50:39Z",
       "hist": [
        [
         29886870,
@@ -165178,8 +165190,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 59533.21,
-      "priced_at": "2026-11-24T20:46:24Z",
+      "last": 59661.12,
+      "priced_at": "2026-11-24T20:50:39Z",
       "hist": [
        [
         29886870,
@@ -275645,20 +275657,6 @@
     "reason": "Replace the very tight 4.08 stop with a still-defined exit below nearby support so normal reopen noise does not force a sale before the thesis is tested."
    },
    {
-    "id": "chatgpt-234",
-    "model": "chatgpt",
-    "experiment": "Crypto",
-    "symbol": "BTC-USD",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 59000.0,
-    "fraction": 1.0,
-    "name": "Bitcoin USD",
-    "placed_at": "2026-11-23T21:08:55Z",
-    "reason": "A break below 59000 would mean the post-selloff rebound failed and I want the Bitcoin risk closed."
-   },
-   {
     "id": "chatgpt-238",
     "model": "chatgpt",
     "experiment": "China",
@@ -275671,76 +275669,6 @@
     "name": "Huatai-PineBridge CSI 300 ETF",
     "placed_at": "2026-11-24T07:09:02Z",
     "reason": "Replace the unrealistic 4.24 target with a full exit on a modest rebound because the China setup is weak and the contest is nearly over."
-   },
-   {
-    "id": "chatgpt-239",
-    "model": "chatgpt",
-    "experiment": "Stocks",
-    "symbol": "QQQ",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 675.0,
-    "fraction": 0.75,
-    "name": "Invesco QQQ Trust",
-    "placed_at": "2026-11-24T07:09:02Z",
-    "reason": "Take most of the QQQ rebound trade if the Nasdaq bounce extends about 3.5% from the latest price during a shortened holiday week."
-   },
-   {
-    "id": "chatgpt-240",
-    "model": "chatgpt",
-    "experiment": "Crypto",
-    "symbol": "BTC-USD",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 63500.0,
-    "fraction": 0.6,
-    "name": "Bitcoin USD",
-    "placed_at": "2026-11-24T07:09:02Z",
-    "reason": "Harvest most of the Bitcoin rebound exposure if price recovers into the upper part of the current 24-hour range instead of waiting for the old 67,000 target."
-   },
-   {
-    "id": "chatgpt-242",
-    "model": "chatgpt",
-    "experiment": "AllInTrading",
-    "symbol": "TQQQ",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 53.5,
-    "fraction": 0.75,
-    "name": "ProShares UltraPro QQQ",
-    "placed_at": "2026-11-24T07:09:02Z",
-    "reason": "Tighten the high-risk trading profit target so a fast Nasdaq follow-through locks in gains instead of requiring an outsized move to 58."
-   },
-   {
-    "id": "chatgpt-243",
-    "model": "chatgpt",
-    "experiment": "Stocks",
-    "symbol": "QQQ",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 632.0,
-    "fraction": 1.0,
-    "name": "Invesco QQQ Trust",
-    "placed_at": "2026-11-24T14:39:31Z",
-    "reason": "Raise the QQQ stop after the open\u2019s rebound so a break back below the morning support area exits the trade before Wednesday macro risk."
-   },
-   {
-    "id": "chatgpt-244",
-    "model": "chatgpt",
-    "experiment": "AllInTrading",
-    "symbol": "TQQQ",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 45.0,
-    "fraction": 1.0,
-    "name": "ProShares UltraPro QQQ",
-    "placed_at": "2026-11-24T14:39:31Z",
-    "reason": "Raise the TQQQ stop to protect the high-risk rebound position while still leaving room for normal intraday volatility."
    }
   ],
   "claude": [
@@ -276155,7 +276083,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-24T20:46:24Z",
+  "at": "2026-11-24T20:50:39Z",
   "games": [
    {
     "id": "401921710",
@@ -276370,8 +276298,8 @@
     "away": "Cleveland Cavaliers",
     "home": "New York Knicks",
     "start": "2026-11-26T00:30Z",
-    "away_ml": 171,
-    "home_ml": -205
+    "away_ml": 165,
+    "home_ml": -197
    },
    {
     "id": "401909320",
@@ -276473,6 +276401,15 @@
     "home_ml": -469
    },
    {
+    "id": "401856879",
+    "short": "NCAAF",
+    "away": "TCU Horned Frogs",
+    "home": "Texas Tech Red Raiders",
+    "start": "2026-11-27T01:00Z",
+    "away_ml": 470,
+    "home_ml": -650
+   },
+   {
     "id": "401873082",
     "short": "NFL",
     "away": "Kansas City Chiefs",
@@ -276484,66 +276421,6 @@
   ]
  },
  "stops_log": [
-  {
-   "at": "2026-10-30T13:52:17Z",
-   "model": "chatgpt",
-   "id": "chatgpt-19",
-   "experiment": "Metals",
-   "name": "SPDR Gold Shares",
-   "kind": "stop",
-   "level": 360.0,
-   "result": "filled: Sell SPDR Gold Shares C$9,653 at 359.08"
-  },
-  {
-   "at": "2026-10-30T14:50:05Z",
-   "model": "chatgpt",
-   "id": "chatgpt-9",
-   "experiment": "Options",
-   "name": "SPY Nov 27 $760 put",
-   "kind": "target",
-   "level": 12.5,
-   "result": "filled: Sell SPY Nov 27 $760 put C$5,278 at 12.6"
-  },
-  {
-   "at": "2026-10-30T16:25:38Z",
-   "model": "gemini",
-   "id": "gemini-9",
-   "experiment": "Metals",
-   "name": "Gold Dec 26",
-   "kind": "stop",
-   "level": 3880.0,
-   "result": "removed: the position is no longer held"
-  },
-  {
-   "at": "2026-10-30T16:25:38Z",
-   "model": "gemini",
-   "id": "gemini-10",
-   "experiment": "Metals",
-   "name": "iShares Silver Trust",
-   "kind": "stop",
-   "level": 42.0,
-   "result": "removed: the position is no longer held"
-  },
-  {
-   "at": "2026-10-30T17:08:53Z",
-   "model": "chatgpt",
-   "id": "chatgpt-17",
-   "experiment": "Options",
-   "name": "SPY Nov 27 $780 call",
-   "kind": "stop",
-   "level": 3.5,
-   "result": "filled: Sell SPY Nov 27 $780 call C$2,420 at 3.47"
-  },
-  {
-   "at": "2026-10-30T17:16:00Z",
-   "model": "chatgpt",
-   "id": "chatgpt-24",
-   "experiment": "Options",
-   "name": "SPY Nov 27 $780 call",
-   "kind": "target",
-   "level": 7.5,
-   "result": "removed: the position is no longer held"
-  },
   {
    "at": "2026-10-30T18:14:52Z",
    "model": "claude",
@@ -278482,6 +278359,66 @@
    "name": "Ethereum USD",
    "kind": "target",
    "level": 1810.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-24T20:50:39Z",
+   "model": "chatgpt",
+   "id": "chatgpt-234",
+   "experiment": "Crypto",
+   "name": "Bitcoin USD",
+   "kind": "stop",
+   "level": 59000.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-24T20:50:39Z",
+   "model": "chatgpt",
+   "id": "chatgpt-239",
+   "experiment": "Stocks",
+   "name": "Invesco QQQ Trust",
+   "kind": "target",
+   "level": 675.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-24T20:50:39Z",
+   "model": "chatgpt",
+   "id": "chatgpt-240",
+   "experiment": "Crypto",
+   "name": "Bitcoin USD",
+   "kind": "target",
+   "level": 63500.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-24T20:50:39Z",
+   "model": "chatgpt",
+   "id": "chatgpt-242",
+   "experiment": "AllInTrading",
+   "name": "ProShares UltraPro QQQ",
+   "kind": "target",
+   "level": 53.5,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-24T20:50:39Z",
+   "model": "chatgpt",
+   "id": "chatgpt-243",
+   "experiment": "Stocks",
+   "name": "Invesco QQQ Trust",
+   "kind": "stop",
+   "level": 632.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-24T20:50:39Z",
+   "model": "chatgpt",
+   "id": "chatgpt-244",
+   "experiment": "AllInTrading",
+   "name": "ProShares UltraPro QQQ",
+   "kind": "stop",
+   "level": 45.0,
    "result": "removed: the position is no longer held"
   }
  ],
