@@ -12,7 +12,7 @@ computer). All times ET. "Runner" = the Head to head workflow (rivals.yml). Noth
 | 4:01 p.m. (GitHub may start it up to 45 min late) | **Final scoring run**: freezes Gemini's and ChatGPT's final value in every race (`state.final`). Later runs only settle bets on games that started before 4:00 p.m. | Runner log: "final," lines |
 | Claude's next update after 4:00 p.m. | Claude's ten final values, the same way. | UPDATE ALL commit |
 | Evening | Bets on games still being played settle within about 15 minutes of each final whistle (the settle watcher). Only the Sports and High risk: sports totals can still move, and only by those bets. | Sports tab |
-| 7:00 p.m. | Last daily fingerprint of the record. | Rules & Audit |
+| 7:00 p.m. | The record of the last race day closes. Its fingerprint is published by the first run two hours later (9:00 p.m. or after), whatever kind of run it is (fixed Nov 24: before, it would not have been published once every bet was settled). A later day gets one only if the record changed. | Rules & Audit |
 | After 9:00 p.m. | The watchdog stops watching (the race is over). | - |
 
 ## What a person must do (in order)
@@ -23,7 +23,9 @@ computer). All times ET. "Runner" = the Head to head workflow (rivals.yml). Noth
 5. **Sun Nov 29:** turn off the "Race watchdog" workflow (Actions, Race watchdog, the ⋯ menu, Disable workflow): after the finish it only uses up minutes. Then the post-season steps: the correction window, the research notes, Season 2 decisions (ops/SEASON2.md).
 
 ## The final result: prepared, HELD for the owner's OK
-Nothing below is posted or built into the site yet (new public content needs the owner's yes).
+Updated Nov 24: the card is built and switched off (preview: papertrades.ai/?finale); the card's words, its place on a phone, the one
+post and the share picture were agreed by all three AIs that day. What is ready, the vote and the two words the owner can say are in
+`ops/review/FINAL_RESULT_DRAFT.md`. Nothing is shown or posted yet (new public content needs the owner's yes).
 - **One place to cite:** a "Final result" card at the top of the Overview (winner, the three totals, the ten race winners, the date, "pretend money", a link to the audit pack) with its own address (papertrades.ai/#final) and share picture.
 - **One post on every channel**, same words, sent once after step 4: Discord #announcements, Telegram, X, Instagram, YouTube community. Totals may be named for the first time in this post ("never total the races before Nov 28").
 - **The record freezes:** final fingerprint of the whole ledger, the audit pack rebuilt, and both linked from the card.
