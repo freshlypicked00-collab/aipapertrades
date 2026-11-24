@@ -145,7 +145,9 @@ SEARCH = q.startswith('[WEB SEARCH ON]')   # an audit that must check prices and
 if SEARCH:
     q = q[len('[WEB SEARCH ON]'):].strip()
 files = []
-_FILES = f'ops/asks/{NAME}.files.txt' if ASK_FILE == _NAMED else 'ops/ask_files.txt'
+# Nov 24: a question file named by the environment (the weekly stress drill's) brings no attachments. Until now it picked up the old list
+# ops/ask_files.txt, so drill #1's question went out with six screenshots of another review (Nov 18) attached.
+_FILES = f'ops/asks/{NAME}.files.txt' if ASK_FILE == _NAMED else ('' if os.environ.get('ASK_FILE') else 'ops/ask_files.txt')
 if os.path.exists(_FILES):
     files = [x.strip() for x in open(_FILES) if x.strip() and not x.startswith('#')]
 # Oct 31: a list left by an earlier question sent Gemini and ChatGPT the wrong Claude vote file. A claude-votes file is attached only if
