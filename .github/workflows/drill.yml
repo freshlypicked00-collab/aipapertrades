@@ -36,6 +36,9 @@ jobs:
         run: |
           S="${{ inputs.step }}"
           if [ -z "$S" ]; then case "${{ github.event.schedule }}" in '7 13 * * 1') S=open;; '7 19 * * 1') S=ask;; *) S=grade;; esac; fi
+          # Nov 24: after the finish (Sat Nov 28, 4:00 p.m. ET = 21:00 UTC) the timers do nothing more. Otherwise next Monday's run would open a
+          # second drill after the race and ask both AIs again over the saved answers. A run started by hand still does what it is told.
+          if [ -z "${{ inputs.step }}" ] && [ "$(date -u +%Y%m%d%H%M)" -ge 202611282100 ]; then S=none; fi
           echo "step=$S" >> "$GITHUB_OUTPUT"; echo "step: $S"
       - name: Open
         if: ${{ steps.s.outputs.step == 'open' }}
