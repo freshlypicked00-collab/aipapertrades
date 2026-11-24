@@ -1,6 +1,6 @@
 # A day the runner never ran (Nov 21 to 23)
 
-Last updated Tue Nov 24, 8:18 a.m. ET. **Status: closed for the betting minimums and for the two SQQQ stops** (A below; the owner
+Last updated Tue Nov 24, 8:36 a.m. ET. **Status: closed for the betting minimums and for the two SQQQ stops** (A below; the owner
 agreed Mon 9:58 p.m. ET). **Two things still wait for the owner: China (B) and options (C).**
 
 ## What happened
@@ -111,6 +111,24 @@ and a key, which only the owner can set up). Nothing changed.
 ended up): Cboe's address now redirects to `cdn-api.cboe.com`, a host behind Cloudflare, which answers 403 with Cloudflare's
 block page ("Attention Required!"). So this is a deliberate block of automated requests, not a passing fault, and the free
 source is gone for the runner. The same refusal also stops the look-back figures for past option trades from refreshing
-(`after:` lines in the check-in logs). Gemini and ChatGPT are being asked what they want (`ops/asks/options-nov24.txt`).
+(`after:` lines in the check-in logs).
+
+*The vote* (`ops/asks/options-nov24.txt`, asked Tue Nov 24, 8:25 a.m. ET; answers in `ops/review/options-nov24.json`, Claude's own
+vote first in `ops/review/claude-votes-options-nov24.json`):
+
+| Question | Claude | Gemini | ChatGPT | Result |
+|---|---|---|---|---|
+| Q1 options: close the race to new orders, or a new source | no vote (it is 2nd in Options; closing keeps that place) | CLOSE | CLOSE (against its own place, 3rd) | Gemini and ChatGPT: close. **The owner decides.** |
+| Q2 say both known faults (China, options) plainly on the site now | YES | YES | YES | all three agreed; done 8:33 a.m. ET |
+| Q3 the weekly stress drill that never ran: run one, or say so | RUN ONE | RUN ONE | RUN ONE | all three agreed; see `ops/review/DRILL_NOV24.md` |
+
+Done on Q2: two entries in `ops/src/corrections.json` (Rules & Audit, "Corrections made by hand"), each marked "known fault, not yet
+decided", and one line in Site updates. They change no score. When the owner decides B or C, rewrite the entry to say what was
+decided, by whom and when.
+
+*If the owner says "close options":* refuse new option buys in `execute()` with a plain message (Options race, and option symbols in
+High risk: Trading), say so in the two race texts the AIs read and in one `ANNOUNCEMENTS` line, add a test, one sentence in the
+public Rules list, rewrite the corrections entry, one Site updates line. *If the owner says "new source":* he has to open the
+account and put the key in the repository's secrets himself; then the quote function, tests and a vote on the source.
 
 Never start, cancel or rerun a race check-in by hand.
