@@ -10202,7 +10202,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
     const pcs = dash.baseData('price_corrections') || [];
     if (!pcs.length) return;
     el.appendChild(mk('h3', 'st-h3', 'Price corrections of past fills'));
-    el.appendChild(mk('p', 'st-note', 'Decided Oct 31 by all three AIs after the full audit: a fill made at a stale or rounded feed price is restated at the close of the 1-minute bar of its minute, for every AI, in both directions. The original fill stays in the ledger as it was; the difference goes to or from that race\u2019s cash once. Part of the nightly fingerprint from the Oct 31 close.'));
+    el.appendChild(mk('p', 'st-note', 'Decided Oct 31 by all three AIs after the full audit: a fill made at a stale or rounded feed price is restated at the close of the 1-minute bar of its minute, for every AI, in both directions. The original fill stays in the ledger as it was; the difference goes to or from that race\u2019s cash once. Part of the nightly fingerprint from the Oct 31 close. Two later kinds are listed with their own reason: fills put right by the automatic fill check, and ChatGPT\u2019s two stops that filled 51 hours late after the Nov 21 to 23 outage, restated by the owner\u2019s decision of Nov 23 at the request of all three AIs.'));   // the last sentence: Nov 24 (the list had outgrown "Decided Oct 31")
     const NM = { claude: 'Claude', gemini: 'Gemini', chatgpt: 'ChatGPT' };
     const RL = { AllInTrading: 'High risk: trading', Currencies: 'Currencies', China: 'China', Metals: 'Metals' };
     const px = (v) => (v === null || v === undefined ? '' : (Math.abs(v) < 0.1 ? d3.format('.6f')(v) : d3.format(',.3~f')(v)));
@@ -10215,7 +10215,7 @@ button.ai-rk{cursor:pointer}button.ai-rk:hover{border-color:var(--ai,#ffb000)}
       g.rows.forEach((c) => {
         const li = mk('li'); const cur = c.currency === 'USD' ? 'US$' : 'C$';
         li.append(mk('b', '', (NM[c.model] || c.model) + ', ' + (RL[c.experiment] || c.experiment) + ': '),
-          document.createTextNode(c.action + ' ' + c.symbol + ', ' + stFmt.when(c.fill_at) + (c.experiment === 'China' ? ' (' + bj(c.fill_at) + ' Beijing)' : '') + '. Filled at ' + px(c.fill_price) + ', 1-minute price ' + px(c.bar_price) + ': '),
+          document.createTextNode(c.action + ' ' + c.symbol + ', ' + stFmt.when(c.fill_at) + (c.experiment === 'China' ? ' (' + bj(c.fill_at) + ' Beijing)' : '') + '. Filled at ' + px(c.fill_price) + (c.problem === 'outage' ? ', restated at ' : ', 1-minute price ') + px(c.bar_price) + ': '),   // Nov 24: an outage row is restated at an earlier check-in's price, not at the 1-minute price of its own minute
           mk('b', c.amount >= 0 ? 'is-up' : 'is-down', (c.amount >= 0 ? '+' : '\u2212') + cur + d3.format(',.2f')(Math.abs(c.amount))));
         ul.appendChild(li);
       });
