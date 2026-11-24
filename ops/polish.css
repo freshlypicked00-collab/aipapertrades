@@ -558,3 +558,9 @@ html[data-tab]:not([data-tab="overview"]) .pt-final { display: none; }   /* the 
   .gx-hold-t td.wrap[data-label="Placed"] { white-space: normal; }
 }
 @media (max-width: 340px) { .gx-aisw .ai-badge { display: none; } }   /* 40, the narrowest phones: the name and the amount without the small icon */
+
+/* ---- 42. Weekly stress drill (Nov 24; all three AIs agreed to run one before the finale). Its three answer rows reuse the look of the
+   risk tables (.st-riskdash), and the rule that hides an empty risk table was hiding them as well, so no answer or grade could
+   have been read. They are shown here; nothing else changes. Remove this block to undo. ------------------------------------- */
+[data-draw="drill"] details.st-riskdash { display: block; }
+[data-draw="drill"] details.st-riskdash + p.st-note { margin-top: 10px; }

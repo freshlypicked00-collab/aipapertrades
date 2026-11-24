@@ -106,7 +106,7 @@ def cmd_collect(path):
     a = json.load(open(path)).get('answers', {})
     for ai in ('gemini', 'chatgpt'):
         txt = (a.get(ai) or {}).get('answer') or ''
-        if txt.strip():
+        if txt.strip() and ai not in d[-1]['answers']:   # Nov 24: an answer is final, like Claude's; a second run of this step never replaces it
             d[-1]['answers'][ai] = {'at': now().isoformat().replace('+00:00', 'Z'), 'text': txt.strip()[:3000]}
     d[-1]['status'] = 'answered'   # from here Claude can no longer answer: it never sees the others' answers first
     if 'claude' not in d[-1]['answers']:
@@ -161,6 +161,8 @@ def _store_grades(dr, grader, g):
     for L, v in (g or {}).items():
         ai = (dr.get('anon') or {}).get(L)
         if not ai or ai == grader or not isinstance(v, dict) or str(v.get('grade', '')).lower() == 'own':
+            continue
+        if grader in dr['grades'].get(ai, {}):   # Nov 24: a grade is final; a second run of the grading step never changes one that is already published
             continue
         grade = str(v.get('grade', '')).strip().upper()[:2]
         if re.fullmatch(r'[A-F][+-]?', grade):
