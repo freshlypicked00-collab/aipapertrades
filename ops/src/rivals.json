@@ -136960,6 +136960,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 104651.42
+  },
+  {
+   "at": "2026-11-24T20:22:30Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 89510.71
+  },
+  {
+   "at": "2026-11-24T20:22:30Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 91447.92
   }
  ],
  "takes": [
@@ -162031,8 +162043,8 @@
       "pcur": "USD",
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 636.32,
-      "priced_at": "2026-11-24T20:17:39Z",
+      "last": 635.305,
+      "priced_at": "2026-11-24T20:22:30Z",
       "hist": [
        [
         29886870,
@@ -165166,8 +165178,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 59606.36,
-      "priced_at": "2026-11-24T20:17:39Z",
+      "last": 59633.46,
+      "priced_at": "2026-11-24T20:22:30Z",
       "hist": [
        [
         29886870,
@@ -275497,20 +275509,6 @@
     "reason": "A break below 59000 would mean the post-selloff rebound failed and I want the Bitcoin risk closed."
    },
    {
-    "id": "chatgpt-236",
-    "model": "chatgpt",
-    "experiment": "Crypto",
-    "symbol": "ETH-USD",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 1660.0,
-    "fraction": 1.0,
-    "name": "Ethereum USD",
-    "placed_at": "2026-11-23T21:08:55Z",
-    "reason": "A break below 1660 would put Ethereum back into failed-bounce territory and invalidate the trade."
-   },
-   {
     "id": "chatgpt-238",
     "model": "chatgpt",
     "experiment": "China",
@@ -275551,20 +275549,6 @@
     "name": "Bitcoin USD",
     "placed_at": "2026-11-24T07:09:02Z",
     "reason": "Harvest most of the Bitcoin rebound exposure if price recovers into the upper part of the current 24-hour range instead of waiting for the old 67,000 target."
-   },
-   {
-    "id": "chatgpt-241",
-    "model": "chatgpt",
-    "experiment": "Crypto",
-    "symbol": "ETH-USD",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 1810.0,
-    "fraction": 0.6,
-    "name": "Ethereum USD",
-    "placed_at": "2026-11-24T07:09:02Z",
-    "reason": "Take profits on most of the higher-beta Ethereum position if it rebounds above 1,800 while keeping the existing downside stop intact."
    },
    {
     "id": "chatgpt-242",
@@ -276021,7 +276005,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-24T20:17:39Z",
+  "at": "2026-11-24T20:22:30Z",
   "games": [
    {
     "id": "401921710",
@@ -276350,26 +276334,6 @@
   ]
  },
  "stops_log": [
-  {
-   "at": "2026-10-30T13:52:17Z",
-   "model": "claude",
-   "id": "claude-5",
-   "experiment": "Metals",
-   "name": "Silver",
-   "kind": "stop",
-   "level": 49.9,
-   "result": "filled: Sell Silver C$13,886 at 49.825"
-  },
-  {
-   "at": "2026-10-30T13:52:17Z",
-   "model": "chatgpt",
-   "id": "chatgpt-1",
-   "experiment": "Stocks",
-   "name": "Invesco QQQ Trust",
-   "kind": "stop",
-   "level": 699.0,
-   "result": "filled: Sell Invesco QQQ Trust C$23,981 at 696.274"
-  },
   {
    "at": "2026-10-30T13:52:17Z",
    "model": "chatgpt",
@@ -278349,6 +278313,26 @@
    "kind": "stop",
    "level": 55.9,
    "result": "filled: Sell ProShares UltraPro Short QQQ C$15,657 at 45.61"
+  },
+  {
+   "at": "2026-11-24T20:22:30Z",
+   "model": "chatgpt",
+   "id": "chatgpt-236",
+   "experiment": "Crypto",
+   "name": "Ethereum USD",
+   "kind": "stop",
+   "level": 1660.0,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-24T20:22:30Z",
+   "model": "chatgpt",
+   "id": "chatgpt-241",
+   "experiment": "Crypto",
+   "name": "Ethereum USD",
+   "kind": "target",
+   "level": 1810.0,
+   "result": "removed: the position is no longer held"
   }
  ],
  "forecasts": [
