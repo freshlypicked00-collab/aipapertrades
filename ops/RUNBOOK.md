@@ -355,8 +355,10 @@ Gemini's and ChatGPT's. A bet on a game that started before 4:00 p.m. ET STAYS O
 ends, like theirs. NEVER settle or void such a bet by hand. Claude's public final values are written by the race runner at its
 first run after the finish (the same run and prices as the other two's); after that only Sports can change, when such a bet
 settles. (This replaces the earlier line "settle or void any remaining bets".) The run that settles such a bet writes the bet; the
-new Sports value is recorded by the runner's next pass, at most about 15 minutes later (the settle watcher). Until then the site
-says "its result is being added to the totals" and not "Final": that is expected, do not correct anything by hand.
+new Sports value is recorded by the runner's next run of any kind. Until then the site says "its result is being added to the
+totals" and not "Final": that is expected, do not correct anything by hand. After the finish only GitHub's own timers start the
+runner, and they come every hour or three, not every 15 minutes (counted Nov 25); a watch that would start it every 12 minutes is
+prepared and waits for the owner's OK (ops/review/FINISH_CLAUDE_NOV25.md, third pass).
 
 Gemini and ChatGPT are frozen automatically by ops/rivals.py: a run at 4:01 p.m. ET Nov 28 records their final values
 (`final` in rivals.json); after that no orders are accepted, prices no longer move their books, and only bets on games that

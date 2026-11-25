@@ -121,3 +121,46 @@ written before theirs were seen):
 With no bet open at the finish the site said "Final" right after the 4:02 p.m. run. Both orders ended on the same three totals.
 
 To undo this part alone: revert its commit; before Sat 4:00 p.m. ET nothing has happened differently.
+
+## Third pass: who starts the race runner after the finish (prepared, NOT switched on; waits for the owner)
+
+Written Wed Nov 25, 10:58 a.m. ET.
+
+**Found.** The first run on the new code that morning was a settle-watcher slot that GitHub delivered nine hours late. So the
+timers were counted, from GitHub's own list of runs (Oct 28 to Nov 25): 8 to 14 timer-started runs a day out of about 150 slots;
+on Saturdays Nov 7 and Nov 14 runs at about 4:27, 7:23, 8:52 and 9:26 p.m. ET and then none until after 2 a.m. During the race
+that does not matter: Claude's hourly task starts every check-in and the timers are a backup. After the finish Claude's runs stop
+(`ops/TASK_PROMPT.md`: "don't start a rival check-in") and the owner's final task switches the hourly task off, so the backup is
+the only starter on the evening with the most left to do in order: the final scoring, the late bets, the totals, the last
+fingerprint. The rules are kept either way; it can be hours late. (The second pass above says "the watcher's next pass, 15
+minutes later": that is the timer's plan, not what GitHub delivers.)
+
+**The vote** (`ops/asks/finishwatch-nov25.txt`, asked 10:55 a.m. ET; answers in `ops/review/finishwatch-nov25.json`; Claude's vote
+written first):
+
+| | Claude | Gemini | ChatGPT | Result |
+|---|---|---|---|---|
+| K1 a finish watch starts the race runner every 12 minutes after the finish while something is waiting | AGREE | AGREE | AGREE | all three agreed. **Not applied: the owner decides.** |
+
+**Why it is not switched on.** It is new automation that starts race runs by itself. The chat's safety check stopped the
+publication, and it is right that this one needs the owner's own word. Nothing of it is in the project's active files: no
+workflow, no script, no instruction to Claude's tasks.
+
+**What is prepared** (`ops/review/finish-watch.patch`: a new workflow `finish.yml`, `ops/finish_watch.py`, its own 8 tests, and
+one line each for the runbook and Claude's task instructions; the race workflow `rivals.yml` is not touched). Nothing before Sat
+4:00:30 p.m. ET. Each look reads `ops/src/rivals.json` and `ops/src/bets.json`; if the final scoring is not on record, a bet's
+game can have ended (100 minutes after its start, the settle watcher's own rule), Claude's Sports total is one bet behind, or the
+last day's fingerprint is due, it starts one ordinary run of the race runner (mode `run`: after the finish no AI is called and no
+order is accepted) unless one is already waiting or going; then it waits 12 minutes and starts itself again. It ends when nothing
+is waiting, at the latest Sun Nov 29, 6:00 a.m. ET. It writes no record.
+
+**Rehearsed** with the watch as the only starter (on a copy, clock on Saturday): 4:00 p.m. look, final scoring; a run at every
+look while the games could have ended; Gemini's and ChatGPT's bets settled at 6:18 p.m., Claude's at 6:30 p.m., its Sports total
+at 6:43 p.m.; quiet looks until 9:08 p.m., then the fingerprint; at 9:21 p.m. "nothing is waiting" and the watch ended. 27 looks,
+15 runs of the runner, the same three totals as in the other rehearsals.
+
+**If the owner says `finish watch yes`:** `git apply ops/review/finish-watch.patch`; `python3 ops/tests/test_finish_watch.py` (8)
+and the race tests (36); publish; then on GitHub one dry look (`inputs[dry]=true`: it must say "the race has not finished") and
+one test of the chain (`inputs[test_hops]=2`: two runs 20 seconds apart, the race is not looked at); the run sheet and one Site
+updates line. **If he says nothing:** Saturday evening runs on GitHub's timers, slow but correct, and he or Claude on his word
+can start a settling run from the Actions page ("Head to head", Run workflow) after a game ends.

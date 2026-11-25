@@ -1,0 +1,420 @@
+diff --git a/.github/workflows/finish.yml b/.github/workflows/finish.yml
+new file mode 100644
+index 000000000..b650b3c0f
+--- /dev/null
++++ b/.github/workflows/finish.yml
+@@ -0,0 +1,59 @@
++name: Finish watch (after the finish only; starts the race runner until the result is final)
++# Nov 25 (all three AIs asked; ops/review/FINISH_CLAUDE_NOV25.md). After Sat Nov 28, 4:00 p.m. ET the race runner is still needed a few
++# times: the final scoring, bets on games that end after the finish, Claude's Sports total after such a bet, the last day's fingerprint.
++# Claude's hourly task, which starts the runner during the race, is switched off after the finish, and GitHub starts its own timers
++# only every hour or three. This watch looks at the records, starts ONE run of the race runner when something is waiting, and comes
++# back 12 minutes later by starting itself again. It ends by itself when nothing is waiting, at the latest Sun Nov 29, 6:00 a.m. ET.
++# Before the finish it does nothing. It writes no record. The rules are in ops/finish_watch.py.
++on:
++  schedule:
++    # Starters only: GitHub delivers its timers late or not at all, so there are many. Only one watch runs at a time (concurrency).
++    - cron: '1-59/5 21-23 28 11 *'    # Sat Nov 28, 4:01 to 6:56 p.m. ET, every 5 minutes
++    - cron: '6-59/10 0-10 29 11 *'    # Sat 7:06 p.m. to Sun 5:56 a.m. ET, every 10 minutes
++  workflow_dispatch:
++    inputs:
++      dry:
++        description: 'only say what it would do (nothing is started)'
++        type: boolean
++        default: false
++      now:
++        description: 'dry look only: pretend it is this moment (ISO with offset, like 2026-11-28T21:05:00+00:00)'
++        default: ''
++        required: false
++      hop:
++        description: 'set by the watch itself when it comes back'
++        default: ''
++        required: false
++      test_hops:
++        description: 'test of the mechanics only: start itself this many times, 20 seconds apart (the race is never looked at)'
++        default: ''
++        required: false
++permissions:
++  contents: read
++  actions: write   # to start the race runner (rivals.yml) and itself again
++# One watch at a time, and GitHub keeps only one waiting run per group, so a late timer and the watch's own next look never make two
++# chains. Dry looks and tests wait in their own group and can never hold up the real watch.
++concurrency:
++  group: ${{ (inputs.dry || inputs.test_hops) && 'finish-test' || 'finish-watch' }}
++  cancel-in-progress: false
++jobs:
++  watch:
++    runs-on: ubuntu-latest
++    timeout-minutes: 25
++    steps:
++      - uses: actions/checkout@v4
++        with:
++          ref: main   # always the newest records
++          sparse-checkout: |
++            ops/finish_watch.py
++            ops/src/rivals.json
++            ops/src/bets.json
++          sparse-checkout-cone-mode: false
++      - name: Look, start the race runner if something is waiting, come back in 12 minutes
++        env:
++          GH_TOKEN: ${{ github.token }}
++          DRY: ${{ inputs.dry && '1' || '' }}
++          FAKE_NOW: ${{ inputs.now }}
++          HOP: ${{ inputs.hop }}
++          TEST_HOPS: ${{ inputs.test_hops }}
++        run: python3 ops/finish_watch.py
+diff --git a/ops/RUNBOOK.md b/ops/RUNBOOK.md
+index 69a273f2c..f6cc27fa2 100644
+--- a/ops/RUNBOOK.md
++++ b/ops/RUNBOOK.md
+@@ -362,6 +362,17 @@ Gemini and ChatGPT are frozen automatically by ops/rivals.py: a run at 4:01 p.m.
+ (`final` in rivals.json); after that no orders are accepted, prices no longer move their books, and only bets on games that
+ started before 4:00 p.m. ET still settle. Bets on games starting after the end are refused beforehand. Never edit rivals.json.
+ 
++The finish watch (Nov 25; all three AIs agreed, ops/review/finishwatch-nov25.json; `ops/finish_watch.py`, workflow `finish.yml`):
++after the finish nobody starts the race runner any more (Claude's runs stop, and GitHub starts its own timers only every hour or
++three), but the runner still has to do the final scoring, settle the late bets, record the totals and publish the last day's
++fingerprint. The watch looks every 12 minutes and starts one run of the race runner when something is waiting; it ends by itself
++when the result is final, at the latest Sun Nov 29, 6:00 a.m. ET. It has its own timers, but GitHub may deliver them late, so
++START IT ONCE in the first run after 4:00 p.m. ET and once more in the FINAL RUN (harmless if it is already going; it does
++nothing before 4:00:30 p.m. ET):
++`gh api -X POST repos/freshlypicked00-collab/aipapertrades/actions/workflows/finish.yml/dispatches -f ref=main`
++After that do not start race runs by hand. To see what it is waiting for without starting anything, add `-f 'inputs[dry]=true'`
++to the same command and read that run's log.
++
+ FINAL RUN (scheduled task "Paper Trades: FINAL scoring", Sat Nov 28, 4:25 p.m. ET): checks that the rivals' `final` entry exists
+ (if not, dispatch the rivals workflow with mode `force` and wait), completes Claude's final scoring if a run after 4:00 p.m.
+ ET has not already done it, writes the final Race Report entry ("Final result": the final standings by total profit in C$,
+diff --git a/ops/TASK_PROMPT.md b/ops/TASK_PROMPT.md
+index 01629e6a8..7142d3741 100644
+--- a/ops/TASK_PROMPT.md
++++ b/ops/TASK_PROMPT.md
+@@ -18,7 +18,7 @@ Do this:
+ 4. Work unattended: do not ask questions. If something blocks a step (no repo access, a tool refused, a quote not found), finish what you can, and report exactly what failed.
+ 5. Finish with a short report: each experiment's value on its own line, any trades or bets with one-line reasons, settled bets and markets, extra runs scheduled, and anything you couldn't confirm.
+ 
+-After Nov 28, 4:00 p.m. ET, do the final scoring run described at the end of the runbook once (the first run after 4:00 p.m. ET). In that run leave any bet on a game that started before 4:00 p.m. ET open: the race runner settles it when the game ends, like Gemini's and ChatGPT's; never settle or void one by hand (Nov 25). Once that is done (the log has the final entries), every later run stops at once after `git pull`: don't start a rival check-in, don't sync the tracker, don't change or push anything; just reply "The race is over; the final results are on papertrades.ai."
++After Nov 28, 4:00 p.m. ET, do the final scoring run described at the end of the runbook once (the first run after 4:00 p.m. ET). In that run leave any bet on a game that started before 4:00 p.m. ET open: the race runner settles it when the game ends, like Gemini's and ChatGPT's; never settle or void one by hand (Nov 25). In the same run start the finish watch once, with the command in the runbook's Final scoring section: it starts the race runner every 12 minutes until the result is final and then ends by itself (Nov 25). Once that is done (the log has the final entries), every later run stops at once after `git pull`: don't start a rival check-in, don't sync the tracker, don't change or push anything; just reply "The race is over; the final results are on papertrades.ai."
+ 
+ Before deciding, look at the race using only what is public on papertrades.ai: the race standings for each race (and the AI vs AI tab) and the other AIs' public board (current takes, plans, recent trades with reasons), the same board Gemini and ChatGPT get about you. Information only: make your own decisions, never copy.
+ 
+diff --git a/ops/finish_watch.py b/ops/finish_watch.py
+new file mode 100644
+index 000000000..f87ad6ec1
+--- /dev/null
++++ b/ops/finish_watch.py
+@@ -0,0 +1,171 @@
++"""The finish watch (Nov 25, 2026): after the finish the race runner is still needed a few times, and somebody has to start it.
++
++After Sat Nov 28, 4:00 p.m. ET the runner (ops/rivals.py, workflow rivals.yml) has four things left to do: the final scoring itself,
++settling the bets on games that started before the finish and end later, recording Claude's Sports total after such a bet, and
++publishing the last race day's fingerprint (from 9:00 p.m. ET). During the race Claude's hourly task starts the runner. That task is
++switched off after the finish, and GitHub's own timers start a run only every hour or three (measured on Nov 25: 8 to 14 of some 150
++slots a day; on the last two Saturdays nothing between 9:26 p.m. and the small hours).
++
++So this script, run by .github/workflows/finish.yml, looks at the records and, when something is waiting, starts ONE run of the race
++runner (mode "run": after the finish no AI is called and no order is accepted), then comes back 12 minutes later by starting itself
++again. It ends by itself when nothing is waiting, and at the latest on Sun Nov 29, 6:00 a.m. ET. Before the finish it does nothing.
++It reads the records and starts workflows; it never writes a record itself.
++
++  python3 ops/finish_watch.py            the watch (on GitHub's runner)
++  DRY=1 python3 ops/finish_watch.py      only say what it would do
++  DRY=1 FAKE_NOW=2026-11-28T21:05:00+00:00 python3 ops/finish_watch.py     the same, as if it were that moment
++"""
++import json
++import os
++import subprocess
++import time
++from datetime import datetime, timedelta, timezone
++
++UTC = timezone.utc
++END = datetime(2026, 11, 28, 21, 0, tzinfo=UTC)       # the finish: Sat Nov 28, 4:00 p.m. ET
++FIRST = END + timedelta(seconds=30)                   # the watch's first moment: never so close that a run it starts could begin before the finish
++STOP = datetime(2026, 11, 29, 11, 0, tzinfo=UTC)      # the watch's own last moment: Sun Nov 29, 6:00 a.m. ET
++LAST_DAY = '2026-11-28'
++FP_DUE = datetime(2026, 11, 29, 2, 0, tzinfo=UTC)     # the last race day's fingerprint: two hours after its close (ops/fingerprint.py)
++EVERY = 12 * 60                                       # seconds between two looks
++SRC = 'ops/src'
++
++
++def _t(s):
++    return datetime.fromisoformat(str(s).replace('Z', '+00:00'))
++
++
++def waiting(state, bets, now):
++    """(now, later): what the runner has to do right now, and what it will have to do later. Both empty = nothing left.
++    Every test here is the runner's own: the final entries (freeze_final), the 100 minutes after a game's start that the settle
++    watcher waits, Claude's Sports total against its settled bets and fines (claude_finished), the fingerprint's day."""
++    act, later = [], []
++    models = state.get('models') or {}
++    fin = state.get('final') or {}
++    if not models or not all(m in fin for m in models):
++        return ['the final scoring is not on record yet'], []
++    if state.get('claude_allin') and 'claude' not in fin:
++        act.append("Claude's High risk final values are not on record yet")
++    feed = state.get('claude_feed') or []
++    cfin = {x['experiment']: x['value'] for x in feed if x.get('final')}
++    if 'Sports' not in cfin or not all(x['experiment'] in cfin for x in feed):
++        act.append("Claude's ten final values are not all on record yet")
++
++    def is_open(b):
++        return b.get('status') == 'Open'
++
++    def can_have_ended(b):
++        try:
++            return _t(b.get('starts_at')) <= now - timedelta(minutes=100)
++        except Exception:
++            return True   # no start time on record: let the runner look
++    books = [bk for m in models.values() for e, bk in (m.get('books') or {}).items() if e in ('Sports', 'AllInSports') and bk]
++    side = ((state.get('claude_allin') or {}).get('books') or {}).get('AllInSports')
++    if side:
++        books.append(side)
++    opened = [b for bk in books for b in bk.get('bets', []) if is_open(b)] + [b for b in bets if is_open(b) and b.get('game')]
++    due = [b for b in opened if can_have_ended(b)]
++    if due:
++        act.append(f'{len(due)} bet(s) on a game that can have ended')
++    if len(opened) > len(due):
++        later.append(f'{len(opened) - len(due)} bet(s) on a game still being played')
++    if 'Sports' in cfin:
++        total = 100000.0 + sum(float(b.get('result_cad') or 0) for b in bets if not is_open(b)) - sum(float(x.get('amount') or 0) for x in state.get('claude_penalties', []))
++        if abs(total - float(cfin['Sports'])) > 0.005:
++            act.append("Claude's Sports total does not include its last settled bet yet")
++    if not any(f.get('day') == LAST_DAY for f in state.get('fingerprints') or []):
++        (act if now >= FP_DUE else later).append("the last race day's fingerprint" + ('' if now >= FP_DUE else ' (from 9:00 p.m. ET)'))
++    return act, later
++
++
++def _gh(*args):
++    r = subprocess.run(['gh', *args], capture_output=True, text=True)
++    if r.returncode != 0:
++        raise RuntimeError((r.stderr or r.stdout).strip()[:300])
++    return r.stdout
++
++
++def _start(workflow, *fields):
++    """Start a workflow on main; three tries. Never raises: the next look, a later timer or a person can still start it."""
++    cmd = ['workflow', 'run', workflow, '-R', os.environ.get('GITHUB_REPOSITORY', ''), '--ref', 'main']
++    for f in fields:
++        cmd += ['-f', f]
++    for i in range(3):
++        try:
++            _gh(*cmd)
++            print('started', workflow, ' '.join(fields))
++            return True
++        except Exception as e:
++            print(f'::warning::could not start {workflow} (try {i + 1}): {e}')
++            time.sleep(10)
++    return False
++
++
++def _runner_active():
++    """True when a run of the race workflow is waiting or going (any kind): then this look starts none."""
++    try:
++        out = _gh('api', f"repos/{os.environ.get('GITHUB_REPOSITORY', '')}/actions/workflows/rivals.yml/runs?per_page=15",
++                  '--jq', '[.workflow_runs[] | select(.status != "completed")] | length')
++        return int(out.strip() or 0) > 0
++    except Exception as e:
++        print('could not list the race runs:', e)
++        return False
++
++
++def main():
++    dry = os.environ.get('DRY', '').lower() in ('1', 'true', 'yes')
++    hops = os.environ.get('TEST_HOPS', '').strip()
++    if hops.isdigit() and int(hops) > 0:   # a test of the mechanics only: start itself again; the race is never looked at, the runner never started
++        n = int(hops)
++        print(f'test of the chain: {n} hop(s) left; the race is not looked at')
++        time.sleep(20)
++        if n > 1:
++            if not _start('finish.yml', f'test_hops={n - 1}'):
++                raise SystemExit('test of the chain: could not start the next hop')
++        else:
++            print('test of the chain: done')
++        return
++    fake = os.environ.get('FAKE_NOW', '').strip()
++    now = _t(fake) if (dry and fake) else datetime.now(UTC)
++    if fake and not dry:
++        print('FAKE_NOW is only for a dry look; the real clock is used')
++    print('finish watch at', now.strftime('%Y-%m-%d %H:%M:%S UTC'), '(dry look: nothing is started)' if dry else '')
++    if now < FIRST:
++        print('the race has not finished (Sat Nov 28, 4:00 p.m. ET): nothing to do')
++        return
++    if now >= STOP:
++        print("past the watch's own last moment (Sun Nov 29, 6:00 a.m. ET): it ends; GitHub's timers still start the race runner")
++        return
++    try:
++        state = json.load(open(os.path.join(SRC, 'rivals.json')))
++        bets = json.load(open(os.path.join(SRC, 'bets.json')))
++        act, later = waiting(state, bets, now)
++    except Exception as e:   # one look that cannot read the records must not end the watch
++        print('::warning::the records could not be read at this look:', e)
++        act, later = [], ['the records could not be read at this look']
++    if not act and not later:
++        print("nothing is waiting: the result is final and the last race day's fingerprint is published. The watch ends.")
++        return
++    if act:
++        print('to do now:', '; '.join(act))
++    if later:
++        print('to do later:', '; '.join(later))
++    if dry:
++        print('dry look: it would', 'start one run of the race runner and' if act else 'start no run now, but', f'come back in {EVERY // 60} minutes')
++        return
++    if act:
++        if _runner_active():
++            print('a run of the race runner is already waiting or going: none started now')
++        else:
++            _start('rivals.yml', 'mode=run')
++    time.sleep(EVERY)
++    try:
++        hop = int(os.environ.get('HOP') or 0) + 1
++    except ValueError:
++        hop = 1
++    if not _start('finish.yml', f'hop={hop}'):
++        raise SystemExit('the finish watch could not start its next look; a later timer or a person can start finish.yml again')
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/ops/tests/test_finish_watch.py b/ops/tests/test_finish_watch.py
+new file mode 100644
+index 000000000..e01cec719
+--- /dev/null
++++ b/ops/tests/test_finish_watch.py
+@@ -0,0 +1,137 @@
++"""Tests of the finish watch (ops/finish_watch.py). Run by hand: python3 ops/tests/test_finish_watch.py
++Kept apart from the race tests on purpose: those run before every check-in and stop the race when one fails; these never do."""
++import json
++import os
++import subprocess
++import sys
++from datetime import datetime, timezone
++
++ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
++sys.path.insert(0, os.path.join(ROOT, 'ops'))
++import finish_watch as W  # noqa: E402
++
++u = lambda t: datetime.fromisoformat(t).replace(tzinfo=timezone.utc)
++SAT_5PM = u('2026-11-28T22:00:00')     # an hour after the finish
++SAT_10PM = u('2026-11-29T03:00:00')    # after the last day's fingerprint is due
++TEN = ['Stocks', 'Crypto', 'China', 'Metals', 'Energy', 'Options', 'Currencies', 'Safe', 'Sports', 'Predictions']
++
++
++def state(**over):
++    feed = [{'at': 'a', 'experiment': e, 'value': 100000.0} for e in TEN] + [{'at': 'b', 'experiment': e, 'value': 101000.0 if e == 'Sports' else 100000.0, 'final': True} for e in TEN]
++    s = {'models': {'gemini': {'books': {'Sports': {'bets': []}, 'AllInSports': {'bets': []}, 'Stocks': {'bets': []}}},
++                    'chatgpt': {'books': {'Sports': {'bets': []}, 'AllInSports': {'bets': []}}}},
++         'claude_allin': {'books': {'AllInSports': {'bets': []}}},
++         'final': {'gemini': {'values': {}}, 'chatgpt': {'values': {}}, 'claude': {'values': {}}},
++         'claude_feed': feed, 'claude_penalties': [], 'fingerprints': [{'day': '2026-11-27'}, {'day': '2026-11-28'}]}
++    s.update(over)
++    return s
++
++
++WON = [{'bet': 'S1', 'status': 'Won', 'result_cad': 1000.0, 'game': '1', 'starts_at': '2026-11-27T00:00Z'}]
++
++
++def test_nothing_left():
++    assert W.waiting(state(), WON, SAT_10PM) == ([], [])
++
++
++def test_final_scoring_first():
++    for fin in ({}, {'gemini': {}}, {'chatgpt': {}, 'claude': {}}):
++        assert W.waiting(state(final=fin), WON, SAT_5PM) == (['the final scoring is not on record yet'], []), fin
++    act, later = W.waiting(state(final={'gemini': {}, 'chatgpt': {}}), WON, SAT_10PM)
++    assert act == ["Claude's High risk final values are not on record yet"] and later == [], (act, later)
++
++
++def test_claudes_ten_final_values():
++    s = state()
++    s['claude_feed'] = [x for x in s['claude_feed'] if not (x.get('final') and x['experiment'] == 'Crypto')]
++    assert W.waiting(s, WON, SAT_10PM) == (["Claude's ten final values are not all on record yet"], [])
++    s = state()
++    s['claude_feed'] = [x for x in s['claude_feed'] if not x.get('final')]
++    assert W.waiting(s, WON, SAT_10PM)[0] == ["Claude's ten final values are not all on record yet"]
++
++
++def test_bets_on_games_still_played_and_ended():
++    s = state()
++    s['models']['gemini']['books']['Sports']['bets'] = [{'id': 'G1', 'status': 'Open', 'starts_at': '2026-11-28T20:30:00Z'}, {'id': 'G0', 'status': 'Won', 'starts_at': '2026-11-27T20:30:00Z'}]
++    s['models']['chatgpt']['books']['AllInSports']['bets'] = [{'id': 'C9', 'status': 'Open', 'starts_at': '2026-11-28T18:00:00Z'}]
++    s['claude_allin']['books']['AllInSports']['bets'] = [{'id': 'C25', 'status': 'Open', 'starts_at': '2026-11-28T20:59:00Z'}]
++    mine = WON + [{'bet': 'S2', 'status': 'Open', 'game': '2', 'starts_at': '2026-11-28T19:00:00Z'}, {'bet': 'S3', 'status': 'Open', 'starts_at': '2026-11-28T10:00:00Z'}]
++    act, later = W.waiting(s, mine, SAT_5PM)   # 5:00 p.m. ET: only the 1:00 and 2:00 p.m. games can have ended
++    assert act == ['2 bet(s) on a game that can have ended'], act
++    assert later == ['2 bet(s) on a game still being played'], later
++    act, later = W.waiting(s, mine, SAT_10PM)
++    assert act == ['4 bet(s) on a game that can have ended'] and later == [], (act, later)
++    s2 = state()
++    s2['models']['gemini']['books']['Sports']['bets'] = [{'id': 'G1', 'status': 'Open'}]   # no start time on record: let the runner look
++    assert W.waiting(s2, WON, SAT_10PM) == (['1 bet(s) on a game that can have ended'], [])
++    s3 = state()
++    s3['models']['gemini']['books']['Stocks']['bets'] = [{'id': 'X', 'status': 'Open'}]   # only the two sports books hold bets
++    assert W.waiting(s3, WON, SAT_10PM) == ([], [])
++
++
++def test_claudes_sports_total_after_a_late_bet():
++    mine = WON + [{'bet': 'S2', 'status': 'Lost', 'result_cad': -3000.0, 'game': '2', 'starts_at': '2026-11-28T19:00:00Z'}]
++    assert W.waiting(state(), mine, SAT_10PM) == (["Claude's Sports total does not include its last settled bet yet"], [])
++    s = state()
++    s['claude_feed'].append({'at': 'c', 'experiment': 'Sports', 'value': 98000.0, 'final': True})
++    assert W.waiting(s, mine, SAT_10PM) == ([], [])
++    s['claude_penalties'] = [{'amount': 500.0}]   # a fine charged at the final run must be in the total too
++    assert W.waiting(s, mine, SAT_10PM)[0] == ["Claude's Sports total does not include its last settled bet yet"]
++    push = WON + [{'bet': 'S2', 'status': 'Push', 'result_cad': 0, 'game': '2', 'starts_at': '2026-11-28T19:00:00Z'}]
++    assert W.waiting(state(), push, SAT_10PM) == ([], []), 'a bet that changes nothing leaves nothing to record'
++
++
++def test_the_last_fingerprint():
++    s = state(fingerprints=[{'day': '2026-11-27'}])
++    assert W.waiting(s, WON, SAT_5PM) == ([], ["the last race day's fingerprint (from 9:00 p.m. ET)"])
++    assert W.waiting(s, WON, u('2026-11-29T01:59:00')) == ([], ["the last race day's fingerprint (from 9:00 p.m. ET)"])
++    assert W.waiting(s, WON, u('2026-11-29T02:00:00')) == (["the last race day's fingerprint"], [])
++
++
++def _run(env, cwd=ROOT):
++    e = {k: v for k, v in os.environ.items() if k not in ('DRY', 'FAKE_NOW', 'TEST_HOPS', 'HOP')}
++    e.update(env)
++    r = subprocess.run([sys.executable, os.path.join(ROOT, 'ops', 'finish_watch.py')], capture_output=True, text=True, cwd=cwd, env=e)
++    return r.returncode, r.stdout + r.stderr
++
++
++def _started(out):
++    return [l for l in out.split('\n') if l.startswith('started ')]
++
++
++def test_before_the_finish_and_after_its_last_moment_it_does_nothing():
++    for fake in ('2026-11-25T16:00:00+00:00', '2026-11-28T20:59:59+00:00', '2026-11-28T21:00:20+00:00'):
++        rc, out = _run({'DRY': '1', 'FAKE_NOW': fake})
++        assert rc == 0 and 'the race has not finished' in out and not _started(out), (fake, out)
++    rc, out = _run({'DRY': '1', 'FAKE_NOW': '2026-11-29T11:00:00+00:00'})
++    assert rc == 0 and "past the watch's own last moment" in out, out
++    rc, out = _run({'DRY': '1'})   # the real clock
++    if datetime.now(timezone.utc) < W.FIRST:
++        assert rc == 0 and 'the race has not finished' in out, out
++
++
++def test_a_dry_look_starts_nothing():
++    rc, out = _run({'DRY': '1', 'FAKE_NOW': '2026-11-28T21:05:00+00:00', 'PATH': '/nonexistent'})   # no gh at all: a dry look needs none
++    assert rc == 0 and 'dry look' in out and not _started(out), out
++    if not json.load(open(os.path.join(ROOT, 'ops', 'src', 'rivals.json'))).get('final'):
++        assert 'the final scoring is not on record yet' in out and 'it would start one run of the race runner' in out, out
++
++
++def main():
++    tests = [(n, f) for n, f in globals().items() if n.startswith('test_') and callable(f)]
++    failed = 0
++    for n, f in tests:
++        try:
++            f()
++            print('ok  ', n)
++        except Exception:
++            import traceback
++            failed += 1
++            print('FAIL', n)
++            traceback.print_exc()
++    print(f'{len(tests) - failed} passed, {failed} failed')
++    sys.exit(1 if failed else 0)
++
++
++if __name__ == '__main__':
++    main()
