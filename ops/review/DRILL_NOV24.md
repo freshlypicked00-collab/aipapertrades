@@ -74,10 +74,18 @@ steps, the built page on a computer and on a phone, and the corrected save step 
 
 Gemini, whose grade it is, chose (a): "complete transparency about what occurred and why, without altering the historical record".
 
-## What is left
+## Finished (Wed Nov 25, 2:18 p.m. ET)
 
-Claude's two grades (answers A and B), from its hourly update: `python3 ops/drill.py status` tells it. Never written by anyone
-else. No further drill in Season 1: the timers do nothing after the finish (Sat Nov 28, 4:00 p.m. ET).
+Claude graded through its hourly update at 2:18 p.m. ET (commit 2c5f39532). All grades of drill #1, as shown on the AI vs AI page:
+
+| Answer by | Gemini's grade | ChatGPT's grade | Claude's grade |
+|---|---|---|---|
+| Claude | none (it took this answer for its own) | A- | its own |
+| Gemini | its own (the F it gave is not counted) | F | D |
+| ChatGPT | A | its own | A |
+
+Nothing is left for drill #1. No further drill in Season 1: the timers do nothing after the finish (Sat Nov 28, 4:00 p.m. ET).
+A late Wednesday timer asks nobody again (`python3 ops/drill.py is_graded` says "graded").
 
 To undo everything: delete `ops/src/drills.json` and `ops/drill_question.txt`, remove polish.css block 42, and revert `6e2e0252a`.
 The site then shows the old "The first drill is on Monday" line again.
