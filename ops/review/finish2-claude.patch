@@ -1,0 +1,234 @@
+diff --git a/ops/build_site.py b/ops/build_site.py
+index e08a78fb1..e2111caca 100644
+--- a/ops/build_site.py
++++ b/ops/build_site.py
+@@ -425,7 +425,16 @@ try:
+             _bets += [b for bk in ((_rv.get('claude_allin') or {}).get('books') or {}).values() for b in bk.get('bets', [])]
+             _bets += json.load(open(os.path.join(SRC, 'bets.json')))
+             if _rv.get('models') and all(m in (_rv.get('final') or {}) for m in _rv['models']) and not any(b.get('status') == 'Open' for b in _bets):
+-                _phase = 'final'
++                # Nov 25 (found in the finale rehearsal): "no bet open" is not yet "final" for Claude. The run that settles a late bet of
++                # Claude's writes the bet in its publish step; the runner records the value at its next pass. So the result is final only
++                # when each of Claude's ten races has its final value on record and the Sports one equals what its settled bets and fines
++                # add up to (the runner's own test, ops/rivals.py claude_finished). Until then: "finish", and the card does not say Final.
++                _cfeed = _rv.get('claude_feed', [])
++                _cfin = {x['experiment']: x['value'] for x in _cfeed if x.get('final')}
++                _mine = json.load(open(os.path.join(SRC, 'bets.json')))
++                _csp = 100000.0 + sum(float(b.get('result_cad') or 0) for b in _mine if b.get('status') != 'Open') - sum(float(x.get('amount') or 0) for x in _rv.get('claude_penalties', []))
++                if 'Sports' in _cfin and all(x['experiment'] in _cfin for x in _cfeed) and abs(_csp - float(_cfin['Sports'])) <= 0.005:
++                    _phase = 'final'
+     except Exception as _e:
+         print('share picture phase:', _e)
+     if _phase != 'live':
+@@ -1518,6 +1527,7 @@ data['refunds'] = [dict(x, model='claude', race='Sports') for x in r.get('claude
+     [dict(x, model='claude', race='AllInSports') for x in ((((r.get('claude_allin') or {}).get('books') or {}).get('AllInSports') or {}).get('refunded_penalties', []))] + \
+     [dict(x, model=_mid, race=_e) for _mid, _m in (r.get('models') or {}).items() for _e in ('Sports', 'AllInSports')
+      for x in ((_m.get('books') or {}).get(_e) or {}).get('refunded_penalties', [])]
++data['finale'] = [{'phase': globals().get('_phase', 'live')}]   # live / finish / final: the builder's verdict on the whole record, for the Final result card (Nov 25)
+ data['leader'] = LEADER   # the AI with the highest total profit (None when tied; the amount is never published before Nov 28); the page opens on the leader of the first race unless the viewer picked one
+ try:
+     data['price_audit'] = [json.load(open(os.path.join(SRC, 'price_audit.json')))]   # Claude's prices vs the feeds (ops/price_audit.py)
+diff --git a/ops/polish.js b/ops/polish.js
+index 19a755b2f..f4c6e88ed 100644
+--- a/ops/polish.js
++++ b/ops/polish.js
+@@ -340,8 +340,12 @@
+       var seeBet = function (b) { if (!b) return; if (b.status === 'Open') open++; var t = Date.parse(b.settled_at || ''); if (t && t > lastSettled) lastSettled = t; };
+       (dash.baseData('bets') || []).forEach(seeBet);
+       (dash.baseData('rivals_models') || []).forEach(function (m) { var bk = m.books || {}; Object.keys(bk).forEach(function (e) { ((bk[e] || {}).bets || []).forEach(seeBet); }); });
+-      var ended = Date.now() >= F_END, settled = ended && scoredAt && open === 0;
+-      var sig = JSON.stringify([rows.map(function (r) { return [r.id, Math.round(r.profit)]; }), Object.keys(ES).map(function (e) { return (ES[e] || []).map(function (r) { return Math.round(r.profit); }); }), ended, scoredAt, open, lastSettled]);
++      // Nov 25 (found in the finale rehearsal): "no bet open" is not yet "final" for one moment. The run that settles a late bet of Claude's
++      // writes the bet; the runner records its value at the next pass. The site's builder checks the whole record (the same test as the
++      // share picture's title) and hands its verdict over in "finale"; until that says final, neither does the card.
++      var fz = (dash.baseData('finale') || [])[0], recorded = !fz || fz.phase === 'final';
++      var ended = Date.now() >= F_END, settled = ended && scoredAt && open === 0 && recorded;
++      var sig = JSON.stringify([rows.map(function (r) { return [r.id, Math.round(r.profit)]; }), Object.keys(ES).map(function (e) { return (ES[e] || []).map(function (r) { return Math.round(r.profit); }); }), ended, scoredAt, open, lastSettled, recorded]);
+       // Nov 24 (all three AIs agreed, ops/review/final-nov24.json F2): on a phone the first screen already answers who is first (the podium),
+       // so the card sits right under the podium and leaves out its own list of the three totals there (polish.css .pt-final--pod).
+       // The phone front is redrawn now and then, so the place is checked on every pass. On a computer: right under the header, as before.
+@@ -355,6 +359,7 @@
+       var status = !ended ? 'Preview only: these are today’s standings, not the final result. This card appears by itself at the finish, Sat Nov 28, 4:00 p.m. ET.'
+         : !scoredAt ? 'The race ended at 4:00 p.m. ET. Final scoring is being done now; the figures below are from the last check-in.'
+         : open ? 'Final scoring done ' + whenET(scoredAt) + '. ' + open + (open === 1 ? ' Sports bet is' : ' Sports bets are') + ' still open, so the Sports totals can still change. Until then this is the order at the finish.'
++        : !recorded ? 'Final scoring done ' + whenET(scoredAt) + '. The last bet has settled and its result is being added to the totals, so a Sports total can still change. Until then this is the order at the finish.'
+         : 'Final. Scoring done ' + whenET(scoredAt) + (lastSettled > F_END ? '; the last open bet settled ' + whenET(lastSettled) : '') + '. Includes every penalty, refund, voided bet and settled bet. Nothing changes after this.';
+       card.appendChild(mk('p', 'pt-fin-status' + (settled ? ' is-final' : ''), status));
+       // Nov 24 (Gemini and ChatGPT asked for it on Nov 19): once the result is final the card names the final fingerprint and links to the
+diff --git a/ops/rivals.py b/ops/rivals.py
+index 580907fd1..0ef02791f 100644
+--- a/ops/rivals.py
++++ b/ops/rivals.py
+@@ -2028,6 +2028,14 @@ def settle_watch(state):
+         mine = []
+     waiting = [(mid, e, bk) for mid, e, bk in books if bk and any(due(b) for b in bk.get('bets', []))]
+     if not waiting and not mine:
++        if claude_value_due(state):   # Nov 25: a late bet of Claude's was settled by an earlier run; its final Sports value is recorded now
++            try:
++                claude_feed_values(state, state.get('fx') or get_fx())
++                save_state(state)
++                print("settle watcher: Claude's final Sports value recorded")
++            except Exception as ex:
++                print('claude feed values failed', ex)
++            return
+         print('settle watcher: no bet on a game that could have ended yet; nothing to do')
+         return
+     fx = state.get('fx') or get_fx()
+@@ -2042,13 +2050,25 @@ def settle_watch(state):
+             except Exception as ex:
+                 print('telegram failed', ex)
+         if done:
+-            state['history'].append({'at': iso(), 'model': mid, 'experiment': e, 'value': value_book(e, bk, fx, [])})
++            v = value_book(e, bk, fx, [])
++            if NOW >= RACE_END and mid in state.get('final', {}):
++                # Nov 25: after the final scoring the new Sports value goes on the final record with the final mark, exactly as a full
++                # run writes it (freeze_final). Until now the watcher only added a plain value point, so when it settled an AI's last
++                # bet the "final" entry in the records kept the old Sports value for good: no later run looks again once no bet is open.
++                freeze_final(state, mid, [e], {e: v})
++            else:
++                state['history'].append({'at': iso(), 'model': mid, 'experiment': e, 'value': v})
+         n += len(done)
+     try:
+         claude_allin(state, fx)   # Claude's High risk bets (and any High risk orders waiting)
+     except Exception as ex:
+         print('claude all-in failed', ex)
+     shared_steps(state, fx, games=False)   # Claude's main-race bets settle in its fill step
++    try:
++        if claude_value_due(state):   # a bet of Claude's that an earlier run settled: its final Sports value (Nov 25)
++            claude_feed_values(state, fx)
++    except Exception as ex:
++        print('claude feed values failed', ex)
+     save_state(state)
+     print(f'settle watcher: settled {n} rival bet(s); Claude\'s checked too')
+ 
+@@ -2285,6 +2305,28 @@ def claude_finished(state):
+         return True   # a fault in this check must never keep the runs going for ever
+ 
+ 
++def claude_value_due(state):
++    """After the finish: True when each of Claude's ten main races has its final value on record but the Sports one no longer equals what
++    its settled bets and fines add up to. That is the state a run leaves behind when it settles a late bet of Claude's: the bet is written
++    by that run's publish step, after the runner has stopped, so the value can only be recorded by a later run. The settle watcher
++    does it at its next pass (every 15 minutes), as it records Gemini's and ChatGPT's new Sports value at once; before Nov 25 only an
++    hourly run could, and GitHub starts those late or not at all. Never true before the finish, and never before the final scoring run
++    has valued all ten races (that run does them together with the other two's)."""
++    if NOW < RACE_END:
++        return False
++    try:
++        import claude_fill as CF
++        fin = {x['experiment']: x['value'] for x in state.get('claude_feed', []) if x.get('final')}
++        if not all(e in fin for e in CF.MAIN):
++            return False
++        fx = state.get('fx') or {'USDCAD': 1.0, 'USDCNY': 1.0}
++        sports = CF.claude_books(state, fx, state.get('claude_main') or {'done': [], 'results': [], 'codes': {}})[0]['Sports']
++        return abs(value_book('Sports', sports, fx, []) - float(fin['Sports'])) > 0.005
++    except Exception as e:
++        print('claude value check failed', e)
++        return False
++
++
+ def claude_feed_values(state, fx):
+     """V5 of the full-audit vote (Oct 31; all three AIs agreed): at every check-in the race runner also values Claude's holdings at
+     its own feed prices, with the same code it uses for Gemini and ChatGPT (value_book), so all three are priced from one source at
+diff --git a/ops/tests/run_tests.py b/ops/tests/run_tests.py
+index ff23b428f..8c82cbdc0 100644
+--- a/ops/tests/run_tests.py
++++ b/ops/tests/run_tests.py
+@@ -953,5 +953,97 @@ def test_the_runs_go_on_until_claudes_races_are_finished_too():
+     finally:
+         CF._j, CF.claude_books, CF.MAIN = saved
+ 
++
++def test_the_settle_watcher_completes_the_final_record_after_the_finish():
++    """Nov 25, second finding of the finale rehearsal. (1) A late bet of Claude's is written by the publish step of the run that settles it,
++    so its final Sports value can only be recorded by a later run: the settle watcher's next pass does it (before, only an hourly run could).
++    (2) When the watcher settles Gemini's or ChatGPT's late bet after the final scoring, the new Sports value goes on the final record with
++    the final mark, as a full run writes it (before, the "final" entry kept the old value for good)."""
++    import claude_fill as CF
++    saved = R.NOW, CF.claude_books, CF.MAIN, R.settle_bets, R.claude_allin, R.shared_steps, R.save_state, R.tg_trade, R.get_fx
++    cwd, tmpd = os.getcwd(), tempfile.mkdtemp()
++    try:
++        os.makedirs(os.path.join(tmpd, 'ops', 'src'))
++        json.dump([], open(os.path.join(tmpd, 'ops', 'src', 'bets.json'), 'w'))   # no bet of Claude's is waiting for a game to end
++        os.chdir(tmpd)
++        CF.MAIN = ['Stocks', 'Sports']
++        sports = {'cur': 'CAD', 'cash': 0.0, 'positions': {}, 'bets': [{'status': 'Won', 'result': 1000.0}], 'penalties': []}
++        CF.claude_books = lambda state, fx, cm: ({'Stocks': {'cur': 'CAD', 'cash': 1.0, 'positions': {}}, 'Sports': sports}, {})
++        saves = []
++        R.save_state = lambda state: saves.append(len(state.get('claude_feed', [])))
++        R.claude_allin = lambda state, fx: None
++        R.shared_steps = lambda state, fx, games=True: None
++        R.tg_trade = lambda *a, **k: None
++        fx = {'USDCAD': 1.4, 'USDCNY': 7.0}
++        R.get_fx = lambda: dict(fx)
++        u = lambda t: datetime.fromisoformat(t).replace(tzinfo=timezone.utc)
++        feed0 = [{'at': 'a', 'experiment': 'Stocks', 'value': 1.0, 'final': True}, {'at': 'a', 'experiment': 'Sports', 'value': 101000.0, 'final': True}]
++        st = {'fx': fx, 'models': {}, 'history': [], 'claude_feed': [dict(x) for x in feed0]}
++
++        # (1) Claude
++        R.NOW = u('2026-11-28T23:48:00')
++        assert R.claude_value_due(st) is False, 'the value on record equals the settled bets'
++        sports['bets'].append({'status': 'Lost', 'result': -3000.0})   # the run before settled a late bet; its publish step wrote it
++        assert R.claude_value_due(st) is True
++        R.settle_watch(st)   # no game is waiting, but the value is: this pass records it
++        assert [(x['experiment'], x['value'], x.get('final')) for x in st['claude_feed'][2:]] == [('Sports', 98000.0, True)], st['claude_feed']
++        assert saves == [3], saves
++        assert R.claude_value_due(st) is False
++        R.settle_watch(st)   # nothing new: nothing written, nothing saved
++        assert len(st['claude_feed']) == 3 and saves == [3], (st['claude_feed'], saves)
++        sports['bets'].append({'status': 'Won', 'result': 500.0})
++        assert R.claude_value_due(st) is True
++        R.NOW = u('2026-11-28T20:48:00')
++        assert R.claude_value_due(st) is False, 'never before the finish: during the race the value is written at each check-in, as always'
++        R.NOW = u('2026-11-28T21:03:00')
++        one = {**st, 'claude_feed': [x for x in st['claude_feed'] if x['experiment'] == 'Sports']}
++        assert R.claude_value_due(one) is False, 'not before the final scoring run has valued all ten races (it does them together)'
++        none = {**st, 'claude_feed': [{k: v for k, v in x.items() if k != 'final'} for x in st['claude_feed']]}
++        assert R.claude_value_due(none) is False
++        R.settle_watch(none)
++        assert len(none['claude_feed']) == 3 and saves == [3], 'the watcher never does the final scoring itself'
++
++        def boom(state, fx, cm):
++            raise ValueError('books unreadable')
++        keep = CF.claude_books
++        CF.claude_books = boom
++        assert R.claude_value_due(st) is False, 'a fault in this check must never stop a watcher run'
++        CF.claude_books = keep
++
++        # (2) Gemini's last bet ends after the final scoring
++        def book():
++            return {'cur': 'CAD', 'cash': 0.0, 'positions': {}, 'penalties': [],
++                    'bets': [{'id': 'G1', 'status': 'Open', 'starts_at': '2026-11-28T19:00:00Z', 'result': 0.0}]}
++
++        def settle(mid, bk, state, exp='Sports'):
++            b = bk['bets'][0]
++            if b['status'] != 'Open':
++                return []
++            b.update(status='Won', result=2000.0)
++            return [{'model': mid, 'experiment': exp, 'action': 'Won', 'symbol': b['id'], 'amount': 2000.0}]
++        R.settle_bets = settle
++        R.NOW = u('2026-11-28T23:18:00')
++        st2 = {'fx': fx, 'history': [], 'claude_feed': [dict(x) for x in st['claude_feed']], 'models': {'gemini': {'books': {'Sports': book()}}},
++               'final': {'gemini': {'at': 'x', 'values': {'Sports': 100000.0, 'Stocks': 5.0}}}}
++        n_feed = len(st2['claude_feed'])
++        R.settle_watch(st2)
++        assert st2['final']['gemini']['values'] == {'Sports': 102000.0, 'Stocks': 5.0}, st2['final']
++        assert [(h['model'], h['experiment'], h['value'], h.get('final')) for h in st2['history']] == [('gemini', 'Sports', 102000.0, True)], st2['history']
++        assert [(x['experiment'], x['value'], x.get('final')) for x in st2['claude_feed'][n_feed:]] == [('Sports', 98500.0, True)], \
++            'the same pass also records a value of Claude\'s that was waiting'
++        # before the final scoring is on record, and before the finish, the watcher adds a plain value point, as it always has
++        for when, fin in (('2026-11-28T23:18:00', {}), ('2026-11-28T20:55:00', {'gemini': {'at': 'x', 'values': {'Sports': 100000.0}}})):
++            R.NOW = u(when)
++            st3 = {'fx': fx, 'history': [], 'claude_feed': [], 'models': {'gemini': {'books': {'Sports': book()}}}, 'final': fin}
++            st3['models']['gemini']['books']['Sports']['bets'][0]['starts_at'] = '2026-11-28T17:00:00Z'
++            before = json.dumps(fin, sort_keys=True)
++            R.settle_watch(st3)
++            assert [(h['experiment'], h['value'], h.get('final')) for h in st3['history']] == [('Sports', 102000.0, None)], (when, st3['history'])
++            assert json.dumps(st3['final'], sort_keys=True) == before, when
++    finally:
++        os.chdir(cwd)
++        R.NOW, CF.claude_books, CF.MAIN, R.settle_bets, R.claude_allin, R.shared_steps, R.save_state, R.tg_trade, R.get_fx = saved
++        shutil.rmtree(tmpd, ignore_errors=True)
++
+ if __name__ == '__main__':
+     main()

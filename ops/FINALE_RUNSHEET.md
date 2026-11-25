@@ -9,9 +9,9 @@ computer). All times ET. "Runner" = the Head to head workflow (rivals.yml). Noth
 | Fri Nov 27, 1:00 p.m. | Last US trading day closes early (day after Thanksgiving). Stocks, options, metals and energy funds can no longer trade; crypto, currencies, bets and prediction markets go on. | Runner log |
 | Sat Nov 28, until 4:00 p.m. | Normal hourly check-ins (about :13 past the hour). Crypto, bets and prediction markets are still open. | Site, Discord, Telegram |
 | 4:00 p.m. | **The finish.** No order is accepted from this second (ops/rivals.py RACE_END). The site's top line changes by itself to "Season 1 is over" and "leads" becomes "finished first" (ops/polish.js 8). | papertrades.ai |
-| 4:01 p.m. (GitHub may start it up to 45 min late) | **Final scoring run**: freezes Gemini's and ChatGPT's final value in every race (`state.final`). Later runs only settle bets on games that started before 4:00 p.m. | Runner log: "final," lines |
-| Claude's next update after 4:00 p.m. | Claude's ten final values, the same way. | UPDATE ALL commit |
-| Evening | Bets on games still being played settle within about 15 minutes of each final whistle (the settle watcher). Only the Sports and High risk: sports totals can still move, and only by those bets. | Sports tab |
+| 4:01 p.m. (GitHub may start it up to 45 min late) | **Final scoring run**: freezes the final value of all three AIs in every race, in the same run and at the same prices (Gemini's and ChatGPT's in `final`, Claude's ten as final rows of `claude_feed`; since Nov 25). Later runs only settle bets on games that started before 4:00 p.m. Three things can start it: this timer, Claude's 4:13 p.m. hourly task, and the 4:25 p.m. task (it forces a run if the freeze is missing). | Runner log: "final," lines |
+| 4:25 p.m. | Claude's scheduled task "Paper Trades: FINAL scoring": checks the freeze, backs up, writes the Final result report, sends its Telegram note, switches the hourly tasks off. It leaves a bet on a game still being played open (runbook, Nov 25). | its commit |
+| Evening | Bets on games still being played settle within about 15 minutes of each final whistle (the settle watcher, every 15 minutes until 2 a.m.), for all three AIs. Only the Sports and High risk: sports totals can still move, and only by those bets. A bet of Claude's shows as settled first; its Sports total follows at the watcher's next pass, and until then the site says "its result is being added to the totals" and not "Final" (Nov 25). | Sports tab |
 | 7:00 p.m. | The record of the last race day closes. Its fingerprint is published by the first run two hours later (9:00 p.m. or after), whatever kind of run it is (fixed Nov 24: before, it would not have been published once every bet was settled). A later day gets one only if the record changed. | Rules & Audit |
 | After 9:00 p.m. | The watchdog stops watching (the race is over). | - |
 
@@ -19,7 +19,7 @@ computer). All times ET. "Runner" = the Head to head workflow (rivals.yml). Noth
 1. **Fri Nov 27, any time:** check API credit for the last day: OpenRouter (ChatGPT) at least US$15, Google (Gemini) billing active. The health check warns under US$15.
 2. **Sat 3:45 p.m.:** open the Actions page. If a race run has been "queued" or "in progress" for more than 20 minutes, tell Claude ("the race is stalled"). Do not cancel or rerun anything by hand.
 3. **Sat about 4:20 p.m.:** check the final scoring run finished (green). If GitHub has not started it by 4:50 p.m., tell Claude: the run can be started with mode "force"; it changes nothing but the freeze, because no order is accepted after 4:00 p.m.
-4. **Sat evening, after the last game with an open bet ends:** the numbers are final. Only now publish the final result (below).
+4. **Sat evening, after the last game with an open bet ends:** the numbers are final when the Final result card says "Final" (papertrades.ai/?finale shows the card even while it is switched off). Only then publish the final result (below).
 5. **Sun Nov 29:** turn off the "Race watchdog" workflow (Actions, Race watchdog, the ⋯ menu, Disable workflow): after the finish it only uses up minutes. Then the post-season steps: the correction window, the research notes, Season 2 decisions (ops/SEASON2.md).
 
 ## The final result: prepared, HELD for the owner's OK
@@ -31,11 +31,21 @@ post and the share picture were agreed by all three AIs that day. What is ready,
 - **The record freezes:** final fingerprint of the whole ledger, the audit pack rebuilt, and both linked from the card.
 - The card must also say (Gemini and ChatGPT, Nov 19): when the last open bet settled, the time the result was made final (ET), the final fingerprint with its link, and that the result includes penalties, refunds, voided bets and every settled bet.
 - The site says "finished first" from 4:00 p.m.; "won" is used only in this final post (all three AIs agreed, ops/review/improve-nov19-cde.json).
-- Drafts of the card and the post: to be written with Gemini and ChatGPT in the week of Nov 23, from the real standings of that week.
+- Drafts of the card and the post: written with Gemini and ChatGPT on Nov 24 (`ops/review/FINAL_RESULT_DRAFT.md`).
 
 ## Found in the rehearsal (Nov 19)
 - FIXED: after the finish the top of the site still said "0d 00h 00m 00s left until final scoring" and "leads overall" (the rule that hid the countdown hid the wrong line). See ops/polish.js 8, ops/polish.css 34. Preview: papertrades.ai/?finale
 - CHECKED: every tab opens without an error with the clock at Nov 28, 4:30 p.m. ET, on a phone and a computer; no page scrolls sideways.
-- NOT POSSIBLE TO REHEARSE HERE: the final scoring run itself (it needs live prices) and the posts. The code path is covered by the race tests; watch step 3.
+- NOT POSSIBLE TO REHEARSE HERE: the posts. (The final scoring run itself was rehearsed on Nov 25, below.)
 - KNOWN: between 4:00 p.m. and the final scoring run the site shows the last check-in's values; they are replaced by the frozen ones a few minutes later.
 - KNOWN: the animated cards and Shorts scheduled for Sat evening still run; they show the day's results as usual.
+
+## Found in the rehearsal (Nov 25)
+The race runner itself was run on a throwaway copy (no network, no posting), the clock set to Saturday, each position at its last
+known price, today's open bets standing in for bets still open at the finish; the site was built after every run. The whole story:
+`ops/review/FINISH_CLAUDE_NOV25.md`.
+- FIXED (Gemini and ChatGPT agreed; Claude did not vote on its own result): after the finish the runner stopped writing Claude's public values and stopped settling its main Sports bets. A bet of Claude's on a game still being played would never have settled, and the card would never have said who won. Now Claude's ten main races are closed by the same rules as the other two's.
+- FIXED (same vote for Claude's part; all three agreed on the rest): a late bet of Claude's was in the bet list up to an hour or more before it was in its Sports total (only an hourly run recorded it), and the site would have said "Final" in between. Now the 15-minute watcher records it, a rival's late bet goes on its final record with the final mark, and the site says "Final" only when every settled bet is in the totals.
+- CHECKED: with no bet open at the finish the site says "Final" right after the final scoring run. With late bets: finish, then "its result is being added to the totals", then Final; the last day's fingerprint appears on the card after 9:00 p.m. ET. Both orders end on the same three totals.
+- KNOWN: after about 4:40 p.m. only GitHub's own timers start runs (the watcher every 15 minutes until 2 a.m., the hourly run at :13). GitHub starts them late now and then; nothing is lost, the next one does the work.
+- KNOWN, waits for the owner: the 4:25 p.m. task's Telegram note is written to name "the final standings and the winner" while bets may still be open (`final post yes` or `keep the 4:25 note`, in `ops/review/FINAL_RESULT_DRAFT.md`).

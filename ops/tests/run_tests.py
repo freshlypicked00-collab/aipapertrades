@@ -953,5 +953,97 @@ def test_the_runs_go_on_until_claudes_races_are_finished_too():
     finally:
         CF._j, CF.claude_books, CF.MAIN = saved
 
+
+def test_the_settle_watcher_completes_the_final_record_after_the_finish():
+    """Nov 25, second finding of the finale rehearsal. (1) A late bet of Claude's is written by the publish step of the run that settles it,
+    so its final Sports value can only be recorded by a later run: the settle watcher's next pass does it (before, only an hourly run could).
+    (2) When the watcher settles Gemini's or ChatGPT's late bet after the final scoring, the new Sports value goes on the final record with
+    the final mark, as a full run writes it (before, the "final" entry kept the old value for good)."""
+    import claude_fill as CF
+    saved = R.NOW, CF.claude_books, CF.MAIN, R.settle_bets, R.claude_allin, R.shared_steps, R.save_state, R.tg_trade, R.get_fx
+    cwd, tmpd = os.getcwd(), tempfile.mkdtemp()
+    try:
+        os.makedirs(os.path.join(tmpd, 'ops', 'src'))
+        json.dump([], open(os.path.join(tmpd, 'ops', 'src', 'bets.json'), 'w'))   # no bet of Claude's is waiting for a game to end
+        os.chdir(tmpd)
+        CF.MAIN = ['Stocks', 'Sports']
+        sports = {'cur': 'CAD', 'cash': 0.0, 'positions': {}, 'bets': [{'status': 'Won', 'result': 1000.0}], 'penalties': []}
+        CF.claude_books = lambda state, fx, cm: ({'Stocks': {'cur': 'CAD', 'cash': 1.0, 'positions': {}}, 'Sports': sports}, {})
+        saves = []
+        R.save_state = lambda state: saves.append(len(state.get('claude_feed', [])))
+        R.claude_allin = lambda state, fx: None
+        R.shared_steps = lambda state, fx, games=True: None
+        R.tg_trade = lambda *a, **k: None
+        fx = {'USDCAD': 1.4, 'USDCNY': 7.0}
+        R.get_fx = lambda: dict(fx)
+        u = lambda t: datetime.fromisoformat(t).replace(tzinfo=timezone.utc)
+        feed0 = [{'at': 'a', 'experiment': 'Stocks', 'value': 1.0, 'final': True}, {'at': 'a', 'experiment': 'Sports', 'value': 101000.0, 'final': True}]
+        st = {'fx': fx, 'models': {}, 'history': [], 'claude_feed': [dict(x) for x in feed0]}
+
+        # (1) Claude
+        R.NOW = u('2026-11-28T23:48:00')
+        assert R.claude_value_due(st) is False, 'the value on record equals the settled bets'
+        sports['bets'].append({'status': 'Lost', 'result': -3000.0})   # the run before settled a late bet; its publish step wrote it
+        assert R.claude_value_due(st) is True
+        R.settle_watch(st)   # no game is waiting, but the value is: this pass records it
+        assert [(x['experiment'], x['value'], x.get('final')) for x in st['claude_feed'][2:]] == [('Sports', 98000.0, True)], st['claude_feed']
+        assert saves == [3], saves
+        assert R.claude_value_due(st) is False
+        R.settle_watch(st)   # nothing new: nothing written, nothing saved
+        assert len(st['claude_feed']) == 3 and saves == [3], (st['claude_feed'], saves)
+        sports['bets'].append({'status': 'Won', 'result': 500.0})
+        assert R.claude_value_due(st) is True
+        R.NOW = u('2026-11-28T20:48:00')
+        assert R.claude_value_due(st) is False, 'never before the finish: during the race the value is written at each check-in, as always'
+        R.NOW = u('2026-11-28T21:03:00')
+        one = {**st, 'claude_feed': [x for x in st['claude_feed'] if x['experiment'] == 'Sports']}
+        assert R.claude_value_due(one) is False, 'not before the final scoring run has valued all ten races (it does them together)'
+        none = {**st, 'claude_feed': [{k: v for k, v in x.items() if k != 'final'} for x in st['claude_feed']]}
+        assert R.claude_value_due(none) is False
+        R.settle_watch(none)
+        assert len(none['claude_feed']) == 3 and saves == [3], 'the watcher never does the final scoring itself'
+
+        def boom(state, fx, cm):
+            raise ValueError('books unreadable')
+        keep = CF.claude_books
+        CF.claude_books = boom
+        assert R.claude_value_due(st) is False, 'a fault in this check must never stop a watcher run'
+        CF.claude_books = keep
+
+        # (2) Gemini's last bet ends after the final scoring
+        def book():
+            return {'cur': 'CAD', 'cash': 0.0, 'positions': {}, 'penalties': [],
+                    'bets': [{'id': 'G1', 'status': 'Open', 'starts_at': '2026-11-28T19:00:00Z', 'result': 0.0}]}
+
+        def settle(mid, bk, state, exp='Sports'):
+            b = bk['bets'][0]
+            if b['status'] != 'Open':
+                return []
+            b.update(status='Won', result=2000.0)
+            return [{'model': mid, 'experiment': exp, 'action': 'Won', 'symbol': b['id'], 'amount': 2000.0}]
+        R.settle_bets = settle
+        R.NOW = u('2026-11-28T23:18:00')
+        st2 = {'fx': fx, 'history': [], 'claude_feed': [dict(x) for x in st['claude_feed']], 'models': {'gemini': {'books': {'Sports': book()}}},
+               'final': {'gemini': {'at': 'x', 'values': {'Sports': 100000.0, 'Stocks': 5.0}}}}
+        n_feed = len(st2['claude_feed'])
+        R.settle_watch(st2)
+        assert st2['final']['gemini']['values'] == {'Sports': 102000.0, 'Stocks': 5.0}, st2['final']
+        assert [(h['model'], h['experiment'], h['value'], h.get('final')) for h in st2['history']] == [('gemini', 'Sports', 102000.0, True)], st2['history']
+        assert [(x['experiment'], x['value'], x.get('final')) for x in st2['claude_feed'][n_feed:]] == [('Sports', 98500.0, True)], \
+            'the same pass also records a value of Claude\'s that was waiting'
+        # before the final scoring is on record, and before the finish, the watcher adds a plain value point, as it always has
+        for when, fin in (('2026-11-28T23:18:00', {}), ('2026-11-28T20:55:00', {'gemini': {'at': 'x', 'values': {'Sports': 100000.0}}})):
+            R.NOW = u(when)
+            st3 = {'fx': fx, 'history': [], 'claude_feed': [], 'models': {'gemini': {'books': {'Sports': book()}}}, 'final': fin}
+            st3['models']['gemini']['books']['Sports']['bets'][0]['starts_at'] = '2026-11-28T17:00:00Z'
+            before = json.dumps(fin, sort_keys=True)
+            R.settle_watch(st3)
+            assert [(h['experiment'], h['value'], h.get('final')) for h in st3['history']] == [('Sports', 102000.0, None)], (when, st3['history'])
+            assert json.dumps(st3['final'], sort_keys=True) == before, when
+    finally:
+        os.chdir(cwd)
+        R.NOW, CF.claude_books, CF.MAIN, R.settle_bets, R.claude_allin, R.shared_steps, R.save_state, R.tg_trade, R.get_fx = saved
+        shutil.rmtree(tmpd, ignore_errors=True)
+
 if __name__ == '__main__':
     main()

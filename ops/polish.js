@@ -340,8 +340,12 @@
       var seeBet = function (b) { if (!b) return; if (b.status === 'Open') open++; var t = Date.parse(b.settled_at || ''); if (t && t > lastSettled) lastSettled = t; };
       (dash.baseData('bets') || []).forEach(seeBet);
       (dash.baseData('rivals_models') || []).forEach(function (m) { var bk = m.books || {}; Object.keys(bk).forEach(function (e) { ((bk[e] || {}).bets || []).forEach(seeBet); }); });
-      var ended = Date.now() >= F_END, settled = ended && scoredAt && open === 0;
-      var sig = JSON.stringify([rows.map(function (r) { return [r.id, Math.round(r.profit)]; }), Object.keys(ES).map(function (e) { return (ES[e] || []).map(function (r) { return Math.round(r.profit); }); }), ended, scoredAt, open, lastSettled]);
+      // Nov 25 (found in the finale rehearsal): "no bet open" is not yet "final" for one moment. The run that settles a late bet of Claude's
+      // writes the bet; the runner records its value at the next pass. The site's builder checks the whole record (the same test as the
+      // share picture's title) and hands its verdict over in "finale"; until that says final, neither does the card.
+      var fz = (dash.baseData('finale') || [])[0], recorded = !fz || fz.phase === 'final';
+      var ended = Date.now() >= F_END, settled = ended && scoredAt && open === 0 && recorded;
+      var sig = JSON.stringify([rows.map(function (r) { return [r.id, Math.round(r.profit)]; }), Object.keys(ES).map(function (e) { return (ES[e] || []).map(function (r) { return Math.round(r.profit); }); }), ended, scoredAt, open, lastSettled, recorded]);
       // Nov 24 (all three AIs agreed, ops/review/final-nov24.json F2): on a phone the first screen already answers who is first (the podium),
       // so the card sits right under the podium and leaves out its own list of the three totals there (polish.css .pt-final--pod).
       // The phone front is redrawn now and then, so the place is checked on every pass. On a computer: right under the header, as before.
@@ -355,6 +359,7 @@
       var status = !ended ? 'Preview only: these are today’s standings, not the final result. This card appears by itself at the finish, Sat Nov 28, 4:00 p.m. ET.'
         : !scoredAt ? 'The race ended at 4:00 p.m. ET. Final scoring is being done now; the figures below are from the last check-in.'
         : open ? 'Final scoring done ' + whenET(scoredAt) + '. ' + open + (open === 1 ? ' Sports bet is' : ' Sports bets are') + ' still open, so the Sports totals can still change. Until then this is the order at the finish.'
+        : !recorded ? 'Final scoring done ' + whenET(scoredAt) + '. The last bet has settled and its result is being added to the totals, so a Sports total can still change. Until then this is the order at the finish.'
         : 'Final. Scoring done ' + whenET(scoredAt) + (lastSettled > F_END ? '; the last open bet settled ' + whenET(lastSettled) : '') + '. Includes every penalty, refund, voided bet and settled bet. Nothing changes after this.';
       card.appendChild(mk('p', 'pt-fin-status' + (settled ? ' is-final' : ''), status));
       // Nov 24 (Gemini and ChatGPT asked for it on Nov 19): once the result is final the card names the final fingerprint and links to the

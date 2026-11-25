@@ -425,7 +425,16 @@ try:
             _bets += [b for bk in ((_rv.get('claude_allin') or {}).get('books') or {}).values() for b in bk.get('bets', [])]
             _bets += json.load(open(os.path.join(SRC, 'bets.json')))
             if _rv.get('models') and all(m in (_rv.get('final') or {}) for m in _rv['models']) and not any(b.get('status') == 'Open' for b in _bets):
-                _phase = 'final'
+                # Nov 25 (found in the finale rehearsal): "no bet open" is not yet "final" for Claude. The run that settles a late bet of
+                # Claude's writes the bet in its publish step; the runner records the value at its next pass. So the result is final only
+                # when each of Claude's ten races has its final value on record and the Sports one equals what its settled bets and fines
+                # add up to (the runner's own test, ops/rivals.py claude_finished). Until then: "finish", and the card does not say Final.
+                _cfeed = _rv.get('claude_feed', [])
+                _cfin = {x['experiment']: x['value'] for x in _cfeed if x.get('final')}
+                _mine = json.load(open(os.path.join(SRC, 'bets.json')))
+                _csp = 100000.0 + sum(float(b.get('result_cad') or 0) for b in _mine if b.get('status') != 'Open') - sum(float(x.get('amount') or 0) for x in _rv.get('claude_penalties', []))
+                if 'Sports' in _cfin and all(x['experiment'] in _cfin for x in _cfeed) and abs(_csp - float(_cfin['Sports'])) <= 0.005:
+                    _phase = 'final'
     except Exception as _e:
         print('share picture phase:', _e)
     if _phase != 'live':
@@ -1518,6 +1527,7 @@ data['refunds'] = [dict(x, model='claude', race='Sports') for x in r.get('claude
     [dict(x, model='claude', race='AllInSports') for x in ((((r.get('claude_allin') or {}).get('books') or {}).get('AllInSports') or {}).get('refunded_penalties', []))] + \
     [dict(x, model=_mid, race=_e) for _mid, _m in (r.get('models') or {}).items() for _e in ('Sports', 'AllInSports')
      for x in ((_m.get('books') or {}).get(_e) or {}).get('refunded_penalties', [])]
+data['finale'] = [{'phase': globals().get('_phase', 'live')}]   # live / finish / final: the builder's verdict on the whole record, for the Final result card (Nov 25)
 data['leader'] = LEADER   # the AI with the highest total profit (None when tied; the amount is never published before Nov 28); the page opens on the leader of the first race unless the viewer picked one
 try:
     data['price_audit'] = [json.load(open(os.path.join(SRC, 'price_audit.json')))]   # Claude's prices vs the feeds (ops/price_audit.py)

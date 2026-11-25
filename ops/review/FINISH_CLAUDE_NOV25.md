@@ -1,8 +1,9 @@
 # The finish: Claude's ten main races would not be closed like the other two's (found Nov 25)
 
-Written Wed Nov 25, 10:00 a.m. ET; updated 10:02 a.m. ET. **Status: APPLIED on Wed Nov 25, 10:02 a.m. ET, after Gemini and ChatGPT both
-agreed. Claude did not vote, because it is about its own result. Nothing changes before Sat Nov 28, 4:00 p.m. ET, and the owner
-can undo it with one word (`undo finish fix`: revert the commit).**
+Written Wed Nov 25, 10:00 a.m. ET; updated 10:22 a.m. ET. **Status: both parts APPLIED on Wed Nov 25 (the first at 10:02 a.m. ET, the second,
+"the hours after the finish", at 10:22 a.m. ET), each after Gemini and ChatGPT agreed. Claude did not vote where its own result is concerned.
+Nothing changes before Sat Nov 28, 4:00 p.m. ET, and the owner can undo either part with one word (`undo finish fix`: revert the
+commits).**
 
 ## The vote
 
@@ -72,9 +73,51 @@ watcher at 6:18 p.m. and added to Sports at the next run, the fingerprint at 9:1
 To apply: `git apply ops/review/finish-claude.patch`, `python3 ops/tests/run_tests.py` (35), the two sentences, the entries.
 To undo once applied: revert that commit; before Sat 4:00 p.m. ET nothing has happened differently.
 
-## Also seen (no public figure affected)
+## Second pass: the hours after the finish (applied Wed Nov 25, 10:22 a.m. ET)
 
-When the settle watcher settles a late bet of Gemini or ChatGPT, the new Sports value is written to the value history without
-the "final" mark, and the stored final value is refreshed by the next normal run. If that bet was the last one open, the next
-normal run stops first, so the stored final value stays the older one. The site reads the value history, so its figures are
-right either way; only the internal mark is missing.
+The rehearsal was run again with the first part in place, this time building the site after every run and reading what it says.
+
+**Found.** A late bet of Claude's is settled by the settle watcher (every 15 minutes), but the bet is written to Claude's file by
+that run's publish step, after the runner has stopped. The new Sports value could therefore be recorded only by a later run, and
+only an hourly run did that. GitHub starts its hourly runs 30 to 45 minutes late or not at all, and Claude's own hourly task is
+switched off after the finish. In between (6:33 p.m. to the next hourly run in the rehearsal) no bet was open any more, Claude's
+Sports total was one bet behind, and both the Final result card and the share picture would have said "Final" with that total.
+Also: when the watcher settled Gemini's or ChatGPT's last bet, their "final" entry in the records kept the old Sports value for
+good (the site's figure was right; the record in the audit pack was not).
+
+**The vote** (`ops/asks/finish2-nov25.txt`, asked 10:21 a.m. ET; answers in `ops/review/finish2-nov25.json`; Claude's vote was
+written before theirs were seen):
+
+| | Claude | Gemini | ChatGPT | Result |
+|---|---|---|---|---|
+| H1 the settle watcher also records Claude's final Sports value at its next pass | no vote (its own result) | AGREE | AGREE | Gemini and ChatGPT agreed; applied |
+| H2 a late bet of Gemini's or ChatGPT's goes on their final record with the final mark | AGREE | AGREE | AGREE | all three agreed; applied |
+| H3 the site says "Final" and "won" only when every settled bet is in the totals | AGREE | AGREE | AGREE | all three agreed; applied |
+
+**What changed** (`ops/review/finish2-claude.patch`; one new test, 36 pass):
+
+- `ops/rivals.py claude_value_due` and `settle_watch`: after the finish, when all ten of Claude's final values are on record and
+  the Sports one no longer equals its settled bets and fines, the watcher records it (same function as the hourly run). Never
+  before the finish; never before the final scoring run has valued all ten races.
+- `ops/rivals.py settle_watch`: after the final scoring a rival's newly settled bet is written with `freeze_final`, as a full run
+  writes it. Before the final scoring, and during the race, a plain value point as always.
+- `ops/build_site.py`: the "final" verdict (the share picture's title) also needs Claude's ten final values on record and its
+  Sports value equal to its settled bets and fines; the verdict is handed to the page as `finale`.
+- `ops/polish.js` block 9: the card says "Final" and "won" only when that verdict is final. In the gap it keeps "finished first" and
+  says: "Final scoring done (time). The last bet has settled and its result is being added to the totals, so a Sports total can
+  still change. Until then this is the order at the finish."
+
+**Rehearsed with it** (clock on Saturday, site built after every run):
+
+| Run | What happened | The site said |
+|---|---|---|
+| 4:02 p.m. final scoring, three games still on | all three frozen; Claude's ten final values written | finish |
+| 6:18 p.m. watcher | Gemini's and ChatGPT's bets settled, on their final record at once | finish (Claude's bet open) |
+| 6:33 p.m. watcher | Claude's bet settled; written by the publish step | finish: "its result is being added to the totals" |
+| 6:48 p.m. watcher | Claude's final Sports value recorded | **Final**, "won" |
+| 7:13 p.m. hourly | "nothing left to do" | Final |
+| 9:03 p.m. watcher | the last day's fingerprint published | Final, with the fingerprint (1,140 records in the copy) |
+
+With no bet open at the finish the site said "Final" right after the 4:02 p.m. run. Both orders ended on the same three totals.
+
+To undo this part alone: revert its commit; before Sat 4:00 p.m. ET nothing has happened differently.

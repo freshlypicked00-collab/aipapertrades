@@ -2028,6 +2028,14 @@ def settle_watch(state):
         mine = []
     waiting = [(mid, e, bk) for mid, e, bk in books if bk and any(due(b) for b in bk.get('bets', []))]
     if not waiting and not mine:
+        if claude_value_due(state):   # Nov 25: a late bet of Claude's was settled by an earlier run; its final Sports value is recorded now
+            try:
+                claude_feed_values(state, state.get('fx') or get_fx())
+                save_state(state)
+                print("settle watcher: Claude's final Sports value recorded")
+            except Exception as ex:
+                print('claude feed values failed', ex)
+            return
         print('settle watcher: no bet on a game that could have ended yet; nothing to do')
         return
     fx = state.get('fx') or get_fx()
@@ -2042,13 +2050,25 @@ def settle_watch(state):
             except Exception as ex:
                 print('telegram failed', ex)
         if done:
-            state['history'].append({'at': iso(), 'model': mid, 'experiment': e, 'value': value_book(e, bk, fx, [])})
+            v = value_book(e, bk, fx, [])
+            if NOW >= RACE_END and mid in state.get('final', {}):
+                # Nov 25: after the final scoring the new Sports value goes on the final record with the final mark, exactly as a full
+                # run writes it (freeze_final). Until now the watcher only added a plain value point, so when it settled an AI's last
+                # bet the "final" entry in the records kept the old Sports value for good: no later run looks again once no bet is open.
+                freeze_final(state, mid, [e], {e: v})
+            else:
+                state['history'].append({'at': iso(), 'model': mid, 'experiment': e, 'value': v})
         n += len(done)
     try:
         claude_allin(state, fx)   # Claude's High risk bets (and any High risk orders waiting)
     except Exception as ex:
         print('claude all-in failed', ex)
     shared_steps(state, fx, games=False)   # Claude's main-race bets settle in its fill step
+    try:
+        if claude_value_due(state):   # a bet of Claude's that an earlier run settled: its final Sports value (Nov 25)
+            claude_feed_values(state, fx)
+    except Exception as ex:
+        print('claude feed values failed', ex)
     save_state(state)
     print(f'settle watcher: settled {n} rival bet(s); Claude\'s checked too')
 
@@ -2283,6 +2303,28 @@ def claude_finished(state):
     except Exception as e:
         print('claude finished check failed', e)
         return True   # a fault in this check must never keep the runs going for ever
+
+
+def claude_value_due(state):
+    """After the finish: True when each of Claude's ten main races has its final value on record but the Sports one no longer equals what
+    its settled bets and fines add up to. That is the state a run leaves behind when it settles a late bet of Claude's: the bet is written
+    by that run's publish step, after the runner has stopped, so the value can only be recorded by a later run. The settle watcher
+    does it at its next pass (every 15 minutes), as it records Gemini's and ChatGPT's new Sports value at once; before Nov 25 only an
+    hourly run could, and GitHub starts those late or not at all. Never true before the finish, and never before the final scoring run
+    has valued all ten races (that run does them together with the other two's)."""
+    if NOW < RACE_END:
+        return False
+    try:
+        import claude_fill as CF
+        fin = {x['experiment']: x['value'] for x in state.get('claude_feed', []) if x.get('final')}
+        if not all(e in fin for e in CF.MAIN):
+            return False
+        fx = state.get('fx') or {'USDCAD': 1.0, 'USDCNY': 1.0}
+        sports = CF.claude_books(state, fx, state.get('claude_main') or {'done': [], 'results': [], 'codes': {}})[0]['Sports']
+        return abs(value_book('Sports', sports, fx, []) - float(fin['Sports'])) > 0.005
+    except Exception as e:
+        print('claude value check failed', e)
+        return False
 
 
 def claude_feed_values(state, fx):
