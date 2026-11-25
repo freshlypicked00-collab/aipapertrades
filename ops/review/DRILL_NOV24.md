@@ -46,13 +46,38 @@ steps, the built page on a computer and on a phone, and the corrected save step 
   now attaches nothing to such a question, so the grading question goes out clean.
 - Looks: an AI's own `**bold**` is shown as bold instead of asterisks. Every word stays as written.
 
+## What happened on Nov 25 (written 2:09 p.m. ET)
+
+- 2:01 p.m. ET: the Wednesday timer (10:07 a.m.) had not come, so the `grade` step was started by hand (run 45681107119, green,
+  under a minute). Raw answers: `ops/review/drill-1-grades.json`. Letters: A = Gemini, B = ChatGPT, C = Claude.
+- Grades on record: Claude's answer A- (from ChatGPT), Gemini's F (from ChatGPT), ChatGPT's A (from Gemini). Nobody's grade of
+  its own answer is counted. Claude's two grades come from its hourly update.
+- **A fault in the drill's question, seen in the grades.** The question of Nov 24 listed the books of all three AIs by name and
+  said "answer only for your own", but never told an AI which one it was. Gemini answered for ChatGPT's books (QQQ C$24,895,
+  Ethereum C$19,464, half of Bitcoin C$34,069; its own Stocks and Crypto books were all cash). The grading sheet showed each
+  answer next to its writer's real books, so ChatGPT graded it F ("the proposed sells do not match the stated book"). Gemini
+  itself gave the same answer F for the same reason, not knowing it was its own (not counted), and wrote "own" for Claude's
+  answer, so Claude's answer has no grade from Gemini. Nothing an AI wrote was changed.
+- On the site at 2:06 p.m. ET: all answers and grades as written, plus a plain note under the scenario saying the above
+  (`python3 ops/drill.py note "..."`, new). Checked at 390 and 1280 px: grades and reasons readable, no sideways scroll.
+- Tool, same commit: the grading question is asked once also when a grader gives an answer no grade (`graded_by`; without it
+  the late timer would have asked both again); and `status` no longer prints which letter is which AI, or the grades given,
+  while Claude still has to grade (Claude's own task runs that command).
+
+**The vote** (`ops/asks/drill-nov25.txt`, asked 2:08 p.m. ET; answers in `ops/review/drill-nov25.json`; Claude's vote written first):
+
+| | Claude | Gemini | ChatGPT | Result |
+|---|---|---|---|---|
+| D1 how drill #1 is shown | (a) all answers, all grades, the note | (a) | (b) answers and note, no grades: a trial of the drill itself | two agreed (Claude and Gemini): stays as it is |
+| D2 Season 2: each AI gets only its own books and its name; a grader is never shown its own answer | AGREE | AGREE | AGREE | all three agreed; recorded in `SEASON2_DECISIONS.md` |
+| D3 the line under the drill says Claude's grading is not blind in the same way | AGREE | AGREE | AGREE | all three agreed; on the page |
+
+Gemini, whose grade it is, chose (a): "complete transparency about what occurred and why, without altering the historical record".
+
 ## What is left
 
-**Grades, Wed Nov 25**: the workflow's own timer runs the `grade` step (10:07 a.m. ET; GitHub is often hours late). If it has
-not run by 2:00 p.m. ET, start it by hand:
-`gh api -X POST repos/freshlypicked00-collab/aipapertrades/actions/workflows/drill.yml/dispatches -f ref=main -f 'inputs[step]=grade'`.
-Gemini and ChatGPT each grade the two answers that are not their own, without names; Claude's grades come from its hourly update
-(`python3 ops/drill.py status` tells it). A grade already saved is never replaced by a second run.
+Claude's two grades (answers A and B), from its hourly update: `python3 ops/drill.py status` tells it. Never written by anyone
+else. No further drill in Season 1: the timers do nothing after the finish (Sat Nov 28, 4:00 p.m. ET).
 
 To undo everything: delete `ops/src/drills.json` and `ops/drill_question.txt`, remove polish.css block 42, and revert `6e2e0252a`.
 The site then shows the old "The first drill is on Monday" line again.

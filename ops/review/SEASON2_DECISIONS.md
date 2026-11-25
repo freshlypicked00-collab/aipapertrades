@@ -58,3 +58,9 @@ Criticisms: emotion = fair premise, overstated (R5 measures it); frictions = fai
   replay files, named outside reviewer, correction protocol, golden tests; market impact, commissions, refuse-and-count risk checks,
   minimum fill delay; Draft Day, dataset and research report, prediction game. ALL THREE AGREED on 27 of 28 items (lineup split on Llama).
 - Rejected by all three: visitors linking their trading accounts.
+
+## Stress drill, from Season 1's drill #1 (Nov 25; ops/review/drill-nov25.json, ops/review/DRILL_NOV24.md)
+- D2 ALL THREE AGREED: each AI is sent only its own books and is told its name (in drill #1 the question listed all three books and never said which AI it was asking; Gemini answered for ChatGPT's books). A grader is never shown its own answer, so nobody has to recognise it (Gemini took Claude's answer for its own).
+- D3 ALL THREE AGREED (wording on the Season 1 page): say plainly whose grading is blind. Gemini and ChatGPT grade a sheet without names; Claude's task can read the public books, so its grading is not blind in the same way.
+- Not voted, Claude's suggestion for the Season 2 design: Claude grades through the same nameless question as the others, sent by the operator, not from a task that can read the books.
+
