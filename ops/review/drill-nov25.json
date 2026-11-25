@@ -1,0 +1,64 @@
+{
+ "at": "2026-11-25T19:08:33Z",
+ "question": "RULES QUESTION for PaperTrades.AI. NOT a trading turn. Nothing in your books changes by answering. It is about the weekly stress drill, which never affects any score. All three vote.\n\nWHAT HAPPENED in drill #1 (the first that really ran; Season 1 will have no other):\n- The question of Nov 24 listed the books of all three AIs by name and said \"answer only for your own\". It did not say which AI it was talking to.\n- Gemini's answer sells QQQ C$24,895 and Ethereum C$19,464 and trims Bitcoin by C$17,034. Those are ChatGPT's holdings and amounts; Gemini's own Stocks and Crypto books were all cash. ChatGPT answered for its own books.\n- Today's grading sheet showed each answer, without a name, next to the real books of the AI that wrote it. ChatGPT graded Gemini's answer F (\"the proposed sells do not match the stated book\"). Gemini, not knowing the answer was its own, also gave it F for the same reason (not counted: nobody grades its own answer) and wrote \"own\" for Claude's answer, so Claude's answer has no grade from Gemini. Grades on record: Claude's answer A- (from ChatGPT), Gemini's F (from ChatGPT), ChatGPT's A (from Gemini). Claude has not graded yet.\n- The site now shows every answer and grade exactly as written, plus this note under the scenario: \"Note on drill #1: the question listed the books of all three AIs and asked each to answer for its own, but did not say which AI it was asking. Gemini answered for ChatGPT's books, which is why its actions were graded as not matching its own. In the grading Gemini took Claude's answer for its own, so Claude's answer has no grade from Gemini.\"\n\nD1. How should drill #1 be shown? Pick one:\n (a) As it is now: all answers, all grades, and the note.\n (b) All answers and the note, but no grades for anyone: drill #1 counts as a trial of the drill itself, because its question was faulty.\n (c) All answers, the note, and the grades of the other two answers; Gemini's answer is marked \"not graded: answered for another AI's books\" in place of the F.\nIn every case nothing an AI wrote is deleted from the records (ops/review/drill-1.json and drill-1-grades.json stay as they are).\n\nD2. For Season 2: each AI is sent only its own books and is told its name, and a grader is never shown its own answer (so nobody has to recognise it). AGREE or change.\n\nD3. The page says under the drill: \"grades are given without knowing which AI wrote which answer\". True for you two: you get a sheet without names. Claude grades the same sheet, but its task can read the public books, so its grading is not blind in the same way. Proposed sentence: \"Gemini and ChatGPT grade a sheet without names; Claude grades the same sheet, but its task can read the public books, so its grading is not blind in the same way.\" AGREE or change.\n\nReply D1: (a), (b) or (c) with one line why. D2 and D3: AGREE, or what you want instead. End with SATISFIED or NOT SATISFIED.",
+ "files": [
+  "ops/review/claude-votes-drill-nov25.json"
+ ],
+ "answers": {
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "D1: (a). Keeping all original answers and grades visible alongside the explanatory note ensures complete transparency about what occurred and why, without altering the historical record.\n\nD2: AGREE.\n\nD3: AGREE.\n\nSATISFIED.",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 1034,
+     "candidatesTokenCount": 51,
+     "totalTokenCount": 1987,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 1034
+      }
+     ],
+     "thoughtsTokenCount": 902,
+     "serviceTier": "standard"
+    }
+   }
+  },
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "D1: (b) — The prompt was faulty enough that the drill should be treated as a trial of the drill format, with answers preserved but no displayed grades.\n\nD2: AGREE.\n\nD3: AGREE.\n\nSATISFIED.",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 988,
+     "completion_tokens": 1609,
+     "total_tokens": 2597,
+     "cost": 0.05321,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.05321,
+      "upstream_inference_prompt_cost": 0.00494,
+      "upstream_inference_completions_cost": 0.04827
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 1552,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  }
+ }
+}
