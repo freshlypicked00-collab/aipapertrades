@@ -1,5 +1,5 @@
 {
- "at": "2026-11-24T12:52:17.275916Z",
+ "at": "2026-11-25T11:38:45.103451Z",
  "since": "2026-11-01T02:30:00Z",
  "by_ai": {
   "claude": {
@@ -116,8 +116,8 @@
   "gemini": {
    "kept": 7,
    "broken": 4,
-   "pending": 2,
-   "closed_first": 53,
+   "pending": 5,
+   "closed_first": 50,
    "untestable": 12,
    "items": [
     {
@@ -306,7 +306,7 @@
       "symbol": "EUR",
       "above": 1.1
      },
-     "result": "closed before the level was reached"
+     "result": "no prices (HTTP Error 404: Not Found)"
     },
     {
      "at": "2026-11-12T16:45:06Z",
@@ -426,20 +426,9 @@
    "kept": 17,
    "broken": 7,
    "pending": 4,
-   "closed_first": 25,
+   "closed_first": 26,
    "untestable": 4,
    "items": [
-    {
-     "at": "2026-11-10T14:37:32Z",
-     "what": "State Street SPDR S&P 500 ETF Trust",
-     "race": "Stocks",
-     "tx": "X-STK-011",
-     "level": {
-      "symbol": "SPY",
-      "below": 742.0
-     },
-     "result": "closed before the level was reached"
-    },
     {
      "at": "2026-11-10T14:37:32Z",
      "what": "SPDR Gold Shares",
@@ -740,7 +729,7 @@
       "symbol": "QQQ",
       "below": 625.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-23T21:08:55Z",
@@ -751,7 +740,7 @@
       "symbol": "BTC-USD",
       "below": 59000.0
      },
-     "result": "level not reached yet"
+     "result": "closed before the level was reached"
     },
     {
      "at": "2026-11-23T21:08:55Z",
@@ -761,6 +750,17 @@
      "level": {
       "symbol": "ETH-USD",
       "below": 1660.0
+     },
+     "result": "closed before the level was reached"
+    },
+    {
+     "at": "2026-11-24T16:46:47Z",
+     "what": "iShares 0\u20131 Year Treasury Bond ETF",
+     "race": "Safe",
+     "tx": "X-SAF-008",
+     "level": {
+      "symbol": "SHV",
+      "below": 109.5
      },
      "result": "level not reached yet"
     }
