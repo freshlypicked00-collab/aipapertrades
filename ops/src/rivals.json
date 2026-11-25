@@ -142684,6 +142684,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 106027.57
+  },
+  {
+   "at": "2026-11-25T17:57:32Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 88690.71
+  },
+  {
+   "at": "2026-11-25T17:57:32Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 86447.92
   }
  ],
  "takes": [
@@ -172142,8 +172154,8 @@
       "pcur": "USD",
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 623.73,
-      "priced_at": "2026-11-25T17:47:31Z",
+      "last": 625.65,
+      "priced_at": "2026-11-25T17:57:32Z",
       "hist": [
        [
         29886870,
@@ -175385,8 +175397,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 59577.0,
-      "priced_at": "2026-11-25T17:47:31Z",
+      "last": 59583.99,
+      "priced_at": "2026-11-25T17:57:32Z",
       "hist": [
        [
         29886870,
@@ -293703,34 +293715,6 @@
     "name": "Huatai-PineBridge CSI 300 ETF",
     "placed_at": "2026-11-24T07:09:02Z",
     "reason": "Replace the unrealistic 4.24 target with a full exit on a modest rebound because the China setup is weak and the contest is nearly over."
-   },
-   {
-    "id": "chatgpt-253",
-    "model": "chatgpt",
-    "experiment": "Stocks",
-    "symbol": "SQQQ",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 55.8,
-    "fraction": 1.0,
-    "name": "ProShares UltraPro Short QQQ",
-    "placed_at": "2026-11-25T17:47:31Z",
-    "reason": "I am lowering the SQQQ target so another afternoon Nasdaq leg lower becomes realized cash rather than an overstay into the holiday."
-   },
-   {
-    "id": "chatgpt-254",
-    "model": "chatgpt",
-    "experiment": "AllInTrading",
-    "symbol": "SQQQ",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 57.5,
-    "fraction": 1.0,
-    "name": "ProShares UltraPro Short QQQ",
-    "placed_at": "2026-11-25T17:47:31Z",
-    "reason": "The high-risk book can seek more upside than the main book, but a reachable target is better than waiting for a perfect collapse."
    }
   ],
   "claude": [
@@ -294155,7 +294139,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-25T17:47:31Z",
+  "at": "2026-11-25T17:57:32Z",
   "games": [
    {
     "id": "401921669",
@@ -294190,8 +294174,8 @@
     "away": "Miami Heat",
     "home": "Philadelphia 76ers",
     "start": "2026-11-25T22:00Z",
-    "away_ml": 105,
-    "home_ml": -125
+    "away_ml": 101,
+    "home_ml": -119
    },
    {
     "id": "401917182",
@@ -294655,26 +294639,6 @@
   ]
  },
  "stops_log": [
-  {
-   "at": "2026-10-30T19:44:20Z",
-   "model": "gemini",
-   "id": "gemini-6",
-   "experiment": "AllInTrading",
-   "name": "SPY Nov 20 $760 put",
-   "kind": "target",
-   "level": 20.0,
-   "result": "removed: the position is no longer held"
-  },
-  {
-   "at": "2026-10-31T00:25:10Z",
-   "model": "chatgpt",
-   "id": "chatgpt-10",
-   "experiment": "AllInTrading",
-   "name": "Solana USD",
-   "kind": "stop",
-   "level": 90.0,
-   "result": "removed: the position is no longer held"
-  },
   {
    "at": "2026-10-31T00:25:10Z",
    "model": "chatgpt",
@@ -296654,6 +296618,26 @@
    "kind": "stop",
    "level": 51.9,
    "result": "filled: Sell ProShares UltraPro Short QQQ C$44,434 at 51.36"
+  },
+  {
+   "at": "2026-11-25T17:57:32Z",
+   "model": "chatgpt",
+   "id": "chatgpt-253",
+   "experiment": "Stocks",
+   "name": "ProShares UltraPro Short QQQ",
+   "kind": "target",
+   "level": 55.8,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-25T17:57:32Z",
+   "model": "chatgpt",
+   "id": "chatgpt-254",
+   "experiment": "AllInTrading",
+   "name": "ProShares UltraPro Short QQQ",
+   "kind": "target",
+   "level": 57.5,
+   "result": "removed: the position is no longer held"
   }
  ],
  "forecasts": [
