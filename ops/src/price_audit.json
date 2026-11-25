@@ -1,13 +1,13 @@
 {
- "at": "2026-11-25T07:19:17Z",
+ "at": "2026-11-25T08:21:24Z",
  "since": "2026-10-28T17:45:00Z",
  "summary": {
-  "ok": 2326,
-  "flag": 2,
-  "no_data": 292,
-  "no_feed": 282,
+  "ok": 2328,
+  "flag": 3,
+  "no_data": 293,
+  "no_feed": 283,
   "backup_pending": 0,
-  "backup_wrong": 1
+  "backup_wrong": 2
  },
  "rows": [
   {
@@ -41096,6 +41096,85 @@
    "holding": "Will there be no change in Fed interest rates after the December 2026 meeting? (No)",
    "action": "",
    "claude": 0.9555,
+   "status": "no_feed",
+   "note": "no matching feed symbol"
+  },
+  {
+   "kind": "value",
+   "at": "2026-11-25T02:09:10-05:00",
+   "holding": "CSI 300 ETF",
+   "action": "",
+   "claude": 4.002,
+   "feed": "510300.SS",
+   "feed_low": 3.97,
+   "feed_high": 3.97,
+   "basis": "last regular-session close (Nov 25 07:00 UTC)",
+   "gap_pct": 0.8,
+   "gap_abs": null,
+   "tolerance": "0.5%",
+   "status": "flag",
+   "backup": {
+    "gemini": {
+     "verdict": "feed_wrong",
+     "note": "Trading data for November 25 shows the price was around 4.002, proving Claude is correct and the feed's 3.97 is inaccurate.",
+     "at": "2026-11-25T08:20:59Z",
+     "price": 4.002
+    },
+    "chatgpt": {
+     "verdict": "claude_wrong",
+     "note": "Independent quote data shows 510300 around 3.970 near the Nov 25 close; 4.002 appears stale or earlier intraday.",
+     "at": "2026-11-25T08:21:24Z",
+     "price": 3.97
+    }
+   }
+  },
+  {
+   "kind": "value",
+   "at": "2026-11-25T02:09:10-05:00",
+   "holding": "Democrats win the Senate (Yes)",
+   "action": "",
+   "claude": 0.9995,
+   "feed": "Polymarket",
+   "status": "no_data",
+   "note": "the feed has no data for that time"
+  },
+  {
+   "kind": "value",
+   "at": "2026-11-25T02:09:10-05:00",
+   "holding": "Japanese yen",
+   "action": "",
+   "claude": 0.00627924,
+   "feed": "JPY=X",
+   "feed_low": 0.006277,
+   "feed_high": 0.00628,
+   "basis": "1-minute bars within 5 minutes",
+   "gap_pct": 0.0,
+   "gap_abs": null,
+   "tolerance": "0.5%",
+   "status": "ok",
+   "note": "US$ per yen (the feed quotes yen per US$)"
+  },
+  {
+   "kind": "value",
+   "at": "2026-11-25T02:09:10-05:00",
+   "holding": "SSE Dividend ETF",
+   "action": "",
+   "claude": 3.374,
+   "feed": "510880.SS",
+   "feed_low": 3.367,
+   "feed_high": 3.367,
+   "basis": "last regular-session close (Nov 25 07:00 UTC)",
+   "gap_pct": 0.207,
+   "gap_abs": null,
+   "tolerance": "0.5%",
+   "status": "ok"
+  },
+  {
+   "kind": "value",
+   "at": "2026-11-25T02:09:10-05:00",
+   "holding": "Will there be no change in Fed interest rates after the December 2026 meeting? (No)",
+   "action": "",
+   "claude": 0.9545,
    "status": "no_feed",
    "note": "no matching feed symbol"
   }
