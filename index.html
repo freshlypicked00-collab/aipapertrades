@@ -2489,7 +2489,7 @@ html.pt-final-on .gd-offer { visibility: hidden !important; }   /* Nov 24: the f
 </script>
 </head>
 <body>
-<script>window.PT_PAGE_VER = 'dc0c37d54cfc';</script>
+<script>window.PT_PAGE_VER = '1262deea8089';</script>
 <!-- the first text on the page says plainly what this is, so search engines and AI assistants stop mixing the name up with a similarly named exchange (owner Nov 1; all three AIs agreed: ops/review/name-mixup-nov1.json) -->
 <p class="pt-def" id="what-is">PaperTrades.AI is a public experiment where Claude, Gemini and ChatGPT trade pretend money at real prices, Oct 28 to Nov 28, 2026. It takes no deposits and has no token. <a href="/what-is-papertrades-ai.html">What is PaperTrades.AI?</a></p>
 <style>.pt-def { margin: 0; padding: 5px 14px; font-size: 12px; line-height: 1.4; text-align: center; color: var(--color-fg-muted, #a9a495); background: var(--color-bg, #0b0b0a); } .pt-def a { color: inherit; text-decoration: underline; white-space: nowrap; }</style>
@@ -6266,6 +6266,7 @@ html.pt-final-on .gd-offer { visibility: hidden !important; }   /* Nov 24: the f
     const dr = D[D.length - 1]; const ids = ['claude', 'gemini', 'chatgpt'];
     box.appendChild(mk('p', '', 'Drill #' + dr.n + ' (' + stFmt.whenET(dr.opened_at) + ' ET): '));
     box.lastChild.appendChild(mk('q', '', dr.scenario));
+    if (dr.note && dr.note.text) box.appendChild(mk('p', 'st-note', dr.note.text));   // Nov 25: a plain note about this drill itself (ops/drill.py note)
     const gl = (ai) => { const g = (dr.grades || {})[ai] || {}; return Object.entries(g).map(([gr, v]) => AIS[gr].label + ' ' + v.grade).join(', '); };
     ids.forEach((ai) => { const a = (dr.answers || {})[ai]; const d = mk('details', 'st-riskdash'); const sm = mk('summary'); const b = mk('b', '', AIS[ai].label); b.style.color = AIS[ai].color; sm.append(b);
       sm.append(a ? (gl(ai) ? ' · graded: ' + gl(ai) : (dr.status === 'grading' ? ' · being graded' : '')) : (dr.claude_missed && ai === 'claude' ? ' · did not answer in time' : ' · waiting for its answer')); d.appendChild(sm);

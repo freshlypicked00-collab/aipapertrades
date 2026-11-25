@@ -174,7 +174,12 @@ def cmd_grades(path):
     dr = d[-1]
     a = json.load(open(path)).get('answers', {})
     for grader in ('gemini', 'chatgpt'):
-        _store_grades(dr, grader, _parse((a.get(grader) or {}).get('answer')))
+        g = _parse((a.get(grader) or {}).get('answer'))
+        _store_grades(dr, grader, g)
+        # Nov 25: who has answered the grading question. In drill #1 Gemini wrote "own" for an answer that was not its own, so that
+        # answer has no grade from Gemini; without this list the step would have asked both again at its next run.
+        if g and grader not in dr.setdefault('graded_by', []):
+            dr['graded_by'].append(grader)
     save(d)
     print('grades:', {k: list(v) for k, v in dr['grades'].items()})
 
@@ -192,13 +197,26 @@ def cmd_claude_grade(js):
 
 
 def cmd_is_graded():
-    """Exit code 0 when Gemini and ChatGPT have both graded every answer that is not their own in the newest drill.
+    """Exit code 0 when Gemini and ChatGPT have both answered the grading question of the newest drill (or, for a record from before
+    Nov 25, have a grade on every answer that is not their own).
     Nov 24: the grade step asks nobody a second time (the timer and a start by hand can both come on the same day)."""
     d = load()
     dr = d[-1] if d else None
-    ok = bool(dr) and bool(dr.get('answers')) and all(g in (dr.get('grades') or {}).get(ai, {}) for g in ('gemini', 'chatgpt') for ai in dr['answers'] if ai != g)
+    ok = bool(dr) and bool(dr.get('answers')) and all(
+        g in (dr.get('graded_by') or []) or all(g in (dr.get('grades') or {}).get(ai, {}) for ai in dr['answers'] if ai != g) for g in ('gemini', 'chatgpt'))
     print('graded' if ok else 'not graded yet')
     sys.exit(0 if ok else 1)
+
+
+def cmd_note(text):
+    """Nov 25: a short plain note about the newest drill, shown on the site under its scenario (what went wrong with the drill itself,
+    for example). It never changes an answer or a grade."""
+    d = load()
+    if not d:
+        sys.exit('no drill')
+    d[-1]['note'] = {'at': now().isoformat().replace('+00:00', 'Z'), 'text': text.strip()[:600]}
+    save(d)
+    print('note saved on drill #', d[-1]['n'])
 
 
 def cmd_status():
@@ -216,4 +234,4 @@ def cmd_status():
 if __name__ == '__main__':
     c = sys.argv[1] if len(sys.argv) > 1 else 'status'
     {'open': cmd_open, 'grade_q': cmd_grade_q, 'status': cmd_status, 'is_graded': cmd_is_graded}.get(c, lambda: None)() if c in ('open', 'grade_q', 'status', 'is_graded') else \
-        {'collect': cmd_collect, 'claude': cmd_claude, 'grades': cmd_grades, 'claude_grade': cmd_claude_grade}[c](sys.argv[2])
+        {'collect': cmd_collect, 'claude': cmd_claude, 'grades': cmd_grades, 'claude_grade': cmd_claude_grade, 'note': cmd_note}[c](sys.argv[2])
