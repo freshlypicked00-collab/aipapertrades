@@ -14811,28 +14811,8 @@
    "books": {
     "Stocks": {
      "cur": "CAD",
-     "cash": 83326.28467792628,
-     "positions": {
-      "SQQQ": {
-       "qty": 191.52909583934004,
-       "entry": 55.025,
-       "pcur": "USD",
-       "name": "ProShares UltraPro Short QQQ",
-       "opened_at": "2026-11-25T14:39:20Z",
-       "last": 55.025,
-       "priced_at": "2026-11-25T14:39:20Z",
-       "hist": [
-        [
-         29926950,
-         55.02
-        ],
-        [
-         29926961,
-         55.060001
-        ]
-       ]
-      }
-     }
+     "cash": 98349.25288540515,
+     "positions": {}
     },
     "Crypto": {
      "cur": "CAD",
@@ -25976,28 +25956,8 @@
     },
     "AllInTrading": {
      "cur": "CAD",
-     "cash": 32063.21309231779,
-     "positions": {
-      "SQQQ": {
-       "qty": 510.74425557157343,
-       "entry": 55.025,
-       "pcur": "USD",
-       "name": "ProShares UltraPro Short QQQ",
-       "opened_at": "2026-11-25T14:39:20Z",
-       "last": 55.025,
-       "priced_at": "2026-11-25T14:39:20Z",
-       "hist": [
-        [
-         29926950,
-         55.02
-        ],
-        [
-         29926961,
-         55.057999
-        ]
-       ]
-      }
-     }
+     "cash": 72124.46164559478,
+     "positions": {}
     },
     "AllInSports": {
      "cur": "CAD",
@@ -49025,6 +48985,64 @@
     "session_start": "2026-11-25T14:30:00Z",
     "sha256": "b7ea1fc5b984f6b3"
    }
+  },
+  {
+   "at": "2026-11-25T14:46:08Z",
+   "model": "chatgpt",
+   "experiment": "Stocks",
+   "action": "Sell",
+   "symbol": "SQQQ",
+   "outcome": null,
+   "name": "ProShares UltraPro Short QQQ",
+   "price": 55.117,
+   "pcur": "USD",
+   "qty": 191.52909583934004,
+   "amount": 15022.97,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4231,
+    "USDCNY": 6.6604
+   },
+   "reason": "Target order reached: ProShares UltraPro Short QQQ rose to 55.117 (level 53.5), filled at the live price by the race runner. Set because: If Nasdaq weakness accelerates into the holiday close, I want to bank the gain rather than overstay a leveraged inverse ETF.",
+   "wrong_if": "",
+   "quote_at": "2026-11-25T14:46:12Z",
+   "quote": {
+    "source": "Yahoo Finance chart (query1)",
+    "fetched_at": "2026-11-25T14:46:12Z",
+    "quote_at": "2026-11-25T14:46:12Z",
+    "session_start": "2026-11-25T14:30:00Z",
+    "sha256": "19ba47c3c4020980"
+   },
+   "stop": "chatgpt-246"
+  },
+  {
+   "at": "2026-11-25T14:46:08Z",
+   "model": "chatgpt",
+   "experiment": "AllInTrading",
+   "action": "Sell",
+   "symbol": "SQQQ",
+   "outcome": null,
+   "name": "ProShares UltraPro Short QQQ",
+   "price": 55.117,
+   "pcur": "USD",
+   "qty": 510.74425557157343,
+   "amount": 40061.25,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4231,
+    "USDCNY": 6.6604
+   },
+   "reason": "Target order reached: ProShares UltraPro Short QQQ rose to 55.117 (level 55), filled at the live price by the race runner. Set because: A move to this level would be a strong same-day payoff in the high-risk book, and I would rather realize it before Thanksgiving illiquidity.",
+   "wrong_if": "",
+   "quote_at": "2026-11-25T14:46:12Z",
+   "quote": {
+    "source": "Yahoo Finance chart (query1)",
+    "fetched_at": "2026-11-25T14:46:12Z",
+    "quote_at": "2026-11-25T14:46:12Z",
+    "session_start": "2026-11-25T14:30:00Z",
+    "sha256": "19ba47c3c4020980"
+   },
+   "stop": "chatgpt-248"
   }
  ],
  "history": [
@@ -141421,6 +141439,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 106027.57
+  },
+  {
+   "at": "2026-11-25T14:46:08Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 87243.96
+  },
+  {
+   "at": "2026-11-25T14:46:08Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 86447.92
   }
  ],
  "takes": [
@@ -169965,8 +169995,8 @@
       "pcur": "USD",
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 611.99,
-      "priced_at": "2026-11-25T14:39:20Z",
+      "last": 609.78,
+      "priced_at": "2026-11-25T14:46:08Z",
       "hist": [
        [
         29886870,
@@ -173188,8 +173218,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 57773.35,
-      "priced_at": "2026-11-25T14:39:20Z",
+      "last": 57414.14,
+      "priced_at": "2026-11-25T14:46:08Z",
       "hist": [
        [
         29886870,
@@ -290201,20 +290231,6 @@
     "reason": "If the inverse Nasdaq ETF loses roughly five percent from the entry area, the bearish momentum thesis is not working and I want out."
    },
    {
-    "id": "chatgpt-246",
-    "model": "chatgpt",
-    "experiment": "Stocks",
-    "symbol": "SQQQ",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 53.5,
-    "fraction": 1.0,
-    "name": "ProShares UltraPro Short QQQ",
-    "placed_at": "2026-11-25T14:39:20Z",
-    "reason": "If Nasdaq weakness accelerates into the holiday close, I want to bank the gain rather than overstay a leveraged inverse ETF."
-   },
-   {
     "id": "chatgpt-247",
     "model": "chatgpt",
     "experiment": "AllInTrading",
@@ -290227,20 +290243,6 @@
     "name": "ProShares UltraPro Short QQQ",
     "placed_at": "2026-11-25T14:39:20Z",
     "reason": "High risk does not mean holding a leveraged inverse ETF after the setup fails, so this stop protects the remaining side-race capital."
-   },
-   {
-    "id": "chatgpt-248",
-    "model": "chatgpt",
-    "experiment": "AllInTrading",
-    "symbol": "SQQQ",
-    "outcome": null,
-    "kind": "target",
-    "direction": "above",
-    "level": 55.0,
-    "fraction": 1.0,
-    "name": "ProShares UltraPro Short QQQ",
-    "placed_at": "2026-11-25T14:39:20Z",
-    "reason": "A move to this level would be a strong same-day payoff in the high-risk book, and I would rather realize it before Thanksgiving illiquidity."
    }
   ],
   "claude": [
@@ -290665,7 +290667,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-25T14:39:20Z",
+  "at": "2026-11-25T14:46:08Z",
   "games": [
    {
     "id": "401920428",
@@ -290727,8 +290729,8 @@
     "away": "BYU Cougars",
     "home": "Providence Friars",
     "start": "2026-11-25T22:30Z",
-    "away_ml": -162,
-    "home_ml": 136
+    "away_ml": -155,
+    "home_ml": 130
    },
    {
     "id": "401909318",
@@ -290808,8 +290810,8 @@
     "away": "New Jersey Devils",
     "home": "Columbus Blue Jackets",
     "start": "2026-11-26T00:00Z",
-    "away_ml": -162,
-    "home_ml": 136
+    "away_ml": -155,
+    "home_ml": 130
    },
    {
     "id": "401909568",
@@ -291087,8 +291089,8 @@
     "away": "Denver Broncos",
     "home": "Pittsburgh Steelers",
     "start": "2026-11-27T20:00Z",
-    "away_ml": -196,
-    "home_ml": 164
+    "away_ml": -197,
+    "home_ml": 165
    },
    {
     "id": "401869930",
@@ -291174,26 +291176,6 @@
   ]
  },
  "stops_log": [
-  {
-   "at": "2026-10-30T18:14:52Z",
-   "model": "claude",
-   "id": "claude-4",
-   "experiment": "Metals",
-   "name": "Gold",
-   "kind": "stop",
-   "level": 3887.75,
-   "result": "filled: Sell Gold C$28,697 at 3,887.7"
-  },
-  {
-   "at": "2026-10-30T18:36:02Z",
-   "model": "claude",
-   "id": "claude-2",
-   "experiment": "Stocks",
-   "name": "QQQ",
-   "kind": "stop",
-   "level": 685.0,
-   "result": "filled: Sell QQQ C$18,859 at 684.97"
-  },
   {
    "at": "2026-10-30T18:44:25Z",
    "model": "chatgpt",
@@ -293173,6 +293155,26 @@
    "kind": "stop",
    "level": 45.0,
    "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-25T14:46:08Z",
+   "model": "chatgpt",
+   "id": "chatgpt-246",
+   "experiment": "Stocks",
+   "name": "ProShares UltraPro Short QQQ",
+   "kind": "target",
+   "level": 53.5,
+   "result": "filled: Sell ProShares UltraPro Short QQQ C$15,023 at 55.117"
+  },
+  {
+   "at": "2026-11-25T14:46:08Z",
+   "model": "chatgpt",
+   "id": "chatgpt-248",
+   "experiment": "AllInTrading",
+   "name": "ProShares UltraPro Short QQQ",
+   "kind": "target",
+   "level": 55.0,
+   "result": "filled: Sell ProShares UltraPro Short QQQ C$40,061 at 55.117"
   }
  ],
  "forecasts": [
@@ -298466,7 +298468,9 @@
   "claude|Sports|2026-11-25T05:22:00Z|Bet|S28": "C-SPT-055",
   "claude|AllInSports|2026-11-25T06:16:59Z|Lost|C24": "C-AIS-051",
   "chatgpt|AllInTrading|2026-11-25T14:39:20Z|Buy|SQQQ": "X-AIT-047",
-  "chatgpt|Stocks|2026-11-25T14:39:20Z|Buy|SQQQ": "X-STK-035"
+  "chatgpt|Stocks|2026-11-25T14:39:20Z|Buy|SQQQ": "X-STK-035",
+  "chatgpt|AllInTrading|2026-11-25T14:46:08Z|Sell|SQQQ": "X-AIT-048",
+  "chatgpt|Stocks|2026-11-25T14:46:08Z|Sell|SQQQ": "X-STK-036"
  },
  "txseq": {
   "X-CRY": 42,
@@ -298475,7 +298479,7 @@
   "X-MET": 11,
   "X-OPT": 22,
   "X-SAF": 8,
-  "X-STK": 35,
+  "X-STK": 36,
   "G-CRY": 30,
   "G-CUR": 36,
   "G-ENE": 33,
@@ -298490,7 +298494,7 @@
   "C-MET": 6,
   "C-SAF": 3,
   "C-STK": 7,
-  "X-AIT": 47,
+  "X-AIT": 48,
   "C-AIT": 2,
   "G-AIS": 169,
   "G-AIT": 55,
