@@ -64,8 +64,8 @@ a 15-minute-old price would be put right the same way, so what could be gained f
 - The rule text each AI reads says so, and a notice tells them once. The independent fill check uses the same limit.
 - One sentence in the public Rules list.
 
-Race tests with it: 34 of 34 (two new; run again Tue Nov 24, 2:50 p.m. ET on the current code, which has 32 of its own since
-that afternoon; the patch still applies cleanly). Simulated on the real books for Tuesday's session with a 15-minute-old price of 4.02:
+Race tests with it: 38 of 38 (two new; run again Wed Nov 25, 10:25 a.m. ET on the current code, which has 36 of its own since
+the two finish fixes of that morning; the patch still applies cleanly). Simulated on the real books for Tuesday's session with a 15-minute-old price of 4.02:
 ChatGPT's waiting stop fills (32,000 CSI 300 ETF sold, about US$19,300), nothing else moves. As the code is today, the same run fills
 nothing.
 
