@@ -290215,34 +290215,6 @@
     "name": "Huatai-PineBridge CSI 300 ETF",
     "placed_at": "2026-11-24T07:09:02Z",
     "reason": "Replace the unrealistic 4.24 target with a full exit on a modest rebound because the China setup is weak and the contest is nearly over."
-   },
-   {
-    "id": "chatgpt-245",
-    "model": "chatgpt",
-    "experiment": "Stocks",
-    "symbol": "SQQQ",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 46.25,
-    "fraction": 1.0,
-    "name": "ProShares UltraPro Short QQQ",
-    "placed_at": "2026-11-25T14:39:20Z",
-    "reason": "If the inverse Nasdaq ETF loses roughly five percent from the entry area, the bearish momentum thesis is not working and I want out."
-   },
-   {
-    "id": "chatgpt-247",
-    "model": "chatgpt",
-    "experiment": "AllInTrading",
-    "symbol": "SQQQ",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 46.25,
-    "fraction": 1.0,
-    "name": "ProShares UltraPro Short QQQ",
-    "placed_at": "2026-11-25T14:39:20Z",
-    "reason": "High risk does not mean holding a leveraged inverse ETF after the setup fails, so this stop protects the remaining side-race capital."
    }
   ],
   "claude": [
@@ -291176,26 +291148,6 @@
   ]
  },
  "stops_log": [
-  {
-   "at": "2026-10-30T18:44:25Z",
-   "model": "chatgpt",
-   "id": "chatgpt-27",
-   "experiment": "Options",
-   "name": "SPY Nov 27 $760 put",
-   "kind": "target",
-   "level": 17.5,
-   "result": "filled: Sell SPY Nov 27 $760 put C$7,369 at 17.6"
-  },
-  {
-   "at": "2026-10-30T19:28:05Z",
-   "model": "gemini",
-   "id": "gemini-27",
-   "experiment": "Options",
-   "name": "SPY Nov 20 $760 put",
-   "kind": "stop",
-   "level": 15.0,
-   "result": "filled: Sell SPY Nov 20 $760 put C$20,363 at 14.59"
-  },
   {
    "at": "2026-10-30T19:28:05Z",
    "model": "gemini",
@@ -293175,6 +293127,26 @@
    "kind": "target",
    "level": 55.0,
    "result": "filled: Sell ProShares UltraPro Short QQQ C$40,061 at 55.117"
+  },
+  {
+   "at": "2026-11-25T14:48:12Z",
+   "model": "chatgpt",
+   "id": "chatgpt-245",
+   "experiment": "Stocks",
+   "name": "ProShares UltraPro Short QQQ",
+   "kind": "stop",
+   "level": 46.25,
+   "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-25T14:48:12Z",
+   "model": "chatgpt",
+   "id": "chatgpt-247",
+   "experiment": "AllInTrading",
+   "name": "ProShares UltraPro Short QQQ",
+   "kind": "stop",
+   "level": 46.25,
+   "result": "removed: the position is no longer held"
   }
  ],
  "forecasts": [
