@@ -840,5 +840,118 @@ def test_the_last_fingerprints_are_published_after_the_finish():
     finally:
         FP._j, SL.freeze, R.NOW, R.tg = saved
 
+
+# ---- Nov 25 (finale rehearsal; ops/review/FINISH_CLAUDE_NOV25.md): after the finish Claude's ten main races are closed by the same rules
+# as Gemini's and ChatGPT's. Before, the runner stopped everything for Claude at 4:00 p.m.: its public values stayed those of the last
+# check-in before the finish, a bet on a game still being played was never settled, and the runs stopped while it was still open. ----
+def test_claudes_final_values_are_recorded_after_the_finish_like_the_other_twos():
+    import claude_fill as CF
+    saved = R.NOW, CF.claude_books, R.quote
+    try:
+        px = {'QQQ': 500.0}
+        R.quote = lambda exp, sym, outcome=None: (px[sym], 'USD', {})
+        bets = [{'status': 'Won', 'result': 1000.0}, {'status': 'Open', 'result': 0.0, 'stake': 3000.0}]
+        pens = [{'amount': 500.0}]
+
+        def books(state, fx, cm):
+            return ({'Stocks': {'cur': 'CAD', 'cash': 50000.0, 'positions': {'QQQ': {'qty': 100.0, 'entry': 400.0, 'pcur': 'USD', 'last': 400.0, 'hist': []}}},
+                     'Sports': {'cur': 'CAD', 'cash': 0.0, 'positions': {}, 'bets': [dict(b) for b in bets], 'penalties': [dict(x) for x in pens]}},
+                    {('Stocks', 'QQQ'): 'Invesco QQQ'})
+        CF.claude_books = books
+        fx = {'USDCAD': 1.4, 'USDCNY': 7.0}
+        state = {'claude_feed': []}
+        u = lambda t: datetime.fromisoformat(t).replace(tzinfo=timezone.utc)
+        # before the finish: one row per race at every check-in, never marked final
+        R.NOW = u('2026-11-28T20:47:00')
+        R.claude_feed_values(state, fx)
+        assert [(x['experiment'], x['value'], x.get('final')) for x in state['claude_feed']] == [('Stocks', 120000.0, None), ('Sports', 100500.0, None)], state['claude_feed']
+        # the first run after the finish: one final row per race at that run's prices, and the last day's fine counts
+        px['QQQ'] = 510.0
+        pens.append({'amount': 500.0})
+        R.NOW = u('2026-11-28T21:06:00')
+        R.claude_feed_values(state, fx)
+        fin = [(x['experiment'], x['value']) for x in state['claude_feed'] if x.get('final')]
+        assert fin == [('Stocks', 121400.0), ('Sports', 100000.0)], fin
+        # later prices change nothing: no new row
+        px['QQQ'] = 600.0
+        R.NOW = u('2026-11-28T22:13:00')
+        R.claude_feed_values(state, fx)
+        assert len(state['claude_feed']) == 4, state['claude_feed']
+        # a bet on a game that started before the finish settles: Sports alone gets a new final row
+        bets[1].update(status='Lost', result=-3000.0)
+        R.NOW = u('2026-11-28T23:40:00')
+        R.claude_feed_values(state, fx)
+        fin = [(x['experiment'], x['value']) for x in state['claude_feed'] if x.get('final')]
+        assert fin == [('Stocks', 121400.0), ('Sports', 100000.0), ('Sports', 97000.0)], fin
+        R.claude_feed_values(state, fx)
+        assert len(state['claude_feed']) == 5
+    finally:
+        R.NOW, CF.claude_books, R.quote = saved
+
+
+def test_claudes_bets_still_settle_after_the_finish():
+    import claude_fill as CF
+    saved = R.NOW, CF._j, CF.BATCH, R.settle_bets, CF.cutover, CF.eng_bet
+    tmpd = tempfile.mkdtemp()
+    try:
+        CF.BATCH = os.path.join(tmpd, 'batch.json')
+        rows = [{'bet': 'S90', 'status': 'Open', 'game': '401'}, {'bet': 'S91', 'status': 'Open', 'game': '402'},
+                {'bet': 'S80', 'status': 'Won', 'game': '300'}, {'bet': 'S70', 'status': 'Open'}]
+        CF._j = lambda name, default=None: rows if name == 'bets' else ([] if default is None else default)
+        CF.eng_bet = lambda x: {'id': x['bet'], 'status': 'Open', 'game': x['game'], 'stake': 3000.0, 'to_win': 2000.0, 'pick': 'home'}
+
+        def settle(mid, book, state, exp='Sports'):   # only the game of S90 is over
+            b = book['bets'][0]
+            if b['game'] != '401':
+                return []
+            b.update(status='Won', result=2000.0, final='Away 1, Home 3')
+            t = {'at': 'x', 'model': mid, 'experiment': exp, 'action': 'Won', 'symbol': b['id'], 'amount': 2000.0}
+            state['trades'].append(t)
+            return [t]
+        R.settle_bets = settle
+        CF.cutover = lambda: datetime(2026, 11, 1, tzinfo=timezone.utc)
+        R.NOW = datetime(2026, 11, 28, 23, 18, tzinfo=timezone.utc)
+        state = {}
+        fx = {'USDCAD': 1.4, 'USDCNY': 7.0}
+        CF.process(state, fx)
+        batch = json.load(open(CF.BATCH))
+        assert batch['fills'] == [] and batch['closing'] == [], batch
+        assert batch['settle'] == [{'bet': 'S90', 'status': 'Won', 'result_cad': 2000.0, 'final': 'Away 1, Home 3'}], batch['settle']
+        assert 'claude_main' not in state, 'after the finish no order and no stop of Claude is looked at'
+        os.remove(CF.BATCH)
+        rows[0]['status'] = 'Won'
+        CF.process(state, fx)   # no game has finished since: nothing to publish
+        assert not os.path.exists(CF.BATCH)
+    finally:
+        R.NOW, CF._j, CF.BATCH, R.settle_bets, CF.cutover, CF.eng_bet = saved
+        shutil.rmtree(tmpd, ignore_errors=True)
+
+
+def test_the_runs_go_on_until_claudes_races_are_finished_too():
+    import inspect
+    import claude_fill as CF
+    saved = CF._j, CF.claude_books, CF.MAIN
+    try:
+        CF.MAIN = ['Stocks', 'Sports']
+        rows = [{'bet': 'S90', 'status': 'Open', 'game': '401'}]
+        CF._j = lambda name, default=None: rows if name == 'bets' else ([] if default is None else default)
+        sports = {'cur': 'CAD', 'cash': 0.0, 'positions': {}, 'bets': [{'status': 'Won', 'result': 1000.0}], 'penalties': []}
+        CF.claude_books = lambda state, fx, cm: ({'Stocks': {'cur': 'CAD', 'cash': 1.0, 'positions': {}}, 'Sports': sports}, {})
+        st = {'claude_feed': [{'experiment': 'Stocks', 'value': 1.0, 'final': True}, {'experiment': 'Sports', 'value': 101000.0, 'final': True}]}
+        assert R.claude_finished(st) is False, 'a bet on a game is still open'
+        rows[0]['status'] = 'Won'
+        assert R.claude_finished(st) is True
+        sports['bets'].append({'status': 'Lost', 'result': -3000.0})
+        assert R.claude_finished(st) is False, 'settled, but the final Sports value is not on record yet'
+        st['claude_feed'].append({'experiment': 'Sports', 'value': 98000.0, 'final': True})
+        assert R.claude_finished(st) is True
+        assert R.claude_finished({'claude_feed': [x for x in st['claude_feed'] if x['experiment'] == 'Sports']}) is False, 'a race without its final value'
+        rows.append({'bet': 'S70', 'status': 'Open'})   # a bet with no game on record cannot be settled by the runner: it must not keep the runs going
+        assert R.claude_finished(st) is True
+        src = inspect.getsource(R.main)
+        assert 'and claude_finished(state)' in src[:src.index('nothing left to do')], 'the early stop must wait for Claude too'
+    finally:
+        CF._j, CF.claude_books, CF.MAIN = saved
+
 if __name__ == '__main__':
     main()

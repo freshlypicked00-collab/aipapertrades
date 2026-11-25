@@ -296,11 +296,42 @@ def merge(frags):
     return out
 
 
+def settle_after_finish(state, fx):
+    """After the finish (Sat Nov 28, 4:00 p.m. ET) nothing is filled and no stop is checked for Claude any more, but its bets on games that
+    started before the finish still settle when the games end, with the same code as Gemini's and ChatGPT's (R.settle_bets) and the same
+    publish step as before. Until Nov 25 everything here stopped at the finish, so such a bet would have stayed open for ever
+    (found in the finale rehearsal; ops/review/FINISH_CLAUDE_NOV25.md)."""
+    scratch = {'trades': [], 'bet_ids': {}}
+    settle, posts = [], []
+    for x in _j('bets', []):
+        if x.get('status') != 'Open' or not x.get('game'):
+            continue
+        eb = eng_bet(x)
+        try:
+            tmp = {'bets': [eb]}
+            res = R.settle_bets('claude', tmp, scratch, 'Sports')
+            if res:
+                b2 = tmp['bets'][0]
+                settle.append({'bet': x['bet'], 'status': b2['status'], 'result_cad': round(float(b2['result']), 2), 'final': b2.get('final', '')})
+                posts.append({**res[0], 'symbol': x['bet'], 'bet': x['bet']})
+        except Exception as e:
+            print('claude bet check failed', x.get('bet'), e)
+    if not settle:
+        return
+    batch = {'at': et_now(), 'fx': {'usdcad': fx['USDCAD'], 'usdcny': fx['USDCNY'], 'source': 'Yahoo Finance (race runner)', 'at': et_now(),
+                                     'cny_source': 'Yahoo Finance (race runner)', 'cny_at': et_now()},
+             'fills': [], 'settle': settle, 'closing': [], 'posts': posts}
+    json.dump(batch, open(BATCH, 'w'), indent=1, default=str)
+    print(f'Claude: {len(settle)} bet(s) settled after the finish, for publish')
+
+
 def process(state, fx):
     """Fill Claude's queued orders and crossed stops; settle and close the odds of the bets the runner placed for Claude."""
     c = cutover()
-    if not c or R.NOW < c or R.NOW >= R.RACE_END:
+    if not c or R.NOW < c:
         return
+    if R.NOW >= R.RACE_END:
+        return settle_after_finish(state, fx)
     cm = state.setdefault('claude_main', {'done': [], 'results': [], 'codes': {}})
     cm.setdefault('done', []); cm.setdefault('results', []); cm.setdefault('codes', {})
     queue = _j('claude_orders', [])

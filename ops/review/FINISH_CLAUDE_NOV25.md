@@ -1,7 +1,19 @@
 # The finish: Claude's ten main races would not be closed like the other two's (found Nov 25)
 
-Written Wed Nov 25, 10:00 a.m. ET. **Status: found in a rehearsal, fix prepared and tested in `ops/review/finish-claude.patch`, NOT applied.
-Gemini and ChatGPT are asked (`ops/asks/finish-nov25.txt`); Claude does not vote, because it is about its own result.**
+Written Wed Nov 25, 10:00 a.m. ET; updated 10:02 a.m. ET. **Status: APPLIED on Wed Nov 25, 10:02 a.m. ET, after Gemini and ChatGPT both
+agreed. Claude did not vote, because it is about its own result. Nothing changes before Sat Nov 28, 4:00 p.m. ET, and the owner
+can undo it with one word (`undo finish fix`: revert the commit).**
+
+## The vote
+
+`ops/asks/finish-nov25.txt`, asked Wed Nov 25, 10:01 a.m. ET; answers in `ops/review/finish-nov25.json`.
+
+| | Claude | Gemini | ChatGPT | Result |
+|---|---|---|---|---|
+| G1 after the finish the runner treats Claude's ten main races exactly as the other two's | no vote (its own result) | AGREE | AGREE | Gemini and ChatGPT agreed; applied |
+
+Gemini: "Applying the exact same final scoring and bet settlement logic to all competitors ensures fairness and prevents the final
+results from hanging." ChatGPT: "it applies the same final pricing, fines, and eligible Sports settlement rules to Claude as to the others."
 
 ## The rehearsal
 
@@ -49,9 +61,9 @@ overall is about C$6,300, so one late bet or fine is not nothing.
 - `ops/claude_fill.py`: after the finish the fill step does one thing only, settling Claude's bets on games that started before
   the finish, with the same code as the other two's (`settle_bets`) and the same publish step. No order, no stop.
 - `ops/rivals.py claude_finished`: the runs go on until none of Claude's bets on a game is open and its final values are on record.
-- To add when it is applied: one sentence in the runbook's Final scoring section and in `ops/TASK_PROMPT.md` (a bet on a game
-  that started before 4:00 p.m. ET stays open; the race runner settles it; never settle or void one by hand), a corrections
-  entry and a Site updates line.
+- Applied with it: the runbook's Final scoring section and `ops/TASK_PROMPT.md` now tell Claude's own task that a bet on a game
+  that started before 4:00 p.m. ET stays open for the race runner to settle and is never settled or voided by hand; one line in
+  Site updates.
 
 Rehearsed again with the fix: Claude's ten final values recorded at 4:06 p.m. (Sports with the fine), S28 settled by the settle
 watcher at 6:18 p.m. and added to Sports at the next run, the fingerprint at 9:13 p.m., "nothing left to do", and the card said

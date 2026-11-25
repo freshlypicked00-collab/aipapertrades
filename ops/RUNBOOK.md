@@ -346,8 +346,15 @@ Final scoring is Saturday Nov 28, 4:00 p.m. ET. Stocks, Energy, Options and Safe
 Nov 27 close (US markets close early, 1:00 p.m. ET, after Thanksgiving; options still open then are
 valued at that close). China scores at the Friday Nov 27 Shanghai close (3:00 p.m. Beijing, 2:00 a.m. ET).
 Currencies score at the Friday Nov 27, 5:00 p.m. ET close of the forex week. Metals score at the
-Friday close of gold and silver. Crypto, Predictions and Sports score at Nov 28, 4:00 p.m. ET; settle or
-void any remaining bets. Add a final log entry per experiment and a final "AI's take", then stop trading.
+Friday close of gold and silver. Crypto, Predictions and Sports score at Nov 28, 4:00 p.m. ET.
+Add a final log entry per experiment and a final "AI's take", then stop trading.
+
+Claude's bets and public final values (Nov 25; found in a rehearsal of the finish; Gemini and ChatGPT agreed, Claude did not vote on its
+own result; ops/review/FINISH_CLAUDE_NOV25.md): Claude's ten main races are closed by the race runner with the same rules as
+Gemini's and ChatGPT's. A bet on a game that started before 4:00 p.m. ET STAYS OPEN: the race runner settles it when the game
+ends, like theirs. NEVER settle or void such a bet by hand. Claude's public final values are written by the race runner at its
+first run after the finish (the same run and prices as the other two's); after that only Sports can change, when such a bet
+settles. (This replaces the earlier line "settle or void any remaining bets".)
 
 Gemini and ChatGPT are frozen automatically by ops/rivals.py: a run at 4:01 p.m. ET Nov 28 records their final values
 (`final` in rivals.json); after that no orders are accepted, prices no longer move their books, and only bets on games that

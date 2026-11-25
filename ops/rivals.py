@@ -2266,19 +2266,48 @@ def checkpoint(state, what):
     return ok
 
 
+def claude_finished(state):
+    """After the finish: True once Claude's ten main races are finished like the other two's: none of its bets on a game is still open,
+    every race has its final value on record (claude_feed), and the Sports one equals what its settled bets and fines add up to.
+    Until then the runs go on, so its late bets are settled and recorded (Nov 25; ops/review/FINISH_CLAUDE_NOV25.md)."""
+    try:
+        import claude_fill as CF
+        if any(b.get('status') == 'Open' and b.get('game') for b in CF._j('bets', [])):
+            return False
+        fin = {x['experiment']: x['value'] for x in state.get('claude_feed', []) if x.get('final')}
+        if not all(e in fin for e in CF.MAIN):
+            return False
+        fx = state.get('fx') or {'USDCAD': 1.0, 'USDCNY': 1.0}
+        sports = CF.claude_books(state, fx, state.get('claude_main') or {'done': [], 'results': [], 'codes': {}})[0]['Sports']
+        return abs(value_book('Sports', sports, fx, []) - float(fin['Sports'])) <= 0.005
+    except Exception as e:
+        print('claude finished check failed', e)
+        return True   # a fault in this check must never keep the runs going for ever
+
+
 def claude_feed_values(state, fx):
     """V5 of the full-audit vote (Oct 31; all three AIs agreed): at every check-in the race runner also values Claude's holdings at
     its own feed prices, with the same code it uses for Gemini and ChatGPT (value_book), so all three are priced from one source at
     the same moment. Kept in rivals.json "claude_feed" (one row per race per check-in). Claude's own quotes stay for its decisions and
-    notes; the site moves standings, day closes, lead changes and moments onto these values once they are checked side by side."""
-    if NOW < FRESH_START or NOW >= RACE_END:
+    notes; the site moves standings, day closes, lead changes and moments onto these values once they are checked side by side.
+
+    After the finish (found in the finale rehearsal of Nov 25; ops/review/FINISH_CLAUDE_NOV25.md): the same rule as freeze_final gives
+    Gemini and ChatGPT. Until then this step simply stopped at the finish, so Claude's public values would have stayed those of the last
+    check-in BEFORE 4:00 p.m. ET, without the last day's fine and without any bet that settled later. Now the first run after the finish
+    gives each of Claude's ten races one final row, valued by the runner at that run like theirs; afterwards only Sports gets a new
+    final row, when a bet on a game that started before the finish settles or a fine is charged. Later price moves change nothing."""
+    if NOW < FRESH_START:
         return
+    ended = NOW >= RACE_END
     import claude_fill as CF
     books, names = CF.claude_books(state, fx, state.get('claude_main') or {'done': [], 'results': [], 'codes': {}})
     notes, at = [], iso()
     rows = state.setdefault('claude_feed', [])
+    fin = {x['experiment']: x['value'] for x in rows if x.get('final')} if ended else {}   # the newest final row of each race
     fxr = {'USDCAD': round(float(fx['USDCAD']), 6), 'USDCNY': round(float(fx['USDCNY']), 6)}
     for e, b in books.items():
+        if e in fin and BASE.get(e, e) != 'Sports':
+            continue   # frozen at the final scoring
         for p in b.get('positions', {}).values():
             p.setdefault('hist', [])   # a throwaway copy of Claude's books: no price-history seeding
         try:
@@ -2286,9 +2315,11 @@ def claude_feed_values(state, fx):
         except Exception as ex:
             print('claude feed value failed', e, ex)
             continue
+        if e in fin and abs(round(float(v), 2) - float(fin[e])) <= 0.005:
+            continue   # Sports after the finish: nothing new has settled
         prices = {names.get((e, k), k): round(float(p['last']), 8) for k, p in b.get('positions', {}).items() if p.get('last') is not None}
         rows.append({'at': at, 'experiment': e, 'value': round(float(v), 2), 'fx': fxr, **({'prices': prices} if prices else {}),
-                     **({'unmapped': b['unmapped']} if b.get('unmapped') else {})})
+                     **({'unmapped': b['unmapped']} if b.get('unmapped') else {}), **({'final': True} if ended else {})})
     if notes:
         print('claude feed notes:', '; '.join(str(n) for n in notes[:6]))
 
@@ -2480,7 +2511,7 @@ def main():
         os.environ['MODE'] = 'force'
     if NOW >= RACE_END and state.get('final') and all(mid in state['final'] for mid in list(state.get('models', {})) + ['claude']):
         books = [b for m in state.get('models', {}).values() for b in m.get('books', {}).values()] + list(state.get('claude_allin', {}).get('books', {}).values())
-        if not any(x['status'] == 'Open' for b in books for x in b.get('bets', [])):
+        if not any(x['status'] == 'Open' for b in books for x in b.get('bets', [])) and claude_finished(state):
             print('the race is over and every bet is settled; nothing left to do')
             return
     # No double check-ins (each one costs API credit): GitHub's own schedule is only a safety net, since Claude's runs start
