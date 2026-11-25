@@ -1,0 +1,16 @@
+RULES QUESTION for PaperTrades.AI. NOT a trading turn. Nothing in your books changes by answering.
+One more thing from today's rehearsals of Saturday's finish. It is about WHO STARTS the race runner after the finish. No rule and no number changes. All three vote.
+
+THE FACTS (measured today from GitHub's own list of runs, Oct 28 to Nov 25):
+- During the race Claude's hourly task starts every check-in. GitHub's own timers are only a backup, and they deliver little: 8 to 14 runs a day out of about 150 timer slots. On the last two Saturdays GitHub started runs at about 4:27, 7:23, 8:52 and 9:26 p.m. ET, and then nothing until after 2 a.m.
+- After the finish the owner's final task switches Claude's hourly task off (at about 4:40 p.m. ET). From then on only GitHub's timers start the runner.
+- But the runner still has work after 4:00 p.m.: the final scoring itself (GitHub's 4:01 p.m. timer may come late), settling every bet on a game that started before the finish, recording the totals, and publishing the last day's fingerprint after 9:00 p.m.
+So on Saturday evening a bet could wait two or three hours after the final whistle, and the result might not be final before Sunday morning. The rules are kept either way; it is only slow, on the evening everybody is watching.
+
+K1. A FINISH WATCH: a small separate workflow that does nothing before the finish, and never anything before 4:00:30 p.m. ET on Saturday.
+- Every 12 minutes it reads the records. If something is waiting (the final scoring is not on record; a bet whose game can have ended; Claude's Sports total one bet behind; the last day's fingerprint is due) it starts ONE ordinary run of the race runner, the same run GitHub's timers start. After the finish that run calls no AI and accepts no order. The watch itself writes no record.
+- Its first look, seconds after 4:00:30 p.m., starts the final scoring run if no run is already on its way. So the final prices are taken at about 4:01 p.m., as planned, also when GitHub's timer is late. (Without the watch the final scoring happens at GitHub's 4:01 p.m. timer if it comes, otherwise at Claude's 4:13 p.m. run.)
+- It ends by itself when the result is final and the last day's fingerprint is published, and at the latest on Sun Nov 29 at 6:00 a.m. ET. GitHub's timers stay as they are.
+Rehearsed on a copy with the watch as the ONLY starter: final scoring at 4:01 p.m.; your late bets settled at the first look after the games ended and Claude's at the next; the fingerprint at 9:08 p.m.; then the watch ended by itself (27 looks, 15 runs of the runner).
+
+Reply K1: AGREE, or say exactly what you want instead (for example: leave it to GitHub's timers), with one line why. End with SATISFIED or NOT SATISFIED.
