@@ -48474,6 +48474,25 @@
    "bet": "C53",
    "wrong_if": "Ole Miss finishes with a final margin of 0 points or worse against Mississippi State.",
    "p_works": 0.9
+  },
+  {
+   "at": "2026-11-25T05:22:00Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "action": "Bet",
+   "symbol": "C25",
+   "outcome": null,
+   "name": "NBA: Memphis Grizzlies moneyline (LA Clippers @ Memphis Grizzlies)",
+   "price": -264,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 6000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "High risk: Sports daily minimum and pacing toward the C$100,000 total (about C$78,000 so far, four days left): Memphis are -264 home favourites against the Clippers on the runner's ESPN list.",
+   "bet": "C25",
+   "wrong_if": "The Clippers win in Memphis (the Grizzlies moneyline loses).",
+   "p_works": 0.71
   }
  ],
  "history": [
@@ -139190,6 +139209,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 106027.57
+  },
+  {
+   "at": "2026-11-25T05:22:00Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 89520.06
+  },
+  {
+   "at": "2026-11-25T05:22:00Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 91447.92
   }
  ],
  "takes": [
@@ -164955,7 +164986,8 @@
    "C21",
    "C22",
    "C23",
-   "C24"
+   "C24",
+   "C25"
   ]
  },
  "tuning_trades": [
@@ -166102,7 +166134,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 638.1,
-      "priced_at": "2026-11-25T05:17:30Z",
+      "priced_at": "2026-11-25T05:22:00Z",
       "hist": [
        [
         29886870,
@@ -169284,8 +169316,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 59101.48,
-      "priced_at": "2026-11-25T05:17:30Z",
+      "last": 59089.77,
+      "priced_at": "2026-11-25T05:22:00Z",
       "hist": [
        [
         29886870,
@@ -173155,6 +173187,25 @@
       "wrong_if": "Dallas win in Denver (the Nuggets moneyline loses).",
       "closing_odds": -297,
       "closing_at": "2026-11-25T02:23:41Z"
+     },
+     {
+      "id": "C25",
+      "game": "401909321",
+      "sport": "basketball",
+      "league": "nba",
+      "short": "NBA",
+      "event": "LA Clippers @ Memphis Grizzlies",
+      "pick": "home",
+      "pick_team": "Memphis Grizzlies",
+      "odds": -264,
+      "stake": 6000.0,
+      "to_win": 2272.73,
+      "starts_at": "2026-11-26T01:00Z",
+      "placed_at": "2026-11-25T05:22:00Z",
+      "status": "Open",
+      "result": 0.0,
+      "reason": "High risk: Sports daily minimum and pacing toward the C$100,000 total (about C$78,000 so far, four days left): Memphis are -264 home favourites against the Clippers on the runner's ESPN list.",
+      "wrong_if": "The Clippers win in Memphis (the Grizzlies moneyline loses)."
      }
     ],
     "penalties": [],
@@ -173203,7 +173254,8 @@
    "20261122061520-24",
    "20261123091653-25",
    "20261123202625-26",
-   "20261124051717-27"
+   "20261124051717-27",
+   "20261125051743-28"
   ],
   "results": [
    "20261028182237-0: filled Buy Invesco QQQ Trust C$40,000",
@@ -173233,7 +173285,8 @@
    "20261122061520-24: refused (game '401873070' is not in the list of games open for betting)",
    "20261123091653-25: filled Bet NFL: Cincinnati Bengals moneyline (Cincinnati Bengals @ Washington Commanders) C$3,000",
    "20261123202625-26: filled Bet NBA: Cleveland Cavaliers moneyline (Cleveland Cavaliers @ Chicago Bulls) C$5,000",
-   "20261124051717-27: filled Bet NBA: Denver Nuggets moneyline (Dallas Mavericks @ Denver Nuggets) C$5,000"
+   "20261124051717-27: filled Bet NBA: Denver Nuggets moneyline (Dallas Mavericks @ Denver Nuggets) C$5,000",
+   "20261125051743-28: filled Bet NBA: Memphis Grizzlies moneyline (LA Clippers @ Memphis Grizzlies) C$6,000"
   ]
  },
  "price_alerts": {
@@ -282831,10 +282884,10 @@
    "c20261123081616-50",
    "c20261123202625-51",
    "c20261123211156-52",
-   "c20261124051716-53"
+   "c20261124051716-53",
+   "c20261125051743-54"
   ],
   "results": [
-   "c20261030185630-2: filled Bet S3 (NBA: New York Knicks moneyline (New York Knicks @ Philadelphia 76ers)) C$3,000 at -125",
    "c20261031042227-3: filled Bet S4 (NBA: Philadelphia 76ers moneyline (Philadelphia 76ers @ Charlotte Hornets)) C$3,000 at -120",
    "c20261101042145-4: filled Bet S5 (NFL: Baltimore Ravens moneyline (Baltimore Ravens @ Buffalo Bills)) C$3,000 at +140",
    "c20261101082253-5: filled Buy Bitcoin C$12,000 at 77,838.7",
@@ -282893,7 +282946,8 @@
    "c20261123081616-50: filled Bet S26 (NFL: Cincinnati Bengals moneyline (Cincinnati Bengals @ Washington Commanders)) C$3,000 at -300",
    "c20261123202625-51: refused (no Polymarket market will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections)",
    "c20261123211156-52: filled Buy Will there be no change in Fed interest rates after the December 2026 meeting? (No) C$3,000 at 0.9675",
-   "c20261124051716-53: filled Bet S27 (NBA: Boston Celtics moneyline (Boston Celtics @ Washington Wizards)) C$3,000 at -453"
+   "c20261124051716-53: filled Bet S27 (NBA: Boston Celtics moneyline (Boston Celtics @ Washington Wizards)) C$3,000 at -453",
+   "c20261125051743-54: filled Bet S28 (NBA: Houston Rockets moneyline (Phoenix Suns @ Houston Rockets)) C$3,000 at -406"
   ],
   "codes": {
    "Democrats win the Senate (Yes)": "will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections|Yes"
@@ -283147,7 +283201,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-25T05:17:30Z",
+  "at": "2026-11-25T05:22:00Z",
   "games": [
    {
     "id": "401920428",
@@ -290769,7 +290823,8 @@
   "gemini|AllInSports|2026-11-25T05:17:30Z|Bet|G180": "G-AIS-169",
   "gemini|Sports|2026-11-25T05:17:30Z|Bet|G179": "G-SPT-189",
   "chatgpt|AllInSports|2026-11-25T05:17:30Z|Bet|C53": "X-AIS-051",
-  "chatgpt|Sports|2026-11-25T05:17:30Z|Bet|C52": "X-SPT-061"
+  "chatgpt|Sports|2026-11-25T05:17:30Z|Bet|C52": "X-SPT-061",
+  "claude|AllInSports|2026-11-25T05:22:00Z|Bet|C25": "C-AIS-050"
  },
  "txseq": {
   "X-CRY": 42,
@@ -290805,7 +290860,7 @@
   "G-CHN": 4,
   "C-CHN": 2,
   "G-PRD": 8,
-  "C-AIS": 49,
+  "C-AIS": 50,
   "X-PRD": 4,
   "C-OPT": 2
  },
