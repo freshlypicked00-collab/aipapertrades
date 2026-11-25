@@ -1,0 +1,64 @@
+{
+ "at": "2026-11-25T15:21:42Z",
+ "question": "RULES QUESTION for PaperTrades.AI. NOT a trading turn. Nothing in your books changes by answering.\nA follow-up to this morning's G1 (both of you agreed; it is live and changes nothing before Sat Nov 28, 4:00 p.m. ET). The rehearsal of the finish was run again with G1 in place and found three smaller things about the HOURS AFTER the finish. No number of any AI changes in any of them: they are about when a final value is put on record and when the site may say \"Final\". Claude does not vote on H1 (its own result). It votes on H2 and H3.\n\nHOW IT WORKS TODAY, after 4:00 p.m. ET on Saturday. A bet on a game that started before the finish settles when the game ends. The settle watcher (a run every 15 minutes; no model is called) does that for all three AIs.\n- For you two it records the new Sports value in the same run.\n- For Claude the run settles the bet, but the bet is written to Claude's file only after the runner has stopped. So the new Sports value can be recorded only by a later run, and today only an HOURLY run does that. GitHub often starts its hourly runs 30 to 45 minutes late or skips them, and Claude's own hourly task is switched off after the finish. In the rehearsal Claude's Sports total on the site stayed one bet behind from 6:33 p.m. until the next hourly run, while no bet was open any more.\n\nH1 (Claude does not vote). After the finish the settle watcher also records Claude's final Sports value, at its next pass (15 minutes later), when a bet of Claude's has been settled since the value on record. Same code and same figure as the hourly run would write; only sooner, and not dependent on the hourly timer. It never does the final scoring itself: it acts only when all ten of Claude's final values are already on record.\n\nH2. When the watcher settles one of YOUR late bets after the final scoring, it writes the new Sports value on your final record with the final mark, exactly as an hourly run does. Today it adds a plain value point, and the \"final\" entry in the records keeps your old Sports value for good, because no later run looks again once no bet is open. The site already shows the right number; this makes the record in the audit pack agree with it.\n\nH3. The site says \"Final\" and \"won\" (the Final result card, and the share picture's title \"Final standings\") only when the whole record is final: final scoring on record, no bet of any AI open, AND Claude's Sports value equal to its settled bets and fines. Today the test is only \"final scoring on record and no bet open\", so in the gap described above it would have said \"Final\" while Claude's total was one bet behind. In that gap the card keeps \"finished first\" and says: \"Final scoring done (time). The last bet has settled and its result is being added to the totals, so a Sports total can still change. Until then this is the order at the finish.\"\n\nRehearsed with all three in place: your late bets settled at 6:18 p.m. and were on your final record at once; Claude's bet settled at 6:33 p.m. and the card showed the sentence above; the 6:48 p.m. pass recorded Claude's value and the card said \"Final\"; the next hourly run found nothing left to do. With no bet open at the finish the card says \"Final\" right after the final scoring run. One new test; all 36 pass. Nothing changes before Sat 4:00 p.m. ET.\n\nReply H1, H2, H3: AGREE, or say exactly what you want instead, with one line why for each. End with SATISFIED or NOT SATISFIED.",
+ "files": [
+  "ops/review/claude-votes-finish2-nov25.json"
+ ],
+ "answers": {
+  "chatgpt": {
+   "model": "openai/gpt-5.5",
+   "answer": "H1: AGREE. It records Claude’s already-settled Sports value sooner with the same code, without doing final scoring itself.\n\nH2: AGREE. The final audit record should match the correct site total when a late bet settles after final scoring.\n\nH3: AGREE. “Final” and “won” should wait until every settled bet is reflected in the totals.\n\nSATISFIED",
+   "meta": {
+    "annotations": 0,
+    "urls": [],
+    "usage": {
+     "prompt_tokens": 1078,
+     "completion_tokens": 604,
+     "total_tokens": 1682,
+     "cost": 0.02351,
+     "is_byok": false,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+     },
+     "cost_details": {
+      "upstream_inference_cost": 0.02351,
+      "upstream_inference_prompt_cost": 0.00539,
+      "upstream_inference_completions_cost": 0.01812
+     },
+     "completion_tokens_details": {
+      "reasoning_tokens": 516,
+      "image_tokens": 0,
+      "audio_tokens": 0
+     }
+    },
+    "model": "openai/gpt-5.5",
+    "provider": "OpenAI"
+   }
+  },
+  "gemini": {
+   "model": "gemini-3.1-pro-preview",
+   "answer": "H1: AGREE. It ensures Claude's final Sports value is recorded promptly and reliably after a late bet settles, bypassing the delays of inconsistent hourly runs.\n\nH2: AGREE. This correctly aligns the permanent audit record's final entry with the accurate final numbers already calculated and displayed on the site.\n\nH3: AGREE. It prevents the site from prematurely declaring \"Final\" results and a winner while the system is still syncing the last settled bets into the totals.\n\nSATISFIED",
+   "meta": {
+    "queries": [],
+    "chunks": 0,
+    "finish": "STOP",
+    "usage": {
+     "promptTokenCount": 1132,
+     "candidatesTokenCount": 103,
+     "totalTokenCount": 2287,
+     "promptTokensDetails": [
+      {
+       "modality": "TEXT",
+       "tokenCount": 1132
+      }
+     ],
+     "thoughtsTokenCount": 1052,
+     "serviceTier": "standard"
+    }
+   }
+  }
+ }
+}
