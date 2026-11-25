@@ -224,7 +224,12 @@ def cmd_status():
     if not d:
         print('no drills yet'); return
     dr = d[-1]
-    print(f"drill #{dr['n']} ({dr['status']}), opened {dr['opened_at']}\nscenario: {dr['scenario']}\nanswers: {sorted(dr['answers'])}\nanon: {dr.get('anon')}\ngrades: {json.dumps(dr['grades'])}")
+    # Nov 25: while Claude still has to grade, this command (which Claude's own task runs) does not print which letter is which AI or
+    # the grades already given; before, it printed both, so Claude's grading was blind in name only.
+    pending = dr['status'] == 'grading' and not any('claude' in v for v in dr['grades'].values())
+    anon = '(not shown until Claude has graded)' if pending else dr.get('anon')
+    grades = f"{sum(len(v) for v in dr['grades'].values())} on record (not shown until Claude has graded)" if pending else json.dumps(dr['grades'])
+    print(f"drill #{dr['n']} ({dr['status']}), opened {dr['opened_at']}\nscenario: {dr['scenario']}\nanswers: {sorted(dr['answers'])}\nanon: {anon}\ngrades: {grades}")
     if dr['status'] == 'answering' and 'claude' not in dr['answers']:
         print('\nCLAUDE: answer it with python3 ops/drill.py claude "<answer>" (your own books: ' + '; '.join(dr['books'].get('claude') or ['all cash']) + ')')
     if dr['status'] == 'grading' and not any('claude' in v for v in dr['grades'].values()):
