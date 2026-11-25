@@ -1,8 +1,13 @@
 # China: no stop could fire and no order could fill since Oct 31 (prepared fix, NOT applied)
 
-Written Mon Nov 23, 9:20 p.m. ET; last checked Tue Nov 24, 2:50 p.m. ET. **Status: waiting for the owner.** The fix is prepared
+Written Mon Nov 23, 9:20 p.m. ET; last checked Wed Nov 25, 9:47 a.m. ET. **Status: waiting for the owner.** The fix is prepared
 and tested in `ops/review/china-feed-delay.patch`; nothing in the race code has changed except one log line that measures the
-feed. Three Shanghai sessions are left before the finale: they open Tue Nov 24, Wed Nov 25 and Thu Nov 26 at 8:30 p.m. ET.
+feed. **Two Shanghai sessions are left before the finale: they open Wed Nov 25 and Thu Nov 26 at 8:30 p.m. ET.**
+
+*The session of Tue Nov 24 (8:30 p.m. to Wed 2:00 a.m. ET) passed the same way*, the third since the fault was found: the feed 900 to
+910 seconds behind in the runs sampled (Tue 10:19 p.m., Wed 1:16 a.m. ET), all four China stops and targets skipped. The CSI 300 fund
+closed that session at 3.970 yuan (4.033 the day before), so ChatGPT's stop at 4.05 is now 0.08 yuan a share behind the market on
+32,000 shares (2,560 yuan, about US$350); Claude's stop on the same fund is at 3.85 and has not been reached.
 
 ## What is wrong
 
