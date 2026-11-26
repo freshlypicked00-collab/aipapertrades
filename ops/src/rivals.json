@@ -50748,6 +50748,25 @@
    "bet": "C26",
    "wrong_if": "Arkansas win outright (Michigan State lose by 1 or more points).",
    "p_works": 0.67
+  },
+  {
+   "at": "2026-11-26T08:26:24Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "action": "Bet",
+   "symbol": "C27",
+   "outcome": null,
+   "name": "NFL: Dallas Cowboys moneyline (Philadelphia Eagles @ Dallas Cowboys)",
+   "price": -440,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 4000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "An extra floor-sized High risk Sports bet to close the gap to the C$97,000 total minimum before Saturday: Dallas are about -440 home favourites against Philadelphia on the ESPN list; no edge claimed beyond the price.",
+   "bet": "C27",
+   "wrong_if": "Philadelphia win outright on Thursday.",
+   "p_works": 0.78
   }
  ],
  "history": [
@@ -147212,6 +147231,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 106027.57
+  },
+  {
+   "at": "2026-11-26T08:26:24Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 89570.34
+  },
+  {
+   "at": "2026-11-26T08:26:24Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 88720.65
   }
  ],
  "takes": [
@@ -178709,7 +178740,8 @@
    "C23",
    "C24",
    "C25",
-   "C26"
+   "C26",
+   "C27"
   ]
  },
  "tuning_trades": [
@@ -179856,7 +179888,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 633.93,
-      "priced_at": "2026-11-26T08:17:17Z",
+      "priced_at": "2026-11-26T08:26:24Z",
       "hist": [
        [
         29886870,
@@ -183174,8 +183206,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 60542.51,
-      "priced_at": "2026-11-26T08:17:17Z",
+      "last": 60606.41,
+      "priced_at": "2026-11-26T08:26:24Z",
       "hist": [
        [
         29886870,
@@ -187225,6 +187257,25 @@
       "result": 0.0,
       "reason": "Thursday's High risk Sports minimum at the floor: Michigan State are -218 at home to Arkansas on the ESPN list (about 69% implied); minimum stake, no edge claimed beyond the market price.",
       "wrong_if": "Arkansas win outright (Michigan State lose by 1 or more points)."
+     },
+     {
+      "id": "C27",
+      "game": "401873080",
+      "sport": "football",
+      "league": "nfl",
+      "short": "NFL",
+      "event": "Philadelphia Eagles @ Dallas Cowboys",
+      "pick": "home",
+      "pick_team": "Dallas Cowboys",
+      "odds": -440,
+      "stake": 4000.0,
+      "to_win": 909.09,
+      "starts_at": "2026-11-26T21:30Z",
+      "placed_at": "2026-11-26T08:26:24Z",
+      "status": "Open",
+      "result": 0.0,
+      "reason": "An extra floor-sized High risk Sports bet to close the gap to the C$97,000 total minimum before Saturday: Dallas are about -440 home favourites against Philadelphia on the ESPN list; no edge claimed beyond the price.",
+      "wrong_if": "Philadelphia win outright on Thursday."
      }
     ],
     "penalties": [],
@@ -187275,7 +187326,8 @@
    "20261123202625-26",
    "20261124051717-27",
    "20261125051743-28",
-   "20261126051751-29"
+   "20261126051751-29",
+   "20261126082255-30"
   ],
   "results": [
    "20261028182237-0: filled Buy Invesco QQQ Trust C$40,000",
@@ -187307,7 +187359,8 @@
    "20261123202625-26: filled Bet NBA: Cleveland Cavaliers moneyline (Cleveland Cavaliers @ Chicago Bulls) C$5,000",
    "20261124051717-27: filled Bet NBA: Denver Nuggets moneyline (Dallas Mavericks @ Denver Nuggets) C$5,000",
    "20261125051743-28: filled Bet NBA: Memphis Grizzlies moneyline (LA Clippers @ Memphis Grizzlies) C$6,000",
-   "20261126051751-29: filled Bet NCAAB: Michigan State Spartans moneyline (Arkansas Razorbacks @ Michigan State Spartans) C$3,000"
+   "20261126051751-29: filled Bet NCAAB: Michigan State Spartans moneyline (Arkansas Razorbacks @ Michigan State Spartans) C$3,000",
+   "20261126082255-30: filled Bet NFL: Dallas Cowboys moneyline (Philadelphia Eagles @ Dallas Cowboys) C$4,000"
   ]
  },
  "price_alerts": {
@@ -308151,7 +308204,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-26T08:17:17Z",
+  "at": "2026-11-26T08:26:24Z",
   "games": [
    {
     "id": "401873081",
@@ -317356,7 +317409,8 @@
   "chatgpt|AllInSports|2026-11-26T05:16:45Z|Bet|C55": "X-AIS-052",
   "chatgpt|Sports|2026-11-26T05:16:45Z|Bet|C54": "X-SPT-062",
   "claude|AllInSports|2026-11-26T05:25:20Z|Bet|C26": "C-AIS-053",
-  "claude|Sports|2026-11-26T05:25:20Z|Bet|S29": "C-SPT-057"
+  "claude|Sports|2026-11-26T05:25:20Z|Bet|S29": "C-SPT-057",
+  "claude|AllInSports|2026-11-26T08:26:24Z|Bet|C27": "C-AIS-054"
  },
  "txseq": {
   "X-CRY": 42,
@@ -317392,7 +317446,7 @@
   "G-CHN": 4,
   "C-CHN": 2,
   "G-PRD": 8,
-  "C-AIS": 53,
+  "C-AIS": 54,
   "X-PRD": 4,
   "C-OPT": 2
  },
