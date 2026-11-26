@@ -26220,12 +26220,14 @@
        "to_win": 2970.3,
        "starts_at": "2026-11-26T18:00Z",
        "placed_at": "2026-11-26T17:46:20Z",
-       "status": "Open",
-       "result": 0.0,
+       "status": "Lost",
+       "result": -3000.0,
        "reason": "ESPN Analytics showed Detroit with a better-than-even home win probability while the race line is near even, so I am taking only a floor-sized value shot.",
        "wrong_if": "This bet is wrong if Detroit loses the final score by 1 point or more.",
        "closing_odds": -101,
-       "closing_at": "2026-11-26T17:52:08Z"
+       "closing_at": "2026-11-26T17:52:08Z",
+       "settled_at": "2026-11-26T22:16:45Z",
+       "final": "Chicago Bears 39, Detroit Lions 35"
       }
      ],
      "penalties": [],
@@ -29194,12 +29196,14 @@
        "to_win": 9900.99,
        "starts_at": "2026-11-26T18:00Z",
        "placed_at": "2026-11-26T17:46:20Z",
-       "status": "Open",
-       "result": 0.0,
+       "status": "Lost",
+       "result": -10000.0,
        "reason": "The high-risk sports book can use a larger but still non-ruinous stake on the same near-even Detroit value edge.",
        "wrong_if": "This bet is wrong if Detroit loses the final score by 1 point or more.",
        "closing_odds": -101,
-       "closing_at": "2026-11-26T17:52:08Z"
+       "closing_at": "2026-11-26T17:52:08Z",
+       "settled_at": "2026-11-26T22:16:45Z",
+       "final": "Chicago Bears 39, Detroit Lions 35"
       }
      ],
      "penalties": [],
@@ -52368,6 +52372,42 @@
    "bet": "C57",
    "wrong_if": "This bet is wrong if Detroit loses the final score by 1 point or more.",
    "p_works": 0.545
+  },
+  {
+   "at": "2026-11-26T22:16:45Z",
+   "model": "chatgpt",
+   "experiment": "Sports",
+   "action": "Lost",
+   "symbol": "C56",
+   "outcome": null,
+   "name": "NFL: Detroit Lions moneyline (Chicago Bears @ Detroit Lions)",
+   "price": -101,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": -3000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Final: Chicago Bears 39, Detroit Lions 35.",
+   "bet": "C56",
+   "final": "Chicago Bears 39, Detroit Lions 35"
+  },
+  {
+   "at": "2026-11-26T22:16:45Z",
+   "model": "chatgpt",
+   "experiment": "AllInSports",
+   "action": "Lost",
+   "symbol": "C57",
+   "outcome": null,
+   "name": "NFL: Detroit Lions moneyline (Chicago Bears @ Detroit Lions)",
+   "price": -101,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": -10000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Final: Chicago Bears 39, Detroit Lions 35.",
+   "bet": "C57",
+   "final": "Chicago Bears 39, Detroit Lions 35"
   }
  ],
  "history": [
@@ -329532,7 +329572,9 @@
   "chatgpt|Crypto|2026-11-26T16:16:58Z|Buy|BTC-USD": "X-CRY-045",
   "chatgpt|Crypto|2026-11-26T16:16:58Z|Buy|SOL-USD": "X-CRY-046",
   "chatgpt|AllInSports|2026-11-26T17:46:20Z|Bet|C57": "X-AIS-053",
-  "chatgpt|Sports|2026-11-26T17:46:20Z|Bet|C56": "X-SPT-063"
+  "chatgpt|Sports|2026-11-26T17:46:20Z|Bet|C56": "X-SPT-063",
+  "chatgpt|AllInSports|2026-11-26T22:16:45Z|Lost|C57": "X-AIS-054",
+  "chatgpt|Sports|2026-11-26T22:16:45Z|Lost|C56": "X-SPT-064"
  },
  "txseq": {
   "X-CRY": 46,
@@ -329560,8 +329602,8 @@
   "C-AIT": 2,
   "G-AIS": 171,
   "G-AIT": 55,
-  "X-SPT": 63,
-  "X-AIS": 53,
+  "X-SPT": 64,
+  "X-AIS": 54,
   "C-PRD": 6,
   "C-SPT": 57,
   "X-CHN": 4,
