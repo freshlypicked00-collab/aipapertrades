@@ -1,8 +1,15 @@
 # China: no stop could fire and no order could fill since Oct 31 (prepared fix, NOT applied)
 
-Written Mon Nov 23, 9:20 p.m. ET; last checked Wed Nov 25, 9:47 a.m. ET. **Status: waiting for the owner.** The fix is prepared
+Written Mon Nov 23, 9:20 p.m. ET; last checked Thu Nov 26, 9:34 a.m. ET. **Status: waiting for the owner.** The fix is prepared
 and tested in `ops/review/china-feed-delay.patch`; nothing in the race code has changed except one log line that measures the
-feed. **Two Shanghai sessions are left before the finale: they open Wed Nov 25 and Thu Nov 26 at 8:30 p.m. ET.**
+feed. **One Shanghai session is left before the finish: it opens Thu Nov 26 at 8:30 p.m. ET, and China is scored at its close (Fri 2:00 a.m. ET).**
+
+*The session of Wed Nov 25 (8:30 p.m. to Thu 2:00 a.m. ET) passed the same way*, the fourth since the fault was found: in all 14
+runs of the session the feed was 901 seconds or more behind (40 of 40 feed-age lines "stale"), and all four China stops and targets
+were skipped every time ("no price from today's session yet"). The CSI 300 fund closed that session at 3.959 yuan. ChatGPT's stop
+at 4.05 is now 0.091 yuan a share behind the market on 32,000 shares: 2,912 yuan, about US$438 at the race's rate. Its target
+(a full exit at 4.10, set Nov 24 "because the China setup is weak and the contest is nearly over") waits the same way. Claude's
+stop on the same fund is at 3.85 and has not been reached.
 
 *The session of Tue Nov 24 (8:30 p.m. to Wed 2:00 a.m. ET) passed the same way*, the third since the fault was found: the feed 900 to
 910 seconds behind in the runs sampled (Tue 10:19 p.m., Wed 1:16 a.m. ET), all four China stops and targets skipped. The CSI 300 fund
@@ -75,7 +82,7 @@ nothing.
 2. In `ops/rivals.py` set `CN_NEW_BUYS` (False = exits only, True = buys too) and `CN_RULE_DAY` to the day it goes in.
 3. If buys too: in `ops/src/index.html` change the new sentence in the Rules list to say "a China order, stop or target uses a
    price up to 20 minutes old, and buys fill only from 10:00 a.m. Beijing time" instead of "new China buys are refused".
-4. `python3 ops/tests/run_tests.py` must pass (34). Publish. Never start, cancel or rerun a check-in by hand.
+4. `python3 ops/tests/run_tests.py` must pass (38 on the code of Nov 25). Publish. Never start, cancel or rerun a check-in by hand.
 5. A Site updates line and a correction entry: since Oct 31 no China order or stop could fill while Shanghai was open; what
    changes; who agreed and who decided.
 
