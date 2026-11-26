@@ -50573,6 +50573,25 @@
    "bet": "C55",
    "wrong_if": "Alabama finishes with fewer points than Kansas State, meaning final score margin is below 0.",
    "p_works": 0.91
+  },
+  {
+   "at": "2026-11-26T05:25:20Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "action": "Bet",
+   "symbol": "C26",
+   "outcome": null,
+   "name": "NCAAB: Michigan State Spartans moneyline (Arkansas Razorbacks @ Michigan State Spartans)",
+   "price": -218,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 3000.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Thursday's High risk Sports minimum at the floor: Michigan State are -218 at home to Arkansas on the ESPN list (about 69% implied); minimum stake, no edge claimed beyond the market price.",
+   "bet": "C26",
+   "wrong_if": "Arkansas win outright (Michigan State lose by 1 or more points).",
+   "p_works": 0.67
   }
  ],
  "history": [
@@ -146521,6 +146540,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 106027.57
+  },
+  {
+   "at": "2026-11-26T05:25:20Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 89662.84
+  },
+  {
+   "at": "2026-11-26T05:25:20Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 88720.65
   }
  ],
  "takes": [
@@ -177393,7 +177424,8 @@
    "C22",
    "C23",
    "C24",
-   "C25"
+   "C25",
+   "C26"
   ]
  },
  "tuning_trades": [
@@ -178540,7 +178572,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 633.93,
-      "priced_at": "2026-11-26T05:16:45Z",
+      "priced_at": "2026-11-26T05:25:20Z",
       "hist": [
        [
         29886870,
@@ -181846,8 +181878,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 60846.28,
-      "priced_at": "2026-11-26T05:16:45Z",
+      "last": 60913.81,
+      "priced_at": "2026-11-26T05:25:20Z",
       "hist": [
        [
         29886870,
@@ -185866,6 +185898,25 @@
       "closing_at": "2026-11-26T00:25:52Z",
       "settled_at": "2026-11-26T03:22:20Z",
       "final": "LA Clippers 97, Memphis Grizzlies 115"
+     },
+     {
+      "id": "C26",
+      "game": "401925757",
+      "sport": "basketball",
+      "league": "mens-college-basketball",
+      "short": "NCAAB",
+      "event": "Arkansas Razorbacks @ Michigan State Spartans",
+      "pick": "home",
+      "pick_team": "Michigan State Spartans",
+      "odds": -218,
+      "stake": 3000.0,
+      "to_win": 1376.15,
+      "starts_at": "2026-11-26T21:30Z",
+      "placed_at": "2026-11-26T05:25:20Z",
+      "status": "Open",
+      "result": 0.0,
+      "reason": "Thursday's High risk Sports minimum at the floor: Michigan State are -218 at home to Arkansas on the ESPN list (about 69% implied); minimum stake, no edge claimed beyond the market price.",
+      "wrong_if": "Arkansas win outright (Michigan State lose by 1 or more points)."
      }
     ],
     "penalties": [],
@@ -185915,7 +185966,8 @@
    "20261123091653-25",
    "20261123202625-26",
    "20261124051717-27",
-   "20261125051743-28"
+   "20261125051743-28",
+   "20261126051751-29"
   ],
   "results": [
    "20261028182237-0: filled Buy Invesco QQQ Trust C$40,000",
@@ -185946,7 +185998,8 @@
    "20261123091653-25: filled Bet NFL: Cincinnati Bengals moneyline (Cincinnati Bengals @ Washington Commanders) C$3,000",
    "20261123202625-26: filled Bet NBA: Cleveland Cavaliers moneyline (Cleveland Cavaliers @ Chicago Bulls) C$5,000",
    "20261124051717-27: filled Bet NBA: Denver Nuggets moneyline (Dallas Mavericks @ Denver Nuggets) C$5,000",
-   "20261125051743-28: filled Bet NBA: Memphis Grizzlies moneyline (LA Clippers @ Memphis Grizzlies) C$6,000"
+   "20261125051743-28: filled Bet NBA: Memphis Grizzlies moneyline (LA Clippers @ Memphis Grizzlies) C$6,000",
+   "20261126051751-29: filled Bet NCAAB: Michigan State Spartans moneyline (Arkansas Razorbacks @ Michigan State Spartans) C$3,000"
   ]
  },
  "price_alerts": {
@@ -304846,10 +304899,10 @@
    "c20261123202625-51",
    "c20261123211156-52",
    "c20261124051716-53",
-   "c20261125051743-54"
+   "c20261125051743-54",
+   "c20261126051751-55"
   ],
   "results": [
-   "c20261031042227-3: filled Bet S4 (NBA: Philadelphia 76ers moneyline (Philadelphia 76ers @ Charlotte Hornets)) C$3,000 at -120",
    "c20261101042145-4: filled Bet S5 (NFL: Baltimore Ravens moneyline (Baltimore Ravens @ Buffalo Bills)) C$3,000 at +140",
    "c20261101082253-5: filled Buy Bitcoin C$12,000 at 77,838.7",
    "c20261102052107-6: filled Bet S6 (NFL: Chicago Bears moneyline (Chicago Bears @ Seattle Seahawks)) C$3,000 at +142",
@@ -304908,7 +304961,8 @@
    "c20261123202625-51: refused (no Polymarket market will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections)",
    "c20261123211156-52: filled Buy Will there be no change in Fed interest rates after the December 2026 meeting? (No) C$3,000 at 0.9675",
    "c20261124051716-53: filled Bet S27 (NBA: Boston Celtics moneyline (Boston Celtics @ Washington Wizards)) C$3,000 at -453",
-   "c20261125051743-54: filled Bet S28 (NBA: Houston Rockets moneyline (Phoenix Suns @ Houston Rockets)) C$3,000 at -406"
+   "c20261125051743-54: filled Bet S28 (NBA: Houston Rockets moneyline (Phoenix Suns @ Houston Rockets)) C$3,000 at -406",
+   "c20261126051751-55: filled Bet S29 (NCAAB: Texas Longhorns moneyline (Georgetown Hoyas @ Texas Longhorns)) C$3,000 at -410"
   ],
   "codes": {
    "Democrats win the Senate (Yes)": "will-the-democratic-party-control-the-senate-after-the-2026-midterm-elections|Yes"
@@ -305171,7 +305225,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-26T05:16:45Z",
+  "at": "2026-11-26T05:25:20Z",
   "games": [
    {
     "id": "401873081",
@@ -305426,6 +305480,15 @@
     "home_ml": -169
    },
    {
+    "id": "401909328",
+    "short": "NBA",
+    "away": "Philadelphia 76ers",
+    "home": "Indiana Pacers",
+    "start": "2026-11-28T00:30Z",
+    "away_ml": -185,
+    "home_ml": 155
+   },
+   {
     "id": "401856756",
     "short": "NCAAF",
     "away": "Texas Longhorns",
@@ -305442,6 +305505,15 @@
     "start": "2026-11-28T00:30Z",
     "away_ml": 245,
     "home_ml": -305
+   },
+   {
+    "id": "401909330",
+    "short": "NBA",
+    "away": "Atlanta Hawks",
+    "home": "Boston Celtics",
+    "start": "2026-11-28T01:00Z",
+    "away_ml": 288,
+    "home_ml": -361
    },
    {
     "id": "401856880",
@@ -305901,15 +305973,6 @@
     "start": "2026-11-29T00:30Z",
     "away_ml": 455,
     "home_ml": -625
-   },
-   {
-    "id": "401858315",
-    "short": "NCAAF",
-    "away": "Pittsburgh Panthers",
-    "home": "California Golden Bears",
-    "start": "2026-11-29T00:30Z",
-    "away_ml": -355,
-    "home_ml": 280
    },
    {
     "id": "401856873",
@@ -314203,7 +314266,8 @@
   "gemini|AllInSports|2026-11-26T05:16:45Z|Bet|G184": "G-AIS-171",
   "gemini|Sports|2026-11-26T05:16:45Z|Bet|G183": "G-SPT-191",
   "chatgpt|AllInSports|2026-11-26T05:16:45Z|Bet|C55": "X-AIS-052",
-  "chatgpt|Sports|2026-11-26T05:16:45Z|Bet|C54": "X-SPT-062"
+  "chatgpt|Sports|2026-11-26T05:16:45Z|Bet|C54": "X-SPT-062",
+  "claude|AllInSports|2026-11-26T05:25:20Z|Bet|C26": "C-AIS-053"
  },
  "txseq": {
   "X-CRY": 42,
@@ -314239,7 +314303,7 @@
   "G-CHN": 4,
   "C-CHN": 2,
   "G-PRD": 8,
-  "C-AIS": 52,
+  "C-AIS": 53,
   "X-PRD": 4,
   "C-OPT": 2
  },
