@@ -50283,6 +50283,24 @@
     "session_start": "2026-11-25T14:30:00Z",
     "sha256": "6ae0055f15c62e68"
    }
+  },
+  {
+   "at": "2026-11-26T03:22:20Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "action": "Won",
+   "symbol": "C25",
+   "outcome": null,
+   "name": "NBA: Memphis Grizzlies moneyline (LA Clippers @ Memphis Grizzlies)",
+   "price": -264,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 2272.73,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Final: LA Clippers 97, Memphis Grizzlies 115.",
+   "bet": "C25",
+   "final": "LA Clippers 97, Memphis Grizzlies 115"
   }
  ],
  "history": [
@@ -145895,6 +145913,18 @@
    "model": "chatgpt",
    "experiment": "AllInSports",
    "value": 106027.57
+  },
+  {
+   "at": "2026-11-26T03:22:20Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 89605.94
+  },
+  {
+   "at": "2026-11-26T03:22:20Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 88720.65
   }
  ],
  "takes": [
@@ -177607,7 +177637,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 633.93,
-      "priced_at": "2026-11-26T03:16:57Z",
+      "priced_at": "2026-11-26T03:22:20Z",
       "hist": [
        [
         29886870,
@@ -180905,8 +180935,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 60687.11,
-      "priced_at": "2026-11-26T03:16:57Z",
+      "last": 60720.0,
+      "priced_at": "2026-11-26T03:22:20Z",
       "hist": [
        [
         29886870,
@@ -184909,12 +184939,14 @@
       "to_win": 2272.73,
       "starts_at": "2026-11-26T01:00Z",
       "placed_at": "2026-11-25T05:22:00Z",
-      "status": "Open",
-      "result": 0.0,
+      "status": "Won",
+      "result": 2272.73,
       "reason": "High risk: Sports daily minimum and pacing toward the C$100,000 total (about C$78,000 so far, four days left): Memphis are -264 home favourites against the Clippers on the runner's ESPN list.",
       "wrong_if": "The Clippers win in Memphis (the Grizzlies moneyline loses).",
       "closing_odds": -269,
-      "closing_at": "2026-11-26T00:25:52Z"
+      "closing_at": "2026-11-26T00:25:52Z",
+      "settled_at": "2026-11-26T03:22:20Z",
+      "final": "LA Clippers 97, Memphis Grizzlies 115"
      }
     ],
     "penalties": [],
@@ -303772,7 +303804,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-26T03:16:57Z",
+  "at": "2026-11-26T03:22:20Z",
   "games": [
    {
     "id": "401873081",
@@ -312176,7 +312208,8 @@
   "chatgpt|Stocks|2026-11-25T17:55:44Z|Sell|SQQQ": "X-STK-038",
   "chatgpt|AllInTrading|2026-11-25T19:16:28Z|Buy|TQQQ": "X-AIT-051",
   "chatgpt|Energy|2026-11-25T19:16:28Z|Buy|XLE": "X-ENE-013",
-  "chatgpt|Stocks|2026-11-25T19:16:28Z|Buy|SPY": "X-STK-039"
+  "chatgpt|Stocks|2026-11-25T19:16:28Z|Buy|SPY": "X-STK-039",
+  "claude|AllInSports|2026-11-26T03:22:20Z|Won|C25": "C-AIS-052"
  },
  "txseq": {
   "X-CRY": 42,
@@ -312212,7 +312245,7 @@
   "G-CHN": 4,
   "C-CHN": 2,
   "G-PRD": 8,
-  "C-AIS": 51,
+  "C-AIS": 52,
   "X-PRD": 4,
   "C-OPT": 2
  },
