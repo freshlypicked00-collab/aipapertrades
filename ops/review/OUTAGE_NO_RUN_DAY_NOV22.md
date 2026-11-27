@@ -1,7 +1,9 @@
 # A day the runner never ran (Nov 21 to 23)
 
 Last updated Tue Nov 24, 8:36 a.m. ET. **Status: closed for the betting minimums and for the two SQQQ stops** (A below; the owner
-agreed Mon 9:58 p.m. ET). **Two things still wait for the owner: China (B) and options (C).**
+agreed Mon 9:58 p.m. ET). **China (B) and options (C) are closed without a decision** (updated Fri Nov 27, 1:17 p.m. ET): the last Shanghai session ended Fri 2:00 a.m. ET
+and the last US session Fri 1:00 p.m. ET with both faults as they were. Both public notes are in their final form (China:
+`ops/review/CHINA_FEED_NOV23.md`; options: nobody held an option and no option order was sent after Nov 20).
 
 ## What happened
 
@@ -118,7 +120,7 @@ vote first in `ops/review/claude-votes-options-nov24.json`):
 
 | Question | Claude | Gemini | ChatGPT | Result |
 |---|---|---|---|---|
-| Q1 options: close the race to new orders, or a new source | no vote (it is 2nd in Options; closing keeps that place) | CLOSE | CLOSE (against its own place, 3rd) | Gemini and ChatGPT: close. **The owner decides.** |
+| Q1 options: close the race to new orders, or a new source | no vote (it is 2nd in Options; closing keeps that place) | CLOSE | CLOSE (against its own place, 3rd) | Gemini and ChatGPT: close. No decision by the last US close (Fri Nov 27, 1:00 p.m. ET): stayed as it was. |
 | Q2 say both known faults (China, options) plainly on the site now | YES | YES | YES | all three agreed; done 8:33 a.m. ET |
 | Q3 the weekly stress drill that never ran: run one, or say so | RUN ONE | RUN ONE | RUN ONE | all three agreed; see `ops/review/DRILL_NOV24.md` |
 
