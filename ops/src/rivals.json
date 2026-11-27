@@ -9724,12 +9724,14 @@
        "to_win": 250.0,
        "starts_at": "2026-11-27T17:00Z",
        "placed_at": "2026-11-25T05:17:30Z",
-       "status": "Open",
-       "result": 0.0,
+       "status": "Won",
+       "result": 250.0,
        "reason": "Fulfilling the Wednesday daily betting minimum using a floor-sized stake on the ultra-heavy -1200 favorite Ole Miss to securely protect the bankroll.",
        "wrong_if": "Ole Miss loses to Mississippi State in a massive collegiate upset.",
        "closing_odds": -1000,
-       "closing_at": "2026-11-27T16:52:06Z"
+       "closing_at": "2026-11-27T16:52:06Z",
+       "settled_at": "2026-11-27T20:47:21Z",
+       "final": "Mississippi State Bulldogs 17, Ole Miss Rebels 41"
       },
       {
        "id": "G181",
@@ -16213,12 +16215,14 @@
        "to_win": 250.0,
        "starts_at": "2026-11-27T17:00Z",
        "placed_at": "2026-11-25T05:17:30Z",
-       "status": "Open",
-       "result": 0.0,
+       "status": "Won",
+       "result": 250.0,
        "reason": "Fulfilling the Wednesday High-risk daily betting minimum using a floor-sized stake on the ultra-heavy -1200 favorite Ole Miss to aggressively protect the bankroll.",
        "wrong_if": "Ole Miss loses to Mississippi State in a massive collegiate upset.",
        "closing_odds": -1000,
-       "closing_at": "2026-11-27T16:52:06Z"
+       "closing_at": "2026-11-27T16:52:06Z",
+       "settled_at": "2026-11-27T20:47:21Z",
+       "final": "Mississippi State Bulldogs 17, Ole Miss Rebels 41"
       },
       {
        "id": "G182",
@@ -54070,6 +54074,42 @@
     "sha256": "5435e98bf9d927f2"
    },
    "stop": "chatgpt-256"
+  },
+  {
+   "at": "2026-11-27T20:47:21Z",
+   "model": "gemini",
+   "experiment": "Sports",
+   "action": "Won",
+   "symbol": "G179",
+   "outcome": null,
+   "name": "NCAAF: Ole Miss Rebels moneyline (Mississippi State Bulldogs @ Ole Miss Rebels)",
+   "price": -1200,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 250.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Final: Mississippi State Bulldogs 17, Ole Miss Rebels 41.",
+   "bet": "G179",
+   "final": "Mississippi State Bulldogs 17, Ole Miss Rebels 41"
+  },
+  {
+   "at": "2026-11-27T20:47:21Z",
+   "model": "gemini",
+   "experiment": "AllInSports",
+   "action": "Won",
+   "symbol": "G180",
+   "outcome": null,
+   "name": "NCAAF: Ole Miss Rebels moneyline (Mississippi State Bulldogs @ Ole Miss Rebels)",
+   "price": -1200,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 250.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Final: Mississippi State Bulldogs 17, Ole Miss Rebels 41.",
+   "bet": "G180",
+   "final": "Mississippi State Bulldogs 17, Ole Miss Rebels 41"
   }
  ],
  "history": [
@@ -157230,6 +157270,18 @@
    "model": "claude",
    "experiment": "AllInSports",
    "value": 86096.8
+  },
+  {
+   "at": "2026-11-27T20:47:21Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 90360.4
+  },
+  {
+   "at": "2026-11-27T20:47:21Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 86096.8
   }
  ],
  "takes": [
@@ -191360,7 +191412,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 650.99,
-      "priced_at": "2026-11-27T20:22:29Z",
+      "priced_at": "2026-11-27T20:47:21Z",
       "hist": [
        [
         29886870,
@@ -194873,6 +194925,10 @@
        [
         29930176,
         650.99
+       ],
+       [
+        29930207,
+        650.99
        ]
       ]
      },
@@ -194882,8 +194938,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 59692.08,
-      "priced_at": "2026-11-27T20:22:29Z",
+      "last": 59774.78,
+      "priced_at": "2026-11-27T20:47:21Z",
       "hist": [
        [
         29886870,
@@ -198536,6 +198592,10 @@
        [
         29930176,
         59672.19
+       ],
+       [
+        29930207,
+        59774.78
        ]
       ]
      }
@@ -324713,35 +324773,8 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-27T20:22:29Z",
+  "at": "2026-11-27T20:47:21Z",
   "games": [
-   {
-    "id": "401856759",
-    "short": "NCAAF",
-    "away": "Florida Gators",
-    "home": "Florida State Seminoles",
-    "start": "2026-11-27T20:30Z",
-    "away_ml": -250,
-    "home_ml": 205
-   },
-   {
-    "id": "401862838",
-    "short": "NCAAF",
-    "away": "Temple Owls",
-    "home": "Memphis Tigers",
-    "start": "2026-11-27T20:30Z",
-    "away_ml": 700,
-    "home_ml": -1100
-   },
-   {
-    "id": "401864549",
-    "short": "NCAAF",
-    "away": "North Dakota State Bison",
-    "home": "San Jos\u00e9 State Spartans",
-    "start": "2026-11-27T20:30Z",
-    "away_ml": -410,
-    "home_ml": 320
-   },
    {
     "id": "401892803",
     "short": "NHL",
@@ -324829,8 +324862,8 @@
     "away": "Miami Heat",
     "home": "New York Knicks",
     "start": "2026-11-28T00:00Z",
-    "away_ml": 130,
-    "home_ml": -155
+    "away_ml": 124,
+    "home_ml": -148
    },
    {
     "id": "401909327",
@@ -325549,8 +325582,8 @@
     "away": "Utah Mammoth",
     "home": "Dallas Stars",
     "start": "2026-11-29T01:00Z",
-    "away_ml": 136,
-    "home_ml": -162
+    "away_ml": 130,
+    "home_ml": -155
    },
    {
     "id": "401892820",
@@ -325693,8 +325726,8 @@
     "away": "New Orleans Saints",
     "home": "Cincinnati Bengals",
     "start": "2026-11-29T18:00Z",
-    "away_ml": 449,
-    "home_ml": -610
+    "away_ml": 435,
+    "home_ml": -580
    },
    {
     "id": "401873088",
@@ -325702,7 +325735,7 @@
     "away": "New York Giants",
     "home": "Indianapolis Colts",
     "start": "2026-11-29T18:00Z",
-    "away_ml": -271,
+    "away_ml": -272,
     "home_ml": 225
    },
    {
@@ -325720,8 +325753,8 @@
     "away": "Atlanta Falcons",
     "home": "Minnesota Vikings",
     "start": "2026-11-29T18:00Z",
-    "away_ml": 260,
-    "home_ml": -321
+    "away_ml": 259,
+    "home_ml": -320
    },
    {
     "id": "401873090",
@@ -325730,7 +325763,7 @@
     "home": "Jacksonville Jaguars",
     "start": "2026-11-29T18:00Z",
     "away_ml": 640,
-    "home_ml": -960
+    "home_ml": -950
    },
    {
     "id": "401873085",
@@ -325739,7 +325772,7 @@
     "home": "Houston Texans",
     "start": "2026-11-29T18:00Z",
     "away_ml": 267,
-    "home_ml": -332
+    "home_ml": -333
    },
    {
     "id": "401873093",
@@ -325748,7 +325781,7 @@
     "home": "Los Angeles Chargers",
     "start": "2026-11-29T21:05Z",
     "away_ml": -138,
-    "home_ml": 117
+    "home_ml": 116
    },
    {
     "id": "401873092",
@@ -325756,8 +325789,8 @@
     "away": "Washington Commanders",
     "home": "Arizona Cardinals",
     "start": "2026-11-29T21:25Z",
-    "away_ml": -348,
-    "home_ml": 279
+    "away_ml": -349,
+    "home_ml": 280
    },
    {
     "id": "401873091",
@@ -325774,7 +325807,7 @@
     "away": "Las Vegas Raiders",
     "home": "Cleveland Browns",
     "start": "2026-11-30T01:20Z",
-    "away_ml": 197,
+    "away_ml": 196,
     "home_ml": -238
    }
   ]
@@ -335984,7 +336017,9 @@
   "claude|AllInSports|2026-11-27T05:20:19Z|Bet|C28": "C-AIS-057",
   "claude|Sports|2026-11-27T05:20:19Z|Bet|S30": "C-SPT-059",
   "chatgpt|Crypto|2026-11-27T14:50:45Z|Sell|BTC-USD": "X-CRY-047",
-  "chatgpt|Stocks|2026-11-27T15:46:37Z|Sell|SPY": "X-STK-040"
+  "chatgpt|Stocks|2026-11-27T15:46:37Z|Sell|SPY": "X-STK-040",
+  "gemini|AllInSports|2026-11-27T20:47:21Z|Won|G180": "G-AIS-174",
+  "gemini|Sports|2026-11-27T20:47:21Z|Won|G179": "G-SPT-194"
  },
  "txseq": {
   "X-CRY": 47,
@@ -335999,7 +336034,7 @@
   "G-ENE": 33,
   "G-MET": 15,
   "G-SAF": 10,
-  "G-SPT": 193,
+  "G-SPT": 194,
   "G-STK": 47,
   "G-OPT": 38,
   "C-CRY": 4,
@@ -336010,7 +336045,7 @@
   "C-STK": 7,
   "X-AIT": 53,
   "C-AIT": 2,
-  "G-AIS": 173,
+  "G-AIS": 174,
   "G-AIT": 55,
   "X-SPT": 65,
   "X-AIS": 55,
