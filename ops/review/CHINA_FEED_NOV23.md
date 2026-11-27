@@ -1,8 +1,19 @@
 # China: no stop could fire and no order could fill since Oct 31 (prepared fix, NOT applied)
 
-Written Mon Nov 23, 9:20 p.m. ET; last checked Thu Nov 26, 9:34 a.m. ET. **Status: waiting for the owner.** The fix is prepared
+Written Mon Nov 23, 9:20 p.m. ET; last checked Fri Nov 27, 9:36 a.m. ET. **Status: closed without a fix. The last Shanghai session of the race ended Fri Nov 27, 2:00 a.m. ET; the owner had not decided, so nothing was changed.** The fix is prepared
 and tested in `ops/review/china-feed-delay.patch`; nothing in the race code has changed except one log line that measures the
-feed. **One Shanghai session is left before the finish: it opens Thu Nov 26 at 8:30 p.m. ET, and China is scored at its close (Fri 2:00 a.m. ET).**
+feed. **No Shanghai session is left: China is scored at Friday's close.**
+
+*The last session (Thu Nov 26, 8:30 p.m. to Fri 2:00 a.m. ET) passed the same way, and then the market turned.* In all 14 runs
+of the session the feed was 900 seconds or more behind (36 of 36 feed-age lines "stale"), and all four China stops and targets were
+skipped every time. The CSI 300 fund stood at about 3.96 yuan through the Shanghai morning, then rose in the afternoon (about 4.03 at
+1:16 p.m. Beijing, 4.14 at 2:16 p.m., by the 15-minute-late marks in ChatGPT's book) and closed at 4.162, up 5.1% on the day.
+ChatGPT's stop (4.05) is now below the market; its target (a full exit at 4.10) was crossed in the afternoon and not sold. It still
+holds its 32,000 shares: its China book is about US$99,743 at the close. Had the agreed fix been on, the stop would have sold
+everything at the session's first check-in at about 3.96 (about US$98,772): so the fault left ChatGPT about US$970 better off
+at the finish than its own stop would have, by the luck of the last afternoon. ChatGPT itself could not check in during that
+session (its API credit ran out at 8:37 p.m. ET), which changed nothing here: no China order has filled in an open session since
+Oct 31. Claude's two stops were not reached. Gemini is in cash.
 
 *The session of Wed Nov 25 (8:30 p.m. to Thu 2:00 a.m. ET) passed the same way*, the fourth since the fault was found: in all 14
 runs of the session the feed was 901 seconds or more behind (40 of 40 feed-age lines "stale"), and all four China stops and targets
