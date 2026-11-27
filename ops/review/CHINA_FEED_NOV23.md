@@ -13,7 +13,9 @@ holds its 32,000 shares: its China book is about US$99,743 at the close. Had the
 everything at the session's first check-in at about 3.96 (about US$98,772): so the fault left ChatGPT about US$970 better off
 at the finish than its own stop would have, by the luck of the last afternoon. ChatGPT itself could not check in during that
 session (its API credit ran out at 8:37 p.m. ET), which changed nothing here: no China order has filled in an open session since
-Oct 31. Claude's two stops were not reached. Gemini is in cash.
+Oct 31. Claude's two stops were not reached, but its own task tried five times in that session to sell its SSE Dividend fund
+(39,100 shares; orders c20261127022126-56 to c20261127052320-61, Thu 9:21 p.m. to Fri 12:23 a.m. ET) and each was refused: "no live
+price right now (the feed's latest quote is too old ...)". That fund ended the session about where it began (3.395). Gemini is in cash.
 
 *The session of Wed Nov 25 (8:30 p.m. to Thu 2:00 a.m. ET) passed the same way*, the fourth since the fault was found: in all 14
 runs of the session the feed was 901 seconds or more behind (40 of 40 feed-age lines "stale"), and all four China stops and targets
