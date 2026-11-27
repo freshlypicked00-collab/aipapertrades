@@ -27296,12 +27296,14 @@
        "to_win": 250.0,
        "starts_at": "2026-11-27T17:00Z",
        "placed_at": "2026-11-25T05:17:30Z",
-       "status": "Open",
-       "result": 0.0,
+       "status": "Won",
+       "result": 250.0,
        "reason": "This satisfies the Wednesday daily minimum with the smallest allowed stake on the heaviest favorite available, limiting bankroll volatility.",
        "wrong_if": "Ole Miss finishes with a final margin of 0 points or worse against Mississippi State.",
        "closing_odds": -1000,
-       "closing_at": "2026-11-27T16:52:06Z"
+       "closing_at": "2026-11-27T16:52:06Z",
+       "settled_at": "2026-11-27T20:47:21Z",
+       "final": "Mississippi State Bulldogs 17, Ole Miss Rebels 41"
       },
       {
        "id": "C54",
@@ -30638,12 +30640,14 @@
        "to_win": 250.0,
        "starts_at": "2026-11-27T17:00Z",
        "placed_at": "2026-11-25T05:17:30Z",
-       "status": "Open",
-       "result": 0.0,
+       "status": "Won",
+       "result": 250.0,
        "reason": "The high-risk sports total requirement is already met, so I am using the minimum daily stake on the heaviest favorite rather than adding unnecessary variance.",
        "wrong_if": "Ole Miss finishes with a final margin of 0 points or worse against Mississippi State.",
        "closing_odds": -1000,
-       "closing_at": "2026-11-27T16:52:06Z"
+       "closing_at": "2026-11-27T16:52:06Z",
+       "settled_at": "2026-11-27T20:47:21Z",
+       "final": "Mississippi State Bulldogs 17, Ole Miss Rebels 41"
       },
       {
        "id": "C55",
@@ -54122,6 +54126,42 @@
    "fx": null,
    "reason": "Final: Mississippi State Bulldogs 17, Ole Miss Rebels 41.",
    "bet": "G180",
+   "final": "Mississippi State Bulldogs 17, Ole Miss Rebels 41"
+  },
+  {
+   "at": "2026-11-27T20:47:21Z",
+   "model": "chatgpt",
+   "experiment": "Sports",
+   "action": "Won",
+   "symbol": "C52",
+   "outcome": null,
+   "name": "NCAAF: Ole Miss Rebels moneyline (Mississippi State Bulldogs @ Ole Miss Rebels)",
+   "price": -1200,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 250.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Final: Mississippi State Bulldogs 17, Ole Miss Rebels 41.",
+   "bet": "C52",
+   "final": "Mississippi State Bulldogs 17, Ole Miss Rebels 41"
+  },
+  {
+   "at": "2026-11-27T20:47:21Z",
+   "model": "chatgpt",
+   "experiment": "AllInSports",
+   "action": "Won",
+   "symbol": "C53",
+   "outcome": null,
+   "name": "NCAAF: Ole Miss Rebels moneyline (Mississippi State Bulldogs @ Ole Miss Rebels)",
+   "price": -1200,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 250.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Final: Mississippi State Bulldogs 17, Ole Miss Rebels 41.",
+   "bet": "C53",
    "final": "Mississippi State Bulldogs 17, Ole Miss Rebels 41"
   }
  ],
@@ -336140,7 +336180,9 @@
   "chatgpt|Crypto|2026-11-27T14:50:45Z|Sell|BTC-USD": "X-CRY-047",
   "chatgpt|Stocks|2026-11-27T15:46:37Z|Sell|SPY": "X-STK-040",
   "gemini|AllInSports|2026-11-27T20:47:21Z|Won|G180": "G-AIS-174",
-  "gemini|Sports|2026-11-27T20:47:21Z|Won|G179": "G-SPT-194"
+  "gemini|Sports|2026-11-27T20:47:21Z|Won|G179": "G-SPT-194",
+  "chatgpt|AllInSports|2026-11-27T20:47:21Z|Won|C53": "X-AIS-056",
+  "chatgpt|Sports|2026-11-27T20:47:21Z|Won|C52": "X-SPT-066"
  },
  "txseq": {
   "X-CRY": 47,
@@ -336168,8 +336210,8 @@
   "C-AIT": 2,
   "G-AIS": 174,
   "G-AIT": 55,
-  "X-SPT": 65,
-  "X-AIS": 55,
+  "X-SPT": 66,
+  "X-AIS": 56,
   "C-PRD": 6,
   "C-SPT": 59,
   "X-CHN": 4,
