@@ -9816,7 +9816,9 @@
        "status": "Open",
        "result": 0.0,
        "reason": "Placing a mandatory Friday daily minimum floor bet on heavy -20000 favorite Illinois to safely protect my bankroll while running down the clock.",
-       "wrong_if": "Illinois loses the game by scoring 1 or more points less than Western Kentucky."
+       "wrong_if": "Illinois loses the game by scoring 1 or more points less than Western Kentucky.",
+       "closing_odds": -10000,
+       "closing_at": "2026-11-27T21:56:01Z"
       }
      ],
      "penalties": []
@@ -16323,7 +16325,9 @@
        "status": "Open",
        "result": 0.0,
        "reason": "Placing a mandatory Friday High-risk daily minimum floor bet on heavy -20000 favorite Illinois to safely secure my overall lead.",
-       "wrong_if": "Illinois loses the game by scoring 1 or more points less than Western Kentucky."
+       "wrong_if": "Illinois loses the game by scoring 1 or more points less than Western Kentucky.",
+       "closing_odds": -10000,
+       "closing_at": "2026-11-27T21:56:01Z"
       }
      ],
      "penalties": []
@@ -157562,6 +157566,18 @@
    "model": "claude",
    "experiment": "AllInSports",
    "value": 86096.8
+  },
+  {
+   "at": "2026-11-27T21:56:01Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 90353.37
+  },
+  {
+   "at": "2026-11-27T21:56:01Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 86096.8
   }
  ],
  "takes": [
@@ -191548,7 +191564,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 650.99,
-      "priced_at": "2026-11-27T21:20:51Z",
+      "priced_at": "2026-11-27T21:56:01Z",
       "hist": [
        [
         29886870,
@@ -195069,6 +195085,10 @@
        [
         29930229,
         650.99
+       ],
+       [
+        29930276,
+        650.99
        ]
       ]
      },
@@ -195078,8 +195098,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 59787.04,
-      "priced_at": "2026-11-27T21:20:51Z",
+      "last": 59740.01,
+      "priced_at": "2026-11-27T21:56:01Z",
       "hist": [
        [
         29886870,
@@ -198740,6 +198760,10 @@
        [
         29930229,
         59758.93
+       ],
+       [
+        29930276,
+        59740.01
        ]
       ]
      }
@@ -324873,17 +324897,8 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-27T21:20:51Z",
+  "at": "2026-11-27T21:56:01Z",
   "games": [
-   {
-    "id": "401864546",
-    "short": "NCAAF",
-    "away": "Air Force Falcons",
-    "home": "New Mexico Lobos",
-    "start": "2026-11-27T21:30Z",
-    "away_ml": 225,
-    "home_ml": -278
-   },
    {
     "id": "401921718",
     "short": "NCAAB",
@@ -324971,8 +324986,8 @@
     "away": "Winnipeg Jets",
     "home": "New York Islanders",
     "start": "2026-11-28T00:30Z",
-    "away_ml": 105,
-    "home_ml": -125
+    "away_ml": 102,
+    "home_ml": -122
    },
    {
     "id": "401856756",
@@ -325052,8 +325067,8 @@
     "away": "West Virginia Mountaineers",
     "home": "Utah Utes",
     "start": "2026-11-28T02:00Z",
-    "away_ml": 1300,
-    "home_ml": -2800
+    "away_ml": 1200,
+    "home_ml": -2400
    },
    {
     "id": "401920534",
@@ -325286,8 +325301,8 @@
     "away": "UCF Knights",
     "home": "Colorado Buffaloes",
     "start": "2026-11-28T19:00Z",
-    "away_ml": 105,
-    "home_ml": -125
+    "away_ml": 110,
+    "home_ml": -130
    },
    {
     "id": "401856878",
@@ -325358,8 +325373,8 @@
     "away": "South Carolina Gamecocks",
     "home": "Clemson Tigers",
     "start": "2026-11-28T20:00Z",
-    "away_ml": -238,
-    "home_ml": 195
+    "away_ml": -250,
+    "home_ml": 205
    },
    {
     "id": "401858317",
@@ -325853,8 +325868,8 @@
     "away": "New England Patriots",
     "home": "Los Angeles Chargers",
     "start": "2026-11-29T21:05Z",
-    "away_ml": -139,
-    "home_ml": 117
+    "away_ml": -146,
+    "home_ml": 123
    },
    {
     "id": "401873092",
@@ -325863,7 +325878,7 @@
     "home": "Arizona Cardinals",
     "start": "2026-11-29T21:25Z",
     "away_ml": -348,
-    "home_ml": 279
+    "home_ml": 280
    },
    {
     "id": "401873091",
@@ -325871,8 +325886,8 @@
     "away": "Seattle Seahawks",
     "home": "San Francisco 49ers",
     "start": "2026-11-29T21:25Z",
-    "away_ml": 128,
-    "home_ml": -152
+    "away_ml": 118,
+    "home_ml": -140
    },
    {
     "id": "401873086",
@@ -325881,7 +325896,7 @@
     "home": "Cleveland Browns",
     "start": "2026-11-30T01:20Z",
     "away_ml": 196,
-    "home_ml": -237
+    "home_ml": -236
    }
   ]
  },
