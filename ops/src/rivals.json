@@ -16448,171 +16448,8 @@
     },
     "Crypto": {
      "cur": "CAD",
-     "cash": 28977.761939581716,
+     "cash": 73135.48289749301,
      "positions": {
-      "BTC-USD": {
-       "qty": 0.5223028267191379,
-       "entry": 60532.28123631141,
-       "pcur": "USD",
-       "name": "Bitcoin USD",
-       "opened_at": "2026-11-26T11:16:52Z",
-       "last": 60300.11,
-       "priced_at": "2026-11-27T14:39:03Z",
-       "hist": [
-        [
-         29928180,
-         60604.738281
-        ],
-        [
-         29928199,
-         60598.96875
-        ],
-        [
-         29928258,
-         60592.15
-        ],
-        [
-         29928318,
-         60768.42
-        ],
-        [
-         29928377,
-         60740.9
-        ],
-        [
-         29928402,
-         60655.61
-        ],
-        [
-         29928429,
-         59863.17
-        ],
-        [
-         29928467,
-         60442.09
-        ],
-        [
-         29928497,
-         60505.14
-        ],
-        [
-         29928528,
-         60427.34
-        ],
-        [
-         29928558,
-         60465.3
-        ],
-        [
-         29928587,
-         60350.68
-        ],
-        [
-         29928617,
-         60431.72
-        ],
-        [
-         29928647,
-         60549.89
-        ],
-        [
-         29928676,
-         60443.17
-        ],
-        [
-         29928708,
-         60609.63
-        ],
-        [
-         29928737,
-         60643.33
-        ],
-        [
-         29928767,
-         60690.45
-        ],
-        [
-         29928789,
-         60738.92
-        ],
-        [
-         29928858,
-         60560.85
-        ],
-        [
-         29928918,
-         60361.52
-        ],
-        [
-         29928977,
-         60526.08
-        ],
-        [
-         29929038,
-         60759.64
-        ],
-        [
-         29929059,
-         60621.76
-        ],
-        [
-         29929097,
-         61140.0
-        ],
-        [
-         29929158,
-         61452.79
-        ],
-        [
-         29929217,
-         61426.02
-        ],
-        [
-         29929278,
-         61592.32
-        ],
-        [
-         29929337,
-         61839.18
-        ],
-        [
-         29929389,
-         61652.93
-        ],
-        [
-         29929458,
-         61909.14
-        ],
-        [
-         29929517,
-         61655.88
-        ],
-        [
-         29929578,
-         61601.21
-        ],
-        [
-         29929637,
-         61629.59
-        ],
-        [
-         29929697,
-         61582.1
-        ],
-        [
-         29929757,
-         61426.68
-        ],
-        [
-         29929819,
-         61359.85
-        ],
-        [
-         29929839,
-         60300.11
-        ]
-       ]
-      },
       "SOL-USD": {
        "qty": 198.90539425437095,
        "entry": 70.64220485273526,
@@ -53799,6 +53636,35 @@
    "reason": "High risk sports: C$6,000 on Boston at home to Atlanta (-423, about 81% implied), which covers Friday's C$3,000 minimum and closes the C$6,000 left to the C$97,000 total before Saturday's finish.",
    "bet": "C28",
    "wrong_if": ""
+  },
+  {
+   "at": "2026-11-27T14:50:45Z",
+   "model": "chatgpt",
+   "experiment": "Crypto",
+   "action": "Sell",
+   "symbol": "BTC-USD",
+   "outcome": null,
+   "name": "Bitcoin USD",
+   "price": 59350.15,
+   "pcur": "USD",
+   "qty": 0.5223028267191379,
+   "amount": 44157.72,
+   "cur": "CAD",
+   "fx": {
+    "USDCAD": 1.4245,
+    "USDCNY": 6.6536
+   },
+   "reason": "Stop order reached: Bitcoin USD fell to 59,350.2 (level 59,500), filled at the live price by the race runner. Set because: Tighten the BTC stop after the rebound so a failure back below the $60,000 options area does not turn into a large late-race loss.",
+   "wrong_if": "",
+   "quote_at": "2026-11-27T14:50:42Z",
+   "quote": {
+    "source": "Yahoo Finance chart (query1)",
+    "fetched_at": "2026-11-27T14:50:48Z",
+    "quote_at": "2026-11-27T14:50:42Z",
+    "session_start": "2026-11-27T00:00:00Z",
+    "sha256": "63aef0c54e1d8b0a"
+   },
+   "stop": "chatgpt-270"
   }
  ],
  "history": [
@@ -155999,6 +155865,18 @@
    "model": "claude",
    "experiment": "AllInSports",
    "value": 86096.8
+  },
+  {
+   "at": "2026-11-27T14:50:45Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 89567.34
+  },
+  {
+   "at": "2026-11-27T14:50:45Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 86096.8
   }
  ],
  "takes": [
@@ -190824,8 +190702,8 @@
       "pcur": "USD",
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 639.58,
-      "priced_at": "2026-11-27T14:44:28Z",
+      "last": 639.39,
+      "priced_at": "2026-11-27T14:50:45Z",
       "hist": [
        [
         29886870,
@@ -194303,8 +194181,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 60066.7,
-      "priced_at": "2026-11-27T14:44:28Z",
+      "last": 59350.15,
+      "priced_at": "2026-11-27T14:50:45Z",
       "hist": [
        [
         29886870,
@@ -323281,20 +323159,6 @@
     "reason": "A move to 78 would be enough upside for the side race that I should lock it rather than hope for more."
    },
    {
-    "id": "chatgpt-270",
-    "model": "chatgpt",
-    "experiment": "Crypto",
-    "symbol": "BTC-USD",
-    "outcome": null,
-    "kind": "stop",
-    "direction": "below",
-    "level": 59500.0,
-    "fraction": 1.0,
-    "name": "Bitcoin USD",
-    "placed_at": "2026-11-26T14:41:59Z",
-    "reason": "Tighten the BTC stop after the rebound so a failure back below the $60,000 options area does not turn into a large late-race loss."
-   },
-   {
     "id": "chatgpt-271",
     "model": "chatgpt",
     "experiment": "Crypto",
@@ -323770,7 +323634,7 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-27T14:44:28Z",
+  "at": "2026-11-27T14:50:45Z",
   "games": [
    {
     "id": "401920429",
@@ -324651,8 +324515,8 @@
     "away": "San Diego State Aztecs",
     "home": "Washington State Cougars",
     "start": "2026-11-28T23:30Z",
-    "away_ml": 120,
-    "home_ml": -142
+    "away_ml": 124,
+    "home_ml": -148
    },
    {
     "id": "401856765",
@@ -324900,16 +324764,6 @@
   ]
  },
  "stops_log": [
-  {
-   "at": "2026-10-31T00:25:10Z",
-   "model": "chatgpt",
-   "id": "chatgpt-18",
-   "experiment": "AllInTrading",
-   "name": "Solana USD",
-   "kind": "target",
-   "level": 112.0,
-   "result": "removed: the position is no longer held"
-  },
   {
    "at": "2026-10-31T21:28:48Z",
    "model": "gemini",
@@ -326899,6 +326753,16 @@
    "kind": "target",
    "level": 57.5,
    "result": "removed: the position is no longer held"
+  },
+  {
+   "at": "2026-11-27T14:50:45Z",
+   "model": "chatgpt",
+   "id": "chatgpt-270",
+   "experiment": "Crypto",
+   "name": "Bitcoin USD",
+   "kind": "stop",
+   "level": 59500.0,
+   "result": "filled: Sell Bitcoin USD C$44,158 at 59,350.2"
   }
  ],
  "forecasts": [
@@ -334838,10 +334702,11 @@
   "gemini|AllInSports|2026-11-27T05:16:44Z|Bet|G186": "G-AIS-173",
   "gemini|Sports|2026-11-27T05:16:44Z|Bet|G185": "G-SPT-193",
   "claude|AllInSports|2026-11-27T05:20:19Z|Bet|C28": "C-AIS-057",
-  "claude|Sports|2026-11-27T05:20:19Z|Bet|S30": "C-SPT-059"
+  "claude|Sports|2026-11-27T05:20:19Z|Bet|S30": "C-SPT-059",
+  "chatgpt|Crypto|2026-11-27T14:50:45Z|Sell|BTC-USD": "X-CRY-047"
  },
  "txseq": {
-  "X-CRY": 46,
+  "X-CRY": 47,
   "X-CUR": 20,
   "X-ENE": 13,
   "X-MET": 11,
