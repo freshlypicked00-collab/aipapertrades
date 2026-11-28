@@ -9833,7 +9833,9 @@
        "status": "Open",
        "result": 0.0,
        "reason": "Fulfilling the Thursday daily betting minimum using a floor-sized stake on the ultra-heavy -2800 favorite Utah to safely protect my bankroll.",
-       "wrong_if": "Utah loses to West Virginia"
+       "wrong_if": "Utah loses to West Virginia",
+       "closing_odds": -2400,
+       "closing_at": "2026-11-28T01:16:04Z"
       },
       {
        "id": "G185",
@@ -9849,12 +9851,14 @@
        "to_win": 15.0,
        "starts_at": "2026-11-27T23:00Z",
        "placed_at": "2026-11-27T05:16:44Z",
-       "status": "Open",
-       "result": 0.0,
+       "status": "Won",
+       "result": 15.0,
        "reason": "Placing a mandatory Friday daily minimum floor bet on heavy -20000 favorite Illinois to safely protect my bankroll while running down the clock.",
        "wrong_if": "Illinois loses the game by scoring 1 or more points less than Western Kentucky.",
        "closing_odds": -10000,
-       "closing_at": "2026-11-27T22:22:22Z"
+       "closing_at": "2026-11-27T22:22:22Z",
+       "settled_at": "2026-11-28T01:16:04Z",
+       "final": "Western Kentucky Hilltoppers 76, Illinois Fighting Illini 116"
       }
      ],
      "penalties": []
@@ -16366,7 +16370,9 @@
        "status": "Open",
        "result": 0.0,
        "reason": "Fulfilling the Thursday High-risk daily betting minimum using a floor-sized stake on the ultra-heavy -2800 favorite Utah to aggressively protect the bankroll.",
-       "wrong_if": "Utah loses to West Virginia"
+       "wrong_if": "Utah loses to West Virginia",
+       "closing_odds": -2400,
+       "closing_at": "2026-11-28T01:16:04Z"
       },
       {
        "id": "G186",
@@ -16382,12 +16388,14 @@
        "to_win": 15.0,
        "starts_at": "2026-11-27T23:00Z",
        "placed_at": "2026-11-27T05:16:44Z",
-       "status": "Open",
-       "result": 0.0,
+       "status": "Won",
+       "result": 15.0,
        "reason": "Placing a mandatory Friday High-risk daily minimum floor bet on heavy -20000 favorite Illinois to safely secure my overall lead.",
        "wrong_if": "Illinois loses the game by scoring 1 or more points less than Western Kentucky.",
        "closing_odds": -10000,
-       "closing_at": "2026-11-27T22:22:22Z"
+       "closing_at": "2026-11-27T22:22:22Z",
+       "settled_at": "2026-11-28T01:16:04Z",
+       "final": "Western Kentucky Hilltoppers 76, Illinois Fighting Illini 116"
       }
      ],
      "penalties": []
@@ -54430,6 +54438,42 @@
    "reason": "Final: Mississippi State Bulldogs 17, Ole Miss Rebels 41.",
    "bet": "C53",
    "final": "Mississippi State Bulldogs 17, Ole Miss Rebels 41"
+  },
+  {
+   "at": "2026-11-28T01:16:04Z",
+   "model": "gemini",
+   "experiment": "Sports",
+   "action": "Won",
+   "symbol": "G185",
+   "outcome": null,
+   "name": "NCAAB: Illinois Fighting Illini moneyline (Western Kentucky Hilltoppers @ Illinois Fighting Illini)",
+   "price": -20000,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 15.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Final: Western Kentucky Hilltoppers 76, Illinois Fighting Illini 116.",
+   "bet": "G185",
+   "final": "Western Kentucky Hilltoppers 76, Illinois Fighting Illini 116"
+  },
+  {
+   "at": "2026-11-28T01:16:04Z",
+   "model": "gemini",
+   "experiment": "AllInSports",
+   "action": "Won",
+   "symbol": "G186",
+   "outcome": null,
+   "name": "NCAAB: Illinois Fighting Illini moneyline (Western Kentucky Hilltoppers @ Illinois Fighting Illini)",
+   "price": -20000,
+   "pcur": "CAD",
+   "qty": 1,
+   "amount": 15.0,
+   "cur": "CAD",
+   "fx": null,
+   "reason": "Final: Western Kentucky Hilltoppers 76, Illinois Fighting Illini 116.",
+   "bet": "G186",
+   "final": "Western Kentucky Hilltoppers 76, Illinois Fighting Illini 116"
   }
  ],
  "history": [
@@ -158214,6 +158258,18 @@
    "model": "claude",
    "experiment": "AllInSports",
    "value": 86096.8
+  },
+  {
+   "at": "2026-11-28T01:16:04Z",
+   "model": "claude",
+   "experiment": "AllInTrading",
+   "value": 90447.7
+  },
+  {
+   "at": "2026-11-28T01:16:04Z",
+   "model": "claude",
+   "experiment": "AllInSports",
+   "value": 86096.8
   }
  ],
  "takes": [
@@ -192229,7 +192285,7 @@
       "name": "Invesco QQQ Trust",
       "opened_at": "2026-10-28T18:32:55Z",
       "last": 650.99,
-      "priced_at": "2026-11-28T00:24:07Z",
+      "priced_at": "2026-11-28T01:16:04Z",
       "hist": [
        [
         29886870,
@@ -195766,6 +195822,10 @@
        [
         29930416,
         650.99
+       ],
+       [
+        29930476,
+        650.99
        ]
       ]
      },
@@ -195775,8 +195835,8 @@
       "pcur": "USD",
       "name": "Bitcoin USD",
       "opened_at": "2026-10-28T18:32:55Z",
-      "last": 59893.45,
-      "priced_at": "2026-11-28T00:24:07Z",
+      "last": 60040.46,
+      "priced_at": "2026-11-28T01:16:04Z",
       "hist": [
        [
         29886870,
@@ -199453,6 +199513,10 @@
        [
         29930416,
         59902.42
+       ],
+       [
+        29930476,
+        60040.46
        ]
       ]
      }
@@ -325524,89 +325588,8 @@
   }
  ],
  "games_open": {
-  "at": "2026-11-28T00:24:07Z",
+  "at": "2026-11-28T01:16:04Z",
   "games": [
-   {
-    "id": "401909327",
-    "short": "NBA",
-    "away": "Milwaukee Bucks",
-    "home": "Detroit Pistons",
-    "start": "2026-11-28T00:30Z",
-    "away_ml": 331,
-    "home_ml": -424
-   },
-   {
-    "id": "401909328",
-    "short": "NBA",
-    "away": "Philadelphia 76ers",
-    "home": "Indiana Pacers",
-    "start": "2026-11-28T00:30Z",
-    "away_ml": -191,
-    "home_ml": 160
-   },
-   {
-    "id": "401909329",
-    "short": "NBA",
-    "away": "Brooklyn Nets",
-    "home": "Toronto Raptors",
-    "start": "2026-11-28T00:30Z",
-    "away_ml": 297,
-    "home_ml": -374
-   },
-   {
-    "id": "401892807",
-    "short": "NHL",
-    "away": "Winnipeg Jets",
-    "home": "New York Islanders",
-    "start": "2026-11-28T00:30Z",
-    "away_ml": 102,
-    "home_ml": -122
-   },
-   {
-    "id": "401856756",
-    "short": "NCAAF",
-    "away": "Texas Longhorns",
-    "home": "Texas A&M Aggies",
-    "start": "2026-11-28T00:30Z",
-    "away_ml": -410,
-    "home_ml": 320
-   },
-   {
-    "id": "401858544",
-    "short": "NCAAF",
-    "away": "Minnesota Golden Gophers",
-    "home": "Wisconsin Badgers",
-    "start": "2026-11-28T00:30Z",
-    "away_ml": 260,
-    "home_ml": -325
-   },
-   {
-    "id": "401909330",
-    "short": "NBA",
-    "away": "Atlanta Hawks",
-    "home": "Boston Celtics",
-    "start": "2026-11-28T01:00Z",
-    "away_ml": 300,
-    "home_ml": -378
-   },
-   {
-    "id": "401892808",
-    "short": "NHL",
-    "away": "Pittsburgh Penguins",
-    "home": "Buffalo Sabres",
-    "start": "2026-11-28T01:00Z",
-    "away_ml": 110,
-    "home_ml": -130
-   },
-   {
-    "id": "401892809",
-    "short": "NHL",
-    "away": "Seattle Kraken",
-    "home": "Edmonton Oilers",
-    "start": "2026-11-28T01:00Z",
-    "away_ml": 180,
-    "home_ml": -218
-   },
    {
     "id": "401909331",
     "short": "NBA",
@@ -325631,8 +325614,8 @@
     "away": "Dallas Mavericks",
     "home": "Phoenix Suns",
     "start": "2026-11-28T02:00Z",
-    "away_ml": 130,
-    "home_ml": -155
+    "away_ml": 146,
+    "home_ml": -174
    },
    {
     "id": "401856880",
@@ -325640,8 +325623,8 @@
     "away": "West Virginia Mountaineers",
     "home": "Utah Utes",
     "start": "2026-11-28T02:00Z",
-    "away_ml": 1300,
-    "home_ml": -2800
+    "away_ml": 1200,
+    "home_ml": -2400
    },
    {
     "id": "401920534",
@@ -325694,8 +325677,8 @@
     "away": "Creighton Bluejays",
     "home": "Gonzaga Bulldogs",
     "start": "2026-11-28T04:00Z",
-    "away_ml": 205,
-    "home_ml": -250
+    "away_ml": 215,
+    "home_ml": -265
    },
    {
     "id": "401920535",
@@ -325806,6 +325789,15 @@
     "home_ml": -135
    },
    {
+    "id": "401920849",
+    "short": "NCAAB",
+    "away": "Princeton Tigers",
+    "home": "St. Thomas Tommies",
+    "start": "2026-11-28T17:00Z",
+    "away_ml": 130,
+    "home_ml": -155
+   },
+   {
     "id": "401858537",
     "short": "NCAAF",
     "away": "Illinois Fighting Illini",
@@ -325867,6 +325859,24 @@
     "start": "2026-11-28T18:00Z",
     "away_ml": 190,
     "home_ml": -230
+   },
+   {
+    "id": "401920775",
+    "short": "NCAAB",
+    "away": "Vermont Catamounts",
+    "home": "Colgate Raiders",
+    "start": "2026-11-28T18:00Z",
+    "away_ml": 102,
+    "home_ml": -122
+   },
+   {
+    "id": "401911395",
+    "short": "NCAAB",
+    "away": "North Carolina Central Eagles",
+    "home": "Gardner-Webb Runnin' Bulldogs",
+    "start": "2026-11-28T18:00Z",
+    "away_ml": 105,
+    "home_ml": -125
    },
    {
     "id": "401856875",
@@ -325939,6 +325949,15 @@
     "start": "2026-11-28T19:00Z",
     "away_ml": 140,
     "home_ml": -166
+   },
+   {
+    "id": "401921245",
+    "short": "NCAAB",
+    "away": "Central Connecticut Blue Devils",
+    "home": "Navy Midshipmen",
+    "start": "2026-11-28T19:00Z",
+    "away_ml": -102,
+    "home_ml": -118
    },
    {
     "id": "401856764",
@@ -326108,8 +326127,8 @@
     "away": "Tampa Bay Lightning",
     "home": "Florida Panthers",
     "start": "2026-11-28T23:00Z",
-    "away_ml": -112,
-    "home_ml": -108
+    "away_ml": -105,
+    "home_ml": -115
    },
    {
     "id": "401860926",
@@ -326126,8 +326145,8 @@
     "away": "Kansas Jayhawks",
     "home": "Oklahoma State Cowboys",
     "start": "2026-11-28T23:15Z",
-    "away_ml": 190,
-    "home_ml": -230
+    "away_ml": 185,
+    "home_ml": -225
    },
    {
     "id": "401860929",
@@ -326433,7 +326452,7 @@
     "home": "Jacksonville Jaguars",
     "start": "2026-11-29T18:00Z",
     "away_ml": 630,
-    "home_ml": -940
+    "home_ml": -930
    },
    {
     "id": "401873085",
@@ -326450,7 +326469,7 @@
     "away": "New England Patriots",
     "home": "Los Angeles Chargers",
     "start": "2026-11-29T21:05Z",
-    "away_ml": -152,
+    "away_ml": -150,
     "home_ml": 127
    },
    {
@@ -326477,8 +326496,8 @@
     "away": "Las Vegas Raiders",
     "home": "Cleveland Browns",
     "start": "2026-11-30T01:20Z",
-    "away_ml": 195,
-    "home_ml": -236
+    "away_ml": 200,
+    "home_ml": -243
    }
   ]
  },
@@ -336531,7 +336550,9 @@
   "gemini|AllInSports|2026-11-27T20:47:21Z|Won|G180": "G-AIS-174",
   "gemini|Sports|2026-11-27T20:47:21Z|Won|G179": "G-SPT-194",
   "chatgpt|AllInSports|2026-11-27T20:47:21Z|Won|C53": "X-AIS-056",
-  "chatgpt|Sports|2026-11-27T20:47:21Z|Won|C52": "X-SPT-066"
+  "chatgpt|Sports|2026-11-27T20:47:21Z|Won|C52": "X-SPT-066",
+  "gemini|AllInSports|2026-11-28T01:16:04Z|Won|G186": "G-AIS-175",
+  "gemini|Sports|2026-11-28T01:16:04Z|Won|G185": "G-SPT-195"
  },
  "txseq": {
   "X-CRY": 47,
@@ -336546,7 +336567,7 @@
   "G-ENE": 33,
   "G-MET": 15,
   "G-SAF": 10,
-  "G-SPT": 194,
+  "G-SPT": 195,
   "G-STK": 47,
   "G-OPT": 38,
   "C-CRY": 4,
@@ -336557,7 +336578,7 @@
   "C-STK": 7,
   "X-AIT": 53,
   "C-AIT": 2,
-  "G-AIS": 174,
+  "G-AIS": 175,
   "G-AIT": 55,
   "X-SPT": 66,
   "X-AIS": 56,
